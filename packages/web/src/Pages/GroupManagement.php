@@ -407,33 +407,57 @@ class GroupManagement extends FOGPage
             . '</p>';
     }
     /**
-     * Whether every member host shares the same default printer, and which.
-     * The default is the printerAssoc row with paIsDefault=1; a host with no
-     * default reads as '' (none), so mixed defaults register as "varies".
+     * The notice a control that COPIES onto member hosts carries.
      *
-     * @return array ['uniform' => bool, 'value' => string]
+     * ADR 0038 decision 10: mass edit on the host list ships first, then the
+     * group page's imperative controls are marked deprecated, then they are
+     * removed in a later release. This is the middle step, and it is a
+     * separate thing from the grant tabs beside it -- a snapin, printer or
+     * module granted by this group is not deprecated and is not going
+     * anywhere. Only the controls that write a value onto whichever hosts
+     * happen to be members at the moment the button is pressed are, because
+     * nothing records that the write happened and so nothing can replay it
+     * for a host added afterward.
+     *
+     * @return string the markup, or '' when there is nothing to say
      */
-    private function _uniformDefaultPrinter()
+    private static function _pushDeprecationNotice()
     {
-        $info = ['uniform' => false, 'value' => ''];
-        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
-        if (count($hostIDs) < 1) {
-            return $info;
-        }
-        $sql = sprintf(
-            'SELECT COUNT(*) AS `n`, '
-            . "COUNT(DISTINCT COALESCE(pa.`paPrinterID`, '')) AS `d`, "
-            . "MIN(COALESCE(pa.`paPrinterID`, '')) AS `v` "
-            . 'FROM `hosts` h '
-            . 'LEFT JOIN `printerAssoc` pa '
-            . 'ON pa.`paHostID` = h.`hostID` AND pa.`paIsDefault` = 1 '
-            . 'WHERE h.`hostID` IN (%s)',
-            implode(',', $hostIDs)
+        return '<div class="alert alert-warning" role="alert">'
+            . '<strong>' . _('Deprecated.') . '</strong> '
+            . _(
+                'This applies the value once, to the hosts that are members '
+                . 'right now. A host added to the group later does not get '
+                . 'it, and a host removed keeps it.'
+            )
+            . ' '
+            . _(
+                'Use "Edit selected hosts" on the Hosts list instead; these '
+                . 'controls will be removed in a later release.'
+            )
+            . '</div>';
+    }
+    /**
+     * The printer this group grants as the default, or 0 for none.
+     *
+     * ADR 0038: one row on the group answers this. It replaces a per-member
+     * COUNT(DISTINCT)/MIN sweep over printerAssoc that could only report
+     * "they all agree on X" or "(varies)", because the group had no default
+     * of its own to report.
+     *
+     * @return int the printer id, or 0
+     */
+    private function _groupDefaultPrinter()
+    {
+        $ids = Route::getIds(
+            'groupprinterassociation',
+            [
+                'groupID' => $this->obj->get('id'),
+                'isDefault' => 1
+            ],
+            'printerID'
         );
-        $row = self::$DB->query($sql)->fetch();
-        $info['uniform'] = ((int)$row->get('n') > 0 && (int)$row->get('d') <= 1);
-        $info['value'] = (string)$row->get('v');
-        return $info;
+        return count((array)$ids) > 0 ? (int)reset($ids) : 0;
     }
     /**
      * Displays the group general tab.
@@ -648,7 +672,8 @@ class GroupManagement extends FOGPage
             '',
             'warning'
         );
-        $alert = '<div class="alert alert-info" role="alert">'
+        $alert = self::_pushDeprecationNotice()
+            . '<div class="alert alert-info" role="alert">'
             . _('Leave a field blank to keep each host\'s current value.')
             . ' '
             . _('Type')
@@ -804,6 +829,7 @@ class GroupManagement extends FOGPage
         echo '<h4 class="card-title">';
         echo _('Group Image Association');
         echo '</h4>';
+        echo self::_pushDeprecationNotice();
         echo '</div>';
         echo '<div class="card-body">';
         echo $rendered;
@@ -889,17 +915,20 @@ class GroupManagement extends FOGPage
     {
         // Printer Associations. Trailing 'printer' opts this tab into the
         // "Create New Printer" button and modal (see renderAssocCreate). The
-        // created printer is associated through this tab's own update URL, i.e.
-        // Group::addPrinter(), which inserts a row per member host -- so the new
-        // printer reaches every host in the group, exactly as "Add selected"
-        // does. The header text already tells the user that.
+        // created printer is granted through this tab's own update URL, i.e.
+        // Group::addPrinter(), which writes one row on the GROUP.
         $this->renderAssocTab(
             'group-printer',
             _('Group Printer Assignment'),
             _('Printer Name'),
             'printer',
             'btn btn-primary float-end',
-            _('This will perform the action on all hosts in this group'),
+            _(
+                'A printer granted here reaches every host in this group, '
+                . 'including hosts added later. Removing a host from the '
+                . 'group takes the printer away again. A printer the host '
+                . 'was given directly is unaffected either way.'
+            ),
             'printer'
         );
 
@@ -923,8 +952,8 @@ class GroupManagement extends FOGPage
         echo _('Group Default Printer');
         echo '</h4>';
         echo '<p class="form-text">';
-        echo _('This will add and set '
-            . '(as needed) the default printer for all hosts in this group');
+        echo _('The default printer for hosts in this group. A host that '
+            . 'has its own default keeps it.');
         echo '</p>';
         echo '</div>';
         echo '<div class="card-body">';
@@ -943,6 +972,7 @@ class GroupManagement extends FOGPage
         echo '<h4 class="card-title">';
         echo _('Group Printer Configuration');
         echo '</h4>';
+        echo self::_pushDeprecationNotice();
         echo '<p class="form-text">';
         echo _('This will set the configuration level to all hosts in this group');
         echo '</p>';
@@ -1080,8 +1110,7 @@ class GroupManagement extends FOGPage
     {
         // Trailing 'snapin' opts this tab into the "Create New Snapin" button
         // and modal (see renderAssocCreate). Association runs through
-        // Group::addSnapin(), which inserts a row per member host, so the new
-        // snapin lands on every host in the group like "Add selected" does.
+        // Group::addSnapin(), which writes one row on the GROUP.
         $this->renderAssocTab(
             'group-snapin',
             _('Group Snapin Assignment'),
@@ -1089,8 +1118,10 @@ class GroupManagement extends FOGPage
             'snapin',
             'btn btn-primary float-end',
             _(
-                'This will perform the action on all hosts in this group. '
-                . 'A snapin is checked when every host in the group has it.'
+                'A snapin granted here reaches every host in this group, '
+                . 'including hosts added later. Granting a snapin does not '
+                . 'run it; deploy it from the Tasks tab when you want it to '
+                . 'run.'
             ),
             'snapin'
         );
@@ -1115,9 +1146,8 @@ class GroupManagement extends FOGPage
         echo '</h4>';
         echo '<p class="form-text">';
         echo _(
-            'Only snapins shared by every host in the group can be ordered '
-            . 'here. Saving sets this order on each host (shared snapins run '
-            . 'first, in this order; any host-specific snapins run after). '
+            'The order this group\'s snapins run in. A host runs its own '
+            . 'snapins first, then the ones granted here, in this order. '
             . 'Order only changes execution when "Abort snapin sequence on '
             . 'failure" is enabled for the task.'
         );
@@ -1156,7 +1186,12 @@ class GroupManagement extends FOGPage
             'btn btn-primary float-end',
             _('Disabled items are not displayed. Legacy items are removed.')
             . '<br/>'
-            . _('Action will be perform on all hosts within this group')
+            . _(
+                'A module granted here is on for every host in this group, '
+                . 'including hosts added later -- unless the host itself '
+                . 'says otherwise. A host set to Off on its own Modules tab '
+                . 'stays off, and no grant can override that.'
+            )
         );
 
         $props = ' method="post" action="'
@@ -1270,6 +1305,7 @@ class GroupManagement extends FOGPage
             echo '<h4 class="card-title">';
             echo _('Group Display Manager Settings');
             echo '</h4>';
+            echo self::_pushDeprecationNotice();
             echo '</div>';
             echo '<div class="card-body">';
             echo self::makeFormTag(
@@ -1342,6 +1378,7 @@ class GroupManagement extends FOGPage
             echo '<h4 class="card-title">';
             echo _('Auto Logout Settings');
             echo '</h4>';
+            echo self::_pushDeprecationNotice();
             echo '<p class="form-text">';
             echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
             echo '</p>';
@@ -1428,6 +1465,7 @@ class GroupManagement extends FOGPage
         echo '<h4 class="card-title">';
         echo _('Enforce Hostname | AD Join Reboots');
         echo '</h4>';
+        echo self::_pushDeprecationNotice();
         echo '<p class="form-text">';
         echo _(
             'This tells the client to force reboots for host name '
@@ -2799,14 +2837,26 @@ class GroupManagement extends FOGPage
      */
     public function getPrintersList()
     {
-        return $this->_groupAssocList(
+        // ADR 0038: the group owns its printers now, so this is the same
+        // plain association tab the host page uses. It replaces a custom
+        // query that reduced every printer to how its MEMBER hosts covered
+        // it (all/some/none plus an n-of-total badge) -- machinery whose
+        // only job was to reconstruct, after the fact, what the group would
+        // have looked like if it had ever owned anything.
+        $this->assocItemsList(
             'printer',
-            'printerassociation',
-            'printers',
-            'pID',
-            'printerAssoc',
-            'paPrinterID',
-            'paHostID'
+            'groupprinterassociation',
+            'groupPrinterAssoc',
+            '`printers`.`pID`',
+            '`groupPrinterAssoc`.`gpaPrinterID`',
+            '`groupPrinterAssoc`.`gpaGroupID`',
+            [
+                [
+                    'db' => 'groupAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
     /**
@@ -2848,22 +2898,19 @@ class GroupManagement extends FOGPage
             '',
             true
         );
-        // Shared-default hint: which printer (if any) every member host
-        // currently has as its default.
-        $def = $this->_uniformDefaultPrinter();
-        if (!$def['uniform']) {
-            $defText = _('(varies)');
-        } elseif ($def['value'] === '' || $def['value'] === '0') {
-            $defText = _('(none on all)');
+        // Which printer this group currently grants as the default. A host
+        // that has chosen its own default still keeps it -- the group's
+        // answer is only used when the host has none.
+        $def = $this->_groupDefaultPrinter();
+        if ($def < 1) {
+            $defText = _('(none)');
         } else {
-            $defText = (
-                isset($printers[$def['value']])
-                ? \Initiator::e($printers[$def['value']])
-                : ('#' . $def['value'])
-            ) . ' ' . _('(all)');
+            $defText = isset($printers[$def])
+                ? \Initiator::e($printers[$def])
+                : ('#' . $def);
         }
         $hint = '<p class="form-text help-block-spaced">'
-            . _('Hosts default:') . ' ' . $defText
+            . _('Group default:') . ' ' . $defText
             . '</p>';
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
             [
@@ -2879,156 +2926,63 @@ class GroupManagement extends FOGPage
      */
     public function getSnapinsList()
     {
-        return $this->_groupAssocList(
+        // See getPrintersList() for why this is now a plain association tab.
+        $this->assocItemsList(
             'snapin',
-            'snapinassociation',
-            'snapins',
-            'sID',
-            'snapinAssoc',
-            'saSnapinID',
-            'saHostID'
+            'groupsnapinassociation',
+            'groupSnapinAssoc',
+            '`snapins`.`sID`',
+            '`groupSnapinAssoc`.`gsaSnapinID`',
+            '`groupSnapinAssoc`.`gsaGroupID`',
+            [
+                [
+                    'db' => 'groupAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
         );
     }
     /**
-     * Builds a group association list with tri-state member coverage.
+     * Returns the snapins this group grants, in run order.
      *
-     * A group owns no associations of its own, so each item is reduced to how
-     * its member hosts cover it: 'all', 'some' or 'none'. getItemsList can only
-     * express a direct association, so we hand it a custom query that computes
-     * the coverage (and the covered-host count + group host total) per item
-     * while complex() still handles paging/search/ordering server-side. The
-     * extra columns surface as `association`, `assocCount` and `assocTotal`.
-     *
-     * @param string $primary      primary node (snapin|module|printer)
-     * @param string $secondary    association node (drives getItemsList naming)
-     * @param string $primaryTable  primary table name
-     * @param string $pkColumn      primary table primary-key column
-     * @param string $assocTable    association table name
-     * @param string $itemColumn    association table item-id column
-     * @param string $hostColumn    association table host-id column
-     * @param string $extraWhere    extra association filter (e.g. enabled only)
-     * @param string $where         primary-row filter passed to getItemsList
-     *
-     * @return void
-     */
-    private function _groupAssocList(
-        $primary,
-        $secondary,
-        $primaryTable,
-        $pkColumn,
-        $assocTable,
-        $itemColumn,
-        $hostColumn,
-        $extraWhere = '',
-        $where = ''
-    ) {
-        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
-        $hostCount = count($hostIDs);
-        if ($hostCount > 0) {
-            $sub = sprintf(
-                '(SELECT COUNT(*) FROM `%s` WHERE `%s` = `%s`.`%s` '
-                . 'AND `%s` IN (%s)%s)',
-                $assocTable,
-                $itemColumn,
-                $primaryTable,
-                $pkColumn,
-                $hostColumn,
-                implode(',', $hostIDs),
-                $extraWhere ? ' ' . $extraWhere : ''
-            );
-            $assocExpr = "CASE WHEN $sub = 0 THEN 'none' "
-                . "WHEN $sub = $hostCount THEN 'all' ELSE 'some' END";
-            $countExpr = $sub;
-        } else {
-            $assocExpr = "'none'";
-            $countExpr = '0';
-        }
-        $qStr = 'SELECT `%s`,'
-            . $assocExpr . ' AS `groupAssoc`,'
-            . $countExpr . ' AS `groupAssocCount`,'
-            . $hostCount . ' AS `groupAssocTotal` '
-            . 'FROM `%s` %s %s %s';
-        $addColumns = [
-            ['do' => 'groupAssocCount', 'dt' => 'assocCount'],
-            ['do' => 'groupAssocTotal', 'dt' => 'assocTotal'],
-        ];
-        return $this->obj->getItemsList(
-            $primary,
-            $secondary,
-            [],
-            $where,
-            $addColumns,
-            $qStr,
-            '',
-            '',
-            // Sorting the labels themselves gives all/none/some, because that
-            // is their alphabetical order. Rank them so the column sorts the
-            // way the tri-state reads: fully covered, then partial, then not
-            // covered. Done as an ORDER BY expression over the alias rather
-            // than a second CASE in the SELECT -- the coverage subquery is
-            // correlated and already evaluated three times per row, and MySQL
-            // does not fold identical copies of it together.
-            "FIELD(`groupAssoc`,'all','some','none')"
-        );
-    }
-    /**
-     * Returns the snapins shared by every host in the group, in run order.
+     * ADR 0038: the group owns the rows, so the order is read straight off
+     * gsaSequence. Before the split there was nothing on the group to order,
+     * so this had to intersect every member host's snapinAssoc rows to find
+     * the ones they all shared and guess a starting order from the lowest
+     * sequence any host happened to carry.
      *
      * @return void
      */
     public function getSnapinOrderList()
     {
-        $hostIDs = (array)$this->obj->get('hosts');
-        $hostCount = count($hostIDs);
         $data = [];
-        if ($hostCount > 0) {
-            $assocs = Route::getList(
-                'snapinassociation',
-                ['hostID' => $hostIDs],
-                'AND',
-                'sequence'
-            );
-            $counts = [];
-            $minSeq = [];
-            foreach ($assocs as $assoc) {
-                $sid = (int)$assoc->snapinID;
-                $seq = (int)$assoc->sequence;
-                $counts[$sid] = ($counts[$sid] ?? 0) + 1;
-                if (!isset($minSeq[$sid]) || $seq < $minSeq[$sid]) {
-                    $minSeq[$sid] = $seq;
-                }
+        $grants = Route::getList(
+            'groupsnapinassociation',
+            ['groupID' => $this->obj->get('id')],
+            'AND',
+            'sequence'
+        );
+        $snapinIDs = [];
+        foreach ($grants as $grant) {
+            $snapinIDs[] = (int)$grant->snapinID;
+        }
+        if (count($snapinIDs) > 0) {
+            $names = [];
+            $Snapins = Route::getList('snapin', ['id' => $snapinIDs]);
+            foreach ($Snapins as $Snapin) {
+                $names[(int)$Snapin->id] = $Snapin->name;
             }
-            // Intersection: snapins present on every host.
-            $shared = [];
-            foreach ($counts as $sid => $count) {
-                if ($count === $hostCount) {
-                    $shared[] = $sid;
+            foreach ($snapinIDs as $sid) {
+                // Same contract as the host tab: only list ids that resolve
+                // to a real snapin (skip stale/0 associations).
+                if (!isset($names[$sid])) {
+                    continue;
                 }
-            }
-            // Present them in a sensible starting order (lowest sequence).
-            usort(
-                $shared,
-                function ($a, $b) use ($minSeq) {
-                    return [$minSeq[$a], $a] <=> [$minSeq[$b], $b];
-                }
-            );
-            if (count($shared) > 0) {
-                $Snapins = Route::getList('snapin', ['id' => $shared]);
-                $names = [];
-                foreach ($Snapins as $Snapin) {
-                    $names[(int)$Snapin->id] = $Snapin->name;
-                }
-                foreach ($shared as $sid) {
-                    // Same contract as the host tab: only list ids that
-                    // resolve to a real snapin (skip stale/0 associations).
-                    if (!isset($names[$sid])) {
-                        continue;
-                    }
-                    $data[] = [
-                        'id' => $sid,
-                        'name' => $names[$sid]
-                    ];
-                }
+                $data[] = [
+                    'id' => $sid,
+                    'name' => $names[$sid]
+                ];
             }
         }
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
@@ -3057,89 +3011,28 @@ class GroupManagement extends FOGPage
         $where = "`modules`.`short_name` IN ('"
             . implode("','", $keys)
             . "')";
-        // A module counts as "had" by a host only when enabled (msState=1);
-        // a disabled override (msState=0) keeps the item out of "all".
-        return $this->_groupAssocList(
-            'module',
-            'moduleassociation',
-            'modules',
-            'id',
-            'moduleStatusByHost',
-            'msModuleID',
-            'msHostID',
-            'AND `msState` = 1',
-            $where
-        );
-    }
-    /**
-     * On-demand drill-down for an item in the "some" state: which member
-     * hosts have it (Has set) and which do not (Missing set).
-     *
-     * GET params: assoctype (snapin|module|printer), itemid.
-     *
-     * @return void
-     */
-    public function getAssocHostsList()
-    {
-        header('Content-type: application/json');
-        $map = [
-            'snapin' => [
-                'class' => 'snapinassociation',
-                'itemKey' => 'snapinID',
-                'where' => []
-            ],
-            'printer' => [
-                'class' => 'printerassociation',
-                'itemKey' => 'printerID',
-                'where' => []
-            ],
-            'module' => [
-                'class' => 'moduleassociation',
-                'itemKey' => 'moduleID',
-                'where' => ['state' => 1]
-            ],
+        $join = [
+            'LEFT OUTER JOIN `groupModuleAssoc` '
+            . 'ON `modules`.`id` = `groupModuleAssoc`.`gmaModuleID` '
+            . "AND `groupModuleAssoc`.`gmaGroupID` = '"
+            . $this->obj->get('id')
+            . "'"
         ];
-        $type = (string)filter_input(INPUT_GET, 'assoctype');
-        $itemID = (int)filter_input(INPUT_GET, 'itemid');
-        if (!isset($map[$type]) || $itemID < 1) {
-            $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['has' => [], 'missing' => []]));
-        }
-        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
-        $names = [];
-        $order = [];
-        if (count($hostIDs) > 0) {
-            $hosts = Route::getList('host', ['id' => $hostIDs]);
-            foreach ($hosts as $host) {
-                $names[(int)$host->id] = $host->name;
-                $order[] = (int)$host->id;
-            }
-        }
-        $has = [];
-        $missing = [];
-        if (count($order) > 0) {
-            $find = array_merge(
-                $map[$type]['where'],
-                [
-                    $map[$type]['itemKey'] => $itemID,
-                    'hostID' => $hostIDs
-                ]
-            );
-            $hasSet = array_flip(
-                array_map('intval', (array)Route::getIds($map[$type]['class'], $find, 'hostID'))
-            );
-            foreach ($order as $hostID) {
-                $entry = [
-                    'id' => $hostID,
-                    'name' => $names[$hostID] ?? ('#' . $hostID)
-                ];
-                if (isset($hasSet[$hostID])) {
-                    $has[] = $entry;
-                } else {
-                    $missing[] = $entry;
-                }
-            }
-        }
-        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['has' => $has, 'missing' => $missing]));
+        // Two states here, not the host tab's three. A grant is
+        // presence-only: a group can turn a module on and cannot turn one
+        // off, so there is no state column to surface (ADR 0038).
+        $columns[] = [
+            'db' => 'groupAssoc',
+            'dt' => 'association',
+            'removeFromQuery' => true
+        ];
+        $this->obj->getItemsList(
+            'module',
+            'groupmoduleassociation',
+            $join,
+            $where,
+            $columns
+        );
     }
     /**
      * Tasking for this group.

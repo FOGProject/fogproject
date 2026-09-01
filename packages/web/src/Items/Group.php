@@ -128,47 +128,47 @@ class Group extends FOGController
         );
     }
     /**
-     * Adds printers to hosts in this group
+     * Grants printers to this group.
      *
-     * @param array $addArray the printers to add
+     * ADR 0038: the row lands on the GROUP (groupPrinterAssoc), not on each
+     * member host. A host added to the group afterward gains the printer,
+     * and a host removed loses it, because Assign\Resolver unions the grant
+     * with the host's own printerAssoc rows at read time. Before this the
+     * method wrote one printerAssoc row per host that existed at the moment
+     * the button was pressed, and nothing recorded that it had happened.
+     *
+     * @param array $addArray the printers to grant
      *
      * @return object
      */
     public function addPrinter($addArray)
     {
         // Drop any stale/blank ids (e.g. a 0 from an empty submission) so a
-        // group push can't seed phantom paPrinterID=0 rows on member hosts.
-        // The host-side path is already covered -- FOGController::addRemItem()
-        // array_filter()s before adding -- but this builds its insert batch
-        // directly, so nothing was filtering it. addSnapin() has carried the
-        // same guard for the same reason; addModule() now does too.
+        // grant can't seed a phantom gpaPrinterID=0 row. insertBatch builds
+        // its statement directly and nothing else is filtering it.
         $addArray = self::positiveIntIds($addArray);
-        if (count($addArray ?: []) > 0) {
-            $insert_fields = ['hostID', 'printerID'];
-            $insert_values = [];
-            $hosts = $this->get('hosts');
-            if (count($hosts ?: []) > 0) {
-                foreach ((array)$hosts as $ind => &$hostID) {
-                    foreach ((array)$addArray as &$printerID) {
-                        $insert_values[] = [$hostID, $printerID];
-                        unset($printerID);
-                    }
-                    unset($hostID);
-                }
-            }
-            if (count($insert_values ?: []) > 0) {
-                self::getClass('PrinterAssociationManager')
-                    ->insertBatch(
-                        $insert_fields,
-                        $insert_values
-                    );
-            }
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1 || count($addArray) < 1) {
+            return $this;
         }
+        $insert_values = [];
+        foreach ($addArray as $printerID) {
+            $insert_values[] = [$groupID, $printerID];
+        }
+        // isDefault is deliberately NOT in the field list. insertBatch
+        // upserts on the (gpaGroupID, gpaPrinterID) unique key and sets every
+        // column it is given, so naming it would reset a default the admin
+        // had already chosen every time the printer was re-sent.
+        self::getClass('GroupPrinterAssociationManager')
+            ->insertBatch(
+                ['groupID', 'printerID'],
+                $insert_values
+            );
 
         return $this;
     }
     /**
-     * Removes printers from all hosts in this group.
+     * Revokes printers from this group.
      *
      * @param array $removeArray The array of items to remove.
      *
@@ -177,49 +177,47 @@ class Group extends FOGController
     public function removePrinter($removeArray)
     {
         Route::deletemass(
-            'printerassociation',
+            'groupprinterassociation',
             [
                 'printerID' => $removeArray,
-                'hostID' => $this->get('hosts')
+                'groupID' => $this->get('id')
             ]
         );
         return $this;
     }
     /**
-     * Updates the default printer
+     * Sets which of the group's granted printers is the default.
      *
-     * @param int   $printerid the printer id to update
+     * One row at a time rather than a member sweep: the group owns exactly
+     * one row per printer now, so "the default" is a column on the grant.
+     * A host that has set its own default still wins -- the group's answer
+     * is only consulted when the host has none (Assign\Resolver).
+     *
+     * @param int $printerid the printer id to make default, or 0 for none
      *
      * @return object
      */
     public function updateDefault($printerid)
     {
-        $printers = Route::getIds(
-            'printerassociation',
-            ['hostID' => $this->get('hosts')],
-            'printerID'
-        );
-        $printers = array_diff(
-            $printers,
-            [$printerid]
-        );
-        self::getClass('PrinterAssociationManager')
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1) {
+            return $this;
+        }
+        $printerid = (int)$printerid;
+        // Clear first, unconditionally: passing 0 is how the page says "no
+        // default", and that has to be expressible.
+        self::getClass('GroupPrinterAssociationManager')
             ->update(
-                [
-                    'printerID' => $printers,
-                    'hostID' => $this->get('hosts'),
-                    'isDefault' => '1'
-                ],
+                ['groupID' => $groupID],
                 '',
                 ['isDefault' => 0]
             );
-        if ($printerid) {
-            self::getClass('PrinterAssociationManager')
+        if ($printerid > 0) {
+            self::getClass('GroupPrinterAssociationManager')
                 ->update(
                     [
-                        'printerID' => $printerid,
-                        'hostID' => $this->get('hosts'),
-                        'isDefault' => ['0', '']
+                        'groupID' => $groupID,
+                        'printerID' => $printerid
                     ],
                     '',
                     ['isDefault' => 1]
@@ -228,64 +226,44 @@ class Group extends FOGController
         return $this;
     }
     /**
-     * Add Snapins to all hosts in the group.
+     * Grants snapins to this group.
      *
-     * @param array $addArray the items to add
+     * ADR 0038: one row on the group, not one row per member host. See
+     * addPrinter() for the shape of the change.
+     *
+     * @param array $addArray the items to grant
      *
      * @return object
      */
     public function addSnapin($addArray)
     {
         // Drop any stale/blank ids (e.g. a 0 from an empty submission) so a
-        // group push can't seed phantom saSnapinID=0 rows on member hosts.
+        // grant can't seed a phantom gsaSnapinID=0 row.
         $addArray = self::positiveIntIds($addArray);
-        $insert_fields = ['hostID', 'snapinID'];
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1 || count($addArray) < 1) {
+            return $this;
+        }
         $insert_values = [];
-        $hosts = $this->get('hosts');
-        if (count($hosts ?: []) > 0) {
-            array_walk(
-                $hosts,
-                function (
-                    &$hostID,
-                    $index
-                ) use (
-                    &$insert_values,
-                    $addArray
-                ) {
-                    foreach ($addArray as $snapinID) {
-                        $insert_values[] = [$hostID, $snapinID];
-                    }
-                }
+        foreach ($addArray as $snapinID) {
+            $insert_values[] = [$groupID, $snapinID];
+        }
+        // sequence is deliberately NOT in the field list, for the same
+        // reason isDefault is not in addPrinter's: insertBatch upserts on the
+        // unique key and would overwrite the run order the admin set on the
+        // Snapin Run Order card. New rows therefore land at the column
+        // default of 0, and the sweep below numbers them.
+        self::getClass('GroupSnapinAssociationManager')
+            ->insertBatch(
+                ['groupID', 'snapinID'],
+                $insert_values
             );
-        }
-        if (count($insert_values ?: []) > 0) {
-            self::getClass('SnapinAssociationManager')
-                ->insertBatch(
-                    $insert_fields,
-                    $insert_values
-                );
-            // insertBatch cannot carry the sequence: it upserts on the
-            // (saHostID, saSnapinID) unique key, so a snapin the host already
-            // had would have its deliberate run-order overwritten. The rows
-            // therefore land at sequence 0, which sorts them ahead of every
-            // deliberately ordered snapin (Host::loadSnapins orders by
-            // sequence ASC, and createSnapinTasking numbers the tasks in that
-            // order). Number them per host afterward instead.
-            //
-            // Host::save() used to sweep these up incidentally -- its
-            // appendSnapinSequence() gate was always true, because
-            // assocSetter() had already consumed the isLoaded() flag it
-            // tested. Fixing that gate (#906/#910) correctly stopped the
-            // sweep, so the sequence is assigned here at the source.
-            foreach ($hosts as $hostID) {
-                Host::appendSnapinSequence($hostID);
-            }
-        }
+        $this->appendSnapinSequence();
 
         return $this;
     }
     /**
-     * Remove snapin from all hosts in group.
+     * Revokes snapins from this group.
      *
      * @param array $removeArray the items to remove
      *
@@ -294,85 +272,135 @@ class Group extends FOGController
     public function removeSnapin($removeArray)
     {
         Route::deletemass(
-            'snapinassociation',
+            'groupsnapinassociation',
             [
                 'snapinID' => $removeArray,
-                'hostID' => $this->get('hosts')
+                'groupID' => $this->get('id')
             ]
         );
         return $this;
     }
     /**
-     * Sets the run order of the snapins shared by every host in the group.
+     * Numbers any of this group's snapin grants that have no sequence yet.
      *
-     * The submitted ids are the snapins common to all member hosts. On each
-     * host those shared snapins are sequenced first (1..N in the submitted
-     * order); any host-specific snapins are then renumbered to follow,
-     * preserving their existing relative order ("shared first, extras after").
+     * The host-side twin is Host::appendSnapinSequence() and this is the same
+     * mechanism for the same reason: a row inserted without a sequence sits
+     * at the column default of 0, which sorts it ahead of every deliberately
+     * ordered snapin. Numbering after the insert rather than during it is
+     * what lets addSnapin() leave an existing row's order alone.
      *
-     * @param array $snapinIDs the ordered shared snapin ids
+     * @return object
+     */
+    public function appendSnapinSequence()
+    {
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1) {
+            return $this;
+        }
+        $associations = Route::getList(
+            'groupsnapinassociation',
+            ['groupID' => $groupID],
+            'AND',
+            'sequence'
+        );
+        $maxSequence = 0;
+        $unsequenced = [];
+        foreach ($associations as $association) {
+            $sequence = (int)$association->sequence;
+            if ($sequence > 0) {
+                $maxSequence = max($maxSequence, $sequence);
+            } else {
+                $unsequenced[] = $association->snapinID;
+            }
+        }
+        foreach ($unsequenced as $snapinID) {
+            self::getClass('GroupSnapinAssociationManager')
+                ->update(
+                    [
+                        'groupID' => $groupID,
+                        'snapinID' => $snapinID
+                    ],
+                    '',
+                    ['sequence' => ++$maxSequence]
+                );
+        }
+        return $this;
+    }
+    /**
+     * Sets the run order of the snapins this group grants.
+     *
+     * The submitted ids are the group's own grants, so this writes
+     * gsaSequence and touches no host. Before ADR 0038 it had to reconstruct
+     * an order per member host -- "shared snapins first, host-specific ones
+     * after" -- because the group owned nothing to order.
+     *
+     * @param array $snapinIDs the ordered snapin ids (first runs first)
      *
      * @return object
      */
     public function setSnapinOrder($snapinIDs)
     {
-        $shared = self::positiveIntIds($snapinIDs);
-        if (count($shared) < 1) {
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1) {
             return $this;
         }
-        $hosts = (array)$this->get('hosts');
-        foreach ($hosts as $hostID) {
-            $Host = new Host($hostID);
-            if (!$Host->isValid()) {
+        $sequence = 0;
+        foreach ((array)$snapinIDs as $snapinID) {
+            $snapinID = (int)$snapinID;
+            if ($snapinID < 1) {
                 continue;
             }
-            // get('snapins') is already ordered by sequence.
-            $hostSnapins = array_map('intval', (array)$Host->get('snapins'));
-            // Shared snapins this host actually has, in the submitted order,
-            // followed by the host's remaining snapins in their current order.
-            $sharedOnHost = array_values(array_intersect($shared, $hostSnapins));
-            $extras = array_values(array_diff($hostSnapins, $shared));
-            $Host->setSnapinOrder(array_merge($sharedOnHost, $extras));
-            unset($Host);
+            ++$sequence;
+            self::getClass('GroupSnapinAssociationManager')
+                ->update(
+                    [
+                        'groupID' => $groupID,
+                        'snapinID' => $snapinID
+                    ],
+                    '',
+                    ['sequence' => $sequence]
+                );
         }
         return $this;
     }
     /**
-     * Add modules to all hosts in group.
+     * Grants modules to this group.
      *
-     * @param array $addArray the items to add
+     * ADR 0038: presence is the whole statement. There is no state column on
+     * groupModuleAssoc because a group cannot turn a module OFF -- only a
+     * host can, with a moduleStatusByHost row at msState=0, and that beats
+     * every grant. The old version wrote msState=1 onto every member host,
+     * which is exactly the copy that made a host's own OFF unrepresentable.
+     *
+     * @param array $addArray the items to grant
      *
      * @return object
      */
     public function addModule($addArray)
     {
-        // Same guard as addPrinter/addSnapin: this builds its insert batch
-        // directly rather than going through addRemItem()'s array_filter(),
-        // so a blank submission would seed phantom moduleID=0 rows.
         $addArray = self::positiveIntIds($addArray);
-        $insert_fields = ['hostID', 'moduleID', 'state'];
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1 || count($addArray) < 1) {
+            return $this;
+        }
         $insert_values = [];
-        $hostids = $this->get('hosts');
-        foreach ((array) $hostids as &$hostid) {
-            foreach ((array) $addArray as &$moduleid) {
-                $insert_values[] = [$hostid, $moduleid, 1];
-                unset($moduleid);
-            }
-            unset($hostid);
+        foreach ($addArray as $moduleID) {
+            $insert_values[] = [$groupID, $moduleID];
         }
-        if (count($insert_values ?: []) > 0) {
-            self::getClass('ModuleAssociationManager')
-                ->insertBatch(
-                    $insert_fields,
-                    $insert_values
-                );
-            unset($insert_value);
-        }
+        self::getClass('GroupModuleAssociationManager')
+            ->insertBatch(
+                ['groupID', 'moduleID'],
+                $insert_values
+            );
 
         return $this;
     }
     /**
-     * Remove modules from hosts in group.
+     * Revokes modules from this group.
+     *
+     * A host that had the module only through this grant loses it. A host
+     * that stated the module on for itself keeps it, because its own row is
+     * a separate fact.
      *
      * @param array $removeArray The items to remove
      *
@@ -381,10 +409,10 @@ class Group extends FOGController
     public function removeModule($removeArray)
     {
         Route::deletemass(
-            'moduleassociation',
+            'groupmoduleassociation',
             [
                 'moduleID' => $removeArray,
-                'hostID' => $this->get('hosts')
+                'groupID' => $this->get('id')
             ]
         );
 

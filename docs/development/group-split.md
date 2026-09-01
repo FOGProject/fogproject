@@ -758,12 +758,12 @@ serialize through conflicts anyway.
 | M2 | `Resolver::resolveModules()`, the three tiers | `Assign/Resolver.php` | M1 | **merged** (#1632) |
 | M3 | Client paths read the resolved list; `checkPassiveModule` fix | `Items/Host.php`, `Client/ServiceModule.php`, `Client/FOGClient.php`, `Base/FOGPage.php` | M2 | **merged** (#1633) |
 | M4 | `addRemItem()` module special case removed; auto-logout minimum named once | `Base/FOGController.php`, `Pages/HostManagement.php` | M3 | **merged** (#1634) |
-| M5 | Host Modules tab becomes genuinely tri-state, so a host can say OFF | `Items/Host.php`, `Pages/HostManagement.php`, `Base/FOGPageRender.php`, `fog.host.edit.js` | M4 | open (#1646) |
+| M5 | Host Modules tab becomes genuinely tri-state, so a host can say OFF | `Items/Host.php`, `Pages/HostManagement.php`, `Base/FOGPageRender.php`, `fog.host.edit.js` | M4 | **merged** (#1646) |
 | D1 | The `sqlfilter` relationship-filter contract, and the host list's groups column on it | `Base/FOGManagerController.php`, `Router/Route.php`, `Pages/HostManagement.php`, `fog.host.list.js` | C5 | **merged** (#1639) |
 | D2a | `saveGroup()` gated: CSRF, object scope both sides, and the `group.edit`/`group.create` split | `Pages/HostManagement.php`, `Auth/Authorization.php` | — | **merged** (3cb39b8df) |
 | D2b | Remove as well as add, from the list; typed names resolved against the groups that exist; the write audited | `Pages/HostManagement.php`, `Base/FOGPage.php`, `fog.host.list.js` | D1, D2a | **merged** (#1640) |
-| D3 | Group list "grants" column | `Router/Route.php`, `Pages/GroupManagement.php`, JS | D1 | open (#TBD) |
-| E | Group page rework + removal of the imperative tabs, and `Group::addSnapin`/`addPrinter`/`addModule` become grants | `Pages/GroupManagement.php`, `Items/Group.php`, JS | **C5 proven** (Decision 10), D, M5 | not started |
+| D3 | Group list "grants" column | `Router/Route.php`, `Pages/GroupManagement.php`, JS | D1 | **merged** (#1643) |
+| E | Group page rework: `Group::addSnapin`/`addPrinter`/`addModule` become grants, the tri-state coverage machinery goes, the imperative controls are marked deprecated | `Items/Group*Association.php`, `Items/Group.php`, `Pages/GroupManagement.php`, JS | **C5 proven** (Decision 10), D, M5 | open (#TBD) |
 
 **Two bugs in C5's own surface were found and fixed while D was landing**,
 both on the mass edit modal and neither shipped: the object-id guard in

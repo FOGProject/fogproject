@@ -236,119 +236,16 @@
     });
 
     // ---------------------------------------------------------------
-    // GROUP ASSOCIATION TRI-STATE (shared by the printer, snapin and
-    // module tabs). Each item shows All (checked) / Some (indeterminate) /
-    // None (unchecked) coverage across member hosts, an "n / total" badge,
-    // and an on-demand Has/Missing host drill-down (a DataTables child row).
-    //
-    // These plug into the generic $.registerAssociationTab via its
-    // checkboxRender/onDraw hooks; the tri-state badge markup and the
-    // drill-down AJAX stay group-local because they are not part of the
-    // generic (plain on/off) association-tab skeleton.
-    // ---------------------------------------------------------------
-
-    // Returns the checkboxRender function for a tri-state tab: the full
-    // association-cell markup (checkbox carrying data-state + the badge that
-    // opens the drill-down). The input keeps class="associated"/value=row.id
-    // so the generic add/remove/toggle plumbing keeps working.
-    function groupAssocRender(entityType, idPrefix) {
-        return function(row) {
-            var state = row.association,
-                cnt = (row.assocCount === undefined ? 0 : row.assocCount),
-                total = (row.assocTotal === undefined ? 0 : row.assocTotal),
-                checked = (state === 'all') ? ' checked' : '',
-                label = (state === 'all')
-                    ? 'bg-success'
-                    : (state === 'some' ? 'bg-warning' : 'bg-secondary');
-            return '<div class="form-check" '
-                + 'style="display:inline-block;vertical-align:middle;margin:0 6px 0 0;">'
-                + '<input type="checkbox" class="associated" data-state="' + state + '" '
-                + 'name="associate[]" id="' + idPrefix + row.id + '" value="' + row.id + '"'
-                + checked + '/></div>'
-                + '<a href="#" class="assoc-drill badge ' + label + '" '
-                + 'data-id="' + row.id + '" data-type="' + entityType + '" '
-                + 'title="Show which hosts have this">' + cnt + ' / ' + total + '</a>';
-        };
-    }
-
-    // Wire a tri-state association tab: the standard $.registerAssociationTab
-    // skeleton plus the tri-state checkbox render, the post-draw indeterminate
-    // styling for "some" rows, and the Has/Missing host drill-down. cfg extends
-    // the generic opts with entityType/idPrefix (for the render + drill-down)
-    // and an optional onDraw (run after the indeterminate styling). Returns the
-    // DataTables instance.
-    function wireGroupAssocTab(cfg) {
-        var tableSel = '#' + cfg.slug + '-table';
-        var table = $.registerAssociationTab({
-            slug: cfg.slug,
-            item: cfg.item,
-            sub: cfg.sub,
-            columns: cfg.columns,
-            order: cfg.order,
-            checkboxRender: groupAssocRender(cfg.entityType, cfg.idPrefix),
-            afterCommit: cfg.afterCommit,
-            onDraw: function(t) {
-                $(tableSel + ' input.associated').each(function() {
-                    if ($(this).data('state') === 'some') {
-                        $(this).prop('indeterminate', true);
-                    }
-                });
-                if (typeof cfg.onDraw === 'function') {
-                    cfg.onDraw(t);
-                }
-            }
-        });
-        // On-demand Has/Missing host drill-down (a DataTables child row).
-        $(tableSel).on('click', '.assoc-drill', function(e) {
-            e.preventDefault();
-            var tr = $(this).closest('tr'),
-                row = table.row(tr),
-                id = $(this).data('id'),
-                type = $(this).data('type');
-            if (row.child.isShown()) {
-                row.child.hide();
-                return;
-            }
-            row.child('<div class="assoc-drill-detail" style="padding:6px 12px;">'
-                + 'Loading…</div>').show();
-            $.ajax({
-                url: '../management/index.php?node=' + Common.node
-                    + '&sub=getAssocHostsList&id=' + Common.id
-                    + '&assoctype=' + type + '&itemid=' + id,
-                dataType: 'json',
-                success: function(d) {
-                    var has = (d && d.has) ? d.has : [],
-                        miss = (d && d.missing) ? d.missing : [];
-                    function names(arr) {
-                        if (!arr.length) {
-                            return '<em>none</em>';
-                        }
-                        return arr.map(function(h) {
-                            return $('<span>').text(h.name).html();
-                        }).join(', ');
-                    }
-                    row.child(
-                        $('<div class="assoc-drill-detail" style="padding:6px 12px;">')
-                            .append($('<div>').html('<strong>Hosts with this ('
-                                + has.length + '):</strong> ' + names(has)))
-                            .append($('<div>').html('<strong>Hosts without it ('
-                                + miss.length + '):</strong> ' + names(miss)))
-                    ).show();
-                }
-            });
-        });
-        return table;
-    }
-
-    // ---------------------------------------------------------------
     // PRINTER TAB
     // Association area
-    var groupPrintersTable = wireGroupAssocTab({
+    // ADR 0038: the group owns its printers, so this is the plain on/off
+    // association tab. It replaced a tri-state one that showed All/Some/None
+    // coverage across member hosts with an n-of-total drill-down -- a whole
+    // vocabulary that existed only because the group owned nothing itself.
+    var groupPrintersTable = $.registerAssociationTab({
         slug: 'group-printer',
         item: 'printer',
         sub: 'getPrintersList',
-        entityType: 'printer',
-        idPrefix: 'groupPrinterAssoc_',
         onDraw: function() {
             groupPrinterDefaultSelectorUpdate();
         }
@@ -357,8 +254,8 @@
     // JS lives on the printer pages, which do not load here. node:'printer'
     // because Common.node is 'group' here and would aim getPrinterInfo wrong.
     // validate matches what the printer pages pass, so hidden sections are not
-    // validated. Association goes through Group::addPrinter(), which inserts a
-    // row per member host, so the new printer reaches the whole group.
+    // validated. Association goes through Group::addPrinter(), which writes
+    // one grant row on the group.
     $.registerCreateAndAssociate('group-printer', groupPrintersTable, {
         onForm: function(form) {
             form.initPrinterFormUI({node: 'printer'});
@@ -428,17 +325,15 @@
     // ---------------------------------------------------------------
     // SNAPINS TAB
     // Association area
-    var groupSnapinsTable = wireGroupAssocTab({
+    var groupSnapinsTable = $.registerAssociationTab({
         slug: 'group-snapin',
         item: 'snapin',
         sub: 'getSnapinsList',
-        entityType: 'snapin',
-        idPrefix: 'groupSnapinAssoc_',
         afterCommit: loadGroupSnapinOrder
     });
     // wirePackTypes matches the snapin ADD page, since this modal renders the
-    // same _addFields() form. Association goes through Group::addSnapin(), which
-    // inserts a row per member host, so the new snapin lands on the whole group.
+    // same _addFields() form. Association goes through Group::addSnapin(),
+    // which writes one grant row on the group.
     $.registerCreateAndAssociate('group-snapin', groupSnapinsTable, {
         onForm: function(form) {
             form.initSnapinCommandUI({wirePackTypes: true});
@@ -446,7 +341,7 @@
     });
 
     // ---------------------------------------------------------------
-    // GROUP SNAPIN RUN ORDER (snapins shared by all hosts)
+    // GROUP SNAPIN RUN ORDER (the snapins this group grants)
     var groupSnapinOrderList = $('#group-snapin-order-list'),
         groupSnapinOrderSaveBtn = $('#group-snapin-order-save');
 
@@ -550,12 +445,10 @@
     // ---------------------------------------------------------------
     // CLIENT SETTINGS TAB
     // Association area
-    var groupModulesTable = wireGroupAssocTab({
+    var groupModulesTable = $.registerAssociationTab({
         slug: 'group-module',
         item: 'module',
         sub: 'getModulesList',
-        entityType: 'module',
-        idPrefix: 'groupModuleAssoc_',
         columns: [
             // Aisle 097: this tab overrides the default association column set,
             // so it reads the raw 'name' field rather than the server-escaped

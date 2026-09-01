@@ -1,37 +1,32 @@
 # Group Shared State
 
-A **group** owns no settings of its own — it is a lens over its **member hosts**.
-The group edit page therefore *derives* what it shows from the union of its
-members, so an admin can see what hosts already have in common before changing
-anything.
+A **group** owns its snapins, printers and modules. For everything else it is
+still a lens over its **member hosts**: the group edit page *derives* what it
+shows from the union of its members, so an admin can see what hosts already
+have in common before changing anything.
 
-> **Two kinds of shared state:**
-> 1. **Associations** (snapins, printers, modules) — a host either *has* the
->    item or not, shown as a tri‑state checkbox: **All / Some / None** member
->    hosts have it.
+> **Two kinds of shared state, and only one of them is still a lens:**
+> 1. **Grants** (snapins, printers, modules) — the group **owns** these. A
+>    ticked box is a row about the group, and every member gets the item,
+>    including hosts added later. Nothing is copied onto a host.
 > 2. **Configuration values** (Active Directory, auto‑logout, kernel/general
->    fields, default printer) — a host holds a *value*, shown as a muted
->    **`Hosts: …`** hint: the shared value when every member agrees, or
->    `(varies)` when they differ.
->
-> Acting on a group still pushes to **all** member hosts — but config fields are
-> **no‑clobber**: a blank field leaves each host's value alone, so you only
-> change what you intend to.
+>    fields) — a host holds a *value*, shown as a muted **`Hosts: …`** hint:
+>    the shared value when every member agrees, or `(varies)` when they
+>    differ. These still **push to all members**, once, and are
+>    **no‑clobber**: a blank field leaves each host's value alone.
 
-> **⚠️ This is changing. Snapins, printers and modules have already changed.**
-> A group is becoming something that **grants**, rather than something that
-> copies rows onto whoever happened to be a member when a button was pressed.
-> The first half has landed for **snapins, printers and modules**: see
-> [Snapins are granted, not copied](#snapins-are-granted-not-copied) below.
-> Everything else on this page still describes the push‑to‑all model and is
-> still accurate for the page as it stands today. The reasoning, and what is
-> left to move, are in [ADR 0038](adr/0038-a-group-grants-it-does-not-copy.md).
+> **⚠️ The push‑to‑all controls are deprecated.** Everything in
+> [Configuration values](#configuration-values-shared-hints) below applies a
+> value once, to the hosts that are members at the moment the button is
+> pressed — a host added later does not get it, and a host removed keeps it.
+> Nothing records that the write happened, so nothing can replay it. Use
+> **Edit selected hosts** on the Hosts list instead; these controls carry a
+> deprecation notice on the page and will be removed in a later release. The
+> reasoning is in [ADR 0038](adr/0038-a-group-grants-it-does-not-copy.md),
+> decision 10.
 >
-> **Modules carry one extra rule.** They are a *switch*, not a thing, so a
-> host is allowed to hold one OFF against every group that grants it — lowest
-> tier wins. A group grant is presence‑only: a group either grants a module or
-> says nothing about it, and can never say "disabled", so two groups can only
-> ever union. See ADR 0038 decision 3.
+> The grant half is finished: snapins, printers and modules are group‑owned
+> and are **not** deprecated.
 
 ---
 
@@ -39,16 +34,15 @@ anything.
 
 - [Snapins are granted, not copied](#snapins-are-granted-not-copied)
   - [Printers work the same way, but are worked out live](#printers-work-the-same-way-but-are-worked-out-live)
-- [Associations (tri‑state)](#associations-tri-state)
-  - [What "has it" means](#what-has-it-means)
-  - [The badge and Has/Missing drill‑down](#the-badge-and-hasmissing-drill-down)
-  - [Toggling](#toggling)
+- [Associations (the group's own grants)](#associations-the-groups-own-grants)
+  - [What a host ends up with](#what-a-host-ends-up-with)
+  - [Ticking and unticking](#ticking-and-unticking)
+  - [Order and defaults](#order-and-defaults)
 - [Configuration values (shared hints)](#configuration-values-shared-hints)
   - [The no‑clobber convention](#the-no-clobber-convention)
   - [Active Directory](#active-directory)
   - [Auto‑logout](#auto-logout)
   - [General fields](#general-fields)
-  - [Default printer](#default-printer)
 - [Out of scope](#out-of-scope)
 
 ---
@@ -119,59 +113,63 @@ no re-tasking.
 
 ---
 
-## Associations (tri‑state)
+## Associations (the group's own grants)
 
-The **Snapins**, **Printers**, and **Modules** tabs each render every item with a
-coverage checkbox:
+The **Snapins**, **Printers** and **Modules** tabs are plain on/off lists of
+what **this group grants**. A ticked box is a row about the group; it says
+nothing about any particular host.
 
 | State | Checkbox | Meaning |
 |-------|----------|---------|
-| **All** | checked | every member host has the item |
-| **Some** | indeterminate | at least one, but not all, hosts have it |
-| **None** | unchecked | no host has it |
+| granted | checked | this group grants the item to its members |
+| not granted | unchecked | this group says nothing about the item |
 
-A **`n / total`** badge sits next to each checkbox (e.g. `5 / 15`).
+There is no third state, and no coverage badge. Until ADR 0038's unit E these
+tabs showed a derived **All / Some / None** tri‑state with an `n / total`
+badge and a Has/Missing host drill‑down — a whole vocabulary whose only job
+was to reconstruct, after the fact, what the group would have looked like if
+it had ever owned anything. It owns something now, so the derivation is gone
+along with the machinery behind it (`_groupAssocList()`,
+`getAssocHostsList()`, and the tri‑state renderer in `fog.group.edit.js`).
 
-### What "has it" means
+### What a host ends up with
 
-- **Snapins, printers** — a host "has it" when the association row exists. The
-  printer **default** flag (`paIsDefault`) is ignored here; it's a separate
-  shared *value* (see [Default printer](#default-printer)).
-- **Modules** — a host counts only when the module is **enabled**
-  (`moduleStatusByHost.msState = 1`). A disabled override pulls the item out of
-  *All* into *Some*. This asymmetry is deliberate (see `docs/adr/0001`): showing
-  a module as "All hosts have it" while some have it disabled would mislead.
+A host's effective list is its **own** rows unioned with the grants of every
+group it belongs to, worked out at read time by `FOG\Assign\Resolver`. So:
 
-### The badge and Has/Missing drill‑down
+- adding a host to the group is enough for it to gain the group's snapins,
+  printers and modules; removing it is enough to lose them again;
+- a host's own associations are untouched by anything on these tabs — a
+  snapin given directly to one host stays with that host if the group revokes
+  its grant;
+- **modules carry one extra rule.** A module is a *switch*, so a host may hold
+  one OFF (a `moduleStatusByHost` row at `msState = 0`) against every group
+  that grants it, and the host wins. A grant is presence‑only — a group can
+  turn a module on and can never turn one off — so two groups can only ever
+  union. Set it on the host's own Modules tab, which is a three‑way
+  *On / Off / Not set* select rather than a checkbox.
 
-Clicking the badge expands an on‑demand row listing, for that one item:
+### Ticking and unticking
 
-- **Hosts with this (n)** — the member hosts that have it, and
-- **Hosts without it (n)** — the member hosts that don't.
+Ticking writes one grant row; unticking deletes it. Neither touches a member
+host, so neither is destructive to per‑host state, and both take effect for
+every current and future member at once.
 
-The *without* set is exactly what a push‑to‑all will change. The lists are
-fetched per item, so large groups stay responsive.
+**Granting a snapin does not run it.** The grant decides what a snapin
+*deployment* will include; deploy it from the group's Tasks tab when you want
+it to run. (The retired `persistentgroups` plugin ran snapins on a host as it
+joined a group; nothing does that now, deliberately.)
 
-### Toggling
+### Order and defaults
 
-Clicking the checkbox acts on **all** member hosts:
+The two per‑item decisions an admin can make are columns on the grant row, so
+they belong to the group rather than being recomputed from its members:
 
-```
-None  --click-->  All        (add to every host)
-Some  --click-->  All        (add to the hosts that lack it; modules flip
-                              a disabled override back to enabled)
-All   --click-->  None       (remove from every host)
-```
-
-So an indeterminate item resolves to *All* first; the destructive
-remove‑from‑all only happens on a second click through the checked state.
-
-> **The module line above is on notice.** "Flip a disabled override back to
-> enabled" was harmless while a disabled override could not exist — nothing
-> ever wrote one. Under ADR 0038 decision 3 a disabled module row is a
-> deliberate host‑level statement that beats every group grant, so a group‑wide
-> toggle overriding it is wrong. The tab keeps this behavior until the group
-> page rework (unit E) replaces it with a grant.
+- **Snapin run order** — the *Snapin Run Order* card orders the group's own
+  grants (`gsaSequence`). A host runs its own snapins first, then the granted
+  ones in this order.
+- **Default printer** — one of the granted printers can be marked the group's
+  default (`gpaIsDefault`). A host that has chosen its own default keeps it.
 
 ---
 
@@ -223,12 +221,6 @@ Kernel, kernel arguments, init, primary disk, BIOS/EFI exit, and product key
 each carry a `Hosts: …` hint. The kernel/args/init/disk inputs prefill from the
 **group's own template** (the group stores these); the hint reports the
 *members'* state independently. Push still honors the no‑clobber convention.
-
-### Default printer
-
-The printer **Default** selector shows a `Hosts default: <printer> (all)`,
-`(varies)`, or `(none on all)` hint. Setting a default is an explicit action
-that only touches member hosts which have that printer associated.
 
 ### Enforce hostname / AD‑join reboots
 
