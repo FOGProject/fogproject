@@ -189,7 +189,15 @@ class MulticastSession extends FOGController
         if ($max > 0 && self::activeCount() >= $max) {
             throw new \Exception(
                 sprintf(
-                    _('Server is only configured to run %d multicast tasks'),
+                    // FOG_MULTICAST_MAX_SESSIONS of 1 is a normal setting on
+                    // a small server, and it is the one value this sentence
+                    // used to get wrong: "run 1 multicast tasks".
+                    /* translators: %d is a number of concurrent sessions */
+                    ngettext(
+                        'Server is only configured to run %d multicast task',
+                        'Server is only configured to run %d multicast tasks',
+                        $max
+                    ),
                     $max
                 )
             );

@@ -4839,7 +4839,11 @@ class HostManagement extends FOGPage
                     'name',
                     sprintf(
                         /* translators: %d is a number of hosts */
-                        _('%d selected hosts'),
+                        ngettext(
+                            '%d selected host',
+                            '%d selected hosts',
+                            count($hosts)
+                        ),
                         count($hosts)
                     )
                 )
@@ -4876,8 +4880,17 @@ class HostManagement extends FOGPage
             $msg = json_encode(
                 [
                     'msg' => sprintf(
+                        // ngettext, not _(): a single-host tasking is by
+                        // far the commonest thing this method does, and it
+                        // used to answer "Tasking created for 1 hosts".
+                        // The count is passed twice on purpose -- once to
+                        // choose the form, once for sprintf to interpolate.
                         /* translators: %d is a number of hosts */
-                        _('Tasking created for %d hosts'),
+                        ngettext(
+                            'Tasking created for %d host',
+                            'Tasking created for %d hosts',
+                            count($hosts)
+                        ),
                         count($hosts)
                     ),
                     'title' => _('Create Task Success')
