@@ -80,19 +80,39 @@ class PrinterClient extends FOGClient
         $printerIDs = $resolved['printers'];
         $printerCount = count($printerIDs ?: []);
         if ($printerCount < 1) {
-            // STILL SPELLED `np`, and that is deliberate rather than
-            // leftover. ADR 0038 decision 9 makes this an ordinary success
-            // carrying an explicit flag instead of an error, and traces
-            // through fog-client to show it is safe -- but that trace has
-            // not been WATCHED happen on a mode-`ar` host with steady
-            // printers (UNKNOWN-4), and `np` is the single string that
-            // triggers removal-on-empty in the client. Changing where the
-            // list comes from and what the empty case means to the client
-            // in one step would leave nothing to bisect if a fleet came
-            // back with no printers. So this release changes only the
-            // source of the list; the wire format moves separately.
+            // BOTH SPELLINGS, on purpose. ADR 0038 decision 9 turns "this
+            // host has no printers" into an ordinary success carrying an
+            // explicit flag instead of an error, and its shipping order is
+            // to send `np` ALONGSIDE the new flag for a release before
+            // dropping it.
+            //
+            // The two halves need different evidence, which is why they are
+            // separated rather than done together:
+            //
+            //   - ADDING `noPrinters` needs none. The shipped client's
+            //     printer contract (fog-client 0.13.0,
+            //     Modules/DataContracts/PrinterManager.cs) declares Mode,
+            //     Printers and AllPrinters and nothing else, yet this
+            //     endpoint has always sent `default` too -- which that
+            //     contract has no member for and which the separate
+            //     DefaultPrinterManager module reads from its own endpoint.
+            //     So an unknown top-level key is not merely assumed safe;
+            //     the endpoint has been proving it every poll for years.
+            //
+            //   - REMOVING `np` needs the observation nobody has made yet
+            //     (UNKNOWN-4). `np`, matched case-insensitively against
+            //     ReturnCode, is the single string that triggers
+            //     removal-on-empty in the client, so dropping it changes
+            //     what an old client does with this response. It stays
+            //     until a mode-`ar` host with steady printers has been
+            //     watched through a poll cycle.
+            //
+            // A client can only USE the flag if it is present in both
+            // branches -- an absent key would be indistinguishable from an
+            // older server -- so the success return below carries it too.
             return [
                 'error' => 'np',
+                'noPrinters' => true,
                 'mode' => self::$_modes[$level],
                 'allPrinters' => $allPrinters,
                 'default' => '',
@@ -140,6 +160,11 @@ class PrinterClient extends FOGClient
             unset($Printer);
         }
         return [
+            // Always present, never only on the empty branch: a client
+            // testing `noPrinters` has to be able to tell "this server says
+            // no" from "this server is too old to say", and a key that
+            // appears only in one case cannot express that.
+            'noPrinters' => false,
             'mode' => self::$_modes[$level],
             'allPrinters' => $allPrinters,
             'default' => $default,
