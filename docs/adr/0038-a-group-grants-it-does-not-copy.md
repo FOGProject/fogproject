@@ -1159,6 +1159,38 @@ reads as a label at a glance and a heavy group reads as heavy. This is the
 cheapest half of making one entity serve both jobs legibly, and without it the
 Group Management list is forty rows that all look identically consequential.
 
+**Built (D3).** A **Grants** column on the Group Management list, rendered as
+badges: `3 snapins`, `1 printer`, `2 modules`, and nothing at all for a group
+that grants nothing -- which is the reading the requirement is actually
+after. Four things settled in the building that this section had not:
+
+- **Counts, not names.** The question is "is this heavy"; a group with twenty
+  snapins would answer it with twenty chips of noise, and the column would
+  become the thing it exists to cut through.
+- **Three kinds, and an image is not one of them.** Snapins, printers and
+  modules -- the three `FOG\Assign\Resolver` resolves. A group PUSHES an
+  image at its hosts imperatively (`Group::addImage`); it does not grant one,
+  so it is not a property of the group to show.
+- **Primed per page, not selected.** Folding the counts into
+  `Group::$sqlQueryStr` beside `gmMembers` would make the column sortable,
+  and it is why that was rejected: that query already `LEFT JOIN`s
+  `groupMembers` and counts it, so three more joins multiply into a cartesian
+  product per group row -- 500 hosts x 20 snapins x 10 printers is 100k
+  intermediate rows for one group -- and every count would have to become
+  `COUNT(DISTINCT)` to survive the fan-out. One indexed `GROUP BY` per page is
+  cheaper by orders of magnitude. The column is unsortable for the same
+  reason the host list's groups column is, and stated the same way.
+- **No site boundary on the counts, and that is a finding rather than an
+  omission.** Snapin, printer and module are not site-scoped nodes
+  (`SiteScope::$_nodes` holds host, user, group and usergroup). A caller who
+  can see the group row can see what it grants; there is nothing here to leak
+  across a boundary the way group NAMES can on the host list, which is why
+  requirement 1's membership test carries a scope and this does not.
+
+It carries **no `sqlfilter`**. D1's contract is there to be added to, and
+nobody has asked to filter groups by what they grant; the requirement is
+about reading the list at a glance.
+
 **What this decision costs, stated rather than hidden.** "Group" remains a bad
 name for a label. The model is right and the word is wrong, and no amount of
 chips fixes a noun. If the requests for tags continue after 1.6 with all five

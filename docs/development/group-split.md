@@ -759,18 +759,29 @@ serialize through conflicts anyway.
 | M3 | Client paths read the resolved list; `checkPassiveModule` fix | `Items/Host.php`, `Client/ServiceModule.php`, `Client/FOGClient.php`, `Base/FOGPage.php` | M2 | **merged** (#1633) |
 | M4 | `addRemItem()` module special case removed; auto-logout minimum named once | `Base/FOGController.php`, `Pages/HostManagement.php` | M3 | **merged** (#1634) |
 | M5 | Host Modules tab becomes genuinely tri-state, so a host can say OFF | `Pages/HostManagement.php`, JS | M4 | not started |
-| D1 | The `sqlfilter` relationship-filter contract, and the host list's groups column on it | `Base/FOGManagerController.php`, `Router/Route.php`, `Pages/HostManagement.php`, `fog.host.list.js` | C5 | open (#1639) |
+| D1 | The `sqlfilter` relationship-filter contract, and the host list's groups column on it | `Base/FOGManagerController.php`, `Router/Route.php`, `Pages/HostManagement.php`, `fog.host.list.js` | C5 | **merged** (#1639) |
 | D2a | `saveGroup()` gated: CSRF, object scope both sides, and the `group.edit`/`group.create` split | `Pages/HostManagement.php`, `Auth/Authorization.php` | — | **merged** (3cb39b8df) |
-| D2b | Remove as well as add, from the list; typed names resolved against the groups that exist; the write audited | `Pages/HostManagement.php`, `Base/FOGPage.php`, `fog.host.list.js` | D1, D2a | open (#TBD) |
-| D3 | Group list "grants" column | `Router/Route.php`, `Pages/GroupManagement.php`, JS | D1 | not started |
+| D2b | Remove as well as add, from the list; typed names resolved against the groups that exist; the write audited | `Pages/HostManagement.php`, `Base/FOGPage.php`, `fog.host.list.js` | D1, D2a | **merged** (#1640) |
+| D3 | Group list "grants" column | `Router/Route.php`, `Pages/GroupManagement.php`, JS | D1 | open (#TBD) |
 | E | Group page rework + removal of the imperative tabs, and `Group::addSnapin`/`addPrinter`/`addModule` become grants | `Pages/GroupManagement.php`, `Items/Group.php`, JS | **C5 proven** (Decision 10), D, M5 | not started |
+
+**Two bugs in C5's own surface were found and fixed while D was landing**,
+both on the mass edit modal and neither shipped: the object-id guard in
+`FOGPage`'s constructor matched `edit` as a SUBSTRING, so `masseditform` was
+refused as "No host exists with ID" (#1641); and the failure handler's
+`modal('hide')` landed inside Bootstrap's show transition, where
+`Modal.hide()` drops it silently, so the box sat on "Loading, please wait..."
+with only a toast to say why (#1642). The second was ported to the Queue Task
+modal beside it, which had the identical handler.
 
 D split while building it, on the same rule C did: by what each piece can be
 tested on its own. D1 is the shared helper plus the one column that proves it,
 and it is the plan-first half -- a change to a path every grid in the product
 runs through. D2 is a write path, which is a different review from a read
 path; its security half (D2a) went in ahead of the rest, on its own, off the
-back of UNKNOWN-6. D3 needs D1's contract and nothing else.
+back of UNKNOWN-6. D3 needs D1's contract and nothing else -- and in the
+event needed none of it, because nobody has asked to FILTER groups by what
+they grant. D3 is a display column: a primer, a formatter and a renderer.
 
 **Requirement 4 was amended rather than implemented as written**, and the ADR
 carries the reasoning. `$.registerCreateAndAssociate()` is a helper for an

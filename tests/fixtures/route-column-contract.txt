@@ -29,6 +29,8 @@ group	9	groupKernelArgs	kernelArgs	-	-
 group	10	groupPrimaryDisk	kernelDevice	-	-
 group	11	groupInit	init	-	-
 group	12	gmMembers	members	-	-
+group	13	-	grants	f	(none)
+group	14	-	grants_list	f	-
 groupassociation	0	gmID	id	-	-
 groupassociation	1	gmID	DT_RowId	f	-
 groupassociation	2	gmHostID	hostID	-	-

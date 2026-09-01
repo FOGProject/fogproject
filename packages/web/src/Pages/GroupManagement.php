@@ -74,11 +74,17 @@ class GroupManagement extends FOGPage
         parent::__construct($this->name);
         $this->headerData = [
             _('Name'),
-            _('Members')
+            _('Members'),
+            // What the group grants, so a plain label group reads as one and
+            // a group that pushes snapins at every host in it reads as
+            // heavy. ADR 0038 Decision 16a requirement 5; the column is
+            // built in the group arm of Route::_gridColumns().
+            _('Grants')
         ];
         $this->attributes = [
             [],
-            ['width' => 16]
+            ['width' => 16],
+            []
         ];
     }
     /**

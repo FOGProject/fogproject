@@ -257,6 +257,19 @@ class Route extends FOGBase
      */
     protected static $hostGroupCache = [];
     /**
+     * What each group on the grid page being rendered grants.
+     *
+     * Keyed group id => list of already-translated strings, one per kind of
+     * grant the group carries and none for a kind it does not. Filled by ONE
+     * query in the Grants column's primer and read by its formatter, on the
+     * same per-page batching rule as $relCache and $hostGroupCache.
+     *
+     * Emptied at the top of every listem() call, exactly as those are.
+     *
+     * @var array
+     */
+    protected static $groupGrantCache = [];
+    /**
      * The class the current API route is serving, recorded so printer() can
      * strip secrets from a payload that does not name its own class.
      *
@@ -3136,6 +3149,7 @@ class Route extends FOGBase
             // Fresh per grid -- see $relCache and rel().
             self::$relCache = [];
             self::$hostGroupCache = [];
+            self::$groupGrantCache = [];
             $classname = strtolower($class);
             $classman = self::getClass("{$classname}manager");
             $table = $classman->getTable();
@@ -3815,6 +3829,64 @@ class Route extends FOGBase
                     'db' => 'gmMembers',
                     'dt' => 'members',
                     'removeFromQuery' => true
+                ];
+                // What the group grants. ADR 0038 Decision 16a requirement
+                // 5: once a group is also a label, a list of forty rows that
+                // all look identically consequential hides the one thing a
+                // reader needs -- whether this row is a label or something
+                // that will push software at every host in it.
+                //
+                // Counts rather than names on purpose. The question the
+                // column answers is "is this heavy", and a group with twenty
+                // snapins would answer it with twenty chips of noise.
+                //
+                // Deliberately NO 'db', for the same reason the host list's
+                // groups column has none: there is no scalar on `groups`
+                // behind it. Unlike that column it carries no 'sqlfilter'
+                // either -- nobody has asked to filter groups by what they
+                // grant, and the contract is there to be added to when they
+                // do.
+                //
+                // Not folded into Group::$sqlQueryStr beside gmMembers,
+                // although that would make it sortable. That query already
+                // LEFT JOINs groupMembers and counts it; three more joins
+                // multiply into a cartesian product per group row -- 500
+                // hosts x 20 snapins x 10 printers is 100k intermediate rows
+                // for one group -- and every count would have to become
+                // COUNT(DISTINCT) to survive the fan-out. One indexed
+                // GROUP BY per page is cheaper than that by orders of
+                // magnitude, and it is the pattern the groups column on the
+                // host list already set.
+                //
+                // No site boundary on the counts, and that is a finding
+                // rather than an omission: snapin, printer and module are
+                // not site-scoped nodes (SiteScope::$_nodes holds host,
+                // user, group and usergroup). A caller who can see the group
+                // row can see what it grants; there is nothing here to leak
+                // across a boundary the way group NAMES can on the host
+                // list.
+                $columns[] = [
+                    'dt' => 'grants',
+                    'prime' => function ($rows) {
+                        self::_primeGroupGrants(
+                            array_column((array) $rows, 'groupID')
+                        );
+                    },
+                    'formatter' => function ($d, $row) {
+                        // PLAIN TEXT, no markup: registerExportTable()
+                        // escapes each cell, so a badge baked in here lands
+                        // in the CSV as a literal <span> (GH-1446).
+                        return implode(', ', self::_groupGrants($row));
+                    }
+                ];
+                // The same strings as a list, for the renderer. Rides along
+                // in the JSON with no header of its own, as groups_list and
+                // primac_vendor do, so it never reaches the CSV export.
+                $columns[] = [
+                    'dt' => 'grants_list',
+                    'formatter' => function ($d, $row) {
+                        return self::_groupGrants($row);
+                    }
                 ];
                 break;
             case 'site':
@@ -7804,6 +7876,116 @@ class Route extends FOGBase
 
         return $hostID > 0 && isset(self::$hostGroupCache[$hostID])
             ? self::$hostGroupCache[$hostID]
+            : [];
+    }
+    /**
+     * Counts what every group on the grid page grants, in one query.
+     *
+     * ADR 0038 Decision 16a requirement 5. The three tables are the three
+     * things a group grants under this ADR and the three FOG\Assign\Resolver
+     * resolves -- snapins, printers and modules. An image is NOT among them:
+     * a group pushes an image onto its hosts imperatively (Group::addImage),
+     * it does not grant one, so it is not a property of the group to show.
+     *
+     * The strings are composed here rather than client-side because they are
+     * translated, and the browser has no catalog. The renderer's job is to
+     * escape them and wrap them in a badge.
+     *
+     * @param array $groupIDs The page's group ids, unsanitized.
+     *
+     * @return void
+     */
+    private static function _primeGroupGrants($groupIDs)
+    {
+        self::$groupGrantCache = [];
+        $ids = [];
+        foreach ((array) $groupIDs as $id) {
+            $id = (int) $id;
+            if ($id > 0) {
+                $ids[$id] = $id;
+            }
+        }
+        if (!count($ids)) {
+            return;
+        }
+        $in = implode(',', $ids);
+        // One UNION ALL rather than three round trips. Each arm is a plain
+        // GROUP BY on the assoc table's leading index column, so none of
+        // them reads a row it does not count.
+        $kinds = [
+            'snapin' => ['groupSnapinAssoc', 'gsaGroupID'],
+            'printer' => ['groupPrinterAssoc', 'gpaGroupID'],
+            'module' => ['groupModuleAssoc', 'gmaGroupID']
+        ];
+        $selects = [];
+        foreach ($kinds as $kind => $spec) {
+            list($table, $col) = $spec;
+            $selects[] = 'SELECT \'' . $kind . '\' AS `kind`,'
+                . '`' . $col . '` AS `gid`,COUNT(*) AS `n`'
+                . ' FROM `' . $table . '`'
+                . ' WHERE `' . $col . '` IN (' . $in . ')'
+                . ' GROUP BY `' . $col . '`';
+        }
+        $rows = self::_rawRows(implode(' UNION ALL ', $selects));
+        // Bucketed by kind first so the badges come out in a fixed order --
+        // snapins, printers, modules -- whatever order the UNION returns.
+        $byKind = [];
+        foreach ($rows as $row) {
+            $gid = (int) $row['gid'];
+            $n = (int) $row['n'];
+            if ($gid > 0 && $n > 0) {
+                $byKind[(string) $row['kind']][$gid] = $n;
+            }
+        }
+        foreach ($kinds as $kind => $spec) {
+            if (!isset($byKind[$kind])) {
+                continue;
+            }
+            foreach ($byKind[$kind] as $gid => $n) {
+                self::$groupGrantCache[$gid][] = sprintf(
+                    self::_grantLabel($kind, $n),
+                    $n
+                );
+            }
+        }
+    }
+    /**
+     * The translated "%d snapins" label for one kind of grant.
+     *
+     * Split out because ngettext needs its two forms as literals for the
+     * catalog extractor to find them; building the msgid from $kind would
+     * leave every one of these untranslated in every language.
+     *
+     * @param string $kind One of snapin, printer, module.
+     * @param int    $n    How many, for the plural form.
+     *
+     * @return string A format string taking one %d.
+     */
+    private static function _grantLabel($kind, $n)
+    {
+        switch ($kind) {
+            case 'snapin':
+                return ngettext('%d snapin', '%d snapins', $n);
+            case 'printer':
+                return ngettext('%d printer', '%d printers', $n);
+            default:
+                return ngettext('%d module', '%d modules', $n);
+        }
+    }
+    /**
+     * The primed grants for one grid row.
+     *
+     * @param array $row The raw database row.
+     *
+     * @return array list of translated strings, empty for a plain label
+     *               group that grants nothing.
+     */
+    private static function _groupGrants($row)
+    {
+        $groupID = isset($row['groupID']) ? (int) $row['groupID'] : 0;
+
+        return $groupID > 0 && isset(self::$groupGrantCache[$groupID])
+            ? self::$groupGrantCache[$groupID]
             : [];
     }
     /**
