@@ -355,12 +355,6 @@ parameters:
 			path: packages/web/src/Pages/GroupManagement.php
 
 		-
-			message: '#^Method FOG\\Pages\\GroupManagement\:\:_groupAssocList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
 			message: '#^Method FOG\\Pages\\GroupManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
 			identifier: return.void
 			count: 1
@@ -412,12 +406,6 @@ parameters:
 			message: '#^Result of method FOG\\Base\\FOGPage\:\:newPMDisplay\(\) \(void\) is used\.$#'
 			identifier: method.void
 			count: 2
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Result of method FOG\\Pages\\GroupManagement\:\:_groupAssocList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 3
 			path: packages/web/src/Pages/GroupManagement.php
 
 		-

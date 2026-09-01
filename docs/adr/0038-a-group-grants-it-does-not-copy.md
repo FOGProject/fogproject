@@ -88,10 +88,11 @@ with the rejected alternative stated in full. Decision 16a's five presentation
 requirements are **binding parts of that decision**, not follow-up work: the
 decision is only correct if a group is cheap to apply in bulk.
 
-Amends [ADR 0001](0001-group-association-state.md) rather than superseding it:
-0001's tri-state derivation is still how the group page reports *member* state
-after this change, but its opening sentence — "a group owns no associations of
-its own" — stops being true for snapins and printers, which is the whole point.
+**Supersedes [ADR 0001](0001-group-association-state.md)** as of unit E. This
+was recorded as an amendment while the group page still derived member
+coverage; unit E removed that derivation, so 0001 now describes machinery that
+is gone. Its opening sentence — "a group owns no associations of its own" — is
+false for snapins, printers and modules, which is the whole point.
 
 ## Context
 
@@ -301,16 +302,14 @@ grant — turning a grant back into a copy, which is the one thing this ADR
 exists to prevent. `Host::resolvedModules()` is the separate, explicit
 accessor the client protocol reads.
 
-**Still to come, and gated the same way snapins and printers are.** Nothing
-writes `groupSnapinAssoc` or `groupPrinterAssoc` yet either — `Group::
-addSnapin()` and `addPrinter()` are still the imperative copy-to-members
-versions, and converting them is Decision 10's unit E, which removes
-functionality and needs signoff. `Group::addModule()` stays imperative for
-exactly that reason: converting it alone would put modules ahead of the other
-two and leave the group page granting on one tab and copying on the next. The
-host Modules tab also has to become genuinely tri-state before a host can
-express OFF at all — today unticking deletes the row, which under this design
-means "unstated" and would let a group grant re-enable it.
+**Built (unit E), 2026-09-01.** `Group::addSnapin()`, `addPrinter()` and
+`addModule()` now write the grant tables and touch no host. They were
+converted together, not one at a time: converting one alone would have left
+the group page granting on one tab and copying on the next. The host Modules
+tab had to become genuinely tri-state first (M5, #1646), because until it did
+a host could not express OFF at all — unticking deleted the row, which under
+this design means "unstated", and a group grant would have switched it back
+on.
 
 **Built (M5).** The Modules tab's per-row control is a **select** — *On / Off /
 Not set* — rather than a checkbox, and the column is headed **State** rather
@@ -1330,6 +1329,56 @@ server-restart path, so an id below the watermark is *evidence* of a legacy row
 and not proof — which is fine for a label and would not be fine for a
 semantics gate, which is the second reason the boundary is not one.
 
+### Built (unit E), and what it deleted
+
+The declarative half is finished. Three things were settled in the building,
+and the third is a deliberate departure from the units table.
+
+- **The grant tables needed classes.** `Assign\Resolver` reads them with raw
+  SQL, which is right for a hot read path but is not a write path, so
+  `GroupSnapinAssociation`, `GroupPrinterAssociation` and
+  `GroupModuleAssociation` (plus their managers) were added -- the same shape
+  every other association table in the tree already has. They are deliberately
+  **not** in `Route::$validClasses`: exposing a new write surface over REST is
+  an access-control decision this ADR never asked for, and adding them later
+  is purely additive.
+
+- **The columns that carry an admin's decision stay out of the upsert.**
+  `insertBatch()` upserts on the unique key and sets every column it is given,
+  so naming `gsaSequence` in `addSnapin()`'s field list would reset the run
+  order every time a snapin was re-sent, and naming `gpaIsDefault` in
+  `addPrinter()`'s would reset the default. New rows land at the column
+  default and `Group::appendSnapinSequence()` numbers them afterward -- the
+  same mechanism, for the same reason, as its host-side twin.
+
+- **The imperative controls are marked deprecated, not removed.** Decision 10
+  says the order is: mass edit ships, the imperative tabs are marked
+  deprecated in the UI and the docs, they are removed in a later release. The
+  units table entry for unit E said "removal of the imperative tabs", which
+  reads past the middle step. Six cards -- the General form, Group Image
+  Association, Group Printer Configuration, Group Display Manager Settings,
+  Auto Logout Settings and Enforce Hostname -- now carry a notice saying the
+  value is applied once to today's members and pointing at "Edit selected
+  hosts". Power Management deliberately does not: it creates tasks, it does
+  not copy a value. The notice is per CARD rather than per tab, because the
+  printers and modules tabs each carry a grant tab and a push control, and a
+  tab-level banner would condemn the grants too.
+
+**What went with it.** The group page's tri-state coverage vocabulary is
+gone: `_groupAssocList()`, `getAssocHostsList()`, `_uniformDefaultPrinter()`,
+and `groupAssocRender()`/`wireGroupAssocTab()` in `fog.group.edit.js` -- the
+All/Some/None checkbox, the `n / total` badge and the Has/Missing host
+drill-down. All of it existed to reconstruct, after the fact, what the group
+would have looked like if it had ever owned anything. It owns something now.
+`getSnapinOrderList()` shrank from an intersection over every member host's
+`snapinAssoc` rows to a read of `gsaSequence`.
+
+**`AddLocationGroup.php` and `AddOUGroup.php` are untouched, and that is
+correct.** They are push controls, so they belong to the deprecation half, and
+Decision 13 says the group page's imperative tabs and the plugins' group tabs
+must be removed in the same release. Removing them now would leave the page
+with an image tab and no OU tab, which is the failure that argument names.
+
 ## Consequences
 
 - **`persistentgroups` becomes unnecessary**, and its retirement is a schema
@@ -1346,13 +1395,12 @@ semantics gate, which is the second reason the boundary is not one.
 - **A group edited mid-run does not change a task in flight, and people will be
   surprised.** This is the documentation obligation in Decision 4 and it is the
   most likely support question this change generates.
-- **ADR 0001 becomes half-true and stays in force.** Its tri-state derivation
-  is still how the group page reports member state for modules, and will be
-  until unit E reworks that page. Its premise that a group owns nothing is no
-  longer true for snapins, printers or modules. The file gets an amendment
-  note rather than a rewrite -- and the note has to say that the module
-  asymmetry it argues for is NOT real, since Decision 3 was reversed on
-  exactly that finding.
+- **ADR 0001 is superseded, and kept.** Unit E removed the tri-state
+  derivation it describes, so it no longer documents anything that runs. It
+  stays on file because the question it asks is still live -- what "this group
+  has this module" means when a host can disable one -- and because the
+  correction note on it is the finding that reversed Decision 3. Its status
+  line says superseded and points here.
 - **`GROUP_SHARED_STATE.md` becomes the mass edit document.** Most of it
   survives the move — the no-clobber convention becomes the three-state
   convention (Decision 11), the `Hosts: (varies)` hint becomes the selection

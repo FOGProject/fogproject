@@ -2,7 +2,22 @@
 
 ## Status
 
-accepted
+superseded by [ADR 0038](0038-a-group-grants-it-does-not-copy.md) (unit E,
+2026-09-01)
+
+The derivation this ADR describes no longer exists. A group owns its snapins,
+printers and modules, so the group page's association tabs are plain on/off
+lists of the group's own grants -- there is no All/Some/None state to derive,
+no `n / total` badge, and no Has/Missing drill-down. `_groupAssocList()`,
+`getAssocHostsList()` and the tri-state renderer in `fog.group.edit.js` are
+gone with them.
+
+Kept rather than deleted for two reasons. The *question* it answers -- what
+does "this group has this module" mean when a host can disable one -- is still
+live, and ADR 0038 answers it differently (the host's OFF beats every grant,
+and a grant cannot say OFF at all). And the correction below is the finding
+that reversed ADR 0038 decision 3, so the reasoning has to survive even though
+the behavior it justified does not.
 
 ## Context
 
@@ -55,8 +70,9 @@ this also flips `state = 0 → 1`); toggling to **None** deletes the rows.
 **Superseded for modules by ADR 0038 decision 3.** Once `state = 0` is a host
 saying OFF, flipping it to 1 on a group-wide toggle overrides a deliberate
 per-host statement, and deleting the row means "unstated" rather than "off".
-The group module tab keeps this behavior until unit E replaces it with a
-grant; the correction note above has the detail.
+Unit E replaced it with a grant on 2026-09-01: the tab writes
+`groupModuleAssoc` and touches no host, so nothing on the group page can
+override a host's OFF any more.
 
 Per-host configuration *shared values* (Active Directory, auto-logout,
 force-reboot, the printer **default** flag) are explicitly **out of scope** for
