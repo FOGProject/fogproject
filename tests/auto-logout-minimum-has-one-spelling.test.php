@@ -52,9 +52,14 @@ $check(
  * `$tme` is the field name on both pages' forms, so a comparison against a
  * bare number is the drift this file is for.
  */
+// The group page is deliberately not in this list any more. ADR 0038
+// decision 10 removed its auto-logout card -- the setting is edited from the
+// Hosts list's mass edit, so the group page has no $tme to compare and no
+// minimum to hand the browser. Leaving it here would assert that a page still
+// gates on a rule it no longer applies, which passes only while some
+// unrelated mention of MIN_MINUTES survives in the file.
 $pages = [
     'src/Pages/HostManagement.php',
-    'src/Pages/GroupManagement.php',
 ];
 foreach ($pages as $rel) {
     $src = (string)@file_get_contents($webroot . '/' . $rel);
@@ -68,25 +73,14 @@ foreach ($pages as $rel) {
     );
 }
 
-// The group page hands the same number to the browser. A form that lets a
-// value through which the save then discards is the visible half of this
-// drift, so the attribute has to come from the constant too.
-$group = (string)@file_get_contents(
-    $webroot . '/src/Pages/GroupManagement.php'
+// The one remaining spelling has to be the constant itself, not a literal
+// that happens to agree with it today.
+$host = (string)@file_get_contents(
+    $webroot . '/src/Pages/HostManagement.php'
 );
 $check(
-    'the group form gets data-alo-min from the constant',
-    1 === preg_match(
-        '/data-alo-min="\'\s*\.\s*self::ALO_MIN_MINUTES/',
-        $group
-    )
-);
-$check(
-    'the group page aliases the constant rather than restating it',
-    1 === preg_match(
-        '/const ALO_MIN_MINUTES = HostAutoLogout::MIN_MINUTES;/',
-        $group
-    )
+    'the host mass edit gets its minimum from HostAutoLogout',
+    1 === preg_match('/HostAutoLogout::MIN_MINUTES/', $host)
 );
 
 if (count($failures)) {

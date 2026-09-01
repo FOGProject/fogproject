@@ -4446,9 +4446,11 @@ class HostManagement extends FOGPage
      * (API_MASSDATA_MAPPING) and a bulk DELETE seam (DELETEMASS_API) and no
      * bulk EDIT seam. Between them sat the operation neither covers --
      * changing a value across a set -- and its absence is why `location` and
-     * `ou` each ship a whole second hook file whose only job is to set one
-     * value across many hosts, always clobbering, unable to express "leave
-     * alone" at all.
+     * `ou` each shipped a whole second hook file whose only job was to set
+     * one value across many hosts, always clobbering, unable to express
+     * "leave alone" at all. Both now contribute through this seam instead
+     * (fog-plugins #36), which is what allowed decision 10's last step --
+     * removing the group page's push controls -- to happen at all.
      *
      * The selection is passed because a plugin's mixed-value hint has to be
      * computed over it -- "(varies)" is a statement about THESE hosts. Both

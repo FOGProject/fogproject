@@ -1085,7 +1085,9 @@ neither covers: changing a value across a set. `HOST_MASSEDIT_*` is that seam
 
 It is why `location` and `ou` each shipped a whole second hook file whose only
 job was to set one value across a group's members — and those files always
-clobbered, because there was no way to say *leave this host alone*.
+clobbered, because there was no way to say *leave this host alone*. Both were
+converted to this seam in fog-plugins #36 and are the worked example to copy:
+`AddLocationHost::massEditFields()` / `massEditApply()`.
 
 **Contribute a field** — fired when the Mass Edit form is built, and again
 when it is applied, with the same arguments both times so the two can never

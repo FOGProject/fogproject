@@ -17,7 +17,6 @@ namespace FOG\Pages;
 
 use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
-use FOG\Items\HostAutoLogout;
 use FOG\Items\Setting;
 use FOG\Items\TaskType;
 use FOG\Router\HTTPResponseCodes;
@@ -44,23 +43,6 @@ class GroupManagement extends FOGPage
      * @var string
      */
     public $node = 'group';
-    /**
-     * Fewest minutes an auto-logout value can be and still take effect;
-     * anything below this saves as 0 (disabled). Named here because
-     * groupModulePost() enforces it, groupModules() hands it to the JS so the
-     * "Hosts:" readout can predict the result without a round trip, and the two
-     * must agree. The card's own "...is 5 minutes." sentence is deliberately
-     * left as a literal -- folding it in would change the gettext msgid and
-     * strand every existing translation of it.
-     *
-     * The value itself now lives on HostAutoLogout, because the host mass
-     * edit enforces the same rule on the same column and ADR 0038 decision 10
-     * removes this page's tab. Kept as an alias so the two references below
-     * and the JS data attribute do not have to change with it.
-     *
-     * @var int
-     */
-    const ALO_MIN_MINUTES = HostAutoLogout::MIN_MINUTES;
     /**
      * Initializes the group page
      *
@@ -295,184 +277,6 @@ class GroupManagement extends FOGPage
         );
     }
     /**
-     * What the member hosts hold in common, per column.
-     *
-     * Delegates. The computation moved to FOG\\Util\\SharedHostValues so that
-     * this page and any form editing a SELECTION of hosts share one answer to
-     * "do these hosts agree" -- two copies of that would drift silently,
-     * because nothing fails when they disagree, one form just starts telling
-     * a different truth than the other about the same hosts.
-     *
-     * Kept as a wrapper rather than replacing every call site with the static:
-     * the group's membership is the only host list this page ever asks about,
-     * and threading it through thirty call sites would be noise.
-     *
-     * @param array $columns map of friendly key => hosts table column
-     *
-     * @return array friendly key => ['uniform' => bool, 'value' => string]
-     */
-    private function _uniformHostValues($columns)
-    {
-        return SharedHostValues::forHosts(
-            (array)$this->obj->get('hosts'),
-            $columns
-        );
-    }
-    /**
-     * Renders a muted "Hosts: ..." hint describing the members' shared value
-     * for a field, from a _uniformHostValues() entry.
-     *
-     * @param array $info ['uniform' => bool, 'value' => string]
-     *
-     * @return string
-     */
-    private function _sharedHint($info)
-    {
-        return SharedHostValues::hint($info);
-    }
-    /**
-     * The shared-state text for a _uniformHostValues() entry: the value with
-     * "(all)", or "(varies)" / "(empty on all)".
-     *
-     * @param array $info ['uniform' => bool, 'value' => string]
-     *
-     * @return string
-     */
-    private function _sharedValueText($info)
-    {
-        return SharedHostValues::text($info);
-    }
-    /**
-     * Summary box of the members' current Active Directory state, shown above
-     * the group AD form so the admin sees what the no-change defaults preserve.
-     *
-     * @return string
-     */
-    private function _groupADStateHint()
-    {
-        $ad = $this->_uniformHostValues(
-            [
-                'useAD' => 'hostUseAD',
-                'ADDomain' => 'hostADDomain',
-                'ADOU' => 'hostADOU',
-                'ADUser' => 'hostADUser',
-            ]
-        );
-        if (!$ad['useAD']['uniform']) {
-            $join = _('(varies)');
-        } else {
-            $join = ($ad['useAD']['value'] === '1')
-                ? _('enabled (all)')
-                : _('disabled (all)');
-        }
-        return '<div class="card card-info card-outline"><div class="card-body box-body-compact">'
-            . '<strong>' . _('Current member-host AD state') . '</strong><br/>'
-            . _('Domain joining') . ': ' . $join . '<br/>'
-            . _('Domain name') . ': '
-            . $this->_sharedValueText($ad['ADDomain']) . '<br/>'
-            . _('Organizational Unit') . ': '
-            . $this->_sharedValueText($ad['ADOU']) . '<br/>'
-            . _('Domain username') . ': '
-            . $this->_sharedValueText($ad['ADUser'])
-            . '</div></div>';
-    }
-    /**
-     * Whether every member host shares the same auto-logout time, and what it
-     * is. Auto-logout lives in hostAutoLogOut (a host may have no row, which
-     * means "unset / use the default"), so a LEFT JOIN treats missing as ''.
-     *
-     * @return array ['uniform' => bool, 'value' => string]
-     */
-    private function _uniformAloValue()
-    {
-        $info = ['uniform' => false, 'value' => ''];
-        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
-        if (count($hostIDs) < 1) {
-            return $info;
-        }
-        $sql = sprintf(
-            'SELECT COUNT(*) AS `n`, '
-            . "COUNT(DISTINCT COALESCE(`haloTime`, '')) AS `d`, "
-            . "MIN(COALESCE(`haloTime`, '')) AS `v` "
-            . 'FROM `hosts` h '
-            . 'LEFT JOIN `hostAutoLogOut` halo '
-            . 'ON halo.`haloHostID` = h.`hostID` '
-            . 'WHERE h.`hostID` IN (%s)',
-            implode(',', $hostIDs)
-        );
-        $row = self::$DB->query($sql)->fetch();
-        $n = (int)$row->get('n');
-        $info['uniform'] = ($n > 0 && (int)$row->get('d') <= 1);
-        $info['value'] = (string)$row->get('v');
-        return $info;
-    }
-    /**
-     * "Hosts: ..." hint for the auto-logout time (treats unset/0 as default).
-     *
-     * @param array $info ['uniform' => bool, 'value' => string]
-     *
-     * @return string
-     */
-    private function _sharedAloHint($info)
-    {
-        if (!$info['uniform']) {
-            $text = _('(varies)');
-        } elseif ($info['value'] === '' || $info['value'] === '0') {
-            $text = _('(default on all)');
-        } else {
-            $text = \Initiator::e($info['value']) . ' ' . _('min (all)');
-        }
-        // Server-rendered from the members' current values, so it goes stale as
-        // soon as the card is applied over AJAX (the tab is never re-rendered).
-        // groupModulePost() forces every member to one value, so the outcome is
-        // predictable client-side -- hand over the translated readouts and the
-        // threshold as data-*, the same way the enforce hint and
-        // makeReloadToggle() do, so translation stays here and the JS only
-        // picks. data-alo-min is what keeps the JS from hardcoding the rule.
-        return '<p class="form-text help-block-tight" id="alo-shared-hint"'
-            . ' data-alo-min="' . self::ALO_MIN_MINUTES . '"'
-            . ' data-hosts-label="' . \Initiator::e(_('Hosts:')) . '"'
-            . ' data-default-label="' . \Initiator::e(_('(default on all)')) . '"'
-            . ' data-min-label="' . \Initiator::e(_('min (all)')) . '">'
-            . _('Hosts:') . ' ' . $text
-            . '</p>';
-    }
-    /**
-     * The notice a control that COPIES onto member hosts carries.
-     *
-     * ADR 0038 decision 10: mass edit on the host list ships first, then the
-     * group page's imperative controls are marked deprecated, then they are
-     * removed in a later release. This is the middle step, and it is a
-     * separate thing from the grant tabs beside it -- a snapin, printer or
-     * module granted by this group is not deprecated and is not going
-     * anywhere. Only the controls that write a value onto whichever hosts
-     * happen to be members at the moment the button is pressed are, because
-     * nothing records that the write happened and so nothing can replay it
-     * for a host added afterward.
-     *
-     * @return string the markup, or '' when there is nothing to say
-     */
-    private static function _pushDeprecationNotice()
-    {
-        // Scoped wording. Some cards carrying this notice also hold fields
-        // that belong to the GROUP -- name, description, order -- which are
-        // not pushed anywhere and are not going away with the rest.
-        return '<div class="alert alert-warning" role="alert">'
-            . '<strong>' . _('Deprecated.') . '</strong> '
-            . _(
-                'The fields below that are written onto hosts apply the value '
-                . 'once, to the hosts that are members right now. A host '
-                . 'added to the group later does not get it, and a host '
-                . 'removed keeps it.'
-            )
-            . ' '
-            . _(
-                'Use "Edit selected hosts" on the Hosts list instead; these '
-                . 'controls will be removed in a later release.'
-            )
-            . '</div>';
-    }
-    /**
      * The printer this group grants as the default, or 0 for none.
      *
      * ADR 0038: one row on the group answers this. It replaces a per-member
@@ -501,18 +305,6 @@ class GroupManagement extends FOGPage
      */
     public function groupGeneral()
     {
-        $exitNorm = Setting::buildExitSelector(
-            'bootTypeExit',
-            filter_input(INPUT_POST, 'bootTypeExit'),
-            true,
-            'bootTypeExit'
-        );
-        $exitEfi = Setting::buildExitSelector(
-            'efiBootTypeExit',
-            filter_input(INPUT_POST, 'efiBootTypeExit'),
-            true,
-            'efiBootTypeExit'
-        );
         $group = (
             filter_input(INPUT_POST, 'group') ?:
             ($this->obj->get('name') ?: '')
@@ -520,23 +312,6 @@ class GroupManagement extends FOGPage
         $description = (
             filter_input(INPUT_POST, 'description') ?:
             ($this->obj->get('description') ?: '')
-        );
-        $productKey = filter_input(INPUT_POST, 'key');
-        $kernel = (
-            filter_input(INPUT_POST, 'kernel') ?:
-            ($this->obj->get('kernel') ?: '')
-        );
-        $args = (
-            filter_input(INPUT_POST, 'args') ?:
-            ($this->obj->get('kernelArgs') ?: '')
-        );
-        $init = (
-            filter_input(INPUT_POST, 'init') ?:
-            ($this->obj->get('init') ?: '')
-        );
-        $dev = (
-            filter_input(INPUT_POST, 'dev') ?:
-            ($this->obj->get('kernelDevice') ?: '')
         );
         // Not the ?: idiom the fields above use: an order of 0 is a real
         // value and the default one, so ?: would discard it and redisplay
@@ -547,19 +322,6 @@ class GroupManagement extends FOGPage
         }
 
         $labelClass = 'col-sm-3 col-form-label';
-
-        // Per-field "Hosts: ..." hints showing the members' shared state.
-        $shared = $this->_uniformHostValues(
-            [
-                'key' => 'hostProductKey',
-                'kernel' => 'hostKernel',
-                'args' => 'hostKernelArgs',
-                'init' => 'hostInit',
-                'dev' => 'hostDevice',
-                'biosexit' => 'hostExitBios',
-                'efiexit' => 'hostExitEfi',
-            ]
-        );
 
         $fields = [
             self::makeLabel(
@@ -611,81 +373,6 @@ class GroupManagement extends FOGPage
                 . 'printers.'
             )
             . '</p>',
-            self::makeLabel(
-                $labelClass,
-                'key',
-                _('Group Product Key')
-            ) => self::makeInput(
-                'form-control groupkey-input',
-                'key',
-                'ABCDE-FGHIJ-KLMNO-PQRST-UVWXY',
-                'text',
-                'key',
-                $productKey,
-                false,
-                false,
-                -1,
-                29,
-                'exactlength="25"'
-            ) . $this->_sharedHint($shared['key']),
-            self::makeLabel(
-                $labelClass,
-                'kernel',
-                _('Group Kernel')
-            ) => self::makeInput(
-                'form-control groupkernel-input',
-                'kernel',
-                'customBzimage',
-                'text',
-                'kernel',
-                $kernel
-            ) . $this->_sharedHint($shared['kernel']),
-            self::makeLabel(
-                $labelClass,
-                'args',
-                _('Group Kernel Arguments')
-            ) => self::makeInput(
-                'form-control groupkernelargs-input',
-                'args',
-                'debug acpi=off',
-                'text',
-                'args',
-                $args
-            ) . $this->_sharedHint($shared['args']),
-            self::makeLabel(
-                $labelClass,
-                'init',
-                _('Group Init')
-            ) => self::makeInput(
-                'form-control groupinit-input',
-                'init',
-                'customInit.xz',
-                'text',
-                'init',
-                $init
-            ) . $this->_sharedHint($shared['init']),
-            self::makeLabel(
-                $labelClass,
-                'dev',
-                _('Group Primary Disk')
-            ) => self::makeInput(
-                'form-control groupdev-input',
-                'dev',
-                '/dev/md0',
-                'text',
-                'dev',
-                $dev
-            ) . $this->_sharedHint($shared['dev']),
-            self::makeLabel(
-                $labelClass,
-                'bootTypeExit',
-                _('Group BIOS Exit')
-            ) => $exitNorm . $this->_sharedHint($shared['biosexit']),
-            self::makeLabel(
-                $labelClass,
-                'efiBootTypeExit',
-                _('Group EFI Exit')
-            ) => $exitEfi . $this->_sharedHint($shared['efiexit'])
         ];
 
         $buttons = self::makeButton(
@@ -739,14 +426,7 @@ class GroupManagement extends FOGPage
             '',
             'warning'
         );
-        $alert = self::_pushDeprecationNotice()
-            . '<div class="alert alert-info" role="alert">'
-            . _('Leave a field blank to keep each host\'s current value.')
-            . ' '
-            . _('Type')
-            . ' <code>NULL</code> '
-            . _('to clear the field on every host in this group.')
-            . '</div>';
+        $alert = '';
         $this->renderGeneralForm(
             'group',
             $alert . $rendered,
@@ -767,38 +447,6 @@ class GroupManagement extends FOGPage
         $desc = trim(
             (string)filter_input(INPUT_POST, 'description')
         );
-        $key = trim(
-            (string)filter_input(INPUT_POST, 'key')
-        );
-        // Empty = leave per-host value alone; literal "NULL" = clear it.
-        // Both are sentinels for the $resolve closure below, so they skip
-        // strict validation; anything else must be a valid Base24 key.
-        if ($key === '' || strcasecmp($key, 'NULL') === 0) {
-            $productKey = $key;
-        } else {
-            if (!self::productKeyIsValid($key)) {
-                throw new \Exception(_('Invalid Windows product key'));
-            }
-            $productKey = self::productKeyFormat($key);
-        }
-        $kernel = trim(
-            (string)filter_input(INPUT_POST, 'kernel')
-        );
-        $args = trim(
-            (string)filter_input(INPUT_POST, 'args')
-        );
-        $dev = trim(
-            (string)filter_input(INPUT_POST, 'dev')
-        );
-        $init = trim(
-            (string)filter_input(INPUT_POST, 'init')
-        );
-        $bte = trim(
-            (string)filter_input(INPUT_POST, 'bootTypeExit')
-        );
-        $ebte = trim(
-            (string)filter_input(INPUT_POST, 'efiBootTypeExit')
-        );
         // Clamped rather than validated: the field is a number input with
         // min=0, so a negative or non-numeric value here is a hand-built
         // POST, and there is no order it could mean other than the default.
@@ -811,152 +459,15 @@ class GroupManagement extends FOGPage
                 throw new \Exception(_('Please use another group name'));
             }
         }
-        // Set the group relative items.
+        // Only the group's OWN fields. Everything this used to push onto the
+        // member hosts -- kernel, args, primary disk, init, both exit types
+        // and the product key -- is now set from the Hosts list's Edit
+        // selected hosts (ADR 0038 decision 10), where "leave this host
+        // alone" is a state the form can express and this one never could.
         $this->obj
             ->set('name', $group)
             ->set('description', $desc)
-            ->set('order', $order)
-            ->set('kernel', $kernel)
-            ->set('kernelArgs', $args)
-            ->set('kernelDevice', $dev)
-            ->set('init', $init);
-
-        // Propagate to hosts: empty = leave per-host value alone;
-        // literal "NULL" (case-insensitive) = explicitly clear the field.
-        $resolve = function ($value) {
-            $trimmed = trim((string)$value);
-            if (strcasecmp($trimmed, 'NULL') === 0) {
-                return '';
-            }
-            return $trimmed !== '' ? $value : null;
-        };
-        $candidates = [
-            'kernel'       => $kernel,
-            'kernelArgs'   => $args,
-            'kernelDevice' => $dev,
-            'init'         => $init,
-            'biosexit'     => $bte,
-            'efiexit'      => $ebte,
-            'productKey'   => $productKey,
-        ];
-        $updateHostItems = [];
-        foreach ($candidates as $field => $value) {
-            $resolved = $resolve($value);
-            if ($resolved !== null) {
-                $updateHostItems[$field] = $resolved;
-            }
-        }
-        self::getClass('HostManager')
-            ->update(
-                ['id' => $this->obj->get('hosts')],
-                '',
-                $updateHostItems
-            );
-    }
-    /**
-     * Prints the group image element.
-     *
-     * @return void
-     */
-    public function groupImage()
-    {
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'group-image',
-                $this->obj->get('id')
-            )
-            . '" ';
-        $image = filter_input(INPUT_POST, 'image');
-        // Group Images
-        $imageSelector = self::getClass('ImageManager')
-            ->buildSelectBox($image, 'image');
-
-        $labelClass = 'col-sm-3 col-form-label';
-
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'image',
-                _('Group Image')
-            ) => $imageSelector
-        ];
-
-        $buttons = self::makeButton(
-            'group-image-send',
-            _('Update'),
-            'btn btn-primary float-end',
-            $props
-        );
-
-        self::$HookManager->processEvent(
-            'GROUP_IMAGE_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Group' => &$this->obj
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo _('Group Image Association');
-        echo '</h4>';
-        echo self::_pushDeprecationNotice();
-        echo '</div>';
-        echo '<div class="card-body">';
-        echo $rendered;
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
-     * Group image post element
-     *
-     * @return void
-     */
-    public function groupImagePost()
-    {
-        self::checkAuthAndCSRF();
-        if (isset($_POST['confirmimage'])) {
-            $image = trim(
-                (string)filter_input(INPUT_POST, 'image')
-            );
-            $this->obj->addImage($image);
-        }
-    }
-    /**
-     * Group active directory post element
-     *
-     * @return void
-     */
-    public function groupADPost()
-    {
-        self::checkAuthAndCSRF();
-        // Same no-clobber convention as the General tab: empty = leave each
-        // host's value alone (null), literal "NULL" = clear it, anything else
-        // = push to all. useAD is tri-state via the adstate select.
-        $resolve = function ($value) {
-            $trimmed = trim((string)$value);
-            if (strcasecmp($trimmed, 'NULL') === 0) {
-                return '';
-            }
-            return $trimmed !== '' ? $trimmed : null;
-        };
-        $adstate = (string)filter_input(INPUT_POST, 'adstate');
-        $domain = $resolve(filter_input(INPUT_POST, 'domainname'));
-        $ou = $resolve(filter_input(INPUT_POST, 'ou'));
-        $user = $resolve(filter_input(INPUT_POST, 'domainuser'));
-        $passRaw = (string)filter_input(INPUT_POST, 'domainpassword');
-        // The 32-asterisk placeholder means "unchanged" (skip).
-        $pass = preg_match('/^\*{32}$/', trim($passRaw))
-            ? null
-            : $resolve($passRaw);
-        $this->obj->setAD($adstate, $domain, $ou, $user, $pass);
+            ->set('order', $order);
     }
     /**
      * Group hosts display.
@@ -1038,121 +549,6 @@ class GroupManagement extends FOGPage
         echo $buttons;
         echo '</div>';
         echo '</div>';
-
-        // =========================================================
-        // Printer Configuration
-        $printerLevel = filter_input(INPUT_POST, 'level');
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo _('Group Printer Configuration');
-        echo '</h4>';
-        echo self::_pushDeprecationNotice();
-        echo '<p class="form-text">';
-        echo _('This will set the configuration level to all hosts in this group');
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        echo '<div class="form-check">';
-        echo self::makeLabel(
-            '',
-            'noLevel',
-            self::makeInput(
-                'printer-nolevel',
-                'level',
-                '',
-                'radio',
-                'noLevel',
-                '0',
-                false,
-                false,
-                -1,
-                -1,
-                ($printerLevel == 0 ? 'checked' : '')
-            )
-            . ' '
-            . _('No Printer Management'),
-            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
-            . _(
-                'This setting turns off all FOG Printer Management. '
-                . 'Although there are multiple levels already, this '
-                . 'is just another level if needed.'
-            )
-            . '"'
-        );
-        echo '</div>';
-        echo '<div class="form-check">';
-        echo self::makeLabel(
-            '',
-            'addlevel',
-            self::makeInput(
-                'printer-addlevel',
-                'level',
-                '',
-                'radio',
-                'addlevel',
-                '1',
-                false,
-                false,
-                -1,
-                -1,
-                ($printerLevel == 1 ? 'checked' : '')
-            )
-            . ' '
-            . _('Add/Remove Managed Printers'),
-            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
-            . _(
-                'This setting only adds and removes '
-                . 'printers that are managed by FOG. '
-                . 'If the printer exists in printer '
-                . 'management but is not assigned to a '
-                . 'host, it will remove the printer if '
-                . 'it exists on the unassigned host. '
-                . 'It will add printers to the host '
-                . 'that are assigned.'
-            )
-            . '"'
-        );
-        echo '</div>';
-        echo '<div class="form-check">';
-        echo self::makeLabel(
-            '',
-            'alllevel',
-            self::makeInput(
-                'printer-alllevel',
-                'level',
-                '',
-                'radio',
-                'alllevel',
-                '2',
-                false,
-                false,
-                -1,
-                -1,
-                ($printerLevel == 2 ? 'checked' : '')
-            )
-            . ' '
-            . _('All Printers'),
-            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
-            . _(
-                'This setting will only allow FO GAssigned '
-                . 'printers to be added to the host. Any '
-                . 'printer that is not assigned will be '
-                . 'removed including non-FOG managed printers.'
-            )
-            . '"'
-        );
-        echo '</div>';
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo self::makeButton(
-            'printer-config-send',
-            _('Update'),
-            'btn btn-primary float-end',
-            $props
-        );
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Group Printer Post.
@@ -1166,14 +562,6 @@ class GroupManagement extends FOGPage
             $default = filter_input(INPUT_POST, 'default');
             $this->obj->addPrinter([$default]);
             $this->obj->updateDefault($default);
-        }
-        if (isset($_POST['confirmlevelup'])) {
-            $level = filter_input(INPUT_POST, 'level');
-            self::getClass('HostManager')->update(
-                ['id' => $this->obj->get('hosts')],
-                '',
-                ['printerLevel' => $level]
-            );
         }
     }
     /**
@@ -1268,311 +656,6 @@ class GroupManagement extends FOGPage
                 . 'stays off, and no grant can override that.'
             )
         );
-
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'group-module',
-                $this->obj->get('id')
-            )
-            . '" ';
-
-        $labelClass = 'col-sm-3 col-form-label';
-        // Display Manager area
-        $dispEnabled = self::getSEtting('FOG_CLIENT_DISPLAYMANAGER_ENABLED');
-        if ($dispEnabled) {
-            $buttons = self::makeButton(
-                'group-displayman-send',
-                _('Update'),
-                'btn btn-primary float-end',
-                $props
-            );
-            list(
-                $gr,
-                $gx,
-                $gy
-            ) = self::getSetting(
-                [
-                    'FOG_CLIENT_DISPLAYMANAGER_R',
-                    'FOG_CLIENT_DISPLAYMANAGER_X',
-                    'FOG_CLIENT_DISPLAYMANAGER_Y'
-                ]
-            );
-            // If the x, y, and/or r inputs are set.
-            $x = filter_input(INPUT_POST, 'x');
-            $y = filter_input(INPUT_POST, 'y');
-            $r = filter_input(INPUT_POST, 'r');
-            if (!$x) {
-                // If x not set, set to global
-                $x = $gx;
-            }
-            if (!$y) {
-                // If y not set, set to global
-                $y = $gy;
-            }
-            if (!$r) {
-                // If r not set, set to global
-                $r = $gr;
-            }
-            $names = [
-                'x' => [
-                    'width',
-                    _('Screen Width')
-                    . '<br/>('
-                    . _('in pixels')
-                    . ')'
-                ],
-                'y' => [
-                    'height',
-                    _('Screen Height')
-                    . '<br/>('
-                    . _('in pixels')
-                    . ')'
-                ],
-                'r' => [
-                    'refresh',
-                    _('Screen Refresh Rate')
-                    . '<br/>('
-                    . _('in Hz')
-                    . ')'
-                ]
-            ];
-            foreach ($names as $name => &$get) {
-                switch ($name) {
-                    case 'r':
-                        $val = $r;
-                        break;
-                    case 'x':
-                        $val = $x;
-                        break;
-                    case 'y':
-                        $val = $y;
-                }
-                $fields[
-                    self::makeLabel(
-                        $labelClass,
-                        $name,
-                        $get[1]
-                    )
-                ] = self::makeInput(
-                    'form-control',
-                    $name,
-                    '',
-                    'number',
-                    $name,
-                    $val
-                );
-                unset($get);
-            }
-
-            self::$HookManager->processEvent(
-                'GROUP_DISPLAYMAN_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'buttons' => &$buttons,
-                    'Group' => &$this->obj
-                ]
-            );
-            $rendered = self::formFields($fields);
-            unset($fields);
-
-            echo '<div class="card card-primary card-outline">';
-            echo '<div class="card-header">';
-            echo '<h4 class="card-title">';
-            echo _('Group Display Manager Settings');
-            echo '</h4>';
-            echo self::_pushDeprecationNotice();
-            echo '</div>';
-            echo '<div class="card-body">';
-            echo self::makeFormTag(
-                '',
-                'group-displayman-form',
-                self::makeTabUpdateURL(
-                    'group-module',
-                    $this->obj->get('id')
-                ),
-                'post',
-                'application/x-www-form-urlencoded',
-                true
-            );
-            echo $rendered;
-            echo '</form>';
-            echo '</div>';
-            echo '<div class="card-footer">';
-            echo $buttons;
-            echo '</div>';
-            echo '</div>';
-        }
-
-        // Auto log out area
-        $aloEnabled = self::getSetting('FOG_CLIENT_AUTOLOGOFF_ENABLED');
-        if ($aloEnabled) {
-            $buttons = self::makeButton(
-                'group-alo-send',
-                _('Update'),
-                'btn btn-primary float-end',
-                $props
-            );
-            // Blank by default so a save leaves each host's value alone
-            // (no-clobber); the global minimum is just a placeholder hint.
-            $tme = filter_input(INPUT_POST, 'tme');
-            $aloMin = (string)(
-                self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN') ?: 0
-            );
-            $aloInfo = $this->_uniformAloValue();
-            $fields = [
-                self::makeLabel(
-                    $labelClass,
-                    'tme',
-                    _('Auto Logout Time')
-                    . '<br/>('
-                    . _('in minutes')
-                    . ')'
-                ) => self::makeInput(
-                    'form-control',
-                    'tme',
-                    $aloMin,
-                    'number',
-                    'tme',
-                    $tme
-                ) . $this->_sharedAloHint($aloInfo)
-            ];
-
-            self::$HookManager->processEvent(
-                'GROUP_ALO_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'buttons' => &$buttons,
-                    'Group' => &$this->obj
-                ]
-            );
-            $rendered = self::formFields($fields);
-            unset($fields);
-
-            echo '<div class="card card-warning card-outline">';
-            echo '<div class="card-header">';
-            echo '<h4 class="card-title">';
-            echo _('Auto Logout Settings');
-            echo '</h4>';
-            echo self::_pushDeprecationNotice();
-            echo '<p class="form-text">';
-            echo _('Minimum time limit for Auto Logout to become active is 5 minutes.');
-            echo '</p>';
-            echo '</div>';
-            echo '<div class="card-body">';
-            echo self::makeFormTag(
-                '',
-                'group-alo-form',
-                self::makeTabUpdateURL(
-                    'group-module',
-                    $this->obj->get('id')
-                ),
-                'post',
-                'application/x-www-form-urlencoded',
-                true
-            );
-            echo $rendered;
-            echo '</form>';
-            echo '</div>';
-            echo '<div class="card-footer">';
-            echo $buttons;
-            echo '</div>';
-            echo '</div>';
-        }
-
-        // Hostname change reboot/domain join reboot forced. Tri-state so a
-        // save with "No change" leaves each host's value alone (no-clobber);
-        // a plain checkbox both clobbered and -- because it posts "on" -- saved
-        // (int)"on" = 0, so it could never actually enable enforcement.
-        $enf = $this->_uniformHostValues(['enforce' => 'hostEnforce']);
-        if (!$enf['enforce']['uniform']) {
-            $enfText = _('(varies)');
-        } else {
-            $enfText = ($enf['enforce']['value'] === '1')
-                ? _('enabled (all)')
-                : _('disabled (all)');
-        }
-        $enforceControl = '<select class="form-control" id="enforce" '
-            . 'name="enforce">'
-            . '<option value="">' . _('No change') . '</option>'
-            . '<option value="1">' . _('Enable on all hosts') . '</option>'
-            . '<option value="0">' . _('Disable on all hosts') . '</option>'
-            . '</select>'
-            // The hint is server-rendered from the members' current values, so
-            // it goes stale the moment the tri-state is applied over AJAX (the
-            // tab is never re-rendered). Applying '1'/'0' forces every member to
-            // that value, so the resulting state is known without a round trip
-            // -- carry both translated readouts as data-* for the JS to swap in,
-            // the same way makeReloadToggle() hands its labels over. Translation
-            // stays here; the JS only picks.
-            . '<p class="form-text help-block-tight" id="enforce-shared-hint"'
-            . ' data-hosts-label="' . \Initiator::e(_('Hosts:')) . '"'
-            . ' data-enabled-label="' . \Initiator::e(_('enabled (all)')) . '"'
-            . ' data-disabled-label="' . \Initiator::e(_('disabled (all)')) . '">'
-            . _('Hosts:') . ' ' . $enfText
-            . '</p>';
-        $fields = [
-            self::makeLabel(
-                $labelClass,
-                'enforce',
-                _('Enforce Hostname | AD Join Reboots')
-            ) => $enforceControl
-        ];
-        $buttons = self::makeButton(
-            'group-enforce-send',
-            _('Update'),
-            'btn btn-primary float-end',
-            $props
-        );
-
-        self::$HookManager->processEvent(
-            'GROUP_ENFORCE_FIELDS',
-            [
-                'fields' => &$fields,
-                'buttons' => &$buttons,
-                'Group' => &$this->obj
-            ]
-        );
-        $rendered = self::formFields($fields);
-        unset($fields);
-
-        echo '<div class="card card-warning card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo _('Enforce Hostname | AD Join Reboots');
-        echo '</h4>';
-        echo self::_pushDeprecationNotice();
-        echo '<p class="form-text">';
-        echo _(
-            'This tells the client to force reboots for host name '
-            . 'changing and AD Joining.'
-        );
-        echo '</p>';
-        echo '<p class="form-text">';
-        echo _(
-            'If disabled, the client will not make changes until all users '
-            . 'are logged off'
-        );
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        echo self::makeFormTag(
-            '',
-            'group-enforce-form',
-            self::makeTabUpdateURL(
-                'group-module',
-                $this->obj->get('id')
-            ),
-            'post',
-            'application/x-www-form-urlencoded',
-            true
-        );
-        echo $rendered;
-        echo '</form>';
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $buttons;
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Group Service post.
@@ -1581,40 +664,11 @@ class GroupManagement extends FOGPage
      */
     public function groupModulePost()
     {
+        // Grants only. The display-manager, auto-logout and enforce-hostname
+        // pushes that used to live here are set from the Hosts list's Edit
+        // selected hosts (ADR 0038 decision 10) as `resolution`, `autologout`
+        // and `enforce`.
         $this->assocPost('addModule', 'removeModule');
-        if (isset($_POST['confirmdisplaysend'])) {
-            $x = (int)filter_input(INPUT_POST, 'x');
-            $y = (int)filter_input(INPUT_POST, 'y');
-            $r = (int)filter_input(INPUT_POST, 'r');
-            $this->obj->setDisp($x, $y, $r);
-        }
-        if (isset($_POST['confirmalosend'])) {
-            // No-clobber: blank = leave each host's auto-logout alone. A number
-            // pushes to all (below ALO_MIN_MINUTES disables it, as before).
-            $raw = filter_input(INPUT_POST, 'tme');
-            if ($raw !== null && trim((string)$raw) !== '') {
-                $tme = (int)$raw;
-                if ($tme < self::ALO_MIN_MINUTES) {
-                    $tme = 0;
-                }
-                $this->obj->setAlo($tme);
-            }
-        }
-        if (isset($_POST['confirmenforcesend'])) {
-            // Tri-state: '' = no change (no-clobber), '1'/'0' = force on all.
-            // hostEnforce is tinyint(1) since ADR 0028, so a string and an
-            // int now mean the same thing. It stays a string because the
-            // POST value is one and the '' arm has to stay distinguishable
-            // from 0 -- casting would make "no change" mean "disable".
-            $enforce = (string)filter_input(INPUT_POST, 'enforce');
-            if ($enforce === '1' || $enforce === '0') {
-                self::getClass('HostManager')->update(
-                    ['id' => $this->obj->get('hosts')],
-                    '',
-                    ['enforce' => $enforce]
-                );
-            }
-        }
     }
     /**
      * Display the group PM stuff.
@@ -2540,15 +1594,6 @@ class GroupManagement extends FOGPage
             }
         ];
 
-        // Image
-        $tabData[] = [
-            'name' => _('Image'),
-            'id' => 'group-image',
-            'generator' => function () {
-                $this->groupImage();
-            }
-        ];
-
         // Tasks
         $tabData[] = [
             'name' => _('Tasks'),
@@ -2598,23 +1643,6 @@ class GroupManagement extends FOGPage
                         'id' => 'group-module',
                         'generator' => function () {
                             $this->groupModules();
-                        }
-                    ],
-                    [
-                        'name' => _('Active Directory'),
-                        'id' => 'group-active-directory',
-                        'generator' => function () {
-                            echo $this->_groupADStateHint();
-                            $this->adFieldsToDisplay(
-                                '',
-                                '',
-                                '',
-                                '',
-                                '',
-                                true,
-                                false,
-                                true
-                            );
                         }
                     ],
                     [
@@ -2709,12 +1737,6 @@ class GroupManagement extends FOGPage
                         break;
                     case 'group-general':
                         $this->groupGeneralPost();
-                        break;
-                    case 'group-image':
-                        $this->groupImagePost();
-                        break;
-                    case 'group-active-directory':
-                        $this->groupADPost();
                         break;
                     case 'group-powermanagement':
                         $this->groupPowermanagementPost();
