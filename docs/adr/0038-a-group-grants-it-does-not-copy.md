@@ -250,6 +250,19 @@ resolvePrinters(array $hostIDs): array  // hostID => ['printers' => [...], 'defa
 The single-host client path calls it with a one-element array. The group task
 path calls it with the whole membership. Neither gets its own sort.
 
+**It reads the association tables directly, not through their managers.**
+`FOGController::buildQuery()` walks `$databaseFieldClassRelationships`
+*transitively* and folds any fourth-element filter into the WHERE rather than
+the ON, so every query whose class chain reaches `Host` picks up
+`` AND `hostMAC`.`hmPrimary` = '1' `` from `Host`'s own
+`MACAddressAssociation` declaration — which turns the LEFT JOIN into an
+effective inner one and **silently drops every host with no primary MAC**.
+Measured on the 1.5 lab: a membership lookup returned 95 where the raw
+`COUNT(*)` on the association table was 1000. There is no flag that suppresses
+it; the fix used elsewhere (PR #1233) was to read the association table
+directly. A resolver that silently omits hosts is a printer resolver that
+strips their printers, so this is not a performance note.
+
 Proposed home: a new autoload-only bucket `FOG\Assign\`. The bucket is not
 load-bearing — `FOG\Util\` would do — but `Auth/SiteScope.php` is the model for
 "a non-model class that owns one rule", and putting it in `Items/` next to the
@@ -621,23 +634,53 @@ filterable.**
 
 Not a comma-joined string. Chips, because the unit an admin acts on is one
 label and they need to see at a glance which of several a host carries. The
-column does not exist today (`HostManagement.php:114-169` enumerates the
-header set) and, more to the point, **the grid has no per-column search UI at
-all** — its own comment says so, and says sorting is the substitute
-(`HostManagement.php:150-153`). So "filterable" is a genuinely new capability
-on this grid, not a column definition.
+column does not exist today — `HostManagement.php:114-169` enumerates the
+header set and there is no groups entry.
 
-The mechanism it should use already exists and is documented with its reasoning:
-the site boundary is pushed into the list query as a subquery ANDed into the row
-query, the filter count *and* the total count, precisely because `complex()`
-applies the `LIMIT` before any row-level filtering and a post-filter therefore
-returns empty pages and lying counts (`Route.php:3149-3172`). A group filter has
-exactly that shape — `hostID IN (SELECT gmHostID FROM groupMembers WHERE
-gmGroupID IN (...))` — and must be applied the same way, never by filtering the
-returned page.
+**The filtering framework already exists, and the constraint is that it is
+column-backed.** Every grid gets a **Filter** button (SearchBuilder) and a
+**Column search** header row, server-parsed in
+`FOGManagerController::filter()` — #1471/#1476/#1477, on this branch. The host
+list opts into nothing; `fog.filters.js` is generic and it gets both for free.
+(The comment at `HostManagement.php:150-153` still says "this grid has no
+per-column search UI". It is stale, it predates that work, and it should be
+corrected when this column lands — it is exactly the kind of comment that gets
+read as current.)
 
-The rendering half is cheap and also already has its mechanism: `relColumn()`
-takes a `prime` callback that receives every row on the page at once
+What that framework cannot do is the thing this requirement needs.
+`_sbCriterion()` resolves a criterion to `` `$column['db']` `` and returns
+empty when a column has no `db`, or carries `removeFromQuery` or `nosearch`
+(`FOGManagerController.php:1050-1082`); the type comes from
+`searchBuilderType()` → `columnType()`, which reads the schema manifest for a
+**real column of a real table** (`FOGBase.php:5733`). A groups column has no
+backing scalar on `hosts`. It is a relationship, and the filter path has never
+had to express one.
+
+So requirement 1 is not "build filtering" and it is not "add a column". It is
+**teach the existing filter path its first relationship column**: the column
+contract grows an optional SQL form — a subquery expression `_sbCriterion()`
+uses in place of `` `db` `` — plus a `searchBuilderType()` answer for it. That
+is a change to a shared helper every grid runs through, so it is plan-first work
+in its own right and it sets the pattern every later relationship filter will
+copy.
+
+Two constraints on that expression, both already learned here:
+
+- **It goes into the query, not onto the page.** `complex()` applies the
+  `LIMIT` before any row-level filtering, which is why the site boundary is
+  passed as a subquery ANDed into the row query, the filter count *and* the
+  total count (`Route.php:3149-3172`). A post-filter returns empty first pages
+  and counts describing rows the caller cannot see. A groups filter is the same
+  shape — `hostID IN (SELECT gmHostID FROM groupMembers WHERE gmGroupID IN
+  (...))` — and inherits the same rule.
+- **Every binding it emits must be named by the clause it emits.** `sqlexec()`
+  binds every entry of `$bindings` to all three of `complex()`'s queries, so an
+  unreferenced binding makes PDO refuse the statement and the whole list answers
+  HTTP 406. That shipped once already, in `_sbDate()`, and broke exactly the two
+  conditions the feature existed for. Bind inside the branch that names it.
+
+The rendering half is cheap and already has its mechanism: `relColumn()` takes
+a `prime` callback that receives every row on the page at once
 (`Route.php:7667`), so the chips cost one extra query per page rather than one
 per host.
 
@@ -847,11 +890,13 @@ semantics gate, which is the second reason the boundary is not one.
   required.** ADR 0017 records that "there is no shipped 1.6 plugin ABI", so
   this is free before 1.6.0 and expensive after it. That is an argument about
   *when*, and it is made in the proposal.
-- **The host list grows its first per-column filter.** Decision 16a's groups
-  column is the first thing on that grid anyone can filter *by* rather than
-  sort by, and the mechanism it establishes — a subquery ANDed into the row
-  query and both counts, on `scopedObjectWhere()`'s pattern — is the one every
-  later filterable association column should reuse.
+- **The filter path gains its first relationship column.** Everything it
+  filters today is a real column of a real table, resolved through
+  `$column['db']` and typed from the schema manifest. Decision 16a's groups
+  column is the first that is neither, so the column contract grows an optional
+  SQL form — and that is a change to a helper every grid runs through, whose
+  shape every later relationship filter will copy. It is the one piece of this
+  ADR that is plan-first work on its own account.
 - **`saveGroup()` gets a CSRF check and an object-scope bound.** Both are
   pre-existing gaps this ADR does not create; it promotes the endpoint, which
   is why closing them is inside the work rather than beside it.

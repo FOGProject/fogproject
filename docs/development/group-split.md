@@ -287,21 +287,75 @@ table as it found it, and schema step 401 exists to repair it. Query in §5.
 
 Evidence for ADR 0038 Decision 16a, whose five requirements are binding.
 
-**VERIFIED — there is no groups column on the host list, and the grid has no
-per-column search UI of any kind.** The header set is enumerated in one place,
-and its own comment says sorting is the substitute for filtering.
+**VERIFIED — there is no groups column on the host list.**
 
 ```
 sed -n '105,170p' packages/web/src/Pages/HostManagement.php
 grep -n 'data-col' packages/web/src/Pages/HostManagement.php
 ```
 
-> "Sorting is the filter here -- this grid has no per-column search UI, so the
-> global box matches the STORED word" — `HostManagement.php:150-153`
+**CORRECTED — the grid DOES have per-column filtering, and an earlier draft of
+this document said it did not.** The comment at `HostManagement.php:150-153`
+reads "this grid has no per-column search UI, so the global box matches the
+STORED word". That comment is **stale**: it predates #1471/#1476/#1477
+(2026-08-29), which added a SearchBuilder **Filter** button and a **Column
+search** header row to every grid, server-parsed in
+`FOGManagerController::filter()`. All of it is on this branch. The first draft
+quoted the comment as evidence of current behaviour instead of grepping for the
+mechanism — the comment should be corrected when the groups column lands.
 
-So requirement 1's "filterable" is a **new capability on this grid**, not a
-column definition. That is the honest sizing and it is the requirement most
-likely to be under-scoped.
+```
+git grep -l 'SearchBuilder\|_searchtypes\|_sbCriterion' -- packages/web
+grep -n 'function filter\|_sbCriterion\|_searchtypes' packages/web/src/Base/FOGManagerController.php
+#   755 filter()   1050 _sbCriterion()   1513 '_searchtypes'
+grep -n -i filter packages/web/management/js/fog/host/fog.host.list.js   # no output
+```
+
+The host list opts into nothing — `fog.filters.js` is generic and the grid gets
+both controls for free.
+
+**VERIFIED — and this is the actual constraint: the filter path is
+column-backed by construction.** `_sbCriterion()` returns empty unless the
+column carries a `db`, and builds `` `$column['db']` `` directly; the type comes
+from `searchBuilderType()` → `columnType()`, which reads the schema manifest for
+a real column of a real table.
+
+```
+sed -n '1050,1082p' packages/web/src/Base/FOGManagerController.php
+sed -n '5733,5756p' packages/web/src/Base/FOGBase.php
+```
+
+A groups column has no backing scalar on `hosts`. So requirement 16a.1 is
+neither "build filtering" nor "add a column": it is **teaching the shared filter
+path its first relationship column**, by growing the column contract an optional
+subquery form that `_sbCriterion()` uses in place of `` `db` ``. Smaller than
+the first draft implied on the UI side, and a change to a helper every grid runs
+through on the server side.
+
+Two constraints on that expression, both already paid for here:
+
+**VERIFIED — it must go into the query, not onto the page.** `complex()` applies
+the `LIMIT` before any row-level filtering, which is why the site boundary is
+passed as a subquery ANDed into the row query, the filter count *and* the total
+count. Post-filtering gave empty first pages and counts describing rows the user
+could not see.
+
+```
+sed -n '3149,3178p' packages/web/src/Router/Route.php
+```
+
+**VERIFIED — every binding must be named by the clause that emits it.**
+`sqlexec()` binds every entry of `$bindings` to all three of `complex()`'s
+queries, so an unreferenced binding makes PDO refuse the statement and the list
+answers HTTP 406. That shipped once in `_sbDate()` and broke Before/After — the
+two conditions the feature existed for — while `=` and `between` worked. Bind
+inside the branch that names it, and gate on "no binding left unnamed" rather
+than on string-comparing substituted SQL, which is what missed it.
+
+```
+grep -n '_sbDate' packages/web/src/Base/FOGManagerController.php   # :1238
+ls tests/searchbuilder-filter-clause.test.php
+```
 
 **VERIFIED — the grid is server-side, so a filter must be SQL.**
 
@@ -309,22 +363,6 @@ likely to be under-scoped.
 sed -n '298,310p' packages/web/management/js/fog/host/fog.host.list.js
 # processing: true, serverSide: true, POST ?node=host&sub=list
 ```
-
-**VERIFIED — the mechanism for a query-level filter already exists and is
-documented with the trap it avoids.** The site boundary is passed to
-`complex()` as a subquery ANDed into the row query, the filter count and the
-total count, because the `LIMIT` is applied before any row-level filtering:
-post-filtering returned empty first pages and counts describing rows the user
-could not see.
-
-```
-sed -n '3149,3178p' packages/web/src/Router/Route.php
-grep -n 'scopedObjectWhere' packages/web/src/Auth/Authorization.php
-```
-
-A groups filter is the same shape — `hostID IN (SELECT gmHostID FROM
-groupMembers WHERE gmGroupID IN (...))` — and inherits the same rule: into the
-query, never onto the page.
 
 **VERIFIED — rendering chips is cheap, because the column table already has a
 per-page batch loader.** `relColumn()` takes a `prime` callback handed every row
@@ -547,7 +585,7 @@ grep -rl "printerassociation\|PrinterAssociation" packages/web/src packages/web/
 | Mass edit form + apply | `Pages/HostManagement.php`, `js/fog/host/fog.host.list.js` | 2, plus `_uniformHostValues()` lifted to a shared home |
 | Bulk group-membership editing | same 2 files | extends the existing `#addToGroupModal` |
 | `HOST_MASSEDIT_*` hooks | `Pages/HostManagement.php` + `docs/plugin-development.md` | 2 |
-| **Groups column + filter** (Dec 16a.1) | `Router/Route.php` (column + `prime` + filter subquery), `Pages/HostManagement.php` (header), `js/fog/host/fog.host.list.js` (chips, filter control) | 3, and the filter is the first of its kind on this grid |
+| **Groups column + filter** (Dec 16a.1) | `Router/Route.php` (column + `prime` + the subquery form), `Base/FOGManagerController.php` (`_sbCriterion`/`searchBuilderType` accept it), `Pages/HostManagement.php` (header + the stale comment), `tests/searchbuilder-filter-clause.test.php` | 4; the shared-helper change is plan-first on its own account |
 | **Bulk add/remove + shared create path** (Dec 16a.2–4) | `Pages/HostManagement.php` (`saveGroup` rewritten: remove, CSRF, scope), `js/fog/host/fog.host.list.js` | 2 |
 | **Group list "grants" column** (Dec 16a.5) | `Pages/GroupManagement.php` | 1 |
 | Retirement step | `commons/schema.php` | 1 |
@@ -560,9 +598,10 @@ are `GroupManagement.php` (3532 lines, 8 tabs), `HostManagement.php` (5256) and
 
 Requirement 16a.3 ("it has to feel lightweight") is mostly **already built**:
 the list modal has select2 chips, typeahead and create-on-the-fly today
-(§1.9). What is genuinely new is the **filter** (16a.1) — no per-column
-filtering exists on this grid at all — and **remove** (16a.2). Those two are
-the presentation work; the rest is reuse and two security fixes.
+(§1.9). The filter framework is built too — what 16a.1 needs is the column
+contract extended to express a relationship, which is server-side work on a
+shared helper rather than UI work. **Remove** (16a.2) is the one genuinely
+absent piece of behaviour. The rest is reuse and two security fixes.
 
 ### 2.3 Plugin files
 
@@ -653,7 +692,7 @@ earlier release, the removals in the later one.
 
 ---
 
-## 3. The five things most likely to be built wrong
+## 3. The six things most likely to be built wrong
 
 Recorded here rather than in the ADR because they are implementation hazards,
 not decisions.
@@ -661,21 +700,30 @@ not decisions.
 1. **A resolver whose natural unit is one host.** GH-707 was exactly this
    (§1.7). The signature takes an array of host ids or it will be a thousand
    round trips the first time a group task calls it.
-2. **A mass edit form that posts every field.** The three-state control is not
+2. **A resolver that reads membership through a manager.**
+   `FOGController::buildQuery()` walks `$databaseFieldClassRelationships`
+   transitively and folds a fourth-element filter into the WHERE, not the ON,
+   so any query chaining through `Host` picks up
+   `` AND `hostMAC`.`hmPrimary` = '1' `` and silently drops every host with no
+   primary MAC — 95 rows returned where the raw `COUNT(*)` was 1000, measured on
+   the 1.5 lab. No flag suppresses it; read the association table directly (the
+   fix used in PR #1233). A resolver that silently omits hosts is a printer
+   resolver that strips their printers.
+3. **A mass edit form that posts every field.** The three-state control is not
    a nicety; a form without it silently overwrites every field the admin did
    not touch, and it looks correct in every test where the admin touched
    everything.
-3. **A printer resolver that returns `[]` on failure.** Under mode `ar` that is
+4. **A printer resolver that returns `[]` on failure.** Under mode `ar` that is
    a fleet-wide printer removal, delivered one machine at a time as they poll.
    The resolver throws; §1.6 shows the endpoint already turns a throw into a
    body with no `printers` key.
-4. **A groups filter applied to the returned page instead of the query.**
-   `complex()` applies the `LIMIT` before any row filtering, so a post-filter
-   gives empty first pages and counts that describe rows the caller cannot see.
-   That trap is already documented at `Route.php:3149-3172`, where the site
-   boundary hit it; the groups filter is the same shape and must go into the
-   query, the filter count and the total count.
-5. **A second create-and-associate path for host↔group.** There are already two
+5. **A groups filter applied to the returned page instead of the query**, or
+   one that binds a parameter its clause does not name. Both already happened
+   here: the first to the site boundary (`Route.php:3149-3172` records it), the
+   second to `_sbDate()`, which answered HTTP 406 on exactly the two conditions
+   the feature existed for. Into the query, into all three counts, and bind
+   inside the branch that names it.
+6. **A second create-and-associate path for host↔group.** There are already two
    (§1.9) and the newer one skips the name-collision check. The list modal
    should use `$.registerCreateAndAssociate()` like the other eleven tabs, not
    grow a third.
@@ -789,6 +837,18 @@ the snapin half needs a real snapshot table plus a service-path change.
 Repeat with the addition case (add C after job creation, see whether C runs).
 
 ### UNKNOWN-3 — does the trigger break `add host to group`?
+
+**🔴 Run this on the isolated lab database only, never on a lab server whose
+hosts are real.** The trigger under test does not merely copy columns: it
+creates a `snapinJobs` row and `snapinTasks` rows for the host being added
+(`PersistentGroupsManager.php:75-89`), so firing it on a live-ish box **queues
+software to run on that machine** at its next check-in. The fixture host must be
+a throwaway that nothing polls.
+
+Same discipline as any lab fixture: assert the discriminators you are borrowing
+are unoccupied before creating anything, and clean up at the START of the run as
+well as the end — a run that errors inside the trigger leaves its rows behind.
+"Empty of my rows" is not "empty".
 
 ```sql
 -- Setup: a group G, a host T named exactly like G, and a host H that already
