@@ -75,8 +75,8 @@ class FOGConfigurationPage extends FOGPage
      *
      * @param string $title The box title (already translated/escaped).
      * @param string $body  The card-body HTML.
-     * @param array  $opts  color, collapse, cardClass, help, footer, id,
-     *                      bodyId, bodyClass, bodyAttrs.
+     * @param array  $opts  color, collapse, help, footer, id, bodyId,
+     *                      bodyClass, bodyAttrs.
      *
      * @return string
      */
@@ -90,12 +90,6 @@ class FOGConfigurationPage extends FOGPage
         $bodyId    = $opts['bodyId']    ?? '';
         $bodyClass = $opts['bodyClass'] ?? '';
         $bodyAttrs = $opts['bodyAttrs'] ?? '';
-        // Extra classes on the CARD, not the body. 'collapsed-card' is the
-        // only caller today: AdminLTE's collapse toggle reads that class to
-        // decide which way to go, and its own CSS hides the body, so a card
-        // that should arrive shut needs it in the markup rather than a
-        // click's worth of JavaScript after paint.
-        $cardExtra = $opts['cardClass'] ?? '';
 
         $o = '';
         if ($id !== '') {
@@ -104,30 +98,25 @@ class FOGConfigurationPage extends FOGPage
         $cardClass = ($color === 'solid' || $color === '')
             ? 'card'
             : 'card card-' . $color . ' card-outline';
-        if ($cardExtra !== '') {
-            $cardClass .= ' ' . $cardExtra;
-        }
         $o .= '<div class="' . $cardClass . '">';
-        $o .= '<div class="card-header">';
-        if ($collapse) {
-            // Both icons, tagged the way AdminLTE's own CSS expects: it hides
-            // [data-lte-icon=collapse] on a .collapsed-card and hides
-            // [data-lte-icon=expand] on one that is open. FOGPage's shared
-            // $FOGCollapseBox is a bare fa-minus, so a card rendered already
-            // collapsed -- which cardClass now allows -- would sit there
-            // offering to collapse itself again.
-            $o .= '<div class="card-tools float-end">'
-                . '<button type="button" class="btn btn-tool"'
-                . ' data-lte-toggle="card-collapse">'
-                . '<i data-lte-icon="expand" class="fas fa-plus"></i>'
-                . '<i data-lte-icon="collapse" class="fas fa-minus"></i>'
-                . '</button></div>';
+        // A card inside a tab pane carries no title of its own -- the tab is
+        // the title -- and an empty header renders as a bare bar above the
+        // content. Nothing else can suppress it, so an empty title with
+        // nothing else to put up there means no header at all.
+        $hasHeader = ($title !== '' || $help !== '' || $collapse);
+        if ($hasHeader) {
+            $o .= '<div class="card-header">';
+            if ($collapse) {
+                $o .= '<div class="card-tools float-end">'
+                    . self::$FOGCollapseBox
+                    . '</div>';
+            }
+            $o .= '<h4 class="card-title">' . $title . '</h4>';
+            if ($help !== '') {
+                $o .= '<p class="form-text">' . $help . '</p>';
+            }
+            $o .= '</div>';
         }
-        $o .= '<h4 class="card-title">' . $title . '</h4>';
-        if ($help !== '') {
-            $o .= '<p class="form-text">' . $help . '</p>';
-        }
-        $o .= '</div>';
         $o .= '<div class="card-body'
             . ($bodyClass !== '' ? ' ' . $bodyClass : '')
             . '"'
@@ -425,12 +414,29 @@ class FOGConfigurationPage extends FOGPage
      * Show this server's certificate hierarchy, and change the parts of it a
      * browser may safely change.
      *
-     * The page is a TABLE of certificates plus the two controls that change
-     * one, not a card per fact. Everything a certificate has -- subject,
-     * issuer, expiry, fingerprint, a download -- is a column, so the slots can
-     * be read against each other; before this the root's subject and
-     * fingerprint were prose in one card, the imported root's were prose in
-     * another, and the remaining six were a table with none of it.
+     * ONE CARD WITH TABS, the shape nearly every other management page in FOG
+     * uses, built by the same FOGPage::tabFields() they use. It was five
+     * stacked cards, so reading one certificate against another meant
+     * scrolling past 2400px of prose to do it.
+     *
+     * Inside the first tab every certificate is a ROW: subject, what signed
+     * it, expiry, fingerprint, download. The root's subject and fingerprint
+     * used to be prose in one card and the imported root's prose in another,
+     * while the six slots that were already tabulated carried neither.
+     *
+     * The two ALARMS stay outside the tab card, above it. A condition an
+     * administrator must act on cannot live behind a tab they have to know to
+     * click; "the web server can read your CA private key" is not a topic, it
+     * is an interruption.
+     *
+     * NOT a collapsed card, which is what shipped first and had to be undone.
+     * AdminLTE binds the collapse toggle with
+     * `document.querySelectorAll(...).forEach(el => el.addEventListener(...))`
+     * once at DOMContentLoaded -- it is not delegated -- and FOG replaces the
+     * content by AJAX on every sidebar click. So a card that arrives by
+     * navigation has no handler on its toggle, and one rendered
+     * `collapsed-card` is content nobody can reach. It works only on a hard
+     * reload, which is exactly what a static test snapshot is.
      *
      * The reason this page runs the private key check in PHP rather than
      * simply reporting what the installer did: PHP *is* the threat model. The
@@ -461,11 +467,15 @@ class FOGConfigurationPage extends FOGPage
         $status = self::_pkiStatus();
         $mayEdit = Authorization::can('system.pki');
 
+        // Both alarms, emitted above the tab card. A condition an
+        // administrator must act on cannot live behind a tab they have to
+        // know to click.
+        $alarms = $this->_certificateKeyExposure($status);
         if (null === $status) {
             // Says which of the two it is. A page that simply showed less
             // would leave an administrator comparing it against the
             // documentation and finding nothing to explain the difference.
-            echo $this->_box(
+            $alarms .= $this->_box(
                 _('Certificates'),
                 '<p>' . _(
                     'The certificate management helper is not installed on this '
@@ -476,12 +486,45 @@ class FOGConfigurationPage extends FOGPage
                 ['color' => 'warning']
             );
         }
+        echo $alarms;
 
-        $this->_certificateKeyExposure($status);
-        $this->_certificateChain($status);
-        $this->_certificateExternalRoot($status, $mayEdit);
-        $this->_certificatePreferences($status, $mayEdit);
-        $this->_certificateOwnPki($status);
+        // Each builder returns '' when it has nothing to show, so a tab is
+        // never rendered empty -- on a storage node that leaves the one tab
+        // that needs no helper.
+        $tabs = [
+            ['pki-chain', _('Certificates'), $this->_certificateChain($status)],
+            [
+                'pki-external-root',
+                _('External root CA'),
+                $this->_certificateExternalRoot($status, $mayEdit)
+            ],
+            [
+                'pki-preferences',
+                _('Install preferences'),
+                $this->_certificatePreferences($status, $mayEdit)
+            ],
+            ['pki-own', _('Using your own PKI'), $this->_certificateOwnPki($status)]
+        ];
+        $tabData = [];
+        foreach ($tabs as $tab) {
+            if ('' === $tab[2]) {
+                continue;
+            }
+            $tabData[] = [
+                'name' => $tab[1],
+                'id' => $tab[0],
+                // The body is already built; the generator only has to emit
+                // it. tabFields() calls this inside the pane it has opened.
+                'generator' => function () use ($tab) {
+                    echo $tab[2];
+                }
+            ];
+        }
+        // false, not the default -1: that would ask getClass() to resolve an
+        // entity for node 'about', and there is none -- the tab hooks and
+        // plugin injection want a record. Reports pass false for the same
+        // reason.
+        echo self::tabFields($tabData, false);
     }
     /**
      * The check that matters: can this web application read a private key it
@@ -489,13 +532,13 @@ class FOGConfigurationPage extends FOGPage
      *
      * @param array|null $status the helper's report.
      *
-     * @return void
+     * @return string '' when nothing is exposed, which is the normal answer.
      */
     private function _certificateKeyExposure($status)
     {
         $keys = (array) ($status['private_keys'] ?? []);
         if (!$keys) {
-            return;
+            return '';
         }
         $exposed = [];
         foreach ($keys as $key) {
@@ -514,7 +557,7 @@ class FOGConfigurationPage extends FOGPage
             }
         }
         if (!$exposed) {
-            return;
+            return '';
         }
         $warn = '<p>' . _(
             'The web application can read the following private keys. It '
@@ -531,7 +574,7 @@ class FOGConfigurationPage extends FOGPage
             . 'persists, check that nothing else is widening permissions on '
             . 'the snapins directory afterward.'
         ) . '</p>';
-        echo $this->_box(
+        return $this->_box(
             _('Private keys are readable by the web server'),
             $warn,
             ['color' => 'danger']
@@ -594,12 +637,12 @@ class FOGConfigurationPage extends FOGPage
      *
      * @param array|null $status the helper's report.
      *
-     * @return void
+     * @return string '' when there is nothing to tabulate.
      */
     private function _certificateChain($status)
     {
         if (null === $status) {
-            return;
+            return '';
         }
         $labels = [
             'root' => [
@@ -681,9 +724,15 @@ class FOGConfigurationPage extends FOGPage
                 ) . '">' . _('Download') . '</a></td></tr>';
         }
         if ('' === $rows) {
-            return;
+            return '';
         }
-        $body = '<div class="table-responsive">'
+        $body = '<p class="form-text">' . _(
+            'FOG uses certificates for three unrelated jobs: the web server, '
+            . 'the encrypted fog-client check-in, and the signature on the FOS '
+            . 'kernels. They are issued by separate CAs beneath one anchor, so '
+            . 'replacing any one of them leaves the other two alone.'
+        ) . '</p>';
+        $body .= '<div class="table-responsive">'
             . '<table class="table table-sm table-striped align-middle">';
         $body .= '<thead><tr><th>' . _('Certificate') . '</th><th>' . _('Subject')
             . '</th><th>' . _('Expires') . '</th><th>' . _('SHA-256')
@@ -698,20 +747,7 @@ class FOGConfigurationPage extends FOGPage
             . 'Private keys are deliberately absent -- nothing on this page can '
             . 'read one, and nothing on it can hand one out.'
         ) . '</p>';
-        echo $this->_box(
-            _('Certificates'),
-            $body,
-            [
-                'color' => 'info',
-                'help' => _(
-                    'FOG uses certificates for three unrelated jobs: the web '
-                    . 'server, the encrypted fog-client check-in, and the '
-                    . 'signature on the FOS kernels. They are issued by '
-                    . 'separate CAs beneath one anchor, so replacing any one '
-                    . 'of them leaves the other two alone.'
-                )
-            ]
-        );
+        return $this->_box('', $body);
     }
     /**
      * Import and remove an external root CA.
@@ -731,22 +767,22 @@ class FOGConfigurationPage extends FOGPage
      * @param array|null $status  the helper's report.
      * @param bool       $mayEdit does the caller hold system.pki.
      *
-     * @return void
+     * @return string '' when there is no helper to import through.
      */
     private function _certificateExternalRoot($status, $mayEdit)
     {
         if (null === $status) {
-            return;
+            return '';
         }
         $cert = self::_pkiCert($status, 'externalroot');
         $have = $cert && !empty($cert['present']);
-        $help = _(
+        $body = '<p class="form-text">' . _(
             'Upload a root CA certificate to have this server trust it. It is '
             . 'added to the host\'s own trust store, so every HTTPS call this '
             . 'server makes will accept a certificate issued beneath it, and '
             . 'it is re-applied on every later installer run.'
-        );
-        $body = '<p class="form-text">' . _(
+        ) . '</p>';
+        $body .= '<p class="form-text">' . _(
             'This does not change what FOG issues, and it does not change what '
             . 'fog-client pins. Only a self-signed CA certificate is accepted: '
             . 'an intermediate in the same file is dropped rather than trusted, '
@@ -764,12 +800,7 @@ class FOGConfigurationPage extends FOGPage
             ) . '</p>';
         }
         if (!$mayEdit) {
-            echo $this->_box(
-                _('External root CA'),
-                $body,
-                ['color' => 'info', 'help' => $help]
-            );
-            return;
+            return $this->_box('', $body);
         }
         $body .= '<label class="form-label" for="pki-root-file">'
             . _('Root CA certificate (PEM)') . '</label>';
@@ -806,22 +837,18 @@ class FOGConfigurationPage extends FOGPage
                 'btn btn-danger float-start'
             );
         }
-        // Wrapped in its own form: the upload needs multipart, and this card
+        // Wrapped in its own form: the upload needs multipart, and this tab
         // is the only thing on the page that posts a file.
-        echo self::makeFormTag(
+        return self::makeFormTag(
             '',
             'pki-root-form',
             $this->formAction,
             'post',
             'multipart/form-data',
             true
-        );
-        echo $this->_box(
-            _('External root CA'),
-            $body,
-            ['color' => 'info', 'help' => $help, 'footer' => $buttons]
-        );
-        echo '</form>';
+        )
+            . $this->_box('', $body, ['footer' => $buttons])
+            . '</form>';
     }
     /**
      * The three install preferences that decide what FOG does to the web
@@ -840,12 +867,12 @@ class FOGConfigurationPage extends FOGPage
      * @param array|null $status  the helper's report.
      * @param bool       $mayEdit does the caller hold system.pki.
      *
-     * @return void
+     * @return string '' when there is no helper to record a preference.
      */
     private function _certificatePreferences($status, $mayEdit)
     {
         if (null === $status) {
-            return;
+            return '';
         }
         $prefs = (array) ($status['preferences'] ?? []);
         $meta = [
@@ -909,7 +936,13 @@ class FOGConfigurationPage extends FOGPage
             $rows .= '<td><small class="text-muted">'
                 . \Initiator::e($text[1]) . '</small></td></tr>';
         }
-        $body = '<div class="table-responsive">'
+        $body = '<p class="form-text">' . _(
+            'These decide what the NEXT installer run does. Nothing here takes '
+            . 'effect until the installer runs again -- this page records the '
+            . 'preference, it does not rewrite the web server configuration or '
+            . 'reissue a certificate.'
+        ) . '</p>';
+        $body .= '<div class="table-responsive">'
             . '<table class="table table-sm align-middle">';
         $body .= '<thead><tr><th></th><th>' . _('Setting') . '</th><th>'
             . _('What it does') . '</th></tr></thead>';
@@ -937,26 +970,14 @@ class FOGConfigurationPage extends FOGPage
                 . 'setting, so the two cannot disagree.'
             ) . '</p>';
         }
-        echo $this->_box(
-            _('Install preferences'),
-            $body,
-            [
-                'color' => 'info',
-                'help' => _(
-                    'These decide what the NEXT installer run does. Nothing '
-                    . 'here takes effect until the installer runs again -- this '
-                    . 'page records the preference, it does not rewrite the web '
-                    . 'server configuration or reissue a certificate.'
-                )
-            ]
-        );
+        return $this->_box('', $body);
     }
     /**
      * Replacing FOG's own PKI: what it costs, and the command that does it.
      *
-     * Collapsed on arrival. It is reference material for a migration nobody
-     * does twice, and expanded it was the longest thing on a page whose job
-     * is to say what this server's certificates are right now.
+     * Last tab. It is reference material for a migration nobody does twice,
+     * and stacked in line it was the longest thing on a page whose job is to
+     * say what this server's certificates are right now.
      *
      * Deliberately NOT a button. Rotating the root invalidates every
      * fog-client enrollment on the estate at once, and the recovery is to
@@ -966,7 +987,7 @@ class FOGConfigurationPage extends FOGPage
      *
      * @param array|null $status the helper's report.
      *
-     * @return void
+     * @return string
      */
     private function _certificateOwnPki($status)
     {
@@ -1017,15 +1038,7 @@ class FOGConfigurationPage extends FOGPage
                 . 'intermediate, or a certificate for a new storage node.'
             ) . '</p>';
         }
-        echo $this->_box(
-            _('Using your own PKI'),
-            $body,
-            [
-                'color' => 'warning',
-                'collapse' => true,
-                'cardClass' => 'collapsed-card'
-            ]
-        );
+        return $this->_box('', $body);
     }
     /**
      * Hand back one public certificate as a file.
