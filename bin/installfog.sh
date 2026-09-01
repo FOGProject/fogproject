@@ -1351,6 +1351,11 @@ while [[ -z $blGo ]]; do
                     checkDatabaseConnection
                     backupReports
                     configureMinHttpd
+                    # GH-1580: configureMinHttpd calls configureHttpd, so the
+                    # rm -rf $webdirdest applies to a storage node as well --
+                    # this path backs the reports up and so has to put them
+                    # back too.
+                    restoreReports
                     configureStorage
                     # Before configureDHCP, not with the rest of the TFTP
                     # staging in configureTFTPandPXE. The generated DHCP config
@@ -1456,6 +1461,13 @@ while [[ -z $blGo ]]; do
                     # into that package, so they have to be there first.
                     downloadplugins
                     configureHttpd
+                    # GH-1580: straight after the rm -rf/rebuild that removed
+                    # them. Unlike restorePreservedCustomizations, this has no
+                    # reason to wait for configureTFTPandPXE -- nothing between
+                    # here and there re-lays management/reports, and restoring
+                    # before checkWebTier means the tier is checked in the
+                    # state it will actually be served in.
+                    restoreReports
                     checkWebTier
                     backupDB
                     updateDB
