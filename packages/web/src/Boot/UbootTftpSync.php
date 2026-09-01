@@ -139,6 +139,13 @@ class UbootTftpSync extends FOGBase
      * "send these bytes" over the sftp wrapper the rest of FOG already
      * uses for this same TFTP host.
      *
+     * chmod's 0644 afterward for the same reason FOGPage.php's kernel-upload
+     * path already does: an SFTP PUT's resulting permissions follow the
+     * server's own umask, not FOG's, and a TFTP daemon reading as a
+     * different user than the SFTP login has no way to negotiate that --
+     * it either has read access or it does not. Parity with the existing
+     * upload path, not a confirmed fix for any specific report.
+     *
      * @param string $remotePath the full remote path to write
      * @param string $content    the bytes to write there
      *
@@ -150,6 +157,7 @@ class UbootTftpSync extends FOGBase
         file_put_contents($tmp, $content);
         try {
             self::$FOGSSH->put($tmp, $remotePath);
+            self::$FOGSSH->sftp_chmod($remotePath, 0644);
         } finally {
             @unlink($tmp);
         }
