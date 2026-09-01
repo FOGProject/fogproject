@@ -14,22 +14,26 @@
 #   You should have received a copy of the GNU General Public License
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 if [[ $guessdefaults == 1 ]]; then
-    case $linuxReleaseName_lower in
-        *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
-            strSuggestedOS=1
-            ;;
-        *ubuntu*|*bian*|*mint*)
-            strSuggestedOS=2
-            ;;
-        *alpine*)
-            strSuggestedOS=3
-            ;;
-        *arch*|*manjaro*)
-            strSuggestedOS=4
-            ;;
-        *)
-            strSuggestedOS=1
-            ;;
+    # The distro-name patterns that used to be spelled out here now live in
+    # detectOSFamily() (lib/common/functions.sh), which installfog.sh has
+    # already run by the time this file is sourced. Re-run only if something
+    # reached here without it: the function is idempotent and [[ -z ]]-guarded,
+    # so a second call costs nothing, and an unset $osfamily would otherwise
+    # fall to the default below and suggest Redhat on a Debian box.
+    [[ -z $osfamily ]] && detectOSFamily
+    # osid numbering is GH-447's: 3 meant Arch on FOG 1.5 and means Alpine now,
+    # with Arch renumbered to 4. See displayOSChoices().
+    case $osfamily in
+        redhat) strSuggestedOS=1 ;;
+        debian) strSuggestedOS=2 ;;
+        alpine) strSuggestedOS=3 ;;
+        arch)   strSuggestedOS=4 ;;
+        # Unchanged: a distro matching none of the four still SUGGESTS Redhat.
+        # detectOSFamily deliberately refuses to make that guess and this
+        # deliberately does, because they are different questions -- this is a
+        # pre-filled answer to a prompt a person can correct, not a claim about
+        # which package-manager binary exists on the box.
+        *)      strSuggestedOS=1 ;;
     esac
     allinterfaces=($(getAllNetworkInterfaces))
     strSuggestedInterface=${allinterfaces[0]}

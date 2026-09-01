@@ -716,18 +716,20 @@ while :; do
 done
 
 
-if [[ -f /etc/os-release ]]; then
-    [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
-    [[ -z $OSVersion ]] && OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
-elif [[ -f /etc/redhat-release ]]; then
-    [[ -z $linuxReleaseName ]] && linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
-    [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*// | awk -F. '{print $1}')
-elif [[ -f /etc/debian_version ]]; then
-    [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
-    [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
-fi
-
-linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
+# This parse used to be inline here, and the family map it feeds used to be
+# inline in lib/common/input.sh -- two halves of one question, neither able to
+# see the other, and already drifted: input.sh knew *mageia* and this did not.
+# Both now come from detectOSFamily(), which bin/bootstrap.sh's own copy is
+# kept in step with by tests/detect-os-family.test.sh.
+#
+# Called directly, never as $(...): it sets linuxReleaseName, OSVersion,
+# linuxReleaseName_lower and osfamily as globals, and a subshell would lose
+# all four.
+#
+# Its non-zero return is deliberately ignored. An unrecognized distro was never
+# fatal here -- input.sh suggests Redhat and the admin corrects it at the
+# prompt -- and making it fatal now would refuse installs that work today.
+detectOSFamily
 listPackages
 
 echo "Installing LSB_Release as needed"
