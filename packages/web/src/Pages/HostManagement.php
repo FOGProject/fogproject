@@ -30,6 +30,7 @@ use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 use FOG\Util\FOGCron;
 use FOG\Util\MassEdit;
+use FOG\Util\SharedHostValues;
 
 /**
  * Host management page
@@ -4079,6 +4080,39 @@ class HostManagement extends FOGPage
         );
     }
     /**
+     * The posted host selection, normalized once.
+     *
+     * Shared by the form and the apply so the two cannot disagree about what
+     * "the selection" is -- a form rendered over one set of ids and a write
+     * bounded by another is a scope check answering the wrong question.
+     *
+     * @return array int host ids, deduplicated, zeroes dropped
+     *
+     * @throws \Exception when nothing usable was posted
+     */
+    private function massEditSelection()
+    {
+        $hosts = filter_input(
+            INPUT_POST,
+            'hosts',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        $hosts = array_values(
+            array_unique(
+                array_filter(
+                    array_map('intval', (array)$hosts)
+                )
+            )
+        );
+        if (count($hosts) < 1) {
+            throw new \Exception(_('No hosts are selected'));
+        }
+
+        return $hosts;
+    }
+
+    /**
      * The core host fields a mass edit may change.
      *
      * The set is every `hosts` column ADR 0038's disposition table sends to
@@ -4350,18 +4384,434 @@ class HostManagement extends FOGPage
      * value across many hosts, always clobbering, unable to express "leave
      * alone" at all.
      *
-     * @return array key => ['label' => ..., 'input' => <html>]
+     * The selection is passed because a plugin's mixed-value hint has to be
+     * computed over it -- "(varies)" is a statement about THESE hosts. Both
+     * the form and the apply call this with the same ids, so the two can
+     * never see different field sets: a key offered by the form and absent
+     * from the apply would be a control that silently does nothing.
+     *
+     * @param array $hostIDs the selected host ids
+     *
+     * @return array key => ['label' => ..., 'input' => <html>,
+     *               'hint' => <html>, 'kind' => ...]
      */
-    private function massEditPluginFields()
+    private function massEditPluginFields(array $hostIDs = [])
     {
         $fields = [];
         self::$HookManager->processEvent(
             'HOST_MASSEDIT_FIELDS',
-            ['fields' => &$fields]
+            [
+                'fields' => &$fields,
+                'hostIDs' => &$hostIDs
+            ]
         );
 
         return $fields;
     }
+    /**
+     * The `hosts` columns behind the core field keys, for the shared-value
+     * hints.
+     *
+     * The map is derived from the manager's own field map rather than
+     * restated in massEditCoreFields(). Restating it would be a second place
+     * that has to agree with `Host::$databaseFields`, and the failure when it
+     * did not agree would be a hint quietly describing the wrong column --
+     * which reads as a true statement about the selection and is not one.
+     *
+     * getColumns() also drops any field whose column is not actually on the
+     * table, which is the state a server sits in between deploying new code
+     * and running the schema updater. Such a field renders with no hint
+     * rather than taking the whole form down with a SQL error.
+     *
+     * @param array $spec massEditCoreFields()
+     *
+     * @return array field key => `hosts` column name
+     */
+    private function massEditColumnMap(array $spec)
+    {
+        $map = self::getClass('HostManager')->getColumns();
+        $columns = [];
+        foreach ($spec as $key => $entry) {
+            $field = $entry['field'] ?? '';
+            if (isset($map[$field])) {
+                $columns[$key] = $map[$field];
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
+     * The action control. Core renders it, never the field's owner.
+     *
+     * ADR 0038 decision 11: a plugin that drew its own could ship a
+     * two-state field, and a two-state field in a mass edit is the defect
+     * that decision is entirely about -- it looks identical to a correct one
+     * until somebody's images are gone.
+     *
+     * A boolean is offered LEAVE and SET only. Its value control is already
+     * a yes/no, so a CLEAR that wrote 0 would be a second spelling of "set
+     * to No" sitting next to the first, and two controls that mean the same
+     * thing is how a person picks the wrong one.
+     *
+     * @param string $key  the field key
+     * @param array  $spec that field's entry
+     *
+     * @return string
+     */
+    private function massEditActionControl($key, array $spec)
+    {
+        $id = self::massEditControlId('action', $key);
+        $options = [MassEdit::LEAVE => _('No change')];
+        $options[MassEdit::SET] = _('Set on all');
+        if ('bool' !== ($spec['kind'] ?? 'text')) {
+            $options[MassEdit::CLEAR] = _('Clear on all');
+        }
+        $html = '<select class="form-control massedit-action"'
+            . ' name="action[' . \Initiator::e($key) . ']"'
+            . ' id="' . $id . '"'
+            . ' data-massedit-key="' . \Initiator::e($key) . '"'
+            . ' autocomplete="off">';
+        foreach ($options as $value => $label) {
+            $html .= '<option value="' . $value . '">'
+                . \Initiator::e($label)
+                . '</option>';
+        }
+
+        return $html . '</select>';
+    }
+
+    /**
+     * The value control for one field, by kind.
+     *
+     * Every control is rendered EMPTY. There is no read path in this form --
+     * not for the credentials, which is decision 11's requirement, and not
+     * for anything else either, because a control pre-filled from a
+     * selection has to answer "pre-filled with which host's value" and there
+     * is no honest answer when they differ. What the hosts currently hold is
+     * reported by the hint beside it instead, where "(varies)" is sayable.
+     *
+     * @param string $key  the field key
+     * @param array  $spec that field's entry
+     *
+     * @return string
+     */
+    private function massEditValueControl($key, array $spec)
+    {
+        $name = 'value[' . $key . ']';
+        $id = self::massEditControlId('value', $key);
+        $kind = $spec['kind'] ?? 'text';
+        switch ($kind) {
+            case 'image':
+                return self::getClass('ImageManager')
+                    ->buildSelectBox('', $name, 'name', '', false, 'id', $id);
+            case 'biosexit':
+            case 'efiexit':
+                return Setting::buildExitSelector($name, '', true, $id);
+            case 'printerlevel':
+                return self::massEditSelect(
+                    $name,
+                    $id,
+                    [
+                        '0' => _('No Printer Management'),
+                        '1' => _('Add/Remove Managed Printers'),
+                        '2' => _('All Printers'),
+                    ]
+                );
+            case 'bool':
+                return self::massEditSelect(
+                    $name,
+                    $id,
+                    ['1' => _('Yes'), '0' => _('No')]
+                );
+            case 'password':
+                // autocomplete off and no value: the browser must not offer
+                // to fill a field that writes to four hundred hosts.
+                return self::makeInput(
+                    'form-control',
+                    $name,
+                    '',
+                    'password',
+                    $id,
+                    '',
+                    false,
+                    false
+                );
+            case 'number':
+                return self::makeInput(
+                    'form-control',
+                    $name,
+                    '',
+                    'number',
+                    $id,
+                    '',
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    'min="0"'
+                );
+            case 'resolution':
+                // One instruction, three parts. The names are the array HTTP
+                // already gives -- value[resolution][x] and friends -- so
+                // MassEdit::resolveComposite() reads them without parsing
+                // anything. See that method for why this is not one string.
+                $part = function ($sub, $placeholder) use ($name, $id) {
+                    return '<div class="col-4">'
+                        . self::makeInput(
+                            'form-control',
+                            $name . '[' . $sub . ']',
+                            $placeholder,
+                            'number',
+                            $id . '-' . $sub,
+                            '',
+                            false,
+                            false,
+                            -1,
+                            -1,
+                            'min="0"'
+                        )
+                        . '</div>';
+                };
+                return '<div class="row g-1">'
+                    . $part('x', _('Width'))
+                    . $part('y', _('Height'))
+                    . $part('r', _('Refresh'))
+                    . '</div>';
+        }
+
+        return self::makeInput('form-control', $name, '', 'text', $id);
+    }
+
+    /**
+     * A plain select whose options are a value => label map.
+     *
+     * @param string $name    the control name
+     * @param string $id      the control id
+     * @param array  $options value => label
+     *
+     * @return string
+     */
+    private static function massEditSelect($name, $id, array $options)
+    {
+        $html = '<select class="form-control" name="' . $name . '"'
+            . ' id="' . $id . '" autocomplete="off">';
+        foreach ($options as $value => $label) {
+            $html .= '<option value="' . \Initiator::e((string)$value) . '">'
+                . \Initiator::e($label)
+                . '</option>';
+        }
+
+        return $html . '</select>';
+    }
+
+    /**
+     * A control id from a field key.
+     *
+     * The keys are core's and the plugins', so they are not trusted to be
+     * HTML identifiers even though every one today is. Stripping rather than
+     * escaping, because an id with a bracket in it is a selector nobody
+     * writes correctly on the first try.
+     *
+     * @param string $kind 'action' or 'value'
+     * @param string $key  the field key
+     *
+     * @return string
+     */
+    private static function massEditControlId($kind, $key)
+    {
+        return 'massedit-' . $kind . '-'
+            . preg_replace('/[^A-Za-z0-9_-]/', '', (string)$key);
+    }
+
+    /**
+     * What the selection currently holds, per field, ready to render.
+     *
+     * Mixed values are SHOWN, never resolved (ADR 0038 decision 11): forty
+     * hosts holding six images render as "(varies)", not as one of the six.
+     *
+     * @param array $hostIDs the selected host ids
+     * @param array $core    massEditCoreFields()
+     *
+     * @return array field key => hint HTML
+     */
+    private function massEditHints(array $hostIDs, array $core)
+    {
+        $hints = [];
+        $shared = SharedHostValues::forHosts(
+            $hostIDs,
+            $this->massEditColumnMap($core)
+        );
+        foreach ($core as $key => $spec) {
+            if (!isset($shared[$key])) {
+                continue;
+            }
+            // A credential reports agreement and not the value. Both
+            // secrets here match Redaction::CREDENTIAL_PATTERN, and a form
+            // editing hundreds of hosts at once is the last place either
+            // should be rendered back out.
+            $hints[$key] = SharedHostValues::hint(
+                $shared[$key],
+                !empty($spec['secret'])
+            );
+        }
+
+        $alo = SharedHostValues::forHostRows(
+            $hostIDs,
+            'hostAutoLogOut',
+            'haloHostID',
+            ['autologout' => 'haloTime']
+        );
+        $hints['autologout'] = SharedHostValues::hint($alo['autologout']);
+
+        // Three columns, one answer. The resolution is uniform only when
+        // every part agrees AND every selected host has a row -- which is
+        // what forHostRows() means by uniform -- so the parts are combined
+        // rather than reported one by one. Three hints reading "(all)",
+        // "(varies)", "(all)" would describe a resolution nobody has.
+        $disp = SharedHostValues::forHostRows(
+            $hostIDs,
+            'hostScreenSettings',
+            'hssHostID',
+            ['x' => 'hssWidth', 'y' => 'hssHeight', 'r' => 'hssRefresh']
+        );
+        $uniform = !empty($disp['x']['uniform'])
+            && !empty($disp['y']['uniform'])
+            && !empty($disp['r']['uniform']);
+        $hints['resolution'] = SharedHostValues::hint(
+            [
+                'uniform' => $uniform,
+                'value' => $uniform
+                    ? sprintf(
+                        '%sx%s@%s',
+                        $disp['x']['value'],
+                        $disp['y']['value'],
+                        $disp['r']['value']
+                    )
+                    : ''
+            ]
+        );
+
+        return $hints;
+    }
+
+    /**
+     * Builds the mass edit form for a selection of hosts.
+     *
+     * A POST rather than a GET, and that is not incidental. The hints beside
+     * every control describe THIS selection, so the endpoint needs the ids to
+     * render at all -- and several hundred of them do not go in a query
+     * string. deployMulti() gets away with a GET because it only needs a
+     * count.
+     *
+     * @return void
+     */
+    public function massEditFormPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+
+        try {
+            $hosts = $this->massEditSelection();
+            // The form reports what these hosts hold, so it is a read of
+            // them and takes the same boundary the write does.
+            Authorization::requirePageObjectScopeMass('host', $hosts);
+
+            $core = $this->massEditCoreFields();
+            $rows = $this->massEditRowFields();
+            $hints = $this->massEditHints($hosts, $core);
+
+            $labelClass = 'col-sm-3 col-form-label';
+            $fields = [];
+            foreach (array_merge($core, $rows) as $key => $spec) {
+                $fields[
+                    self::makeLabel(
+                        $labelClass,
+                        self::massEditControlId('value', $key),
+                        $spec['label'] ?? $key
+                    )
+                ] = '<div class="row g-2">'
+                    . '<div class="col-sm-4">'
+                    . $this->massEditActionControl($key, $spec)
+                    . '</div>'
+                    . '<div class="col-sm-8">'
+                    . $this->massEditValueControl($key, $spec)
+                    . ($hints[$key] ?? '')
+                    . '</div>'
+                    . '</div>';
+            }
+
+            // The plugin half. A plugin supplies the label, the value
+            // control and its own hint over the selection; core keeps the
+            // action control. Same call the apply path makes, so the two
+            // cannot see different field sets -- a plugin whose key appears
+            // in the form and not in the apply would offer a control that
+            // silently does nothing.
+            $pluginFields = $this->massEditPluginFields($hosts);
+            foreach ($pluginFields as $key => $spec) {
+                $fields[
+                    self::makeLabel(
+                        $labelClass,
+                        self::massEditControlId('value', $key),
+                        $spec['label'] ?? $key
+                    )
+                ] = '<div class="row g-2">'
+                    . '<div class="col-sm-4">'
+                    . $this->massEditActionControl($key, $spec)
+                    . '</div>'
+                    . '<div class="col-sm-8">'
+                    . ($spec['input'] ?? '')
+                    . ($spec['hint'] ?? '')
+                    . '</div>'
+                    . '</div>';
+            }
+
+            $rendered = self::formFields($fields);
+            unset($fields);
+
+            ob_start();
+            echo self::makeFormTag(
+                '',
+                'host-massedit-form',
+                '../management/index.php?node=host&sub=massedit',
+                'post',
+                'application/x-www-form-urlencoded',
+                true
+            );
+            echo '<p class="form-text">';
+            printf(
+                /* translators: %d is the number of selected hosts */
+                _('Editing %d selected hosts. Every field is left alone '
+                . 'unless you choose otherwise.'),
+                count($hosts)
+            );
+            echo '</p>';
+            echo $rendered;
+            foreach ($hosts as $hostID) {
+                echo '<input type="hidden" name="hosts[]" value="'
+                    . (int)$hostID . '"/>';
+            }
+            echo '</form>';
+
+            $msg = json_encode(
+                [
+                    'msg' => ob_get_clean(),
+                    'title' => _('Mass edit form success')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+        } catch (\Exception $e) {
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Mass edit form fail')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+        }
+        $this->jsonSend($code, $msg);
+    }
+
     /**
      * Applies a three-state edit to a selection of hosts.
      *
@@ -4386,22 +4836,7 @@ class HostManagement extends FOGPage
         header('Content-type: application/json');
 
         try {
-            $hosts = filter_input(
-                INPUT_POST,
-                'hosts',
-                FILTER_DEFAULT,
-                FILTER_REQUIRE_ARRAY
-            );
-            $hosts = array_values(
-                array_unique(
-                    array_filter(
-                        array_map('intval', (array)$hosts)
-                    )
-                )
-            );
-            if (count($hosts) < 1) {
-                throw new \Exception(_('No hosts are selected'));
-            }
+            $hosts = $this->massEditSelection();
             // Airtight: one id outside the caller's site scope denies the
             // whole request rather than quietly editing the rest. The ids
             // come from the browser, so this is the only place they are
@@ -4411,7 +4846,7 @@ class HostManagement extends FOGPage
 
             $coreFields = $this->massEditCoreFields();
             $rowFields = $this->massEditRowFields();
-            $pluginFields = $this->massEditPluginFields();
+            $pluginFields = $this->massEditPluginFields($hosts);
             // Core wins a key collision. A plugin cannot capture `image` and
             // quietly redirect what the Image control writes, which it could
             // if the arrays were merged the other way round.
@@ -4900,6 +5335,56 @@ class HostManagement extends FOGPage
         echo '</div>';
         echo '</div>';
     }
+    /**
+     * The Mass Edit control for the host list: one button, one modal.
+     *
+     * Picked up by FOGPage::process() through method_exists, the same seam
+     * queueTaskActions() uses, so the generic list toolbar does not learn a
+     * second node name.
+     *
+     * The modal ships EMPTY. Its body is fetched on click, by POST, because
+     * the hints beside every control describe the current selection and
+     * several hundred host ids do not go in a query string. Rendering it
+     * with the page would mean rendering it before anything is ticked.
+     *
+     * @return array ['button' => string, 'modal' => string]
+     */
+    public function massEditActions()
+    {
+        // Secondary, beside "Add selected to group". It changes records
+        // rather than starting work on machines, so it is deliberately not
+        // the green Queue Task shares a group with.
+        $button = self::makeButton(
+            'massEditSelected',
+            _('Mass edit'),
+            'btn btn-secondary'
+        );
+
+        $modal = self::makeModal(
+            'massEditModal',
+            '<h4 class="card-title">'
+            . _('Edit selected hosts')
+            . '<span class="massedit-host-count"></span></h4>',
+            '<div id="massedit-form-holder"></div>',
+            self::makeButton(
+                'massEditClose',
+                _('Cancel'),
+                'btn btn-outline-secondary float-start',
+                'data-bs-dismiss="modal"'
+            )
+            . self::makeButton(
+                'massEditSend',
+                _('Update'),
+                'btn btn-primary float-end d-none'
+            ),
+            '',
+            'secondary',
+            'modal-lg'
+        );
+
+        return ['button' => $button, 'modal' => $modal];
+    }
+
     /**
      * The Queue Task control for the host list: one button, one modal.
      *

@@ -1851,6 +1851,14 @@ abstract class FOGPage extends FOGBase
                         // ones to draw. Empty when the page offers none.
                         $modals .= $queue['quick'] ?? '';
                     }
+                    // Same seam, same reason: a page that can edit its
+                    // selection in bulk says so by defining the method, and
+                    // the toolbar does not learn a second node name to do it.
+                    if (method_exists($this, 'massEditActions')) {
+                        $mass = $this->massEditActions();
+                        $actionbox .= $mass['button'];
+                        $modals .= $mass['modal'];
+                    }
                     if (method_exists($this, 'addModal')) {
                         if ($node == 'host') {
                             $actionbox .= self::makeButton(

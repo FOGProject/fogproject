@@ -1,6 +1,11 @@
 (function($) {
     var addToGroup = $('#addSelectedToGroup'),
         deleteSelected = $('#deleteSelected'),
+        massEdit = $('#massEditSelected'),
+        massEditModal = $('#massEditModal'),
+        massEditHolder = $('#massedit-form-holder'),
+        massEditCount = $('.massedit-host-count'),
+        massEditSend = $('#massEditSend'),
         queueTask = $('#queueTask'),
         queueTaskModal = $('#queueTaskModal'),
         groupModal = $('#addToGroupModal'),
@@ -18,6 +23,7 @@
     function disableButtons(disable) {
         addToGroup.prop('disabled', disable);
         deleteSelected.prop('disabled', disable);
+        massEdit.prop('disabled', disable);
         queueTask.prop('disabled', disable);
     }
     disableButtons(true);
@@ -647,6 +653,93 @@
                     }
                     $('#queueTaskModal .modal-dialog').setLoading(false);
                     queueTaskModal.modal('hide');
+                    $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+                }
+            });
+        });
+    });
+
+    // Mass edit. The form is fetched by POST rather than GET because its
+    // "Hosts: (varies)" hints are computed over the actual selection, and
+    // several hundred ids do not go in a query string.
+    massEdit.on('click', function() {
+        var hosts = $.getSelectedIds(table);
+        if (hosts.length < 1) {
+            return;
+        }
+
+        massEditCount.text(' - ' + hosts.length);
+        massEditHolder.html('Loading, please wait...');
+        massEditSend.addClass('d-none');
+        massEditModal.modal('show');
+        $('#massEditModal .modal-dialog').setLoading(true);
+
+        Pace.track(function() {
+            $.ajax({
+                type: 'post',
+                url: '../management/index.php?node=host&sub=masseditform',
+                data: {hosts: hosts},
+                dataType: 'json',
+                success: function(data) {
+                    $('#massEditModal .modal-dialog').setLoading(false);
+                    massEditHolder.html($.parseHTML(data.msg));
+
+                    var form = $('#host-massedit-form');
+
+                    // A value control is inert until its action says SET.
+                    // The disabled state is the form SAYING the three
+                    // states out loud -- without it the boxes all look
+                    // live and "leave alone" reads as "I forgot to fill
+                    // this in".
+                    function applyActionState() {
+                        var action = $(this),
+                            key = action.data('massedit-key'),
+                            enable = action.val() === 'set',
+                            // Exact name, plus the composite's parts. A
+                            // ^= on 'value[key]' alone would also catch
+                            // 'value[keyOther]', which is a bug waiting
+                            // for the first pair of keys that share a
+                            // prefix.
+                            sel = '[name="value[' + key + ']"],'
+                                + '[name^="value[' + key + ']["]';
+                        $(sel, form).prop('disabled', !enable);
+                    }
+                    $('.massedit-action', form)
+                        .on('change', applyActionState)
+                        .each(applyActionState);
+
+                    massEditSend.removeClass('d-none').off('click').on(
+                        'click',
+                        function(e) {
+                            e.stopImmediatePropagation();
+                            // Read the selection again HERE, for the same
+                            // reason the Queue Task modal does: the grid is
+                            // still live behind the modal, and the ids in
+                            // the form are the ones the server writes.
+                            var current = $.getSelectedIds(table);
+                            $('input[name="hosts[]"]', form).remove();
+                            $.each(current, function(i, id) {
+                                $('<input>').attr({
+                                    type: 'hidden',
+                                    name: 'hosts[]'
+                                }).val(id).appendTo(form);
+                            });
+                            form.processForm(function(err) {
+                                if (err) {
+                                    return;
+                                }
+                                massEditModal.modal('hide');
+                                table.ajax.reload(null, false);
+                            });
+                        }
+                    );
+                },
+                error: function(jqXHR, textStatus) {
+                    if (textStatus == 'abort') {
+                        return;
+                    }
+                    $('#massEditModal .modal-dialog').setLoading(false);
+                    massEditModal.modal('hide');
                     $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
                 }
             });
