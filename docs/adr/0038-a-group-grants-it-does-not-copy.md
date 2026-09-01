@@ -45,9 +45,42 @@ by schema step 161 rather than only by the manifest. So Decision 6's
 `groupName` tiebreak is safe on upgraded databases, and the retirement step
 needs no index repair.
 
-**UNKNOWN-5** — the cost of the per-id scope check at 400 hosts — is the only
-open item, and it blocks nothing; it decides whether the mass edit needs a
-set-based authorization path. Evidence for all of it is in the proposal's §5.
+**UNKNOWN-5 is closed — measured, 2026-09-01: no set-based authorization
+path is needed.** `requirePageObjectScopeMass()` is a `foreach` over
+`requirePageObjectScope()`, which is `objectInScope()` for every id that is in
+scope, so looping `objectInScope()` over N ids *is* the check. Measured against
+a real MariaDB (a fake database would have measured PHP and understated the
+round trips, which are the whole cost), with a site-scoped user whose every
+host is in scope — the expensive arm, since a denial short-circuits on the
+first id:
+
+| Selected hosts | Queries | Elapsed |
+|---|---|---|
+| 100 | 101 | 13.7 ms |
+| 400 | 401 | 49.0 ms |
+| 1000 | 1001 | 98.9 ms |
+| 4000 | 4001 | 400.6 ms |
+
+Flat at ~0.10 ms and exactly one query per id, plus one for the catch-all
+membership check. The equivalent set-based query — one `SELECT COUNT(*) … WHERE
+shmHostID IN (…)` — answers the same question in 0.6 ms at 400. So the loop is
+~60× the theoretical floor and still **49 ms**, which is noise beside the
+`UPDATE` it authorizes and beside the page it is part of. Replacing it would
+trade a boundary that is one obvious `foreach` for an optimization worth
+40 ms, on the code path where being obviously right matters most.
+
+Two things the measurement does *not* say, both recorded so nobody reads more
+into it than it proves:
+
+- The control arm confirms an unrestricted (`*`) user costs **zero queries and
+  0.1 ms at 400** — the short circuit ahead of everything else. Most FOG
+  administrators never reach the measured path at all.
+- This is a stock install with **no `OBJECT_SCOPE_CHECK` listener**. A plugin
+  that registers one pays its own cost per id, and one that queries turns N
+  round trips into 2N. That is a property of the plugin, not of this decision,
+  but it is where the number would move.
+
+Evidence for the rest of the unknowns is in the proposal's §5.
 
 **Decision 16 (groups become the tag concept, presented as tags) is the
 maintainer's decision, not a derivation.** It is recorded with its argument and
@@ -495,8 +528,9 @@ Applied here, and this is what decides the batching:
 rather than quietly tasking the rest" (`HostManagement.php:4633`). Mass edit
 takes the same gate for the same reason. Note that this call is a per-id loop
 (`Authorization.php:2274`) that dispatches an `OBJECT_SCOPE_CHECK` hook per id
-— a known cost at 400 hosts, pre-existing, measured in UNKNOWN-5 rather than
-assumed.
+— a known cost, pre-existing, and now measured rather than assumed: **49 ms and
+401 queries at 400 hosts**, zero for an unrestricted user. See UNKNOWN-5 in the
+status block above. The loop stays.
 
 ### 13. Plugin fields participate, or the ABI has a hole with a name
 

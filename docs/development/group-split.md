@@ -20,7 +20,8 @@ against the 1.6 lab (`10.255.20.1`). Two changed a decision: UNKNOWN-4 (ADR
 0038 Decision 9) and UNKNOWN-6 (Decision 16a.6, the permission split).
 UNKNOWN-3 refuted one hazard this document claimed and made another materially
 worse; UNKNOWN-1 then removed a schema step the earlier write-up had wrongly
-added. **UNKNOWN-5** is the only one left open, and it blocks nothing.
+added. **UNKNOWN-5 closed on 2026-09-01 by measurement** — the per-id scope
+loop costs 49 ms at 400 hosts and stays. Every unknown is now answered.
 
 ---
 
@@ -667,9 +668,7 @@ Still open:
    (UNKNOWN-4), so any change to the empty-case spelling is a client-visible
    change. Confirm the trace on a real mode-`ar` host before shipping the
    printer resolver — that is the one piece UNKNOWN-4 could not observe.
-2. **UNKNOWN-5** (mass authorization cost at 400 hosts) — does not block;
-   determines whether the mass edit needs a set-based scope check.
-3. **A migration rehearsal** on a 1.5-origin dump, per
+2. **A migration rehearsal** on a 1.5-origin dump, per
    `docs/development/upgrade-rehearsal.md`, for step 405.
 
 ### 2.5 Release targeting — **decided: all of it in 1.6.0**
@@ -765,9 +764,9 @@ three were found by building it:
   covering both the re-tasking semantics and Decision 15's credential
   propagation.
 
-**UNKNOWN-5** (per-id scope check cost at 400 hosts) is measured inside C,
-where the mass edit's authorization path is being written, rather than as a
-prerequisite to it.
+**UNKNOWN-5** (per-id scope check cost at 400 hosts) was measured inside C,
+where the mass edit's authorization path is written, rather than as a
+prerequisite to it. Answer: the loop stays — see below.
 
 ---
 
@@ -1281,20 +1280,45 @@ the resolver must not be shipped until it is fixed. *(Answered: it does not.)*
 
 </details>
 
-### UNKNOWN-5 — what does the per-id scope check cost at 400 hosts?
+### UNKNOWN-5 — what does the per-id scope check cost at 400 hosts? — **MEASURED: 49 ms. The loop stays.**
 
-```
-# On the lab, with a user restricted to a site, time a 400-host Queue Task
-# (which already runs this gate) and count queries.
-grep -n 'requirePageObjectScopeMass' packages/web/src/Pages/HostManagement.php
-sed -n '2270,2280p' packages/web/src/Auth/Authorization.php
-```
+**Answered 2026-09-01** against a real MariaDB rather than a fake, because the
+cost being asked about is one round trip per id and a fake database measures
+PHP instead. `requirePageObjectScopeMass()` is a `foreach` over
+`requirePageObjectScope()`, which is `objectInScope()` for every id that is in
+scope — so looping `objectInScope()` over N ids *is* the check. The user is
+site-scoped with every host inside that site, which is the expensive arm: a
+denial short-circuits the loop on the first id and would have flattered the
+number.
 
-Instrument `Authorization::objectInScope()` to count invocations and elapsed
-time for one `deployMultiPost` of 400 hosts. If it is material, the fix is to
-use `SiteScope::allInScopeIDs()` once and diff, which is the set-based answer
-the class already provides — and it is a pre-existing improvement to the Queue
-Task path, not new work this creates.
+| Selected hosts | Queries | Elapsed | Per id |
+|---|---|---|---|
+| 100 | 101 | 13.7 ms | 0.137 ms |
+| 400 | 401 | 49.0 ms | 0.123 ms |
+| 1000 | 1001 | 98.9 ms | 0.099 ms |
+| 4000 | 4001 | 400.6 ms | 0.100 ms |
+
+Flat at ~0.10 ms and exactly one query per id, plus one for the catch-all
+membership check — the per-user caches (`getPermissions`, `sitesInUse`,
+`userSiteIDs`, catch-all membership) all hold, so nothing else repeats.
+
+The set-based counterfactual — one `SELECT COUNT(*) FROM siteHostMembers WHERE
+shmHostID IN (…) AND shmSiteID IN (…)` — answers the same question in **0.6 ms**
+at 400. So the loop is ~60× the floor and still 49 ms, which is noise beside the
+`UPDATE` it authorizes. `SiteScope::allInScopeIDs()` is not worth reaching for
+here: it would trade a boundary that is one obvious `foreach` for 40 ms, on the
+code path where being obviously right matters most.
+
+**Control arm, which is what makes the number believable.** The same loop for a
+global `*` holder: **0 queries, 0.1 ms at 400**. The unrestricted short circuit
+sits ahead of everything, so most FOG administrators never reach the measured
+path at all — and if the control had *not* come out at zero, the scoped number
+would have been measuring something other than the site boundary.
+
+**What it does not say.** This is a stock install with no `OBJECT_SCOPE_CHECK`
+listener. A plugin that registers one pays its own cost per id; one that
+queries turns N round trips into 2N. That is a property of the plugin rather
+than of this decision, but it is where the number would move.
 
 ### UNKNOWN-6 — is `saveGroup()` really unprotected? — **VERIFIED, both gaps**
 
