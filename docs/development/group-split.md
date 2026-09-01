@@ -763,7 +763,9 @@ serialize through conflicts anyway.
 | D2a | `saveGroup()` gated: CSRF, object scope both sides, and the `group.edit`/`group.create` split | `Pages/HostManagement.php`, `Auth/Authorization.php` | — | **merged** (3cb39b8df) |
 | D2b | Remove as well as add, from the list; typed names resolved against the groups that exist; the write audited | `Pages/HostManagement.php`, `Base/FOGPage.php`, `fog.host.list.js` | D1, D2a | **merged** (#1640) |
 | D3 | Group list "grants" column | `Router/Route.php`, `Pages/GroupManagement.php`, JS | D1 | **merged** (#1643) |
-| E | Group page rework: `Group::addSnapin`/`addPrinter`/`addModule` become grants, the tri-state coverage machinery goes, the imperative controls are marked deprecated | `Items/Group*Association.php`, `Items/Group.php`, `Pages/GroupManagement.php`, JS | **C5 proven** (Decision 10), D, M5 | open (#1647) |
+| E | Group page rework: `Group::addSnapin`/`addPrinter`/`addModule` become grants, the tri-state coverage machinery goes, the imperative controls are marked deprecated | `Items/Group*Association.php`, `Items/Group.php`, `Pages/GroupManagement.php`, JS | **C5 proven** (Decision 10), D, M5 | **merged** (#1647) |
+| E1 | UNKNOWN-4's server half simulated against the real endpoint: revoking a grant removes only the granted printers | `tests/printer-grants-reach-the-client.test.php` | E | **merged** (#1648) |
+| E2 | `groups.groupOrder` made settable -- step 404 added the column and the resolver read it, but nothing could ever write it | `Items/Group.php`, `Pages/GroupManagement.php` | E | **merged** (#1649) |
 
 **Two bugs in C5's own surface were found and fixed while D was landing**,
 both on the mass edit modal and neither shipped: the object-id guard in
