@@ -130,10 +130,28 @@ msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, fuzzy, php-format
+msgid "%d module"
+msgid_plural "%d modules"
+msgstr[0] "模块名称"
+msgstr[1] "模块名称"
+
+#, fuzzy, php-format
+msgid "%d printer"
+msgid_plural "%d printers"
+msgstr[0] "打印机"
+msgstr[1] "打印机"
+
+#, fuzzy, php-format
 msgid "%d selected host"
 msgid_plural "%d selected hosts"
 msgstr[0] "批准选定主机"
 msgstr[1] "批准选定主机"
+
+#, fuzzy, php-format
+msgid "%d snapin"
+msgid_plural "%d snapins"
+msgstr[0] "管理单元"
+msgstr[1] "管理单元"
 
 #, php-format
 msgid "%d token(s) disabled."

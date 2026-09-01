@@ -106,8 +106,26 @@ msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, php-format
+msgid "%d module"
+msgid_plural "%d modules"
+msgstr[0] ""
+msgstr[1] ""
+
+#, php-format
+msgid "%d printer"
+msgid_plural "%d printers"
+msgstr[0] ""
+msgstr[1] ""
+
+#, php-format
 msgid "%d selected host"
 msgid_plural "%d selected hosts"
+msgstr[0] ""
+msgstr[1] ""
+
+#, php-format
+msgid "%d snapin"
+msgid_plural "%d snapins"
 msgstr[0] ""
 msgstr[1] ""
 

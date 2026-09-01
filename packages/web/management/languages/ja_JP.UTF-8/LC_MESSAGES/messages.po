@@ -121,10 +121,28 @@ msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, fuzzy, php-format
+msgid "%d module"
+msgid_plural "%d modules"
+msgstr[0] "モジュール MD5"
+msgstr[1] "モジュール MD5"
+
+#, fuzzy, php-format
+msgid "%d printer"
+msgid_plural "%d printers"
+msgstr[0] "プリンター"
+msgstr[1] "プリンター"
+
+#, fuzzy, php-format
 msgid "%d selected host"
 msgid_plural "%d selected hosts"
 msgstr[0] "選択したホストを承認"
 msgstr[1] "選択したホストを承認"
+
+#, fuzzy, php-format
+msgid "%d snapin"
+msgid_plural "%d snapins"
+msgstr[0] "スナップイン"
+msgstr[1] "スナップイン"
 
 #, php-format
 msgid "%d token(s) disabled."

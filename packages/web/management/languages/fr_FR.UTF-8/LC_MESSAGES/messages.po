@@ -131,10 +131,28 @@ msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, fuzzy, php-format
+msgid "%d module"
+msgid_plural "%d modules"
+msgstr[0] "Module"
+msgstr[1] "Module"
+
+#, fuzzy, php-format
+msgid "%d printer"
+msgid_plural "%d printers"
+msgstr[0] "Imprimante"
+msgstr[1] "Imprimante"
+
+#, fuzzy, php-format
 msgid "%d selected host"
 msgid_plural "%d selected hosts"
 msgstr[0] "Approuver hôtes sélectionnés"
 msgstr[1] "Approuver hôtes sélectionnés"
+
+#, fuzzy, php-format
+msgid "%d snapin"
+msgid_plural "%d snapins"
+msgstr[0] "snapin"
+msgstr[1] "snapin"
 
 #, php-format
 msgid "%d token(s) disabled."
