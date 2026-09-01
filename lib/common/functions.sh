@@ -225,6 +225,59 @@ offerRevert() {
     echo
     return 0
 }
+# Which of FOG's four packaging families this box belongs to, so a caller can
+# pick a package manager instead of hardcoding one.
+#
+# Sets linuxReleaseName / OSVersion / linuxReleaseName_lower -- the same three
+# globals installfog.sh has always derived at this point in its flow -- plus
+# $osfamily. Each is guarded with [[ -z ]] like the values it replaces, so a
+# caller that has already set them (a test, an override) is left alone.
+#
+# MUST be called directly, never as $(detectOSFamily): command substitution
+# runs it in a subshell and every one of those globals is lost.
+#
+# The patterns are lib/common/input.sh's, which were the more complete of the
+# two copies -- installfog.sh's inline block did not know *mageia*. That is the
+# drift this exists to end: the distro-name parse lived in installfog.sh, the
+# family map lived in input.sh, and neither could see the other.
+#
+# Returns 1 with $osfamily empty for a distro matching none of the four. It
+# does NOT fall back to redhat the way input.sh's suggestion does, and the
+# difference is deliberate: there, redhat is a pre-filled answer to a prompt a
+# person can correct; here it would be a guess about which package-manager
+# binary actually exists, made by something with nobody watching.
+detectOSFamily() {
+    if [[ -f /etc/os-release ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
+        [[ -z $OSVersion ]] && OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
+    elif [[ -f /etc/redhat-release ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*// | awk -F. '{print $1}')
+    elif [[ -f /etc/debian_version ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
+    fi
+    linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
+    osfamily=""
+    case $linuxReleaseName_lower in
+        *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
+            osfamily="redhat"
+            ;;
+        *ubuntu*|*bian*|*mint*)
+            osfamily="debian"
+            ;;
+        *alpine*)
+            osfamily="alpine"
+            ;;
+        *arch*|*manjaro*)
+            osfamily="arch"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
+    return 0
+}
 backupReports() {
     dots "Backing up user reports"
     [[ ! -d ../rpttmp/ ]] && mkdir ../rpttmp/ >>$error_log
