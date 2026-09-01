@@ -726,10 +726,16 @@ serialize through conflicts anyway.
 | C5a | The three-state action model (`FOG\Util\MassEdit`) | new `src/Util/MassEdit.php` | B | **merged** (#1622) |
 | C5b | The apply endpoint | `Pages/HostManagement.php` | C5a | **merged** (#1623) |
 | C5c | Every `hosts` column ADR 0038 sends to mass edit | `Pages/HostManagement.php` | C5b | **merged** (#1625) |
-| C5d | The row-backed settings + composite values | `Util/MassEdit.php`, `Items/HostAutoLogout.php` | C5c | open (#1626) |
-| C5e | The form, the modal, and `HOST_MASSEDIT_FIELDS` | `Pages/HostManagement.php`, `Base/FOGPage.php`, `Util/SharedHostValues.php`, `fog.host.list.js`, `docs/plugin-development.md` | C5d | open |
+| C5d | The row-backed settings + composite values | `Util/MassEdit.php`, `Items/HostAutoLogout.php` | C5c | **merged** (#1626) |
+| C5e | The form, the modal, and `HOST_MASSEDIT_FIELDS` | `Pages/HostManagement.php`, `Base/FOGPage.php`, `Util/SharedHostValues.php`, `fog.host.list.js`, `docs/plugin-development.md` | C5d | **merged** (#1628) |
+| C5f | Mass edit button moved beside "Delete selected" | `Base/FOGPage.php`, `Pages/HostManagement.php` | C5e | **merged** (#1631) |
+| M1 | `groupModuleAssoc`, constraint group 10, `msState` → tinyint (step 409) | `commons/schema.php`, `commons/schema-constraints.php`, `Base/System.php` | A | **merged** (#1629) |
+| M2 | `Resolver::resolveModules()`, the three tiers | `Assign/Resolver.php` | M1 | **merged** (#1632) |
+| M3 | Client paths read the resolved list; `checkPassiveModule` fix | `Items/Host.php`, `Client/ServiceModule.php`, `Client/FOGClient.php`, `Base/FOGPage.php` | M2 | open (#1633) |
+| M4 | `addRemItem()` module special case removed; auto-logout minimum named once | `Base/FOGController.php`, `Pages/HostManagement.php` | M3 | open (#1634) |
+| M5 | Host Modules tab becomes genuinely tri-state, so a host can say OFF | `Pages/HostManagement.php`, JS | M4 | not started |
 | D | Presentation: groups column + filter, bulk add/remove, group list "grants" | `Router/Route.php`, `Base/FOGManagerController.php`, `Pages/HostManagement.php`, JS | C5 | not started |
-| E | Group page rework + removal of the imperative tabs | `Pages/GroupManagement.php`, JS | **C5 proven** (Decision 10), D | not started |
+| E | Group page rework + removal of the imperative tabs, and `Group::addSnapin`/`addPrinter`/`addModule` become grants | `Pages/GroupManagement.php`, `Items/Group.php`, JS | **C5 proven** (Decision 10), D, M5 | not started |
 
 C5 split into five as it was built. The split is by what each piece can be
 tested against on its own -- the action model with no endpoint, the endpoint

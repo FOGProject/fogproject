@@ -158,15 +158,21 @@ two groups". The group is only ever a *selection mechanism* for writing them,
 and the write is legitimately one-shot. This half **leaves the group entirely**
 and becomes mass edit driven from the host list (Decision 8).
 
-**Declarative half — snapins and printers.** These are set membership. A host
-can hold any number, from any number of sources, and the union is meaningful.
-These **stay with the group**, in new group-owned association tables, and are
-**evaluated, never copied**.
+**Declarative half — snapins, printers and modules.** These are set
+membership. A host can hold any number, from any number of sources, and the
+union is meaningful. These **stay with the group**, in new group-owned
+association tables, and are **evaluated, never copied**. Modules were
+originally put in the imperative half here; Decision 3 records why that was
+wrong and how they joined.
 
 The test that separates them is not "is it a column or a row". `hostPrinterLevel`
 is a column and belongs to the imperative half; `moduleStatusByHost` is a row
-and also belongs to the imperative half (Decision 3). The test is whether two
-sources granting the same thing can be combined without one of them losing.
+and belongs to the declarative one. The test is whether two sources granting
+the same thing can be combined without one of them losing.
+
+Modules pass that test with one extra rule, and it is worth stating here
+because it is what makes a *switch* safe to grant: only a HOST may say OFF. A
+group grant carries no state, so two groups can only union. See Decision 3.
 
 ### 2. Where the empirical list and the group page disagree
 
@@ -187,7 +193,7 @@ Both directions matter, and the disagreements are the interesting part.
 | `hostKernel` / `hostDevice` / `hostInit` | **does not copy** | General tab | mass edit |
 | auto-logout | **does not copy** | `setAlo()`, replaces all rows | mass edit |
 | screen resolution | **does not copy** | `setDisp()`, replaces all rows | mass edit |
-| modules | copies (`msState` and all) | Modules tab, tri-state | mass edit (Decision 3) |
+| modules | copies (`msState` and all) | Modules tab, tri-state | **group-owned** (Decision 3, reversed) |
 | location / OU | copies `locationAssoc` | plugin group hooks | mass edit, plugin field (Decision 9) |
 | snapins | copies **and tasks them** | Snapins tab | **group-owned** |
 | printers | copies including `paIsDefault` | Printers tab | **group-owned** |
@@ -209,13 +215,14 @@ page and are all absent from the trigger. So "cover the persistentgroups list"
 is a floor, not a ceiling: mass edit must cover the **union**, or retiring
 either mechanism is a regression. That union is what Decision 8 sizes against.
 
-### 3. Modules stay in the imperative half — but the reason first given here was wrong
+### 3. Modules are the third declarative grant — reversed, 2026-09-01
 
-**The original argument does not survive contact with the code, and it is
-corrected here rather than quietly dropped, because the correction reopens a
-question this decision had treated as settled.**
+**This decision said the opposite, on a premise that turned out to be false.
+Both the original reasoning and the correction are kept, because the shape of
+the mistake is the useful part: a decision was made on a property of the data
+that nobody had read the data to check.**
 
-What this section said, and what it rested on:
+What this section originally said, and what it rested on:
 
 > ADR 0001 established that a module counts as "had" only when
 > `moduleStatusByHost.msState = 1`, because a module carries an
@@ -224,49 +231,91 @@ What this section said, and what it rested on:
 > module and a second group granting the same module *disabled* is a
 > contradiction with no correct resolution.
 
-**`msState` is vestigial. A disabled association cannot exist.** Verified
-across the whole tree on 2026-09-01:
+**`msState` was vestigial.** Verified across the whole tree on 2026-09-01:
 
-- Every write sets it to **1**. `Group::addModule()` inserts
-  `[$hostid, $moduleid, 1]` (`Items/Group.php:358`), and
-  `FOGController::addRemItem()` appends a literal `1` for any
-  `moduleassociation` insert (`Base/FOGController.php:1922`, `:1933`). There
-  is no code path anywhere that writes `0`.
-- The **schema deletes any that survive**: `DELETE FROM moduleStatusByHost
-  WHERE msState='0'` runs in two separate steps (`commons/schema.php:1497`,
-  `:3352`), so an upgraded database is purged of them as well.
-- The **client ignores it**. `Host::loadModules()` selects `msModuleID` with
-  no state filter (`Items/Host.php:681`), and `ServiceModule` treats presence
-  in that list as enabled (`Client/ServiceModule.php:91-103`). A `0` row, if
-  one somehow existed, would read as ON to the machine.
-- The only reader that filters on it is the group page's tri-state derivation
-  (`Pages/GroupManagement.php:3064`), where — every row being `1` — it is
-  equivalent to "a row exists".
+- Every write set it to **1**. `Group::addModule()` inserted
+  `[$hostid, $moduleid, 1]`, and `FOGController::addRemItem()` appended a
+  literal `1` for any `moduleassociation` insert. No code path wrote `0`.
+- The **schema deleted any that survived**: `DELETE FROM moduleStatusByHost
+  WHERE msState='0'` runs in steps **34** and **231**. Both are historical —
+  a numbered step replays once — so nothing purges such a row today, which is
+  what makes the column usable again.
+- The **client ignored it**. `Host::loadModules()` selected `msModuleID` with
+  no state filter, and `ServiceModule` treated presence in that list as
+  enabled. A `0` row would have read as ON to the machine.
 
-So a module association is a **two-state** thing: the row is there or it is
-not. The contradiction the original argument turned on has no way to arise.
+So the contradiction the original argument turned on had no way to arise. The
+decision was reported to Tom rather than built on, and he reversed it:
 
-**What that means for the decision.** With `msState` out of the picture,
-modules look exactly like snapins: a set of associations with no per-source
-attribution, where a union across sources is as well-defined as it is for a
-snapin, and removing a grant from one group leaves another group's grant
-standing. The declarative reading is therefore **available**, where this
-section previously said it was impossible.
+> *"Build the declarative options. This works similar to snapins/printers but
+> tells hosts what modules are enabled. If a host has explicitly disabled the
+> module that wins (lowest tier wins.)"*
 
-**Modules nonetheless stay imperative in this ADR, and that is now a choice
-rather than a forced move.** The reasons are cost and blast radius, not
-logic: the declarative reading needs a `groupModuleAssoc` table, a schema
-step, a constraint group, a third arm on `Assign\Resolver`, and a change to
-what `ServiceModule` reads — none of which the snapin and printer work
-already pays for. Nothing here is a reason it *could not* be done later, and
-moving modules is purely additive if it is.
+and, on whether a group may itself say *disabled*:
+
+> *"Groups can choose not to include or to include modules, but should not
+> drive enable/disable explicitly... This group says disable, this one says
+> enable, which one wins?"*
+
+**That second answer is the whole design.** A group grant is **presence-only**:
+`groupModuleAssoc` has no state column, so a group either grants a module or
+says nothing about it, and two groups can only ever union. The question with
+no defensible answer is one the schema refuses to let anyone ask.
+
+**Modules are a switch, not a thing, so the resolution has three tiers** where
+snapins and printers have two:
+
+| Tier | Meaning |
+|---|---|
+| host row, `msState = 0` | the host says OFF. Beats everything. |
+| host row, `msState = 1` | the host says ON |
+| group grant | any group the host is in says ON |
+| nothing anywhere | OFF |
+
+Only the host may say OFF — that is "lowest tier wins" as Tom put it.
+
+**"Nothing anywhere" is OFF rather than `modules`.`default`,** because that is
+already what absence means: `ServiceModule::checkPassiveModule()` computes its
+disabled list as `array_diff(globalModules, hostRows)`. Falling back to
+`default` would silently switch modules on across a fleet at upgrade.
+`default` keeps its one job, seeding a newly registered host's rows.
+
+**Nothing changes for an existing install until someone turns a module off.**
+`groupModuleAssoc` ships empty and nothing is migrated (matching Decision 18
+for printers); every existing row carries state 1; and a row meaning OFF is
+new, so no upgraded database has one.
+
+**What was built, in order:**
+
+| Unit | PR |
+|---|---|
+| `groupModuleAssoc`, constraint group 10, `msState` → `tinyint(1) DEFAULT 1` (step 409) | #1629 |
+| `Assign\Resolver::resolveModules()`, the three tiers | #1632 |
+| the client paths read the resolved list; `get('modules')` stays host-direct | #1633 |
+| `addRemItem()`'s module special case removed, the default now supplies it | #1634 |
+
+**`get('modules')` deliberately stays host-direct.** Route's host update arm
+diffs against it, so a resolved value there would write a host row for every
+grant — turning a grant back into a copy, which is the one thing this ADR
+exists to prevent. `Host::resolvedModules()` is the separate, explicit
+accessor the client protocol reads.
+
+**Still to come, and gated the same way snapins and printers are.** Nothing
+writes `groupSnapinAssoc` or `groupPrinterAssoc` yet either — `Group::
+addSnapin()` and `addPrinter()` are still the imperative copy-to-members
+versions, and converting them is Decision 10's unit E, which removes
+functionality and needs signoff. `Group::addModule()` stays imperative for
+exactly that reason: converting it alone would put modules ahead of the other
+two and leave the group page granting on one tab and copying on the next. The
+host Modules tab also has to become genuinely tri-state before a host can
+express OFF at all — today unticking deletes the row, which under this design
+means "unstated" and would let a group grant re-enable it.
 
 ADR 0001's closing sentence anticipated the opposite migration ("if snapins or
 printers ever gain a per-host enabled/disabled state, they should converge on
-the module rule"). That fork is now moot in the direction it named — the
-module rule's distinguishing state is not real — and ADR 0001's own
-description of it (`docs/adr/0001-group-association-state.md:24`) should be
-read with this section beside it.
+the module rule"). That fork is moot in the direction it named — the module
+rule's distinguishing state was not real — and the convergence went the other
+way: modules joined snapins and printers.
 
 ### 4. Snapins resolve at task creation, and the snapshot already exists
 
@@ -1123,10 +1172,12 @@ semantics gate, which is the second reason the boundary is not one.
   surprised.** This is the documentation obligation in Decision 4 and it is the
   most likely support question this change generates.
 - **ADR 0001 becomes half-true and stays in force.** Its tri-state derivation
-  is still how the group page reports member state for modules; its premise
-  that a group owns nothing is no longer true for snapins and printers. The
-  file gets an amendment note rather than a rewrite, because the module
-  asymmetry it argues for is what Decision 3 relies on.
+  is still how the group page reports member state for modules, and will be
+  until unit E reworks that page. Its premise that a group owns nothing is no
+  longer true for snapins, printers or modules. The file gets an amendment
+  note rather than a rewrite -- and the note has to say that the module
+  asymmetry it argues for is NOT real, since Decision 3 was reversed on
+  exactly that finding.
 - **`GROUP_SHARED_STATE.md` becomes the mass edit document.** Most of it
   survives the move — the no-clobber convention becomes the three-state
   convention (Decision 11), the `Hosts: (varies)` hint becomes the selection

@@ -18,14 +18,20 @@ anything.
 > **no‑clobber**: a blank field leaves each host's value alone, so you only
 > change what you intend to.
 
-> **⚠️ This is changing. Snapins have already changed.**
+> **⚠️ This is changing. Snapins, printers and modules have already changed.**
 > A group is becoming something that **grants**, rather than something that
 > copies rows onto whoever happened to be a member when a button was pressed.
-> The first half has landed for **snapins and printers**: see
+> The first half has landed for **snapins, printers and modules**: see
 > [Snapins are granted, not copied](#snapins-are-granted-not-copied) below.
 > Everything else on this page still describes the push‑to‑all model and is
 > still accurate for the page as it stands today. The reasoning, and what is
 > left to move, are in [ADR 0038](adr/0038-a-group-grants-it-does-not-copy.md).
+>
+> **Modules carry one extra rule.** They are a *switch*, not a thing, so a
+> host is allowed to hold one OFF against every group that grants it — lowest
+> tier wins. A group grant is presence‑only: a group either grants a module or
+> says nothing about it, and can never say "disabled", so two groups can only
+> ever union. See ADR 0038 decision 3.
 
 ---
 
@@ -159,6 +165,13 @@ All   --click-->  None       (remove from every host)
 
 So an indeterminate item resolves to *All* first; the destructive
 remove‑from‑all only happens on a second click through the checked state.
+
+> **The module line above is on notice.** "Flip a disabled override back to
+> enabled" was harmless while a disabled override could not exist — nothing
+> ever wrote one. Under ADR 0038 decision 3 a disabled module row is a
+> deliberate host‑level statement that beats every group grant, so a group‑wide
+> toggle overriding it is wrong. The tab keeps this behavior until the group
+> page rework (unit E) replaces it with a grant.
 
 ---
 

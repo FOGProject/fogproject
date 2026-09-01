@@ -24,19 +24,39 @@ with snapins and printers:
   **and** `msState = 1` (enabled). A disabled override (`msState = 0`) counts as
   *not having it*, so such a host pulls the item out of **All** into **Some**.
 
-  **Correction, 2026-09-01: a disabled override cannot exist.** Nothing in the
-  tree ever writes `msState = 0` — every insert path writes a literal `1`
-  (`Items/Group.php:358`, `Base/FOGController.php:1922`) — the schema deletes
-  any that survive an upgrade (`commons/schema.php:1497`, `:3352`), and the
-  client ignores the column entirely (`Items/Host.php:681`,
-  `Client/ServiceModule.php:91`). The rule above is therefore equivalent to
-  the snapin and printer rule: the row is there or it is not. Nothing about
-  this ADR's behavior changes, because every row already satisfies the
-  stricter condition. See ADR 0038 decision 3 for what the correction does
-  change, which is an argument that was built on top of it.
+  **Correction, 2026-09-01: a disabled override could not exist — and now
+  it is the point.** When this ADR was written, nothing in the tree ever
+  wrote `msState = 0`: every insert path wrote a literal `1`
+  (`Items/Group.php`, `Base/FOGController.php`), the schema deleted any that
+  survived an upgrade (schema steps 34 and 231 — both historical, since a
+  numbered step replays once), and the client ignored the column entirely.
+  The rule above was therefore *equivalent* to the snapin and printer rule:
+  the row is there or it is not. Nothing about this ADR's behavior changed,
+  because every row already satisfied the stricter condition.
+
+  What that finding did change was the argument built on top of it. ADR 0038
+  decision 3 had kept modules out of the declarative half **because** of this
+  asymmetry, and the asymmetry was not real. That decision was reversed:
+  modules are now the third group grant, and `msState = 0` has a meaning for
+  the first time — a host saying OFF, which beats every group grant. A group
+  grant carries no state at all (`groupModuleAssoc` has no state column), so
+  two groups can only ever union.
+
+  So the rule stated above is now correct as written, for a reason it did not
+  have when it was written. What is no longer true is the sentence below it:
+  toggling an item to **All** cannot mean "flip `state = 0 → 1`" once 0 is a
+  deliberate host-level statement, and the group page's own module tab is
+  scheduled for rework in ADR 0038's unit E. Read this section with ADR 0038
+  decision 3 beside it.
 
 Toggling an item to **All** writes the missing rows on every host (for modules,
 this also flips `state = 0 → 1`); toggling to **None** deletes the rows.
+
+**Superseded for modules by ADR 0038 decision 3.** Once `state = 0` is a host
+saying OFF, flipping it to 1 on a group-wide toggle overrides a deliberate
+per-host statement, and deleting the row means "unstated" rather than "off".
+The group module tab keeps this behavior until unit E replaces it with a
+grant; the correction note above has the detail.
 
 Per-host configuration *shared values* (Active Directory, auto-logout,
 force-reboot, the printer **default** flag) are explicitly **out of scope** for
