@@ -299,6 +299,15 @@ return [
     ['child' => 'groupSnapinAssoc', 'column' => 'gsaSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
     ['child' => 'groupPrinterAssoc', 'column' => 'gpaGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
     ['child' => 'groupPrinterAssoc', 'column' => 'gpaPrinterID', 'parent' => 'printers', 'pcolumn' => 'pID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
+    // ADR 0038 decision 3, revised. Group 10, created empty by step 407 so
+    // there is nothing to sweep before the flip.
+    //
+    // Both CASCADE, for the reason group 9 gives: a grant is meaningless once
+    // either end is gone, and an orphan row would offer a grant against an id
+    // that has since been reused -- here, a host silently gaining whichever
+    // module inherited the number.
+    ['child' => 'groupModuleAssoc', 'column' => 'gmaGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 10],
+    ['child' => 'groupModuleAssoc', 'column' => 'gmaModuleID', 'parent' => 'modules', 'pcolumn' => 'id', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 10],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];
