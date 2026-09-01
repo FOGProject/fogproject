@@ -24,6 +24,17 @@ with snapins and printers:
   **and** `msState = 1` (enabled). A disabled override (`msState = 0`) counts as
   *not having it*, so such a host pulls the item out of **All** into **Some**.
 
+  **Correction, 2026-09-01: a disabled override cannot exist.** Nothing in the
+  tree ever writes `msState = 0` — every insert path writes a literal `1`
+  (`Items/Group.php:358`, `Base/FOGController.php:1922`) — the schema deletes
+  any that survive an upgrade (`commons/schema.php:1497`, `:3352`), and the
+  client ignores the column entirely (`Items/Host.php:681`,
+  `Client/ServiceModule.php:91`). The rule above is therefore equivalent to
+  the snapin and printer rule: the row is there or it is not. Nothing about
+  this ADR's behavior changes, because every row already satisfies the
+  stricter condition. See ADR 0038 decision 3 for what the correction does
+  change, which is an argument that was built on top of it.
+
 Toggling an item to **All** writes the missing rows on every host (for modules,
 this also flips `state = 0 → 1`); toggling to **None** deletes the rows.
 
