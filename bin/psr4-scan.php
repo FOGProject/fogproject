@@ -206,6 +206,9 @@ const TABLE = [
     // agree about this column", which the group page and any mass edit over
     // a selection both need and neither owns. Not Items -- it is not a row.
     'SharedHostValues' => 'Util',
+    // Util for the same reason: reducing a submission to leave/set/clear
+    // belongs to whichever form is doing the editing, and to none of them.
+    'MassEdit' => 'Util',
     'SnapinSaveException' => 'Exception',
     'UploadException' => 'Exception',
 ];
