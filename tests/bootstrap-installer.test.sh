@@ -329,6 +329,51 @@ check "--yes passes -Y" \
     "$(grep -q '^installfog.*-Y' "$calls"; echo $?)"
 
 # ---------------------------------------------------------------------------
+# bootstrap.sh's own rcBranch, against a real remote.
+#
+# Everything above runs with a git STUB whose ls-remote answers nothing, so it
+# cannot see what this catches: a bare `rc-*` pattern matches the TAIL of a ref
+# at slash boundaries, and so picks up refs/heads/feat/rc-anything. This is the
+# second copy of a function lib/common/functions.sh also carries -- the copy
+# bootstrap.sh has to carry, because it runs before there is a clone -- and the
+# two diverging silently is the exact hazard this file exists to police.
+# tests/rc-channel-resolution.test.sh pins the functions.sh copy the same way.
+# ---------------------------------------------------------------------------
+rcfn=$(awk '/^rcBranch\(\) \{/ { grab = 1 } grab { print } grab && /^\}/ { exit }' "$bootstrap")
+if ! grep -q '^rcBranch() {' <<< "$rcfn"; then
+    echo "FAIL: could not find rcBranch() in bin/bootstrap.sh." >&2
+    echo "  If it moved or was renamed, point this test at it -- do not" >&2
+    echo "  delete the assertions." >&2
+    exit 1
+fi
+eval "$rcfn"
+
+rcremote="$work/rc.git"
+rcseed="$work/rcseed"
+git init -q --bare "$rcremote"
+git init -q "$rcseed"
+git -C "$rcseed" config user.email t@example.invalid
+git -C "$rcseed" config user.name t
+echo x > "$rcseed/f"
+git -C "$rcseed" add f && git -C "$rcseed" commit -qm seed
+rcpublish() {
+    git -C "$rcseed" branch -f "$1" >/dev/null 2>&1
+    git -C "$rcseed" push -q "$rcremote" "$1" >/dev/null 2>&1
+}
+repo="$rcremote"
+
+rcpublish feat/rc-update-channel
+check "a feat/rc-* branch is not offered as a release candidate" \
+    "$([[ -z $(rcBranch) ]]; echo $?)"
+check "and rcBranch reports nothing published" \
+    "$(! rcBranch >/dev/null 2>&1; echo $?)"
+
+rcpublish rc-1.6.2
+rcpublish rc-1.6.10
+check "rc-1.6.10 beats rc-1.6.2 and the decoy" \
+    "$([[ $(rcBranch) == rc-1.6.10 ]]; echo $?)"
+
+# ---------------------------------------------------------------------------
 # It must not grow into an installer.
 # ---------------------------------------------------------------------------
 body=$(sed 's/#.*//' "$bootstrap")
