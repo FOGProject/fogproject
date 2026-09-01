@@ -137,13 +137,20 @@ channelToBranch() {
 # Returns 1 with no output when nothing matches. The caller is expected to say
 # "no release candidate is published" rather than "unknown channel"; those are
 # different problems for the admin.
+# refs/heads/rc-*, NOT a bare rc-*. ls-remote matches a pattern against the
+# TAIL of each ref at slash boundaries, so `rc-*` also matches
+# refs/heads/feat/rc-update-channel -- a feature branch, offered to an admin as
+# the current release candidate. Anchoring at refs/heads/ makes "rc-" mean the
+# start of the branch name rather than the start of its last path segment, and
+# the sed re-checks that on the way out: matching rules are not the place to
+# rely on one layer alone when the answer decides what gets checked out.
 rcBranch() {
     local ref
     ref=$(git ls-remote --heads --sort=-v:refname \
-        "${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}" 'rc-*' \
-        2>/dev/null | head -n1) || return 1
-    [[ -n $ref ]] || return 1
-    ref="${ref##*refs/heads/}"
+        "${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}" 'refs/heads/rc-*' \
+        2>/dev/null \
+        | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
+        | head -n1) || return 1
     [[ -n $ref ]] || return 1
     echo "$ref"
 }
@@ -225,6 +232,59 @@ offerRevert() {
     echo " | restored by this run -- see docs/SUPPORTED_CUSTOMIZATIONS.md -- and"
     echo " | bin/restorekernel.sh --list will show the kernel sets kept for you."
     echo
+    return 0
+}
+# Which of FOG's four packaging families this box belongs to, so a caller can
+# pick a package manager instead of hardcoding one.
+#
+# Sets linuxReleaseName / OSVersion / linuxReleaseName_lower -- the same three
+# globals installfog.sh has always derived at this point in its flow -- plus
+# $osfamily. Each is guarded with [[ -z ]] like the values it replaces, so a
+# caller that has already set them (a test, an override) is left alone.
+#
+# MUST be called directly, never as $(detectOSFamily): command substitution
+# runs it in a subshell and every one of those globals is lost.
+#
+# The patterns are lib/common/input.sh's, which were the more complete of the
+# two copies -- installfog.sh's inline block did not know *mageia*. That is the
+# drift this exists to end: the distro-name parse lived in installfog.sh, the
+# family map lived in input.sh, and neither could see the other.
+#
+# Returns 1 with $osfamily empty for a distro matching none of the four. It
+# does NOT fall back to redhat the way input.sh's suggestion does, and the
+# difference is deliberate: there, redhat is a pre-filled answer to a prompt a
+# person can correct; here it would be a guess about which package-manager
+# binary actually exists, made by something with nobody watching.
+detectOSFamily() {
+    if [[ -f /etc/os-release ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(sed -n 's/^NAME=\(.*\)/\1/p' /etc/os-release | tr -d '"')
+        [[ -z $OSVersion ]] && OSVersion=$(sed -n 's/^VERSION_ID=\([^.]*\).*/\1/p' /etc/os-release | tr -d '"')
+    elif [[ -f /etc/redhat-release ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName=$(cat /etc/redhat-release | awk '{print $1}')
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/redhat-release | sed s/.*release\ // | sed s/\ .*// | awk -F. '{print $1}')
+    elif [[ -f /etc/debian_version ]]; then
+        [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
+        [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
+    fi
+    linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
+    osfamily=""
+    case $linuxReleaseName_lower in
+        *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
+            osfamily="redhat"
+            ;;
+        *ubuntu*|*bian*|*mint*)
+            osfamily="debian"
+            ;;
+        *alpine*)
+            osfamily="alpine"
+            ;;
+        *arch*|*manjaro*)
+            osfamily="arch"
+            ;;
+        *)
+            return 1
+            ;;
+    esac
     return 0
 }
 backupReports() {

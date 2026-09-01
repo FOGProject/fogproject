@@ -101,10 +101,19 @@ publish() {
 # ---------------------------------------------------------------------------
 publish stable
 publish working-1.6
+# A branch whose LAST PATH SEGMENT starts with rc-, which is not a release
+# candidate. ls-remote matches a pattern against the tail of a ref at slash
+# boundaries, so a bare `rc-*` pattern matches this and rcBranch used to offer
+# it as the current RC -- confirmed against origin, where it returned
+# feat/rc-update-channel. Published FIRST so it is the only candidate here and
+# stays in the way for every assertion below.
+publish feat/rc-update-channel
 
 out=$(channelToBranch rc); st=$?
 check "rc with no release candidate returns 2, not 1" \
     "$([[ $st -eq 2 ]]; echo $?)"
+check "a feat/rc-* branch is not mistaken for a release candidate" \
+    "$([[ -z $(rcBranch) ]]; echo $?)"
 check "and prints nothing to stand in for a branch name" \
     "$([[ -z $out ]]; echo $?)"
 
@@ -140,6 +149,9 @@ check "the newest of several is chosen" \
 # version sort does not.
 publish rc-1.6.10
 check "rc-1.6.10 beats rc-1.6.2 (version order, not lexical)" \
+    "$([[ $(channelToBranch rc) == rc-1.6.10 ]]; echo $?)"
+
+check "and it does not outrank a real one once one exists" \
     "$([[ $(channelToBranch rc) == rc-1.6.10 ]]; echo $?)"
 
 publish rc-1.5.99
