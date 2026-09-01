@@ -291,8 +291,13 @@ check "a failed install propagates the installer's exit status" \
     "$([[ $? -eq 9 ]]; echo $?)"
 check "it does not reset the checkout itself" \
     "$(! grep -q 'reset --hard aaaa' "$calls"; echo $?)"
-check "it names the commit to reset to instead" \
-    "$(grep -q 'reset --hard aaaaaaaa' <<< "$out"; echo $?)"
+# --detach, not reset --hard: this is the crossing case by definition, so the
+# checkout is on a 1.6 branch while the good commit belongs to stable, and a
+# reset would leave that branch ref diverged.
+check "it names the commit to go back to, as a detach" \
+    "$(grep -q 'checkout --detach aaaaaaaa' <<< "$out"; echo $?)"
+check "and does not suggest moving the current branch ref" \
+    "$(! grep -q 'reset --hard aaaa' <<< "$out"; echo $?)"
 check "and mentions revertfog.sh, because the database may already have moved" \
     "$(grep -q 'revertfog.sh' <<< "$out"; echo $?)"
 
@@ -349,6 +354,17 @@ check "it sources nothing" \
     "$(! grep -qE '^[[:space:]]*(\.|source)[[:space:]]+\.\./lib' <<< "$body"; echo $?)"
 
 echo
+# An unanswerable confirmation must not read as a deliberate "no". `read`
+# returns empty with nobody at the keyboard, and exiting 0 there told a cron
+# caller an update had succeeded when none was attempted.
+body=$(sed "s/#.*//" "$SRC")
+check "an empty answer exits non-zero" \
+    "$(grep -qE '""\) echo .* exit 7' <<< "$body"; echo $?)"
+check "an unrecognized answer exits non-zero" \
+    "$(grep -qE 'Answer not recognized' <<< "$body"; echo $?)"
+check "a deliberate no still exits 0" \
+    "$(grep -qE '\[Nn\] \| \[Nn\]\[Oo\]\).*exit 0' <<< "$body"; echo $?)"
+
 if [[ $FAIL -eq 0 ]]; then
     echo "PASS ($PASS assertions)"
     exit 0
