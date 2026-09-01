@@ -6195,6 +6195,10 @@ msgstr ""
 msgid "Removed or cleared %1$d row(s) in the \"%2$s\" group whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %3$s"
 msgstr ""
 
+#, php-format
+msgid "Removed the virus scan task types. %1$d task(s) and %2$d scheduled task(s) were deleted with them; their run history remains in the task log."
+msgstr ""
+
 msgid "Removing Key"
 msgstr ""
 
