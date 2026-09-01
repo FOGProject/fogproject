@@ -19,7 +19,7 @@ server carries
 ```
 
 `spliceManagedBlock()` finds that block with `grep -qF` against the exact
-string. Changing the text would mean no existing server's block is recognised
+string. Changing the text would mean no existing server's block is recognized
 any more; every one of them would take the "file has no markers" path, and an
 administrator's directives outside the block — the very thing the block exists
 to protect — would be overwritten on the next run. So the marker is frozen, and
