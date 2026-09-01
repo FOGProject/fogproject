@@ -82,15 +82,6 @@ return [
         ],
     ],
     'tables' => [
-        'architectures' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `architectures` ( `archID` mediumint(9) NOT NULL AUTO_INCREMENT, `archName` varchar(16) NOT NULL, `archDescription` varchar(255) NOT NULL DEFAULT \'\', `archIsAccess` enum(\'both\',\'host\',\'image\') NOT NULL DEFAULT \'both\', PRIMARY KEY (`archID`), UNIQUE KEY `archName` (`archName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'archID' => 'mediumint(9) NOT NULL',
-                'archName' => 'varchar(16) NOT NULL',
-                'archDescription' => 'varchar(255) NOT NULL DEFAULT \'\'',
-                'archIsAccess' => 'enum(\'both\',\'host\',\'image\') NOT NULL DEFAULT \'both\'',
-            ],
-        ],
         'apiTokens' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `apiTokens` ( `atID` int(11) NOT NULL AUTO_INCREMENT, `atUserID` int(11) NOT NULL DEFAULT 0, `atName` varchar(255) NOT NULL DEFAULT \'\', `atHash` char(64) NOT NULL DEFAULT \'\', `atEnabled` tinyint(1) NOT NULL DEFAULT 1, `atCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `atCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `atLastUsed` datetime DEFAULT NULL, PRIMARY KEY (`atID`), UNIQUE KEY `atHash` (`atHash`), KEY `atUserID` (`atUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -102,6 +93,15 @@ return [
                 'atCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
                 'atCreatedBy' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'atLastUsed' => 'datetime DEFAULT NULL',
+            ],
+        ],
+        'architectures' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `architectures` ( `archID` mediumint(9) NOT NULL AUTO_INCREMENT, `archName` varchar(16) NOT NULL, `archDescription` varchar(255) NOT NULL DEFAULT \'\', `archIsAccess` enum(\'both\',\'host\',\'image\') NOT NULL DEFAULT \'both\', PRIMARY KEY (`archID`), UNIQUE KEY `archName` (`archName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'archID' => 'mediumint(9) NOT NULL',
+                'archName' => 'varchar(16) NOT NULL',
+                'archDescription' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'archIsAccess' => 'enum(\'both\',\'host\',\'image\') NOT NULL DEFAULT \'both\'',
             ],
         ],
         'auditChange' => [
@@ -206,6 +206,14 @@ return [
                 'gmGroupID' => 'int(11) NOT NULL',
             ],
         ],
+        'groupModuleAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `groupModuleAssoc` ( `gmaID` int(11) NOT NULL AUTO_INCREMENT, `gmaGroupID` int(11) NOT NULL, `gmaModuleID` int(11) NOT NULL, PRIMARY KEY (`gmaID`), UNIQUE KEY `gmaGroupModule` (`gmaGroupID`,`gmaModuleID`), KEY `gmaModuleID` (`gmaModuleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'gmaID' => 'int(11) NOT NULL',
+                'gmaGroupID' => 'int(11) NOT NULL',
+                'gmaModuleID' => 'int(11) NOT NULL',
+            ],
+        ],
         'groupPrinterAssoc' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `groupPrinterAssoc` ( `gpaID` int(11) NOT NULL AUTO_INCREMENT, `gpaGroupID` int(11) NOT NULL, `gpaPrinterID` int(11) NOT NULL, `gpaIsDefault` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`gpaID`), UNIQUE KEY `gpaGroupPrinter` (`gpaGroupID`,`gpaPrinterID`), KEY `gpaPrinterID` (`gpaPrinterID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -213,15 +221,6 @@ return [
                 'gpaGroupID' => 'int(11) NOT NULL',
                 'gpaPrinterID' => 'int(11) NOT NULL',
                 'gpaIsDefault' => 'tinyint(1) NOT NULL DEFAULT 0',
-            ],
-        ],
-        'groupSnapinAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `groupSnapinAssoc` ( `gsaID` int(11) NOT NULL AUTO_INCREMENT, `gsaGroupID` int(11) NOT NULL, `gsaSnapinID` int(11) NOT NULL, `gsaSequence` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`gsaID`), UNIQUE KEY `gsaGroupSnapin` (`gsaGroupID`,`gsaSnapinID`), KEY `gsaSnapinID` (`gsaSnapinID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'gsaID' => 'int(11) NOT NULL',
-                'gsaGroupID' => 'int(11) NOT NULL',
-                'gsaSnapinID' => 'int(11) NOT NULL',
-                'gsaSequence' => 'int(11) NOT NULL DEFAULT 0',
             ],
         ],
         'groups' => [
@@ -238,6 +237,15 @@ return [
                 'groupPrimaryDisk' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'groupInit' => 'longtext NOT NULL DEFAULT \'\'',
                 'groupOrder' => 'int(11) NOT NULL DEFAULT 0',
+            ],
+        ],
+        'groupSnapinAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `groupSnapinAssoc` ( `gsaID` int(11) NOT NULL AUTO_INCREMENT, `gsaGroupID` int(11) NOT NULL, `gsaSnapinID` int(11) NOT NULL, `gsaSequence` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`gsaID`), UNIQUE KEY `gsaGroupSnapin` (`gsaGroupID`,`gsaSnapinID`), KEY `gsaSnapinID` (`gsaSnapinID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'gsaID' => 'int(11) NOT NULL',
+                'gsaGroupID' => 'int(11) NOT NULL',
+                'gsaSnapinID' => 'int(11) NOT NULL',
+                'gsaSequence' => 'int(11) NOT NULL DEFAULT 0',
             ],
         ],
         'history' => [
@@ -464,12 +472,12 @@ return [
             ],
         ],
         'moduleStatusByHost' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `moduleStatusByHost` ( `msID` int(11) NOT NULL AUTO_INCREMENT, `msHostID` int(11) NOT NULL, `msModuleID` int(11) NOT NULL, `msState` varchar(1) NOT NULL DEFAULT \'\', PRIMARY KEY (`msID`), UNIQUE KEY `msHostID` (`msHostID`,`msModuleID`), UNIQUE KEY `msHostID_2` (`msHostID`,`msModuleID`), KEY `new_index` (`msHostID`), KEY `new_index2` (`msModuleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `moduleStatusByHost` ( `msID` int(11) NOT NULL AUTO_INCREMENT, `msHostID` int(11) NOT NULL, `msModuleID` int(11) NOT NULL, `msState` tinyint(1) NOT NULL DEFAULT 1, PRIMARY KEY (`msID`), UNIQUE KEY `msHostID` (`msHostID`,`msModuleID`), UNIQUE KEY `msHostID_2` (`msHostID`,`msModuleID`), KEY `new_index` (`msHostID`), KEY `new_index2` (`msModuleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'msID' => 'int(11) NOT NULL',
                 'msHostID' => 'int(11) NOT NULL',
                 'msModuleID' => 'int(11) NOT NULL',
-                'msState' => 'varchar(1) NOT NULL DEFAULT \'\'',
+                'msState' => 'tinyint(1) NOT NULL DEFAULT 1',
             ],
         ],
         'multicastSessions' => [
@@ -685,6 +693,43 @@ return [
                 'rugName' => 'varchar(60) NOT NULL DEFAULT \'\'',
                 'rugGroupID' => 'int(11) NOT NULL',
                 'rugRoleID' => 'int(11) NOT NULL',
+            ],
+        ],
+        'savedFilterGroupAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilterGroupAssoc` ( `sfgaID` int(11) NOT NULL AUTO_INCREMENT, `sfgaFilterID` int(11) NOT NULL, `sfgaUserGroupID` int(11) NOT NULL, PRIMARY KEY (`sfgaID`), UNIQUE KEY `sfgaFilterGroup` (`sfgaFilterID`,`sfgaUserGroupID`), KEY `sfgaUserGroupID` (`sfgaUserGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sfgaID' => 'int(11) NOT NULL',
+                'sfgaFilterID' => 'int(11) NOT NULL',
+                'sfgaUserGroupID' => 'int(11) NOT NULL',
+            ],
+        ],
+        'savedFilterRoleAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilterRoleAssoc` ( `sfraID` int(11) NOT NULL AUTO_INCREMENT, `sfraFilterID` int(11) NOT NULL, `sfraRoleID` int(11) NOT NULL, PRIMARY KEY (`sfraID`), UNIQUE KEY `sfraFilterRole` (`sfraFilterID`,`sfraRoleID`), KEY `sfraRoleID` (`sfraRoleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sfraID' => 'int(11) NOT NULL',
+                'sfraFilterID' => 'int(11) NOT NULL',
+                'sfraRoleID' => 'int(11) NOT NULL',
+            ],
+        ],
+        'savedFilters' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilters` ( `sfID` int(11) NOT NULL AUTO_INCREMENT, `sfUserID` int(11) DEFAULT NULL, `sfCreatorID` int(11) DEFAULT NULL, `sfTable` varchar(128) NOT NULL DEFAULT \'\', `sfName` varchar(64) NOT NULL DEFAULT \'\', `sfValue` longtext DEFAULT NULL, `sfCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `sfModifiedTime` datetime DEFAULT NULL, PRIMARY KEY (`sfID`), UNIQUE KEY `sfOwnerTableName` (`sfUserID`,`sfTable`,`sfName`), KEY `sfTable` (`sfTable`), KEY `sfCreatorID` (`sfCreatorID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sfID' => 'int(11) NOT NULL',
+                'sfUserID' => 'int(11) DEFAULT NULL',
+                'sfCreatorID' => 'int(11) DEFAULT NULL',
+                'sfTable' => 'varchar(128) NOT NULL DEFAULT \'\'',
+                'sfName' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'sfValue' => 'longtext DEFAULT NULL',
+                'sfCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
+                'sfModifiedTime' => 'datetime DEFAULT NULL',
+            ],
+        ],
+        'savedFilterUserAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilterUserAssoc` ( `sfuaID` int(11) NOT NULL AUTO_INCREMENT, `sfuaFilterID` int(11) NOT NULL, `sfuaUserID` int(11) NOT NULL, PRIMARY KEY (`sfuaID`), UNIQUE KEY `sfuaFilterUser` (`sfuaFilterID`,`sfuaUserID`), KEY `sfuaUserID` (`sfuaUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sfuaID' => 'int(11) NOT NULL',
+                'sfuaFilterID' => 'int(11) NOT NULL',
+                'sfuaUserID' => 'int(11) NOT NULL',
             ],
         ],
         'scheduledTasks' => [
@@ -954,54 +999,6 @@ return [
                 'uaPasswordHash' => 'varchar(255) NOT NULL DEFAULT \'\'',
             ],
         ],
-        'userPrefs' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `userPrefs` ( `upID` int(11) NOT NULL AUTO_INCREMENT, `upUserID` int(11) NOT NULL DEFAULT 0, `upKey` varchar(190) NOT NULL DEFAULT \'\', `upValue` longtext DEFAULT NULL, `upCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `upModifiedTime` datetime DEFAULT NULL, PRIMARY KEY (`upID`), UNIQUE KEY `upUserKey` (`upUserID`,`upKey`), KEY `upUserID` (`upUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'upID' => 'int(11) NOT NULL',
-                'upUserID' => 'int(11) NOT NULL DEFAULT 0',
-                'upKey' => 'varchar(190) NOT NULL DEFAULT \'\'',
-                'upValue' => 'longtext DEFAULT NULL',
-                'upCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
-                'upModifiedTime' => 'datetime DEFAULT NULL',
-            ],
-        ],
-        'savedFilters' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilters` ( `sfID` int(11) NOT NULL AUTO_INCREMENT, `sfUserID` int(11) DEFAULT NULL, `sfCreatorID` int(11) DEFAULT NULL, `sfTable` varchar(128) NOT NULL DEFAULT \'\', `sfName` varchar(64) NOT NULL DEFAULT \'\', `sfValue` longtext DEFAULT NULL, `sfCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `sfModifiedTime` datetime DEFAULT NULL, PRIMARY KEY (`sfID`), UNIQUE KEY `sfOwnerTableName` (`sfUserID`,`sfTable`,`sfName`), KEY `sfTable` (`sfTable`), KEY `sfCreatorID` (`sfCreatorID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'sfID' => 'int(11) NOT NULL',
-                'sfUserID' => 'int(11) DEFAULT NULL',
-                'sfCreatorID' => 'int(11) DEFAULT NULL',
-                'sfTable' => 'varchar(128) NOT NULL DEFAULT \'\'',
-                'sfName' => 'varchar(64) NOT NULL DEFAULT \'\'',
-                'sfValue' => 'longtext DEFAULT NULL',
-                'sfCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
-                'sfModifiedTime' => 'datetime DEFAULT NULL',
-            ],
-        ],
-        'savedFilterUserAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilterUserAssoc` ( `sfuaID` int(11) NOT NULL AUTO_INCREMENT, `sfuaFilterID` int(11) NOT NULL, `sfuaUserID` int(11) NOT NULL, PRIMARY KEY (`sfuaID`), UNIQUE KEY `sfuaFilterUser` (`sfuaFilterID`,`sfuaUserID`), KEY `sfuaUserID` (`sfuaUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'sfuaID' => 'int(11) NOT NULL',
-                'sfuaFilterID' => 'int(11) NOT NULL',
-                'sfuaUserID' => 'int(11) NOT NULL',
-            ],
-        ],
-        'savedFilterGroupAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilterGroupAssoc` ( `sfgaID` int(11) NOT NULL AUTO_INCREMENT, `sfgaFilterID` int(11) NOT NULL, `sfgaUserGroupID` int(11) NOT NULL, PRIMARY KEY (`sfgaID`), UNIQUE KEY `sfgaFilterGroup` (`sfgaFilterID`,`sfgaUserGroupID`), KEY `sfgaUserGroupID` (`sfgaUserGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'sfgaID' => 'int(11) NOT NULL',
-                'sfgaFilterID' => 'int(11) NOT NULL',
-                'sfgaUserGroupID' => 'int(11) NOT NULL',
-            ],
-        ],
-        'savedFilterRoleAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `savedFilterRoleAssoc` ( `sfraID` int(11) NOT NULL AUTO_INCREMENT, `sfraFilterID` int(11) NOT NULL, `sfraRoleID` int(11) NOT NULL, PRIMARY KEY (`sfraID`), UNIQUE KEY `sfraFilterRole` (`sfraFilterID`,`sfraRoleID`), KEY `sfraRoleID` (`sfraRoleID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'sfraID' => 'int(11) NOT NULL',
-                'sfraFilterID' => 'int(11) NOT NULL',
-                'sfraRoleID' => 'int(11) NOT NULL',
-            ],
-        ],
         'userCleanup' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `userCleanup` ( `ucID` int(11) NOT NULL AUTO_INCREMENT, `ucName` varchar(254) NOT NULL DEFAULT \'\', PRIMARY KEY (`ucID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -1026,6 +1023,17 @@ return [
                 'ugDesc' => 'longtext NOT NULL DEFAULT \'\'',
                 'ugCreatedBy' => 'varchar(40) NOT NULL DEFAULT \'\'',
                 'ugCreatedTime' => 'timestamp NOT NULL DEFAULT current_timestamp()',
+            ],
+        ],
+        'userPrefs' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `userPrefs` ( `upID` int(11) NOT NULL AUTO_INCREMENT, `upUserID` int(11) NOT NULL DEFAULT 0, `upKey` varchar(190) NOT NULL DEFAULT \'\', `upValue` longtext DEFAULT NULL, `upCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `upModifiedTime` datetime DEFAULT NULL, PRIMARY KEY (`upID`), UNIQUE KEY `upUserKey` (`upUserID`,`upKey`), KEY `upUserID` (`upUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'upID' => 'int(11) NOT NULL',
+                'upUserID' => 'int(11) NOT NULL DEFAULT 0',
+                'upKey' => 'varchar(190) NOT NULL DEFAULT \'\'',
+                'upValue' => 'longtext DEFAULT NULL',
+                'upCreatedTime' => 'datetime NOT NULL DEFAULT current_timestamp()',
+                'upModifiedTime' => 'datetime DEFAULT NULL',
             ],
         ],
         'users' => [

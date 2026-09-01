@@ -64,6 +64,11 @@ $notAReference = [
     // The user tier (0 mobile, 1 admin, 2 api). No table of user types
     // exists; Authorization reads the integer directly.
     'users.uType',
+    // Whether the host has this module on or off -- a boolean, not a
+    // reference to taskStates like the other *State columns. It was a
+    // varchar(1) until schema step 409 made it the tinyint(1) it had always
+    // held, which is what brought it into this check's sights.
+    'moduleStatusByHost.msState',
 ];
 
 $validActions = ['CASCADE', 'RESTRICT', 'SET NULL', 'none'];
@@ -341,6 +346,10 @@ $expected = [
     'groupSnapinAssoc.gsaSnapinID',
     'groupPrinterAssoc.gpaGroupID',
     'groupPrinterAssoc.gpaPrinterID',
+    // Group 10 -- modules, the third declarative grant. Same CASCADE
+    // reasoning as group 9.
+    'groupModuleAssoc.gmaGroupID',
+    'groupModuleAssoc.gmaModuleID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its
     // manager's schema(); see fog-plugins tests/foreign-keys.test.php,

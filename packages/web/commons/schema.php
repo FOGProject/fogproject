@@ -10496,3 +10496,81 @@ $this->schema[] = [
     // (vHostMAC -> hostMAC.hmMAC) was class 'poly' and applied nothing.
     Schema::dropTable('virus'),
 ];
+
+// 407
+$this->schema[] = [
+    // ADR 0038 decision 3, revised: modules become the third declarative
+    // grant, beside snapins and printers.
+    //
+    // The original decision kept them imperative on the grounds that a module
+    // carries an enabled/disabled state a snapin does not, so two groups
+    // granting the same module -- one enabled, one disabled -- would be a
+    // contradiction with no correct answer. That argument did not survive
+    // reading the code: nothing ever wrote `msState = 0`, two earlier schema
+    // steps DELETE any that exist, and the client ignores the column outright,
+    // so the disabled state it turned on was not reachable.
+    //
+    // The revision keeps the state AND makes it real, with an order of
+    // precedence rather than a contradiction: the most specific writer wins.
+    // A host row saying 0 is an explicit "not on this machine" and beats every
+    // group grant. A host row saying 1 is a host-direct enable. NO row is the
+    // host expressing nothing, which is what lets a group grant reach it.
+    //
+    // Empty on creation and nothing migrated, exactly as step 403 did for the
+    // other two (decision 18). A group's module tab today is derived from its
+    // members' own rows, so migrating it would be inventing grants out of a
+    // display. Every host keeps precisely the modules it has.
+    "CREATE TABLE IF NOT EXISTS `groupModuleAssoc` ( "
+    . "`gmaID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`gmaGroupID` int(11) NOT NULL, "
+    . "`gmaModuleID` int(11) NOT NULL, "
+    . "PRIMARY KEY (`gmaID`), "
+    . "UNIQUE KEY `gmaGroupModule` (`gmaGroupID`,`gmaModuleID`), "
+    . "KEY `gmaModuleID` (`gmaModuleID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
+
+// 408
+// The foreign keys for the table step 407 just created, per ADR 0031.
+//
+// Group 10, and like groups 7, 8 and 9 it has nothing to sweep first: a table
+// created empty one step earlier cannot hold an orphan.
+//
+// Both CASCADE. A grant is meaningless once either end is gone, and leaving
+// the row would offer a grant against an id that has since been reused -- a
+// host would silently gain whichever module inherited the number.
+$this->schema[] =
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(10);
+
+        return true;
+    };
+
+// 409
+$this->schema[] = [
+    // `msState` stops being decoration and starts being the precedence rule,
+    // so it is converted to the boolean it always described. ADR 0028: a
+    // boolean is tinyint(1), and tests/booleans-are-tinyint.test.php refuses
+    // anything else for a column that holds one.
+    //
+    // A DIRECT MODIFY is correct here and the ENUM caution on step 368 does
+    // not apply. That step's three-statement dance exists because converting
+    // an ENUM straight to tinyint converts BY INDEX -- '0' becomes 1 and '1'
+    // becomes 2, both truthy, silently. This column is already varchar(1), so
+    // the conversion is by VALUE and '1' becomes 1.
+    //
+    // The UPDATE first, because varchar can hold things tinyint cannot. Every
+    // row on every server should already read '1' -- that is the finding this
+    // whole revision rests on -- but '' is what the column DEFAULTS to, so an
+    // insert that omitted it would reach the ALTER as an empty string and
+    // fail the upgrade. Anything that is not an explicit '0' is normalized to
+    // '1', which is the meaning it has had since the column was created:
+    // present means enabled.
+    "UPDATE `moduleStatusByHost` SET `msState` = '1' WHERE `msState` <> '0'",
+    // DEFAULT 1, not 0. A writer that forgets the column is asking for the
+    // behavior this column has always had, and 0 is now the strongest
+    // statement in the system -- it overrides every group. Defaulting to it
+    // would let an omission silently switch a module off across a fleet.
+    "ALTER TABLE `moduleStatusByHost` MODIFY `msState` tinyint(1) "
+    . "NOT NULL DEFAULT 1",
+];
