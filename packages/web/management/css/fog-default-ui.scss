@@ -718,6 +718,33 @@ dd {
   text-overflow: ellipsis;
 }
 
+// ---------------------------------------------------------------------------
+// Sidebar universal search (select2)
+//
+// The <aside> carries data-bs-theme="dark" — the sidebar is dark chrome in BOTH
+// themes — which also puts color-scheme:dark on everything inside it. select2's
+// inline search input declares no color of its own (the --default theme gives it
+// only `background:transparent; border:none`), so its text falls back to the UA
+// dark-scheme field color, i.e. white. That same theme hardcodes the multi-select
+// box to `background-color:white`, so in light mode you type white on white and
+// the query is invisible. (Dark mode only escaped it by accident: the fog-dark
+// mixin repaints the box dark, so the white text happens to land on a dark box.)
+//
+// Paint both ends from the aside's OWN Bootstrap tokens — which resolve dark in
+// either theme because of the data-bs-theme on the element — so the control reads
+// as an inset field in the dark sidebar and its legibility no longer depends on
+// what color-scheme the UA picks.
+// ---------------------------------------------------------------------------
+.app-sidebar {
+  .select2-container--default .select2-selection--multiple {
+    background-color: var(--bs-body-bg);
+    border-color: var(--bs-border-color);
+  }
+  .select2-container--default .select2-search--inline .select2-search__field {
+    color: var(--bs-body-color);
+  }
+}
+
 // ===========================================================================
 // Main-pane compact density
 //
