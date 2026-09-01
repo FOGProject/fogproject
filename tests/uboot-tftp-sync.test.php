@@ -185,6 +185,9 @@ class FakeTftpFs extends \FOG\Net\FOGSSH
     /** @var string[] every path sftp_mkdir() was asked to create */
     public $mkdirCalls = [];
 
+    /** @var array path => mode, every sftp_chmod() call */
+    public $chmodCalls = [];
+
     /**
      * Mirrors the real connect()'s actual contract (self|false), not its
      * @return object docblock -- the real method's own catch branch returns
@@ -231,6 +234,13 @@ class FakeTftpFs extends \FOG\Net\FOGSSH
     {
         $this->tree[$remotefile] = 'file';
         $this->contents[$remotefile] = file_get_contents($localfile);
+    }
+
+    public function sftp_chmod($path, $mode)
+    {
+        $this->chmodCalls[$path] = $mode;
+
+        return true;
     }
 
     public function unlinkFile($path)
@@ -332,6 +342,12 @@ $t->check(
     '_write() uploads the exact bytes it was given',
     "DEFAULT localboot\n"
     === ($fakeFs->contents['/tftpboot/pxelinux.cfg/01-aa-bb-cc-dd-ee-ff'] ?? null)
+);
+$t->check(
+    '_write() chmods the file to 0644 -- an SFTP PUT\'s permissions follow '
+    . 'the server umask, not FOG, and a TFTP daemon reading as a different '
+    . 'user than the SFTP login needs read access explicitly granted',
+    0644 === ($fakeFs->chmodCalls['/tftpboot/pxelinux.cfg/01-aa-bb-cc-dd-ee-ff'] ?? null)
 );
 
 /*
