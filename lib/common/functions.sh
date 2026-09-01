@@ -267,7 +267,7 @@ offerRevert() {
     # install is fixed. Detaching moves only HEAD, which is all that is wanted:
     # the next updatefog.sh run checks out a branch again anyway.
     #
-    # This is a different judgement from gitUpdateToBranch, which keeps
+    # This is a different judgment from gitUpdateToBranch, which keeps
     # reset --hard deliberately -- there it is discarding local mess to make an
     # update possible, here it is navigating history.
     echo " * This install did not finish, and the checkout has moved since the"
