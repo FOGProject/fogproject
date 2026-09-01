@@ -120,16 +120,20 @@ msgid "%d certificates in this file"
 msgstr ""
 
 #, php-format
-msgid "%d days left"
-msgstr ""
+msgid "%d day left"
+msgid_plural "%d days left"
+msgstr[0] ""
+msgstr[1] ""
 
 #, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
 #, fuzzy, php-format
-msgid "%d selected hosts"
-msgstr "批准选定主机"
+msgid "%d selected host"
+msgid_plural "%d selected hosts"
+msgstr[0] "批准选定主机"
+msgstr[1] "批准选定主机"
 
 #, php-format
 msgid "%d token(s) disabled."
@@ -7785,8 +7789,10 @@ msgid "Server identity"
 msgstr "服务器外壳"
 
 #, fuzzy, php-format
-msgid "Server is only configured to run %d multicast tasks"
-msgstr "服务配置"
+msgid "Server is only configured to run %d multicast task"
+msgid_plural "Server is only configured to run %d multicast tasks"
+msgstr[0] "服务配置"
+msgstr[1] "服务配置"
 
 msgid "Server paging bounds. Also published as x-fog-paging at the root of this document."
 msgstr ""
@@ -8964,9 +8970,11 @@ msgstr "任务类型无效"
 msgid "Task type update failed!"
 msgstr "用户更新失败"
 
-#, php-format
-msgid "Tasking created for %d hosts"
-msgstr ""
+#, fuzzy, php-format
+msgid "Tasking created for %d host"
+msgid_plural "Tasking created for %d hosts"
+msgstr[0] "任务开始"
+msgstr[1] "任务开始"
 
 msgid "Tasks"
 msgstr "任务"
