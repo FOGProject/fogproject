@@ -15,7 +15,7 @@ windowskey 2, ldap 6, oidc 8, capone 2, subnetgroup 1 -- are declared in
 core's map and applied by a step in each plugin's own `schema()` in
 `FOGProject/fog-plugins`.
 
-**101 of the map's 117 relationships are declared.** The other 16 are not
+**105 of the map's 121 relationships are declared.** The other 16 are not
 pending work: they carry action `none`, which the map's docblock defines as a
 decision rather than an omission. Nine are audit rows, which MUST NOT
 constrain the thing they record (ADR 0021, `schema.php` step 341); seven are

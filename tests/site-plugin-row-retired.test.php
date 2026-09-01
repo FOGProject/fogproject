@@ -156,14 +156,21 @@ function deleted(array $log)
     return false;
 }
 
-// The step under test has to BE the last one, or every assertion below is
-// about something else entirely.
-$last = end($steps);
+// The step under test has to be the one this test THINKS it is, or every
+// assertion below is about something else entirely.
+//
+// Indexed by SITE_RETIRE_STEP, not end($steps), for the reason runRetireStep()
+// already gives: keying on the last step retargets this test at whatever
+// landed most recently. That was fixed there and missed here, so this
+// assertion went on passing by luck -- steps 400, 401 and 402 all happen to
+// carry a closure. Step 405 does not, and it turned this red on code it does
+// not test.
+$under = $steps[SITE_RETIRE_STEP - 1];
 $hasClosure = false;
-foreach ((array)$last as $u) {
+foreach ((array)$under as $u) {
     $hasClosure = $hasClosure || is_callable($u);
 }
-$t->check('the last schema step is a closure', $hasClosure);
+$t->check('step ' . SITE_RETIRE_STEP . ' is a closure', $hasClosure);
 $t->check(
     'FOG_SCHEMA matches the step count',
     $fogSchema === count($steps)
