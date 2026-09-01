@@ -734,7 +734,26 @@
                         return;
                     }
                     $('#queueTaskModal .modal-dialog').setLoading(false);
-                    queueTaskModal.modal('hide');
+                    // Same treatment as the mass edit fetch below, for the
+                    // same reason -- Bootstrap 5 drops a hide() that lands
+                    // inside the show transition, so a refusal that comes
+                    // back faster than the fade left this modal sitting on
+                    // "Loading, please wait..." with nothing in it to say
+                    // why. This one is opened from the button beside Mass
+                    // edit, over the same selection, and would have been the
+                    // next report.
+                    queueHolder.removeClass('d-none').html(
+                        '<div class="alert alert-danger mb-0">'
+                        + $.escapeHtml(
+                            String(
+                                (jqXHR.responseJSON
+                                    && jqXHR.responseJSON.error)
+                                || jqXHR.statusText
+                                || 'Request failed'
+                            )
+                        )
+                        + '</div>'
+                    );
                     $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
                 }
             });
@@ -821,7 +840,30 @@
                         return;
                     }
                     $('#massEditModal .modal-dialog').setLoading(false);
-                    massEditModal.modal('hide');
+                    // The reason goes IN the modal, and the modal stays put.
+                    //
+                    // This called modal('hide'), and Bootstrap 5 DROPS a
+                    // hide() that lands inside the show transition:
+                    //
+                    //   hide() { this._isShown && !this._isTransitioning
+                    //            && (...) }
+                    //
+                    // A refusal comes back faster than the fade takes -- the
+                    // page guard that used to reject this endpoint outright
+                    // answered before any handler ran -- so the hide was
+                    // discarded and the box sat on "Loading, please wait..."
+                    // indefinitely, with only a toast beside it to say why.
+                    // Writing the reason where the person is already looking
+                    // needs no race won, and is what they wanted anyway.
+                    var reason = (jqXHR.responseJSON
+                        && jqXHR.responseJSON.error)
+                        || jqXHR.statusText
+                        || 'Request failed';
+                    massEditHolder.html(
+                        '<div class="alert alert-danger mb-0">'
+                        + $.escapeHtml(String(reason))
+                        + '</div>'
+                    );
                     $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
                 }
             });

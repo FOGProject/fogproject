@@ -425,6 +425,83 @@ $check(
     false === $needsID->invoke(null, 'bulkedit')
 );
 
+// -------------------------------------------------------------------------
+// A failed form fetch must leave the modal SAYING SO, not sitting on
+// "Loading, please wait...".
+//
+// The error handler used to call massEditModal.modal('hide'), and Bootstrap 5
+// drops a hide() that lands inside the show transition:
+//
+//     hide() { this._isShown && !this._isTransitioning && (...) }
+//
+// A refusal comes back faster than the fade takes -- the page guard above
+// answered before any handler ran -- so the hide was discarded and the box
+// stayed open with only a toast beside it to say why. That is what the bug
+// report showed. Fixing the guard removes today's cause; it does not stop
+// the next refusal (a permission denial, a 500) from hanging the same modal,
+// so the handler now writes the reason where the person is already looking.
+//
+// Both fetches on this page are checked, not just the one that was reported.
+// Queue Task is the button beside Mass edit, over the same selection, and had
+// the identical handler -- it would have been the next report.
+//
+// Sliced by position rather than grepped over the whole file: `modal('hide')`
+// appears legitimately in each success path a few lines away, so a file-wide
+// search for it would pass whatever the error handlers do. The slice is
+// anchored on the FETCH URL, because there are two error handlers in this
+// file and the first textual match is the other one.
+$listJs = (string)@file_get_contents(
+    $root . '/packages/web/management/js/fog/host/fog.host.list.js'
+);
+
+/**
+ * The error callback belonging to one $.ajax() block.
+ *
+ * @param string $js     the file
+ * @param string $anchor a string inside the block, before its error handler
+ *
+ * @return string
+ */
+$errorHandler = function ($js, $anchor) {
+    $from = strpos($js, $anchor);
+    if (false === $from) {
+        return '';
+    }
+    $at = strpos($js, 'error: function(jqXHR, textStatus) {', $from);
+    if (false === $at) {
+        return '';
+    }
+    $end = strpos($js, "\n                }", $at);
+
+    return substr($js, $at, (false === $end ? strlen($js) : $end) - $at);
+};
+
+$fetches = [
+    'mass edit' => ['sub=masseditform', 'massEditHolder.html(', "massEditModal.modal('hide')"],
+    'queue task' => ['sub=deployMulti', 'queueHolder', "queueTaskModal.modal('hide')"],
+];
+foreach ($fetches as $what => $spec) {
+    list($anchor, $writes, $hides) = $spec;
+    $errBody = $errorHandler($listJs, $anchor);
+    $check(
+        "the $what fetch still has an error handler",
+        '' !== $errBody
+    );
+    $check(
+        "the $what fetch writes the reason into the modal body",
+        false !== strpos($errBody, $writes)
+    );
+    $check(
+        "the $what fetch escapes it, the reason being server text in markup",
+        false !== strpos($errBody, '$.escapeHtml(')
+    );
+    $check(
+        "the $what fetch does not try to hide the modal,"
+        . ' which Bootstrap drops mid-transition',
+        false === strpos($errBody, $hides)
+    );
+}
+
 if (count($failures)) {
     fwrite(STDERR, "FAIL: the mass edit form is not three-state:\n");
     foreach ($failures as $f) {
