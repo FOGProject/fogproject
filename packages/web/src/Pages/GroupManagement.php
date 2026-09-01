@@ -22,6 +22,7 @@ use FOG\Items\TaskType;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 use FOG\Util\FOGCron;
+use FOG\Util\SharedHostValues;
 
 /**
  * Group management page
@@ -251,11 +252,17 @@ class GroupManagement extends FOGPage
         );
     }
     /**
-     * Reports, for each requested host column, whether every member host
-     * shares the same value and what that value is.
+     * What the member hosts hold in common, per column.
      *
-     * NULL and '' are treated as the same ("empty") for uniformity, so a
-     * field that is set on some hosts and unset on others reads as mixed.
+     * Delegates. The computation moved to FOG\\Util\\SharedHostValues so that
+     * this page and any form editing a SELECTION of hosts share one answer to
+     * "do these hosts agree" -- two copies of that would drift silently,
+     * because nothing fails when they disagree, one form just starts telling
+     * a different truth than the other about the same hosts.
+     *
+     * Kept as a wrapper rather than replacing every call site with the static:
+     * the group's membership is the only host list this page ever asks about,
+     * and threading it through thirty call sites would be noise.
      *
      * @param array $columns map of friendly key => hosts table column
      *
@@ -263,44 +270,10 @@ class GroupManagement extends FOGPage
      */
     private function _uniformHostValues($columns)
     {
-        $result = [];
-        foreach ($columns as $key => $col) {
-            $result[$key] = ['uniform' => false, 'value' => ''];
-        }
-        $hostIDs = array_map('intval', (array)$this->obj->get('hosts'));
-        if (count($hostIDs) < 1) {
-            return $result;
-        }
-        $selects = ['COUNT(*) AS `_n`'];
-        foreach ($columns as $key => $col) {
-            $safe = preg_replace('/[^A-Za-z0-9_]/', '', $key);
-            $selects[] = sprintf(
-                "COUNT(DISTINCT COALESCE(`%s`, '')) AS `d_%s`",
-                $col,
-                $safe
-            );
-            $selects[] = sprintf(
-                "MIN(COALESCE(`%s`, '')) AS `v_%s`",
-                $col,
-                $safe
-            );
-        }
-        $sql = sprintf(
-            'SELECT %s FROM `hosts` WHERE `hostID` IN (%s)',
-            implode(',', $selects),
-            implode(',', $hostIDs)
+        return SharedHostValues::forHosts(
+            (array)$this->obj->get('hosts'),
+            $columns
         );
-        $row = self::$DB->query($sql)->fetch();
-        $n = (int)$row->get('_n');
-        foreach ($columns as $key => $col) {
-            $safe = preg_replace('/[^A-Za-z0-9_]/', '', $key);
-            $distinct = (int)$row->get('d_' . $safe);
-            $result[$key] = [
-                'uniform' => ($n > 0 && $distinct <= 1),
-                'value' => (string)$row->get('v_' . $safe),
-            ];
-        }
-        return $result;
     }
     /**
      * Renders a muted "Hosts: ..." hint describing the members' shared value
@@ -312,9 +285,7 @@ class GroupManagement extends FOGPage
      */
     private function _sharedHint($info)
     {
-        return '<p class="form-text help-block-tight">'
-            . _('Hosts:') . ' ' . $this->_sharedValueText($info)
-            . '</p>';
+        return SharedHostValues::hint($info);
     }
     /**
      * The shared-state text for a _uniformHostValues() entry: the value with
@@ -326,13 +297,7 @@ class GroupManagement extends FOGPage
      */
     private function _sharedValueText($info)
     {
-        if (!$info['uniform']) {
-            return _('(varies)');
-        }
-        if ($info['value'] === '') {
-            return _('(empty on all)');
-        }
-        return \Initiator::e($info['value']) . ' ' . _('(all)');
+        return SharedHostValues::text($info);
     }
     /**
      * Summary box of the members' current Active Directory state, shown above

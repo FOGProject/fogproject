@@ -202,6 +202,10 @@ const TABLE = [
     'Timer' => 'Util',
     'FOGCron' => 'Util',
     'FOGLogPaths' => 'Util',
+    // Util because it belongs to no subsystem: it answers "do these hosts
+    // agree about this column", which the group page and any mass edit over
+    // a selection both need and neither owns. Not Items -- it is not a row.
+    'SharedHostValues' => 'Util',
     'SnapinSaveException' => 'Exception',
     'UploadException' => 'Exception',
 ];
