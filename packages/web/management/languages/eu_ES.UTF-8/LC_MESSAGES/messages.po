@@ -1223,6 +1223,10 @@ msgid "Auto Log Out Time"
 msgstr "Standard Logout-Zeit (in Minuten)"
 
 #, fuzzy
+msgid "Auto Log Out Time (in minutes)"
+msgstr "Standard Logout-Zeit (in Minuten)"
+
+#, fuzzy
 msgid "Auto Logout Settings"
 msgstr "Integritätseinstellungen"
 
@@ -3851,6 +3855,10 @@ msgid "Host Product Keys"
 msgstr "Host-Produkt-Schlüssel"
 
 msgid "Host Registration"
+msgstr "Host-Registrierung"
+
+#, fuzzy
+msgid "Host Screen Resolution"
 msgstr "Host-Registrierung"
 
 #, fuzzy

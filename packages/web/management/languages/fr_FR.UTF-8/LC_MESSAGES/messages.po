@@ -1228,6 +1228,10 @@ msgid "Auto Log Out Time"
 msgstr "Par défaut déconnecter le temps (en minutes)"
 
 #, fuzzy
+msgid "Auto Log Out Time (in minutes)"
+msgstr "Par défaut déconnecter le temps (en minutes)"
+
+#, fuzzy
 msgid "Auto Logout Settings"
 msgstr "Paramètres"
 
@@ -3854,6 +3858,10 @@ msgid "Host Product Keys"
 msgstr "Hôte clé de produit"
 
 msgid "Host Registration"
+msgstr "Enregistrement de l'hôte"
+
+#, fuzzy
+msgid "Host Screen Resolution"
 msgstr "Enregistrement de l'hôte"
 
 #, fuzzy
