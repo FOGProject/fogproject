@@ -146,10 +146,29 @@ channelToBranch() {
 # rely on one layer alone when the answer decides what gets checked out.
 rcBranch() {
     local ref
-    ref=$(git ls-remote --heads --sort=-v:refname \
-        "${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}" 'refs/heads/rc-*' \
-        2>/dev/null \
+    # Sorted with `sort -Vr`, NOT with git's own --sort=-v:refname.
+    #
+    # `git ls-remote --sort` needs git 2.18 (2018). RHEL/CentOS 7 ships
+    # 1.8.3.1 and Ubuntu 18.04 ships 2.17.1 -- and those are exactly the
+    # hosts this matters on, because they are 1.5-era servers and `rc` is the
+    # DEFAULT channel of the 1.5 updater whose whole job is moving them to
+    # 1.6. On an older git the option is a usage error, 2>/dev/null swallows
+    # it, and every caller reports "no release candidate is currently
+    # published": a confident, wrong diagnosis. sort -V is coreutils 7
+    # (2008), which predates every distro FOG supports.
+    #
+    # Asks the checkout's OWN origin where there is one; the constant is only
+    # a fallback for bin/bootstrap.sh, which has no clone yet. A server
+    # installed from a fork or an internal mirror must not be told about a
+    # release candidate its origin does not carry -- gitUpdateToBranch would
+    # then fail at `git checkout` -- and an air-gapped one must not reach for
+    # github.com.
+    local remote
+    remote=$(git -C "${FOG_git_path}" remote get-url origin 2>/dev/null)
+    [[ -n $remote ]] || remote="${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}"
+    ref=$(git ls-remote --heads "$remote" 'refs/heads/rc-*' 2>/dev/null \
         | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
+        | sort -Vr \
         | head -n1) || return 1
     [[ -n $ref ]] || return 1
     echo "$ref"
@@ -266,7 +285,7 @@ detectOSFamily() {
         [[ -z $linuxReleaseName ]] && linuxReleaseName='Debian'
         [[ -z $OSVersion ]] && OSVersion=$(cat /etc/debian_version)
     fi
-    linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr [:upper:] [:lower:])
+    linuxReleaseName_lower=$(echo "$linuxReleaseName" | tr "[:upper:]" "[:lower:]")
     osfamily=""
     case $linuxReleaseName_lower in
         *fedora*|*red*hat*|*centos*|*mageia*|*alma*|*rocky*)
@@ -289,8 +308,14 @@ detectOSFamily() {
 }
 backupReports() {
     dots "Backing up user reports"
-    [[ ! -d ../rpttmp/ ]] && mkdir ../rpttmp/ >>$error_log
-    [[ -d $webdirdest/management/reports/ ]] && cp -a $webdirdest/management/reports/* ../rpttmp/ >>$error_log
+    # EMPTIED first. It was only created-if-absent, and nothing ever removed
+    # it, so it accumulated across upgrades -- which was harmless while nothing
+    # read it back and is not now: a report the admin deleted through the web
+    # UI was still sitting here from a previous run and would be restored on
+    # the next one, undeleting itself.
+    rm -rf ../rpttmp >>$error_log 2>&1
+    mkdir -p ../rpttmp >>$error_log 2>&1
+    [[ -d $webdirdest/management/reports/ ]] && cp -a $webdirdest/management/reports/. ../rpttmp/ >>$error_log 2>&1
     echo "Done"
     return 0
 }
@@ -2288,14 +2313,26 @@ join() {
 # that was not there is a worse outcome than the one this exists to prevent.
 restoreReports() {
     local warn=0
-    [[ -d $webdirdest/management/reports && -d ../rpttmp ]] || return 0
+    [[ -d ../rpttmp ]] || return 0
     # find, not a glob: `cp -a ../rpttmp/*` passes the unexpanded pattern
     # through to cp when the directory is empty, which fails.
     [[ -n $(find ../rpttmp -mindepth 1 -print -quit 2>/dev/null) ]] || return 0
     dots "Restoring user reports"
+    # mkdir, not a test for the directory. The original guard required
+    # management/reports/ to already exist in the rebuilt tree -- and it never
+    # does: packages/web/management ships no reports/ directory, the web root
+    # is rebuilt from that source tree by configureHttpd, and the directory is
+    # created at runtime by the reporting code. So the guard was false on every
+    # ordinary upgrade and this function returned having restored nothing,
+    # which made the GH-1580 fix a no-op on exactly the path it was written
+    # for. The test asserted that the missing-directory case was a silent
+    # success, so the suite agreed with it.
+    mkdir -p "$webdirdest/management/reports" >>$error_log 2>&1 || { warn=1; }
     # /. so dotfiles come along and the copy lands INSIDE the target rather
     # than creating ../rpttmp underneath it.
     cp -a ../rpttmp/. $webdirdest/management/reports/ >>$error_log 2>&1 || warn=1
+    # Cleared on the way out, for the same reason it is cleared on the way in.
+    [[ $warn -eq 0 ]] && rm -rf ../rpttmp >>$error_log 2>&1
     [[ $warn -ne 0 ]] && echo -n "(some reports could not be restored) "
     errorStat 0
 }
@@ -4856,8 +4893,20 @@ errorStat() {
             tail -n 5 $error_log
             exit $status
         fi
+        # $exitFail is set, so the caller handles this failure itself rather
+        # than the process ending here. RETURN -- do not fall through: the
+        # line below prints "OK", and reaching it after "Failed!" reported
+        # both outcomes for the same step. All four scripts that source this
+        # set exitFail (installfog.sh, updatefog.sh, restorekernel.sh,
+        # revertfog.sh), so every failed step in any of them showed it.
+        return $status
     fi
     [[ -z $skipOk ]] && echo "OK"
+    # Explicit, because the line above is a && whose test is FALSE whenever
+    # skipOk was passed -- which used to make this function return 1 for a
+    # step that succeeded. Nothing reads the value today; this keeps it from
+    # being a trap for the first caller that does.
+    return 0
 }
 stopInitScript() {
     for serviceItem in $serviceList; do
@@ -10986,23 +11035,47 @@ EOF
 # not a hand-kept list that would drift the moment a plugin joins or leaves
 # fog-plugins.
 #
-# Remove the retired accesscontrol plugin from the backup, remembering that it
-# was there.
+# Bundled plugins 1.6 RETIRES rather than relocates, in the order they should
+# be reported.
 #
-# The removal itself is old behavior and is right: 1.6 replaces that plugin with
-# core roles and permissions, its registration row is deleted by schema step 307,
-# and --oldcopy restoring its PHP into a 1.6 tree would lay a retired plugin back
-# down beside the core that retired it.
+# Top level rather than inside the backup step so it is a property of the
+# installer that both _stripRetiredPlugins and the test suite can read. A copy
+# living inside one step would let the list and its coverage drift apart
+# silently, which is the whole failure mode a retirement list exists to stop.
+#
+# Each is deleted from the backup so --oldcopy cannot lay it back down beside
+# the core that replaced it, and each gets its OWN advice in
+# _warnUnrecognizedPlugins -- the "copy it to $fogprogramdir/plugins" line the
+# rest of that notice gives would tell an admin to reinstall what this upgrade
+# just removed.
+retiredplugins="accesscontrol persistentgroups"
+# Remove each RETIRED bundled plugin from the backup, remembering which were
+# there.
+#
+# The removal itself is old behavior and is right: 1.6 replaces these plugins
+# with core, their registration rows are deleted by schema steps (307 for
+# accesscontrol, 402 for persistentgroups), and --oldcopy restoring their PHP
+# into a 1.6 tree would lay a retired plugin back down beside the core that
+# retired it.
 #
 # What was missing is the record. This runs inside the backup step, which is
 # BEFORE _warnUnrecognizedPlugins scans that same backup -- so by the time
-# anything could name accesscontrol, the directory is already gone. No scan of
+# anything could name one of these, the directory is already gone. No scan of
 # the backup can find it however it is written, which is why the fact is carried
 # in a variable instead.
-_stripRetiredAccessControl() {
-    local ac="${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol"
-    [[ -d $ac ]] && accesscontrolstripped=1
-    rm -rf "$ac"
+#
+# persistentgroups joined the list for ADR 0038: core now resolves group grants
+# instead of copying them onto hosts, so the plugin compensates for a defect
+# that no longer exists. Its retirement matters more than accesscontrol's,
+# because it leaves behind something no file deletion reaches -- an AFTER INSERT
+# trigger on `groupMembers`, dropped by schema step 402.
+_stripRetiredPlugins() {
+    local name dir
+    for name in $retiredplugins; do
+        dir="${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/${name}"
+        [[ -d $dir ]] && retiredpluginsstripped="${retiredpluginsstripped} ${name}"
+        rm -rf "$dir"
+    done
     # Never fatal, and never the step's exit status: this sits between a cp and
     # an errorStat $? that is reporting on the BACKUP, not on this.
     return 0
@@ -11010,28 +11083,45 @@ _stripRetiredAccessControl() {
 # Detection only -- nothing here copies, deletes or blocks anything.
 _warnUnrecognizedPlugins() {
     local oldplugins="${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins"
-    # accesscontrol is named FIRST and outside every guard below, because it is
-    # not an unrecognized plugin -- it is a RETIRED one, and the advice the rest
-    # of this function gives would be wrong for it. Its 1.6 equivalent is core
-    # roles and permissions, so copying it to $fogprogramdir/plugins would
+    # Retired plugins are named FIRST and outside every guard below, because
+    # they are not unrecognized plugins -- they are RETIRED ones, and the advice
+    # the rest of this function gives would be wrong for them. Their 1.6
+    # equivalent is core, so copying them to $fogprogramdir/plugins would
     # reinstall the thing the upgrade just replaced.
     #
-    # Outside the guards for two reasons. It cannot come from the scan at all
-    # (_stripRetiredAccessControl deleted it from the backup already), and it is
+    # Outside the guards for two reasons. They cannot come from the scan at all
+    # (_stripRetiredPlugins deleted them from the backup already), and this is
     # not a comparison against the bundled set -- so neither "no old plugins
     # directory" nor "nothing bundled to compare against" has any bearing on
     # whether this is worth saying.
-    if [[ -n ${accesscontrolstripped:-} ]]; then
+    local retired
+    for retired in ${retiredpluginsstripped:-}; do
         echo
-        echo "  The retired accesscontrol plugin was in the old web tree."
-        echo "  1.6 replaces it with core roles and permissions -- your roles and"
-        echo "  user assignments were migrated into them by the schema update, and"
-        echo "  the plugin's own registration row was removed."
-        echo "  Do NOT copy it to ${fogprogramdir:-/opt/fog}/plugins: it is not a"
-        echo "  plugin to relocate, and it is not carried into the backup either."
-        echo "  Review what came across under Role Management once this finishes."
+        case $retired in
+            accesscontrol)
+                echo "  The retired accesscontrol plugin was in the old web tree."
+                echo "  1.6 replaces it with core roles and permissions -- your roles and"
+                echo "  user assignments were migrated into them by the schema update, and"
+                echo "  the plugin's own registration row was removed."
+                echo "  Do NOT copy it to ${fogprogramdir:-/opt/fog}/plugins: it is not a"
+                echo "  plugin to relocate, and it is not carried into the backup either."
+                echo "  Review what came across under Role Management once this finishes."
+                ;;
+            persistentgroups)
+                echo "  The retired persistentgroups plugin was in the old web tree."
+                echo "  1.6 makes a group's snapins and printers a standing grant that is"
+                echo "  resolved when it is used, so a host added to a group picks them up"
+                echo "  without anything being copied onto it -- which is what that plugin"
+                echo "  existed to fake."
+                echo "  Its database TRIGGER has been dropped by the schema update. That"
+                echo "  matters, because the trigger outlived the plugin's files: removing"
+                echo "  the code never stopped it firing."
+                echo "  Do NOT copy it to ${fogprogramdir:-/opt/fog}/plugins: installing it"
+                echo "  again re-creates that trigger."
+                ;;
+        esac
         echo
-    fi
+    done
     [[ -d $oldplugins ]] || return 0
     # "Unrecognized" is decided by comparison, so with nothing to compare
     # against there is no finding to report -- only a list of every plugin
@@ -11209,18 +11299,18 @@ configureHttpd() {
     # ${WEB_docroot}fog was a symlink this run removed. See the report at the end
     # of this step for why that has to be said out loud.
     webbackedup=""
-    # Whether the retired accesscontrol plugin was in the tree just backed
-    # up. Set by _stripRetiredAccessControl below, read by
-    # _warnUnrecognizedPlugins, because by the time that runs the evidence
-    # has been deleted.
-    accesscontrolstripped=""
+    # Which retired plugins were actually in the tree just backed up. Set by
+    # _stripRetiredPlugins below, read by _warnUnrecognizedPlugins, because by
+    # the time that runs the evidence has been deleted. The list itself is
+    # $retiredplugins, defined at the top level beside those two functions.
+    retiredpluginsstripped=""
     if [[ -d ${DB_backup_path}/fog_web_${version}.BACKUP ]]; then
         rm -rf ${DB_backup_path}/fog_web_${version}.BACKUP >>$error_log 2>&1
     fi
     if [[ -d $webdirdest ]]; then
         cp -RT "$webdirdest" "${DB_backup_path}/fog_web_${version}.BACKUP" >>$error_log 2>&1
         webbackedup=1
-        _stripRetiredAccessControl
+        _stripRetiredPlugins
         rm -rf "$webdirdest" >>$error_log 2>&1
     elif [[ -n $priorwebdir && -d $priorwebdir ]]; then
         # Copy only, no removal. The branch above deletes $webdirdest because
@@ -11230,7 +11320,7 @@ configureHttpd() {
         # and deleting it would be a new behavior nobody asked for.
         cp -RT "$priorwebdir" "${DB_backup_path}/fog_web_${version}.BACKUP" >>$error_log 2>&1
         webbackedup=1
-        _stripRetiredAccessControl
+        _stripRetiredPlugins
     fi
     if [[ ${FOG_os_id} -eq 2 ]]; then
         # GH-953: this removed ${WEB_docroot} -- the whole document root, taking any

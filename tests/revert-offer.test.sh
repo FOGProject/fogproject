@@ -201,5 +201,105 @@ check "updatefog.sh no longer calls writeUpdateFile itself" \
 check "updatefog.sh forwards --channel to the installer" \
     "$(grep -q 'channelArgs' "$root/bin/updatefog.sh"; echo $?)"
 
+# ---------------------------------------------------------------------------
+# updatefog.sh replaces itself.
+#
+# gitUpdateToBranch() checks out a different branch, which rewrites
+# bin/updatefog.sh underneath a bash process still reading it. Bash reads a
+# script incrementally and seeks by byte offset, so a file that changes length
+# mid-run resumes in the middle of a different line -- silently, arbitrarily,
+# and only AFTER the checkout has succeeded. Every channel switch changes this
+# file, so it is not hypothetical.
+#
+# Exercised for real: the original is emptied while it runs, and it has to
+# finish anyway.
+# ---------------------------------------------------------------------------
+updater="$root/bin/updatefog.sh"
+uwork="$work/selfrewrite"
+mkdir -p "$uwork/bin"
+
+# Built fresh each time, because running it is what destroys it.
+#
+# HONEST LIMIT OF THE BEHAVIORAL CHECK BELOW. Bash reads ahead in blocks, and
+# this script is small enough that a given bash on a given filesystem may
+# already hold the rest of it when the truncation lands -- so the run can
+# survive WITHOUT the copy too, and this fixture was observed doing exactly
+# that. It is a regression check (the guard must not break the ordinary path),
+# not a proof that the guard is required.
+#
+# What pins the guard is the pair of structural assertions after it: that the
+# re-exec exists, and that it happens before gitUpdateToBranch. Those do fail
+# when the guard is removed, which was verified. The behavioral case is kept
+# because the failure it describes is real -- it just cannot be provoked
+# reliably on a file this size, and a check that only sometimes reproduces is
+# worth having as long as nobody reads it as the proof.
+buildFixture() {
+    sed -e 's/^if \[\[ ! \$EUID -eq 0 \]\]; then$/if false; then/'         -e 's#^\. \.\./lib/common/functions\.sh$#: > "$VICTIM"#'         "$updater" > "$uwork/bin/updatefog.sh"
+    chmod +x "$uwork/bin/updatefog.sh"
+    grep -q 'if false; then' "$uwork/bin/updatefog.sh" &&
+        grep -q ': > "$VICTIM"' "$uwork/bin/updatefog.sh"
+}
+
+if buildFixture; then
+    mkdir -p "$uwork/tmp"
+    out=$( cd "$uwork/bin" && VICTIM="$uwork/bin/updatefog.sh" TMPDIR="$uwork/tmp"            bash ./updatefog.sh --channel beta --yes 2>&1 )
+    st=$?
+    check "updatefog.sh keeps executing after its own file is emptied mid-run"         "$(grep -q 'No existing FOG install found' <<< "$out"; echo $?)"
+    check "and exits deliberately rather than falling off the end of a lost file"         "$([[ $st -eq 1 ]]; echo $?)"
+    check "the original really was emptied, so that proved something"         "$([[ ! -s $uwork/bin/updatefog.sh ]]; echo $?)"
+    # Counted inside this run's own TMPDIR, not /tmp: a global count picks up
+    # copies left by anything else on the machine -- including an earlier
+    # manual run of this very script -- and fails for reasons that have
+    # nothing to do with the code under test.
+    check "no temporary copy is left behind"         "$([[ $(ls "$uwork"/tmp/fog-updatefog.* 2>/dev/null | wc -l) -eq 0 ]]; echo $?)"
+else
+    check "could not build the self-rewrite fixture (a source line moved)" 1
+fi
+
+# Invoked by a RELATIVE path, which is how a cron entry or a hand-typed
+# `bash bin/updatefog.sh` from the repository root reaches it.
+#
+# The self-copy reads the script off disk, and the script cd's to its own bin/
+# before that point -- so copying from "$0" resolved the caller's relative path
+# against the new directory and failed, breaking an invocation form that worked
+# before the copy existed. It must read the path resolved before the cd.
+relwork="$work/relative"
+mkdir -p "$relwork/repo/bin"
+sed -e 's/^if \[\[ ! \$EUID -eq 0 \]\]; then$/if false; then/' \
+    -e 's#^\. \.\./lib/common/functions\.sh$#echo reached-past-the-relaunch; exit 0#' \
+    "$updater" > "$relwork/repo/bin/updatefog.sh"
+
+if grep -q 'reached-past-the-relaunch' "$relwork/repo/bin/updatefog.sh"; then
+    relout=$( cd "$relwork/repo" && bash bin/updatefog.sh --channel beta --yes 2>&1 )
+    check "a relative invocation can still copy itself" \
+        "$(grep -q 'reached-past-the-relaunch' <<< "$relout"; echo $?)"
+    check "and does not report that it could not copy itself" \
+        "$(! grep -q 'Could not copy this script' <<< "$relout"; echo $?)"
+else
+    check "could not build the relative-invocation fixture" 1
+fi
+
+
+u=$(sed 's/#.*//' "$updater")
+
+check "updatefog.sh re-execs from a copy before touching git" \
+    "$(grep -q 'FOG_UPDATE_RELAUNCHED' <<< "$u"; echo $?)"
+
+# The re-exec has to happen BEFORE the git work, or it protects nothing.
+relaunchAt=$(grep -n 'exec bash' <<< "$u" | head -1 | cut -d: -f1)
+gitAt=$(grep -n 'gitUpdateToBranch' <<< "$u" | head -1 | cut -d: -f1)
+check "the re-exec comes before gitUpdateToBranch" \
+    "$([[ -n $relaunchAt && -n $gitAt && $relaunchAt -lt $gitAt ]]; echo $?)"
+
+# $error_log is read by gitUpdateToBranch and by the tee that shows the
+# installer. Unset, `>>$error_log` redirects into a file named "".
+check "updatefog.sh sets error_log" \
+    "$(grep -q '^error_log=' <<< "$u"; echo $?)"
+logAt=$(grep -n '^error_log=' <<< "$u" | head -1 | cut -d: -f1)
+firstUse=$(grep -n '[$]error_log' <<< "$u" | head -1 | cut -d: -f1)
+check "and sets it before its first use" \
+    "$([[ -n $logAt && -n $firstUse && $logAt -lt $firstUse ]]; echo $?)"
+
+
 printf '\n%s: %d passed, %d failed\n' "$(basename "$0")" "$pass" "$fail"
 [[ $fail -eq 0 ]]

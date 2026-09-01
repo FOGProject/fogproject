@@ -334,6 +334,13 @@ $expected = [
     'savedFilterGroupAssoc.sfgaUserGroupID',
     'savedFilterRoleAssoc.sfraFilterID',
     'savedFilterRoleAssoc.sfraRoleID',
+    // Group 9 -- ADR 0038 group grants. Both ends CASCADE on both tables: a
+    // grant is meaningless once either the group or the granted object is
+    // gone, and an orphan row would offer a grant against a reused id.
+    'groupSnapinAssoc.gsaGroupID',
+    'groupSnapinAssoc.gsaSnapinID',
+    'groupPrinterAssoc.gpaGroupID',
+    'groupPrinterAssoc.gpaPrinterID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its
     // manager's schema(); see fog-plugins tests/foreign-keys.test.php,

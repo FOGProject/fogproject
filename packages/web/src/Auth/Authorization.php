@@ -154,7 +154,20 @@ class Authorization extends FOGBase
             'activescheduleddels' => ['GET' => 'task.view', 'POST' => 'task.task']
         ],
         'host' => [
-            'savegroup' => 'group.create',
+            // Bulk group membership from the host list. group.EDIT, not
+            // group.create: adding existing hosts to existing groups is an
+            // edit to a group, and requiring the permission to mint groups
+            // for it means an operator who may label hosts must also be able
+            // to create them -- which is backwards once a group is the
+            // labeling primitive (ADR 0038 decisions 16 and 16a.6).
+            //
+            // The route-level permission is the FLOOR, i.e. what every call
+            // needs. The privileged case -- groups_new[] naming a group that
+            // does not exist yet -- is checked inside the handler against
+            // group.create, because "am I creating a group" is a property of
+            // the request body rather than of the route. Same reasoning, and
+            // the same shape, as savedfilters' global case below.
+            'savegroup' => 'group.edit',
             // The Login History tab. _subToAction() reads the 'get' prefix
             // and answers host.view, which is the grant nearly every
             // operator holds -- so per-host login records for named people

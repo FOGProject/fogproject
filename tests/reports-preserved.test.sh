@@ -158,13 +158,52 @@ runcase none
 check "a missing rpttmp does not report a failure" \
     "$([[ -z $(reportedstat none) || $(reportedstat none) -eq 0 ]]; echo $?)"
 
-# --- no reports directory in the rebuilt tree ------------------------------
+# --- no reports directory in the rebuilt tree: THE DEFAULT CASE -------------
+#
+# This is not an edge case, it is what happens on every ordinary upgrade, and
+# getting it wrong made the whole GH-1580 fix a no-op.
+#
+# packages/web/management ships NO reports/ directory. configureHttpd rm -rf's
+# the web root and rebuilds it from that source tree, so after the rebuild the
+# directory does not exist -- it is created at runtime by the reporting code.
+# restoreReports originally required it to be there already, so the guard was
+# false on every real upgrade and the function returned having restored
+# nothing.
+#
+# This file previously asserted that case was "a silent success", which it
+# was -- silently doing nothing. That is why the suite passed while the bug
+# shipped. It now asserts the reports actually arrive.
 mkdir -p "$work/notree/rpttmp"
 echo mine > "$work/notree/rpttmp/my-report.php"
 runcase notree
 
-check "a rebuilt tree without management/reports does not report a failure" \
+check "the reports directory is CREATED when the rebuilt tree has none" \
+    "$([[ -d $work/notree/web/management/reports ]]; echo $?)"
+
+check "and the report is actually restored into it" \
+    "$([[ $(cat "$work/notree/web/management/reports/my-report.php" 2>/dev/null) == mine ]]; echo $?)"
+
+check "without reporting a failure" \
     "$([[ -z $(reportedstat notree) || $(reportedstat notree) -eq 0 ]]; echo $?)"
+
+# --- the scratch directory does not accumulate or resurrect ----------------
+# backupReports only ever created ../rpttmp if absent and nothing removed it,
+# which was harmless while nothing read it back. With a working restore it
+# means a report deleted through the web UI is still sitting there from a
+# previous upgrade and gets copied back on the next one -- undeleting itself.
+check "a successful restore clears ../rpttmp" \
+    "$([[ ! -d $work/notree/rpttmp ]]; echo $?)"
+
+# And that the backup half empties it too, so a stale entry cannot survive
+# into a run that would restore it.
+backupsnippet=$(awk '
+    /^backupReports\(\) \{/ { grab = 1 }
+    grab { print }
+    grab && /^\}/ { exit }
+' "$functions")
+check "backupReports empties ../rpttmp before filling it" \
+    "$(sed 's/#.*//' <<< "$backupsnippet" | grep -q 'rm -rf ../rpttmp'; echo $?)"
+
 
 printf '\n%s: %d passed, %d failed\n' "$(basename "$0")" "$pass" "$fail"
 [[ $fail -eq 0 ]]

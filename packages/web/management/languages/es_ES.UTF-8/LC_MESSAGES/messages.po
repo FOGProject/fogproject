@@ -1670,6 +1670,9 @@ msgstr ""
 msgid "Checking if I am the group manager"
 msgstr ""
 
+msgid "Chocolatey (offline source)"
+msgstr ""
+
 msgid "Choose a user"
 msgstr ""
 
@@ -6514,7 +6517,7 @@ msgstr ""
 msgid "Operations on %s."
 msgstr "Operación de no activado: %s"
 
-msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward."
+msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward. The Chocolatey entry expects the uploaded file to be a Chocolatey packages.config naming the packages to install."
 msgstr ""
 
 msgid "Or there was no number defined for joining session"
@@ -10747,6 +10750,10 @@ msgstr ""
 
 msgid "You do not have permission to change site grants."
 msgstr ""
+
+#, fuzzy
+msgid "You do not have permission to create groups."
+msgstr "Haga clic en el botón para exportar la base de datos."
 
 #, fuzzy
 msgid "You do not have permission to export the database."

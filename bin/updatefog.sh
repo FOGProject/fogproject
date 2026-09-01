@@ -43,7 +43,12 @@
 #
 # What is left is the one thing installfog.sh genuinely cannot do for itself:
 # change which commit it is about to install.
-bindir=$(dirname $(readlink -f "$BASH_SOURCE"))
+# Resolved BEFORE the cd, and kept: the self-copy below reads this path, and
+# $0 is whatever the caller typed. Invoked as `bash bin/updatefog.sh` from the
+# repository root -- or from a cron entry with a relative path -- $0 is
+# `bin/updatefog.sh`, which stops resolving the moment this cd happens.
+selfpath=$(readlink -f "$BASH_SOURCE")
+bindir=$(dirname "$selfpath")
 cd $bindir
 workingdir=$(pwd)
 
@@ -90,6 +95,9 @@ optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
 eval set -- "$optargs"
 
+# Kept before the option loop shifts them away: the re-exec below needs the
+# ORIGINAL arguments.
+origArgs=("$@")
 autoYes=""
 while :; do
     case $1 in
@@ -123,6 +131,54 @@ while :; do
             ;;
     esac
 done
+
+# ---------------------------------------------------------------------------
+# Re-exec from a copy of this file, before going anywhere near git.
+#
+# This script replaces itself. gitUpdateToBranch() checks out a different
+# branch, which rewrites bin/updatefog.sh underneath a bash process that is
+# still reading it -- and bash reads a script incrementally, seeking by byte
+# offset, so a file that changes length mid-run makes it resume in the middle
+# of a different line. The failure is silent, arbitrary, and happens AFTER the
+# checkout has already succeeded: the server's code has moved and the process
+# driving the update is executing fragments.
+#
+# It is not hypothetical here. Every channel switch changes this file, and the
+# 1.5 -> 1.6 crossing changes it beyond recognition.
+#
+# So: copy, re-exec, and do the git work from a file nothing is going to
+# rewrite. FOG_UPDATE_RELAUNCHED marks the copy so it does not loop; the copy
+# removes itself on exit, not here, because it is the file being read.
+# ---------------------------------------------------------------------------
+if [[ -z $FOG_UPDATE_RELAUNCHED ]]; then
+    updateSelfCopy=$(mktemp -t fog-updatefog.XXXXXX) && cat "$selfpath" > "$updateSelfCopy" || {
+        # Removing it here too: mktemp may well have succeeded and the cat
+        # failed, which would otherwise leave an empty file in /tmp on every
+        # attempt.
+        [[ -n $updateSelfCopy ]] && rm -f "$updateSelfCopy"
+        echo " * Could not copy this script to a temporary location."
+        echo " | The update has to run from a copy, because checking out another"
+        echo " | branch rewrites this file while bash is still reading it."
+        exit 1
+    }
+    chmod +x "$updateSelfCopy"
+    FOG_UPDATE_RELAUNCHED=1 FOG_UPDATE_ORIGIN="$workingdir" \
+        FOG_UPDATE_COPY="$updateSelfCopy" exec bash "$updateSelfCopy" "${origArgs[@]}"
+fi
+[[ -n $FOG_UPDATE_COPY ]] && trap 'rm -f "$FOG_UPDATE_COPY"' EXIT
+# After the re-exec $bindir is the temp directory, so everything that has to
+# resolve against the CHECKOUT uses the original location instead.
+workingdir="${FOG_UPDATE_ORIGIN:-$workingdir}"
+cd "$workingdir"
+
+# The update log. Set AFTER the re-exec, so it lands in the checkout rather
+# than beside the temporary copy -- and before anything that writes to it:
+# gitUpdateToBranch redirects into $error_log, and with it unset that is a
+# redirect into a file named "".
+[[ ! -d ./error_logs/ ]] && mkdir -p ./error_logs >/dev/null 2>&1
+error_log="${workingdir}/error_logs/fog_update_error.log"
+: > "$error_log"
+
 
 # Un-exported on purpose: it inverts errorStat so a failed git step returns
 # control here instead of ending the process, and it must NOT leak into the
@@ -237,7 +293,21 @@ if [[ -z $autoYes ]]; then
 fi
 
 if ! gitUpdateToBranch "$branch"; then
-    echo " * Git update failed -- nothing was installed. See $error_log."
+    echo " * Git update failed -- nothing was installed."
+    # SHOW it, do not just name it. errorStat's own non-exitFail path already
+    # tails the log for exactly this reason, and this path is the one an admin
+    # reaches most: the git error ("couldn't find remote ref", "would be
+    # overwritten by checkout") is the whole diagnosis, and naming a file makes
+    # them go and open it. exitFail is set here, so errorStat returned instead
+    # of doing this itself.
+    if [[ -s $error_log ]]; then
+        echo " |"
+        while IFS= read -r line; do
+            echo " | $line"
+        done < <(tail -n 5 "$error_log")
+        echo " |"
+    fi
+    echo " * Full log: $error_log"
     exit 1
 fi
 

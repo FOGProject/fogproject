@@ -10228,3 +10228,167 @@ $this->schema[] = [
         return true;
     },
 ];
+
+// 402
+$this->schema[] = [
+    // Retire the persistentgroups plugin: drop its TRIGGER, then its row.
+    //
+    // ADR 0038 decision 14. The plugin existed to make a group assignment
+    // stick to hosts added later, which core now does by resolving group
+    // grants instead of copying them. Deleting the plugin's code is not
+    // enough on its own, and that is the whole reason this step exists:
+    //
+    //   THE TRIGGER OUTLIVES THE PLUGIN. Bundled plugins live in
+    //   packages/web/lib/plugins, which configureHttpd() rm -rf's and
+    //   re-lays on every upgrade, so removing it from fog-plugins does
+    //   remove the code. It does not touch the database. `persistentGroups`
+    //   is an AFTER INSERT trigger on `groupMembers` and would go on firing
+    //   forever, silently, with nothing left on disk to explain it.
+    //
+    // Unlike the stale `site` row step 399 cleaned up, this one is ACTIVE
+    // rather than cosmetic. Verified 2026-09-01 against a clone of a live
+    // 1.6 database, in a throwaway container: the trigger copies 13 `hosts`
+    // columns -- `hostADPass` among them -- plus locationAssoc, printerAssoc,
+    // snapinAssoc and moduleStatusByHost rows from a "template" host onto
+    // every host added to a matching group, and creates snapinJobs and
+    // snapinTasks rows, i.e. it queues software onto the machine.
+    //
+    // It is also substantially BROKEN on 1.6 data, which is worth knowing
+    // when reading a bug report from before this ran. The printerAssoc and
+    // moduleStatusByHost copies carry no ON DUPLICATE KEY UPDATE, so a
+    // collision raises 1062 inside an AFTER INSERT trigger and rolls back
+    // the INSERT INTO groupMembers that fired it -- the host is not added at
+    // all. 85 of 86 hosts on the database tested carried moduleStatusByHost
+    // rows, so for a group using the template convention nearly every add
+    // failed with a database error.
+    //
+    // THE DROP IS UNCONDITIONAL, the row delete is not.
+    //
+    // DROP TRIGGER IF EXISTS is already a no-op on a server that never
+    // installed the plugin, so gating it would only add a way to be wrong.
+    // Deleting the `plugins` row is gated on evidence, on step 399's
+    // pattern and for step 399's reason: step 334 tried to retire the `site`
+    // row by reading `plugins`.`pLocation`, which 1.5 never wrote, so its
+    // gate matched the empty string on every upgraded row and the DELETE was
+    // unreachable. A step runs once and cannot be corrected in place.
+    //
+    // Here the evidence is the trigger itself -- a fact this database
+    // carries, not a column whose value depends on which branch wrote it --
+    // read BEFORE the drop, because afterward there is nothing to read.
+    // No filesystem path is consulted, so an unmounted external plugin root
+    // cannot make this decide anything.
+    function () {
+        $row = self::$DB->query(
+            "SELECT COUNT(*) AS `n` FROM `information_schema`.`TRIGGERS`"
+            . " WHERE `TRIGGER_SCHEMA` = DATABASE()"
+            . " AND `TRIGGER_NAME` = 'persistentGroups'"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        $hadTrigger = (int)($row['n'] ?? 0) > 0;
+
+        // TRIGGER_SCHEMA = DATABASE(), never a literal. The plugin's own
+        // location-copy branch hardcoded `table_schema = 'fog'` against
+        // information_schema.tables, which is SERVER-global: it asked about
+        // whatever database on the server happened to be named `fog` and
+        // then wrote to its own. Both failure directions are reachable on a
+        // box hosting two FOG databases, which is not hypothetical.
+        self::$DB->query("DROP TRIGGER IF EXISTS `persistentGroups`");
+
+        if ($hadTrigger) {
+            self::$DB->query(
+                "DELETE FROM `plugins` WHERE LOWER(`pName`) = 'persistentgroups'"
+            );
+        }
+        return true;
+    },
+];
+
+// 403
+$this->schema[] = [
+    // ADR 0038 decisions 1 and 4/5: the two tables that let a GROUP own a
+    // grant, instead of a group assignment copying rows onto whichever hosts
+    // happened to be members when a button was pressed.
+    //
+    // These are the declarative half of the split. `snapinAssoc` and
+    // `printerAssoc` keep meaning exactly what they meant -- a HOST-direct
+    // association -- and nothing already in them is migrated or touched
+    // (decision 18). These tables start empty and nothing reads them until
+    // the resolver ships, which is what makes this step reversible: drop
+    // them and no data is lost, because no data was ever moved in.
+    //
+    // Why a group-side table at all, rather than a `gsaHostID`-style flag on
+    // the existing ones: the whole defect is that a group grant has no
+    // representation of its own. It exists today only as its side effects on
+    // member hosts, so a host added later cannot see it and a host removed
+    // keeps it. A row keyed by group is the smallest thing that makes the
+    // grant a fact about the group.
+    "CREATE TABLE IF NOT EXISTS `groupSnapinAssoc` ( "
+    . "`gsaID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`gsaGroupID` int(11) NOT NULL, "
+    . "`gsaSnapinID` int(11) NOT NULL, "
+    // Explicit, and explicitly NOT defaulted to 0 for everything the way
+    // saSequence is. ADR 0038 decision 6: saSequence defaults to 0 and
+    // Host::loadSnapins() orders by sequence alone, so every row sitting at 0
+    // comes back in whatever order the engine chose. The resolver breaks that
+    // tie on the association id, but the group side gets a real sequence from
+    // the start so the ordering is an admin's decision rather than an
+    // accident that has to be untangled later.
+    . "`gsaSequence` int(11) NOT NULL DEFAULT 0, "
+    . "PRIMARY KEY (`gsaID`), "
+    . "UNIQUE KEY `gsaGroupSnapin` (`gsaGroupID`,`gsaSnapinID`), "
+    . "KEY `gsaSnapinID` (`gsaSnapinID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    "CREATE TABLE IF NOT EXISTS `groupPrinterAssoc` ( "
+    . "`gpaID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`gpaGroupID` int(11) NOT NULL, "
+    . "`gpaPrinterID` int(11) NOT NULL, "
+    // tinyint(1), NOT the varchar(2) printerAssoc.paIsDefault still carries.
+    // A new boolean column added as anything else is what
+    // tests/booleans-are-tinyint.test.php exists to refuse, and there is no
+    // legacy value here to be compatible with.
+    . "`gpaIsDefault` tinyint(1) NOT NULL DEFAULT 0, "
+    . "PRIMARY KEY (`gpaID`), "
+    . "UNIQUE KEY `gpaGroupPrinter` (`gpaGroupID`,`gpaPrinterID`), "
+    . "KEY `gpaPrinterID` (`gpaPrinterID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
+
+// 404
+// The foreign keys for the two tables step 403 just created, per ADR 0031.
+//
+// Group 9. Like groups 7 and 8 it has nothing to migrate: tables created
+// empty one step earlier cannot hold an orphan, so there is no sweep to
+// sequence before the flip.
+//
+// Every column CASCADE, and the reasoning is the same on all four. A group
+// grant is meaningless once either end of it is gone -- a deleted group has
+// no grants, and a deleted snapin or printer cannot be granted. Leaving the
+// row would silently offer a grant against an id that has since been reused,
+// which on the printer side means the resolver hands a machine somebody
+// else's printer.
+$this->schema[] =
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(9);
+
+        return true;
+    };
+
+// 405
+$this->schema[] = [
+    // ADR 0038 decision 6: the explicit order column, so that a rename never
+    // changes what runs.
+    //
+    // The resolved order for a host is host-direct snapins first, then
+    // group-granted ones with the GROUPS ordered by this column, then
+    // `groupName`, then `groupID`. Ordering on name alone was rejected: an
+    // admin renaming a group must not silently reorder installs on a thousand
+    // machines, and there is no way to notice that they have.
+    //
+    // Defaulting every existing group to 0 is deliberate. It means an install
+    // that never sets this behaves alphabetically, which is the answer an
+    // admin can predict, and it makes this step pure addition -- nothing
+    // reads the column until the resolver ships.
+    "ALTER TABLE `groups` ADD COLUMN IF NOT EXISTS "
+    . "`groupOrder` int(11) NOT NULL DEFAULT 0",
+    "ALTER TABLE `groups` ADD INDEX IF NOT EXISTS "
+    . "`groupOrder` (`groupOrder`)",
+];

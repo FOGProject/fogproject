@@ -287,6 +287,19 @@ return [
     ['child' => 'savedFilterGroupAssoc', 'column' => 'sfgaUserGroupID', 'parent' => 'userGroups', 'pcolumn' => 'ugID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
     ['child' => 'savedFilterRoleAssoc', 'column' => 'sfraFilterID', 'parent' => 'savedFilters', 'pcolumn' => 'sfID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
     ['child' => 'savedFilterRoleAssoc', 'column' => 'sfraRoleID', 'parent' => 'roles', 'pcolumn' => 'rID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 8],
+    // ADR 0038 group grants. Group 9, created empty by step 403 so there is
+    // nothing to sweep before the flip.
+    //
+    // All four CASCADE, same reasoning on each: a group grant is meaningless
+    // once either end is gone. A deleted group has no grants; a deleted
+    // snapin or printer cannot be granted. Leaving an orphan row would
+    // silently offer a grant against an id that has since been reused, which
+    // on the printer side means the resolver hands a machine somebody else's
+    // printer.
+    ['child' => 'groupSnapinAssoc', 'column' => 'gsaGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
+    ['child' => 'groupSnapinAssoc', 'column' => 'gsaSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
+    ['child' => 'groupPrinterAssoc', 'column' => 'gpaGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
+    ['child' => 'groupPrinterAssoc', 'column' => 'gpaPrinterID', 'parent' => 'printers', 'pcolumn' => 'pID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];
