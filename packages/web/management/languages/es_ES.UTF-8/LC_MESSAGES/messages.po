@@ -2715,6 +2715,9 @@ msgstr ""
 msgid "Enrollment kit"
 msgstr ""
 
+msgid "Enter a name manually"
+msgstr ""
+
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "Por favor introduce un nombre de sesión"
@@ -9920,6 +9923,9 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr "Impresora ya existe"
 
+msgid "This name is not a recognized file in the boot directory."
+msgstr ""
+
 #, fuzzy
 msgid "This node could not be found"
 msgstr "No se pudo leer el archivo temporal"
@@ -11571,10 +11577,6 @@ msgid "not built yet"
 msgstr ""
 
 #, fuzzy
-msgid "not found on disk"
-msgstr "No se encontró Clase FOGPage para este nodo"
-
-#, fuzzy
 msgid "not found on this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
 
@@ -12763,6 +12765,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "multicast tasks!"
 #~ msgstr "MulticastTask"
+
+#, fuzzy
+#~ msgid "not found on disk"
+#~ msgstr "No se encontró Clase FOGPage para este nodo"
 
 #, fuzzy
 #~ msgid "username"

@@ -386,8 +386,13 @@ class IpxeBootMenu extends BootMenuBase
      * so an override across that line can only ever fail to boot.
      *
      * The test is the `arm` filename prefix -- the convention every kernel
-     * and init FOG ships follows (arm_Image, arm_init.cpio.gz), and the same
-     * one FOGPage::kernelFileList() already keys off.
+     * and init FOG ships follows (arm_Image, arm_init.cpio.gz). Note this is
+     * now the ONLY name-based rule about these files:
+     * FOGPage::kernelFileList() used to key off names too, and no longer
+     * does -- it reads each file's own header magic. A custom-named arm64
+     * kernel is therefore classified correctly for the dropdown and still
+     * judged by its prefix here, so an arm kernel not called arm* is the one
+     * case this cannot police.
      *
      * @param string $file the stored override
      *

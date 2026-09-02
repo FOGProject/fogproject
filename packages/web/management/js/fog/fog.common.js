@@ -5189,6 +5189,40 @@ function reinitialize() {
     $(':input:not(textarea)', this).off('keypress');
   };
 
+  /**
+   * The boot-file pickers on the host, group, mass edit and settings forms.
+   *
+   * The text input carries the field name and is the thing that posts; the
+   * select has no name at all and only writes into it. That is what makes
+   * these fields degrade to a plain text box if this never runs, rather than
+   * posting nothing -- and it is why the picker can offer "type it myself"
+   * without the server needing a second field to read.
+   *
+   * Delegated and namespaced, because pages arrive by AJAX and doPageLoad()
+   * runs this again on every one of them.
+   */
+  var setupBootFilePickers = function() {
+    var MANUAL = '__fog_manual__'; // FOGPage::BOOT_MANUAL_VALUE
+    $(document)
+      .off('change.fogBootFile')
+      .on('change.fogBootFile', '.fog-bootfile-picker', function() {
+        var $picker = $(this),
+          $value = $('#' + $picker.data('target')),
+          picked = $picker.val();
+        if (!$value.length) {
+          return;
+        }
+        if (picked === MANUAL) {
+          $value.removeClass('d-none').val('').trigger('focus');
+        } else {
+          $value.addClass('d-none').val(picked);
+        }
+        // The server's "not a recognized file" note described the value the
+        // form loaded with. Once you change the control it is stale.
+        $picker.closest('.fog-bootfile').find('.fog-bootfile-note').remove();
+      });
+  };
+
   $.debugLog("=== DEBUG LOGGING ENABLED ===");
   setupIntegrations();
   if ($.fn.inputmask) {
@@ -5209,6 +5243,7 @@ function reinitialize() {
       dropdownParent: $modal.length ? $modal : $(document.body)
     });
   });
+  setupBootFilePickers();
   disableFormDefaults();
   wireImportForm();
   setupPasswordReveal();

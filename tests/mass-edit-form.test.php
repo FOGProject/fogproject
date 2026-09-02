@@ -159,14 +159,38 @@ $check(
 
 // --- Value controls -------------------------------------------------------
 
-$text = $call('massEditValueControl', ['kernel', $core['kernel']]);
+/**
+ * kernelArgs, not kernel: the kernel and init fields are boot-file pickers
+ * now, and a picker reads FOG_TFTP_PXE_KERNEL_DIR to know what to offer,
+ * which this DB-free bootstrap cannot answer. Their kinds are pinned below
+ * instead, at the spec level where no render is needed.
+ */
+$text = $call('massEditValueControl', ['kernelArgs', $core['kernelArgs']]);
 $check(
     'a text value posts as value[<key>]',
-    false !== strpos($text, 'name="value[kernel]"')
+    false !== strpos($text, 'name="value[kernelArgs]"')
 );
 $check(
     'a text value renders empty -- there is no read path',
     false !== strpos($text, 'value=""')
+);
+
+/**
+ * Mass edit was left on a free-text box when the host form gained the
+ * dropdowns, so the one place a typo reaches every selected host at once was
+ * the only place offering no list to pick from.
+ */
+$check(
+    'the kernel field is a boot-file picker, not free text',
+    'kernel' === ($core['kernel']['kind'] ?? '')
+);
+$check(
+    'the init field is a boot-file picker, not free text',
+    'init' === ($core['init']['kind'] ?? '')
+);
+$check(
+    'kernel arguments stay free text -- they are not a filename',
+    'text' === ($core['kernelArgs']['kind'] ?? '')
 );
 
 $pass = $call('massEditValueControl', ['ADPass', $core['ADPass']]);
