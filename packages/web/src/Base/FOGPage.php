@@ -6205,6 +6205,100 @@ abstract class FOGPage extends FOGBase
         return (false === $time) ? 0 : (int)$time;
     }
     /**
+     * Marks a boot file as one no pruner may remove, or unmarks it.
+     *
+     * The one fact about these files that cannot be read off the disk: it is
+     * an intention, not a property. Stored on the record, and reported by
+     * bootFileInfo() so the listing can show it.
+     *
+     * @param string $name filename in the boot directory
+     * @param bool   $keep true to keep, false to stop keeping
+     *
+     * @return bool whether the record was written
+     */
+    public static function bootFileSetPinned($name, $keep)
+    {
+        $name = basename(trim((string)$name));
+        if ('' === $name) {
+            return false;
+        }
+        try {
+            $row = self::_bootFileRow($name) ?: self::getClass('BootFile');
+            $row->set('name', $name)
+                ->set('pinned', $keep ? 1 : 0);
+            $row->save();
+            if (null !== self::$_bootFileRows) {
+                self::$_bootFileRows[$name] = $row;
+            }
+        } catch (\Throwable $e) {
+            return false;
+        }
+
+        return true;
+    }
+    /**
+     * Removes a boot file, and the record that described it.
+     *
+     * Over the same SSH/SFTP connection kernelfetch() uses to put files
+     * there, not with unlink(). That is where the writes go, FOG_TFTP_HOST
+     * may not be this machine, and using the write path for the delete means
+     * the two cannot disagree about which directory is real. It also means
+     * a server with no SSH credentials configured cannot delete -- which is
+     * the same server that cannot download a kernel either, so it is one
+     * missing configuration rather than a new one.
+     *
+     * The record goes too. Leaving it would strand a row describing a file
+     * that is gone; the listing starts from the directory, so nothing would
+     * ever read it again.
+     *
+     * @param string $name filename in the boot directory
+     *
+     * @throws \Exception when the file cannot be removed
+     *
+     * @return void
+     */
+    public static function bootFileRemove($name)
+    {
+        $name = basename(trim((string)$name));
+        $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        if ('' === $name || '' === $dir) {
+            throw new \Exception(_('No such file in the boot directory.'));
+        }
+        $target = sprintf('/%s/%s', trim($dir, '/'), $name);
+        $keys = [
+            'FOG_TFTP_FTP_PASSWORD',
+            'FOG_TFTP_FTP_USERNAME',
+            'FOG_TFTP_HOST'
+        ];
+        list($pass, $user, $host) = self::getSetting($keys);
+        self::$FOGSSH->username = $user;
+        self::$FOGSSH->password = $pass;
+        self::$FOGSSH->host = $host;
+        if (!self::$FOGSSH->connect()) {
+            throw new \Exception(_('Unable to connect to ssh'));
+        }
+        $gone = self::$FOGSSH->delete($target);
+        self::$FOGSSH->disconnect();
+        if (!$gone) {
+            throw new \Exception(
+                sprintf(_('%s could not be removed.'), $name)
+            );
+        }
+        try {
+            $row = self::_bootFileRow($name);
+            if ($row) {
+                $row->destroy();
+            }
+            if (null !== self::$_bootFileRows) {
+                unset(self::$_bootFileRows[$name]);
+            }
+        } catch (\Throwable $e) {
+            // The file is gone, which is what was asked. A stranded record
+            // is never read again -- listings start from the directory.
+            return;
+        }
+    }
+    /**
      * Lists the boot directory files holding the role $type, newest first.
      *
      * Kernels and inits are files on disk, not database records, so there is

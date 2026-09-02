@@ -13,6 +13,7 @@
 
 namespace FOG\Pages;
 
+use FOG\Audit\Audit;
 use FOG\Audit\Retention;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGBase;
@@ -1577,6 +1578,583 @@ class FOGConfigurationPage extends FOGPage
      *
      * @return void
      */
+    /**
+     * The default-pointer settings a file of this role may be set as.
+     *
+     * The settings stay authoritative for what boots -- IpxeBootMenu reads
+     * them and nothing here changes that. This tab is a second setter for
+     * them, next to the files it is choosing between, because "put the
+     * default back on the kernel that worked" is otherwise a trip to FOG
+     * Settings and a filename typed from memory.
+     *
+     * Keyed by role, because FOG_MEMTEST_KERNEL names a Boot Payload and
+     * offering it a FOS kernel is the bug this whole change set is about.
+     *
+     * @param string $role one of FOGPage::BOOT_ROLE_*
+     *
+     * @return array setting key => label
+     */
+    /**
+     * Dispatch anchor for sub=bootfilekeep. See _postOnly().
+     *
+     * @return void
+     */
+    public function bootfilekeep()
+    {
+        $this->_postOnly();
+    }
+    /**
+     * Dispatch anchor for sub=bootfiledefault. See _postOnly().
+     *
+     * @return void
+     */
+    public function bootfiledefault()
+    {
+        $this->_postOnly();
+    }
+    /**
+     * Dispatch anchor for sub=bootfiledelete. See _postOnly().
+     *
+     * @return void
+     */
+    public function bootfiledelete()
+    {
+        $this->_postOnly();
+    }
+    /**
+     * Resolves a posted filename to a real file in the boot directory.
+     *
+     * basename() and then a membership test against the directory listing,
+     * rather than trusting the name: every one of these endpoints turns a
+     * request parameter into a filesystem path, and "../../etc/passwd" is
+     * the first thing anybody tries. The listing is the allow-list.
+     *
+     * @param string $name posted filename
+     *
+     * @return array|null the bootFileInfo() record, or null
+     */
+    private static function _bootFileNamed($name)
+    {
+        $name = basename(trim((string)$name));
+        if ('' === $name || '.' === $name || '..' === $name) {
+            return null;
+        }
+        $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        if ('' === $dir || !is_dir($dir)) {
+            return null;
+        }
+        $path = $dir . DIRECTORY_SEPARATOR . $name;
+        if (!is_file($path)) {
+            return null;
+        }
+
+        return self::bootFileInfo($path);
+    }
+    /**
+     * Marks a boot file as one no pruner may remove, or unmarks it.
+     *
+     * Records the intention only. Nothing prunes boot files yet, so there is
+     * nothing for this to protect it from today -- the pruner, and the copy
+     * into the customizations tree that survives a rebuild of the web root,
+     * arrive with the retention work. Writing the flag here means the tab
+     * that shows it is also the thing that sets it.
+     *
+     * @return void
+     */
+    public function bootfilekeepPost()
+    {
+        self::checkAuthAndCSRF();
+        if (!Authorization::can('settings.edit')) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                [
+                    'error' => _('You do not have permission to change boot '
+                        . 'files.'),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        $info = self::_bootFileNamed(filter_input(INPUT_POST, 'name'));
+        if (null === $info) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                [
+                    'error' => _('No such file in the boot directory.'),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        $keep = (bool)(int)filter_input(INPUT_POST, 'keep');
+        if (!self::bootFileSetPinned($info['name'], $keep)) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                [
+                    'error' => _('The record could not be written.'),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        Audit::record(
+            [
+                'type' => $keep ? 'bootfile.keep' : 'bootfile.unkeep',
+                'subjectType' => 'bootfile',
+                'subjectLabel' => $info['name'],
+                'permission' => 'settings.edit',
+                'renderable' => 1
+            ]
+        );
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            [
+                'msg' => $keep
+                    ? sprintf(_('%s will be kept.'), $info['name'])
+                    : sprintf(_('%s is no longer kept.'), $info['name']),
+                'title' => _('Boot File Updated')
+            ]
+        );
+    }
+    /**
+     * Points one default-pointer setting at this file.
+     *
+     * The setting remains what boots -- this writes the same key FOG
+     * Settings writes, and IpxeBootMenu keeps reading exactly one place.
+     * What it adds is choosing from the files that actually exist, which is
+     * how "put the default back on the kernel that worked" stops being a
+     * filename typed from memory.
+     *
+     * The key is validated against the roles' own list, so a payload cannot
+     * be installed as a boot kernel through a hand-made request.
+     *
+     * @return void
+     */
+    public function bootfiledefaultPost()
+    {
+        self::checkAuthAndCSRF();
+        if (!Authorization::can('settings.edit')) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                [
+                    'error' => _('You do not have permission to change boot '
+                        . 'files.'),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        $info = self::_bootFileNamed(filter_input(INPUT_POST, 'name'));
+        if (null === $info) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                [
+                    'error' => _('No such file in the boot directory.'),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        $key = trim((string)filter_input(INPUT_POST, 'key'));
+        $allowed = self::_defaultKeysFor($info['role']);
+        if (!isset($allowed[$key])) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                [
+                    'error' => sprintf(
+                        _('%s cannot be used as %s.'),
+                        $info['name'],
+                        $key
+                    ),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        self::setSetting($key, $info['name']);
+        Audit::record(
+            [
+                'type' => 'bootfile.default',
+                'subjectType' => 'setting',
+                'subjectLabel' => $key,
+                'permission' => 'settings.edit',
+                'text' => $info['name'],
+                'renderable' => 1
+            ]
+        );
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            [
+                'msg' => sprintf(
+                    _('%s is now %s.'),
+                    $info['name'],
+                    $allowed[$key]
+                ),
+                'title' => _('Boot File Updated')
+            ]
+        );
+    }
+    /**
+     * Removes a boot file from the directory.
+     *
+     * Refused for a file a default points at and for one marked kept. The
+     * row buttons already hide in those cases; this refuses it anyway,
+     * because a hidden button is a courtesy and not a rule.
+     *
+     * Deleted over the same SSH/SFTP connection kernelfetch() uses to put
+     * files there, not with unlink(). That is where the writes go, the TFTP
+     * host may not be this machine, and using the write path for the delete
+     * means the two cannot disagree about which directory is real.
+     *
+     * @return void
+     */
+    public function bootfiledeletePost()
+    {
+        self::checkAuthAndCSRF();
+        if (!Authorization::can('settings.edit')) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                [
+                    'error' => _('You do not have permission to change boot '
+                        . 'files.'),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        $info = self::_bootFileNamed(filter_input(INPUT_POST, 'name'));
+        if (null === $info) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                [
+                    'error' => _('No such file in the boot directory.'),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        if ($info['pinned']) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                [
+                    'error' => sprintf(
+                        _('%s is marked to be kept. Stop keeping it first.'),
+                        $info['name']
+                    ),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        $pointing = [];
+        foreach (self::_defaultPointers() as $key => $points) {
+            if ($points === $info['name']) {
+                $pointing[] = $key;
+            }
+        }
+        if (count($pointing)) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                [
+                    'error' => sprintf(
+                        _('%s is in use as %s. Point that at another file '
+                            . 'first.'),
+                        $info['name'],
+                        implode(', ', $pointing)
+                    ),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        try {
+            self::bootFileRemove($info['name']);
+        } catch (\Throwable $e) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Boot File Failed')
+                ]
+            );
+        }
+        Audit::record(
+            [
+                'type' => 'bootfile.delete',
+                'subjectType' => 'bootfile',
+                'subjectLabel' => $info['name'],
+                'permission' => 'settings.edit',
+                'renderable' => 1
+            ]
+        );
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            [
+                'msg' => sprintf(_('%s deleted.'), $info['name']),
+                'title' => _('Boot File Deleted')
+            ]
+        );
+    }
+    private static function _defaultKeysFor($role)
+    {
+        switch ($role) {
+            case self::BOOT_ROLE_KERNEL:
+                return [
+                    'FOG_TFTP_PXE_KERNEL' => _('Default kernel, x86_64'),
+                    'FOG_TFTP_PXE_KERNEL_32' => _('Default kernel, i386'),
+                    'FOG_TFTP_PXE_KERNEL_ARM' => _('Default kernel, ARM64')
+                ];
+            case self::BOOT_ROLE_INIT:
+                return [
+                    'FOG_PXE_BOOT_IMAGE' => _('Default init, x86_64'),
+                    'FOG_PXE_BOOT_IMAGE_32' => _('Default init, i386'),
+                    'FOG_PXE_BOOT_IMAGE_ARM' => _('Default init, ARM64')
+                ];
+            case self::BOOT_ROLE_PAYLOAD:
+                return ['FOG_MEMTEST_KERNEL' => _('Memtest payload')];
+        }
+
+        return [];
+    }
+    /**
+     * Every default-pointer setting, with the filename it currently names.
+     *
+     * @return array setting key => filename
+     */
+    private static function _defaultPointers()
+    {
+        $keys = array_merge(
+            array_keys(self::_defaultKeysFor(self::BOOT_ROLE_KERNEL)),
+            array_keys(self::_defaultKeysFor(self::BOOT_ROLE_INIT)),
+            array_keys(self::_defaultKeysFor(self::BOOT_ROLE_PAYLOAD))
+        );
+        $out = [];
+        foreach ($keys as $key) {
+            $out[$key] = trim((string)self::getSetting($key));
+        }
+
+        return $out;
+    }
+    /**
+     * The boot directory, as a table of what is there and what it is for.
+     *
+     * Deliberately the same listing on both the kernel and the initrd page
+     * rather than one filtered per page. The Role column is what makes it
+     * legible, and a file whose role is not what an admin expected is
+     * exactly what they came to look at -- filtering it out of the page they
+     * happened to open would hide the answer.
+     *
+     * A plain server-sorted table, not a DataTable: this pane is not the
+     * active tab on arrival, and DataTables computes column widths wrong
+     * inside a hidden pane. The row count here is tens.
+     *
+     * @return string
+     */
+    private function _bootFileTable()
+    {
+        $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        if ('' === $dir || !is_dir($dir) || !is_readable($dir)) {
+            return '<div class="alert alert-warning">'
+                . _('The boot directory cannot be read.')
+                . ' '
+                . \Initiator::e($dir)
+                . ' '
+                . _('Check FOG_TFTP_PXE_KERNEL_DIR.')
+                . '</div>';
+        }
+        $names = @scandir($dir);
+        if (false === $names) {
+            $names = [];
+        }
+        $roleLabels = [
+            self::BOOT_ROLE_KERNEL => _('FOS Kernel'),
+            self::BOOT_ROLE_INIT => _('FOS Init'),
+            self::BOOT_ROLE_PAYLOAD => _('Boot Payload'),
+            self::BOOT_ROLE_OTHER => _('Unclassified')
+        ];
+        $roleOrder = [
+            self::BOOT_ROLE_KERNEL => 0,
+            self::BOOT_ROLE_INIT => 1,
+            self::BOOT_ROLE_PAYLOAD => 2,
+            self::BOOT_ROLE_OTHER => 3
+        ];
+        $pointers = self::_defaultPointers();
+        $rows = [];
+        foreach ($names as $name) {
+            if ('.' === $name || '..' === $name) {
+                continue;
+            }
+            $path = $dir . DIRECTORY_SEPARATOR . $name;
+            if (!is_file($path)) {
+                continue;
+            }
+            $rows[] = self::bootFileInfo($path);
+        }
+        usort(
+            $rows,
+            function ($a, $b) use ($roleOrder) {
+                $ao = $roleOrder[$a['role']] ?? 9;
+                $bo = $roleOrder[$b['role']] ?? 9;
+                if ($ao !== $bo) {
+                    return $ao - $bo;
+                }
+                $adot = substr_count($a['name'], '.');
+                $bdot = substr_count($b['name'], '.');
+                if ($adot !== $bdot) {
+                    return $adot - $bdot;
+                }
+
+                return strnatcasecmp($b['name'], $a['name']);
+            }
+        );
+        if (!count($rows)) {
+            return '<div class="alert alert-warning">'
+                . _('No files in the boot directory.')
+                . '</div>';
+        }
+        $mayEdit = Authorization::can('settings.edit');
+        $out = '<div class="table-responsive">';
+        $out .= '<table class="table table-striped fog-bootfile-table">';
+        $out .= '<thead><tr>'
+            . '<th>' . _('File') . '</th>'
+            . '<th>' . _('Role') . '</th>'
+            . '<th>' . _('Version') . '</th>'
+            . '<th>' . _('FOS Release') . '</th>'
+            . '<th>' . _('Size') . '</th>'
+            . '<th>' . _('Modified') . '</th>'
+            . '<th>' . _('In use as') . '</th>'
+            . '<th>' . _('Keep') . '</th>'
+            . ($mayEdit ? '<th>' . _('Actions') . '</th>' : '')
+            . '</tr></thead><tbody>';
+        /**
+         * Two names with the same checksum are the same kernel. Saying so is
+         * what stops "keep three versions" meaning three copies of one --
+         * and an admin looking at bzImage next to bzImage.<release> has no
+         * other way to tell whether an update actually changed anything.
+         */
+        $byChecksum = [];
+        foreach ($rows as $row) {
+            if ('' !== $row['checksum']) {
+                $byChecksum[$row['checksum']][] = $row['name'];
+            }
+        }
+        foreach ($rows as $row) {
+            $name = $row['name'];
+            $inUse = [];
+            foreach ($pointers as $key => $points) {
+                if ($points === $name) {
+                    $inUse[] = $key;
+                }
+            }
+            $same = array_diff(
+                $byChecksum[$row['checksum']] ?? [],
+                [$name]
+            );
+            $out .= '<tr data-bootfile="' . \Initiator::e($name) . '">';
+            $out .= '<td><code>' . \Initiator::e($name) . '</code>'
+                . (
+                    count($same) ?
+                    '<br><small class="text-muted">'
+                    . _('same contents as')
+                    . ' '
+                    . \Initiator::e(implode(', ', $same))
+                    . '</small>' :
+                    ''
+                )
+                . '</td>';
+            $out .= '<td>'
+                . \Initiator::e($roleLabels[$row['role']] ?? $row['role'])
+                . '</td>';
+            $out .= '<td>'
+                . (
+                    '' !== $row['kernelVersion'] ?
+                    \Initiator::e($row['kernelVersion']) :
+                    '<span class="text-muted">' . _('not readable')
+                    . '</span>'
+                )
+                . '</td>';
+            $out .= '<td>'
+                . (
+                    '' !== $row['releaseTag'] ?
+                    \Initiator::e($row['releaseTag']) :
+                    '<span class="text-muted">'
+                    . \Initiator::e($row['tagReason'])
+                    . '</span>'
+                )
+                . '</td>';
+            $out .= '<td>' . \Initiator::e(self::formatByteSize($row['size']))
+                . '</td>';
+            $out .= '<td>'
+                . \Initiator::e(
+                    self::formatTime('@' . $row['mtime'], 'Y-m-d H:i')
+                )
+                . '</td>';
+            $out .= '<td>'
+                . (
+                    count($inUse) ?
+                    '<span class="badge text-bg-primary">'
+                    . \Initiator::e(implode('</span> <span '
+                        . 'class="badge text-bg-primary">', $inUse))
+                    . '</span>' :
+                    '<span class="text-muted">&mdash;</span>'
+                )
+                . '</td>';
+            $out .= '<td>'
+                . (
+                    $row['pinned'] ?
+                    '<span class="badge text-bg-success">' . _('Kept')
+                    . '</span>' :
+                    '<span class="text-muted">&mdash;</span>'
+                )
+                . '</td>';
+            if ($mayEdit) {
+                $out .= '<td>' . $this->_bootFileActions($row, $inUse)
+                    . '</td>';
+            }
+            $out .= '</tr>';
+        }
+        $out .= '</tbody></table></div>';
+
+        return $out;
+    }
+    /**
+     * The per-row controls: keep, set as a default, delete.
+     *
+     * Delete is refused for a file a default points at and for one that is
+     * kept, and the button is simply absent in those cases rather than
+     * present and failing -- the POST handler refuses it too, because a
+     * missing button is a UI courtesy and not a rule.
+     *
+     * @param array $row   one bootFileInfo() record
+     * @param array $inUse setting keys currently naming this file
+     *
+     * @return string
+     */
+    private function _bootFileActions(array $row, array $inUse)
+    {
+        $name = \Initiator::e($row['name']);
+        $keys = self::_defaultKeysFor($row['role']);
+        $out = '<div class="btn-group btn-group-sm" role="group">';
+        $out .= '<button type="button" class="btn btn-secondary '
+            . 'fog-bootfile-keep" data-name="' . $name . '" data-keep="'
+            . ($row['pinned'] ? '0' : '1') . '">'
+            . ($row['pinned'] ? _('Stop keeping') : _('Keep'))
+            . '</button>';
+        if (count($keys)) {
+            $out .= '<button type="button" class="btn btn-primary '
+                . 'dropdown-toggle" data-bs-toggle="dropdown" '
+                . 'aria-expanded="false">'
+                . _('Set as')
+                . '</button><ul class="dropdown-menu">';
+            foreach ($keys as $key => $label) {
+                $out .= '<li><a class="dropdown-item fog-bootfile-default" '
+                    . 'href="#" data-name="' . $name . '" data-key="'
+                    . \Initiator::e($key) . '">'
+                    . \Initiator::e($label)
+                    . '</a></li>';
+            }
+            $out .= '</ul>';
+        }
+        $out .= '</div>';
+        if (!count($inUse) && !$row['pinned']) {
+            $out .= ' <button type="button" class="btn btn-sm btn-danger '
+                . 'fog-bootfile-delete" data-name="' . $name . '">'
+                . _('Delete')
+                . '</button>';
+        }
+
+        return $out;
+    }
     private function _downloadView($type)
     {
         $isKernel = ($type === 'kernel');
@@ -1670,14 +2248,44 @@ class FOGConfigurationPage extends FOGPage
             'info'
         );
 
+        /**
+         * Two tabs in the card that used to hold one table. The releases
+         * available to download were the only thing this page could say, so
+         * "what do I already have, and what is it" had nowhere to be asked.
+         *
+         * The release table stays tab one, and stays the active pane on
+         * arrival: its DataTable initializes at page load and computes
+         * column widths, which it cannot do correctly while hidden.
+         *
+         * false, not the default -1: that would ask getClass() to resolve an
+         * entity for node 'about', and there is none. certificates() in this
+         * file passes false for the same reason.
+         */
+        $tabData = [
+            [
+                'name' => _('Available downloads'),
+                'id' => $type . '-releases',
+                'generator' => function () use ($buttons) {
+                    echo $this->process(
+                        12,
+                        'dataTable',
+                        $buttons,
+                        'display table table-bordered table-striped'
+                    );
+                }
+            ],
+            [
+                'name' => _('Local files'),
+                'id' => $type . '-local',
+                'generator' => function () {
+                    echo $this->_bootFileTable();
+                }
+            ]
+        ];
+
         echo $this->_box(
             $this->title,
-            $this->process(
-                12,
-                'dataTable',
-                $buttons,
-                'display table table-bordered table-striped'
-            ),
+            self::tabFields($tabData, false),
             [
                 'id' => $type . '-update',
                 'help' => $help,
