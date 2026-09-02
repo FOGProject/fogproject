@@ -2960,22 +2960,58 @@ class OpenAPI extends FOGBase
                     $json(['type' => 'object'], _('Log contents.'))
                 )
             ],
+            '/unisearch' => [
+                'get' => self::_op(
+                    '',
+                    'unisearch',
+                    _('Search every class at once'),
+                    _('The term goes in q. limit caps results PER CLASS, not '
+                        . 'overall, and this route is not paged -- there is no '
+                        . 'nextUrl to follow. Within a class, names that start '
+                        . 'with the term sort first. Both fields may also be '
+                        . 'sent as POST body fields. Also reachable as /search.'),
+                    $json(['type' => 'object'], _('Grouped matches.')),
+                    [
+                        [
+                            'name' => 'q',
+                            'in' => 'query',
+                            'required' => true,
+                            'schema' => ['type' => 'string'],
+                            'description' => _('Text to match against the name '
+                                . '(and the id, when the text is a whole number). '
+                                . 'Matched literally: % and _ are not wildcards.')
+                        ],
+                        [
+                            'name' => 'limit',
+                            'in' => 'query',
+                            'required' => false,
+                            'schema' => ['type' => 'integer', 'minimum' => 0],
+                            'description' => _('Maximum rows per class; 0 or '
+                                . 'absent means no cap.')
+                        ]
+                    ]
+                )
+            ],
             '/unisearch/{item}' => [
                 'parameters' => [
                     [
                         'name' => 'item',
                         'in' => 'path',
                         'required' => true,
-                        'schema' => ['type' => 'string']
+                        'schema' => ['type' => 'string'],
+                        'description' => _('The term. Because it is a path '
+                            . 'segment, a term containing / ? # or % cannot '
+                            . 'travel this way; use /unisearch?q= instead.')
                     ]
                 ],
                 'get' => self::_op(
                     '',
                     'unisearch',
-                    _('Search every class at once'),
-                    _('An optional trailing integer caps results PER CLASS, not '
-                        . 'overall, and this route is not paged -- there is no '
-                        . 'nextUrl to follow. Also reachable as /search.'),
+                    _('Search every class at once (path form)'),
+                    _('The older spelling of /unisearch?q=. An optional trailing '
+                        . 'integer caps results PER CLASS, not overall, and this '
+                        . 'route is not paged -- there is no nextUrl to follow. '
+                        . 'Also reachable as /search.'),
                     $json(['type' => 'object'], _('Grouped matches.'))
                 )
             ],
