@@ -39,9 +39,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -114,9 +116,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 imgfetch ${boot-url}/service/ipxe/refind.conf
 chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -194,9 +198,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 imgfetch ${boot-url}/service/ipxe/refind.conf
 chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -280,9 +286,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 imgfetch ${boot-url}/service/ipxe/refind.conf
 chain -ar ${boot-url}/service/ipxe/refind_ia32.efi || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_i586
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_i586 || goto MENU
 :fog.reginput
 kernel bzImage32 loglevel=4 initrd=init_32.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init_32.xz
@@ -359,7 +367,7 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
 :fog.memtest
-echo Memtest needs memdisk, which is x86-only -- it cannot run on 64-bit ARM.
+echo Memtest86+ publishes no build for 64-bit ARM, so it cannot run here.
 sleep 5 || goto MENU
 :fog.reginput
 kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
@@ -437,9 +445,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -516,9 +526,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.keyreg
 login
 params
@@ -620,9 +632,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 imgfetch ${boot-url}/service/ipxe/refind.conf
 chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.keyreg
 login
 params
@@ -731,9 +745,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.multijoin
 login
 params
@@ -809,9 +825,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.keyreg
 login
 params
@@ -913,7 +931,7 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
 :fog.memtest
-echo Memtest needs memdisk, which is x86-only -- it cannot run on 64-bit ARM.
+echo Memtest86+ publishes no build for 64-bit ARM, so it cannot run here.
 sleep 5 || goto MENU
 :fog.keyreg
 login
@@ -1020,7 +1038,7 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
 :fog.memtest
-echo Memtest needs memdisk, which is x86-only -- it cannot run on 64-bit ARM.
+echo Memtest86+ publishes no build for 64-bit ARM, so it cannot run here.
 sleep 5 || goto MENU
 :fog.keyreg
 login
@@ -1129,9 +1147,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 imgfetch ${boot-url}/service/ipxe/refind.conf
 chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.keyreg
 login
 params
@@ -1238,7 +1258,7 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
 :fog.memtest
-echo Memtest needs memdisk, which is x86-only -- it cannot run on 64-bit ARM.
+echo Memtest86+ publishes no build for 64-bit ARM, so it cannot run here.
 sleep 5 || goto MENU
 :fog.keyreg
 login
@@ -1345,9 +1365,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.keyreg
 login
 params
@@ -1448,9 +1470,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.multijoin
 login
 params
@@ -1514,9 +1538,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -1590,9 +1616,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -1753,9 +1781,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -1826,9 +1856,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -1899,9 +1931,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 reboot || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -1972,9 +2006,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 exit 0 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2045,9 +2081,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1" || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2118,9 +2156,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="rootnoverify (hd0);chainloader +1" || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2191,9 +2231,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="cdrom --init;map --hook;root (cd0);chainloader (cd0)"" || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2264,9 +2306,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 chain -ar ${boot-url}/service/ipxe/grub.exe --config-file="find --set-root /BOOTMGR;chainloader /BOOTMGR"" || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2339,9 +2383,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 imgfetch ${boot-url}/service/ipxe/refind.conf
 chain -ar ${boot-url}/service/ipxe/refind_x64.efi || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2419,9 +2465,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 imgfetch ${boot-url}/service/ipxe/refind.conf
 chain -ar ${boot-url}/service/ipxe/refind_ia32.efi || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_i586
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_i586 || goto MENU
 :fog.reginput
 kernel bzImage32 loglevel=4 initrd=init_32.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init_32.xz
@@ -2498,7 +2546,7 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 chain -ar ${boot-url}/service/ipxe/refind_aa64.efi || goto MENU
 :fog.memtest
-echo Memtest needs memdisk, which is x86-only -- it cannot run on 64-bit ARM.
+echo Memtest86+ publishes no build for 64-bit ARM, so it cannot run here.
 sleep 5 || goto MENU
 :fog.reginput
 kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
@@ -2575,9 +2623,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2649,9 +2699,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 reboot || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.keyreg
 login
 params
@@ -2760,9 +2812,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 keymap=uk web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2833,9 +2887,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 keymap=no-latin1 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2906,9 +2962,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 keymap=sr web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -2979,9 +3037,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0 debug rootfstype=ext4 acpi=off storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -3052,9 +3112,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/apps/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz
@@ -3125,9 +3187,11 @@ choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
-kernel memdisk initrd=memtest.bin iso raw
-initrd memtest.bin
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
 boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
 :fog.reginput
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
 imgfetch init.xz

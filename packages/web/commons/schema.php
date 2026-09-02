@@ -4650,3 +4650,13 @@ $this->schema[] = array(
         return true;
     }
 );
+// 288
+$this->schema[] = array(
+    // Memtest86+ 8.10 replaces the 2013 Memtest86+ 5.01 ISO that memdisk
+    // loaded. The new file boots on both legacy BIOS and UEFI, which the
+    // memdisk chain never could (#321). Only a value still at the old
+    // default is moved: a site that pointed this at its own file keeps it.
+    "UPDATE `globalSettings` SET `settingValue`='mt86plus_x86_64' "
+    . "WHERE `settingKey`='FOG_MEMTEST_KERNEL' "
+    . "AND `settingValue`='memtest.bin'",
+);
