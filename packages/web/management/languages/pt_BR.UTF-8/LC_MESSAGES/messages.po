@@ -522,6 +522,10 @@ msgstr ""
 msgid "A provider already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
 
+#, php-format
+msgid "A request is pending since %s for %s."
+msgstr ""
+
 #, fuzzy
 msgid "A role already exists with this name!"
 msgstr "Uma imagem já existe com este nome!"
@@ -546,6 +550,10 @@ msgid "A selected role no longer exists"
 msgstr " não existe mais"
 
 msgid "A server URL and topic endpoint are required"
+msgstr ""
+
+#, php-format
+msgid "A signing request for %s is ready to download. Have your CA sign it, then upload the certificate here."
 msgstr ""
 
 #, fuzzy
@@ -2687,6 +2695,10 @@ msgstr "Falha no download"
 msgid "Download Starting"
 msgstr "Falha no download"
 
+#, fuzzy
+msgid "Download the request"
+msgstr "Falha no download"
+
 msgid "Downloaded file is not a bootable kernel image"
 msgstr ""
 
@@ -3394,7 +3406,7 @@ msgstr ""
 msgid "For service accounts and unattended integrations. The token acts with that user's roles, and the audit log records that you issued it for them."
 msgstr ""
 
-msgid "For sites whose policy is that a private key never moves. Not on this page yet; FOG already does exactly this for storage node certificates, and the same route for the web certificate is tracked as a follow-up."
+msgid "For sites whose policy is that a private key never moves. FOG generates the key on this server and it stays there: download the request, have your CA sign it, and upload the certificate that comes back. The request carries the same names FOG puts in its own certificate, so the result serves netboot as well as browsers."
 msgstr ""
 
 msgid "Forbidden (disallowed Origin)"
@@ -3515,8 +3527,19 @@ msgstr "Geral"
 msgid "General Information"
 msgstr "Informação geral"
 
+#, fuzzy
+msgid "Generate a new signing request"
+msgstr "Nenhum arquivo foi transferido"
+
+#, fuzzy
+msgid "Generate a signing request"
+msgstr "Nenhum arquivo foi transferido"
+
 #, php-format
 msgid "Generated from this server's own routing and model metadata, so it describes the classes and routes this install exposes. The raw document is at %s."
+msgstr ""
+
+msgid "Generating another request makes a new key and replaces this one. A certificate issued from this request would then be refused, so only do that if this request is not going to be signed."
 msgstr ""
 
 msgid "Generic LDAP"
@@ -4681,6 +4704,10 @@ msgstr "Delete Selected"
 #, fuzzy
 msgid "Install selected"
 msgstr "Delete Selected"
+
+#, fuzzy
+msgid "Install the signed certificate"
+msgstr "Não foi possível ler o arquivo tmp."
 
 msgid "Install/Update now"
 msgstr ""
@@ -6260,6 +6287,9 @@ msgid "No query result, use query() first"
 msgstr "Nenhum resultado consulta, use query () primeiro"
 
 msgid "No report text supplied"
+msgstr ""
+
+msgid "No request is pending."
 msgstr ""
 
 msgid "No results found"
@@ -8316,6 +8346,9 @@ msgstr ""
 msgid "Signing is already done on this server. The remaining work is per-client and has to be done by someone at the machine -- that is what makes enrollment a deliberate act rather than something a server can do to a client remotely."
 msgstr ""
 
+msgid "Signing request generated"
+msgstr ""
+
 #, fuzzy
 msgid "Signs In With"
 msgstr "Snapin Run Com"
@@ -9336,6 +9369,10 @@ msgid "That certificate was refused"
 msgstr "Nenhum arquivo foi transferido"
 
 #, fuzzy
+msgid "That file is too large to be a certificate"
+msgstr "não foi capaz de salvar"
+
+#, fuzzy
 msgid "That file is too large to be a certificate or a key"
 msgstr "não foi capaz de salvar"
 
@@ -9730,6 +9767,13 @@ msgstr "Não foi possível ler arquivo temporário"
 
 msgid "The sign-in took too long; please start again"
 msgstr ""
+
+msgid "The signed certificate, or full chain, leaf first (PEM)"
+msgstr ""
+
+#, fuzzy
+msgid "The signing request could not be generated"
+msgstr "Não foi possível ler arquivo temporário"
 
 msgid "The staged plugin no longer matches its manifest."
 msgstr ""
@@ -10485,6 +10529,9 @@ msgstr ""
 #, fuzzy
 msgid "Upload snapin files to a storage group"
 msgstr "Snapin grupo de armazenamento"
+
+msgid "Upload the certificate your CA issued from the request"
+msgstr ""
 
 msgid "Uploaded file too large."
 msgstr ""
