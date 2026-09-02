@@ -95,6 +95,43 @@ $t->check(
     )
 );
 
+// The immediate power actions ride the same convention, and had to be named
+// for it. `powerMulti` -- the obvious name, and the one this shipped as
+// first -- resolves to host.EDIT on the POST, so anyone who could rename a
+// host could shut down the fleet. `taskPowerMulti` carries the `task` prefix
+// and lands on host.task with no change to Authorization at all.
+$t->check(
+    'POST ?sub=taskPowerMulti resolves to host.task',
+    'host.task' === Authorization::resolvePagePermission(
+        'host',
+        'taskPowerMulti',
+        true
+    )
+);
+$t->check(
+    'the name WITHOUT the task prefix would have been host.edit',
+    'host.edit' === Authorization::resolvePagePermission(
+        'host',
+        'powerMulti',
+        true
+    )
+);
+// The endpoint has to exist under that exact name, or the gate is being
+// asserted about a sub nothing answers. Both halves: FOGPageManager::render()
+// resolves the bare name BEFORE appending the Post suffix, so an endpoint
+// implemented only as <sub>Post is never reached and the request is answered
+// by the host list -- 200, valid JSON, and a button that silently does
+// nothing. See FOGPagePost::methodNotAllowed().
+// Reflection rather than method_exists(): with a literal class name and a
+// literal method name phpstan folds the call to a constant true, so the
+// assertion would stop being one.
+$endpoint = new \ReflectionClass(HostManagement::class);
+$t->check(
+    'both halves of the power endpoint exist under the gated name',
+    $endpoint->hasMethod('taskPowerMulti')
+    && $endpoint->hasMethod('taskPowerMultiPost')
+);
+
 // -------------------------------------------------------------------------
 // 2. Which task types a selection of a given size can run.
 // -------------------------------------------------------------------------

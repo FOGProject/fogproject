@@ -494,6 +494,25 @@
     // TASKING TAB
     var taskItem = $('.taskitem'),
         taskModal = $('#task-modal');
+
+    // Shut down, restart and wake take no options, so there is no form to
+    // fetch and no modal to open -- the click IS the action. They post to the
+    // same endpoint the Hosts list uses, with a selection of one, so the two
+    // surfaces cannot drift into behaving differently.
+    $('.powertaskitem').on('click', function(e) {
+        e.preventDefault();
+        var action = $(this).attr('data-power'),
+            $item = $(this);
+        $item.addClass('disabled');
+        $.apiCall(
+            'post',
+            '../management/index.php?node=host&sub=taskPowerMulti',
+            {action: action, hosts: [Common.id]},
+            function(err) {
+                $item.removeClass('disabled');
+            }
+        );
+    });
     taskItem.on('click', function(e) {
         e.preventDefault();
         var taskName = $(this).text();

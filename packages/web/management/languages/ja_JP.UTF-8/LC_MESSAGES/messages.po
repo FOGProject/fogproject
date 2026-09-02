@@ -5791,6 +5791,10 @@ msgid "No hosts associated to this group yet"
 msgstr "このグループにマスターとして関連付けられたスナップインはありません"
 
 #, fuzzy
+msgid "No hosts available"
+msgstr "ノードは利用できません"
+
+#, fuzzy
 msgid "No hosts available to be tasked"
 msgstr "タスクを実行できるホストがありません"
 
@@ -6697,6 +6701,9 @@ msgstr ""
 msgid "Postfix requires an action of login"
 msgstr "Postfix では login アクションが必要です"
 
+msgid "Power"
+msgstr ""
+
 msgid "Power Management"
 msgstr "電源管理"
 
@@ -6706,6 +6713,10 @@ msgstr "電源管理"
 
 msgid "Power Management Task run time"
 msgstr "電源管理タスク実行時刻"
+
+#, php-format
+msgid "Power action sent to %d host(s)"
+msgstr ""
 
 msgid "PowerShell Script"
 msgstr ""
@@ -7210,6 +7221,12 @@ msgstr ""
 
 #, php-format
 msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
+msgstr ""
+
+msgid "Restart"
+msgstr ""
+
+msgid "Restarts the selected machines. As with Shut Down, the FOG client carries this out at its next check-in."
 msgstr ""
 
 msgid "Result"
@@ -7803,6 +7820,10 @@ msgstr "パスワードを変更"
 msgid "Show with"
 msgstr "メニューの表示方法"
 
+#, fuzzy
+msgid "Shut Down"
+msgstr "シャットダウン"
+
 msgid "Shutdown"
 msgstr "シャットダウン"
 
@@ -7812,6 +7833,9 @@ msgstr "展開後にシャットダウン"
 #, fuzzy
 msgid "Shutdown when complete"
 msgstr "完了しました"
+
+msgid "Shuts down the selected machines. The FOG client carries this out at its next check-in, so a machine that is off, or has no client installed, is unaffected."
+msgstr ""
 
 #, fuzzy
 msgid "Sign In"
@@ -9720,6 +9744,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Unknown permission"
+msgstr "不明なデータベースエラー"
+
+#, fuzzy
+msgid "Unknown power action"
 msgstr "不明なデータベースエラー"
 
 msgid "Unknown upload error occurred"
