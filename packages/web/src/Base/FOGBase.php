@@ -3070,6 +3070,25 @@ abstract class FOGBase
         return (array) $output;
     }
     /**
+     * Canonicalize a hardware identifier (system UUID, system serial,
+     * mainboard serial, ...) so a value read at the iPXE/SMBIOS stage and
+     * the value stored from dmidecode compare reliably.
+     *
+     * Trims surrounding whitespace and collapses internal runs of
+     * whitespace to a single space. Case is intentionally left untouched:
+     * the DB uses a case-insensitive collation and any PHP-side comparison
+     * that needs it folds case itself, so the stored value stays faithful
+     * for display.
+     *
+     * @param string|null $value The raw identifier value.
+     *
+     * @return string The canonicalized identifier.
+     */
+    public static function canonicalizeIdentifier($value)
+    {
+        return trim(preg_replace('/\s+/', ' ', (string) ($value ?? '')));
+    }
+    /**
      * Cycle the MACs and return valid.
      *
      * @param string|array $stringlist The MACs to parse.

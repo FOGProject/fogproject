@@ -77,14 +77,31 @@ class HostManager extends FOGManagerController
             '123456789'
         ];
 
+        // Compare blocklist entries case-insensitively so a lowercase
+        // variant (e.g. 'ffffffff-...') cannot slip past.
+        $isBlocked = function ($value, array $list) {
+            foreach ($list as $bad) {
+                if (strcasecmp($value, $bad) === 0) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        // Canonicalize incoming identifiers so they line up with the values
+        // stored from dmidecode (see FOGBase::canonicalizeIdentifier).
+        $sysuuid = self::canonicalizeIdentifier($sysuuid);
+        $mbserial = self::canonicalizeIdentifier($mbserial);
+        $sysserial = self::canonicalizeIdentifier($sysserial);
+
         $filter = [];
-        if (strlen($sysuuid) != 0 && !in_array($sysuuid, $invalidUuids)) {
+        if (strlen($sysuuid) != 0 && !$isBlocked($sysuuid, $invalidUuids)) {
             $filter['sysuuid'] = $sysuuid;
         }
-        if (strlen($mbserial) != 0 && !in_array($mbserial, $invalidMbSerial)) {
+        if (strlen($mbserial) != 0 && !$isBlocked($mbserial, $invalidMbSerial)) {
             $filter['mbserial'] = $mbserial;
         }
-        if (strlen($sysserial) != 0 && !in_array($sysserial, $invalidSysSerial)) {
+        if (strlen($sysserial) != 0 && !$isBlocked($sysserial, $invalidSysSerial)) {
             $filter['sysserial'] = $sysserial;
         }
         if (empty($filter)) {
@@ -99,18 +116,27 @@ class HostManager extends FOGManagerController
             return;
         }
         $highestScore = 0;
+        // Lower-cased view of the (already canonical) filter for a
+        // case-insensitive value comparison below.
+        $normFilter = array_map('strtolower', $filter);
         foreach ($Inventories as &$Inventory) {
             $inventoryCompare = [];
             if (strlen($Inventory->sysuuid) != 0) {
-                $inventoryCompare['sysuuid'] = $Inventory->sysuuid;
+                $inventoryCompare['sysuuid'] = strtolower(
+                    self::canonicalizeIdentifier($Inventory->sysuuid)
+                );
             }
             if (strlen($Inventory->mbserial) != 0) {
-                $inventoryCompare['mbserial'] = $Inventory->mbserial;
+                $inventoryCompare['mbserial'] = strtolower(
+                    self::canonicalizeIdentifier($Inventory->mbserial)
+                );
             }
             if (strlen($Inventory->sysserial) != 0) {
-                $inventoryCompare['sysserial'] = $Inventory->sysserial;
+                $inventoryCompare['sysserial'] = strtolower(
+                    self::canonicalizeIdentifier($Inventory->sysserial)
+                );
             }
-            $score = count(array_intersect($inventoryCompare, $filter));
+            $score = count(array_intersect($inventoryCompare, $normFilter));
             if ($score > $highestScore) {
                 $highestScore = $score;
                 $hostID = $Inventory->hostID;
