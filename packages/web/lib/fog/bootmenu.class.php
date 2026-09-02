@@ -220,12 +220,25 @@ class BootMenu extends FOGBase
         return $default;
     }
     /**
-     * The memtest boot lines, or a refusal on an architecture that cannot
-     * run memdisk.
+     * The memtest boot lines, or a refusal on an architecture that has no
+     * Memtest86+ build.
      *
-     * memdisk is a 16-bit x86 real-mode loader. There is no aarch64 build
-     * of it and there never will be, so on ARM the menu entry and the
-     * scheduled task could only ever fail -- the entry dropping the
+     * Memtest86+ 6.0 and later is a single file that boots two ways: a
+     * legacy BIOS loads it through the Linux boot protocol, so iPXE boots
+     * it with `kernel`; UEFI firmware loads it as a PE, so iPXE boots it
+     * with `chain`. Which one this client needs is what ${platform} says.
+     * The memdisk chain this replaced (memdisk + a Memtest86+ 5.01 ISO)
+     * was a 16-bit loader that UEFI clients refused with "Exec format
+     * error" (#321).
+     *
+     * `chain` does not return on success, so on UEFI the lines after it
+     * are only reached on failure. The BIOS branch is jumped over rather
+     * than left to `||` fall-through, because `iseq ... && chain ... ||
+     * kernel ...` would run the BIOS loader on a UEFI client whose chain
+     * had just failed.
+     *
+     * Upstream publishes no aarch64 build, so on ARM the menu entry and
+     * the scheduled task could only ever fail -- the entry dropping the
      * machine back to the menu with an iPXE error, the task leaving it at
      * a bare prompt with nothing said about why.
      *
@@ -237,16 +250,18 @@ class BootMenu extends FOGBase
     {
         if (self::_archIsArm()) {
             return array(
-                'echo Memtest needs memdisk, which is x86-only -- it '
-                . 'cannot run on 64-bit ARM.',
+                'echo Memtest86+ publishes no build for 64-bit ARM, so it '
+                . 'cannot run here.',
                 'sleep 5' . $onFail,
             );
         }
 
         return array(
-            "$this->_memdisk iso raw",
-            $this->_memtest,
+            'iseq ${platform} efi && goto fog.memtest.efi ||',
+            "kernel $this->_memtest",
             'boot' . $onFail,
+            ':fog.memtest.efi',
+            "chain $this->_memtest" . $onFail,
         );
     }
     /**
@@ -527,6 +542,11 @@ class BootMenu extends FOGBase
         if ('i386' === $rawArch) {
             $archId = 'i386';
             $bzImage = $bzImage32;
+            // The 32-bit Memtest86+ build. Set before HOST_EDIT_SETTINGS so
+            // a plugin that repoints $memtest at its own node (Location
+            // does) repoints the right file. Not a setting: nothing else
+            // about the i386 profile is configurable either (#321).
+            $memtest = 'mt86plus_i586';
             $imagefile = $init_32;
         } elseif (false !== stripos($rawArch, 'arm')) {
             $archId = 'arm64';
@@ -607,7 +627,11 @@ class BootMenu extends FOGBase
         $this->_booturl = self::$httpproto
             . "://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
-        $this->_memtest = "initrd $memtest";
+        // The bare file, not "initrd $memtest": _memtestChoice() boots it
+        // with kernel or chain, and memdisk is no longer part of that path.
+        // _memdisk is still built and still handed to IPXE_EDIT because a
+        // custom entry may chain a floppy or ISO image through it.
+        $this->_memtest = $memtest;
         $StorageNodes = (array)self::getClass('StorageNodeManager')
             ->find(
                 array(
