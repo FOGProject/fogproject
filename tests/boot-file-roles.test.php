@@ -50,7 +50,19 @@ function fixtureX86Kernel($version = '')
 {
     $buf = str_repeat("\x00", 4096);
     $buf = substr_replace($buf, 'MZ', 0, 2);
+    /**
+     * A real PE header, not just the MZ stub, and a boot protocol from this
+     * decade. Measured off a real service/ipxe: every bzImage there is
+     * 0x020f with a PE signature at the offset 0x3c records, and grub.exe
+     * and memdisk are 0x0203 with no PE at all. HdrS alone does not
+     * distinguish a kernel from either of them, which is what the first
+     * version of the classifier got wrong -- so a fixture that carries only
+     * HdrS is not a kernel-shaped file and must not be used as one.
+     */
+    $buf = substr_replace($buf, pack('V', 0x40), 0x3c, 4);
+    $buf = substr_replace($buf, "PE\x00\x00", 0x40, 4);
     $buf = substr_replace($buf, 'HdrS', 0x202, 4);
+    $buf = substr_replace($buf, pack('v', 0x020f), 0x206, 2);
     if ($version !== '') {
         // 0x300 in the file is 0x100 past the 0x200 the field is relative to.
         $buf = substr_replace($buf, pack('v', 0x100), 0x20e, 2);
@@ -66,6 +78,49 @@ function fixtureX86Kernel($version = '')
 }
 
 /**
+ * grub4dos: MZ and a setup header, an old boot protocol, and NO PE header.
+ *
+ * It reports a version banner too ("2.6.13.1 (mdv@localhost)"), because it
+ * is built to be loaded the way a kernel is loaded. This is the file the
+ * report named, and the shape that a HdrS-only test calls a FOS Kernel.
+ *
+ * @return string
+ */
+function fixtureGrubShaped()
+{
+    $buf = str_repeat("\x00", 4096);
+    $buf = substr_replace($buf, 'MZ', 0, 2);
+    $buf = substr_replace($buf, 'HdrS', 0x202, 4);
+    $buf = substr_replace($buf, pack('v', 0x0203), 0x206, 2);
+    $buf = substr_replace($buf, pack('v', 0x100), 0x20e, 2);
+    $banner = '2.6.13.1 (mdv@localhost)';
+    $buf = substr_replace($buf, $banner . "\x00", 0x300, strlen($banner) + 1);
+
+    return $buf;
+}
+
+/**
+ * syslinux memdisk: a setup header, an old boot protocol, and not even MZ.
+ *
+ * Reports "MEMDISK 3.86 2010-04-01" as its version. FOG_MEMTEST_KERNEL
+ * legitimately points at this, so it has to remain a payload rather than
+ * disappearing -- and it must never be a kernel.
+ *
+ * @return string
+ */
+function fixtureMemdiskShaped()
+{
+    $buf = str_repeat("\x00", 4096);
+    $buf = substr_replace($buf, 'HdrS', 0x202, 4);
+    $buf = substr_replace($buf, pack('v', 0x0203), 0x206, 2);
+    $buf = substr_replace($buf, pack('v', 0x100), 0x20e, 2);
+    $banner = 'MEMDISK 3.86 2010-04-01';
+    $buf = substr_replace($buf, $banner . "\x00", 0x300, strlen($banner) + 1);
+
+    return $buf;
+}
+
+/**
  * An arm64 Image: header magic 'ARMd' at 0x38, and PE as well because the
  * EFI stub is built in. No version field exists in this header.
  *
@@ -75,6 +130,8 @@ function fixtureArmKernel()
 {
     $buf = str_repeat("\x00", 4096);
     $buf = substr_replace($buf, 'MZ', 0, 2);
+    $buf = substr_replace($buf, pack('V', 0x40), 0x3c, 4);
+    $buf = substr_replace($buf, "PE\x00\x00", 0x40, 4);
     $buf = substr_replace($buf, 'ARMd', 0x38, 4);
 
     return $buf;
@@ -89,7 +146,31 @@ function fixtureArmKernel()
  */
 function fixturePeBinary()
 {
-    return 'MZ' . str_repeat('X', 4094);
+    $buf = str_repeat("\x00", 4096);
+    $buf = substr_replace($buf, 'MZ', 0, 2);
+    $buf = substr_replace($buf, pack('V', 0x80), 0x3c, 4);
+    $buf = substr_replace($buf, "PE\x00\x00", 0x80, 4);
+    // No HdrS: an EFI application is not loaded through the Linux boot
+    // protocol, so it has no setup header to carry one.
+    return $buf;
+}
+
+/**
+ * A raw binary image with no recognizable header at all -- memtest.bin, and
+ * the memdisk shipped in the repo tree.
+ *
+ * NUL bytes matter: an all-printable stand-in is TEXT, and text is not a
+ * boot payload. Three fixtures here were ASCII fillers until the text rule
+ * caught them, which is a fair reminder that a fixture has to have the
+ * shape of the thing it stands for.
+ *
+ * @param string $tag byte to fill with, so two images differ
+ *
+ * @return string
+ */
+function fixtureRawImage($tag)
+{
+    return str_repeat($tag . "\x00\xfe\x7f", 1024);
 }
 
 $dir = dirname(FOG_CACHE_DIR) . '/service/ipxe';
@@ -115,9 +196,16 @@ $fixtures = [
     ],
     'arm_init.cpio.gz' => ["\x1f\x8b" . str_repeat('g', 512), 'init'],
     'customInit.lz4' => ["\x04\x22\x4d\x18" . str_repeat('l', 512), 'init'],
-    'memdisk' => [str_repeat('D', 4096), 'payload'],
-    'memtest.bin' => [str_repeat('T', 4096), 'payload'],
-    'grub.exe' => [fixturePeBinary(), 'payload'],
+    'memdisk' => [fixtureRawImage('D'), 'payload'],
+    'memtest.bin' => [fixtureRawImage('T'), 'payload'],
+    /**
+     * The two the report named that a setup-header test alone gets WRONG.
+     * Both carry HdrS and a version banner; neither is a FOS Kernel.
+     */
+    'grub.exe' => [fixtureGrubShaped(), 'payload'],
+    'memdisk.real' => [fixtureMemdiskShaped(), 'payload'],
+    // Plain text left by a backup script. Not bootable, so not a payload.
+    'refind.conf.new' => ["timeout 20\nscanfor manual\n", 'unclassified'],
     'refind.efi' => [fixturePeBinary(), 'payload'],
     'refind_x64.efi' => [fixturePeBinary(), 'payload'],
     'refind.efi.new' => [fixturePeBinary(), 'payload'],
@@ -280,9 +368,21 @@ $t->check(
     'an arm64 kernel reports no version rather than inventing one',
     '' === $page::bootFileKernelVersion($dir . '/arm_Image')
 );
+/**
+ * A payload CAN report a version banner, and grub.exe does -- it carries a
+ * setup header, so the extractor reads it exactly as it reads a kernel's.
+ * That is the whole trap: a banner says nothing about the role, so the role
+ * must not be inferred from having one.
+ */
 $t->check(
-    'a payload reports no version',
-    '' === $page::bootFileKernelVersion($dir . '/grub.exe')
+    'a file with a setup header reports its banner whatever its role is',
+    '2.6.13.1 (mdv@localhost)'
+    === $page::bootFileKernelVersion($dir . '/grub.exe')
+    && 'payload' === $page::bootFileRole($dir . '/grub.exe')
+);
+$t->check(
+    'a file with no setup header reports no version',
+    '' === $page::bootFileKernelVersion($dir . '/memtest.bin')
 );
 $t->check(
     'a kernel with no version field reports none',

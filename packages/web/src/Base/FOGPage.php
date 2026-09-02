@@ -5828,7 +5828,38 @@ abstract class FOGPage extends FOGBase
         if (self::_looksLikeKernel($head)) {
             return self::BOOT_ROLE_KERNEL;
         }
+        /**
+         * A payload is something the boot menu can CHAIN. Plain text is not,
+         * whatever it is called. The extension list above catches
+         * refind.conf, but a real server had refind.conf.new left by an old
+         * backup script -- the same shape as the refind.efi.new that
+         * started all this -- and a config file offered as a bootable
+         * payload is the same class of wrong, just quieter.
+         */
+        if (self::_looksLikeText($head)) {
+            return self::BOOT_ROLE_OTHER;
+        }
+
         return self::BOOT_ROLE_PAYLOAD;
+    }
+    /**
+     * True when $head is plainly text rather than an image of any kind.
+     *
+     * A NUL byte settles it immediately: no text file has one, and every
+     * boot payload does within the first few hundred bytes. The printable
+     * test then covers a short file that happens to have no NUL yet.
+     *
+     * @param string $head leading bytes of the file
+     *
+     * @return bool
+     */
+    private static function _looksLikeText($head)
+    {
+        if (false !== strpos($head, "\0")) {
+            return false;
+        }
+
+        return 0 === preg_match('/[^\x09\x0a\x0d\x20-\x7e]/', $head);
     }
     /**
      * True when $head carries a Linux kernel image's own header magic.
@@ -5839,20 +5870,89 @@ abstract class FOGPage extends FOGBase
      */
     private static function _looksLikeKernel($head)
     {
-        // x86/x86_64 bzImage: setup header magic, four bytes at 0x202.
-        if (substr($head, 0x202, 4) === 'HdrS') {
-            return true;
-        }
         /**
-         * arm64 Image: header magic 0x644d5241 at 0x38, which is the bytes
-         * 'ARMd'. An arm64 kernel is also a PE image when built with EFI stub
-         * support, so this has to be checked in its own right rather than
-         * inferred from MZ.
+         * arm64 first: an Image has no setup header at all. Its header magic
+         * is 0x644d5241 at 0x38, the bytes 'ARMd'. An arm64 kernel is also a
+         * PE image when built with EFI stub support, so this is checked in
+         * its own right rather than inferred from MZ.
          */
         if (substr($head, 0x38, 4) === 'ARMd') {
             return true;
         }
-        return false;
+        // x86/x86_64: the setup header's own magic, four bytes at 0x202.
+        if (substr($head, 0x202, 4) !== 'HdrS') {
+            return false;
+        }
+        /**
+         * HdrS is necessary and NOT sufficient, which the first version of
+         * this got wrong. Measured against a real service/ipxe:
+         *
+         *   file          MZ   HdrS  protocol  PE header
+         *   bzImage       yes  yes   0x020f    yes
+         *   bzImage32     yes  yes   0x020f    yes
+         *   grub.exe      yes  yes   0x0203    NO
+         *   memdisk       NO   yes   0x0203    NO
+         *
+         * grub4dos and syslinux's memdisk are built to be loaded the way a
+         * kernel is loaded, so they carry a setup header and even a version
+         * banner -- memdisk reports "MEMDISK 3.86 2010-04-01" and grub.exe
+         * reports "2.6.13.1 (mdv@localhost)". On HdrS alone both were
+         * classified as FOS Kernels, which is most of the bug this whole
+         * change set is about.
+         *
+         * Two independent things separate them, and either is enough:
+         *
+         * A GENUINE PE header. Every FOS kernel is an EFI-stub image on all
+         * three architectures -- kernelfetch() already refuses a download
+         * that is not MZ for that reason -- and neither grub.exe nor memdisk
+         * has one. grub.exe is MZ with no PE at e_lfanew; memdisk is not
+         * even MZ.
+         *
+         * Or a BOOT PROTOCOL from this decade. The field at 0x206 is 0x020f
+         * on the real kernels and 0x0203 on both impostors, which is a
+         * 2003-era protocol no FOS kernel has ever spoken. 0x020c is Linux
+         * 3.8, comfortably below the oldest kernel FOS has shipped.
+         *
+         * OR rather than AND, so a hand-compiled kernel built without
+         * CONFIG_EFI_STUB is still recognized on its protocol version.
+         */
+        if (self::_hasPeHeader($head)) {
+            return true;
+        }
+        $proto = @unpack('v', substr($head, 0x206, 2));
+
+        return is_array($proto)
+            && !empty($proto[1])
+            && (int)$proto[1] >= 0x020c;
+    }
+    /**
+     * True when $head is a real PE image, not merely an MZ stub.
+     *
+     * MZ on its own means almost nothing -- every DOS-era executable starts
+     * with it, grub.exe included. The PE signature sits at the offset the
+     * DOS header records at 0x3c, and that indirection is the part a check
+     * for 'MZ' misses.
+     *
+     * @param string $head leading bytes of the file
+     *
+     * @return bool
+     */
+    private static function _hasPeHeader($head)
+    {
+        if (0 !== strpos($head, 'MZ')) {
+            return false;
+        }
+        $at = @unpack('V', substr($head, 0x3c, 4));
+        if (!is_array($at) || empty($at[1])) {
+            return false;
+        }
+        $at = (int)$at[1];
+        // Inside what was read, and past the DOS header it points from.
+        if ($at < 4 || $at > strlen($head) - 4) {
+            return false;
+        }
+
+        return substr($head, $at, 4) === "PE\0\0";
     }
     /**
      * True when $head carries an initramfs archive or compression magic.
