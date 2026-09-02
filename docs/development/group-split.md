@@ -693,8 +693,26 @@ Still open:
    (UNKNOWN-4), so any change to the empty-case spelling is a client-visible
    change. Confirm the trace on a real mode-`ar` host before shipping the
    printer resolver — that is the one piece UNKNOWN-4 could not observe.
-2. **A migration rehearsal** on a 1.5-origin dump, per
-   `docs/development/upgrade-rehearsal.md`, for step 405.
+2. ~~**A migration rehearsal** on a 1.5-origin dump, per
+   `docs/development/upgrade-rehearsal.md`, for step 405.~~ **Done
+   2026-09-02**, and widened to cover steps 410/411 as well since power
+   schedules became the fourth grant. `bin/upgrade-rehearsal-lab.sh` on both
+   profiles (`reh_1510`, `reh_site`), planted at schema 278 and upgraded to
+   412: 81 of 83 constraints present, and the two refusals are the harness's
+   own deliberate plants (`fk_hostMAC_hmHostID`, structural;
+   `fk_nfsGroupMembers_ngmGroupID`, an orphan) — the pair that prove the run
+   is not passing vacuously. All seven foreign keys across the four grant
+   tables landed:
+
+   ```
+   groupSnapinAssoc      gsaGroupID -> groups     gsaSnapinID  -> snapins
+   groupPrinterAssoc     gpaGroupID -> groups     gpaPrinterID -> printers
+   groupModuleAssoc      gmaGroupID -> groups     gmaModuleID  -> modules
+   groupPowerManagement  gpmGroupID -> groups
+   ```
+
+   The counts match `tests/fixtures/upgrade-rehearsal-baseline.txt` exactly,
+   so the CI decay gate is measuring the same database this run did.
 
 ### 2.5 Release targeting — **decided: all of it in 1.6.0**
 
