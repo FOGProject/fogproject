@@ -39,6 +39,7 @@ without any FOG-side change — see below.
 ## Table of contents
 
 - [How FOG uses certificates](#how-fog-uses-certificates)
+- [Where to put a certificate you brought](#where-to-put-a-certificate-you-brought)
 - [How iPXE validates HTTPS](#how-ipxe-validates-https)
 - [What `--external-ca` does](#what---external-ca-does)
 - [Recommended: internal ACME CA (step-ca)](#recommended-internal-acme-ca-step-ca)
@@ -85,6 +86,41 @@ The same swap does not have this problem for iPXE — see next section.
 > this document is about. This split is recent — Secure Boot support was added
 > to FOG well after the SSL CA already existed, so older FOG installs (or
 > memories of them) may reasonably recall a single CA doing everything.
+
+---
+
+## Where to put a certificate you brought
+
+`/etc/fog/customizations/pki/`, recorded as `PKI_custom_dir`. Drop the pair in
+under these two names and re-run the installer:
+
+```
+/etc/fog/customizations/pki/web-leaf.pem
+/etc/fog/customizations/pki/web-leaf.key
+```
+
+FOG detects the pair, points `PKI_web_vhost_cert`/`PKI_web_vhost_key` at it, and
+stops re-issuing that leaf. Nothing in `.fogsettings` to edit, and no symlink to
+make. Both files are required and must be a genuine pair; a missing or
+mismatched key is not adopted, and FOG carries on with its own certificate
+rather than leaving a web server that cannot start.
+
+It is a **sibling** of `$(_pkiRootDir)`, never a directory inside it — FOG
+decides whether a leaf is its own by asking whether the canonical path resolves
+inside the web zone, so a certificate written into `/etc/fog/pki/web/leaf/`
+(equivalently `/opt/fog/pki/web/leaf/`, which is the same directory through a
+symlink) is read as FOG's and regenerated over.
+
+The alternatives — symlinking the canonical path at your file, or recording your
+real path in `.fogsettings` — both still work and are described in
+[PKI_ZONES.md](PKI_ZONES.md). See
+[ADR 0040](adr/0040-certificates-you-bring-live-in-a-customizations-tree.md) for
+why the directory is where it is, and why it is not
+`$fogprogramdir/customizations`.
+
+**None of this changes the fog-client problem above.** Adopting a publicly
+issued leaf makes the browser and iPXE happy; `ca.cert.der` is still FOG's own
+root, which is what fog-client pins. Read the caveats before rolling one out.
 
 ---
 
