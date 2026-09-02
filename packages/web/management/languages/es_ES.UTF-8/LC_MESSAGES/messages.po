@@ -1763,6 +1763,9 @@ msgstr "Crear nuevo grupo"
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
+msgid "Change what the request asks for (optional)"
+msgstr ""
+
 msgid "Changing a retention window requires the audit manage permission"
 msgstr ""
 
@@ -1825,6 +1828,9 @@ msgid "Choose a user"
 msgstr ""
 
 msgid "Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else."
+msgstr ""
+
+msgid "City or locality (L)"
 msgstr ""
 
 #, fuzzy
@@ -1925,6 +1931,9 @@ msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_I
 msgstr ""
 
 msgid "Command"
+msgstr ""
+
+msgid "Common name (CN)"
 msgstr ""
 
 msgid "Complete"
@@ -2125,6 +2134,10 @@ msgid "Could not stage the passphrase"
 msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
+msgid "Could not stage the request details"
+msgstr "No se pudo leer el archivo tmp."
+
+#, fuzzy
 msgid "Could not stage the upload."
 msgstr "No se pudo leer el archivo tmp."
 
@@ -2159,6 +2172,9 @@ msgstr "Contador de la CPU"
 #, fuzzy
 msgid "Count failed"
 msgstr "Carga ha fallado: %s"
+
+msgid "Country code (C), two letters"
+msgstr ""
 
 msgid "Create"
 msgstr "Crear"
@@ -5376,6 +5392,9 @@ msgstr ""
 msgid "Leave empty unless this node is its own FOG server"
 msgstr ""
 
+msgid "Left as it is, FOG asks for the names it would put in its own certificate, under its own organization. Fill any of these in and the request carries yours instead. A field left empty is left out of the request rather than filled in with FOG's."
+msgstr ""
+
 msgid "Legacy BIOS (no Secure Boot)"
 msgstr ""
 
@@ -6090,6 +6109,9 @@ msgstr "Nombre"
 msgid "Name. Must be unique."
 msgstr "Evento debe ser una cadena"
 
+msgid "Names the certificate must cover, one per line"
+msgstr ""
+
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
@@ -6591,6 +6613,9 @@ msgstr ""
 msgid "Not yet seen"
 msgstr ""
 
+msgid "Note that the names you asked for do not include the name this server answers to, so netboot and FOG's own calls to itself will not accept the certificate that comes back."
+msgstr ""
+
 msgid "Nothing is in that directory yet."
 msgstr ""
 
@@ -6831,7 +6856,15 @@ msgstr ""
 msgid "Order"
 msgstr ""
 
+#, fuzzy
+msgid "Organization (O)"
+msgstr "Unidad organizacional"
+
 msgid "Organizational Unit"
+msgstr "Unidad organizacional"
+
+#, fuzzy
+msgid "Organizational unit (OU)"
 msgstr "Unidad organizacional"
 
 msgid "Other"
@@ -7290,6 +7323,9 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
+msgstr ""
+
+msgid "Pre-filled with what FOG would ask for. Prefix an address with IP: if it is not obvious. Removing this server's own name is allowed and warned about: netboot and FOG's own calls to itself address it by a name the certificate carries."
 msgstr ""
 
 msgid "Preference key or value is not storable"
@@ -8910,6 +8946,9 @@ msgstr "Guardar cambios"
 #, fuzzy
 msgid "State filter"
 msgstr "actualización de la impresora ha fallado!"
+
+msgid "State or province (ST)"
+msgstr ""
 
 msgid "Status"
 msgstr "Estado"
@@ -11932,6 +11971,10 @@ msgstr ""
 
 msgid "online, tcp port"
 msgstr ""
+
+#, fuzzy
+msgid "optional"
+msgstr "Acción"
 
 #, fuzzy
 msgid "or"

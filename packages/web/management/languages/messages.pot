@@ -1507,6 +1507,9 @@ msgstr ""
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
+msgid "Change what the request asks for (optional)"
+msgstr ""
+
 msgid "Changing a retention window requires the audit manage permission"
 msgstr ""
 
@@ -1566,6 +1569,9 @@ msgid "Choose a user"
 msgstr ""
 
 msgid "Choose the timezone dates and times are shown to you in. This changes only what you see; nothing about what is stored, and nothing for anyone else."
+msgstr ""
+
+msgid "City or locality (L)"
 msgstr ""
 
 msgid "Class"
@@ -1653,6 +1659,9 @@ msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_I
 msgstr ""
 
 msgid "Command"
+msgstr ""
+
+msgid "Common name (CN)"
 msgstr ""
 
 msgid "Complete"
@@ -1816,6 +1825,9 @@ msgstr ""
 msgid "Could not stage the passphrase"
 msgstr ""
 
+msgid "Could not stage the request details"
+msgstr ""
+
 msgid "Could not stage the upload."
 msgstr ""
 
@@ -1844,6 +1856,9 @@ msgid "Count %s"
 msgstr ""
 
 msgid "Count failed"
+msgstr ""
+
+msgid "Country code (C), two letters"
 msgstr ""
 
 msgid "Create"
@@ -4514,6 +4529,9 @@ msgstr ""
 msgid "Leave empty unless this node is its own FOG server"
 msgstr ""
 
+msgid "Left as it is, FOG asks for the names it would put in its own certificate, under its own organization. Fill any of these in and the request carries yours instead. A field left empty is left out of the request rather than filled in with FOG's."
+msgstr ""
+
 msgid "Legacy BIOS (no Secure Boot)"
 msgstr ""
 
@@ -5105,6 +5123,9 @@ msgstr ""
 msgid "Name. Must be unique."
 msgstr ""
 
+msgid "Names the certificate must cover, one per line"
+msgstr ""
+
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
@@ -5537,6 +5558,9 @@ msgstr ""
 msgid "Not yet seen"
 msgstr ""
 
+msgid "Note that the names you asked for do not include the name this server answers to, so netboot and FOG's own calls to itself will not accept the certificate that comes back."
+msgstr ""
+
 msgid "Nothing is in that directory yet."
 msgstr ""
 
@@ -5749,7 +5773,13 @@ msgstr ""
 msgid "Order"
 msgstr ""
 
+msgid "Organization (O)"
+msgstr ""
+
 msgid "Organizational Unit"
+msgstr ""
+
+msgid "Organizational unit (OU)"
 msgstr ""
 
 msgid "Other"
@@ -6130,6 +6160,9 @@ msgid "PowerShell Script"
 msgstr ""
 
 msgid "PowerShell x64 Script"
+msgstr ""
+
+msgid "Pre-filled with what FOG would ask for. Prefix an address with IP: if it is not obvious. Removing this server's own name is allowed and warned about: netboot and FOG's own calls to itself address it by a name the certificate carries."
 msgstr ""
 
 msgid "Preference key or value is not storable"
@@ -7497,6 +7530,9 @@ msgid "State changes"
 msgstr ""
 
 msgid "State filter"
+msgstr ""
+
+msgid "State or province (ST)"
 msgstr ""
 
 msgid "Status"
@@ -10122,6 +10158,9 @@ msgid "online (icmp echo)"
 msgstr ""
 
 msgid "online, tcp port"
+msgstr ""
+
+msgid "optional"
 msgstr ""
 
 msgid "or"
