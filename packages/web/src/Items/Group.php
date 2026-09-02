@@ -565,7 +565,9 @@ class Group extends FOGController
     /**
      * Creates image packages for all hosts associated.
      *
-     * @param int    $TaskType      the task type id
+     * @param object $TaskType      the tasktype getter's object, as
+     *                              Route::getItem('tasktype') returns it --
+     *                              not a TaskType, and never an id
      * @param string $taskName      the name of the tasking
      * @param bool   $shutdown      whether to shutdown the hosts
      * @param bool   $debug         is tasking debug
@@ -748,7 +750,32 @@ class Group extends FOGController
                     $multicastsessionassocs
                 );
                 $this->_createSnapinTasking($now, -1, $snapinAbortOnFailure);
-            } elseif ($TaskType->isDeploy) {
+            } elseif ($TaskType->isDeploy || $TaskType->isCapture) {
+                // Capture shares the deploy insert: the two differ only by
+                // typeID, which is already a parameter. There used to be no
+                // capture arm at all, so a capture arrived here, matched
+                // nothing, and left without a row -- and the caller then
+                // reported "Tasking created" over an empty tasks table
+                // (#1677). It was reachable from the host list, whose
+                // selection tasking goes through this method on an unsaved
+                // Group for every task type, and from a POST /group/{id}/task.
+                //
+                // Capture is a one-host task type (ttIsAccess='host'):
+                // several hosts writing the same image at once would corrupt
+                // it. The host list refuses a bigger selection before it gets
+                // here; the API does not, so refuse it here too rather than
+                // silently create the race.
+                //
+                // ->name, not ->get('name'): both callers hand this method
+                // the tasktype getter's object, not a TaskType.
+                if ($TaskType->isCapture && count($hostids ?: []) > 1) {
+                    throw new \Exception(
+                        sprintf(
+                            _('%s can only be run on one host at a time'),
+                            $TaskType->name
+                        )
+                    );
+                }
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
                 $Hosts = Route::getList(
