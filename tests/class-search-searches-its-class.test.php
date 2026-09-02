@@ -111,7 +111,7 @@ function searchStripComments($code)
 }
 
 $search = searchMethodBody($src, 'public static function search($class, $item)');
-$uni = searchMethodBody($src, 'public static function unisearch($item, $limit = 0)');
+$uni = searchMethodBody($src, 'public static function unisearch($item = null, $limit = 0)');
 $rows = searchMethodBody($src, 'private static function _searchRows(');
 
 $t->check('_searchRows() exists', '' !== $rows);

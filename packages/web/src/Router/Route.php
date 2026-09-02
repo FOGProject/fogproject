@@ -143,6 +143,20 @@ class Route extends FOGBase
      */
     const IGNORED_PARAM_PREFIX = '_ignore';
     /**
+     * Entries of $searchPages that unisearch() does not query.
+     *
+     * $searchPages is the list of nodes that render a list page, and it is
+     * what plugins register into; "searchable" rides on it because a node
+     * with a grid is, with one exception, a node worth a search bucket. The
+     * exception is spelled here rather than as a second list plugins would
+     * also have to know about: a task's name is its host's, so every hit
+     * would duplicate the host bucket with rows that disappear when the
+     * task completes.
+     *
+     * @var array
+     */
+    const UNSEARCHABLE = ['task'];
+    /**
      * Validated plugin routes, or null before the hook has been fired.
      *
      * @var array|null
@@ -1530,6 +1544,13 @@ class Route extends FOGBase
         // omitted when the caller lacks it, so this route discloses
         // nothing they could not already list.
         self::_registerRoute($r, 'GET', '/system/savedfiltertargets', [__CLASS__, 'savedfiltertargets'], 'savedfiltertargets');
+        // The term as ?q= (or a POST body field), with ?limit=. The path
+        // form below needs a capture that may contain a slash -- which is
+        // what made #1673 possible -- and leaves `?`, `#` and `%` in a term
+        // to the URL parser. This form has neither problem and is what the
+        // sidebar search box sends; the path form stays for callers that
+        // already use it.
+        self::_registerRoute($r, 'GET|POST', '/[search|unisearch]', [__CLASS__, 'unisearch'], 'unisearch');
         self::_registerRoute($r, 'GET|POST', '/[search|unisearch]/[*:item]/[i:limit]?', [__CLASS__, 'unisearch'], 'unisearch');
         self::_registerRoute($r, 'PUT|POST', "{$expandedw}/join", [__CLASS__, 'joining'], 'join');
         self::_registerRoute($r, 'GET', '/availablekernels', [__CLASS__, 'availablekernels'], 'kernelUpdate');
@@ -4651,9 +4672,25 @@ class Route extends FOGBase
      *
      * @return void
      */
-    public static function unisearch($item, $limit = 0)
+    public static function unisearch($item = null, $limit = 0)
     {
         try {
+            if (null === $item) {
+                // The query form. queryParam() rather than filter_input():
+                // on a routed path the latter sees nothing (see queryParam).
+                // The POST body is the fallback because the sidebar box
+                // sends its fields there.
+                $item = self::queryParam('q');
+                if (null === $item) {
+                    $item = filter_input(INPUT_POST, 'q');
+                }
+                $item = (string)$item;
+                $limit = self::queryParam('limit');
+                if (null === $limit) {
+                    $limit = filter_input(INPUT_POST, 'limit');
+                }
+                $limit = (int)$limit;
+            }
             if (empty(trim($limit))) {
                 $limit = 0;
             }
@@ -4667,7 +4704,7 @@ class Route extends FOGBase
                 ['searchPages' => &self::$searchPages]
             );
             foreach (self::$searchPages as &$search) {
-                if ($search == 'task') {
+                if (in_array($search, self::UNSEARCHABLE, true)) {
                     continue;
                 }
                 // Skip entities the acting user may not view; unknown
@@ -4785,17 +4822,35 @@ class Route extends FOGBase
             return null;
         }
         $item = trim($item);
-        $like = '%' . $item . '%';
+        // LIKE's own metacharacters, escaped so the term is matched
+        // literally: "100%" must not match everything and "a_c" must not
+        // match "abc". The escape character is '!' rather than the
+        // backslash default because under NO_BACKSLASH_ESCAPES a backslash
+        // is not an escape at all, and spelling ESCAPE '\\' is then two
+        // characters, which MySQL rejects.
+        $escaped = strtr($item, ['!' => '!!', '%' => '!%', '_' => '!_']);
+        $like = '%' . $escaped . '%';
         $idCol = $classVars['databaseFields']['id'];
         $nameCol = $classVars['databaseFields']['name'];
 
         $j = $w = $g = '';
-        $params = ['item1' => $like, 'item2' => $like];
+        // :prefix ranks: a name that STARTS with the term sorts before one
+        // that merely contains it, so the five rows a LIMIT keeps are the
+        // five a person typing that term meant.
+        $params = ['item2' => $like, 'prefix' => $escaped . '%'];
+        // The id is matched only by a term that could be one, and then
+        // exactly. `id LIKE '%lab%'` cast every row's id to a string to
+        // fail, on every keystroke, on the largest tables.
+        $idArm = '';
+        if (ctype_digit($item)) {
+            $idArm = "`{$idCol}` = :item1 OR ";
+            $params['item1'] = $item;
+        }
         switch ($class) {
             case 'host':
                 $j = "LEFT OUTER JOIN `hostMAC`
                 ON `hosts`.`hostID` = `hostMAC`.`hmHostID`";
-                $w = " OR `hostMAC`.`hmMAC` LIKE :item3";
+                $w = " OR `hostMAC`.`hmMAC` LIKE :item3 ESCAPE '!'";
                 $params['item3'] = $like;
                 $g = "GROUP BY `hosts`.`hostName`";
                 break;
@@ -4819,11 +4874,11 @@ class Route extends FOGBase
                 // the two drift nothing fails -- the values just quietly
                 // become findable again. Calling the real predicate keeps
                 // one rule in one place.
-                $w = " OR `settingValue` LIKE :item3";
+                $w = " OR `settingValue` LIKE :item3 ESCAPE '!'";
                 $params['item3'] = $like;
                 break;
             case 'storagenode':
-                $w = " OR `ngmHostname` LIKE :item3";
+                $w = " OR `ngmHostname` LIKE :item3 ESCAPE '!'";
                 $params['item3'] = $like;
         }
 
@@ -4847,12 +4902,12 @@ class Route extends FOGBase
         $sql = "SELECT `{$idCol}`,`{$nameCol}`
             FROM `{$classVars['databaseTable']}`
         {$j}
-        WHERE (`{$idCol}` LIKE :item1
-        OR `{$nameCol}` LIKE :item2
+        WHERE ({$idArm}`{$nameCol}` LIKE :item2 ESCAPE '!'
         {$w})"
         . (null === $scopeWhere ? '' : " AND {$scopeWhere}")
         . "
-        {$g}";
+        {$g}
+        ORDER BY (`{$nameCol}` LIKE :prefix ESCAPE '!') DESC, `{$nameCol}` ASC";
         if ($limit > 0) {
             $sql .= " LIMIT " . (int)$limit;
         }
@@ -4882,10 +4937,9 @@ class Route extends FOGBase
             //
             // Recomputed here rather than asked of the query, because SQL
             // cannot say which OR arm matched. stripos is the same
-            // substring test the bound '%term%' performs. Where the two
-            // can disagree -- a term containing % or _, which LIKE treats
-            // as a wildcard and stripos does not -- the disagreement drops
-            // the row, which is the safe direction.
+            // substring test the bound '%term%' performs now that LIKE's
+            // metacharacters are escaped above; before that a term with %
+            // or _ made the two disagree.
             if ('setting' === $class) {
                 $sid = (string)$val[$idCol];
                 $skey = (string)$val[$nameCol];

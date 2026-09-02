@@ -5377,12 +5377,15 @@ function setupUniversalSearch() {
     maximumSelectionSize: 1,
     ajax: {
       delay: 250,
-      url: function(params)  {
-        return baseURL + '/' + params.term + '/' + resultLimit;
-      },
+      url: baseURL,
       type: method,
       dataType: 'json',
       cache: false,
+      // Body fields, not path segments: a term may contain / ? # or %,
+      // none of which survives a trip through the URL path.
+      data: function(params) {
+        return {q: params.term, limit: resultLimit};
+      },
       processResults: function (data) {
         var results = [];
 
