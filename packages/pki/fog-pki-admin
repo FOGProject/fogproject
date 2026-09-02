@@ -56,7 +56,7 @@ CONF="/opt/fog/.fog-pki-admin"
 die() { echo "$*" >&2; exit 1; }
 
 [[ $EUID -eq 0 ]] || die "fog-pki-admin must run as root"
-[[ $# -ge 1 ]] || die "usage: fog-pki-admin <status|export|import-root|clear-root|adopt-custom-leaf|import-leaf|set-preference> [args]"
+[[ $# -ge 1 ]] || die "usage: fog-pki-admin <status|export|import-root|clear-root|adopt-custom-leaf|import-leaf|make-leaf-csr|install-leaf-cert|set-preference> [args]"
 
 verb="$1"
 shift
@@ -128,6 +128,11 @@ prefPattern() {
 # private key here would defeat the mechanism rather than extend it.
 slotPath() {
     case "$1" in
+        # The pending signing request. Public material by construction -- a
+        # CSR carries the public key and the names, and is what gets handed
+        # to a CA -- so it belongs in the export slot set rather than needing
+        # a verb of its own.
+        csr)          printf '%s' "$(pendingCsr)" ;;
         root)         printf '%s' "$PKI_ROOT_CERT" ;;
         webca)        printf '%s' "$PKI_WEB_CA_CERT" ;;
         webchain)     printf '%s' "$PKI_WEB_CHAIN" ;;
@@ -431,6 +436,127 @@ certKeyPairMatches() {
 customLeafCert()  { printf '%s' "${PKI_CUSTOM_DIR%/}/web-leaf.pem"; }
 customLeafKey()   { printf '%s' "${PKI_CUSTOM_DIR%/}/web-leaf.key"; }
 customLeafChain() { printf '%s' "${PKI_CUSTOM_DIR%/}/web-leaf-chain.pem"; }
+
+# --- CSR out, certificate in --------------------------------------------------
+#
+# The route for a site whose policy is that a private key never moves. The
+# helper generates the key here, as root, and it goes nowhere: PHP sees the
+# signing request (public) on the way out and the signed certificate (public)
+# on the way back, and the key is paired with it below without ever leaving
+# this directory. Same shape as packages/web/service/nodecert.php, which has
+# signed storage-node requests this way since before this page existed.
+#
+# The pending pair lives in its own subdirectory of the customizations tree
+# so the installer's signal-0 detection (web-leaf.pem + web-leaf.key) cannot
+# see a half-finished request as a certificate to adopt.
+pendingDir() { printf '%s' "${PKI_CUSTOM_DIR%/}/csr"; }
+pendingKey() { printf '%s' "$(pendingDir)/web-leaf.key"; }
+pendingCsr() { printf '%s' "$(pendingDir)/web-leaf.csr"; }
+
+# A name that can go in a certificate: ported from _usableHostname() in
+# lib/common/functions.sh, for the reason everything else here is ported.
+# Drops the empty, "(none)", localhost, and IP literals -- an IP in a DNS
+# SAN is the failure the installer's nameConstraints note describes.
+usableName() {
+    local n
+    for n in "$@"; do
+        n="${n%.}"
+        [[ -z $n ]] && continue
+        [[ ${n,,} == "(none)" ]] && continue
+        [[ $n =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] && continue
+        [[ ${n,,} == localhost || ${n,,} == localhost.* ]] && continue
+        [[ $n =~ ^[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?)*$ ]] || continue
+        printf '%s' "$n"
+        return 0
+    done
+    return 1
+}
+# The subject CN: _certLeafName()'s rule. Never an address, fogserver as the
+# floor because it is already in every certificate FOG issues.
+leafCommonName() {
+    local n
+    n=$(usableName "$(readSetting NET_hostname)") \
+        || n=$(usableName "$(hostname -f 2>/dev/null)" "$(hostname 2>/dev/null)")
+    [[ -n $n ]] && { printf '%s' "$n"; return 0; }
+    printf '%s' "fogserver"
+}
+# The DNS names, one per line: _defaultServerNames() read out of .fogsettings
+# rather than the installer's variables, so the request carries the same set
+# the installer would put in a leaf it issued itself -- which is what makes a
+# certificate signed from it serve netboot (ADR 0018) and not only browsers.
+leafDnsNames() {
+    local -a names=() bases=()
+    local seen="" n short dom fqdn hostname dnsnames domains
+    hostname=$(readSetting NET_hostname)
+    dnsnames=$(readSetting PKI_san_dns_names)
+    domains=$(readSetting PKI_allowed_domain_names)
+    for n in ${hostname} fogserver fog-server ${dnsnames}; do
+        [[ -z $n ]] && continue
+        [[ " $seen " == *" $n "* ]] && continue
+        seen="$seen $n"
+        names+=("$n")
+        bases+=("$n")
+    done
+    short="${hostname%%.*}"
+    if [[ -n $short && " $seen " != *" $short "* ]]; then
+        seen="$seen $short"
+        names+=("$short")
+        bases+=("$short")
+    fi
+    for n in "${bases[@]}"; do
+        [[ $n == *.* ]] && continue
+        for dom in ${domains}; do
+            [[ -z $dom ]] && continue
+            fqdn="${n}.${dom}"
+            [[ " $seen " == *" $fqdn "* ]] && continue
+            seen="$seen $fqdn"
+            names+=("$fqdn")
+        done
+    done
+    printf '%s\n' "${names[@]}"
+}
+# The [alt_names] block for the request: the DNS set above plus the IP set
+# the installer records in PKI_san_ip_addresses.
+leafAltNames() {
+    local n i=0 d=0
+    for n in $(readSetting PKI_san_ip_addresses); do
+        i=$((i + 1))
+        printf 'IP.%d = %s\n' "$i" "$n"
+    done
+    while IFS= read -r n; do
+        [[ -z $n ]] && continue
+        d=$((d + 1))
+        printf 'DNS.%d = %s\n' "$d" "$n"
+    done < <(leafDnsNames)
+}
+
+# Put validated material into the customizations tree and serve it.
+#
+# $1 leaf (exactly one certificate), $2 private key, $3 chain file or "".
+# Shared by import-leaf and install-leaf-cert, so the two routes that bring
+# a certificate in end up running exactly the same code as adopt-custom-leaf
+# from here on -- one validation path, one place that can decide to refuse.
+#
+# Anything already there is kept beside it rather than destroyed. This
+# directory exists for the administrator's own files, so a page that
+# overwrote one without trace would be spending something it does not own.
+installCustomLeaf() {
+    local leaf="$1" key="$2" chain="$3" f
+    mkdir -p "$PKI_CUSTOM_DIR" 2>/dev/null
+    chmod 0700 "$PKI_CUSTOM_DIR" 2>/dev/null
+    for f in "$(customLeafCert)" "$(customLeafKey)" "$(customLeafChain)"; do
+        [[ -e $f ]] && mv -f "$f" "${f}.replaced" 2>/dev/null
+    done
+    install -o root -g root -m 0644 "$leaf" "$(customLeafCert)" 2>/dev/null \
+        || die "could not write $(customLeafCert)"
+    install -o root -g root -m 0600 "$key" "$(customLeafKey)" 2>/dev/null \
+        || die "could not write $(customLeafKey)"
+    if [[ -n $chain && -s $chain ]]; then
+        install -o root -g root -m 0644 "$chain" "$(customLeafChain)" 2>/dev/null \
+            || die "could not write $(customLeafChain)"
+    fi
+    adoptCustomLeaf
+}
 
 # Sort supplied certificate material into a leaf, intermediates, and roots.
 #
@@ -750,6 +876,20 @@ EOF
         "$(jbool $custchain)" "$(jstr "$custsubject")" "$(jstr "$custexpiry")" \
         "$(jbool $custverifies)" "$(jstr "$custroot")"
 
+    # A signing request waiting for its certificate. Public material only:
+    # the subject and the names the request carries, never anything about
+    # the key beside it.
+    csrpresent=0; csrsubject=""; csrnames=""; csrsince=""
+    if [[ -n $PKI_CUSTOM_DIR && -f $(pendingCsr) ]]; then
+        csrpresent=1
+        csrsubject=$(openssl req -in "$(pendingCsr)" -noout -subject 2>/dev/null | sed 's/^subject=//; s/ *= */=/g')
+        csrnames=$(openssl req -in "$(pendingCsr)" -noout -text 2>/dev/null \
+            | grep -A1 'Subject Alternative Name' | tail -n1 | sed 's/^ *//')
+        csrsince=$(date -r "$(pendingCsr)" '+%Y-%m-%d %H:%M' 2>/dev/null)
+    fi
+    printf '  "pending_csr": {"present": %s, "subject": %s, "names": %s, "since": %s},\n' \
+        "$(jbool $csrpresent)" "$(jstr "$csrsubject")" "$(jstr "$csrnames")" "$(jstr "$csrsince")"
+
     printf '  "preferences": {'
     first=1
     for key in $PREF_KEYS; do
@@ -779,8 +919,17 @@ export)
     # with a key appended, cannot leak the extra bytes.
     tmpd=$(mktemp -d) || die "could not create a temporary directory"
     trap 'rm -rf "$tmpd"' EXIT
-    splitBundle "$path" "$tmpd" || die "no certificate found in the ${slot} slot"
     { : > "$out"; } 2>/dev/null || die "could not write to the staging directory"
+    if [[ $slot == csr ]]; then
+        # A signing request, not a certificate: same "re-emitted, never
+        # copied" rule, through the parser that reads its framing.
+        openssl req -in "$path" -out "$out" 2>/dev/null || true
+        [[ -s $out ]] || { rm -f "$out"; die "the pending request did not parse"; }
+        chmod 0644 "$out"
+        echo "OK"
+        exit 0
+    fi
+    splitBundle "$path" "$tmpd" || die "no certificate found in the ${slot} slot"
     for f in "$tmpd"/c*.pem; do
         [[ -f $f ]] || continue
         openssl x509 -in "$f" >> "$out" 2>/dev/null || true
@@ -937,25 +1086,96 @@ import-leaf)
     # destination gives for free: the next installer run adopts it again as
     # signal 0 rather than regenerating over it, and adopt-custom-leaf and this
     # verb end up running exactly the same code.
-    #
-    # Anything already there is kept beside it rather than destroyed. This
-    # directory exists for the administrator's own files, so a page that
-    # overwrote one without trace would be spending something it does not own.
-    mkdir -p "$PKI_CUSTOM_DIR" 2>/dev/null
-    chmod 0700 "$PKI_CUSTOM_DIR" 2>/dev/null
-    for f in "$(customLeafCert)" "$(customLeafKey)" "$(customLeafChain)"; do
-        [[ -e $f ]] && mv -f "$f" "${f}.replaced" 2>/dev/null
-    done
-    install -o root -g root -m 0644 "${tmpd}/leaf.in" "$(customLeafCert)" 2>/dev/null \
-        || die "could not write $(customLeafCert)"
-    install -o root -g root -m 0600 "${tmpd}/key.in" "$(customLeafKey)" 2>/dev/null \
-        || die "could not write $(customLeafKey)"
-    if [[ -s ${tmpd}/chain.in ]]; then
-        install -o root -g root -m 0644 "${tmpd}/chain.in" "$(customLeafChain)" 2>/dev/null \
-            || die "could not write $(customLeafChain)"
-    fi
+    installCustomLeaf "${tmpd}/leaf.in" "${tmpd}/key.in" "${tmpd}/chain.in"
+    ;;
 
-    adoptCustomLeaf
+make-leaf-csr)
+    # No argument. The key and the request are written to a fixed place the
+    # page cannot name, and the request is fetched afterwards through the
+    # export verb's csr slot -- so this verb changes state (a new key) and
+    # sits behind the POST gate, while the download stays a plain GET.
+    #
+    # Every call makes a NEW key. A request you generate replaces the one
+    # pending, and the page says so where the button is; reusing a key across
+    # requests would mean a verb to discard one, for a saving nobody asked for.
+    [[ $# -eq 0 ]] || die "usage: fog-pki-admin make-leaf-csr"
+    [[ -n $PKI_CUSTOM_DIR ]] || die "no customizations directory is configured -- re-run the FOG installer"
+    tmpd=$(mktemp -d) || die "could not create a temporary directory"
+    trap 'rm -rf "$tmpd"' EXIT
+    chmod 0700 "$tmpd" 2>/dev/null
+    cn=$(leafCommonName)
+    altnames=$(leafAltNames)
+    [[ -n $altnames ]] || die "no names to put in the request -- is .fogsettings readable?"
+    cat > "${tmpd}/req.cnf" <<EOF
+[req]
+distinguished_name = req_distinguished_name
+req_extensions = v3_req
+prompt = no
+[req_distinguished_name]
+CN = ${cn}
+O = FOG Project
+OU = FOG Web UI
+[v3_req]
+subjectAltName = @alt_names
+[alt_names]
+${altnames}
+EOF
+    # Same key type and size as _createWebLeaf(), so a certificate issued from
+    # this request is the one the installer would have issued, only signed
+    # elsewhere.
+    ( umask 077 && openssl genrsa -out "${tmpd}/key" 4096 >/dev/null 2>&1 ) \
+        || die "could not generate a private key"
+    openssl req -new -sha512 -key "${tmpd}/key" -config "${tmpd}/req.cnf" \
+        -subj "/CN=${cn}/O=FOG Project/OU=FOG Web UI" -out "${tmpd}/csr" >/dev/null 2>&1 \
+        || die "could not build the signing request"
+    mkdir -p "$(pendingDir)" 2>/dev/null
+    chmod 0700 "$(pendingDir)" 2>/dev/null
+    # 0400 root:root, as ADR 0036's amendment records. Nothing but this helper
+    # ever reads it, and this helper only reads it to pair it with the
+    # certificate that comes back.
+    install -o root -g root -m 0400 "${tmpd}/key" "$(pendingKey)" 2>/dev/null \
+        || die "could not write $(pendingKey)"
+    install -o root -g root -m 0644 "${tmpd}/csr" "$(pendingCsr)" 2>/dev/null \
+        || die "could not write $(pendingCsr)"
+    echo "OK ${cn} $(printf '%s\n' "$altnames" | grep -c .)"
+    ;;
+
+install-leaf-cert)
+    # The signed certificate comes back under a request id: <reqid>.pem (the
+    # leaf, or a fullchain with the leaf first) and optionally <reqid>.chain.
+    # No key is staged -- the pair is the pending one, and the certificate is
+    # refused unless it matches that key, which is the check that makes this
+    # route "no key transits PHP" rather than merely intending it.
+    [[ $# -eq 1 ]] || die "usage: fog-pki-admin install-leaf-cert <request-id>"
+    reqid="$1"
+    [[ $reqid =~ ^[a-f0-9]{32}$ ]] || die "malformed request id"
+    [[ -n $PKI_CUSTOM_DIR ]] || die "no customizations directory is configured -- re-run the FOG installer"
+    stagedPem="${PKI_STAGING}/${reqid}.pem"
+    stagedChain="${PKI_STAGING}/${reqid}.chain"
+    [[ -f $(pendingKey) ]] || die "there is no signing request pending -- generate one first, have it signed, then upload the result"
+    [[ -f $stagedPem ]] || die "no certificate was uploaded"
+
+    tmpd=$(mktemp -d) || die "could not create a temporary directory"
+    trap 'rm -rf "$tmpd"' EXIT
+    chmod 0700 "$tmpd" 2>/dev/null
+    cp "$stagedPem" "${tmpd}/leaf.in"
+    : > "${tmpd}/chain.in"
+    [[ -f $stagedChain ]] && cp "$stagedChain" "${tmpd}/chain.in"
+    # The pending key never leaves its directory: it is read in place for the
+    # pair test and copied by install(1) as root below.
+    mkdir -p "${tmpd}/check" || die "could not create a temporary directory"
+    if ! certKeyPairMatches "${tmpd}/leaf.in" "$(pendingKey)"; then
+        if sortLeafMaterial "${tmpd}/leaf.in" "$(pendingKey)" "${tmpd}/chain.in" "${tmpd}/check" 2>/dev/null; then
+            die "the FIRST certificate in that file is not the one matching the pending request -- put the leaf first, then the intermediates"
+        fi
+        die "that certificate was not issued from the pending request -- its key does not match. Generate a new request if the old one was signed elsewhere, or upload the certificate that was actually issued from it"
+    fi
+    checkLeafMaterial "${tmpd}/leaf.in" "$(pendingKey)" "${tmpd}/chain.in" "${tmpd}/check"
+
+    installCustomLeaf "${tmpd}/leaf.in" "$(pendingKey)" "${tmpd}/chain.in"
+    # Only once it is serving. A refusal above leaves the request pending, so
+    # a wrong upload costs a retry rather than a new round with the CA.
+    rm -rf "$(pendingDir)"
     ;;
 
 set-preference)

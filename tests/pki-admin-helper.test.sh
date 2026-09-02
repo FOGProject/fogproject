@@ -197,6 +197,14 @@ BOOT_rebuild_ipxe_with_my_ca='no'
 BOOT_url_proto='http'
 BOOT_url_proto_forced='no'
 
+## The names make-leaf-csr derives the request from, in the shape the
+## installer records them. NET_hostname carries the domain so the short
+## form and the domain-qualified fogserver names are both exercised.
+NET_hostname='fog.example.org'
+PKI_san_ip_addresses='10.0.0.5'
+PKI_san_dns_names=''
+PKI_allowed_domain_names='example.org'
+
 ## The two cleartext secrets, and a path key. Present in the fixture ON
 ## PURPOSE: without them the allowlist below would be tested by a file that
 ## does not carry the key, so writeSetting's "must already exist" guard would
@@ -672,6 +680,10 @@ printf 'admin-put-this-here\n' > "$CUSTOM/web-leaf.pem"
 id=$(openssl rand -hex 16)
 cp "$WORK/corpleaf.pem" "$STAGING/$id.pem"
 cp "$WORK/corpleaf.key" "$STAGING/$id.key"
+# The intermediate too: corpleaf is issued by the corporate INTERMEDIATE, so
+# without it the helper refuses for want of a trust path and this case was
+# asserting on a refusal rather than on the preservation it is named for.
+cp "$WORK/corpint.pem" "$STAGING/$id.chain"
 "$HELPER" import-leaf "$id" >/dev/null 2>&1
 check "$?" "0" "an upload over an existing file succeeds"
 check "$(cat "$CUSTOM/web-leaf.pem.replaced" 2>/dev/null)" "admin-put-this-here" \
@@ -699,6 +711,110 @@ case "$st" in
 esac
 
 echo
+echo "== make-leaf-csr / install-leaf-cert: the route where no key moves =="
+rm -rf "$CUSTOM/csr"
+rm -f "$CUSTOM/"web-leaf*
+out=$("$HELPER" install-leaf-cert "$(openssl rand -hex 16)" 2>&1)
+check "$?" "1" "install-leaf-cert refuses when no request is pending"
+case "$out" in
+    *"no signing request pending"*) ok "and says so" ;;
+    *) bad "the refusal said: $out" ;;
+esac
+
+out=$("$HELPER" make-leaf-csr 2>&1); st=$?
+check "$st" "0" "make-leaf-csr generates a request"
+check "${out%% *}" "OK" "and reports OK"
+check "$(stat -c '%a %U' "$CUSTOM/csr/web-leaf.key" 2>/dev/null)" "400 root" \
+    "the pending key is 0400 root -- nothing but the helper reads it"
+csrtext=$(openssl req -in "$CUSTOM/csr/web-leaf.csr" -noout -text 2>/dev/null)
+case "$csrtext" in
+    *"CN = fog.example.org"*|*"CN=fog.example.org"*) ok "the request's CN is the recorded hostname" ;;
+    *) bad "the request's subject is wrong: $(openssl req -in "$CUSTOM/csr/web-leaf.csr" -noout -subject)" ;;
+esac
+# The installer's own name set, read back out of .fogsettings: the host, the
+# two fogserver spellings, the short host, and each of those qualified by
+# the allowed domain -- plus the IP. A request missing any of these yields a
+# certificate that browsers accept and iPXE does not (ADR 0018).
+for want in "DNS:fog.example.org" "DNS:fogserver" "DNS:fog-server" "DNS:fog," \
+    "DNS:fogserver.example.org" "DNS:fog-server.example.org" "IP Address:10.0.0.5"; do
+    case "$csrtext" in
+        *"$want"*) ok "the request carries $want" ;;
+        *) bad "the request lacks $want" ;;
+    esac
+done
+
+# The request is public and downloadable through the export slot.
+id=$(openssl rand -hex 16)
+"$HELPER" export csr "$id" >/dev/null 2>&1
+check "$?" "0" "export offers the pending request as a slot"
+openssl req -in "$STAGING/$id.pem" -noout >/dev/null 2>&1
+check "$?" "0" "and what it wrote parses as a request"
+rm -f "$STAGING/$id.pem"
+
+# Status says one is waiting, without saying anything about the key.
+if command -v php >/dev/null 2>&1; then
+    out=$("$HELPER" status 2>&1)
+    php -r '$j=json_decode(file_get_contents("php://stdin"),true);
+        exit($j["pending_csr"]["present"]===true && strpos($j["pending_csr"]["subject"],"fog.example.org")!==false ?0:1);' <<< "$out"
+    check "$?" "0" "status reports the pending request and its subject"
+fi
+
+# Sign it with the corporate intermediate, whose root the earlier import-root
+# case anchored -- re-imported here so this block does not depend on order.
+id=$(stage "$WORK/corp.pem")
+"$HELPER" import-root "$id" >/dev/null 2>&1
+printf 'basicConstraints=critical,CA:FALSE\n' > "$WORK/csrleaf.ext"
+openssl x509 -req -in "$CUSTOM/csr/web-leaf.csr" -CA "$WORK/corpint.pem" -CAkey "$WORK/corpint.key" \
+    -CAcreateserial -days 365 -extfile "$WORK/csrleaf.ext" -copy_extensions copy \
+    -out "$WORK/csrleaf.pem" >/dev/null 2>&1 \
+    || openssl x509 -req -in "$CUSTOM/csr/web-leaf.csr" -CA "$WORK/corpint.pem" -CAkey "$WORK/corpint.key" \
+        -CAcreateserial -days 365 -extfile "$WORK/csrleaf.ext" -out "$WORK/csrleaf.pem" >/dev/null 2>&1
+
+# A certificate from some OTHER key is refused, and refusing leaves both the
+# vhost and the pending request exactly as they were.
+before=$(readlink "$ZONE/leaf/.webLeaf.pem")
+id=$(stage "$WORK/corpleaf.pem")
+cp "$WORK/corpint.pem" "$STAGING/$id.chain"
+out=$("$HELPER" install-leaf-cert "$id" 2>&1)
+check "$?" "1" "install-leaf-cert refuses a certificate not issued from the request"
+case "$out" in
+    *"key does not match"*) ok "and names the mismatch" ;;
+    *) bad "the refusal said: $out" ;;
+esac
+check "$(readlink "$ZONE/leaf/.webLeaf.pem")" "$before" "a refusal leaves the vhost where it was"
+[[ -f "$CUSTOM/csr/web-leaf.key" ]] && ok "and leaves the request pending for a retry" \
+    || bad "a refused upload discarded the pending request"
+rm -f "$STAGING/$id".*
+
+# The right certificate installs, is served, and clears the request.
+id=$(stage "$WORK/csrleaf.pem")
+cp "$WORK/corpint.pem" "$STAGING/$id.chain"
+out=$("$HELPER" install-leaf-cert "$id" 2>&1); st=$?
+check "$st" "0" "install-leaf-cert accepts the certificate issued from the request"
+check "${out%% *}" "OK" "and reports OK"
+check "$(subjectOf "$CUSTOM/web-leaf.pem")" "subject=CN=fog.example.org, O=FOG Project, OU=FOG Web UI" \
+    "the certificate lands in the customizations tree, where the installer will find it again"
+check "$(stat -c '%a' "$CUSTOM/web-leaf.key" 2>/dev/null)" "600" \
+    "the key moved with it and is not group-readable"
+certKeyPairMatchesHere() {
+    [[ $(openssl x509 -pubkey -noout -in "$1") == $(openssl pkey -pubout -in "$2") ]]
+}
+certKeyPairMatchesHere "$CUSTOM/web-leaf.pem" "$CUSTOM/web-leaf.key" \
+    && ok "and it is the pair the request was made from" \
+    || bad "the installed certificate and key are not a pair"
+check "$(readlink "$ZONE/leaf/.webLeaf.pem")" "$CUSTOM/web-leaf.pem" "the vhost now serves it"
+[[ -e "$CUSTOM/csr" ]] && bad "the pending request survived its own installation" \
+    || ok "the pending request is cleared once it is serving"
+rm -f "$STAGING/$id".*
+
+# A new request is a new key, so the old certificate no longer fits it.
+"$HELPER" make-leaf-csr >/dev/null 2>&1
+id=$(stage "$WORK/csrleaf.pem")
+"$HELPER" install-leaf-cert "$id" >/dev/null 2>&1
+check "$?" "1" "a regenerated request refuses the certificate issued from the previous one"
+rm -f "$STAGING/$id".*
+rm -rf "$CUSTOM/csr"
+
 echo "== the helper refuses to run without its config =="
 mv "$CONF" "$CONF.away"
 out=$("$HELPER" status 2>&1)

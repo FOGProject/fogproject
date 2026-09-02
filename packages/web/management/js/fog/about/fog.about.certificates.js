@@ -1,6 +1,7 @@
 /**
  * The Certificates page: import a root CA, remove one, bring your own web
- * server certificate, set the three install preferences.
+ * server certificate (adopt, sign a request, or upload), set the install
+ * preferences.
  *
  * Everything here posts to ?node=about&sub=certificates, which Authorization
  * gates on system.pki for POST and settings.view for GET. A viewer without the
@@ -17,7 +18,10 @@
     clearBtn = $('#pki-clear-root'),
     leafForm = $('#pki-leaf-form'),
     adoptBtn = $('#pki-adopt-leaf'),
-    leafBtn = $('#pki-import-leaf');
+    leafBtn = $('#pki-import-leaf'),
+    csrForm = $('#pki-csr-form'),
+    csrBtn = $('#pki-make-csr'),
+    csrInstallBtn = $('#pki-install-csr');
 
   rootForm.on('submit', function(e) {
     e.preventDefault();
@@ -25,6 +29,52 @@
 
   leafForm.on('submit', function(e) {
     e.preventDefault();
+  });
+
+  csrForm.on('submit', function(e) {
+    e.preventDefault();
+  });
+
+  csrBtn.on('click', function(e) {
+    e.preventDefault();
+    // Only worth a confirmation when a request is already pending: a new one
+    // makes a new key, and a certificate the CA is still signing for the old
+    // request will be refused afterward.
+    if (csrInstallBtn.length && !window.confirm(
+      'Generate a new signing request? The pending one is replaced along '
+      + 'with its key, so a certificate issued from it would be refused.'
+    )) {
+      return;
+    }
+    csrBtn.prop('disabled', true);
+    $.apiCall('post', csrForm.attr('action'), {action: 'makeLeafCsr'},
+      function(err) {
+        csrBtn.prop('disabled', false);
+        if (err) {
+          return;
+        }
+        location.reload();
+      });
+  });
+
+  csrInstallBtn.on('click', function(e) {
+    e.preventDefault();
+    if (!window.confirm(
+      'Install the certificate issued from the pending request, and serve '
+      + 'it? The web server is reloaded, so this takes effect now.'
+    )) {
+      return;
+    }
+    csrInstallBtn.prop('disabled', true);
+    // processForm carries the file inputs and the hidden action together; no
+    // key travels, the pair is the one the server generated.
+    csrForm.processForm(function(err) {
+      csrInstallBtn.prop('disabled', false);
+      if (err) {
+        return;
+      }
+      location.reload();
+    });
   });
 
   importBtn.on('click', function(e) {

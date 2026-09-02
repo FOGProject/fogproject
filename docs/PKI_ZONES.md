@@ -613,7 +613,7 @@ you are telling FOG you know better than its verification.
 
 ### Doing it from the Certificates page instead
 
-The **Web server certificate** tab does the same three things without a shell,
+The **Web server certificate** tab does the same things without a shell,
 gated on `system.pki` (deny by default, so it is invisible until an
 administrator is granted it):
 
@@ -622,6 +622,16 @@ administrator is granted it):
   click rather than on the next installer run. The tab says what is sitting in
   the directory before you commit to it — whether the pair matches, and whether
   a trust path builds.
+- **Have one issued from a signing request.** FOG generates the key on the
+  server at `0400 root:root` and it never leaves; you download the request,
+  your CA signs it, and you upload the certificate that comes back. The
+  request carries the same names the installer puts in its own leaf — the
+  hostname, `fogserver`, `fog-server`, each qualified by the allowed domain,
+  and the recorded IP addresses — so the result serves netboot under
+  [ADR 0018](adr/0018-netboot-addresses-this-server-by-its-certificate-name.md)
+  and not only browsers. A certificate that does not match the pending key is
+  refused, which is what makes "no key transits the web application" a checked
+  property. Generating another request replaces the pending one.
 - **Upload a certificate and its key.** PEM, a fullchain with the leaf first,
   or one PKCS#12 (`.p12`/`.pfx`) file carrying key, leaf and chain together —
   which is what an export from `certlm.msc` or IIS gives you. A passphrase on
