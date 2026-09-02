@@ -3698,6 +3698,9 @@ msgstr ""
 msgid "HTML Error Code"
 msgstr "Erro de código"
 
+msgid "HTTPS netboot is one decision, not three."
+msgstr ""
+
 msgid "Hard - require a valid certificate"
 msgstr ""
 
@@ -4142,6 +4145,9 @@ msgid "If disabled, the client will not make changes until all users are logged 
 msgstr ""
 
 msgid "If that chain loads but the network never comes up, the firmware's own UEFI network stack is at fault. Point the boot filename at"
+msgstr ""
+
+msgid "If the served certificate carries no name the netboot URL could use, the install STOPS and prints the names it does carry, rather than writing a default.ipxe that cannot boot. Re-issue for the name you need, or set this back to http."
 msgstr ""
 
 msgid "If this is an upgrade"
@@ -5514,6 +5520,9 @@ msgstr "imagem atribuída"
 msgid "Machines imaged"
 msgstr "imagem atribuída"
 
+msgid "Machines that PXE boot cannot fix this themselves. That is the whole reason this is a deliberate setting rather than a default."
+msgstr ""
+
 msgid "Main Menu"
 msgstr "Menu principal"
 
@@ -5915,6 +5924,9 @@ msgstr "Evento deve ser uma string"
 #, fuzzy
 msgid "Nested group search failed"
 msgstr "atualização do utilizador falhou"
+
+msgid "Netboot fetches boot.php over"
+msgstr ""
 
 msgid "Network Information"
 msgstr "Informações de rede"
@@ -6462,7 +6474,7 @@ msgstr "Lista de endereços MAC"
 msgid "Off - direct membership only"
 msgstr ""
 
-msgid "Off by default on purpose. Trust in FOG's CA reaches a client when fog-client installs it there, so on a server whose clients are not enrolled yet a forced redirect breaks exactly the machines that cannot fix themselves. Turn it on once trust is in place."
+msgid "Off by default on purpose. Trust in FOG's CA reaches a client when fog-client installs it there, so on a server whose clients are not enrolled yet a forced redirect breaks exactly the machines that cannot fix themselves. Turn it on once trust is in place. It does NOT affect netboot -- that is the separate setting below. Turning it on is not fully reversible: it also sends HSTS, and a browser that has seen that header refuses plain HTTP to this host for six months out of its own cache, whatever this server later says."
 msgstr ""
 
 #, fuzzy
@@ -7988,6 +8000,9 @@ msgid "Self-signed"
 msgstr ""
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
+msgstr ""
+
+msgid "Separate from the HTTP redirect above, which never applies to the paths a bootloader fetches for itself. Choosing https here also FORCES it: the installer stops deriving the transport and keeps what you set. If iPXE cannot validate the certificate this server serves, every netboot stops at boot.php and nothing server-side says why -- so decide it together with the two settings above, not on its own."
 msgstr ""
 
 msgid "Serial Number"
@@ -10194,6 +10209,9 @@ msgstr ""
 msgid "Unclassified"
 msgstr "No nó associado"
 
+msgid "Under https, the netboot URL has to address this server by a name the served certificate actually carries, so FOG_WEB_HOST becomes a record rather than a control -- rewritten on every run, and an edit through FOG Settings will not survive."
+msgstr ""
+
 msgid "Unicast"
 msgstr "unicast"
 
@@ -11256,6 +11274,12 @@ msgstr "1 hora"
 msgid "hr"
 msgstr "Aqui"
 
+msgid "http"
+msgstr ""
+
+msgid "https"
+msgstr ""
+
 #, fuzzy
 msgid "iPXE Config Update Fail"
 msgstr "atualização Snapin falhou"
@@ -11297,6 +11321,9 @@ msgstr "gpxe nova opção no menu"
 #, fuzzy
 msgid "iPXE config successfully stored!"
 msgstr "foi atualizado com sucesso"
+
+msgid "iPXE validates TLS strictly, has no insecure mode, and will not chain a private CA it has never been given. So https netboot works only if the certificate is publicly trusted, or iPXE has been rebuilt with this server's CA embedded."
+msgstr ""
 
 msgid "iPrint Printer"
 msgstr "iPrint Printer"
