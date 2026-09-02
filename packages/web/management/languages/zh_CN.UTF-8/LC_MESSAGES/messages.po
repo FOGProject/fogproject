@@ -196,8 +196,20 @@ msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
+msgid "%s cannot be used as %s."
+msgstr ""
+
+#, php-format
 msgid "%s could not be loaded. Check that %s declares a class of that exact name."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s could not be removed."
+msgstr "已成功更新"
+
+#, fuzzy, php-format
+msgid "%s deleted."
+msgstr "已删除"
 
 #, php-format
 msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
@@ -212,8 +224,20 @@ msgid "%s images"
 msgstr "图片"
 
 #, php-format
+msgid "%s is in use as %s. Point that at another file first."
+msgstr ""
+
+#, php-format
 msgid "%s is maintained by the server and cannot be set"
 msgstr ""
+
+#, php-format
+msgid "%s is marked to be kept. Stop keeping it first."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%s is no longer kept."
+msgstr "不复存在"
 
 #, php-format
 msgid "%s is not a readable .tar.gz archive."
@@ -229,6 +253,10 @@ msgstr ""
 
 #, php-format
 msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
+msgid "%s is now %s."
 msgstr ""
 
 #, php-format
@@ -257,6 +285,10 @@ msgstr ""
 
 #, php-format
 msgid "%s viewed your account on %s."
+msgstr ""
+
+#, php-format
+msgid "%s will be kept."
 msgstr ""
 
 msgid "(all)"
@@ -1267,6 +1299,10 @@ msgstr "默认注销时间（分钟）"
 msgid "Automatic enrollment (Setup/Custom Mode)"
 msgstr ""
 
+#, fuzzy
+msgid "Available downloads"
+msgstr "没有文件被上传"
+
 msgid "BIOS Date"
 msgstr "BIOS日期"
 
@@ -1311,6 +1347,18 @@ msgstr "域密码"
 
 msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
 msgstr ""
+
+#, fuzzy
+msgid "Boot File Deleted"
+msgstr "无法删除文件"
+
+#, fuzzy
+msgid "Boot File Failed"
+msgstr "启动选项："
+
+#, fuzzy
+msgid "Boot File Updated"
+msgstr "服务更新！"
 
 #, fuzzy
 msgid "Boot Files"
@@ -1686,6 +1734,9 @@ msgstr "机箱版本"
 
 #, php-format
 msgid "Check %s over before installing it."
+msgstr ""
+
+msgid "Check FOG_TFTP_PXE_KERNEL_DIR."
 msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
@@ -2352,8 +2403,31 @@ msgid "Default Width"
 msgstr "默认宽度"
 
 #, fuzzy
+msgid "Default init, ARM64"
+msgstr "默认宽度"
+
+#, fuzzy
+msgid "Default init, i386"
+msgstr "默认宽度"
+
+#, fuzzy
+msgid "Default init, x86_64"
+msgstr "默认宽度"
+
+#, fuzzy
 msgid "Default is disabled"
 msgstr "捐款将被禁用"
+
+#, fuzzy
+msgid "Default kernel, ARM64"
+msgstr "默认刷新频率"
+
+#, fuzzy
+msgid "Default kernel, i386"
+msgstr "更新打印机"
+
+msgid "Default kernel, x86_64"
+msgstr ""
 
 #, fuzzy
 msgid "Default nested group depth"
@@ -4478,6 +4552,9 @@ msgstr "在"
 msgid "In FOG"
 msgstr "在"
 
+msgid "In use as"
+msgstr ""
+
 msgid "Include"
 msgstr ""
 
@@ -4857,6 +4934,12 @@ msgid "Join Domain after image task"
 msgstr ""
 
 msgid "Kbps"
+msgstr ""
+
+msgid "Keep"
+msgstr ""
+
+msgid "Kept"
 msgstr ""
 
 msgid "Kernel"
@@ -5259,6 +5342,10 @@ msgstr "加载失败： %s"
 msgid "Loading data to field"
 msgstr "加载数据到现场%s"
 
+#, fuzzy
+msgid "Local files"
+msgstr "位置"
+
 msgid "Location"
 msgstr "位置"
 
@@ -5547,6 +5634,9 @@ msgstr "记忆"
 msgid "Memory limit cannot be less than 128"
 msgstr "菜单项或标题不能为空"
 
+msgid "Memtest payload"
+msgstr ""
+
 #, fuzzy
 msgid "Menu Description"
 msgstr "描述"
@@ -5627,6 +5717,9 @@ msgstr "模型"
 #, fuzzy
 msgid "Models"
 msgstr "模型"
+
+msgid "Modified"
+msgstr ""
 
 #, fuzzy
 msgid "Module"
@@ -5968,6 +6061,10 @@ msgstr ""
 msgid "No file was uploaded"
 msgstr "没有文件被上传"
 
+#, fuzzy
+msgid "No files in the boot directory."
+msgstr "无法创建管理单元工作"
+
 msgid "No files matched multicast image pattern"
 msgstr ""
 
@@ -6128,6 +6225,9 @@ msgstr "图像已经存在具有此名称！"
 #, fuzzy
 msgid "No storagegroups assigned to this snapin"
 msgstr "分配图像存储组无效"
+
+msgid "No such file in the boot directory."
+msgstr ""
 
 msgid "No such filter"
 msgstr ""
@@ -8020,6 +8120,10 @@ msgid "Set Storage Group as Primary for Snapins"
 msgstr "存储组名称"
 
 #, fuzzy
+msgid "Set as"
+msgstr "服务更新失败"
+
+#, fuzzy
 msgid "Set failed"
 msgstr "服务更新失败"
 
@@ -8535,6 +8639,9 @@ msgstr "打印机更新失败！"
 
 msgid "Status"
 msgstr "状态"
+
+msgid "Stop keeping"
+msgstr ""
 
 msgid "Storage"
 msgstr "存储"
@@ -9278,6 +9385,10 @@ msgstr ""
 msgid "The body is {\"value\": \"...\"}; a form field of the same name is accepted too. An EMPTY value deletes the preference rather than storing emptiness, so a reset leaves no row saying \"no opinion\". Values are capped at 64KB and refused rather than truncated -- a truncated saved state cannot be told from a corrupt one when it is read back."
 msgstr ""
 
+#, fuzzy
+msgid "The boot directory cannot be read."
+msgstr "|文件或无法达成通道"
+
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
@@ -9473,6 +9584,10 @@ msgstr ""
 
 msgid "The public half of the keypair fog-client encrypts its check-in to."
 msgstr ""
+
+#, fuzzy
+msgid "The record could not be written."
+msgstr "无法读取临时文件"
 
 msgid "The resource is not in a cancellable state."
 msgstr ""
@@ -10071,6 +10186,10 @@ msgstr "不可用"
 
 msgid "Uncategorized"
 msgstr ""
+
+#, fuzzy
+msgid "Unclassified"
+msgstr "无关联的节点"
 
 msgid "Unicast"
 msgstr "单播"
@@ -10743,6 +10862,10 @@ msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
 msgstr ""
+
+#, fuzzy
+msgid "You do not have permission to change boot files."
+msgstr "没有连接到数据库"
 
 msgid "You do not have permission to change provider group associations."
 msgstr ""
@@ -11508,6 +11631,9 @@ msgstr ""
 msgid "row(s) converted from 0 to NULL"
 msgstr ""
 
+msgid "same contents as"
+msgstr ""
+
 #, fuzzy
 msgid "second"
 msgstr "图标"
@@ -12068,10 +12194,6 @@ msgstr ""
 #~ msgstr "无法更新/创建图像日志"
 
 #, fuzzy
-#~ msgid "File Deleter"
-#~ msgstr "无法删除文件"
-
-#, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "我不是雾Web服务器"
 
@@ -12192,10 +12314,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Site Update Success"
 #~ msgstr "安装/升级成功！"
-
-#, fuzzy
-#~ msgid "Host Site Updated!"
-#~ msgstr "服务更新！"
 
 #, fuzzy
 #~ msgid "Host Snapins"

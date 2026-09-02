@@ -172,7 +172,19 @@ msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
+msgid "%s cannot be used as %s."
+msgstr ""
+
+#, php-format
 msgid "%s could not be loaded. Check that %s declares a class of that exact name."
+msgstr ""
+
+#, php-format
+msgid "%s could not be removed."
+msgstr ""
+
+#, php-format
+msgid "%s deleted."
 msgstr ""
 
 #, php-format
@@ -188,7 +200,19 @@ msgid "%s images"
 msgstr ""
 
 #, php-format
+msgid "%s is in use as %s. Point that at another file first."
+msgstr ""
+
+#, php-format
 msgid "%s is maintained by the server and cannot be set"
+msgstr ""
+
+#, php-format
+msgid "%s is marked to be kept. Stop keeping it first."
+msgstr ""
+
+#, php-format
+msgid "%s is no longer kept."
 msgstr ""
 
 #, php-format
@@ -205,6 +229,10 @@ msgstr ""
 
 #, php-format
 msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
+msgid "%s is now %s."
 msgstr ""
 
 #, php-format
@@ -233,6 +261,10 @@ msgstr ""
 
 #, php-format
 msgid "%s viewed your account on %s."
+msgstr ""
+
+#, php-format
+msgid "%s will be kept."
 msgstr ""
 
 msgid "(all)"
@@ -1094,6 +1126,9 @@ msgstr ""
 msgid "Automatic enrollment (Setup/Custom Mode)"
 msgstr ""
 
+msgid "Available downloads"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr ""
 
@@ -1134,6 +1169,15 @@ msgid "Bind Password"
 msgstr ""
 
 msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
+msgstr ""
+
+msgid "Boot File Deleted"
+msgstr ""
+
+msgid "Boot File Failed"
+msgstr ""
+
+msgid "Boot File Updated"
 msgstr ""
 
 msgid "Boot Files"
@@ -1452,6 +1496,9 @@ msgstr ""
 
 #, php-format
 msgid "Check %s over before installing it."
+msgstr ""
+
+msgid "Check FOG_TFTP_PXE_KERNEL_DIR."
 msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
@@ -2025,7 +2072,25 @@ msgstr ""
 msgid "Default Width"
 msgstr ""
 
+msgid "Default init, ARM64"
+msgstr ""
+
+msgid "Default init, i386"
+msgstr ""
+
+msgid "Default init, x86_64"
+msgstr ""
+
 msgid "Default is disabled"
+msgstr ""
+
+msgid "Default kernel, ARM64"
+msgstr ""
+
+msgid "Default kernel, i386"
+msgstr ""
+
+msgid "Default kernel, x86_64"
 msgstr ""
 
 msgid "Default nested group depth"
@@ -3829,6 +3894,9 @@ msgstr ""
 msgid "In FOG"
 msgstr ""
 
+msgid "In use as"
+msgstr ""
+
 msgid "Include"
 msgstr ""
 
@@ -4154,6 +4222,12 @@ msgid "Join Domain after image task"
 msgstr ""
 
 msgid "Kbps"
+msgstr ""
+
+msgid "Keep"
+msgstr ""
+
+msgid "Kept"
 msgstr ""
 
 msgid "Kernel"
@@ -4494,6 +4568,9 @@ msgstr ""
 msgid "Loading data to field"
 msgstr ""
 
+msgid "Local files"
+msgstr ""
+
 msgid "Location"
 msgstr ""
 
@@ -4737,6 +4814,9 @@ msgstr ""
 msgid "Memory limit cannot be less than 128"
 msgstr ""
 
+msgid "Memtest payload"
+msgstr ""
+
 msgid "Menu Description"
 msgstr ""
 
@@ -4804,6 +4884,9 @@ msgid "Model"
 msgstr ""
 
 msgid "Models"
+msgstr ""
+
+msgid "Modified"
 msgstr ""
 
 msgid "Module"
@@ -5100,6 +5183,9 @@ msgstr ""
 msgid "No file was uploaded"
 msgstr ""
 
+msgid "No files in the boot directory."
+msgstr ""
+
 msgid "No files matched multicast image pattern"
 msgstr ""
 
@@ -5234,6 +5320,9 @@ msgid "No storagegroups assigned to this image"
 msgstr ""
 
 msgid "No storagegroups assigned to this snapin"
+msgstr ""
+
+msgid "No such file in the boot directory."
 msgstr ""
 
 msgid "No such filter"
@@ -6867,6 +6956,9 @@ msgstr ""
 msgid "Set Storage Group as Primary for Snapins"
 msgstr ""
 
+msgid "Set as"
+msgstr ""
+
 msgid "Set failed"
 msgstr ""
 
@@ -7298,6 +7390,9 @@ msgid "State filter"
 msgstr ""
 
 msgid "Status"
+msgstr ""
+
+msgid "Stop keeping"
 msgstr ""
 
 msgid "Storage"
@@ -7921,6 +8016,9 @@ msgstr ""
 msgid "The body is {\"value\": \"...\"}; a form field of the same name is accepted too. An EMPTY value deletes the preference rather than storing emptiness, so a reset leaves no row saying \"no opinion\". Values are capped at 64KB and refused rather than truncated -- a truncated saved state cannot be told from a corrupt one when it is read back."
 msgstr ""
 
+msgid "The boot directory cannot be read."
+msgstr ""
+
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
@@ -8101,6 +8199,9 @@ msgid "The provider returned a configuration for a different issuer"
 msgstr ""
 
 msgid "The public half of the keypair fog-client encrypts its check-in to."
+msgstr ""
+
+msgid "The record could not be written."
 msgstr ""
 
 msgid "The resource is not in a cancellable state."
@@ -8643,6 +8744,9 @@ msgid "Unavailable"
 msgstr ""
 
 msgid "Uncategorized"
+msgstr ""
+
+msgid "Unclassified"
 msgstr ""
 
 msgid "Unicast"
@@ -9224,6 +9328,9 @@ msgid "You do not have permission to change API tokens."
 msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
+msgstr ""
+
+msgid "You do not have permission to change boot files."
 msgstr ""
 
 msgid "You do not have permission to change provider group associations."
@@ -9904,6 +10011,9 @@ msgid "row(s)"
 msgstr ""
 
 msgid "row(s) converted from 0 to NULL"
+msgstr ""
+
+msgid "same contents as"
 msgstr ""
 
 msgid "second"
