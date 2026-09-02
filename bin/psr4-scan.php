@@ -111,6 +111,9 @@ const TABLE = [
     'FOGController' => 'Base',
     'FOGManagerController' => 'Base',
     'FOGPage' => 'Base',
+    // Pure rules for identifying a booting machine by firmware (#198, ADR
+    // 0039). Extends nothing on purpose, so RULES cannot place it.
+    'SmbiosIdentity' => 'Base',
     'FOGPageManager' => 'Base',
     'FOGPagePost' => 'Base',
     'FOGPageRender' => 'Base',
