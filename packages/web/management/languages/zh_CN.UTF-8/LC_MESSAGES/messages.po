@@ -136,6 +136,12 @@ msgstr[0] "模块名称"
 msgstr[1] "模块名称"
 
 #, fuzzy, php-format
+msgid "%d power schedule"
+msgid_plural "%d power schedules"
+msgstr[0] "模块名称"
+msgstr[1] "模块名称"
+
+#, fuzzy, php-format
 msgid "%d printer"
 msgid_plural "%d printers"
 msgstr[0] "打印机"

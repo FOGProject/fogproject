@@ -131,6 +131,12 @@ msgstr[0] "Modulname"
 msgstr[1] "Modulname"
 
 #, fuzzy, php-format
+msgid "%d power schedule"
+msgid_plural "%d power schedules"
+msgstr[0] "Modulname"
+msgstr[1] "Modulname"
+
+#, fuzzy, php-format
 msgid "%d printer"
 msgid_plural "%d printers"
 msgstr[0] "Drucker"
