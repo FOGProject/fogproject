@@ -79,10 +79,11 @@ $page = 'FOG\Base\FOGPage';
  * difference from the old behavior, where "no value" carried no reason.
  */
 $tag = $page::bootFileXattr($dir . '/bzImage', 'tag_name');
+// No is_array() guard: the method is declared @return array, so phpstan
+// proves that branch always true and fails the tests pass on it.
 $t->check(
     'the xattr reader answers value and reason',
-    is_array($tag) && array_key_exists('value', $tag)
-    && array_key_exists('reason', $tag)
+    array_key_exists('value', $tag) && array_key_exists('reason', $tag)
 );
 $t->check(
     'a value and a reason are mutually exclusive, and one is always given',
