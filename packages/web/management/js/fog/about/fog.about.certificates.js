@@ -105,6 +105,36 @@
     });
   });
 
+  // The netboot transport is a select, not a switch, so it posts its own word
+  // rather than a flag. Same one-key-per-call shape as the switches below: the
+  // helper rewrites a single .fogsettings line per call, so two administrators
+  // changing different settings cannot overwrite each other's.
+  $('.pki-pref-select').on('change', function() {
+    var sel = $(this),
+      wanted = sel.val(),
+      previous = sel.data('previous') || wanted;
+    sel.prop('disabled', true);
+    $.apiCall('post', sel.data('action'), {
+      action: 'setPreference',
+      key: sel.data('key'),
+      value: wanted
+    }, function(err) {
+      sel.prop('disabled', false);
+      if (err) {
+        // Put it back to what the server still holds, for the reason the
+        // switches do: this card's whole job is to say what the next installer
+        // run will do, and a control that lies about that is worse than none.
+        sel.val(previous);
+        return;
+      }
+      sel.data('previous', wanted);
+    });
+  }).each(function() {
+    // Remember the starting value, so a rejected change has something to
+    // revert to -- `change` has already replaced it by the time we are called.
+    $(this).data('previous', $(this).val());
+  });
+
   // One handler for all three switches. Each posts only its own key, so two
   // administrators changing different preferences cannot overwrite each
   // other's -- the helper rewrites a single line of .fogsettings per call.

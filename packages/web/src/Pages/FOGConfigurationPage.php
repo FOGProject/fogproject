@@ -1141,7 +1141,12 @@ class FOGConfigurationPage extends FOGPage
                     . 'client when fog-client installs it there, so on a server '
                     . 'whose clients are not enrolled yet a forced redirect '
                     . 'breaks exactly the machines that cannot fix themselves. '
-                    . 'Turn it on once trust is in place.'
+                    . 'Turn it on once trust is in place. It does NOT affect '
+                    . 'netboot -- that is the separate setting below. Turning '
+                    . 'it on is not fully reversible: it also sends HSTS, and a '
+                    . 'browser that has seen that header refuses plain HTTP to '
+                    . 'this host for six months out of its own cache, whatever '
+                    . 'this server later says.'
                 )
             ],
             'BOOT_rebuild_ipxe_with_my_ca' => [
@@ -1156,6 +1161,37 @@ class FOGConfigurationPage extends FOGPage
                 )
             ]
         ];
+        // The netboot transport, rendered after the three switches and inside
+        // the same card, because it is not a fourth independent preference --
+        // it is the same decision the other two steer. Kept out of $meta
+        // because its domain is http|https, so it is a select rather than a
+        // switch, and a checkbox would have to invent which way is "on".
+        $proto = 'https' === (string) ($prefs['BOOT_url_proto'] ?? 'http')
+            ? 'https' : 'http';
+        $protoRow = '<tr><td class="text-nowrap">';
+        $protoRow .= '<select class="form-select form-select-sm pki-pref-select"'
+            . ' id="BOOT_url_proto" data-key="BOOT_url_proto"'
+            . ' data-action="' . \Initiator::e($this->formAction) . '"'
+            . ($mayEdit ? '' : ' disabled') . '>';
+        foreach (['http' => _('http'), 'https' => _('https')] as $val => $label) {
+            $protoRow .= '<option value="' . \Initiator::e($val) . '"'
+                . ($proto === $val ? ' selected' : '') . '>'
+                . \Initiator::e($label) . '</option>';
+        }
+        $protoRow .= '</select></td>';
+        $protoRow .= '<td><label class="form-check-label" for="BOOT_url_proto">'
+            . '<strong>' . _('Netboot fetches boot.php over') . '</strong>'
+            . '<br><code class="small">BOOT_url_proto</code></label></td>';
+        $protoRow .= '<td><small class="text-muted">' . _(
+            'Separate from the HTTP redirect above, which never applies to the '
+            . 'paths a bootloader fetches for itself. Choosing https here also '
+            . 'FORCES it: the installer stops deriving the transport and keeps '
+            . 'what you set. If iPXE cannot validate the certificate this '
+            . 'server serves, every netboot stops at boot.php and nothing '
+            . 'server-side says why -- so decide it together with the two '
+            . 'settings above, not on its own.'
+        ) . '</small></td></tr>';
+
         $rows = '';
         foreach ($meta as $key => $text) {
             $on = 'yes' === (string) ($prefs[$key] ?? 'no');
@@ -1193,7 +1229,37 @@ class FOGConfigurationPage extends FOGPage
             . '<table class="table table-sm align-middle">';
         $body .= '<thead><tr><th></th><th>' . _('Setting') . '</th><th>'
             . _('What it does') . '</th></tr></thead>';
-        $body .= '<tbody>' . $rows . '</tbody></table></div>';
+        $body .= '<tbody>' . $rows . $protoRow . '</tbody></table></div>';
+        // The two conditions ADR 0036's rejected alternative named, met here
+        // rather than in the helper: the transport is never offered alone, and
+        // the cost is stated at the point of change.
+        $body .= '<div class="alert alert-warning" role="alert">';
+        $body .= '<strong>' . _('HTTPS netboot is one decision, not three.')
+            . '</strong> ';
+        $body .= _(
+            'iPXE validates TLS strictly, has no insecure mode, and will not '
+            . 'chain a private CA it has never been given. So https netboot '
+            . 'works only if the certificate is publicly trusted, or iPXE has '
+            . 'been rebuilt with this server\'s CA embedded.'
+        );
+        $body .= '<ul class="mb-0 mt-2">';
+        $body .= '<li>' . _(
+            'Under https, the netboot URL has to address this server by a name '
+            . 'the served certificate actually carries, so FOG_WEB_HOST becomes '
+            . 'a record rather than a control -- rewritten on every run, and an '
+            . 'edit through FOG Settings will not survive.'
+        ) . '</li>';
+        $body .= '<li>' . _(
+            'If the served certificate carries no name the netboot URL could '
+            . 'use, the install STOPS and prints the names it does carry, '
+            . 'rather than writing a default.ipxe that cannot boot. Re-issue '
+            . 'for the name you need, or set this back to http.'
+        ) . '</li>';
+        $body .= '<li>' . _(
+            'Machines that PXE boot cannot fix this themselves. That is the '
+            . 'whole reason this is a deliberate setting rather than a default.'
+        ) . '</li>';
+        $body .= '</ul></div>';
         $body .= '<p class="form-text">' . sprintf(
             '%s <a href="%s" target="_blank" rel="noopener">%s</a>.',
             _('A worked example of the first one, end to end:'),
@@ -1665,7 +1731,18 @@ class FOGConfigurationPage extends FOGPage
     private function _pkiSetPreference()
     {
         $key = (string) filter_input(INPUT_POST, 'key');
-        $value = filter_input(INPUT_POST, 'value') ? 'yes' : 'no';
+        $raw = (string) filter_input(INPUT_POST, 'value');
+        // Mapped by KEY, not by inspecting the value: the three switches post a
+        // truthy flag and the netboot transport posts its own word, and keying
+        // off the value would let one be talked into posting the other's
+        // domain. This side deciding is a convenience either way -- the helper
+        // re-checks against that key's own literal pattern, and that check is
+        // the boundary, because .fogsettings is sourced as shell by root.
+        if ('BOOT_url_proto' === $key) {
+            $value = 'https' === $raw ? 'https' : 'http';
+        } else {
+            $value = $raw ? 'yes' : 'no';
+        }
         $res = self::_pkiRun(['set-preference', $key, $value]);
         if (!$res['ok']) {
             throw new \Exception(

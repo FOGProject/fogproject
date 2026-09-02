@@ -30,10 +30,11 @@
 # installer run, so a helper that wrote arbitrary key=value pairs into it
 # would be a root shell with extra steps. Hence:
 #
-#  - set-preference takes a key from a three-entry allowlist and a value
-#    matching ^(yes|no)$. Nothing else reaches the file, and the key must
-#    already be present -- this never invents a line, so it cannot move the
-#    category blocks writeUpdateFile() maintains.
+#  - set-preference takes a key from a fixed allowlist and a value matching
+#    that key's own literal pattern -- ^(yes|no)$ for the three switches,
+#    ^(http|https)$ for the netboot transport. Nothing else reaches the file,
+#    and the key must already be present -- this never invents a line, so it
+#    cannot move the category blocks writeUpdateFile() maintains.
 #  - export takes a SLOT NAME, never a path. The slot resolves to a path from
 #    the root-only config, and every slot is a public certificate.
 #  - import-root parses what it was handed before believing any of it, keeps
@@ -86,16 +87,41 @@ shift
 
 [[ -d $PKI_STAGING ]] || die "staging directory is not configured"
 
-# The three keys this may write, and the only ones it may. Every one is a
-# yes/no install preference -- nothing here names a path, holds a secret, or
-# takes effect without the installer running again.
+# The keys this may write, and the only ones it may. Every one is an install
+# preference the installer reads back -- nothing here names a path, holds a
+# secret, or takes effect without the installer running again.
 #
-# BOOT_url_proto_forced is deliberately absent even though it is the same
-# shape. Forcing netboot to HTTPS with neither steering key set is the case
-# GH-1116 calls "legal but warned": it breaks PXE for machines that have no
-# way to fix themselves, which is the one failure a web form must not be able
-# to cause by a misclick.
-PREF_KEYS="PKI_web_cert_publicly_trusted WEB_https_redirect BOOT_rebuild_ipxe_with_my_ca"
+# BOOT_url_proto is the fourth, and adding it REVERSED a rejected alternative
+# in ADR 0036 rather than extending an accepted one. That ADR refused
+# "BOOT_url_proto_forced in the allowlist" because forcing netboot to HTTPS
+# with neither steering key set is GH-1116's "legal but warned" case: it breaks
+# PXE for machines that have no way to fix themselves. Writing BOOT_url_proto
+# achieves the same thing, since _resolveInstallMode() sets the forced flag
+# whenever an explicit value is supplied.
+#
+# What answers that objection is the two conditions it named, and they are met
+# in the PAGE, not here: the switch is never offered on its own -- it is one
+# decision with BOOT_rebuild_ipxe_with_my_ca and PKI_web_cert_publicly_trusted,
+# because "can iPXE validate what this server serves" is one question -- and it
+# is not a misclick, because the page states the cost at the point of change.
+# See ADR 0036's 2026-09-02 amendment. The gate is still system.pki, deny by
+# default.
+PREF_KEYS="PKI_web_cert_publicly_trusted WEB_https_redirect BOOT_rebuild_ipxe_with_my_ca BOOT_url_proto"
+
+# The value domain, per key.
+#
+# It was one ^(yes|no)$ for all three, and that pattern is the security
+# boundary rather than a validation nicety: .fogsettings is sourced as shell by
+# root on the next installer run, so a value that is not matched against a
+# literal pattern is a root shell with extra steps. Making the domain per-key
+# does not relax that -- every key still names a FIXED SET, which is what
+# ADR 0036's rule requires. It is the implementation that generalizes.
+prefPattern() {
+    case "$1" in
+        BOOT_url_proto) printf '%s' '^(http|https)$' ;;
+        *)              printf '%s' '^(yes|no)$' ;;
+    esac
+}
 
 # Where each downloadable slot lives. Public certificates only: this is the
 # whole reason export takes a slot name rather than a path, so adding a
@@ -933,7 +959,7 @@ import-leaf)
     ;;
 
 set-preference)
-    [[ $# -eq 2 ]] || die "usage: fog-pki-admin set-preference <key> <yes|no>"
+    [[ $# -eq 2 ]] || die "usage: fog-pki-admin set-preference <key> <value>"
     key="$1"
     value="$2"
     ok=0
@@ -941,8 +967,11 @@ set-preference)
     [[ $ok -eq 1 ]] || die "not a settable preference: ${key}"
     # The whole security argument for this verb. .fogsettings is sourced as
     # shell by root, so the value is matched against a literal pattern rather
-    # than quoted and hoped over.
-    [[ $value =~ ^(yes|no)$ ]] || die "value must be yes or no"
+    # than quoted and hoped over. The pattern comes from prefPattern(), which
+    # holds one fixed set per key -- an unquoted right-hand side, because a
+    # quoted one would match the pattern as a literal string.
+    pattern=$(prefPattern "$key")
+    [[ $value =~ $pattern ]] || die "value for ${key} must match ${pattern}"
     writeSetting "$key" "$value" || die "could not update ${key} in .fogsettings"
     echo "OK"
     ;;
