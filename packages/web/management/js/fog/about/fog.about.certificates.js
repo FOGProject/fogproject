@@ -39,7 +39,7 @@
     e.preventDefault();
     // Only worth a confirmation when a request is already pending: a new one
     // makes a new key, and a certificate the CA is still signing for the old
-    // request will be refused afterwards.
+    // request will be refused afterward.
     if (csrInstallBtn.length && !window.confirm(
       'Generate a new signing request? The pending one is replaced along '
       + 'with its key, so a certificate issued from it would be refused.'
