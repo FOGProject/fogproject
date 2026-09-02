@@ -5785,9 +5785,10 @@ _installPkiAdminHelper() {
         # filesystem could disagree; deriving it in two places from the same
         # test keeps that property.
         echo "PKI_WEB_ZONE_DIR=${webdir}"
-        # The canonical home for a root imported from the page. Not the
-        # admin's own path: --ca-root persists the SOURCE, which is routinely
-        # a temp file that is gone by the next run.
+        # The canonical home for an imported root, whichever route it came
+        # in by -- the page's import-root writes here, and since GH-1683 so
+        # does --ca-root, which used to record its own source path and so
+        # named a temp file that was gone by the next run.
         echo "PKI_EXTERNAL_ROOT=${webdir}/ca/.externalRoot.pem"
         echo "PKI_CLIENT_CERT=${PKI_client_encrypt_cert}"
         if [[ -f $sbca ]]; then
@@ -6105,9 +6106,12 @@ _resolveTrustAnchor() {
     #
     # Additive and idempotent everywhere else: on a full --external-ca install
     # this certificate is already in the chain above, so the fingerprint check
-    # collapses it. The -f guard matters -- validateExternalCA persists the
-    # admin's SOURCE path, which is routinely a temp file that is gone by the
-    # next run.
+    # collapses it. The -f guard is belt and braces now rather than
+    # load-bearing: validateExternalCA used to persist the admin's SOURCE
+    # path, routinely a temp file gone by the next run, so this silently
+    # anchored nothing on most external-CA servers (GH-1683). Both import
+    # routes now record the canonical copy, and the guard stays only for a
+    # file an admin has since deleted by hand.
     if [[ -n ${PKI_web_external_root_cert} && -f ${PKI_web_external_root_cert} ]]; then
         local tmpd extroot
         tmpd=$(mktemp -d 2>>$error_log)
@@ -7866,6 +7870,12 @@ validateExternalCA() {
     cp "$keysrc" "$destdir/$destkey" >>$error_log 2>&1
     cat "$rootsrc" "$certsrc" > "$destdir/$destchain" 2>>$error_log
     chmod 600 "$destdir/$destkey" >>$error_log 2>&1
+    # The root as well, under the name the Certificates page's helper already
+    # publishes as PKI_EXTERNAL_ROOT. Copied here rather than merely referenced
+    # for the same reason as the three above -- and see the persisted slot below
+    # for what recording the source path instead used to cost.
+    cp "$rootsrc" "$destdir/.externalRoot.pem" >>$error_log 2>&1
+    chmod 0644 "$destdir/.externalRoot.pem" >>$error_log 2>&1
     # ${PKI_web_ca_key}/${PKI_web_ca_cert}/${PKI_web_trust_chain} name the CA that signs the vhost leaf --
     # which is what an external CA replaces, and all it replaces. The root that
     # fog-client pins is ${PKI_root_ca_cert} and is not touched here.
@@ -7877,7 +7887,16 @@ validateExternalCA() {
     # and _resolveTrustAnchor() reads it back out from here -- conflating it
     # with the root fog-client pins is exactly the mistake the three-zone split
     # exists to prevent.
-    PKI_web_external_root_cert="$rootsrc"
+    #
+    # The CANONICAL copy, not $rootsrc. --ca-root is routinely handed a temp
+    # file, so recording the source left this key naming something that no
+    # longer existed by the next run: _resolveTrustAnchor()'s -f guard then made
+    # the miss silent, and GH-1121's fix -- reading this key so an import is not
+    # undone by the next installer run -- held only for roots imported through
+    # the Certificates page. fog-pki-admin's setPreferencePath() has always
+    # recorded the canonical path; this is the CLI half catching up, and it puts
+    # both import routes on one file.
+    PKI_web_external_root_cert="$destdir/.externalRoot.pem"
     errorStat $?
     # iPXE's verifier is narrower than openssl's, and THIS certificate is the
     # one it gets: _resolveIpxeTrust() sets ${ipxetrust} to ${PKI_web_ca_cert},
