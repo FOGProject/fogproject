@@ -2905,17 +2905,16 @@ class HostManagement extends FOGPage
             []
         ];
         $buttons = '';
-        $splitButtons = self::makeSplitButton(
+        // A plain button, not a split button. The second half of the split
+        // was "Create New Immediate", and an immediate shut down, restart or
+        // wake is a TASK: it acts on the machine now and leaves nothing
+        // behind it. It is asked for from Queue Task on this same page, in
+        // the Power pane, alongside every other one-off. This tab is for
+        // SCHEDULES, which is what its card says it is.
+        $scheduleButton = self::makeButton(
             'scheduleBtn',
             _('Create New Scheduled'),
-            [
-                [
-                    'id' => 'ondemandBtn',
-                    'text' => _('Create New Immediate')
-                ]
-            ],
-            'right',
-            'primary'
+            'btn btn-primary float-end'
         );
         $props = ' method="post" action="'
             . self::makeTabUpdateURL(
@@ -2927,18 +2926,6 @@ class HostManagement extends FOGPage
             'pm-delete',
             _('Delete selected'),
             'btn btn-danger float-start',
-            $props
-        );
-        $ondemandModalBtns = self::makeButton(
-            'ondemandCancelBtn',
-            _('Cancel'),
-            'btn btn-outline-secondary float-start',
-            'data-bs-dismiss="modal"'
-        );
-        $ondemandModalBtns .= self::makeButton(
-            'ondemandCreateBtn',
-            _('Create'),
-            'btn btn-outline-secondary float-end',
             $props
         );
         $scheduleModalBtns = self::makeButton(
@@ -2960,17 +2947,13 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="card-body">';
-        $this->render(12, 'host-powermanagement-table', $buttons.$splitButtons);
+        $this->render(
+            12,
+            'host-powermanagement-table',
+            $buttons . $scheduleButton
+        );
         echo '</div>';
         echo '<div class="card-footer">';
-        echo self::makeModal(
-            'ondemandModal',
-            _('Create Immediate Power task'),
-            $this->newPMDisplay(true),
-            $ondemandModalBtns,
-            '',
-            'info'
-        );
         echo self::makeModal(
             'scheduleModal',
             _('Create Scheduled Power task'),
@@ -2983,7 +2966,22 @@ class HostManagement extends FOGPage
         echo '</div>';
     }
     /**
-     * Host power management post.
+     * Host power management post: create and delete SCHEDULES.
+     *
+     * Nothing here fires an immediate action, and that is the point. This
+     * sub is named `powermanagement`, which Authorization::_subToAction()
+     * resolves to host.EDIT on a POST -- so anything reachable through it is
+     * gated as "may change this host's settings". A schedule is exactly
+     * that, and it matches the group side, where granting one is group.edit.
+     *
+     * An immediate shut down, restart or wake is not: it acts on the machine
+     * now. Those live on taskPowerMulti, whose `task` prefix puts them
+     * behind host.TASK, and are asked for from Queue Task. Two paths used to
+     * create an on-demand row here -- `pmaddod`, behind "Create New
+     * Immediate", and a `pmupdate` branch that no page had posted to in
+     * years but that could still flip a saved schedule to on-demand. Both
+     * are gone, and the insert pins onDemand to 0 rather than trusting that
+     * they stay gone.
      *
      * @return void
      */
@@ -2991,63 +2989,7 @@ class HostManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $flags = ['flags' => FILTER_REQUIRE_ARRAY];
-        if (isset($_POST['pmupdate'])) {
-            $items = filter_input_array(
-                INPUT_POST,
-                [
-                    'scheduleCronMin' => $flags,
-                    'scheduleCronHour' => $flags,
-                    'scheduleCronDOM' => $flags,
-                    'scheduleCronMonth' => $flags,
-                    'scheduleCronDOW' => $flags,
-                    'pmid' => $flags,
-                    'onDemand' => $flags,
-                    'action' => $flags
-                ]
-            );
-            extract($items);
-            if (!$action) {
-                throw new \Exception(
-                    _('You must select an action to perform')
-                );
-            }
-            $items = [];
-            foreach ((array)$pmid as $index => &$pm) {
-                $onDemandItem = array_search(
-                    $pm,
-                    (array)$onDemand
-                );
-                $items[] = [
-                    $pm,
-                    $this->obj->get('id'),
-                    FOGCron::_sanitizeCronField($scheduleCronMin[$index]),
-                    FOGCron::_sanitizeCronField($scheduleCronHour[$index]),
-                    FOGCron::_sanitizeCronField($scheduleCronDOM[$index]),
-                    FOGCron::_sanitizeCronField($scheduleCronMonth[$index]),
-                    FOGCron::_sanitizeCronField($scheduleCronDOW[$index]),
-                    $onDemandItem !== false ? 1 : 0,
-                    $action[$index]
-                ];
-                unset($pm);
-            }
-            self::getClass('PowerManagementManager')
-                ->insertBatch(
-                    [
-                        'id',
-                        'hostID',
-                        'min',
-                        'hour',
-                        'dom',
-                        'month',
-                        'dow',
-                        'onDemand',
-                        'action'
-                    ],
-                    $items
-                );
-        }
-        if (isset($_POST['pmadd']) || isset($_POST['pmaddod'])) {
-            $onDemand = (int)isset($_POST['pmaddod']);
+        if (isset($_POST['pmadd'])) {
             $min = trim(
                 (string)filter_input(
                     INPUT_POST,
@@ -3084,17 +3026,11 @@ class HostManagement extends FOGPage
                     'action'
                 )
             );
-            if ($onDemand && $action === 'wol') {
-                $this->obj->wakeOnLAN();
-                return;
-            }
-            if (!$onDemand) {
-                $min = FOGCron::_sanitizeCronField($min);
-                $hour = FOGCron::_sanitizeCronField($hour);
-                $dom = FOGCron::_sanitizeCronField($dom);
-                $month = FOGCron::_sanitizeCronField($month);
-                $dow = FOGCron::_sanitizeCronField($dow);
-            }
+            $min = FOGCron::_sanitizeCronField($min);
+            $hour = FOGCron::_sanitizeCronField($hour);
+            $dom = FOGCron::_sanitizeCronField($dom);
+            $month = FOGCron::_sanitizeCronField($month);
+            $dow = FOGCron::_sanitizeCronField($dow);
             self::getClass('PowerManagement')
                 ->set('hostID', $this->obj->get('id'))
                 ->set('min', $min)
@@ -3102,7 +3038,13 @@ class HostManagement extends FOGPage
                 ->set('dom', $dom)
                 ->set('month', $month)
                 ->set('dow', $dow)
-                ->set('onDemand', $onDemand)
+                // Always a schedule. This sub is gated host.EDIT by the
+                // naming convention in Authorization::_subToAction(), and an
+                // on-demand row is an immediate shut down of the machine --
+                // which is a task, and belongs behind host.TASK. The one
+                // endpoint that creates them is taskPowerMulti, whose name
+                // is what puts it there.
+                ->set('onDemand', 0)
                 ->set('action', $action)
                 ->save();
         }

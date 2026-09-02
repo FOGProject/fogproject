@@ -1110,18 +1110,12 @@
 
     // The form Control elements of Power Management.
     var powermanagementForm = $('#host-powermanagement-cron-form'),
-        powermanagementFormBtn = $('#powermanagement-send'),
         // Insert Form cron elements.
         minutes = $('.cronmin', powermanagementForm),
         hours = $('.cronhour', powermanagementForm),
         dom = $('.crondom', powermanagementForm),
         month = $('.cronmonth', powermanagementForm),
         dow = $('.crondow', powermanagementForm),
-        instantModal = $('#ondemandModal'),
-        instantBtn = $('#ondemandBtn'),
-        instantModalCancelBtn = $('#ondemandCancelBtn'),
-        instantModalCreateBtn = $('#ondemandCreateBtn'),
-        instantForm = $('#host-powermanagement-instant-form'),
         scheduleModal = $('#scheduleModal'),
         scheduleBtn = $('#scheduleBtn'),
         scheduleModalCancelBtn = $('#scheduleCancelBtn'),
@@ -1144,24 +1138,6 @@
     powermanagementForm.on('submit', function(e) {
         e.preventDefault();
     });
-    powermanagementFormBtn.on('click', function() {
-        powermanagementFormBtn.prop('disabled', true);
-        powermanagementForm.processForm(function(err) {
-            powermanagementFormBtn.prop('disabled', false);
-            if (err) {
-                return;
-            }
-            minutes.val('');
-            hours.val('');
-            dom.val('');
-            month.val('');
-            dow.val('');
-            action.val('');
-            specialCrons.val('');
-            ondemand.prop('checked', false).trigger('change');
-        });
-    });
-
     // The Power Management List element.
     function onPMSelect(selected) {
         var disable = selected.count() == 0;
@@ -1200,32 +1176,10 @@
         }
     });
 
-    instantBtn.on('click', function(e) {
-        e.preventDefault();
-        instantModal.modal('show');
-    });
     scheduleBtn.on('click', function(e) {
         e.preventDefault();
         scheduleModal.modal('show');
     });
-    instantModal.registerModal(
-        function(e) {
-            instantModalCreateBtn.on('click', function() {
-                $(this).prop('disabled', true);
-                instantForm.processForm(function(err) {
-                    instantModalCreateBtn.prop('disabled', false);
-                    if (err) {
-                        return;
-                    }
-                    instantModal.modal('hide');
-                    powermanagementTable.draw(false);
-                });
-            });
-        },
-        function(e) {
-            $(this).modal('hide');
-        }
-    );
     scheduleModal.registerModal(
         function(e) {
             scheduleModalCreateBtn.on('click', function() {
@@ -1247,8 +1201,6 @@
 
     pmdelete.on('click', function(e) {
         scheduleBtn.prop('disabled', true);
-        instantBtn.prop('disabled', true);
-
 
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
@@ -1259,7 +1211,6 @@
             };
         $.apiCall(method,action,opts,function(err) {
             scheduleBtn.prop('disabled', false);
-            instantBtn.prop('disabled', false);
             if (err) {
                 return;
             }
