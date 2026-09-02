@@ -589,7 +589,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -600,7 +600,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -611,7 +611,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -622,7 +622,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch init.xz
@@ -759,7 +759,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -770,7 +770,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -781,7 +781,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -792,7 +792,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch init.xz
@@ -859,7 +859,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -870,7 +870,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -881,7 +881,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -892,7 +892,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch init.xz
@@ -963,7 +963,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -974,7 +974,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -985,7 +985,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -996,7 +996,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch init.xz
@@ -1077,7 +1077,7 @@ param password ${password}
 param approveHost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :bootme
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
 goto MENU
@@ -1138,7 +1138,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -1149,7 +1149,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -1160,7 +1160,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -1171,7 +1171,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel custom-bzImage loglevel=4 initrd=custom-init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 nomodeset storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch custom-init.xz
@@ -1233,7 +1233,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -1244,7 +1244,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -1255,7 +1255,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -1266,7 +1266,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch arm_init.cpio.gz
@@ -1332,7 +1332,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -1343,7 +1343,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -1354,7 +1354,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -1365,7 +1365,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel arm_custom_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch arm_init.cpio.gz
@@ -1438,7 +1438,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -1449,7 +1449,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -1460,7 +1460,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -1471,7 +1471,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch init.xz
@@ -1538,7 +1538,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -1549,7 +1549,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -1560,7 +1560,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -1571,7 +1571,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel arm_Image loglevel=4 initrd=arm_init.cpio.gz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch arm_init.cpio.gz
@@ -1642,7 +1642,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -1653,7 +1653,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -1664,7 +1664,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -1675,7 +1675,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch init.xz
@@ -1865,7 +1865,7 @@ param password ${password}
 param advLog 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :bootme
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
 goto MENU
@@ -1898,6 +1898,9 @@ param password ${password}
 param menuaccess 1
 param debug 1
 param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
 isset ${netX/mac} && param macboot ${netX/mac} ||
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
@@ -1937,6 +1940,9 @@ param password ${password}
 param menuaccess 1
 param debug 1
 param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
 isset ${netX/mac} && param macboot ${netX/mac} ||
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
@@ -2668,7 +2674,7 @@ param password ${password}
 param keyreg 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.deployimage
 login
 params
@@ -2679,7 +2685,7 @@ param password ${password}
 param qihost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.multijoin
 login
 params
@@ -2690,7 +2696,7 @@ param password ${password}
 param sessionJoin 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.quickdel
 login
 params
@@ -2701,7 +2707,7 @@ param password ${password}
 param delhost 1
 isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
 isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
-param sysuuid ${uuid}\ngoto bootme
+param sysuuid ${uuid}\nparam sysserial ${serial}\nparam mbserial ${board-serial}\nparam caseasset ${asset}\ngoto bootme
 :fog.sysinfo
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch init.xz

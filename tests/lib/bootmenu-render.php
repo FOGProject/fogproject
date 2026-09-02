@@ -108,6 +108,9 @@ FOGBase::$settings = array_merge(
         'FOG_MULTICAST_RENDEZVOUS' => '',
         'FOG_PIGZ_COMP' => '6',
         'FOG_NO_MENU' => '0',
+        // #198: ships in log mode; every scenario sends no SMBIOS values,
+        // so the decision returns early and the MAC stays the identity.
+        'FOG_HOST_IDENTIFY_SMBIOS' => 'log',
         'FOG_PXE_ADVANCED' => '0',
         'FOG_PXE_BOOT_IMAGE' => 'init.xz',
         'FOG_PXE_BOOT_IMAGE_32' => 'init_32.xz',

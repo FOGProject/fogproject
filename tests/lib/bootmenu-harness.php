@@ -36,6 +36,11 @@
 
 namespace FOG;
 
+// The one real class the menu needs (#198). It is pure -- no base class,
+// no globals, no database -- so the real file loads where everything else
+// here is a stub. The stubbed FOGBase is untouched by it.
+require_once dirname(__DIR__, 2) . '/packages/web/src/Base/SmbiosIdentity.php';
+
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }

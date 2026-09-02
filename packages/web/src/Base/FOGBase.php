@@ -787,49 +787,12 @@ abstract class FOGBase
                 $mac = filter_input(INPUT_GET, 'mac');
             }
         }
-        // disabling sysuuid detection code for now as it is causing
-        // trouble with machines having the same UUID like we've seen
-        // on some MSI motherboards having FFFFFFFF-FFFF-FFFF-FFFF...
-        //$sysuuid = filter_input(INPUT_POST, 'sysuuid');
-        //if (!$sysuuid) {
-        //    $sysuuid = filter_input(INPUT_GET, 'sysuuid');
-        //}
-        //$mbserial = filter_input(INPUT_POST, 'mbserial');
-        //if (!$mbserial) {
-        //    $mbserial = filter_input(INPUT_GET, 'mbserial');
-        //}
-        //$sysserial = filter_input(INPUT_POST, 'sysserial');
-        //if (!$sysserial) {
-        //    $sysserial = filter_input(INPUT_GET, 'sysserial');
-        //}
         // Normalize the mac. stripAndDecode() rewrites $_REQUEST, but the mac
         // is read here from the raw request via filter_input() (or passed in
         // explicitly), which that rewrite never touches, so the encoding has
         // to be resolved here. The legacy $encoded flag is now redundant but
         // kept for call-signature compatibility.
         $mac = self::stripAndDecodeMac($mac);
-        // See if we can find the host by system uuid rather than by mac's first.
-        /*if ($sysuuid) {
-            $Inventory = self::getClass('Inventory')
-                ->set('sysuuid', $sysuuid)
-                ->load('sysuuid');
-            $Host = self::getClass('Inventory')
-                ->set('sysuuid', $sysuuid)
-                ->load('sysuuid')
-                ->getHost();
-            if ($Host->isValid() && !$returnmacs) {
-                self::$Host = $Host;
-                return;
-            }
-        }*/
-        //self::getClass('HostManager')->getHostByUuidAndSerial(
-        //$sysuuid,
-        //$mbserial,
-        //$sysserial
-        //);
-        //if (self::$Host->isValid() && !$returnmacs) {
-        //    return;
-        //}
         // Trim the mac list.
         $mac = trim($mac);
         // Parsing the macs
@@ -3068,25 +3031,6 @@ abstract class FOGBase
         openssl_free_key($priv_key);
 
         return (array) $output;
-    }
-    /**
-     * Canonicalize a hardware identifier (system UUID, system serial,
-     * mainboard serial, ...) so a value read at the iPXE/SMBIOS stage and
-     * the value stored from dmidecode compare reliably.
-     *
-     * Trims surrounding whitespace and collapses internal runs of
-     * whitespace to a single space. Case is intentionally left untouched:
-     * the DB uses a case-insensitive collation and any PHP-side comparison
-     * that needs it folds case itself, so the stored value stays faithful
-     * for display.
-     *
-     * @param string|null $value The raw identifier value.
-     *
-     * @return string The canonicalized identifier.
-     */
-    public static function canonicalizeIdentifier($value)
-    {
-        return trim(preg_replace('/\s+/', ' ', (string) ($value ?? '')));
     }
     /**
      * Cycle the MACs and return valid.

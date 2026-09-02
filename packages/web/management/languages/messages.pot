@@ -2289,6 +2289,9 @@ msgstr ""
 msgid "Endpoint logins"
 msgstr ""
 
+msgid "Enforce - firmware identity wins"
+msgstr ""
+
 msgid "Enforce Hostname | AD Join Reboots"
 msgstr ""
 
@@ -4554,6 +4557,9 @@ msgstr ""
 msgid "Locations"
 msgstr ""
 
+msgid "Log - MAC decides, log disagreements"
+msgstr ""
+
 msgid "Log Viewer"
 msgstr ""
 
@@ -5435,6 +5441,9 @@ msgid "OUs"
 msgstr ""
 
 msgid "Off"
+msgstr ""
+
+msgid "Off - MAC address only"
 msgstr ""
 
 msgid "Off - direct membership only"

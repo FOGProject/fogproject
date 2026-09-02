@@ -14,6 +14,7 @@
 namespace FOG\Managers;
 
 use FOG\Base\FOGManagerController;
+use FOG\Base\SmbiosIdentity;
 use FOG\Items\Host;
 use FOG\Router\Route;
 
@@ -35,118 +36,65 @@ class HostManager extends FOGManagerController
      */
     public $tablename = 'hosts';
     /**
-     * Try to find a unique host object based on UUID, system serial, and MB Serial
+     * Resolve a booting machine to a host by what its firmware reports.
+     *
+     * Returns an id rather than setting self::$Host so the caller can hold
+     * the MAC's answer and this one side by side -- FOG_HOST_IDENTIFY_SMBIOS
+     * in `log` mode exists to report where the two disagree.
+     *
+     * A pending host is never returned: it is not a host yet, and the MAC
+     * path applies the same rule.
+     *
+     * @param array $ids field => raw value, keyed by SmbiosIdentity::FIELDS
+     *
+     * @return int|null
+     */
+    public static function resolveHostBySmbios(array $ids)
+    {
+        $filter = SmbiosIdentity::usable($ids);
+        if (empty($filter)) {
+            return null;
+        }
+        $rows = Route::getList('inventory', $filter, 'OR');
+        $hostID = SmbiosIdentity::pick($filter, (array)$rows);
+        if (null === $hostID) {
+            return null;
+        }
+        $Host = new Host($hostID);
+        if (!$Host->isValid() || $Host->get('pending')) {
+            return null;
+        }
+        return $hostID;
+    }
+    /**
+     * Find a unique host by UUID, system serial, board serial and asset tag,
+     * leaving it in self::$Host.
+     *
+     * Kept for callers of the original signature; the decision now lives in
+     * SmbiosIdentity::pick() behind resolveHostBySmbios().
      *
      * @param string $sysuuid   The UUID to search
      * @param string $mbserial  The MB Serial to search
      * @param string $sysserial The system serial to search
-     *
-     * @thows Exception
+     * @param string $caseasset The chassis asset tag to search
      *
      * @return void
      */
     public static function getHostByUuidAndSerial(
         $sysuuid,
         $mbserial,
-        $sysserial
+        $sysserial,
+        $caseasset = ''
     ) {
-        self::$Host = new Host();
-        /**
-         * Can probably be removed by will keep this list for now in case
-         * we need it.
-         */
-        $invalidUuids = [
-            '00020003-0004-0005-0006-000700080009',
-            '00000000-0000-0000-0000-000000000000',
-            '00000000-0000-0000-0000-*',
-            '12345678-1234-5678-90AB-CDDEEFAABBCC',
-            'FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
-            'FFFFFF00-FFFF-FFFF-FFFF-FFFFFFFFFFFF',
-            'Not Present',
-            'Not Settable'
-        ];
-        $invalidMbSerial = [
-            'Type2 - Board Serial Number',
-            'To be filled by O.E.M.',
-            'Not Applicable',
-            'Default string',
-            'Base Board Serial Number',
-            '.PCIE2'
-        ];
-        $invalidSysSerial = [
-            '123456789'
-        ];
-
-        // Compare blocklist entries case-insensitively so a lowercase
-        // variant (e.g. 'ffffffff-...') cannot slip past.
-        $isBlocked = function ($value, array $list) {
-            foreach ($list as $bad) {
-                if (strcasecmp($value, $bad) === 0) {
-                    return true;
-                }
-            }
-            return false;
-        };
-
-        // Canonicalize incoming identifiers so they line up with the values
-        // stored from dmidecode (see FOGBase::canonicalizeIdentifier).
-        $sysuuid = self::canonicalizeIdentifier($sysuuid);
-        $mbserial = self::canonicalizeIdentifier($mbserial);
-        $sysserial = self::canonicalizeIdentifier($sysserial);
-
-        $filter = [];
-        if (strlen($sysuuid) != 0 && !$isBlocked($sysuuid, $invalidUuids)) {
-            $filter['sysuuid'] = $sysuuid;
-        }
-        if (strlen($mbserial) != 0 && !$isBlocked($mbserial, $invalidMbSerial)) {
-            $filter['mbserial'] = $mbserial;
-        }
-        if (strlen($sysserial) != 0 && !$isBlocked($sysserial, $invalidSysSerial)) {
-            $filter['sysserial'] = $sysserial;
-        }
-        if (empty($filter)) {
-            return;
-        }
-        $Inventories = Route::getList('inventory', $filter, 'OR');
-        if (count($Inventories ?: []) < 1) {
-            return;
-        }
-        if (count($Inventories ?: []) == 1) {
-            self::$Host = new Host($Inventories[0]->hostID);
-            return;
-        }
-        $highestScore = 0;
-        // Lower-cased view of the (already canonical) filter for a
-        // case-insensitive value comparison below.
-        $normFilter = array_map('strtolower', $filter);
-        foreach ($Inventories as &$Inventory) {
-            $inventoryCompare = [];
-            if (strlen($Inventory->sysuuid) != 0) {
-                $inventoryCompare['sysuuid'] = strtolower(
-                    self::canonicalizeIdentifier($Inventory->sysuuid)
-                );
-            }
-            if (strlen($Inventory->mbserial) != 0) {
-                $inventoryCompare['mbserial'] = strtolower(
-                    self::canonicalizeIdentifier($Inventory->mbserial)
-                );
-            }
-            if (strlen($Inventory->sysserial) != 0) {
-                $inventoryCompare['sysserial'] = strtolower(
-                    self::canonicalizeIdentifier($Inventory->sysserial)
-                );
-            }
-            $score = count(array_intersect($inventoryCompare, $normFilter));
-            if ($score > $highestScore) {
-                $highestScore = $score;
-                $hostID = $Inventory->hostID;
-            }
-            unset($Inventory);
-        }
-        if (is_numeric($hostID)) {
-            self::$Host = new Host($hostID);
-        }
-        return;
+        $hostID = self::resolveHostBySmbios(
+            [
+                'sysuuid' => $sysuuid,
+                'sysserial' => $sysserial,
+                'mbserial' => $mbserial,
+                'caseasset' => $caseasset
+            ]
+        );
+        self::$Host = new Host((int)$hostID);
     }
     /**
      * Returns a single host object based on the passed MACs.

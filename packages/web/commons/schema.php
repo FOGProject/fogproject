@@ -10666,3 +10666,41 @@ $this->schema[] = [
     . (defined('TFTP_ROOT_DIR') ? TFTP_ROOT_DIR : '/tftpboot')
     . "','TFTP Server')",
 ];
+
+// 413
+$this->schema[] = [
+    // #198: a booting machine can now be identified by what its firmware
+    // reports as well as by its MAC. getHostItem() looks the four SMBIOS
+    // fields up on EVERY boot.php request, and `inventory` had no index on
+    // any of them -- the lookup was a table scan per boot. One key per field
+    // the resolver filters on (SmbiosIdentity::FIELDS).
+    //
+    // Prefixed at 191 characters, not the full 250/255. 191 x 4 bytes fits
+    // the 767-byte key limit of InnoDB's older row formats even under
+    // utf8mb4, so the ALTER cannot be refused by whichever charset and row
+    // format an old install's table still carries. No real identifier is
+    // anywhere near that long, so the prefix costs nothing.
+    "ALTER TABLE `inventory` "
+    . "ADD KEY `iSystemUUID` (`iSystemUUID`(191)), "
+    . "ADD KEY `iSysserial` (`iSysserial`(191)), "
+    . "ADD KEY `iMbserial` (`iMbserial`(191)), "
+    . "ADD KEY `iCaseasset` (`iCaseasset`(191))",
+    // The switch that decides how far the firmware identity goes. Ships in
+    // `log`: the MAC keeps deciding and every disagreement is written to
+    // the error log, so a site learns what its vendors' firmware really
+    // reports before any of it is trusted. `enforce` makes a unique SMBIOS
+    // match win over the MAC; `off` ignores the values entirely. The first
+    // attempt at this (2018) shipped straight to enforce, met MSI boards
+    // that all report FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF, and was
+    // reverted wholesale. This setting is what turns that into a toggle.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_HOST_IDENTIFY_SMBIOS','How much to trust the SMBIOS identity "
+    . "(UUID, system serial, board serial, chassis asset tag) a booting "
+    . "machine reports, next to its MAC address. Off: MAC only. Log: the MAC "
+    . "decides and every disagreement is written to the web server error "
+    . "log. Enforce: a unique firmware match wins over the MAC. Run Log "
+    . "first and read the log before choosing Enforce.','log',"
+    . "'General Settings')",
+];

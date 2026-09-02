@@ -13,6 +13,7 @@
 
 use FOG\Audit\Audit;
 use FOG\Base\FOGCore;
+use FOG\Base\SmbiosIdentity;
 use FOG\Items\Inventory;
 
 /**
@@ -105,7 +106,7 @@ try {
     ];
     // Identifier fields that may be matched against iPXE/SMBIOS values at
     // boot time. Canonicalize on write so the stored value compares
-    // reliably with what iPXE reports (see FOGBase::canonicalizeIdentifier).
+    // reliably with what iPXE reports (see SmbiosIdentity::canonicalize).
     $identifierFields = ['sysuuid', 'sysserial', 'mbserial'];
     foreach ($allowedFields as $field) {
         if (!isset($_REQUEST[$field])) {
@@ -113,7 +114,7 @@ try {
         }
         $value = $_REQUEST[$field];
         if (in_array($field, $identifierFields, true)) {
-            $value = FOGCore::canonicalizeIdentifier($value);
+            $value = SmbiosIdentity::canonicalize($value);
         }
         $Inventory->set($field, $value);
     }
