@@ -111,7 +111,10 @@ $at = static function ($needle) use ($body) {
 $auth = $at('self::checkAuthAndCSRF();');
 $scope = $at("Authorization::requirePageObjectScopeMass('host', \$hosts);");
 $resolve = $at('$resolved = MassEdit::resolve(');
-$write = $at("->update(['id' => \$hosts], '', \$updates);");
+// The call is wrapped in `if (!...)` now, so the statement no longer ends in
+// `;` right after the arguments -- the write itself is unchanged, and this
+// anchors on the arguments rather than on the punctuation around them.
+$write = $at("->update(['id' => \$hosts], '', \$updates)");
 $hook = $at("'HOST_MASSEDIT_APPLY',");
 
 $check('it checks auth and CSRF', false !== $auth);

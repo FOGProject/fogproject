@@ -4226,9 +4226,18 @@ class HostManagement extends FOGPage
     private function massEditCoreFields()
     {
         return [
+            // NULL, not 0. `hosts`.`hostImage` carries a foreign key to
+            // `images`.`imageID` (ADR 0031, schema-constraints.php:145) and
+            // 0 is not exempt from a constraint just because it looks like
+            // an absence -- there is no image with id 0, so clearing to 0 is
+            // rejected outright and the whole mass edit fails. The column is
+            // nullable and the reconciler already swept every legacy 0 to
+            // NULL, so NULL is what "no image" actually IS on any 1.6
+            // database. Verified against a live install: 77 hosts hold NULL
+            // and none holds 0.
             'image' => [
                 'field' => 'imageID',
-                'empty' => 0,
+                'empty' => null,
                 'label' => _('Image'),
                 'kind' => 'image',
                 'tab' => 'general'
@@ -5143,8 +5152,18 @@ class HostManagement extends FOGPage
                 // non-empty because an UPDATE with no assignments is either
                 // a syntax error or, worse, a statement whose WHERE is the
                 // only part left.
-                self::getClass('HostManager')
-                    ->update(['id' => $hosts], '', $updates);
+                // The return value is CHECKED. perform_update() answers
+                // false and writes a fault rather than throwing, so ignoring
+                // it reported "Updated 1 field(s) on 86 host(s)" for a write
+                // the database had refused -- which is how a clear that
+                // never landed reads as a clear that did.
+                if (!self::getClass('HostManager')
+                    ->update(['id' => $hosts], '', $updates)
+                ) {
+                    throw new \Exception(
+                        _('The database refused the update; nothing was changed')
+                    );
+                }
                 $affected = count($hosts);
             }
             // Row-backed fields count toward the same affectedCount: one
