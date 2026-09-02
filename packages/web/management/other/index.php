@@ -17,6 +17,7 @@ declare(strict_types=1);
 use FOG\Auth\Authorization;
 use FOG\Auth\CSRF;
 use FOG\Base\FOGPage;
+use FOG\Base\Page;
 
 // Not an entry point: this is the page shell, included by Page::render()
 // with the application already booted, which is what makes the self::
@@ -101,7 +102,7 @@ ob_start();
     // Process CSS event hooks
     self::$HookManager->processEvent('CSS', ['stylesheets' => &$this->stylesheets]);
 foreach ((array)$this->stylesheets as $stylesheet) {
-    echo '<link href="' . htmlspecialchars($stylesheet, ENT_QUOTES, 'UTF-8') . '?ver=' . FOG_BCACHE_VER . '" rel="stylesheet" type="text/css"/>';
+    echo '<link href="' . htmlspecialchars($stylesheet, ENT_QUOTES, 'UTF-8') . '?ver=' . Page::assetVersion($stylesheet) . '" rel="stylesheet" type="text/css"/>';
 }
 unset($this->stylesheets);
 ?>
@@ -651,7 +652,7 @@ if ($showNoRoleBanner):
         // Process JS event hooks
         self::$HookManager->processEvent('JS', ['javascripts' => &$this->javascripts]);
 foreach ((array)$this->javascripts as $javascript) {
-    echo '<script src="' . htmlspecialchars($javascript, ENT_QUOTES, 'UTF-8') . '?ver=' . FOG_BCACHE_VER . '" type="text/javascript"></script>';
+    echo '<script src="' . htmlspecialchars($javascript, ENT_QUOTES, 'UTF-8') . '?ver=' . Page::assetVersion($javascript) . '" type="text/javascript"></script>';
 }
 unset($this->javascripts);
 // Drain any queued flash messages and toast them once the JS bundle
