@@ -28,7 +28,7 @@ $t = new FogChecks();
 /**
  * The queries the fake database was handed. A class rather than an array
  * captured by reference so the reads below are typed by last(), not
- * narrowed to the empty literal the static analyser sees assigned.
+ * narrowed to the empty literal the static analyzer sees assigned.
  */
 final class QueryCapture
 {
