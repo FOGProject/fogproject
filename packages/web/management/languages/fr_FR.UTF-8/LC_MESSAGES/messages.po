@@ -257,9 +257,6 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
-msgid "(default on all)"
-msgstr ""
-
 msgid "(deleted user)"
 msgstr ""
 
@@ -2228,9 +2225,6 @@ msgstr "Enregistrements courants"
 msgid "Current Records"
 msgstr "Enregistrements courants"
 
-msgid "Current member-host AD state"
-msgstr ""
-
 msgid "DMI Field"
 msgstr ""
 
@@ -2422,10 +2416,6 @@ msgstr "Échec du téléchargement"
 msgid "Deploy Method"
 msgstr "Déployer Méthode"
 
-#, fuzzy
-msgid "Deprecated."
-msgstr "Créer"
-
 msgid "Depth"
 msgstr ""
 
@@ -2520,18 +2510,6 @@ msgid "Domain Password"
 msgstr "domaine Mot de passe"
 
 msgid "Domain Username"
-msgstr "Domaine Nom d'utilisateur"
-
-#, fuzzy
-msgid "Domain joining"
-msgstr "Nom de domaine"
-
-#, fuzzy
-msgid "Domain name"
-msgstr "Domaine Nom d'utilisateur"
-
-#, fuzzy
-msgid "Domain username"
 msgstr "Domaine Nom d'utilisateur"
 
 msgid "Donate"
@@ -3456,10 +3434,6 @@ msgid "Group Associations"
 msgstr "Nœud de stockage Créé"
 
 #, fuzzy
-msgid "Group BIOS Exit"
-msgstr "Export SnapIns"
-
-#, fuzzy
 msgid "Group Claim"
 msgstr "Nom de groupe"
 
@@ -3487,28 +3461,12 @@ msgid "Group Description"
 msgstr "Description du groupe"
 
 #, fuzzy
-msgid "Group Display Manager Settings"
-msgstr "Paramètres"
-
-#, fuzzy
-msgid "Group EFI Exit"
-msgstr "Export SnapIns"
-
-#, fuzzy
 msgid "Group Host Associations"
 msgstr "Aucun noeud associé"
 
 #, fuzzy
 msgid "Group Host Inventories"
 msgstr "Groupes"
-
-#, fuzzy
-msgid "Group Image"
-msgstr "Nom de groupe"
-
-#, fuzzy
-msgid "Group Image Association"
-msgstr "Association Image"
 
 #, fuzzy
 msgid "Group Init"
@@ -3587,13 +3545,6 @@ msgstr "Primary Disk Group"
 #, fuzzy
 msgid "Group Printer Assignment"
 msgstr "Arguments Groupe Kernel"
-
-#, fuzzy
-msgid "Group Printer Configuration"
-msgstr "Configuration du service"
-
-msgid "Group Product Key"
-msgstr "Groupe clé de produit"
 
 #, fuzzy
 msgid "Group Search DN"
@@ -5146,9 +5097,6 @@ msgstr "Dernière version"
 
 msgid "Latest Version"
 msgstr "Dernière version"
-
-msgid "Leave a field blank to keep each host's current value."
-msgstr ""
 
 msgid "Leave blank to keep the current password"
 msgstr ""
@@ -9323,9 +9271,6 @@ msgstr ""
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
-msgid "The fields below that are written onto hosts apply the value once, to the hosts that are members right now. A host added to the group later does not get it, and a host removed keeps it."
-msgstr ""
-
 msgid "The file itself."
 msgstr ""
 
@@ -9793,10 +9738,6 @@ msgstr "Ce réglage n'ajoute et supprime les imprimantes qui sont gérés par FO
 msgid "This setting turns off all FOG Printer Management. Although there are multiple levels already, this is just another level if needed."
 msgstr ""
 
-#, fuzzy
-msgid "This setting will only allow FO GAssigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
-msgstr "Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les imprimantes gérées non-FOG."
-
 msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
 msgstr "Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les imprimantes gérées non-FOG."
 
@@ -9810,9 +9751,6 @@ msgid "This will allow you to configure how services"
 msgstr ""
 
 msgid "This will delete all powermanagement items from all hosts in this group"
-msgstr ""
-
-msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
 msgid "This would leave no account able to administer FOG without its identity provider."
@@ -10233,9 +10171,6 @@ msgstr ""
 
 msgid "Uptime"
 msgstr "uptime"
-
-msgid "Use \"Edit selected hosts\" on the Hosts list instead; these controls will be removed in a later release."
-msgstr ""
 
 msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
 msgstr ""
@@ -10978,10 +10913,6 @@ msgid "disabled"
 msgstr "Activée"
 
 #, fuzzy
-msgid "disabled (all)"
-msgstr "Activée"
-
-#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "L'image est protégée et ne peut être supprimé"
 
@@ -10993,10 +10924,6 @@ msgstr ""
 
 msgid "either because you have updated"
 msgstr ""
-
-#, fuzzy
-msgid "enabled (all)"
-msgstr "Activée"
 
 #, fuzzy
 msgid "error"
@@ -11327,10 +11254,6 @@ msgstr ""
 #, fuzzy
 msgid "min"
 msgstr "minutes"
-
-#, fuzzy
-msgid "min (all)"
-msgstr "Activée"
 
 msgid "minutes"
 msgstr "minutes"
@@ -11668,10 +11591,6 @@ msgid "to choose one under Logging Settings, or to confirm that keeping them is 
 msgstr ""
 
 #, fuzzy
-msgid "to clear the field on every host in this group."
-msgstr " | Cela ne veut pas le groupe principal"
-
-#, fuzzy
 msgid "to get the requested Kernel"
 msgstr "Aucune clé demandée"
 
@@ -11966,6 +11885,22 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pas de hachage disponible"
 
+#, fuzzy
+#~ msgid "Deprecated."
+#~ msgstr "Créer"
+
+#, fuzzy
+#~ msgid "Domain joining"
+#~ msgstr "Nom de domaine"
+
+#, fuzzy
+#~ msgid "Domain name"
+#~ msgstr "Domaine Nom d'utilisateur"
+
+#, fuzzy
+#~ msgid "Domain username"
+#~ msgstr "Domaine Nom d'utilisateur"
+
 #~ msgid "End"
 #~ msgstr "Fin"
 
@@ -12049,8 +11984,35 @@ msgstr ""
 #~ msgstr "FOG vert"
 
 #, fuzzy
+#~ msgid "Group BIOS Exit"
+#~ msgstr "Export SnapIns"
+
+#, fuzzy
+#~ msgid "Group Display Manager Settings"
+#~ msgstr "Paramètres"
+
+#, fuzzy
+#~ msgid "Group EFI Exit"
+#~ msgstr "Export SnapIns"
+
+#, fuzzy
+#~ msgid "Group Image"
+#~ msgstr "Nom de groupe"
+
+#, fuzzy
+#~ msgid "Group Image Association"
+#~ msgstr "Association Image"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "hôte Lieu"
+
+#, fuzzy
+#~ msgid "Group Printer Configuration"
+#~ msgstr "Configuration du service"
+
+#~ msgid "Group Product Key"
+#~ msgstr "Groupe clé de produit"
 
 #, fuzzy
 #~ msgid "Group Site"
@@ -12419,6 +12381,10 @@ msgstr ""
 #~ msgstr " | Cela ne veut pas le nœud maître"
 
 #, fuzzy
+#~ msgid "This setting will only allow FO GAssigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+#~ msgstr "Ce paramètre ne permettra imprimantes BROUILLARD Assigné à être ajoutés à l'hôte. Toute imprimante qui est non affecté sera supprimé, y compris les imprimantes gérées non-FOG."
+
+#, fuzzy
 #~ msgid "This will perform the action on all hosts in this group"
 #~ msgstr " | Cela ne veut pas le groupe principal"
 
@@ -12513,6 +12479,14 @@ msgstr ""
 #~ msgstr "Terminé"
 
 #, fuzzy
+#~ msgid "disabled (all)"
+#~ msgstr "Activée"
+
+#, fuzzy
+#~ msgid "enabled (all)"
+#~ msgstr "Activée"
+
+#, fuzzy
 #~ msgid "has been successfully destroyed"
 #~ msgstr "a été mis à jour avec succès"
 
@@ -12524,12 +12498,20 @@ msgstr ""
 #~ msgstr "n'a pas réussi à détruire"
 
 #, fuzzy
+#~ msgid "min (all)"
+#~ msgstr "Activée"
+
+#, fuzzy
 #~ msgid "multicast tasks!"
 #~ msgstr "Tâches Multicast actifs"
 
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "Aucune base de données de travailler hors"
+
+#, fuzzy
+#~ msgid "to clear the field on every host in this group."
+#~ msgstr " | Cela ne veut pas le groupe principal"
 
 #, fuzzy
 #~ msgid "username"

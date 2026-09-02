@@ -247,9 +247,6 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
-msgid "(default on all)"
-msgstr ""
-
 #, fuzzy
 msgid "(deleted user)"
 msgstr "選択したユーザーを追加"
@@ -2153,9 +2150,6 @@ msgstr "現在のレコード"
 msgid "Current Records"
 msgstr "現在のレコード"
 
-msgid "Current member-host AD state"
-msgstr ""
-
 msgid "DMI Field"
 msgstr "DMI フィールド"
 
@@ -2342,10 +2336,6 @@ msgstr "ダウンロードに失敗しました"
 msgid "Deploy Method"
 msgstr "展開方法"
 
-#, fuzzy
-msgid "Deprecated."
-msgstr "作成"
-
 msgid "Depth"
 msgstr ""
 
@@ -2437,17 +2427,6 @@ msgid "Domain Password"
 msgstr "ドメインパスワード"
 
 msgid "Domain Username"
-msgstr "ドメインユーザー名"
-
-#, fuzzy
-msgid "Domain joining"
-msgstr "ドメイン名"
-
-msgid "Domain name"
-msgstr "ドメイン名"
-
-#, fuzzy
-msgid "Domain username"
 msgstr "ドメインユーザー名"
 
 #, fuzzy
@@ -3343,10 +3322,6 @@ msgid "Group Associations"
 msgstr "グループの関連付け"
 
 #, fuzzy
-msgid "Group BIOS Exit"
-msgstr "グループ EFI 終了方法"
-
-#, fuzzy
 msgid "Group Claim"
 msgstr "グループ名"
 
@@ -3372,28 +3347,12 @@ msgid "Group Description"
 msgstr "グループの説明"
 
 #, fuzzy
-msgid "Group Display Manager Settings"
-msgstr "グループモジュール設定"
-
-#, fuzzy
-msgid "Group EFI Exit"
-msgstr "グループ EFI 終了方法"
-
-#, fuzzy
 msgid "Group Host Associations"
 msgstr "グループの関連付け"
 
 #, fuzzy
 msgid "Group Host Inventories"
 msgstr "FOG ホストインベントリ - 検索"
-
-#, fuzzy
-msgid "Group Image"
-msgstr "グループイメージ"
-
-#, fuzzy
-msgid "Group Image Association"
-msgstr "グループイメージの関連付け"
 
 #, fuzzy
 msgid "Group Init"
@@ -3471,13 +3430,6 @@ msgstr "グループプライマリディスク"
 #, fuzzy
 msgid "Group Printer Assignment"
 msgstr "グループプリンター"
-
-#, fuzzy
-msgid "Group Printer Configuration"
-msgstr "プリンター設定"
-
-msgid "Group Product Key"
-msgstr "グループ プロダクトキー"
 
 msgid "Group Search DN"
 msgstr "グループ検索 DN"
@@ -4959,9 +4911,6 @@ msgstr "最新開発版"
 
 msgid "Latest Version"
 msgstr "最新バージョン"
-
-msgid "Leave a field blank to keep each host's current value."
-msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
 
 #, fuzzy
 msgid "Leave blank to keep the current password"
@@ -8986,9 +8935,6 @@ msgstr ""
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
-msgid "The fields below that are written onto hosts apply the value once, to the hosts that are members right now. A host added to the group later does not get it, and a host removed keeps it."
-msgstr ""
-
 msgid "The file itself."
 msgstr ""
 
@@ -9449,10 +9395,6 @@ msgstr "この設定では、FOG が管理するプリンターのみを追加�
 msgid "This setting turns off all FOG Printer Management. Although there are multiple levels already, this is just another level if needed."
 msgstr ""
 
-#, fuzzy
-msgid "This setting will only allow FO GAssigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
-msgstr "この設定では、FOG で割り当てられたプリンターのみがホストへ追加されます。割り当てられていないプリンターは、FOG 管理外のプリンターも含めて削除されます。"
-
 msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
 msgstr "この設定では、FOG で割り当てられたプリンターのみがホストへ追加されます。割り当てられていないプリンターは、FOG 管理外のプリンターも含めて削除されます。"
 
@@ -9468,10 +9410,6 @@ msgstr "ここではサービスの動作を設定できます"
 
 msgid "This will delete all powermanagement items from all hosts in this group"
 msgstr ""
-
-#, fuzzy
-msgid "This will set the configuration level to all hosts in this group"
-msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
 msgid "This would leave no account able to administer FOG without its identity provider."
 msgstr ""
@@ -9880,9 +9818,6 @@ msgstr "ファイルをアップロード"
 
 msgid "Uptime"
 msgstr "稼働時間"
-
-msgid "Use \"Edit selected hosts\" on the Hosts list instead; these controls will be removed in a later release."
-msgstr ""
 
 msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
 msgstr ""
@@ -10595,10 +10530,6 @@ msgid "disabled"
 msgstr "無効"
 
 #, fuzzy
-msgid "disabled (all)"
-msgstr "無効"
-
-#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "イメージは保護されているため削除できません"
 
@@ -10610,10 +10541,6 @@ msgstr "既に選択済み、またはアップロード済み"
 
 msgid "either because you have updated"
 msgstr "更新したため、または"
-
-#, fuzzy
-msgid "enabled (all)"
-msgstr "有効"
 
 #, fuzzy
 msgid "error"
@@ -10931,9 +10858,6 @@ msgstr "つまり、イメージを持たないノード"
 
 msgid "min"
 msgstr "分"
-
-msgid "min (all)"
-msgstr ""
 
 msgid "minutes"
 msgstr "分"
@@ -11258,9 +11182,6 @@ msgstr "更新に失敗しました"
 
 msgid "to choose one under Logging Settings, or to confirm that keeping them is what you want."
 msgstr ""
-
-msgid "to clear the field on every host in this group."
-msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
 msgid "to get the requested Kernel"
 msgstr "要求されたカーネルを取得するため"
@@ -11785,6 +11706,10 @@ msgstr ""
 #~ msgid "Deploy/Capture"
 #~ msgstr "展開/キャプチャ"
 
+#, fuzzy
+#~ msgid "Deprecated."
+#~ msgstr "作成"
+
 #~ msgid "Destroyed assignment"
 #~ msgstr "割り当てを解除しました"
 
@@ -11796,6 +11721,17 @@ msgstr ""
 
 #~ msgid "Domain Password Legacy"
 #~ msgstr "従来のドメインパスワード"
+
+#, fuzzy
+#~ msgid "Domain joining"
+#~ msgstr "ドメイン名"
+
+#~ msgid "Domain name"
+#~ msgstr "ドメイン名"
+
+#, fuzzy
+#~ msgid "Domain username"
+#~ msgstr "ドメインユーザー名"
 
 #~ msgid "Downloading Initrd"
 #~ msgstr "Initrd をダウンロードしています"
@@ -12058,11 +11994,31 @@ msgstr ""
 #~ msgid "Green FOG"
 #~ msgstr "Green FOG"
 
+#, fuzzy
+#~ msgid "Group BIOS Exit"
+#~ msgstr "グループ EFI 終了方法"
+
 #~ msgid "Group Bios Exit Type"
 #~ msgstr "グループ BIOS 終了方法"
 
+#, fuzzy
+#~ msgid "Group Display Manager Settings"
+#~ msgstr "グループモジュール設定"
+
+#, fuzzy
+#~ msgid "Group EFI Exit"
+#~ msgstr "グループ EFI 終了方法"
+
 #~ msgid "Group FOG Client Module configuration"
 #~ msgstr "グループ FOG クライアントモジュール設定"
+
+#, fuzzy
+#~ msgid "Group Image"
+#~ msgstr "グループイメージ"
+
+#, fuzzy
+#~ msgid "Group Image Association"
+#~ msgstr "グループイメージの関連付け"
 
 #, fuzzy
 #~ msgid "Group Mappings"
@@ -12070,6 +12026,13 @@ msgstr ""
 
 #~ msgid "Group Power Management Remove"
 #~ msgstr "グループ電源管理を削除"
+
+#, fuzzy
+#~ msgid "Group Printer Configuration"
+#~ msgstr "プリンター設定"
+
+#~ msgid "Group Product Key"
+#~ msgstr "グループ プロダクトキー"
 
 #~ msgid "Group Quick Deploy"
 #~ msgstr "グループ簡易展開"
@@ -12440,6 +12403,9 @@ msgstr ""
 
 #~ msgid "Last captured"
 #~ msgstr "最終キャプチャ"
+
+#~ msgid "Leave a field blank to keep each host's current value."
+#~ msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
 
 #~ msgid "Link New Account"
 #~ msgstr "新しいアカウントをリンク"
@@ -13355,7 +13321,15 @@ msgstr ""
 #~ msgstr "この設定は FOG のプリンター管理機能をすべて無効にします"
 
 #, fuzzy
+#~ msgid "This setting will only allow FO GAssigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+#~ msgstr "この設定では、FOG で割り当てられたプリンターのみがホストへ追加されます。割り当てられていないプリンターは、FOG 管理外のプリンターも含めて削除されます。"
+
+#, fuzzy
 #~ msgid "This will perform the action on all hosts in this group"
+#~ msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
+
+#, fuzzy
+#~ msgid "This will set the configuration level to all hosts in this group"
 #~ msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
 #~ msgid "Timeout"
@@ -13620,6 +13594,10 @@ msgstr ""
 #~ msgid "deleted"
 #~ msgstr "削除済み"
 
+#, fuzzy
+#~ msgid "disabled (all)"
+#~ msgstr "無効"
+
 #~ msgid "download the module and use it on the next"
 #~ msgstr "モジュールをダウンロードし、次回以降に使用します"
 
@@ -13628,6 +13606,10 @@ msgstr ""
 
 #~ msgid "e.g."
 #~ msgstr "例:"
+
+#, fuzzy
+#~ msgid "enabled (all)"
+#~ msgstr "有効"
 
 #~ msgid "for the advanced menu parameters"
 #~ msgstr "詳細メニューパラメーター用"
@@ -13792,6 +13774,9 @@ msgstr ""
 
 #~ msgid "to be booted if no keys are pressed when the menu is"
 #~ msgstr "メニュー表示中にキーが押されなかった場合に起動する"
+
+#~ msgid "to clear the field on every host in this group."
+#~ msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
 #~ msgid "to signify if this is a user or channel to send to"
 #~ msgstr "送信先がユーザーかチャンネルかを指定します"

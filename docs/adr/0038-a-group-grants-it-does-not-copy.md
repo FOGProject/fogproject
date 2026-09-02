@@ -1351,7 +1351,11 @@ and the third is a deliberate departure from the units table.
   default and `Group::appendSnapinSequence()` numbers them afterward -- the
   same mechanism, for the same reason, as its host-side twin.
 
-- **The imperative controls are marked deprecated, not removed.** Decision 10
+- **The imperative controls are removed.** *(Updated: the deprecation shipped
+  in #1647 and the removal in unit F, once fog-plugins #36 gave `location` and
+  `ou` the same mass-edit seam the core fields use. Seven controls went, not
+  six -- the group Active Directory card pushed to member hosts too and was
+  missed when the notices were added.)* Decision 10
   says the order is: mass edit ships, the imperative tabs are marked
   deprecated in the UI and the docs, they are removed in a later release. The
   units table entry for unit E said "removal of the imperative tabs", which

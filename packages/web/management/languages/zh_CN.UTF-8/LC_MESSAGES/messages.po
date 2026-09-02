@@ -256,9 +256,6 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
-msgid "(default on all)"
-msgstr ""
-
 msgid "(deleted user)"
 msgstr ""
 
@@ -2227,9 +2224,6 @@ msgstr "当前记录"
 msgid "Current Records"
 msgstr "当前记录"
 
-msgid "Current member-host AD state"
-msgstr ""
-
 msgid "DMI Field"
 msgstr ""
 
@@ -2421,10 +2415,6 @@ msgstr "下载失败"
 msgid "Deploy Method"
 msgstr "部署方法"
 
-#, fuzzy
-msgid "Deprecated."
-msgstr "创建"
-
 msgid "Depth"
 msgstr ""
 
@@ -2519,18 +2509,6 @@ msgid "Domain Password"
 msgstr "域密码"
 
 msgid "Domain Username"
-msgstr "域用户名"
-
-#, fuzzy
-msgid "Domain joining"
-msgstr "域名"
-
-#, fuzzy
-msgid "Domain name"
-msgstr "域用户名"
-
-#, fuzzy
-msgid "Domain username"
 msgstr "域用户名"
 
 msgid "Donate"
@@ -3455,10 +3433,6 @@ msgid "Group Associations"
 msgstr "存储节点创建"
 
 #, fuzzy
-msgid "Group BIOS Exit"
-msgstr "出口Snapins"
-
-#, fuzzy
 msgid "Group Claim"
 msgstr "组名称"
 
@@ -3486,28 +3460,12 @@ msgid "Group Description"
 msgstr "团体简介"
 
 #, fuzzy
-msgid "Group Display Manager Settings"
-msgstr "设置"
-
-#, fuzzy
-msgid "Group EFI Exit"
-msgstr "出口Snapins"
-
-#, fuzzy
 msgid "Group Host Associations"
 msgstr "无关联的节点"
 
 #, fuzzy
 msgid "Group Host Inventories"
 msgstr "组"
-
-#, fuzzy
-msgid "Group Image"
-msgstr "组名称"
-
-#, fuzzy
-msgid "Group Image Association"
-msgstr "图像协会"
 
 #, fuzzy
 msgid "Group Init"
@@ -3586,13 +3544,6 @@ msgstr "集团主磁盘"
 #, fuzzy
 msgid "Group Printer Assignment"
 msgstr "集团内核参数"
-
-#, fuzzy
-msgid "Group Printer Configuration"
-msgstr "服务配置"
-
-msgid "Group Product Key"
-msgstr "集团产品密钥"
 
 #, fuzzy
 msgid "Group Search DN"
@@ -5145,9 +5096,6 @@ msgstr "最新版本"
 
 msgid "Latest Version"
 msgstr "最新版本"
-
-msgid "Leave a field blank to keep each host's current value."
-msgstr ""
 
 msgid "Leave blank to keep the current password"
 msgstr ""
@@ -9325,9 +9273,6 @@ msgstr ""
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
-msgid "The fields below that are written onto hosts apply the value once, to the hosts that are members right now. A host added to the group later does not get it, and a host removed keeps it."
-msgstr ""
-
 msgid "The file itself."
 msgstr ""
 
@@ -9795,10 +9740,6 @@ msgstr "此设置只添加和删除由FOG管理的打印机。如果打印机管
 msgid "This setting turns off all FOG Printer Management. Although there are multiple levels already, this is just another level if needed."
 msgstr ""
 
-#, fuzzy
-msgid "This setting will only allow FO GAssigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
-msgstr "此设置仅允许FOG分配的打印机要添加到主机。没有分配任何打印机将包括非FOG管理的打印机被删除。"
-
 msgid "This setting will only allow FOG Assigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
 msgstr "此设置仅允许FOG分配的打印机要添加到主机。没有分配任何打印机将包括非FOG管理的打印机被删除。"
 
@@ -9812,9 +9753,6 @@ msgid "This will allow you to configure how services"
 msgstr ""
 
 msgid "This will delete all powermanagement items from all hosts in this group"
-msgstr ""
-
-msgid "This will set the configuration level to all hosts in this group"
 msgstr ""
 
 msgid "This would leave no account able to administer FOG without its identity provider."
@@ -10235,9 +10173,6 @@ msgstr ""
 
 msgid "Uptime"
 msgstr "正常运行时间"
-
-msgid "Use \"Edit selected hosts\" on the Hosts list instead; these controls will be removed in a later release."
-msgstr ""
 
 msgid "Use Authorize to enter your API tokens before trying a call. The server-wide token is under FOG Configuration > FOG Settings > API System; your personal token is on the API tab of your user account."
 msgstr ""
@@ -10980,10 +10915,6 @@ msgid "disabled"
 msgstr "启用"
 
 #, fuzzy
-msgid "disabled (all)"
-msgstr "启用"
-
-#, fuzzy
 msgid "does not exist and cannot be created"
 msgstr "图像被保护，不能被删除"
 
@@ -10995,10 +10926,6 @@ msgstr ""
 
 msgid "either because you have updated"
 msgstr ""
-
-#, fuzzy
-msgid "enabled (all)"
-msgstr "启用"
 
 #, fuzzy
 msgid "error"
@@ -11329,10 +11256,6 @@ msgstr ""
 #, fuzzy
 msgid "min"
 msgstr "分钟"
-
-#, fuzzy
-msgid "min (all)"
-msgstr "启用"
 
 msgid "minutes"
 msgstr "分钟"
@@ -11670,10 +11593,6 @@ msgid "to choose one under Logging Settings, or to confirm that keeping them is 
 msgstr ""
 
 #, fuzzy
-msgid "to clear the field on every host in this group."
-msgstr "|这不是主要组"
-
-#, fuzzy
 msgid "to get the requested Kernel"
 msgstr "没有要求的关键"
 
@@ -11968,6 +11887,22 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "没有可用的散列"
 
+#, fuzzy
+#~ msgid "Deprecated."
+#~ msgstr "创建"
+
+#, fuzzy
+#~ msgid "Domain joining"
+#~ msgstr "域名"
+
+#, fuzzy
+#~ msgid "Domain name"
+#~ msgstr "域用户名"
+
+#, fuzzy
+#~ msgid "Domain username"
+#~ msgstr "域用户名"
+
 #~ msgid "End"
 #~ msgstr "结束"
 
@@ -12051,8 +11986,35 @@ msgstr ""
 #~ msgstr "绿雾"
 
 #, fuzzy
+#~ msgid "Group BIOS Exit"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "Group Display Manager Settings"
+#~ msgstr "设置"
+
+#, fuzzy
+#~ msgid "Group EFI Exit"
+#~ msgstr "出口Snapins"
+
+#, fuzzy
+#~ msgid "Group Image"
+#~ msgstr "组名称"
+
+#, fuzzy
+#~ msgid "Group Image Association"
+#~ msgstr "图像协会"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "主机位置"
+
+#, fuzzy
+#~ msgid "Group Printer Configuration"
+#~ msgstr "服务配置"
+
+#~ msgid "Group Product Key"
+#~ msgstr "集团产品密钥"
 
 #, fuzzy
 #~ msgid "Group Site"
@@ -12421,6 +12383,10 @@ msgstr ""
 #~ msgstr "|这不是主节点"
 
 #, fuzzy
+#~ msgid "This setting will only allow FO GAssigned printers to be added to the host. Any printer that is not assigned will be removed including non-FOG managed printers."
+#~ msgstr "此设置仅允许FOG分配的打印机要添加到主机。没有分配任何打印机将包括非FOG管理的打印机被删除。"
+
+#, fuzzy
 #~ msgid "This will perform the action on all hosts in this group"
 #~ msgstr "|这不是主要组"
 
@@ -12515,6 +12481,14 @@ msgstr ""
 #~ msgstr "完成"
 
 #, fuzzy
+#~ msgid "disabled (all)"
+#~ msgstr "启用"
+
+#, fuzzy
+#~ msgid "enabled (all)"
+#~ msgstr "启用"
+
+#, fuzzy
 #~ msgid "has been successfully destroyed"
 #~ msgstr "已成功更新"
 
@@ -12526,12 +12500,20 @@ msgstr ""
 #~ msgstr "未能被销毁"
 
 #, fuzzy
+#~ msgid "min (all)"
+#~ msgstr "启用"
+
+#, fuzzy
 #~ msgid "multicast tasks!"
 #~ msgstr "活动组播任务"
 
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "没有数据库工作关闭"
+
+#, fuzzy
+#~ msgid "to clear the field on every host in this group."
+#~ msgstr "|这不是主要组"
 
 #, fuzzy
 #~ msgid "username"

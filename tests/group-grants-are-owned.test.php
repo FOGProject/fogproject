@@ -422,41 +422,104 @@ foreach ($expect as $class => $info) {
 }
 
 // ---------------------------------------------------------------
-// Decision 10's middle step: the controls that COPY onto member hosts say
-// so, and the grant tabs beside them do not. Getting that backwards would
-// tell an admin the group's snapins are going away, which is the opposite
-// of what this ADR does.
-$notice = '_pushDeprecationNotice';
+// Decision 10's LAST step: the controls that copied onto member hosts are
+// gone, not merely marked. They were deprecated in #1647 and removed once
+// fog-plugins #36 gave `location` and `ou` the same seam the core fields
+// use, so nothing was left depending on a group-page push.
+//
+// These assertions replace the ones that pinned the deprecation notices.
+// Inverting them rather than deleting them is deliberate: "the notice is
+// present" and "the control is absent" are both statements about the same
+// migration, and the second is the one worth keeping, because it is the
+// state that must not silently regress.
 $t->check(
-    'the push-deprecation notice exists',
-    false !== strpos($pageSrc, "private static function $notice(")
+    'the push-deprecation notice is gone with the controls it described',
+    false === strpos($pageSrc, '_pushDeprecationNotice')
+);
+
+// The whole tabs, and their POST handlers.
+foreach (
+    [
+        'groupImage',
+        'groupImagePost',
+        'groupADPost',
+        '_uniformHostValues',
+        '_sharedHint',
+        '_sharedAloHint',
+        '_groupADStateHint',
+    ] as $method
+) {
+    $t->check(
+        "$method() is gone from the group page",
+        false === strpos($pageSrc, " function $method(")
+    );
+}
+
+// A dispatch arm surviving its handler is the shape that fails at runtime
+// rather than at parse time, so it is worth its own check.
+foreach (['group-image', 'group-active-directory'] as $tab) {
+    $t->check(
+        "the '$tab' tab is no longer dispatched",
+        false === strpos($pageSrc, "case '$tab':")
+    );
+}
+
+// The pushes that lived inside surviving methods. Each of these is a write
+// to the MEMBER hosts from a group control -- the exact thing ADR 0038
+// removes -- and each would look, from the page, like the control that used
+// to be there.
+$pushes = [
+    'groupGeneralPost' => ['HostManager', 'productKey', 'bootTypeExit'],
+    'groupPrinterPost' => ['printerLevel', 'confirmlevelup'],
+    'groupModulePost' => ['setDisp', 'setAlo', 'confirmenforcesend'],
+];
+foreach ($pushes as $method => $needles) {
+    $body = codeOnly(methodBody($pageSrc, $method));
+    foreach ($needles as $needle) {
+        $t->check(
+            "$method() no longer pushes $needle onto the members",
+            false === strpos($body, $needle)
+        );
+    }
+}
+
+// The control. groupPowermanagement CREATES TASKS rather than copying a
+// value, so it is not part of this removal and must still be there -- a
+// sweep that took it too would be over-deletion passing as success.
+$t->check(
+    'groupPowermanagement() survives, because it copies nothing',
+    false !== strpos($pageSrc, ' function groupPowermanagement(')
+);
+
+// And the grants themselves are untouched: this removed the pushes, not the
+// tabs the ADR is delivering.
+foreach (['groupPrinters', 'groupSnapins', 'groupModules'] as $method) {
+    $t->check(
+        "$method() still renders its grant tab",
+        false !== strpos(methodBody($pageSrc, $method), 'renderAssocTab')
+        || false !== strpos(methodBody($pageSrc, $method), 'assocItemsList')
+    );
+}
+
+// The JS that drove the removed cards goes with them; a handler left bound
+// to an id nothing renders is dead code that still looks wired.
+$js = (string)file_get_contents(
+    $root . '/management/js/fog/group/fog.group.edit.js'
 );
 foreach (
     [
-        'groupGeneral',
-        'groupImage',
-        'groupPrinters',
-        'groupModules',
-        'groupPowermanagement',
-    ] as $method
+        'group-image-send',
+        'printer-config-send',
+        'group-displayman-send',
+        'group-alo-send',
+        'group-enforce-send',
+        'alo-shared-hint',
+    ] as $id
 ) {
-    $body = methodBody($pageSrc, $method);
-    // groupPowermanagement is the control: it creates tasks rather than
-    // copying a value, so it must NOT be marked.
-    $want = 'groupPowermanagement' !== $method;
     $t->check(
-        $want
-            ? "$method() marks its imperative controls deprecated"
-            : "$method() is not marked, because it copies nothing",
-        $want === (false !== strpos($body, $notice))
+        "the group JS no longer wires #$id",
+        false === strpos($js, $id)
     );
 }
-// One per imperative card, not one per tab: the printers and modules tabs
-// each carry a grant tab AND a push control, so a single tab-level banner
-// would condemn the grants too.
-$t->check(
-    'every imperative card carries its own notice',
-    6 === substr_count($pageSrc, "self::$notice()")
-);
 
 $t->finish();
