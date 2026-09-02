@@ -5708,6 +5708,20 @@ abstract class FOGPage extends FOGBase
     const BOOT_ROLE_PAYLOAD = 'payload';
     const BOOT_ROLE_OTHER = 'unclassified';
     /**
+     * Every bootFile row, keyed by filename, loaded at most once per request.
+     *
+     * bootFileInfo() is called once per file in the boot directory, and a
+     * listing walks the whole directory -- so a lookup per file is a query
+     * per file, twice over on a host form that asks for kernels and then for
+     * inits. One query answers all of them.
+     *
+     * null means "not loaded yet", which is not the same as an empty map: a
+     * server with no rows yet must not be re-queried once per file.
+     *
+     * @var array|null
+     */
+    private static $_bootFileRows = null;
+    /**
      * Picker value meaning "I will type the name myself".
      *
      * Not a filename any filesystem would produce, and matched literally by
@@ -6004,6 +6018,35 @@ abstract class FOGPage extends FOGBase
             && (int)self::_stampToTime($row->get('mtime')) === $mtime
         );
         if ($fresh) {
+            $tagValue = trim((string)$row->get('releaseTag'));
+            $tagReason = '';
+            if ('' === $tagValue) {
+                /**
+                 * No stored tag, so ask again rather than reporting a
+                 * remembered failure. Two reasons, and both matter:
+                 *
+                 * the REASON is current-state information -- "attr is not
+                 * installed on this server" stops being true the moment
+                 * somebody installs it, and telling an admin a stale cause
+                 * is how this panel became useless in the first place;
+                 *
+                 * and it self-heals. A server that could not read the tag
+                 * yesterday and can today picks it up on the next listing
+                 * without waiting for the file to change.
+                 *
+                 * This costs one attr call per file that has no tag, and
+                 * nothing at all for a file that has one -- which is the
+                 * common case on any server where the read works.
+                 */
+                $again = self::bootFileXattr($path, 'tag_name');
+                if ('' !== $again['value']) {
+                    $tagValue = $again['value'];
+                    self::_bootFileStore($row, ['releaseTag' => $tagValue]);
+                } else {
+                    $tagReason = $again['reason'];
+                }
+            }
+
             return [
                 'name' => $name,
                 'exists' => true,
@@ -6012,12 +6055,8 @@ abstract class FOGPage extends FOGBase
                 'mtime' => $mtime,
                 'checksum' => (string)$row->get('checksum'),
                 'kernelVersion' => (string)$row->get('kernelVersion'),
-                'releaseTag' => (string)$row->get('releaseTag'),
-                'tagReason' => (
-                    '' === trim((string)$row->get('releaseTag'))
-                    ? _('not recorded on this file')
-                    : ''
-                ),
+                'releaseTag' => $tagValue,
+                'tagReason' => $tagReason,
                 'pinned' => (bool)(int)$row->get('pinned')
             ];
         }
@@ -6094,15 +6133,24 @@ abstract class FOGPage extends FOGBase
      */
     private static function _bootFileRow($name)
     {
-        try {
-            $rows = self::getClass('BootFileManager')
-                ->find(['name' => $name], 'AND', 'bfID', 'ASC', 1);
-        } catch (\Throwable $e) {
-            return null;
+        if (null === self::$_bootFileRows) {
+            self::$_bootFileRows = [];
+            try {
+                $rows = self::getClass('BootFileManager')->find();
+                foreach ((array)$rows as $row) {
+                    if ($row && $row->isValid()) {
+                        self::$_bootFileRows[(string)$row->get('name')] = $row;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Left as an empty map, deliberately: the records are an
+                // accelerator, and an unreachable store must cost one failed
+                // query per request rather than one per file.
+                self::$_bootFileRows = [];
+            }
         }
-        $row = is_array($rows) ? reset($rows) : false;
 
-        return ($row && $row->isValid()) ? $row : null;
+        return self::$_bootFileRows[$name] ?? null;
     }
     /**
      * Writes what was just read about a file back to its record.
@@ -6124,6 +6172,12 @@ abstract class FOGPage extends FOGBase
                 $obj->set($field, $value);
             }
             $obj->save();
+            // Keep the request's map in step, so a second listing in the same
+            // request sees what the first one just inspected rather than
+            // inspecting it again.
+            if (null !== self::$_bootFileRows && !empty($data['name'])) {
+                self::$_bootFileRows[(string)$data['name']] = $obj;
+            }
         } catch (\Throwable $e) {
             return;
         }
