@@ -7,6 +7,57 @@ accepted, and implemented on `working-1.6` as `_customPkiDir()` /
 with `PKI_custom_dir` recorded in `.fogsettings` and signal 0 of
 `_detectExternalCertManagement()`.
 
+## Amended 2026-09-02 — the /opt tree has a third direction, and the readmes can be corrected
+
+Two corrections to the amendment below, both found by reading the merged code
+rather than the issue.
+
+**"The two readmes already say exactly that" is no longer true.** The `/opt`
+readme says *"This directory is written BY FOG. You do not need to put anything
+here."* Then `kernel-backups/keep/` arrived — `2775`, group-owned by the web
+user, and by its own comment *"the one directory under here the WEB TIER
+writes."* Marking a boot file to keep copies it in on the administrator's
+instruction. That is a third direction, and it is neither of the two this ADR
+names: not FOG's own backup taken before a rebuild, and not an administrator's
+drop-in that FOG only reads. It is FOG acting on a recorded intention.
+
+It does not reopen the split. `keep/` is written by FOG, restored by FOG, and
+removed by FOG when the mark is cleared; an administrator never places a file
+there by hand, and the tree stays output-only in the sense that matters — the
+conflict rule below is unchanged, because nothing in `keep/` competes with a
+file the administrator put somewhere. What it does reopen is the *description*,
+and the readme is where that lives.
+
+**`keep/` is the effect of a pin, not a record of one.** Worth stating because
+it looks like a manifest at a glance, and ADR 0042's *"Existence is read, never
+recorded"* would rule against a manifest. `bfPinned` holds the judgment; the
+copy is what the judgment does. A manifest is data *about* files and can drift
+from them — a copy is a second set of the same bytes and cannot. The comments
+in `_ensureCustomizationsTree()` and `FOGPage::_bootFileKeepCopy()` said "the
+copy IS the record" and now say this instead.
+
+**So "never overwrite a readme" is narrowed to "never overwrite an *edited*
+readme."** The original rule was written to protect the note somebody left for
+the next person, which is right. But it also froze FOG's own text, and a server
+installed before `keep/` existed had a readme that was wrong with no run able to
+correct it — the rule was defending FOG's prose from FOG.
+
+`_ensureCustomizationsTree()` now replaces a readme while it is still
+byte-identical to a revision FOG shipped, and leaves anything else alone
+permanently. `_fogShippedReadmeSums()` holds the sums, appended to and never
+replaced; adding a revision means adding its sum. Where `sha256sum` is missing
+the question cannot be answered, and the file is kept: there is no run in which
+discarding somebody's note is the better mistake. Both arms are executed by
+`tests/customizations-readme-refresh.test.sh`, because a too-eager version and a
+too-timid one fail in opposite directions and a textual check cannot tell an
+inverted comparison from a working one.
+
+One consequence outside this ADR: `docs/SUPPORTED_CUSTOMIZATIONS.md` carried a
+`## The short version` summary, which is the duplication that file's own text
+warns against, and it had drifted the same way — stating the preservation
+guarantee without the condition it rests on, and predating `keep/`. It is now a
+pure pointer.
+
 ## Amended 2026-09-02 — two trees, by direction, is the design
 
 FOGProject/fogproject#1684 asked the question "One unified tree" below

@@ -45,22 +45,16 @@ fog-docs at `docs/1.6/management/server/supported-customizations.md`.
 
 ## The short version
 
-- **Preserved automatically**, on a bare `./installfog.sh` upgrade as much as
-  through `bin/updatefog.sh`: the iPXE boot menu background (under whatever
-  name `FOG_IPXE_BG_FILE` holds), custom-named kernels and inits, previous
-  kernel generations, Secure Boot keys, reports you have written, replaced
-  iPXE binaries in the TFTP tree, and anything in the vhost **outside** the
-  managed block.
-- **Yours to place**: files under names FOG does not ship. Nothing removes
-  them.
-- **Adopted**: a `web-leaf.pem`/`web-leaf.key` pair in
-  `/etc/fog/customizations/pki` is picked up on the next run and served, with
-  nothing to configure. That directory is the `/etc` counterpart of
-  `$fogprogramdir/customizations` and runs the other way round -- FOG writes the
-  `/opt` one, and only reads the `/etc` one. There is a `readme.txt` in each.
-- **Not preserved**: edits *inside* the managed block, direct edits to
-  `default.ipxe`, and anything under the web root that FOG does not ship — the
-  tree is rebuilt wholesale on every run.
+There isn't one here any more, and that is deliberate.
 
-Read the page above before relying on any of that; every entry has conditions
-this summary leaves out.
+A summary in this file is a second copy of the page above, which is the drift
+this file exists to prevent -- and it drifted: the summary described what FOG
+preserves without the condition the guarantee actually rests on, and went on
+saying so after `kernel-backups/keep/` gave the `/opt` tree a direction the
+summary did not know about.
+
+Read <https://docs.fogproject.org/supported-customizations>. Without network
+access, the two readmes on the server itself say what each tree is for --
+`/etc/fog/customizations/readme.txt` and
+`$fogprogramdir/customizations/readme.txt` -- and the full former text of this
+file is in `git log --follow -p docs/SUPPORTED_CUSTOMIZATIONS.md`.
