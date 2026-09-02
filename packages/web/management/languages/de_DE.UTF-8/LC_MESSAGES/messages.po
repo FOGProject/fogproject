@@ -191,8 +191,20 @@ msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
+msgid "%s cannot be used as %s."
+msgstr ""
+
+#, php-format
 msgid "%s could not be loaded. Check that %s declares a class of that exact name."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s could not be removed."
+msgstr "wurde abgebrochen"
+
+#, fuzzy, php-format
+msgid "%s deleted."
+msgstr "Gelöscht"
 
 #, php-format
 msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
@@ -207,8 +219,20 @@ msgid "%s images"
 msgstr "Images"
 
 #, php-format
+msgid "%s is in use as %s. Point that at another file first."
+msgstr ""
+
+#, php-format
 msgid "%s is maintained by the server and cannot be set"
 msgstr ""
+
+#, php-format
+msgid "%s is marked to be kept. Stop keeping it first."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%s is no longer kept."
+msgstr "läuft nicht mehr"
 
 #, php-format
 msgid "%s is not a readable .tar.gz archive."
@@ -224,6 +248,10 @@ msgstr ""
 
 #, php-format
 msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
+msgid "%s is now %s."
 msgstr ""
 
 #, php-format
@@ -252,6 +280,10 @@ msgstr ""
 
 #, php-format
 msgid "%s viewed your account on %s."
+msgstr ""
+
+#, php-format
+msgid "%s will be kept."
 msgstr ""
 
 msgid "(all)"
@@ -1263,6 +1295,10 @@ msgstr "Standard Logout-Zeit (in Minuten)"
 msgid "Automatic enrollment (Setup/Custom Mode)"
 msgstr ""
 
+#, fuzzy
+msgid "Available downloads"
+msgstr "Keine Datei wurde hochgeladen"
+
 msgid "BIOS Date"
 msgstr "BIOS-Datum"
 
@@ -1307,6 +1343,18 @@ msgstr "Passwort binden"
 
 msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
 msgstr ""
+
+#, fuzzy
+msgid "Boot File Deleted"
+msgstr "Löschen der Datei fehlgeschlagen"
+
+#, fuzzy
+msgid "Boot File Failed"
+msgstr "Boot-Optionen:"
+
+#, fuzzy
+msgid "Boot File Updated"
+msgstr "Site aktualisiert!"
 
 #, fuzzy
 msgid "Boot Files"
@@ -1683,6 +1731,9 @@ msgstr "Gehäuse-Version"
 
 #, php-format
 msgid "Check %s over before installing it."
+msgstr ""
+
+msgid "Check FOG_TFTP_PXE_KERNEL_DIR."
 msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
@@ -2349,8 +2400,31 @@ msgid "Default Width"
 msgstr "Standardbreite"
 
 #, fuzzy
+msgid "Default init, ARM64"
+msgstr "Standardbreite"
+
+#, fuzzy
+msgid "Default init, i386"
+msgstr "Standardbreite"
+
+#, fuzzy
+msgid "Default init, x86_64"
+msgstr "Standardbreite"
+
+#, fuzzy
 msgid "Default is disabled"
 msgstr "Standard ist deaktiviert"
+
+#, fuzzy
+msgid "Default kernel, ARM64"
+msgstr "Standard-Bildwiederholrate"
+
+#, fuzzy
+msgid "Default kernel, i386"
+msgstr "Standarddrucker aktualisieren"
+
+msgid "Default kernel, x86_64"
+msgstr ""
 
 #, fuzzy
 msgid "Default nested group depth"
@@ -4476,6 +4550,9 @@ msgstr "In "
 msgid "In FOG"
 msgstr "zu booten."
 
+msgid "In use as"
+msgstr ""
+
 msgid "Include"
 msgstr ""
 
@@ -4855,6 +4932,12 @@ msgid "Join Domain after image task"
 msgstr ""
 
 msgid "Kbps"
+msgstr ""
+
+msgid "Keep"
+msgstr ""
+
+msgid "Kept"
 msgstr ""
 
 msgid "Kernel"
@@ -5260,6 +5343,10 @@ msgstr "Laden fehlgeschlagen: %s"
 msgid "Loading data to field"
 msgstr "Laden von Daten zum Feld %s"
 
+#, fuzzy
+msgid "Local files"
+msgstr "Standorte"
+
 msgid "Location"
 msgstr "Ort"
 
@@ -5548,6 +5635,9 @@ msgstr "Speicher"
 msgid "Memory limit cannot be less than 128"
 msgstr "Menüpunkt oder Titel darf nicht leer sein."
 
+msgid "Memtest payload"
+msgstr ""
+
 #, fuzzy
 msgid "Menu Description"
 msgstr "Beschreibung"
@@ -5628,6 +5718,9 @@ msgstr "Modell"
 #, fuzzy
 msgid "Models"
 msgstr "Modell"
+
+msgid "Modified"
+msgstr ""
 
 #, fuzzy
 msgid "Module"
@@ -5969,6 +6062,10 @@ msgstr ""
 msgid "No file was uploaded"
 msgstr "Keine Datei wurde hochgeladen"
 
+#, fuzzy
+msgid "No files in the boot directory."
+msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
+
 msgid "No files matched multicast image pattern"
 msgstr ""
 
@@ -6129,6 +6226,9 @@ msgstr "Ein Host mit diesem Namen ist bereits vorhanden!"
 #, fuzzy
 msgid "No storagegroups assigned to this snapin"
 msgstr "Die zugewiesene Image Speichergruppe ist nicht gültig."
+
+msgid "No such file in the boot directory."
+msgstr ""
 
 msgid "No such filter"
 msgstr ""
@@ -8022,6 +8122,10 @@ msgid "Set Storage Group as Primary for Snapins"
 msgstr "Name der Speichergruppe"
 
 #, fuzzy
+msgid "Set as"
+msgstr "Service-Update fehlgeschlagen"
+
+#, fuzzy
 msgid "Set failed"
 msgstr "Service-Update fehlgeschlagen"
 
@@ -8537,6 +8641,9 @@ msgstr "Drucker-Update fehlgeschlagen!"
 
 msgid "Status"
 msgstr "Status"
+
+msgid "Stop keeping"
+msgstr ""
 
 msgid "Storage"
 msgstr "Speicher"
@@ -9282,6 +9389,10 @@ msgstr ""
 msgid "The body is {\"value\": \"...\"}; a form field of the same name is accepted too. An EMPTY value deletes the preference rather than storing emptiness, so a reset leaves no row saying \"no opinion\". Values are capped at 64KB and refused rather than truncated -- a truncated saved state cannot be told from a corrupt one when it is read back."
 msgstr ""
 
+#, fuzzy
+msgid "The boot directory cannot be read."
+msgstr " | Datei oder Pfad ist nicht erreichbar"
+
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
@@ -9477,6 +9588,10 @@ msgstr ""
 
 msgid "The public half of the keypair fog-client encrypts its check-in to."
 msgstr ""
+
+#, fuzzy
+msgid "The record could not be written."
+msgstr "Temporäre Datei konnte nicht gelesen werden."
 
 msgid "The resource is not in a cancellable state."
 msgstr ""
@@ -10075,6 +10190,10 @@ msgstr "Nicht verfügbar"
 
 msgid "Uncategorized"
 msgstr ""
+
+#, fuzzy
+msgid "Unclassified"
+msgstr "zugeordneter Host"
 
 msgid "Unicast"
 msgstr "Unicast"
@@ -10747,6 +10866,10 @@ msgstr ""
 
 msgid "You do not have permission to change LDAP group associations."
 msgstr ""
+
+#, fuzzy
+msgid "You do not have permission to change boot files."
+msgstr "Keine Verbindung zur Datenbank"
 
 msgid "You do not have permission to change provider group associations."
 msgstr ""
@@ -11516,6 +11639,9 @@ msgstr ""
 msgid "row(s) converted from 0 to NULL"
 msgstr ""
 
+msgid "same contents as"
+msgstr ""
+
 #, fuzzy
 msgid "second"
 msgstr "Sekunde"
@@ -12086,10 +12212,6 @@ msgstr ""
 #~ msgstr "Aktualisieren/Erstellen des Image-Logs fehlgeschlagen"
 
 #, fuzzy
-#~ msgid "File Deleter"
-#~ msgstr "Löschen der Datei fehlgeschlagen"
-
-#, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Ich bin nicht der FOG-Web-Server"
 
@@ -12213,10 +12335,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Site Update Success"
 #~ msgstr "Host Aktualisierung erfolgreich!"
-
-#, fuzzy
-#~ msgid "Host Site Updated!"
-#~ msgstr "Site aktualisiert!"
 
 #, fuzzy
 #~ msgid "Host Snapins"
