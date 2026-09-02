@@ -10759,3 +10759,14 @@ $this->schema[] = [
     . "KEY `bfRole` (`bfRole`) "
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
+
+// 415
+$this->schema[] = [
+    // Memtest86+ 8.10 replaces the 2013 Memtest86+ 5.01 ISO that memdisk
+    // loaded. The new file boots on both legacy BIOS and UEFI, which the
+    // memdisk chain never could (#321). Only a value still at the old
+    // default is moved: a site that pointed this at its own file keeps it.
+    "UPDATE `globalSettings` SET `settingValue`='mt86plus_x86_64' "
+    . "WHERE `settingKey`='FOG_MEMTEST_KERNEL' "
+    . "AND `settingValue`='memtest.bin'",
+];

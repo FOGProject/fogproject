@@ -293,7 +293,12 @@ class IpxeBootMenu extends BootMenuBase
             'refindBinary' => 'refind_x64.efi',
             'refindConf' => true,
             'mokManager' => 'secureboot/mmx64.efi',
-            'memdisk' => true,
+            // Memtest86+ 6.0 and later is one file that a legacy BIOS boots
+            // through the Linux boot protocol and UEFI boots as a PE, so
+            // the same binary serves both firmwares (#321). '' means "the
+            // FOG_MEMTEST_KERNEL setting", which names the 64-bit build.
+            'memtest' => true,
+            'memtestBinary' => '',
             'warn' => '',
         ];
         $profiles = [
@@ -308,6 +313,9 @@ class IpxeBootMenu extends BootMenuBase
                     'refindBinary' => 'refind_ia32.efi',
                     // No signed 32-bit UEFI shim exists to chain to.
                     'mokManager' => '',
+                    // The 32-bit build. Not a setting: nothing else about
+                    // the i386 profile is configurable either.
+                    'memtestBinary' => 'mt86plus_i586',
                 ]
             ),
             'arm64' => array_merge(
@@ -335,9 +343,10 @@ class IpxeBootMenu extends BootMenuBase
                     // fog-ipxe stages it under that name. Chaining to
                     // arm64-efi/mmx64.efi is a file that has never existed.
                     'mokManager' => 'secureboot/arm64-efi/mmaa64.efi',
-                    // memdisk is a 16-bit x86 real-mode loader. There is no
-                    // aarch64 build of it and there never will be.
-                    'memdisk' => false,
+                    // Memtest86+ publishes no aarch64 build, so there is
+                    // nothing to boot here.
+                    'memtest' => false,
+                    'memtestBinary' => '',
                 ]
             ),
         ];
@@ -835,6 +844,11 @@ class IpxeBootMenu extends BootMenuBase
             $imagefile
         ) = self::getSetting($serviceNames);
         $memdisk = 'memdisk';
+        // Before HOST_EDIT_SETTINGS, so a plugin that repoints $memtest at
+        // its own node (Location does) repoints the right file.
+        if ('' !== $arch['memtestBinary']) {
+            $memtest = $arch['memtestBinary'];
+        }
         $loglevel = $kernelLogLevel;
         $ramsize = $kernelRamDisk;
         $timeout = (
@@ -919,7 +933,11 @@ class IpxeBootMenu extends BootMenuBase
         $this->_booturl = self::$httpproto
             . "://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
-        $this->_memtest = "initrd $memtest";
+        // The bare file, not "initrd $memtest": _memtestChoice() boots it
+        // with kernel or chain, and memdisk is no longer part of that path.
+        // _memdisk is still built and still handed to IPXE_EDIT because a
+        // custom entry may chain a floppy or ISO image through it.
+        $this->_memtest = $memtest;
         $StorageNodes = Route::getList(
             'storagenode',
             ['ip' => [$webserver, self::resolveHostname($webserver)]]
@@ -1309,7 +1327,7 @@ class IpxeBootMenu extends BootMenuBase
      * Prints a memtest tasking for the host
      *
      * No '|| goto MENU' tail: a tasked boot has no menu to return to. On an
-     * architecture without memdisk this says why and stops, rather than
+     * architecture without a Memtest86+ build this says why and stops, rather than
      * dropping the machine to a bare iPXE prompt with no explanation.
      *
      * @return void
@@ -2275,8 +2293,22 @@ class IpxeBootMenu extends BootMenuBase
         return $Send;
     }
     /**
-     * The memtest boot lines, or a refusal on an architecture that cannot
-     * run memdisk.
+     * The memtest boot lines, or a refusal on an architecture that has no
+     * Memtest86+ build.
+     *
+     * Memtest86+ 6.0 and later is a single file that boots two ways: a
+     * legacy BIOS loads it through the Linux boot protocol, so iPXE boots
+     * it with `kernel`; UEFI firmware loads it as a PE, so iPXE boots it
+     * with `chain`. Which one this client needs is what ${platform} says.
+     * The memdisk chain this replaced (memdisk + a Memtest86+ 5.01 ISO)
+     * was a 16-bit loader that UEFI clients refused with "Exec format
+     * error" (#321).
+     *
+     * `chain` does not return on success, so on UEFI the lines after it
+     * are only reached on failure. The BIOS branch is jumped over rather
+     * than left to `||` fall-through, because `iseq ... && chain ... ||
+     * kernel ...` would run the BIOS loader on a UEFI client whose chain
+     * had just failed.
      *
      * _filterMenus() normally keeps the menu entry off an ARM screen
      * entirely, so the refusal is only reached by a scheduled memtest task
@@ -2289,11 +2321,11 @@ class IpxeBootMenu extends BootMenuBase
      */
     private function _memtestChoice($onFail = ' || goto MENU')
     {
-        if (!self::_arch()['memdisk']) {
+        if (!self::_arch()['memtest']) {
             return [
                 sprintf(
-                    'echo Memtest needs memdisk, which is x86-only -- it '
-                    . 'cannot run on %s.',
+                    'echo Memtest86+ publishes no build for %s, so it '
+                    . 'cannot run here.',
                     self::_arch()['label']
                 ),
                 'sleep 5' . $onFail,
@@ -2301,9 +2333,11 @@ class IpxeBootMenu extends BootMenuBase
         }
 
         return [
-            "$this->_memdisk iso raw",
-            $this->_memtest,
+            'iseq ${platform} efi && goto fog.memtest.efi ||',
+            "kernel $this->_memtest",
             'boot' . $onFail,
+            ':fog.memtest.efi',
+            "chain $this->_memtest" . $onFail,
         ];
     }
     /**
@@ -2448,15 +2482,14 @@ class IpxeBootMenu extends BootMenuBase
             $hide[] = 'fog.enrollsecurebootunattended';
         }
         /**
-         * Memtest is memdisk plus a 16-bit x86 image. There is no aarch64
-         * memdisk and there never will be, so on ARM the entry could only
-         * ever drop the machine back to the menu with an iPXE error. Hidden
+         * Memtest86+ publishes no aarch64 build, so on ARM the entry could
+         * only ever drop the machine back to the menu with an iPXE error. Hidden
          * here rather than refused inside _menuOpt() for the same reason
          * the Secure Boot items are: an option that cannot work should not
          * be on the menu. _menuOpt() keeps its own guard for the case where
          * a site has pointed a custom entry at the same behavior.
          */
-        if (!self::_arch()['memdisk']) {
+        if (!self::_arch()['memtest']) {
             $hide[] = 'fog.memtest';
         }
         if (count($hide ?: []) < 1) {

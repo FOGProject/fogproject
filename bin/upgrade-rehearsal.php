@@ -194,7 +194,7 @@ if ($cmd === 'makeconfig') {
         . "        define('PXE_KERNEL', 'bzImage');\n"
         . "        define('PXE_KERNEL_RAMDISK', 275000);\n"
         . "        define('USE_SLOPPY_NAME_LOOKUPS', true);\n"
-        . "        define('MEMTEST_KERNEL', 'memtest.bin');\n"
+        . "        define('MEMTEST_KERNEL', 'mt86plus_x86_64');\n"
         . "        define('PXE_IMAGE', 'init.xz');\n"
         . "        define('STORAGE_HOST', '127.0.0.1');\n"
         . "        define('STORAGE_FTP_USERNAME', 'fogproject');\n"

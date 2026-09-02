@@ -12245,7 +12245,7 @@ class Config
         define('PXE_KERNEL', 'bzImage');
         define('PXE_KERNEL_RAMDISK', 275000);
         define('USE_SLOPPY_NAME_LOOKUPS', true);
-        define('MEMTEST_KERNEL', 'memtest.bin');
+        define('MEMTEST_KERNEL', 'mt86plus_x86_64');
         define('PXE_IMAGE', 'init.xz');
         define('STORAGE_HOST', \"${confighostip}\");
         define('STORAGE_FTP_USERNAME', \"${SVC_user}\");
@@ -13513,7 +13513,7 @@ _resignKernels() {
         echo "   and re-run the installer, or Secure Boot clients will not boot."
         return 0
     fi
-    dots "Signing FOS kernels for Secure Boot"
+    dots "Signing FOS kernels and Memtest86+ for Secure Boot"
     local kernel kpath failed=0 certpem
     # sbsign/sbverify take PEM only; the admin may well have handed us the DER
     # copy that mokutil wanted. See _secureBootCertPem().
@@ -13523,7 +13523,10 @@ _resignKernels() {
         echo "   Secure Boot clients will not boot until this is fixed."
         return 0
     }
-    for kernel in bzImage bzImage32 arm_Image; do
+    # The two Memtest86+ binaries ride along: each is a bzImage that is also
+    # a PE, and on a UEFI client iPXE chains it as a PE, which under Secure
+    # Boot needs the same countersignature the kernels get (#321).
+    for kernel in bzImage bzImage32 arm_Image mt86plus_x86_64 mt86plus_i586; do
         kpath="${webdirdest}/service/ipxe/${kernel}"
         [[ -f $kpath ]] || continue
         # Already carrying our signature means nothing was re-downloaded since
