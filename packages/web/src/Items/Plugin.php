@@ -465,6 +465,37 @@ class Plugin extends FOGController
         return '';
     }
     /**
+     * Why a plugin is retired, or '' if it is not.
+     *
+     * The comparison is on the lowercase name because that is how every other
+     * plugin identity check in this class works (isBundled(), the batch keys
+     * in activationBlockers()), and how schema step 404 matched the row it
+     * deleted.
+     *
+     * @param string $name the plugin name, any case
+     *
+     * @return string translated reason, or '' when the plugin is not retired
+     */
+    public static function retirementReason($name)
+    {
+        $name = strtolower(trim((string)$name));
+        if (!in_array($name, self::RETIRED, true)) {
+            return '';
+        }
+        // Written inside _() as a literal, because the catalog extractor only
+        // finds strings written there -- a reason pulled out of an array
+        // would ship untranslated in every language. With one retired plugin
+        // this is a single return; the day a second is retired it becomes a
+        // switch on $name with one literal per case.
+        return _(
+            'was retired in FOG 1.6. A group now grants its snapins, '
+            . 'printers, modules and power schedules to every member, '
+            . 'hosts added later included, which is what this plugin '
+            . 'copied rows to imitate. Its database trigger was '
+            . 'removed by the upgrade and must not come back.'
+        );
+    }
+    /**
      * Largest plugin archive accepted, before PHP's own upload limits.
      *
      * A plugin is source code. Sixty-four megabytes is already generous for
@@ -481,6 +512,29 @@ class Plugin extends FOGController
      * Install, and short enough that abandoned uploads do not accumulate.
      */
     const STAGING_TTL = 3600;
+    /**
+     * Plugins FOG has retired, and will not install or activate again.
+     *
+     * Lowercase plugin names. retirementReason() carries the text shown to the
+     * admin, which says what replaced the plugin rather than only that it is
+     * gone. A plugin is retired when core does the job it existed for and the
+     * plugin's own mechanism would now do harm -- not when it is merely old.
+     *
+     * Why a list in core and not just deletion from fog-plugins. Bundled
+     * plugins are re-laid on every upgrade, so removing one from fog-plugins
+     * removes its code. The external root is deliberately never touched by
+     * the installer, so an admin who copied a plugin there keeps it across
+     * the upgrade, and its install() runs on demand. For persistentgroups
+     * that install() re-creates the `persistentGroups` trigger the upgrade
+     * just dropped (schema step 404, ADR 0038 decision 14) -- one click undoes
+     * the retirement, silently, and the trigger goes back to copying a domain
+     * password between hosts (decision 15). The release note is the other
+     * half of the answer; this is the half that does not depend on anyone
+     * having read it.
+     *
+     * @var array
+     */
+    const RETIRED = ['persistentgroups'];
     /**
      * Where an uploaded plugin waits between preview and confirmation.
      *
@@ -635,6 +689,14 @@ class Plugin extends FOGController
                     $top . '/config/plugin.config.php'
                 )
             );
+        }
+        // Refused by NAME, before extraction, so a retired plugin's code never
+        // lands in the external root at all -- not even un-installed. Once it
+        // is on disk, discovery writes its row and the install button exists;
+        // this is the check that means the button never appears.
+        $retired = self::retirementReason($top);
+        if ('' !== $retired) {
+            return $fail(sprintf('%s %s', $top, $retired));
         }
         // A bundled plugin of the same name always wins (_getDirs() refuses
         // the external copy), so an archive that collides with one would
@@ -923,6 +985,16 @@ class Plugin extends FOGController
         $available = array_merge($active, array_keys($batch));
         $blockers = [];
         foreach ($batch as $name => $row) {
+            // Retirement first, before anything about the code on disk is
+            // consulted. The case this guards is a retired plugin whose code
+            // IS present -- copied into the external root, where the upgrade
+            // does not reach -- and whose install() would undo what the
+            // upgrade did. See RETIRED.
+            $retired = self::retirementReason($name);
+            if ('' !== $retired) {
+                $blockers[$name] = $retired;
+                continue;
+            }
             // Checked before the manifest, because there is no manifest to
             // read: readManifest() on a missing directory returns empty
             // fog_min/fog_max, compatError() then finds nothing wrong, and a
