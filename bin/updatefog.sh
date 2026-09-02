@@ -291,7 +291,14 @@ if [[ -z $autoYes ]]; then
     read confirmGo
     case $confirmGo in
         [Yy] | [Yy][Ee][Ss]) ;;
-        *) echo " * Canceled."; exit 0 ;;
+        # A deliberate no is not a failure. EOF and a typo are not a no:
+        # with nobody at the keyboard `read` returns empty, and exiting 0
+        # there told the caller an update had succeeded when none had been
+        # attempted. The terminal check above catches the usual headless
+        # case; this covers a terminal that exists but answers nothing.
+        [Nn] | [Nn][Oo]) echo " * Canceled."; exit 0 ;;
+        "") echo " * No answer given -- canceled. Pass --yes to run unattended."; exit 7 ;;
+        *) echo " * Answer not recognized -- canceled."; exit 3 ;;
     esac
 fi
 
@@ -307,7 +314,7 @@ git -C "$gitpath" reset --hard "origin/${branch}" || fail "Could not reset to or
 if [[ ! -x "${gitpath}/bin/installfog.sh" && ! -f "${gitpath}/bin/installfog.sh" ]]; then
     fail "${branch} has no bin/installfog.sh." \
          "Nothing has been installed. To go back:" \
-         "  git -C ${gitpath} reset --hard ${currentCommit}" 6
+         "  git -C ${gitpath} checkout --detach ${currentCommit}" 6
 fi
 
 # ---------------------------------------------------------------------------
@@ -343,7 +350,15 @@ echo
 echo " * installfog.sh failed (exit ${installStatus})."
 echo " | Nothing has been reverted. To put the checkout back where it was:"
 echo " |"
-echo " |     git -C ${gitpath} reset --hard ${currentCommit}"
+# --detach, not reset --hard. This is the crossing case by definition: the
+# checkout is on working-1.6 or an rc-* branch while $currentCommit belongs
+# to stable, so resetting would point the NEW branch ref at an old commit and
+# leave it diverged. Detaching moves only HEAD, which is all that is wanted.
+#
+# The opposite of what a reset --hard onto origin/<branch> is for, which is
+# discarding local mess so an update can proceed. Going back through history
+# is a different job.
+echo " |     git -C ${gitpath} checkout --detach ${currentCommit}"
 echo " |     cd ${gitpath}/bin && ./installfog.sh"
 echo " |"
 if [[ $crossing -eq 1 ]]; then
