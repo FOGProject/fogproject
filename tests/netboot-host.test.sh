@@ -233,6 +233,26 @@ else
     bad "O3: secureboot param is at line ${sb_line:-none}, first 'goto bootme' at ${bootme_line:-none} -- a single-NIC machine would never send it"
 fi
 
+# O4. The firmware identity (#198, ADR 0039). This file makes the FIRST
+#     boot.php request of every PXE boot, and that request is the one the
+#     host is identified on -- the script boot.php answers with carries the
+#     same four params, but only for the menu items chosen afterward. Drop
+#     one here and log mode has nothing to compare and enforce mode is MAC
+#     only, with no error anywhere to say so. Same rules as O2/O3: asserted
+#     on the written file, with iPXE's exact setting names (`board-serial`
+#     is the BASEBOARD serial; `asset` is the CHASSIS tag), and above the
+#     short-circuiting NIC chain.
+for p in 'param sysuuid ${uuid}' 'param sysserial ${serial}' \
+         'param mbserial ${board-serial}' 'param caseasset ${asset}'; do
+    has "$written" "$p" "O4: default.ipxe sends $p"
+    p_line=$(printf '%s\n' "$written" | grep -nF "$p" | cut -d: -f1)
+    if [[ -n $p_line && -n $bootme_line && $p_line -lt $bootme_line ]]; then
+        ok "O4b: '$p' sits above the NIC chain"
+    else
+        bad "O4b: '$p' is at line ${p_line:-none}, first 'goto bootme' at ${bootme_line:-none}"
+    fi
+done
+
 # P. The fatal case must not leave a file behind for TFTP to serve. An install
 #    that aborts having already written an unbootable default.ipxe is the worst
 #    of both outcomes.
