@@ -6138,7 +6138,10 @@ abstract class FOGPage extends FOGBase
     private static function _stampToTime($stamp)
     {
         $stamp = trim((string)$stamp);
-        if ('' === $stamp || 0 === strpos($stamp, '0000-00-00')) {
+        // validDate() rather than testing for a zero-date literal: it already
+        // knows both spellings of one, and there is meant to be exactly one
+        // definition of what an empty date is.
+        if ('' === $stamp || !self::validDate($stamp)) {
             return 0;
         }
         // ' UTC' because _bootFileStore() writes gmdate(). See the note
