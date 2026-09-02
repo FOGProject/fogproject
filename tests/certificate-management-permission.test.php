@@ -157,18 +157,55 @@ $results[] = pkiPermCheck(
  */
 $helper = (string) file_get_contents($root . '/packages/pki/fog-pki-admin');
 $results[] = pkiPermCheck(
-    'the helper constrains the preference value to yes or no',
-    1 === preg_match('#\[\[ \$value =~ \^\(yes\|no\)\$ \]\]#', $helper),
-    'the ^(yes|no)$ pattern is not in fog-pki-admin'
+    'the helper constrains the three switches to yes or no',
+    1 === preg_match("#\\*\\)\\s+printf '%s' '\\^\\(yes\\|no\\)\\$'#", $helper),
+    'the ^(yes|no)$ pattern is not the default in prefPattern()'
+);
+/*
+ * The netboot transport's domain is http|https, not yes|no, so the value check
+ * became per-key. That is not a relaxation -- every key still names a fixed
+ * set, which is what ADR 0036's rule requires -- but it has to be pinned in
+ * both directions, because a per-key lookup is exactly the shape that could
+ * quietly acquire a permissive default.
+ */
+$results[] = pkiPermCheck(
+    'the netboot transport is constrained to http or https',
+    1 === preg_match(
+        "#BOOT_url_proto\\)\\s+printf '%s' '\\^\\(http\\|https\\)\\$'#",
+        $helper
+    ),
+    'the ^(http|https)$ pattern is not bound to BOOT_url_proto'
 );
 $results[] = pkiPermCheck(
-    'the helper carries a key allowlist, and it is the three preferences',
+    'http is reachable through no key but BOOT_url_proto',
+    1 === preg_match_all("#'\\^\\(http\\|https\\)\\\$'#", $helper),
+    'the http|https domain appears more than once in fog-pki-admin'
+);
+$results[] = pkiPermCheck(
+    'the value is matched against a pattern the helper chose, not the caller',
+    1 === preg_match('#pattern=\$\(prefPattern "\$key"\)#', $helper)
+        && 1 === preg_match('#\[\[ \$value =~ \$pattern \]\]#', $helper),
+    'set-preference does not validate against prefPattern()'
+);
+$results[] = pkiPermCheck(
+    'the helper carries a key allowlist, and it is the four preferences',
     1 === preg_match(
         '#PREF_KEYS="PKI_web_cert_publicly_trusted WEB_https_redirect '
-        . 'BOOT_rebuild_ipxe_with_my_ca"#',
+        . 'BOOT_rebuild_ipxe_with_my_ca BOOT_url_proto"#',
         $helper
     ),
     'PREF_KEYS is missing or has gained an entry'
+);
+/*
+ * BOOT_url_proto_forced stays out. Setting BOOT_url_proto already forces the
+ * transport -- _resolveInstallMode() sets the flag whenever an explicit value
+ * is supplied -- so a separate settable flag would be a second way to say the
+ * same thing, and the one that carries no steering keys with it.
+ */
+$results[] = pkiPermCheck(
+    'the allowlist does not carry BOOT_url_proto_forced',
+    1 !== preg_match('#PREF_KEYS="[^"]*BOOT_url_proto_forced#', $helper),
+    'PREF_KEYS reaches BOOT_url_proto_forced'
 );
 /*
  * Neither secret in .fogsettings may be reachable, whatever else changes.

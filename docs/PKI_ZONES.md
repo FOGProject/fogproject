@@ -739,6 +739,17 @@ HTTPS netboot has a `TRUST=`-rebuilt iPXE making it work, and dropping it to
 HTTP would break a working setup to fix a problem its admin does not have.
 Override either way with `--netboot-proto http|https`.
 
+The same choice is on the Certificates page, under **Install preferences**, as
+`BOOT_url_proto`. Two things to know before using it. It is **not** what the
+HTTP-to-HTTPS redirect on that card does — the redirect never applies to the
+paths a bootloader fetches for itself, and the two are separate settings.
+And choosing `https` there **forces** it: the installer stops deriving the
+transport and keeps what you set, because an explicit value is what
+`BOOT_url_proto_forced` records. So it is a decision to take together with
+`PKI_web_cert_publicly_trusted` and `BOOT_rebuild_ipxe_with_my_ca`, which is
+how the page presents it — an https netboot iPXE cannot validate stops every
+boot at `boot.php`, with nothing server-side saying why.
+
 **Public Let's Encrypt for netboot** works only on an FQDN in a domain you
 control — it need not be publicly reachable, DNS-01 is enough — and only on
 that exact FQDN, not a short hostname and not an IP.

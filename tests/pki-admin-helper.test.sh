@@ -11,8 +11,9 @@
 #
 # The .fogsettings half is the one worth stating plainly. Writing an
 # unvalidated value into a file root later sources is a root shell with extra
-# steps, so set-preference matches its value against ^(yes|no)$ and its key
-# against a three-entry allowlist. Both refusals are exercised here, and both
+# steps, so set-preference matches its value against that KEY'S OWN literal
+# pattern -- ^(yes|no)$ for the three switches, ^(http|https)$ for the netboot
+# transport -- and its key against a four-entry allowlist. Both refusals are exercised here, and both
 # are checked by "did the file change", not merely by "did the command exit
 # non-zero" -- a helper that rejected the argument after writing would pass the
 # weaker test.
@@ -170,6 +171,7 @@ WEB_https_redirect='no'
 
 ## BOOT
 BOOT_rebuild_ipxe_with_my_ca='no'
+BOOT_url_proto='http'
 BOOT_url_proto_forced='no'
 
 ## The two cleartext secrets, and a path key. Present in the fixture ON
@@ -403,6 +405,56 @@ done
 ( set +u; . "$SETTINGS" >/dev/null 2>&1 )
 [[ -e $CANARY ]] && bad "sourcing .fogsettings executed an injected payload" \
     || ok "sourcing .fogsettings after every refusal executes nothing"
+
+echo
+echo "== the value domain is PER KEY, and each one is still a fixed set =="
+# BOOT_url_proto's domain is http|https, so the single ^(yes|no)$ became a
+# per-key lookup. That is not a relaxation -- every key still names a literal
+# set -- but a per-key lookup is exactly the shape that can quietly acquire a
+# permissive default, so both directions are pinned.
+"$HELPER" set-preference BOOT_url_proto https >/dev/null 2>&1
+check "$?" "0" "set-preference accepts https for BOOT_url_proto"
+check "$(settingOf BOOT_url_proto)" "https" "and the value lands in the file"
+"$HELPER" set-preference BOOT_url_proto http >/dev/null 2>&1
+check "$?" "0" "and accepts http"
+check "$(settingOf BOOT_url_proto)" "http" "and back again"
+
+# The domains must not leak into one another. A switch that accepted a
+# transport, or a transport that accepted yes, would mean the per-key lookup
+# had collapsed back to one permissive pattern.
+before=$(sha256sum "$SETTINGS" | cut -d' ' -f1)
+"$HELPER" set-preference BOOT_url_proto yes >/dev/null 2>&1
+check "$?" "1" "BOOT_url_proto refuses yes -- its domain is not the switches'"
+"$HELPER" set-preference WEB_https_redirect https >/dev/null 2>&1
+check "$?" "1" "and WEB_https_redirect refuses https -- nor is the reverse true"
+check "$(sha256sum "$SETTINGS" | cut -d' ' -f1)" "$before" \
+    "neither refusal changed the file"
+
+# The same injection shapes as above, against the key whose domain is new.
+# .fogsettings is still sourced as shell by root, so a widened domain that
+# stopped matching a literal pattern would be a root shell with extra steps.
+CANARY2=/opt/fog/canary2
+for payload in "http'; touch ${CANARY2}; #" \
+               "\$(touch ${CANARY2})" \
+               "https"$'\n'"touch ${CANARY2}" \
+               "HTTPS" "httpss" "ftp" ""; do
+    before=$(sha256sum "$SETTINGS" | cut -d' ' -f1)
+    "$HELPER" set-preference BOOT_url_proto "$payload" >/dev/null 2>&1
+    st=$?
+    label=$(printf '%s' "$payload" | tr '\n' ' ')
+    check "$st" "1" "BOOT_url_proto refuses the value '${label:-<empty>}'"
+    check "$(sha256sum "$SETTINGS" | cut -d' ' -f1)" "$before" \
+        "refusing '${label:-<empty>}' changed nothing in the file"
+done
+( set +u; . "$SETTINGS" >/dev/null 2>&1 )
+[[ -e $CANARY2 ]] && bad "sourcing .fogsettings executed an injected transport" \
+    || ok "sourcing .fogsettings after every transport refusal executes nothing"
+
+# BOOT_url_proto_forced is still not settable. Writing BOOT_url_proto already
+# forces the transport, so a second settable flag would be another way to say
+# the same thing -- and the one that carries none of the steering keys with it.
+"$HELPER" set-preference BOOT_url_proto_forced yes >/dev/null 2>&1
+check "$?" "1" "BOOT_url_proto_forced is still not a settable preference"
 
 # A key the allowlist permits but the file does not carry. Appending it would
 # land it after "## End of FOG Settings", in the region the installer's merge
