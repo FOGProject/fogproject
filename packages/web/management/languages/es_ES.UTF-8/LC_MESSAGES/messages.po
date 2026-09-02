@@ -1328,8 +1328,15 @@ msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passre
 msgstr ""
 
 #, fuzzy
+msgid "Boot Files"
+msgstr "Opciones de arranque:"
+
+#, fuzzy
 msgid "Boot Options"
 msgstr "Opciones de arranque:"
+
+msgid "Boot Payload"
+msgstr ""
 
 msgid "Boot files from"
 msgstr ""
@@ -1384,10 +1391,6 @@ msgstr ""
 #, fuzzy
 msgid "Building the blobs failed."
 msgstr "Carga ha fallado: %s"
-
-#, fuzzy
-msgid "Buildroot Version"
-msgstr "Versión de la CPU"
 
 #, php-format
 msgid "Bulk edit %s"
@@ -2987,6 +2990,17 @@ msgstr ""
 msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
+#, fuzzy
+msgid "FOS Init"
+msgstr "ID de host"
+
+#, fuzzy
+msgid "FOS Kernel"
+msgstr "Núcleo"
+
+msgid "FOS Release"
+msgstr ""
+
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
@@ -4578,10 +4592,6 @@ msgid "Init images."
 msgstr "carpeta no válida"
 
 #, fuzzy
-msgid "InitRD Versions"
-msgstr "Versión de la CPU"
-
-#, fuzzy
 msgid "Initial Template"
 msgstr "snapin replicador"
 
@@ -4955,13 +4965,6 @@ msgstr "Nombre del núcleo"
 #, fuzzy
 msgid "Kernel Update Fail"
 msgstr "Nombre del núcleo"
-
-#, fuzzy
-msgid "Kernel Version"
-msgstr "Las versiones del kernel"
-
-msgid "Kernel Versions"
-msgstr "Las versiones del kernel"
 
 #, fuzzy
 msgid "Kernels present on disk"
@@ -6038,6 +6041,9 @@ msgstr ""
 msgid "No archive was uploaded."
 msgstr "Ningún archivo fue subido"
 
+msgid "No boot files found. Check FOG_TFTP_PXE_KERNEL_DIR."
+msgstr ""
+
 #, fuzzy
 msgid "No certificate file was uploaded"
 msgstr "Ningún archivo fue subido"
@@ -6336,10 +6342,6 @@ msgstr "No disponible"
 #, fuzzy
 msgid "Not Found"
 msgstr "Icono de archivo no encontrado"
-
-#, fuzzy
-msgid "Not Installed"
-msgstr "Instalador inteligente (recomendado)"
 
 #, fuzzy
 msgid "Not Registered Hosts"
@@ -7437,10 +7439,6 @@ msgstr "Registrado"
 #, fuzzy
 msgid "Registered Hosts"
 msgstr "Registrado"
-
-#, fuzzy
-msgid "Release Version"
-msgstr "Versión del sistema"
 
 #, php-format
 msgid "Reloaded %d setting(s) into cache"
@@ -9920,7 +9918,7 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr "Impresora ya existe"
 
-msgid "This name is not a recognised file in the boot directory."
+msgid "This name is not a recognized file in the boot directory."
 msgstr ""
 
 #, fuzzy
@@ -11064,6 +11062,13 @@ msgstr ""
 msgid "as its primary group"
 msgstr "Actualización de Grupo Primario"
 
+msgid "attr could not be run -- SELinux may be denying it"
+msgstr ""
+
+#, fuzzy
+msgid "attr is not installed on this server"
+msgstr "No hay grupos en este servidor."
+
 msgid "automatically"
 msgstr ""
 
@@ -11581,6 +11586,14 @@ msgstr "No se encontró Clase FOGPage para este nodo"
 msgid "not reachable"
 msgstr "No disponible"
 
+#, fuzzy
+msgid "not readable"
+msgstr "No disponible"
+
+#, fuzzy
+msgid "not recorded on this file"
+msgstr "No se encontró Clase FOGPage para este nodo"
+
 msgid "ntfy Accounts"
 msgstr ""
 
@@ -11764,6 +11777,10 @@ msgstr ""
 msgid "the Linux kernel which is used to"
 msgstr ""
 
+#, fuzzy
+msgid "the file cannot be read"
+msgstr "No se pudo leer el archivo temporal"
+
 msgid "the following command in a terminal"
 msgstr ""
 
@@ -11781,6 +11798,12 @@ msgstr ""
 msgid "the local login form stays available at %s"
 msgstr ""
 
+msgid "the web server may not read this file"
+msgstr ""
+
+msgid "the web server may not run external commands"
+msgstr ""
+
 msgid "there one enabled within this Storage Group"
 msgstr ""
 
@@ -11795,6 +11818,9 @@ msgid "this account has no role, so it has no access to any management page. Ask
 msgstr ""
 
 msgid "this backup will enable you to return to the"
+msgstr ""
+
+msgid "this filesystem does not carry extended attributes"
 msgstr ""
 
 #, fuzzy
@@ -12080,6 +12106,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "An accesscontrol with this name already exists!"
 #~ msgstr "Sesión con ese nombre ya existe"
+
+#, fuzzy
+#~ msgid "Buildroot Version"
+#~ msgstr "Versión de la CPU"
 
 #, fuzzy
 #~ msgid "Bulk Changes"
@@ -12436,6 +12466,10 @@ msgstr ""
 #~ msgstr "Importar"
 
 #, fuzzy
+#~ msgid "InitRD Versions"
+#~ msgstr "Versión de la CPU"
+
+#, fuzzy
 #~ msgid "Install"
 #~ msgstr "Instalador inteligente (recomendado)"
 
@@ -12450,6 +12484,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Inventory Report"
 #~ msgstr "ID de inventario"
+
+#, fuzzy
+#~ msgid "Kernel Version"
+#~ msgstr "Las versiones del kernel"
+
+#~ msgid "Kernel Versions"
+#~ msgstr "Las versiones del kernel"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -12508,6 +12549,10 @@ msgstr ""
 #~ msgstr "modificar Grupo"
 
 #, fuzzy
+#~ msgid "Not Installed"
+#~ msgstr "Instalador inteligente (recomendado)"
+
+#, fuzzy
 #~ msgid "Pause"
 #~ msgstr "Usuario"
 
@@ -12525,6 +12570,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Product Keys"
 #~ msgstr "Clave del producto Grupo"
+
+#, fuzzy
+#~ msgid "Release Version"
+#~ msgstr "Versión del sistema"
 
 #, fuzzy
 #~ msgid "Remove Selected"

@@ -1264,8 +1264,15 @@ msgstr "バインドパスワード"
 msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
 msgstr ""
 
+#, fuzzy
+msgid "Boot Files"
+msgstr "ブートオプション"
+
 msgid "Boot Options"
 msgstr "ブートオプション"
+
+msgid "Boot Payload"
+msgstr ""
 
 msgid "Boot files from"
 msgstr ""
@@ -1311,10 +1318,6 @@ msgstr "参照"
 #, fuzzy
 msgid "Building the blobs failed."
 msgstr "読み込みに失敗しました"
-
-#, fuzzy
-msgid "Buildroot Version"
-msgstr "MB バージョン"
 
 #, php-format
 msgid "Bulk edit %s"
@@ -2857,6 +2860,17 @@ msgstr ""
 msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
+#, fuzzy
+msgid "FOS Init"
+msgstr "Init"
+
+#, fuzzy
+msgid "FOS Kernel"
+msgstr "カーネルを保存"
+
+msgid "FOS Release"
+msgstr ""
+
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
@@ -4341,10 +4355,6 @@ msgstr "このノード上に見つかりません"
 msgid "Init images."
 msgstr "無効なイメージ"
 
-#, fuzzy
-msgid "InitRD Versions"
-msgstr "クライアントバージョン"
-
 msgid "Initial Template"
 msgstr "初期テンプレート"
 
@@ -4687,13 +4697,6 @@ msgstr "カーネル更新"
 #, fuzzy
 msgid "Kernel Update Fail"
 msgstr "カーネル更新"
-
-#, fuzzy
-msgid "Kernel Version"
-msgstr "カーネルバージョン"
-
-msgid "Kernel Versions"
-msgstr "カーネルバージョン"
 
 #, fuzzy
 msgid "Kernels present on disk"
@@ -5711,6 +5714,9 @@ msgstr "このグループで利用可能なアクティビティ情報はあり
 msgid "No archive was uploaded."
 msgstr "ファイルはアップロードされませんでした"
 
+msgid "No boot files found. Check FOG_TFTP_PXE_KERNEL_DIR."
+msgstr ""
+
 #, fuzzy
 msgid "No certificate file was uploaded"
 msgstr "ファイルはアップロードされませんでした"
@@ -5992,10 +5998,6 @@ msgstr "利用不可"
 #, fuzzy
 msgid "Not Found"
 msgstr "見つかりません"
-
-#, fuzzy
-msgid "Not Installed"
-msgstr "ネットワークインストーラー"
 
 msgid "Not Registered Hosts"
 msgstr "未登録ホスト"
@@ -7060,10 +7062,6 @@ msgstr "登録済み"
 
 msgid "Registered Hosts"
 msgstr "登録済みホスト"
-
-#, fuzzy
-msgid "Release Version"
-msgstr "クライアントバージョン"
 
 #, php-format
 msgid "Reloaded %d setting(s) into cache"
@@ -9402,7 +9400,7 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr "既に次の名前で登録されています:"
 
-msgid "This name is not a recognised file in the boot directory."
+msgid "This name is not a recognized file in the boot directory."
 msgstr ""
 
 #, fuzzy
@@ -10510,6 +10508,13 @@ msgstr "FOG がインターネットへ接続を試みるため"
 msgid "as its primary group"
 msgstr "プライマリグループとして"
 
+msgid "attr could not be run -- SELinux may be denying it"
+msgstr ""
+
+#, fuzzy
+msgid "attr is not installed on this server"
+msgstr "このサーバーにはグループがありません"
+
 msgid "automatically"
 msgstr "自動的に"
 
@@ -11003,6 +11008,14 @@ msgid "not reachable"
 msgstr "利用不可"
 
 #, fuzzy
+msgid "not readable"
+msgstr "利用不可"
+
+#, fuzzy
+msgid "not recorded on this file"
+msgstr "このノード上に見つかりません"
+
+#, fuzzy
 msgid "ntfy Accounts"
 msgstr "Slack アカウント"
 
@@ -11182,6 +11195,10 @@ msgstr ""
 msgid "the Linux kernel which is used to"
 msgstr "次の処理に使用される Linux カーネル"
 
+#, fuzzy
+msgid "the file cannot be read"
+msgstr "ファイルまたはパスに到達できません"
+
 msgid "the following command in a terminal"
 msgstr "ターミナルで次のコマンドを実行してください"
 
@@ -11200,6 +11217,12 @@ msgstr "カーネルとともに使用される Initrd（初期 RAM ディスク
 msgid "the local login form stays available at %s"
 msgstr ""
 
+msgid "the web server may not read this file"
+msgstr ""
+
+msgid "the web server may not run external commands"
+msgstr ""
+
 msgid "there one enabled within this Storage Group"
 msgstr "このストレージグループ内に有効なものがあるか"
 
@@ -11215,6 +11238,9 @@ msgstr ""
 
 msgid "this backup will enable you to return to the"
 msgstr "このバックアップにより元の状態へ復元できます"
+
+msgid "this filesystem does not carry extended attributes"
+msgstr ""
 
 #, fuzzy
 msgid "this image is taking on the server."
@@ -11603,6 +11629,10 @@ msgstr ""
 
 #~ msgid "Boot Exit settings"
 #~ msgstr "ブート終了設定"
+
+#, fuzzy
+#~ msgid "Buildroot Version"
+#~ msgstr "MB バージョン"
 
 #, fuzzy
 #~ msgid "CA private key"
@@ -12402,6 +12432,10 @@ msgstr ""
 #~ msgid "Info"
 #~ msgstr "情報"
 
+#, fuzzy
+#~ msgid "InitRD Versions"
+#~ msgstr "クライアントバージョン"
+
 #~ msgid "Initrd Name"
 #~ msgstr "Initrd 名"
 
@@ -12487,6 +12521,13 @@ msgstr ""
 
 #~ msgid "Kernel Name"
 #~ msgstr "カーネル名"
+
+#, fuzzy
+#~ msgid "Kernel Version"
+#~ msgstr "カーネルバージョン"
+
+#~ msgid "Kernel Versions"
+#~ msgstr "カーネルバージョン"
 
 #~ msgid "Key Name"
 #~ msgstr "キー名"
@@ -12767,6 +12808,10 @@ msgstr ""
 #~ msgid "Non-Administrator Group"
 #~ msgstr "管理者グループ"
 
+#, fuzzy
+#~ msgid "Not Installed"
+#~ msgstr "ネットワークインストーラー"
+
 #~ msgid "Not Valid"
 #~ msgstr "無効"
 
@@ -12990,6 +13035,10 @@ msgstr ""
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "登録はフックまたはイベントから管理する必要があります"
 
+#, fuzzy
+#~ msgid "Release Version"
+#~ msgstr "クライアントバージョン"
+
 #~ msgid "Releasing Staff Initials"
 #~ msgstr "返却担当者のイニシャル"
 
@@ -13092,9 +13141,6 @@ msgstr ""
 
 #~ msgid "Rule value"
 #~ msgstr "ルール値"
-
-#~ msgid "Save Kernel"
-#~ msgstr "カーネルを保存"
 
 #~ msgid "Schedule as debug task"
 #~ msgstr "デバッグタスクとしてスケジュール"

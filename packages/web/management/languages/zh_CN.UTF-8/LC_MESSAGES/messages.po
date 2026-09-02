@@ -1313,8 +1313,15 @@ msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passre
 msgstr ""
 
 #, fuzzy
+msgid "Boot Files"
+msgstr "启动选项："
+
+#, fuzzy
 msgid "Boot Options"
 msgstr "启动选项："
+
+msgid "Boot Payload"
+msgstr ""
 
 msgid "Boot files from"
 msgstr ""
@@ -1367,10 +1374,6 @@ msgstr ""
 #, fuzzy
 msgid "Building the blobs failed."
 msgstr "加载失败： %s"
-
-#, fuzzy
-msgid "Buildroot Version"
-msgstr "CPU版本"
 
 #, php-format
 msgid "Bulk edit %s"
@@ -2948,6 +2951,17 @@ msgstr ""
 msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
+#, fuzzy
+msgid "FOS Init"
+msgstr "主机列表"
+
+#, fuzzy
+msgid "FOS Kernel"
+msgstr "核心"
+
+msgid "FOS Release"
+msgstr ""
+
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
@@ -4501,10 +4515,6 @@ msgid "Init images."
 msgstr "图片无效"
 
 #, fuzzy
-msgid "InitRD Versions"
-msgstr "CPU版本"
-
-#, fuzzy
 msgid "Initial Template"
 msgstr "模板管理单元"
 
@@ -4864,13 +4874,6 @@ msgstr "内核更新"
 #, fuzzy
 msgid "Kernel Update Fail"
 msgstr "内核更新"
-
-#, fuzzy
-msgid "Kernel Version"
-msgstr "内核版本"
-
-msgid "Kernel Versions"
-msgstr "内核版本"
 
 #, fuzzy
 msgid "Kernels present on disk"
@@ -5920,6 +5923,9 @@ msgstr ""
 msgid "No archive was uploaded."
 msgstr "没有文件被上传"
 
+msgid "No boot files found. Check FOG_TFTP_PXE_KERNEL_DIR."
+msgstr ""
+
 #, fuzzy
 msgid "No certificate file was uploaded"
 msgstr "没有文件被上传"
@@ -6212,10 +6218,6 @@ msgstr "不可用"
 #, fuzzy
 msgid "Not Found"
 msgstr "图标文件未找到"
-
-#, fuzzy
-msgid "Not Installed"
-msgstr "已安装的插件"
 
 msgid "Not Registered Hosts"
 msgstr "未注册主机"
@@ -7299,10 +7301,6 @@ msgstr "注册"
 
 msgid "Registered Hosts"
 msgstr "注册主机"
-
-#, fuzzy
-msgid "Release Version"
-msgstr "最新版本"
 
 #, php-format
 msgid "Reloaded %d setting(s) into cache"
@@ -9744,7 +9742,7 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr "已注册为"
 
-msgid "This name is not a recognised file in the boot directory."
+msgid "This name is not a recognized file in the boot directory."
 msgstr ""
 
 #, fuzzy
@@ -10887,6 +10885,13 @@ msgstr ""
 msgid "as its primary group"
 msgstr "更新主要组"
 
+msgid "attr could not be run -- SELinux may be denying it"
+msgstr ""
+
+#, fuzzy
+msgid "attr is not installed on this server"
+msgstr "有此服务器上没有组。"
+
 msgid "automatically"
 msgstr ""
 
@@ -11405,6 +11410,14 @@ msgid "not reachable"
 msgstr "不可用"
 
 #, fuzzy
+msgid "not readable"
+msgstr "不可用"
+
+#, fuzzy
+msgid "not recorded on this file"
+msgstr "图片没有节点发现"
+
+#, fuzzy
 msgid "ntfy Accounts"
 msgstr "斯莱克账户"
 
@@ -11589,6 +11602,10 @@ msgstr ""
 msgid "the Linux kernel which is used to"
 msgstr ""
 
+#, fuzzy
+msgid "the file cannot be read"
+msgstr "|文件或无法达成通道"
+
 msgid "the following command in a terminal"
 msgstr ""
 
@@ -11606,6 +11623,12 @@ msgstr ""
 msgid "the local login form stays available at %s"
 msgstr ""
 
+msgid "the web server may not read this file"
+msgstr ""
+
+msgid "the web server may not run external commands"
+msgstr ""
+
 #, fuzzy
 msgid "there one enabled within this Storage Group"
 msgstr "找不到存储节点是否有什么这个存储组中启用"
@@ -11621,6 +11644,9 @@ msgid "this account has no role, so it has no access to any management page. Ask
 msgstr ""
 
 msgid "this backup will enable you to return to the"
+msgstr ""
+
+msgid "this filesystem does not carry extended attributes"
 msgstr ""
 
 #, fuzzy
@@ -11910,6 +11936,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Attempting to ping host"
 #~ msgstr "尝试ping"
+
+#, fuzzy
+#~ msgid "Buildroot Version"
+#~ msgstr "CPU版本"
 
 #, fuzzy
 #~ msgid "Bulk Changes"
@@ -12255,6 +12285,10 @@ msgstr ""
 #~ msgstr "导入用户"
 
 #, fuzzy
+#~ msgid "InitRD Versions"
+#~ msgstr "CPU版本"
+
+#, fuzzy
 #~ msgid "Install"
 #~ msgstr "已安装的插件"
 
@@ -12269,6 +12303,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Inventory Report"
 #~ msgstr "库存"
+
+#, fuzzy
+#~ msgid "Kernel Version"
+#~ msgstr "内核版本"
+
+#~ msgid "Kernel Versions"
+#~ msgstr "内核版本"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -12329,6 +12370,10 @@ msgstr ""
 #~ msgstr "修改组"
 
 #, fuzzy
+#~ msgid "Not Installed"
+#~ msgstr "已安装的插件"
+
+#, fuzzy
 #~ msgid "Pause"
 #~ msgstr "用户"
 
@@ -12354,6 +12399,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Product Keys"
 #~ msgstr "主机产品密钥"
+
+#, fuzzy
+#~ msgid "Release Version"
+#~ msgstr "最新版本"
 
 #, fuzzy
 #~ msgid "Remove Selected"
