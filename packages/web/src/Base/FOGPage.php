@@ -6222,6 +6222,18 @@ abstract class FOGPage extends FOGBase
         if ('' === $name) {
             return false;
         }
+        /**
+         * The copy first, then the flag.
+         *
+         * The copy is what actually protects the file, so a flag written
+         * without one would promise something nothing delivers -- and on the
+         * next upgrade the file would be gone with the record still saying
+         * it was kept. Unpinning goes the same way round for the same
+         * reason: remove the copy, then say it is no longer kept.
+         */
+        if (!self::_bootFileKeepCopy($name, $keep)) {
+            return false;
+        }
         try {
             $row = self::_bootFileRow($name) ?: self::getClass('BootFile');
             $row->set('name', $name)
@@ -6235,6 +6247,87 @@ abstract class FOGPage extends FOGBase
         }
 
         return true;
+    }
+    /**
+     * Puts a copy of a boot file where an upgrade will find it, or removes it.
+     *
+     * `customizations/kernel-backups/keep/` -- and the copy IS the record.
+     * The pruner and the restore are shell functions running while the web
+     * root is being rebuilt, with no database in reach, so the alternative
+     * was a manifest for them to read. A copy needs no parsing and cannot
+     * drift from what it describes, which is the same reasoning
+     * restorekernel.sh gives for using xattrs instead of a manifest.
+     *
+     * It also earns its space: the web root is deleted and rebuilt on every
+     * install, and a per-release sibling is deliberately not part of a
+     * generation, so without this a kept sibling survives exactly until the
+     * next upgrade.
+     *
+     * Known limit, inherited rather than introduced: the source path is the
+     * local one, the same path the listing reads. On a deployment where
+     * FOG_TFTP_HOST is another machine the listing is already reading a
+     * different disk from the one kernelfetch() writes, and this follows the
+     * listing -- what the admin clicked Keep on is what they were shown.
+     *
+     * @param string $name filename in the boot directory
+     * @param bool   $keep true to place the copy, false to remove it
+     *
+     * @return bool
+     */
+    private static function _bootFileKeepCopy($name, $keep)
+    {
+        if (!defined('FOG_BASE_DIR')) {
+            // No installer-written paths file, so there is no customizations
+            // tree to copy into. Nothing to do rather than a failure: a
+            // source checkout has no boot directory to protect either.
+            return true;
+        }
+        $keepDir = FOG_BASE_DIR . DS . 'customizations' . DS
+            . 'kernel-backups' . DS . 'keep';
+        $target = $keepDir . DS . $name;
+        if (!$keep) {
+            if (!is_file($target)) {
+                return true;
+            }
+
+            return @unlink($target);
+        }
+        if (!is_dir($keepDir)) {
+            // Created by the installer, deliberately not here: it is created
+            // once, owned by the service user and group-writable to the web
+            // user, and a directory the web tier makes for itself would own
+            // it instead.
+            return false;
+        }
+        $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        $source = $dir . DIRECTORY_SEPARATOR . $name;
+        if ('' === $dir || !is_file($source)) {
+            return false;
+        }
+        if (is_file($target) && self::_sameFile($source, $target)) {
+            return true;
+        }
+
+        return @copy($source, $target);
+    }
+    /**
+     * Whether two paths hold the same bytes.
+     *
+     * Size first, because it settles almost every case without reading
+     * either file, and these are kernels.
+     *
+     * @param string $a first path
+     * @param string $b second path
+     *
+     * @return bool
+     */
+    private static function _sameFile($a, $b)
+    {
+        if (filesize($a) !== filesize($b)) {
+            return false;
+        }
+
+        return hash_file('sha256', $a) === hash_file('sha256', $b);
     }
     /**
      * Removes a boot file, and the record that described it.
