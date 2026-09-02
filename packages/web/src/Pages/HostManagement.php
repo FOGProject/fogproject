@@ -4212,7 +4212,16 @@ class HostManagement extends FOGPage
      * skips what the spec does not name. That is the map's second job and
      * the reason it is a whitelist rather than a blacklist.
      *
-     * @return array key => ['field', 'empty', 'label', 'kind', 'secret']
+     * `tab` says which tab of the form the field is drawn on, and mirrors
+     * where the same setting sits on a single host's own page -- so someone
+     * who knows where to find Host Init on a host finds it in the same place
+     * here. It is presentation only: the apply path never reads it, and a
+     * field that omits it still renders (on General), because a new field
+     * silently vanishing from the form is a far worse failure than one
+     * appearing on the wrong tab. massEditTabGroups() names the tabs.
+     *
+     * @return array key => ['field', 'empty', 'label', 'kind', 'secret',
+     *               'tab']
      */
     private function massEditCoreFields()
     {
@@ -4221,50 +4230,58 @@ class HostManagement extends FOGPage
                 'field' => 'imageID',
                 'empty' => 0,
                 'label' => _('Image'),
-                'kind' => 'image'
+                'kind' => 'image',
+                'tab' => 'general'
             ],
             'kernel' => [
                 'field' => 'kernel',
                 'empty' => '',
                 'label' => _('Host Kernel'),
-                'kind' => 'text'
+                'kind' => 'text',
+                'tab' => 'general'
             ],
             'kernelArgs' => [
                 'field' => 'kernelArgs',
                 'empty' => '',
                 'label' => _('Host Kernel Arguments'),
-                'kind' => 'text'
+                'kind' => 'text',
+                'tab' => 'general'
             ],
             'kernelDevice' => [
                 'field' => 'kernelDevice',
                 'empty' => '',
                 'label' => _('Host Primary Disk'),
-                'kind' => 'text'
+                'kind' => 'text',
+                'tab' => 'general'
             ],
             'init' => [
                 'field' => 'init',
                 'empty' => '',
                 'label' => _('Host Init'),
-                'kind' => 'text'
+                'kind' => 'text',
+                'tab' => 'general'
             ],
             'biosexit' => [
                 'field' => 'biosexit',
                 'empty' => '',
                 'label' => _('Host BIOS Exit Type'),
-                'kind' => 'biosexit'
+                'kind' => 'biosexit',
+                'tab' => 'general'
             ],
             'efiexit' => [
                 'field' => 'efiexit',
                 'empty' => '',
                 'label' => _('Host EFI Exit Type'),
-                'kind' => 'efiexit'
+                'kind' => 'efiexit',
+                'tab' => 'general'
             ],
             'productKey' => [
                 'field' => 'productKey',
                 'empty' => '',
                 'label' => _('Product Key'),
                 'kind' => 'text',
-                'secret' => true
+                'secret' => true,
+                'tab' => 'general'
             ],
             // Printer level is a `hosts` column and so belongs to the
             // imperative half (ADR 0038 decision 1) even though the printers
@@ -4276,7 +4293,8 @@ class HostManagement extends FOGPage
                 'field' => 'printerLevel',
                 'empty' => 0,
                 'label' => _('Host Printer Management Level'),
-                'kind' => 'printerlevel'
+                'kind' => 'printerlevel',
+                'tab' => 'general'
             ],
             // The two booleans. A boolean has no meaningful "clear", so the
             // form draws them as No change / Enable on all / Disable on all
@@ -4288,31 +4306,36 @@ class HostManagement extends FOGPage
                 'field' => 'useAD',
                 'empty' => 0,
                 'label' => _('Join Domain after image task'),
-                'kind' => 'bool'
+                'kind' => 'bool',
+                'tab' => 'ad'
             ],
             'enforce' => [
                 'field' => 'enforce',
                 'empty' => 0,
                 'label' => _('Host Enforce Hostname Changes'),
-                'kind' => 'bool'
+                'kind' => 'bool',
+                'tab' => 'general'
             ],
             'ADDomain' => [
                 'field' => 'ADDomain',
                 'empty' => '',
                 'label' => _('Active Directory Domain Name'),
-                'kind' => 'text'
+                'kind' => 'text',
+                'tab' => 'ad'
             ],
             'ADOU' => [
                 'field' => 'ADOU',
                 'empty' => '',
                 'label' => _('Active Directory Organizational Unit'),
-                'kind' => 'text'
+                'kind' => 'text',
+                'tab' => 'ad'
             ],
             'ADUser' => [
                 'field' => 'ADUser',
                 'empty' => '',
                 'label' => _('Active Directory Username'),
-                'kind' => 'text'
+                'kind' => 'text',
+                'tab' => 'ad'
             ],
             // Set-only. There is no read path and there is deliberately no
             // 32-asterisk placeholder: the form renders an empty password
@@ -4326,7 +4349,8 @@ class HostManagement extends FOGPage
                 'empty' => '',
                 'label' => _('Active Directory Password'),
                 'kind' => 'password',
-                'secret' => true
+                'secret' => true,
+                'tab' => 'ad'
             ],
         ];
     }
@@ -4351,19 +4375,21 @@ class HostManagement extends FOGPage
      * be a column update, and keeping the two lists apart is what stops one
      * from being handed to columnUpdates() by accident.
      *
-     * @return array key => ['label', 'kind', 'composite']
+     * @return array key => ['label', 'kind', 'composite', 'tab']
      */
     private function massEditRowFields()
     {
         return [
             'autologout' => [
                 'label' => _('Auto Log Out Time (in minutes)'),
-                'kind' => 'number'
+                'kind' => 'number',
+                'tab' => 'client'
             ],
             'resolution' => [
                 'label' => _('Host Screen Resolution'),
                 'kind' => 'resolution',
-                'composite' => true
+                'composite' => true,
+                'tab' => 'client'
             ],
         ];
     }
@@ -4428,6 +4454,56 @@ class HostManagement extends FOGPage
         return $wrote;
     }
 
+    /**
+     * The tabs the mass edit form is split across, in the order drawn.
+     *
+     * The form reached seventeen core fields plus whatever the plugins add,
+     * which is a scroll rather than a form: the AD password sat below the
+     * fold under a stack of kernel settings that have nothing to do with it.
+     * Splitting it costs nothing at the wire -- every pane is in the DOM and
+     * a hidden pane's inputs serialize exactly like a visible one's -- so
+     * this is purely how the fields are laid out, and the POST is byte for
+     * byte what it was.
+     *
+     * The names and the grouping mirror a single host's own page on purpose.
+     * `enforce` is on General here because that is where it is on the host
+     * page (HostManagement::hostGeneral()), not because it has nothing to do
+     * with AD -- following the host page is the rule, and second-guessing it
+     * per field is how the two drift apart.
+     *
+     * Plugin-contributed fields get their own tab, which is what tabFields()
+     * does with plugin-contributed tabs everywhere else, and it is only drawn
+     * when a plugin actually contributed something.
+     *
+     * @return array tab id => tab label
+     */
+    private function massEditTabGroups()
+    {
+        return [
+            'general' => _('General'),
+            'ad' => _('Active Directory'),
+            'client' => _('FOG Client'),
+            'plugins' => _('Plugins')
+        ];
+    }
+    /**
+     * Which tab a field spec is drawn on.
+     *
+     * Defaults to General rather than throwing or dropping the field. A spec
+     * with no `tab`, or one naming a tab that does not exist, is a mistake in
+     * the spec -- but the failure that mistake should produce is a control in
+     * the wrong place, not a control that is silently absent from a form
+     * whose whole job is to be the only way to set these values in bulk.
+     *
+     * @param array $spec one entry from massEditCoreFields()/RowFields()
+     *
+     * @return string a key of massEditTabGroups()
+     */
+    private function massEditTabFor(array $spec)
+    {
+        $tab = (string)($spec['tab'] ?? '');
+        return isset($this->massEditTabGroups()[$tab]) ? $tab : 'general';
+    }
     /**
      * The plugin-contributed field keys a mass edit may act on.
      *
@@ -4764,6 +4840,96 @@ class HostManagement extends FOGPage
     }
 
     /**
+     * Lays the mass edit controls out as tabs.
+     *
+     * Presentation only, and deliberately its own method: everything here is
+     * pure string building over arrays it is handed, which is what lets a
+     * test render the real form rather than assert on the shape of the code
+     * that renders it.
+     *
+     * Every pane is in the DOM whether or not it is the visible one, and a
+     * hidden pane's inputs serialize exactly like a visible one's -- so the
+     * POST this form produces is byte for byte what the single flat list
+     * produced. That is the whole reason tabbing it needed no change to
+     * fog.host.list.js, which reaches its controls by class across the whole
+     * form.
+     *
+     * @param array $core    massEditCoreFields()
+     * @param array $rows    massEditRowFields()
+     * @param array $hints   massEditHints(), keyed by field key
+     * @param array $plugins massEditPluginFields(), keyed by field key
+     *
+     * @return string the rendered tab block
+     */
+    private function massEditTabbedFields(
+        array $core,
+        array $rows,
+        array $hints,
+        array $plugins
+    ) {
+        $labelClass = 'col-sm-3 col-form-label';
+        $fields = [];
+        foreach (array_merge($core, $rows) as $key => $spec) {
+            $fields[$this->massEditTabFor($spec)][
+                self::makeLabel(
+                    $labelClass,
+                    self::massEditControlId('value', $key),
+                    $spec['label'] ?? $key
+                )
+            ] = '<div class="row g-2">'
+                . '<div class="col-sm-4">'
+                . $this->massEditActionControl($key, $spec)
+                . '</div>'
+                . '<div class="col-sm-8">'
+                . $this->massEditValueControl($key, $spec)
+                . ($hints[$key] ?? '')
+                . '</div>'
+                . '</div>';
+        }
+        foreach ($plugins as $key => $spec) {
+            $fields['plugins'][
+                self::makeLabel(
+                    $labelClass,
+                    self::massEditControlId('value', $key),
+                    $spec['label'] ?? $key
+                )
+            ] = '<div class="row g-2">'
+                . '<div class="col-sm-4">'
+                . $this->massEditActionControl($key, $spec)
+                . '</div>'
+                . '<div class="col-sm-8">'
+                . ($spec['input'] ?? '')
+                . ($spec['hint'] ?? '')
+                . '</div>'
+                . '</div>';
+        }
+
+        // A tab with nothing on it is not drawn -- Plugins is the one that is
+        // routinely empty, and an empty tab in a modal reads as something
+        // that failed to load.
+        $tabData = [];
+        foreach ($this->massEditTabGroups() as $tabID => $tabName) {
+            if (empty($fields[$tabID])) {
+                continue;
+            }
+            $pane = self::formFields($fields[$tabID]);
+            $tabData[] = [
+                'name' => $tabName,
+                'id' => 'massedit-tab-' . $tabID,
+                'generator' => function () use ($pane) {
+                    echo $pane;
+                }
+            ];
+        }
+
+        // false, not the -1 default: -1 resolves the current node and id into
+        // an object and fires TABDATA_HOOK and PLUGINS_INJECT_TABDATA against
+        // it. There is no single host being edited here, and a plugin tab
+        // built for one host would be wrong for all of them -- the mass
+        // edit's plugin seam is HOST_MASSEDIT_FIELDS.
+        return self::tabFields($tabData, false);
+    }
+    /**
      * Refuses a GET to the mass edit form endpoint.
      *
      * @return void
@@ -4807,26 +4973,6 @@ class HostManagement extends FOGPage
             $rows = $this->massEditRowFields();
             $hints = $this->massEditHints($hosts, $core);
 
-            $labelClass = 'col-sm-3 col-form-label';
-            $fields = [];
-            foreach (array_merge($core, $rows) as $key => $spec) {
-                $fields[
-                    self::makeLabel(
-                        $labelClass,
-                        self::massEditControlId('value', $key),
-                        $spec['label'] ?? $key
-                    )
-                ] = '<div class="row g-2">'
-                    . '<div class="col-sm-4">'
-                    . $this->massEditActionControl($key, $spec)
-                    . '</div>'
-                    . '<div class="col-sm-8">'
-                    . $this->massEditValueControl($key, $spec)
-                    . ($hints[$key] ?? '')
-                    . '</div>'
-                    . '</div>';
-            }
-
             // The plugin half. A plugin supplies the label, the value
             // control and its own hint over the selection; core keeps the
             // action control. Same call the apply path makes, so the two
@@ -4834,26 +4980,13 @@ class HostManagement extends FOGPage
             // in the form and not in the apply would offer a control that
             // silently does nothing.
             $pluginFields = $this->massEditPluginFields($hosts);
-            foreach ($pluginFields as $key => $spec) {
-                $fields[
-                    self::makeLabel(
-                        $labelClass,
-                        self::massEditControlId('value', $key),
-                        $spec['label'] ?? $key
-                    )
-                ] = '<div class="row g-2">'
-                    . '<div class="col-sm-4">'
-                    . $this->massEditActionControl($key, $spec)
-                    . '</div>'
-                    . '<div class="col-sm-8">'
-                    . ($spec['input'] ?? '')
-                    . ($spec['hint'] ?? '')
-                    . '</div>'
-                    . '</div>';
-            }
 
-            $rendered = self::formFields($fields);
-            unset($fields);
+            $rendered = $this->massEditTabbedFields(
+                $core,
+                $rows,
+                $hints,
+                $pluginFields
+            );
 
             ob_start();
             echo self::makeFormTag(

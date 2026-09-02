@@ -502,6 +502,175 @@ foreach ($fetches as $what => $spec) {
     );
 }
 
+// --- Tabs -----------------------------------------------------------------
+//
+// Seventeen core fields plus whatever the plugins add is a scroll, not a
+// form, so the modal is split the way a single host's page is. The claim
+// being gated is narrow and it is the one that matters: splitting the form
+// must not lose a control. Every pane is in the DOM either way and a hidden
+// pane's inputs serialize exactly like a visible one's, so a field that
+// vanishes here vanishes from the POST, silently, on a form that is the only
+// way to set these values in bulk.
+
+$groups = $call('massEditTabGroups');
+$check(
+    'the tab groups are named and ordered',
+    is_array($groups)
+        && ['general', 'ad', 'client', 'plugins'] === array_keys($groups)
+);
+
+// Every field the form offers has to land on a tab that exists. A spec
+// naming one that does not is a mistake, and the mistake must produce a
+// control in the wrong place rather than no control at all.
+$stray = [];
+foreach (array_merge($core, $rows) as $key => $spec) {
+    $tab = $call('massEditTabFor', [$spec]);
+    if (!isset($groups[$tab])) {
+        $stray[] = $key;
+    }
+}
+$check(
+    'every offered field lands on a tab that exists ('
+    . implode(', ', $stray) . ')',
+    0 === count($stray)
+);
+$check(
+    'a spec with no tab falls back to General rather than disappearing',
+    'general' === $call('massEditTabFor', [['kind' => 'text']])
+);
+$check(
+    'a spec naming a tab that does not exist falls back the same way',
+    'general' === $call('massEditTabFor', [['tab' => 'nonesuch']])
+);
+
+// The grouping mirrors a single host's own page. enforce is on General
+// because that is where hostGeneral() draws it, not because it is unrelated
+// to AD -- following the host page is the rule.
+$where = [
+    'image' => 'general',
+    'kernel' => 'general',
+    'enforce' => 'general',
+    'useAD' => 'ad',
+    'ADPass' => 'ad',
+    'autologout' => 'client',
+    'resolution' => 'client'
+];
+$wrong = [];
+foreach ($where as $key => $tab) {
+    $spec = $core[$key] ?? $rows[$key] ?? null;
+    if (null === $spec || $tab !== $call('massEditTabFor', [$spec])) {
+        $wrong[] = $key;
+    }
+}
+$check(
+    'the grouping follows the host page (' . implode(', ', $wrong) . ')',
+    0 === count($wrong)
+);
+
+// Now render it for real. The DB-backed kinds are dropped for the same
+// reason the value-control checks above drop them -- standing a schema up to
+// watch ImageManager build a select would make this an install rehearsal --
+// and the tab question is unaffected by which control a pane contains.
+$needsDb = ['image' => 1, 'biosexit' => 1, 'efiexit' => 1];
+$renderCore = [];
+foreach ($core as $key => $spec) {
+    if (!isset($needsDb[$spec['kind'] ?? 'text'])) {
+        $renderCore[$key] = $spec;
+    }
+}
+$check(
+    'the render still covers a field from every non-plugin tab',
+    isset($renderCore['kernel'], $renderCore['useAD'])
+);
+
+$html = $call(
+    'massEditTabbedFields',
+    [$renderCore, $rows, [], []]
+);
+$check('the form renders as tabs', false !== strpos($html, 'nav-tabs'));
+foreach (['general', 'ad', 'client'] as $tab) {
+    $check(
+        "the $tab tab is drawn",
+        false !== strpos($html, 'id="massedit-tab-' . $tab . '"')
+            && false !== strpos($html, 'href="#massedit-tab-' . $tab . '"')
+    );
+}
+$check(
+    'the tabs are labeled as the host page labels them',
+    false !== strpos($html, '>General<')
+        && false !== strpos($html, '>Active Directory<')
+        && false !== strpos($html, '>FOG Client<')
+);
+$check(
+    'exactly one pane opens, so the modal is never blank on arrival',
+    1 === substr_count($html, 'tab-pane fade show active')
+);
+
+// The one that actually matters: nothing was lost in the split.
+$lost = [];
+foreach (array_merge($renderCore, $rows) as $key => $spec) {
+    if (false === strpos($html, 'name="action[' . $key . ']"')
+        || false === strpos($html, 'data-massedit-key="' . $key . '"')
+    ) {
+        $lost[] = $key;
+    }
+}
+$check(
+    'every field survives the split into tabs (' . implode(', ', $lost) . ')',
+    0 === count($lost)
+);
+
+// An empty tab in a modal reads as something that failed to load, and
+// Plugins is empty on any server with neither location nor ou installed.
+$check(
+    'the Plugins tab is not drawn when no plugin contributed',
+    false === strpos($html, 'massedit-tab-plugins')
+);
+$withPlugin = $call(
+    'massEditTabbedFields',
+    [
+        $renderCore,
+        $rows,
+        [],
+        [
+            'location' => [
+                'label' => 'Host Location',
+                'input' => '<input name="value[location]"/>',
+                'hint' => ''
+            ]
+        ]
+    ]
+);
+$check(
+    'a contributed field draws the Plugins tab',
+    false !== strpos($withPlugin, 'id="massedit-tab-plugins"')
+        && false !== strpos($withPlugin, '>Plugins<')
+);
+$check(
+    'core still draws the action control for a plugin field',
+    false !== strpos($withPlugin, 'name="action[location]"')
+);
+$check(
+    'the plugin tab does not steal the open pane from General',
+    1 === substr_count($withPlugin, 'tab-pane fade show active')
+        && strpos($withPlugin, 'massedit-tab-general')
+            < strpos($withPlugin, 'massedit-tab-plugins')
+);
+
+// tabFields() defaults to resolving the current node and id into an object
+// and firing TABDATA_HOOK against it. There is no single host being edited
+// here, and a plugin tab built for one host would be wrong for all of them.
+$tabbed = $methodBody($source, 'private function massEditTabbedFields(');
+$check(
+    'the tab builder passes no object, so the per-host tab hooks stay quiet',
+    null !== $tabbed
+        && false !== strpos((string)$tabbed, 'self::tabFields($tabData, false)')
+);
+$check(
+    'the form endpoint renders through the tab builder',
+    false !== strpos($body, 'massEditTabbedFields(')
+);
+
 if (count($failures)) {
     fwrite(STDERR, "FAIL: the mass edit form is not three-state:\n");
     foreach ($failures as $f) {
