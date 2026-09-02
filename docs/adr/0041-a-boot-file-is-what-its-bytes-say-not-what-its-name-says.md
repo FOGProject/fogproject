@@ -112,7 +112,7 @@ field name and is what posts, and the select has no name at all and only writes
 into it. With no JavaScript the field degrades to the free-text box it was
 before the dropdowns landed, rather than to nothing.
 
-A stored value that names no recognised file is shown in that box with a note
+A stored value that names no recognized file is shown in that box with a note
 saying so, and saved as typed. It is not refused — the admin holding a
 known-good kernel for awkward hardware knows something the classifier does not.
 

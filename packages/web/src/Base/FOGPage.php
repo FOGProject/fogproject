@@ -5986,7 +5986,7 @@ abstract class FOGPage extends FOGBase
         }
         /**
          * A stored value naming a file that is not on disk -- or one the
-         * classifier does not recognise as this role -- must still appear and
+         * classifier does not recognize as this role -- must still appear and
          * must still be what the form posts. Dropping it would silently
          * rewrite the host's kernel to the default the moment anyone opened
          * the form. It is shown in the manual box below, with a note, rather
@@ -6019,7 +6019,7 @@ abstract class FOGPage extends FOGBase
         }
         /**
          * The typed failsafe. A dropdown can only offer what the classifier
-         * recognised, and an admin running a kernel it does not recognise --
+         * recognized, and an admin running a kernel it does not recognize --
          * or about to copy one in -- still has to be able to name it. This is
          * also the escape hatch if the classifier is ever wrong.
          *
@@ -6060,7 +6060,7 @@ abstract class FOGPage extends FOGBase
             . (
                 $manualValue ?
                 '<small class="form-text text-warning fog-bootfile-note">'
-                . _('This name is not a recognised file in the boot directory.')
+                . _('This name is not a recognized file in the boot directory.')
                 . '</small>' :
                 ''
             )

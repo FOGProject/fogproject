@@ -5217,7 +5217,7 @@ function reinitialize() {
         } else {
           $value.addClass('d-none').val(picked);
         }
-        // The server's "not a recognised file" note described the value the
+        // The server's "not a recognized file" note described the value the
         // form loaded with. Once you change the control it is stale.
         $picker.closest('.fog-bootfile').find('.fog-bootfile-note').remove();
       });
