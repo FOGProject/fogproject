@@ -32,10 +32,12 @@ use FOG\Router\Route;
  * made this necessary and UbootBootMenu's class doc for the design this
  * sits beside rather than inside.
  *
- * The write target is FOG_TFTP_PXE_KERNEL_DIR over SSH/SFTP
- * (FOG_TFTP_HOST + FOG_TFTP_FTP_USERNAME/PASSWORD), the same mechanism
- * FOGPage.php's kernel-upload action already uses for the same reason: the
- * TFTP root can be a remote storage node, not the web server.
+ * The write target is pxelinux.cfg under FOG_TFTP_ROOT_DIR -- the directory
+ * tftpd actually serves (its chroot), NOT FOG_TFTP_PXE_KERNEL_DIR, which is
+ * the HTTP-served kernel directory and invisible to a chrooted tftpd -- over
+ * SSH/SFTP (FOG_TFTP_HOST + FOG_TFTP_FTP_USERNAME/PASSWORD), the same
+ * mechanism FOGPage.php's kernel-upload action already uses for the same
+ * reason: the TFTP root can be a remote storage node, not the web server.
  *
  * Two ways this gets called, both intentionally cheap for the common case
  * where nothing here is in use at all (no hosts with MACs, or a fleet with
@@ -82,12 +84,12 @@ class UbootTftpSync extends FOGBase
      */
     private static function _connect()
     {
-        list($tftpHost, $tftpUser, $tftpPass, $kernelDir) = self::getSetting(
+        list($tftpHost, $tftpUser, $tftpPass, $tftpRoot) = self::getSetting(
             [
                 'FOG_TFTP_HOST',
                 'FOG_TFTP_FTP_USERNAME',
                 'FOG_TFTP_FTP_PASSWORD',
-                'FOG_TFTP_PXE_KERNEL_DIR',
+                'FOG_TFTP_ROOT_DIR',
             ]
         );
         self::$FOGSSH->username = $tftpUser;
@@ -98,7 +100,7 @@ class UbootTftpSync extends FOGBase
                 _('Unable to connect to TFTP server over SSH')
             );
         }
-        $dir = '/' . trim((string)$kernelDir, '/') . '/pxelinux.cfg';
+        $dir = '/' . trim((string)$tftpRoot, '/') . '/pxelinux.cfg';
         if (!self::$FOGSSH->exists($dir)) {
             self::$FOGSSH->sftp_mkdir($dir);
         }

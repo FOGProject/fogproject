@@ -153,6 +153,13 @@ Two things this depends on that the direct-`wget` path does not:
   FOG's kernel-upload feature already uses to reach a TFTP root that may not
   be the web server itself -- if kernel uploads to ARM boards already work,
   these are already configured.
+- **`FOG_TFTP_ROOT_DIR` must be the directory tftpd serves from.** The
+  installer sets it (`/tftpboot` on most distributions) and the file is
+  written to `pxelinux.cfg/` under it, because that is where `pxe get` looks:
+  tftpd-hpa runs chrooted to this directory and cannot serve anything outside
+  it. It is deliberately not `FOG_TFTP_PXE_KERNEL_DIR`, which is the
+  HTTP-served kernel directory under the web root; the first version of this
+  sync wrote there, so the file existed and TFTP timed out on it anyway.
 - **Failures here are silent by design.** An unreachable TFTP host must never
   block queuing, canceling, or completing a task, so every failure is logged
   through FOG's fault log rather than surfaced to whoever triggered the task.

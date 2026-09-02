@@ -10644,3 +10644,25 @@ $this->schema[] =
 
         return true;
     };
+
+// 412
+$this->schema[] = [
+    // U-Boot's `pxe get` fetches pxelinux.cfg/01-<mac> relative to the TFTP
+    // root, and tftpd-hpa serves chrooted to that root (-s $tftpdirdst). Until
+    // this step UbootTftpSync wrote under FOG_TFTP_PXE_KERNEL_DIR, which is the
+    // HTTP-served kernel directory (<webroot>/service/ipxe/), outside the
+    // chroot -- so the file existed and TFTP could never serve it (forums
+    // topic 18229). The root is distro-dependent (/tftpboot, /var/lib/tftpboot,
+    // /srv/tftp, ...) and only the installer knows it, so it publishes it as
+    // TFTP_ROOT_DIR the same way it publishes TFTP_PXE_KERNEL_DIR; the
+    // defined() guard is for a tree updated by git pull with a config.class.php
+    // the installer has not regenerated yet.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "VALUES "
+    . "('FOG_TFTP_ROOT_DIR','The directory the TFTP server serves from "
+    . "(its chroot). U-Boot boards without wget fetch their "
+    . "pxelinux.cfg/01-<mac> boot file from here.','"
+    . (defined('TFTP_ROOT_DIR') ? TFTP_ROOT_DIR : '/tftpboot')
+    . "','TFTP Server')",
+];

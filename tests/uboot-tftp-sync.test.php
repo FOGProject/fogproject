@@ -141,7 +141,7 @@ foreach (
 
 /*
  * _connect(): the SSH handshake, the dir path built from
- * FOG_TFTP_PXE_KERNEL_DIR, and mkdir-only-if-missing.
+ * FOG_TFTP_ROOT_DIR, and mkdir-only-if-missing.
  *
  * No ssh2 extension needed -- same technique as
  * tests/fogssh-delete-terminates.test.php: FOGSSH has no constructor, and
@@ -274,7 +274,9 @@ $tftpSettings = [
     'FOG_TFTP_HOST' => 'tftp.example.test',
     'FOG_TFTP_FTP_USERNAME' => 'fogtftp',
     'FOG_TFTP_FTP_PASSWORD' => 's3cret',
-    'FOG_TFTP_PXE_KERNEL_DIR' => '/tftpboot/',
+    'FOG_TFTP_ROOT_DIR' => '/srv/tftp/',
+    // The HTTP kernel dir: the path the sync must NOT build from (topic 18229).
+    'FOG_TFTP_PXE_KERNEL_DIR' => '/var/www/html/fog/service/ipxe/',
 ];
 $db->responder = function ($sql, $params) use ($tftpSettings) {
     if (false !== stripos($sql, 'FROM `globalSettings`')) {
@@ -295,8 +297,8 @@ FogTestHarness::setStatic('FOGBase', 'FOGSSH', $fakeFs);
 $dir = FogTestHarness::callStatic('FOG\Boot\UbootTftpSync', '_connect');
 
 $t->check(
-    'the pxelinux.cfg dir is built from FOG_TFTP_PXE_KERNEL_DIR',
-    '/tftpboot/pxelinux.cfg' === $dir
+    'the pxelinux.cfg dir is built from FOG_TFTP_ROOT_DIR, not the kernel dir',
+    '/srv/tftp/pxelinux.cfg' === $dir
 );
 $t->check(
     'the SSH credentials are read from the TFTP settings',
