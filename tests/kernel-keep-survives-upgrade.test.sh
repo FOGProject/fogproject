@@ -14,8 +14,9 @@
 # So "keep this kernel" applied to a sibling would have survived exactly until
 # the next upgrade, with nothing reporting that it had gone. The copy in
 # customizations/kernel-backups/keep/ is what makes the promise real, and the
-# copy IS the record: the restore is a shell function running while the web
-# root is being rebuilt, with no database in reach.
+# copy is the EFFECT of the pin rather than a record of it: bfPinned holds the
+# judgment (ADR 0042), and the restore is a shell function running while the
+# web root is being rebuilt, with no database in reach.
 #
 # The restore is EXECUTED against a fixture, not read. The interesting cases
 # are the two exclusions -- a fresh file of the same name must win, and the six

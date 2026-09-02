@@ -750,8 +750,8 @@ restorePreservedCustomizations() {
     # the sibling or a custom name, which is what the tab steers toward.
     #
     # ORDER DEPENDENCY, and it fails silently if broken: the directory is
-    # created by _ensureCustomizationsTree(), which runs inside
-    # configureHttpd() -- installfog.sh calls that BEFORE this function
+    # created by _ensureCustomizationsTree(), which configureHttpd() calls
+    # first thing -- installfog.sh calls that BEFORE this function
     # (backup, then configureHttpd, then restore). Moving either past the
     # other leaves this reading a directory that does not exist yet, which
     # the -d guard turns into "nothing was kept" rather than an error, and
@@ -8264,12 +8264,53 @@ _customPkiDir() {
     [[ -n $root ]] || root="$(dirname "$(_pkiRootDir)")/customizations/pki"
     echo "${root%/}"
 }
+# Sums of every readme revision FOG has shipped, one per line, oldest first.
+#
+# Adding a revision means appending its sum here, never replacing the list. The
+# question each entry answers is "did FOG write this exact file", not "is this
+# the current text" -- a server installed before a revision has an untouched
+# readme whose text is now wrong, and that is precisely the file that should be
+# replaced.
+_fogShippedReadmeSums() {
+    case "$1" in
+        etc)
+            # GH-1681, the first revision
+            echo a469b039e3bb37e8353b9726b8dd0deae6165fd1d49e77e5657d4376be4f9bf9
+            # GH-1684, adds the note that FOG may rewrite this file
+            echo 02fa0e9953a72b7de62aa59dbcf3dad48b99c90d4070187c25b2f6c8f130ff85
+            ;;
+        opt)
+            # GH-1681, the first revision
+            echo b6c5abd15b7bf6120005fa32b346d07df4ce9259ba6922613d5677b85fffd736
+            # GH-1684, adds kernel-backups/keep/ and the rewrite note
+            echo 521105edd799740d61d5d138df5cec37576c42e0693c238d474186d0b9b9edcc
+            ;;
+    esac
+}
+# Whether $1 is a readme FOG may write: absent, or still byte-identical to a
+# revision FOG shipped. $2 is the readme kind, etc or opt.
+#
+# Returns 1 -- leave it alone -- for anything else, which is an admin's edit,
+# and for the case where sha256sum is missing and the question cannot be
+# answered at all. Keeping somebody's note is the safe direction; there is no
+# run in which discarding it is the better mistake.
+_readmeIsFogsOwn() {
+    local f="$1" kind="$2" cur
+    [[ -f $f ]] || return 0
+    command -v sha256sum >/dev/null 2>&1 || return 1
+    cur=$(sha256sum "$f" 2>/dev/null | cut -d' ' -f1)
+    [[ -n $cur ]] || return 1
+    _fogShippedReadmeSums "$kind" | grep -qxF "$cur"
+}
 # The two readme files, and the directories that hold them.
 #
-# Idempotent, and it does NOT overwrite a readme an admin has edited: the file is
-# written only when absent. A run that rewrote it would be a run that discards
-# the note somebody left for the next person, which is the opposite of what a
-# directory for the admin's own files should do.
+# Idempotent, and it does NOT overwrite a readme an admin has edited -- but it
+# does replace one FOG wrote itself and has since outgrown. "Written only when
+# absent" was the first shape of that rule and it was too crude: it also froze
+# FOG's own text, so a server installed before kernel-backups/keep/ existed kept
+# a readme saying nothing is written here on your instruction, with no run that
+# could ever correct it. The property worth keeping is "never discard the note
+# somebody left for the next person", and a checksum tells the two apart.
 #
 # Both readmes are written, not just the /etc one, because the pair only makes
 # sense read together -- "why are there two of these" is the question the files
@@ -8295,8 +8336,12 @@ _ensureCustomizationsTree() {
     [[ -n $optdir ]] && mkdir -p "$optdir" >>$error_log 2>&1
     # kernel-backups/keep is the one directory under here the WEB TIER writes.
     # Marking a boot file to be kept copies it in from service/ipxe, and the
-    # copy is the record: the pruner tests for its existence with no manifest
-    # to read and nothing to drift.
+    # copy is the EFFECT of that mark rather than a record of it: bfPinned
+    # holds the judgment, per ADR 0042, and this is what the judgment does. The
+    # distinction is the whole reason it survives that ADR's no-manifest rule --
+    # a manifest is data ABOUT files and can drift from them, while this is a
+    # second copy of the bytes and cannot. The pruner tests for its existence
+    # with nothing to parse.
     #
     # No sudo helper and no privileged path. The alternative was to follow
     # packages/secureboot/fog-sign-kernel, but that helper's whole security
@@ -8313,7 +8358,7 @@ _ensureCustomizationsTree() {
         chown "${SVC_user}:${apacheuser}" "$optdir/kernel-backups/keep" >>$error_log 2>&1
         chmod 2775 "$optdir/kernel-backups/keep" >>$error_log 2>&1
     fi
-    if [[ ! -f "$etcdir/readme.txt" ]]; then
+    if _readmeIsFogsOwn "$etcdir/readme.txt" etc; then
         cat > "$etcdir/readme.txt" <<'ETCREADME'
 This directory is for configuration you supply yourself.
 
@@ -8347,12 +8392,15 @@ to /etc/fog/pki for the same reason.
 Note that pki/ here sits BESIDE /etc/fog/pki, not inside it. That is what makes
 FOG treat what you put here as yours: anything under /etc/fog/pki is read as a
 certificate FOG issued and manages, and would be regenerated over.
+
+This file is FOG's own note, and a later version of FOG may rewrite it. Edit it
+and FOG leaves it alone from then on -- your version stays for good.
 ETCREADME
         chmod 0644 "$etcdir/readme.txt" >>$error_log 2>&1
     fi
-    if [[ -n $optdir && ! -f "$optdir/readme.txt" ]]; then
+    if [[ -n $optdir ]] && _readmeIsFogsOwn "$optdir/readme.txt" opt; then
         cat > "$optdir/readme.txt" <<'OPTREADME'
-This directory is written BY FOG. You do not need to put anything here.
+This directory is written BY FOG. Almost nothing here needs your hand.
 
 Before a run rebuilds a tree that might hold something of yours, FOG copies
 what it finds into here, and restores it afterward:
@@ -8361,6 +8409,15 @@ what it finds into here, and restores it afterward:
   ipxe-legacy/      iPXE binaries you replaced in the TFTP tree
   kernel-backups/   previous kernel and init generations, newest kept first.
                     bin/restorekernel.sh restores from these.
+
+One directory here is different, because it is written on YOUR instruction
+rather than as part of a rebuild:
+
+  kernel-backups/keep/
+                    boot files you marked to keep, from the kernel and init
+                    pages in the web interface. Marking one copies it in here;
+                    a later run puts it back if it is missing from the live
+                    tree. Unmark it there and the copy goes away.
 
 If a restore ever fails, your files are still here -- nothing is deleted on the
 way through.
@@ -8375,6 +8432,9 @@ Why two: keys and certificates are small, secret and irreplaceable, so they
 belong under /etc, which is what a backup policy already captures. Kernels and
 boot images are large, rebuildable binaries, and the filesystem standard does
 not put binaries under /etc.
+
+This file is FOG's own note, and a later version of FOG may rewrite it. Edit it
+and FOG leaves it alone from then on -- your version stays for good.
 OPTREADME
         chmod 0644 "$optdir/readme.txt" >>$error_log 2>&1
     fi
@@ -10418,7 +10478,6 @@ createSSLCA() {
     # that used to do the damage silently, so the safe behavior has to be the
     # DEFAULT rather than an answer. Everything needed is already on disk: the
     # vhost names the files and the certificate names itself.
-    _ensureCustomizationsTree
     if ! _externallyManagedLeaf; then
         local extReason="" extCert="" extKey="" customPair="" customChain=""
         if extReason=$(_detectExternalCertManagement); then
@@ -11737,6 +11796,14 @@ _warnUnrecognizedPlugins() {
 }
 configureHttpd() {
     normalizeWebroot
+    # Both customizations trees, before anything below needs either of them.
+    #
+    # This used to sit inside createSSLCA(), which this function calls further
+    # down, so it ran late and it made the PKI routine responsible for creating
+    # kernel-backups/keep/ -- a boot-file directory that has nothing to do with
+    # certificates. Same run, same order relative to the restore below; only the
+    # function that owns the call changes.
+    _ensureCustomizationsTree
     dots "Stopping web service"
     case $systemctl in
         yes)

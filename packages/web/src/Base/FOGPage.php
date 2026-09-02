@@ -6302,12 +6302,17 @@ abstract class FOGPage extends FOGBase
     /**
      * Puts a copy of a boot file where an upgrade will find it, or removes it.
      *
-     * `customizations/kernel-backups/keep/` -- and the copy IS the record.
-     * The pruner and the restore are shell functions running while the web
-     * root is being rebuilt, with no database in reach, so the alternative
-     * was a manifest for them to read. A copy needs no parsing and cannot
-     * drift from what it describes, which is the same reasoning
-     * restorekernel.sh gives for using xattrs instead of a manifest.
+     * `customizations/kernel-backups/keep/` -- and the copy is the EFFECT of
+     * the pin, not a record of it. `bfPinned` holds the judgment, per ADR
+     * 0042; this is what the judgment does.
+     *
+     * That distinction is what keeps it on the right side of the same ADR's
+     * no-manifest rule. The pruner and the restore are shell functions running
+     * while the web root is being rebuilt, with no database in reach, so the
+     * alternative was a manifest for them to read -- and a manifest is data
+     * ABOUT files, which can drift from them. A copy is a second set of the
+     * same bytes: it needs no parsing and cannot drift, which is the same
+     * reasoning restorekernel.sh gives for using xattrs instead of a manifest.
      *
      * It also earns its space: the web root is deleted and rebuilt on every
      * install, and a per-release sibling is deliberately not part of a

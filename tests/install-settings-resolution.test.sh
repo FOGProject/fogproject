@@ -296,7 +296,7 @@ for key in WEB_https_redirect PKI_web_cert_publicly_trusted \
     fi
 done
 
-# All 70 keys of the model are managed, and NOTHING ELSE is: adding a key to
+# All 71 keys of the model are managed, and NOTHING ELSE is: adding a key to
 # this array turns a hand-set key into a managed one, and the admin's value
 # starts being overwritten. That is a behavior change even though it looks
 # like documentation, so the count is asserted as well as the membership.
