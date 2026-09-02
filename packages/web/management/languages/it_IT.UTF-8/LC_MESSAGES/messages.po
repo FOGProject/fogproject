@@ -5811,6 +5811,10 @@ msgid "No hosts associated to this group yet"
 msgstr "Nessun snapins associato a questo gruppo come master"
 
 #, fuzzy
+msgid "No hosts available"
+msgstr "Percorso non disponibile"
+
+#, fuzzy
 msgid "No hosts available to be tasked"
 msgstr "Nessun host disponibile per task"
 
@@ -6709,12 +6713,19 @@ msgstr ""
 msgid "Postfix requires an action of login"
 msgstr "Postfix richiede un'azione di accesso"
 
+msgid "Power"
+msgstr ""
+
 msgid "Power Management"
 msgstr "Gestione energetica"
 
 #, fuzzy
 msgid "Power Management Task run time"
 msgstr "Gestione energetica"
+
+#, php-format
+msgid "Power action sent to %d host(s)"
+msgstr ""
 
 msgid "PowerShell Script"
 msgstr ""
@@ -7223,6 +7234,12 @@ msgstr ""
 
 #, php-format
 msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
+msgstr ""
+
+msgid "Restart"
+msgstr ""
+
+msgid "Restarts the selected machines. As with Shut Down, the FOG client carries this out at its next check-in."
 msgstr ""
 
 msgid "Result"
@@ -7823,6 +7840,10 @@ msgstr "Cambia password"
 msgid "Show with"
 msgstr ""
 
+#, fuzzy
+msgid "Shut Down"
+msgstr "Spegnimento"
+
 msgid "Shutdown"
 msgstr "Spegnimento"
 
@@ -7833,6 +7854,9 @@ msgstr "è stato completato"
 #, fuzzy
 msgid "Shutdown when complete"
 msgstr "è stato completato"
+
+msgid "Shuts down the selected machines. The FOG client carries this out at its next check-in, so a machine that is off, or has no client installed, is unaffected."
+msgstr ""
 
 #, fuzzy
 msgid "Sign In"
@@ -9755,6 +9779,10 @@ msgstr "Impostazioni del modulo host"
 
 #, fuzzy
 msgid "Unknown permission"
+msgstr "Si è verificato errore di caricamento sconosciuto"
+
+#, fuzzy
+msgid "Unknown power action"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
 msgid "Unknown upload error occurred"

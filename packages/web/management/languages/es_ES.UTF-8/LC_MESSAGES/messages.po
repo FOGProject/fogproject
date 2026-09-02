@@ -6105,6 +6105,10 @@ msgid "No hosts associated to this group yet"
 msgstr "No hay snapins asociados con este anfitrión"
 
 #, fuzzy
+msgid "No hosts available"
+msgstr "No se dispone de hash"
+
+#, fuzzy
 msgid "No hosts available to be tasked"
 msgstr "Anfitriones en tareas"
 
@@ -7041,6 +7045,9 @@ msgstr ""
 msgid "Postfix requires an action of login"
 msgstr ""
 
+msgid "Power"
+msgstr ""
+
 #, fuzzy
 msgid "Power Management"
 msgstr "Gestión de usuarios"
@@ -7048,6 +7055,10 @@ msgstr "Gestión de usuarios"
 #, fuzzy
 msgid "Power Management Task run time"
 msgstr "Gestión de usuarios"
+
+#, php-format
+msgid "Power action sent to %d host(s)"
+msgstr ""
 
 msgid "PowerShell Script"
 msgstr ""
@@ -7577,6 +7588,12 @@ msgstr ""
 
 #, php-format
 msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
+msgstr ""
+
+msgid "Restart"
+msgstr ""
+
+msgid "Restarts the selected machines. As with Shut Down, the FOG client carries this out at its next check-in."
 msgstr ""
 
 #, fuzzy
@@ -8198,6 +8215,10 @@ msgstr "La gestión de contraseñas"
 msgid "Show with"
 msgstr ""
 
+#, fuzzy
+msgid "Shut Down"
+msgstr "Apagar"
+
 msgid "Shutdown"
 msgstr "Apagar"
 
@@ -8208,6 +8229,9 @@ msgstr "Deben estar cifrados"
 #, fuzzy
 msgid "Shutdown when complete"
 msgstr "Deben estar cifrados"
+
+msgid "Shuts down the selected machines. The FOG client carries this out at its next check-in, so a machine that is off, or has no client installed, is unaffected."
+msgstr ""
 
 #, fuzzy
 msgid "Sign In"
@@ -10227,6 +10251,10 @@ msgstr "Descripción del Grupo"
 
 #, fuzzy
 msgid "Unknown permission"
+msgstr "Se produjo un error de carga desconocida. Código de retorno: "
+
+#, fuzzy
+msgid "Unknown power action"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
 #, fuzzy

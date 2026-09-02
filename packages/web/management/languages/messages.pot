@@ -5110,6 +5110,9 @@ msgstr ""
 msgid "No hosts associated to this group yet"
 msgstr ""
 
+msgid "No hosts available"
+msgstr ""
+
 msgid "No hosts available to be tasked"
 msgstr ""
 
@@ -5902,10 +5905,17 @@ msgstr ""
 msgid "Postfix requires an action of login"
 msgstr ""
 
+msgid "Power"
+msgstr ""
+
 msgid "Power Management"
 msgstr ""
 
 msgid "Power Management Task run time"
+msgstr ""
+
+#, php-format
+msgid "Power action sent to %d host(s)"
 msgstr ""
 
 msgid "PowerShell Script"
@@ -6360,6 +6370,12 @@ msgstr ""
 
 #, php-format
 msgid "Responses may carry computed fields that are not columns and are not settable through the generic create/edit path: %s."
+msgstr ""
+
+msgid "Restart"
+msgstr ""
+
+msgid "Restarts the selected machines. As with Shut Down, the FOG client carries this out at its next check-in."
 msgstr ""
 
 msgid "Result"
@@ -6887,6 +6903,9 @@ msgstr ""
 msgid "Show with"
 msgstr ""
 
+msgid "Shut Down"
+msgstr ""
+
 msgid "Shutdown"
 msgstr ""
 
@@ -6894,6 +6913,9 @@ msgid "Shutdown after deploy"
 msgstr ""
 
 msgid "Shutdown when complete"
+msgstr ""
+
+msgid "Shuts down the selected machines. The FOG client carries this out at its next check-in, so a machine that is off, or has no client installed, is unaffected."
 msgstr ""
 
 msgid "Sign In"
@@ -8618,6 +8640,9 @@ msgid "Unknown module state"
 msgstr ""
 
 msgid "Unknown permission"
+msgstr ""
+
+msgid "Unknown power action"
 msgstr ""
 
 msgid "Unknown upload error occurred"
