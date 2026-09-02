@@ -9,6 +9,13 @@
 # AS SHELL on the next installer run. Everything below is a refusal that has to
 # hold, or a value that has to survive intact.
 #
+# The web leaf half is newer and the same shape. A leaf private key MAY come
+# through this channel and a CA key may not, so the CA:TRUE refusal below is
+# what makes that sentence a checked property rather than a promise -- and every
+# refusal is checked against "is the vhost still pointing where it was", because
+# a helper that refused after repointing it would pass a weaker test while
+# costing an administrator the console they were using.
+#
 # The .fogsettings half is the one worth stating plainly. Writing an
 # unvalidated value into a file root later sources is a root shell with extra
 # steps, so set-preference matches its value against that KEY'S OWN literal
@@ -63,7 +70,11 @@ CONF="$FOGDIR/.fog-pki-admin"
 SETTINGS="$FOGDIR/.fogsettings"
 STAGING="$FOGDIR/pkiadmin-staging"
 ZONE="$FOGDIR/pki/web"
-mkdir -p "$FOGDIR" "$STAGING" "$ZONE/ca" "$ZONE/leaf" "$FOGDIR/pki/root/ca" "$FOGDIR/pki/client/leaf"
+# A SIBLING of the pki tree, never a directory inside it -- that is the whole
+# mechanism _externallyManagedLeaf() keys off, per ADR 0040.
+CUSTOM="$FOGDIR/customizations/pki"
+mkdir -p "$FOGDIR" "$STAGING" "$ZONE/ca" "$ZONE/leaf" "$FOGDIR/pki/root/ca" \
+    "$FOGDIR/pki/client/leaf" "$CUSTOM"
 
 WORK="$(mktemp -d)"
 PASS=0; FAIL=0
@@ -111,6 +122,11 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 3650 -subj "/CN=selfsigned.examp
     -keyout "$WORK/selfleaf.key" -out "$WORK/selfleaf.pem" >/dev/null 2>&1
 mkint  corpint "Corp Issuing CA" corp
 mkleaf plain   "www.example.org" corp
+# Issued by the corporate INTERMEDIATE, so adopting it needs both an
+# intermediate in the chain file and the corporate root anchored. A leaf signed
+# straight off a root would pass the chain checks with the chain file empty and
+# leave the interesting case untested.
+mkleaf corpleaf "corpleaf.example.org" corpint
 
 # An expired root has to be MINTED expired: openssl req -days cannot go
 # negative, so back-date with -not_before/-not_after via a CA-signed self
@@ -153,6 +169,9 @@ PKI_SB_CA_KEY=$FOGDIR/pki/secureboot/ca/.fogSBCA.key
 PKI_CLIENT_KEY=$FOGDIR/pki/client/leaf/.srvprivate.key
 PKI_SETTINGS=$SETTINGS
 PKI_STAGING=$STAGING
+PKI_CUSTOM_DIR=$CUSTOM
+PKI_WEB_EXTERNAL_CHAIN=$ZONE/leaf/.externalChain.pem
+WEB_ENGINE=
 EOF
 chmod 0600 "$CONF"
 
@@ -165,6 +184,10 @@ writeSettingsFixture() {
 PKI_sb_enabled='yes'
 PKI_web_cert_publicly_trusted='no'
 PKI_web_external_root_cert=''
+## Present because adopt-custom-leaf rewrites it, and writeSetting refuses a
+## key the file does not already carry -- without this line the chain
+## assertions would pass for the wrong reason.
+PKI_web_trust_chain='/opt/fog/pki/web/ca/.fogWebCAchain.pem'
 
 ## WEB
 WEB_https_redirect='no'
@@ -463,6 +486,217 @@ grep -v '^BOOT_rebuild_ipxe_with_my_ca=' "$SETTINGS" > "$SETTINGS.x" && mv "$SET
 "$HELPER" set-preference BOOT_rebuild_ipxe_with_my_ca yes >/dev/null 2>&1
 check "$?" "1" "set-preference refuses a key the file does not already carry"
 check "$(grep -c '^BOOT_rebuild_ipxe_with_my_ca=' "$SETTINGS")" "0" "and appends nothing"
+
+echo
+echo "== bringing your own web leaf: what has to be refused =="
+# The whole point of this block is that every refusal leaves the server
+# SERVING WHAT IT WAS SERVING. A helper that refused after repointing the vhost
+# would pass an exit-code assertion and cost an administrator their console, so
+# the vhost link is re-checked after each one.
+vhostUnchanged() { # <label>
+    if [[ -L $ZONE/leaf/.webLeaf.pem ]]; then
+        bad "$1 (the vhost was repointed anyway)"
+    else
+        ok "$1"
+    fi
+}
+
+"$HELPER" adopt-custom-leaf >/dev/null 2>&1
+check "$?" "1" "adopt refuses when the customizations directory is empty"
+
+install -m 0644 "$WORK/corpleaf.pem" "$CUSTOM/web-leaf.pem"
+out=$("$HELPER" adopt-custom-leaf 2>&1)
+check "$?" "1" "adopt refuses a certificate with no key"
+case "$out" in
+    *"both files are required"*) ok "and says both files are required" ;;
+    *)                           bad "the refusal blamed something else: $out" ;;
+esac
+
+# A real key, but not this certificate's. The pair test is the one thing
+# standing between an upload and a web server that will not start.
+install -m 0600 "$WORK/corpint.key" "$CUSTOM/web-leaf.key"
+out=$("$HELPER" adopt-custom-leaf 2>&1)
+check "$?" "1" "adopt refuses a certificate and key that are not a pair"
+vhostUnchanged "and leaves the vhost alone"
+
+# The genuine pair, but this server has never been told to trust Corp Root.
+install -m 0600 "$WORK/corpleaf.key" "$CUSTOM/web-leaf.key"
+install -m 0644 "$WORK/corpint.pem"  "$CUSTOM/web-leaf-chain.pem"
+out=$("$HELPER" adopt-custom-leaf 2>&1)
+check "$?" "1" "adopt refuses a leaf with no trust path"
+case "$out" in
+    *"Corp Issuing CA"*) ok "and names the issuer it could not reach" ;;
+    *)                   bad "the refusal did not name the issuer: $out" ;;
+esac
+vhostUnchanged "and leaves the vhost alone"
+
+echo
+echo "== the CA:TRUE refusal, which is what 'no CA key here' actually means =="
+install -m 0644 "$WORK/corpint.pem" "$CUSTOM/web-leaf.pem"
+install -m 0600 "$WORK/corpint.key" "$CUSTOM/web-leaf.key"
+rm -f "$CUSTOM/web-leaf-chain.pem"
+out=$("$HELPER" adopt-custom-leaf 2>&1)
+check "$?" "1" "adopt refuses a CA certificate offered as the web leaf"
+case "$out" in
+    *"CA:TRUE"*) ok "and says which property refused it" ;;
+    *)           bad "the refusal did not name basicConstraints: $out" ;;
+esac
+vhostUnchanged "and leaves the vhost alone"
+
+echo
+echo "== adopting a leaf, once its root is trusted =="
+id=$(stage "$WORK/corp.pem")
+"$HELPER" import-root "$id" >/dev/null 2>&1
+check "$?" "0" "the corporate root imports"
+
+install -m 0644 "$WORK/corpleaf.pem" "$CUSTOM/web-leaf.pem"
+install -m 0600 "$WORK/corpleaf.key" "$CUSTOM/web-leaf.key"
+install -m 0644 "$WORK/corpint.pem"  "$CUSTOM/web-leaf-chain.pem"
+out=$("$HELPER" adopt-custom-leaf 2>&1)
+check "$?" "0" "adopt succeeds once a path builds"
+check "$(readlink "$ZONE/leaf/.webLeaf.pem")" "$CUSTOM/web-leaf.pem" \
+    "the canonical certificate path points AT the admin's file"
+check "$(readlink "$ZONE/leaf/.webLeaf.key")" "$CUSTOM/web-leaf.key" \
+    "and so does the key path"
+# A symlink, not a copy, because createSSLCA() does the same thing with the
+# same material on its next run. If the helper copied instead, the installer
+# would silently undo the page.
+check "$(settingOf PKI_web_trust_chain)" "$ZONE/leaf/.externalChain.pem" \
+    "the chain is recorded at a canonical path, not where the admin's file was"
+check "$(grep -c 'BEGIN CERTIFICATE' "$ZONE/leaf/.externalChain.pem")" "1" \
+    "the chain file holds the intermediate"
+
+echo
+echo "== a root in the supplied material is reported, never anchored =="
+# The load-bearing one. rebuildAnchor() and _resolveTrustAnchor() both take
+# every self-signed certificate out of the chain file, so a root left in there
+# would be trusted as a side effect of supplying a chain -- and the deliberate
+# import on this page would be theatre.
+cat "$WORK/corpleaf.pem" "$WORK/corpint.pem" "$WORK/corp.pem" > "$CUSTOM/web-leaf.pem"
+rm -f "$CUSTOM/web-leaf-chain.pem"
+"$HELPER" adopt-custom-leaf >/dev/null 2>&1
+check "$?" "0" "a fullchain with the root appended is adopted"
+check "$(grep -c 'BEGIN CERTIFICATE' "$ZONE/leaf/.externalChain.pem")" "1" \
+    "and the chain file holds ONLY the intermediate"
+rm -rf "$WORK/cc"; mkdir -p "$WORK/cc"
+awk -v d="$WORK/cc" '/BEGIN CERTIFICATE/{n++} n{print > (d "/c" n ".pem")}' \
+    "$ZONE/leaf/.externalChain.pem"
+check "$(subjectOf "$WORK/cc/c1.pem")" "subject=CN=Corp Issuing CA" \
+    "the certificate in the chain is the intermediate, not the root"
+
+echo
+echo "== a fullchain has to lead with its leaf =="
+# openssl x509 -in reads only the first certificate, and _writeWebChainFiles()
+# relies on that to assemble what the web server serves. A file whose first
+# certificate is not the leaf would be adopted into a vhost that cannot start.
+cat "$WORK/corpint.pem" "$WORK/corpleaf.pem" > "$CUSTOM/web-leaf.pem"
+out=$("$HELPER" adopt-custom-leaf 2>&1)
+check "$?" "1" "adopt refuses a fullchain whose first certificate is not the leaf"
+case "$out" in
+    *"put the leaf first"*) ok "and says how to fix it" ;;
+    *)                      bad "the refusal did not say how to fix it: $out" ;;
+esac
+
+echo
+echo "== import-leaf: the upload channel =="
+rm -f "$CUSTOM/"web-leaf*
+id=$(openssl rand -hex 16)
+cat "$WORK/corpleaf.pem" "$WORK/corpint.pem" > "$STAGING/$id.pem"
+cp "$WORK/corpleaf.key" "$STAGING/$id.key"
+out=$("$HELPER" import-leaf "$id" 2>&1)
+check "$?" "0" "a PEM certificate and key upload, and are adopted"
+check "$(subjectOf "$CUSTOM/web-leaf.pem")" "subject=CN=corpleaf.example.org" \
+    "the material lands in the customizations tree, where the installer will find it again"
+check "$(stat -c '%a' "$CUSTOM/web-leaf.key" 2>/dev/null)" "600" \
+    "and the private key is not group-readable"
+
+id=$(openssl rand -hex 16)
+cp "$WORK/corpleaf.pem" "$STAGING/$id.pem"
+"$HELPER" import-leaf "$id" >/dev/null 2>&1
+check "$?" "1" "import-leaf refuses a certificate with no key"
+
+id=$(openssl rand -hex 16)
+"$HELPER" import-leaf "$id" >/dev/null 2>&1
+check "$?" "1" "import-leaf refuses a request id with nothing staged under it"
+"$HELPER" import-leaf "../../etc/shadow" >/dev/null 2>&1
+check "$?" "1" "and refuses a request id that is not 32 hex characters"
+
+echo
+echo "== import-leaf: PKCS#12, and the passphrase that must not be an argument =="
+# The passphrase travels as a FILE under the same request id. This helper is
+# started from a command line the web tier builds, and an argument is readable
+# in /proc by every local user for as long as the call lasts -- so the file is
+# not a convenience, it is the reason this is safe to offer at all.
+check "$(grep -c 'passin "\$passin"' "$HELPER")" "3" \
+    "the PKCS#12 reads take their passphrase from a file: URI"
+check "$(grep -c 'file:\${stagedPass}' "$HELPER")" "2" \
+    "and the file is the staged one, never a value on the command line"
+
+id=$(openssl rand -hex 16)
+openssl pkcs12 -export -out "$STAGING/$id.p12" -inkey "$WORK/corpleaf.key" \
+    -in "$WORK/corpleaf.pem" -certfile "$WORK/corpint.pem" \
+    -passout pass:s3cret >/dev/null 2>&1
+if [[ -s $STAGING/$id.p12 ]]; then
+    rm -f "$CUSTOM/"web-leaf*
+    printf 's3cret' > "$STAGING/$id.pass"
+    out=$("$HELPER" import-leaf "$id" 2>&1)
+    check "$?" "0" "a PKCS#12 container unpacks and is adopted"
+    check "$(subjectOf "$CUSTOM/web-leaf.pem")" "subject=CN=corpleaf.example.org" \
+        "with the same leaf the PEM route produced"
+    check "$(openssl pkey -in "$CUSTOM/web-leaf.key" -noout >/dev/null 2>&1; echo $?)" "0" \
+        "and a key the web server can read without a passphrase"
+
+    # The wrong passphrase must fail as a passphrase problem, not as a
+    # mangled-certificate one: an administrator retyping a password needs to be
+    # told that is what went wrong.
+    id=$(openssl rand -hex 16)
+    openssl pkcs12 -export -out "$STAGING/$id.p12" -inkey "$WORK/corpleaf.key" \
+        -in "$WORK/corpleaf.pem" -passout pass:s3cret >/dev/null 2>&1
+    printf 'wrong' > "$STAGING/$id.pass"
+    out=$("$HELPER" import-leaf "$id" 2>&1)
+    check "$?" "1" "a wrong passphrase is refused"
+    case "$out" in
+        *passphrase*) ok "and the message says it was the passphrase" ;;
+        *)            bad "the refusal blamed something else: $out" ;;
+    esac
+else
+    echo "  SKIP  this openssl would not write a PKCS#12 fixture"
+fi
+
+echo
+echo "== existing files in the customizations tree are not destroyed =="
+# This directory exists for the administrator's own files. A page that
+# overwrote one without trace would be spending something it does not own.
+rm -f "$CUSTOM/"web-leaf*
+printf 'admin-put-this-here\n' > "$CUSTOM/web-leaf.pem"
+id=$(openssl rand -hex 16)
+cp "$WORK/corpleaf.pem" "$STAGING/$id.pem"
+cp "$WORK/corpleaf.key" "$STAGING/$id.key"
+"$HELPER" import-leaf "$id" >/dev/null 2>&1
+check "$?" "0" "an upload over an existing file succeeds"
+check "$(cat "$CUSTOM/web-leaf.pem.replaced" 2>/dev/null)" "admin-put-this-here" \
+    "and what was there is kept beside it"
+
+echo
+echo "== status reports the tree, without changing anything =="
+rm -f "$CUSTOM/"web-leaf*
+install -m 0644 "$WORK/corpleaf.pem" "$CUSTOM/web-leaf.pem"
+install -m 0600 "$WORK/corpleaf.key" "$CUSTOM/web-leaf.key"
+st=$("$HELPER" status 2>/dev/null)
+case "$st" in
+    *'"pair_ok": true'*) ok "status sees a usable pair" ;;
+    *)                   bad "status did not report the pair" ;;
+esac
+case "$st" in
+    *'"subject": "CN=corpleaf.example.org"'*) ok "and names it" ;;
+    *)                                        bad "status did not name the subject" ;;
+esac
+install -m 0600 "$WORK/corpint.key" "$CUSTOM/web-leaf.key"
+st=$("$HELPER" status 2>/dev/null)
+case "$st" in
+    *'"pair_ok": false'*) ok "and says so when the key does not match" ;;
+    *)                    bad "status called a mismatched pair usable" ;;
+esac
 
 echo
 echo "== the helper refuses to run without its config =="

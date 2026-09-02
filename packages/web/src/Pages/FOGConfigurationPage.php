@@ -500,6 +500,11 @@ class FOGConfigurationPage extends FOGPage
                 $this->_certificateExternalRoot($status, $mayEdit)
             ],
             [
+                'pki-web-leaf',
+                _('Web server certificate'),
+                $this->_certificateWebLeaf($status, $mayEdit)
+            ],
+            [
                 'pki-preferences',
                 _('Install preferences'),
                 $this->_certificatePreferences($status, $mayEdit)
@@ -855,6 +860,244 @@ class FOGConfigurationPage extends FOGPage
             . '</form>';
     }
     /**
+     * Bring your own web server certificate: adopt one already on the server,
+     * or upload one.
+     *
+     * Three routes, in the order they are offered, and the order is the point.
+     * The first two never send a private key to this application at all; the
+     * third does, for one request, because a wildcard an administrator already
+     * holds is the common case and refusing it sends them back to the command
+     * line for something every other appliance does in a form.
+     *
+     * What this page must never accept is a CA key. The helper enforces it by
+     * refusing a leaf carrying CA:TRUE, which is what makes "no CA private key
+     * reaches this channel" a checked property rather than a promise. See
+     * ADR 0036's 2026-09-02 amendment for the reasoning and for the blast-radius
+     * difference that justifies treating a leaf differently at all.
+     *
+     * @param array|null $status  the helper's report.
+     * @param bool       $mayEdit does the caller hold system.pki.
+     *
+     * @return string '' when there is no helper to drive.
+     */
+    private function _certificateWebLeaf($status, $mayEdit)
+    {
+        if (null === $status) {
+            return '';
+        }
+        $custom = (array) ($status['custom_pki'] ?? []);
+        $dir = (string) ($custom['dir'] ?? '');
+        $managed = !empty($status['externally_managed_leaf']);
+
+        $body = '<p class="form-text">' . _(
+            'FOG issues its own web server certificate. If you would rather it '
+            . 'served one of yours -- from an ACME client, your corporate CA, or '
+            . 'a purchased certificate -- there are three ways to say so, and the '
+            . 'first two never send the private key to this web application.'
+        ) . '</p>';
+
+        if ($managed) {
+            $body .= '<p class="text-info">' . _(
+                'This server is already serving a certificate managed outside '
+                . 'FOG, so FOG will not reissue or re-key it. That is derived '
+                . 'from where the certificate actually is, not from a setting.'
+            ) . '</p>';
+        }
+
+        // Route one. Reported before it is offered, because "there is a pair
+        // waiting here" and "it would be refused for this reason" are both
+        // things an administrator wants before clicking, not after.
+        $body .= '<h5>' . _('1. A certificate already on this server') . '</h5>';
+        $body .= '<p class="form-text">' . sprintf(
+            _(
+                'Drop %s and %s into %s and FOG adopts them -- no setting to '
+                . 'edit. Add %s as well if your CA issued intermediates. The '
+                . 'installer does the same thing on its next run, so this button '
+                . 'only saves you the wait.'
+            ),
+            '<code>web-leaf.pem</code>',
+            '<code>web-leaf.key</code>',
+            '<code>' . \Initiator::e($dir) . '</code>',
+            '<code>web-leaf-chain.pem</code>'
+        ) . '</p>';
+
+        if (empty($custom['present'])) {
+            $body .= '<p class="form-text">' . _(
+                'Nothing is in that directory yet.'
+            ) . '</p>';
+        } elseif (empty($custom['pair_ok'])) {
+            $body .= '<p class="text-warning">' . _(
+                'There is a certificate in that directory, but no private key '
+                . 'that matches it. Both files are required and they have to be '
+                . 'a genuine pair, so FOG is leaving its own certificate in '
+                . 'place -- adopting a certificate the web server cannot start '
+                . 'with would be the worse outcome.'
+            ) . '</p>';
+        } else {
+            $body .= '<p class="text-success">' . sprintf(
+                _('A usable pair is waiting: %s, valid until %s.'),
+                '<strong>' . \Initiator::e((string) $custom['subject']) . '</strong>',
+                \Initiator::e((string) $custom['not_after'])
+            ) . '</p>';
+            if (empty($custom['chain_verifies'])) {
+                $body .= '<p class="text-warning">' . _(
+                    'No trust path builds for it yet, so adopting it would be '
+                    . 'refused. Supply the intermediates, and import the issuing '
+                    . 'root on the External root CA tab if it is not a public CA.'
+                ) . '</p>';
+                if (!empty($custom['supplied_root'])) {
+                    $body .= '<p class="form-text">' . sprintf(
+                        _(
+                            'A root was supplied alongside it (%s). FOG does not '
+                            . 'trust a root just because it arrived beside a '
+                            . 'certificate -- import it deliberately on the '
+                            . 'External root CA tab, then adopt.'
+                        ),
+                        '<strong>' . \Initiator::e((string) $custom['supplied_root']) . '</strong>'
+                    ) . '</p>';
+                }
+            }
+        }
+
+        // Route two, reference only for now: the CSR flow is the follow-up
+        // this page's helper does not carry a verb for yet. Named rather than
+        // omitted, because "keys never leave the host" is a policy plenty of
+        // sites have and they should be able to see it is coming.
+        $body .= '<h5>' . _('2. A certificate signing request') . '</h5>';
+        $body .= '<p class="form-text">' . _(
+            'For sites whose policy is that a private key never moves. Not on '
+            . 'this page yet; FOG already does exactly this for storage node '
+            . 'certificates, and the same route for the web certificate is '
+            . 'tracked as a follow-up.'
+        ) . '</p>';
+
+        $body .= '<h5>' . _('3. Upload a certificate and its key') . '</h5>';
+        $body .= '<p class="form-text">' . _(
+            'A PEM certificate with its key, or one PKCS#12 (.p12/.pfx) file '
+            . 'carrying both. A full chain is fine -- put the leaf first -- and '
+            . 'the intermediates are separated out for you.'
+        ) . '</p>';
+        $body .= '<p class="text-warning">' . _(
+            'This is the one route that sends a private key through this web '
+            . 'application. It is written to disk by root and never kept here, '
+            . 'but it does pass through for the length of one request. If the '
+            . 'certificate is a wildcard it covers hosts other than this one, so '
+            . 'prefer route 1 or 2 where your policy allows.'
+        ) . '</p>';
+        $body .= '<p class="form-text">' . _(
+            'A CA certificate is refused. Replacing FOG\'s own root is a '
+            . 'migration rather than a setting -- see the Using your own PKI tab.'
+        ) . '</p>';
+
+        if (!$mayEdit) {
+            return $this->_box('', $body);
+        }
+
+        $buttons = '';
+        if (!empty($custom['pair_ok'])) {
+            $buttons .= self::makeButton(
+                'pki-adopt-leaf',
+                _('Adopt the certificate in that directory'),
+                'btn btn-secondary float-end'
+            );
+        }
+
+        $body .= '<hr>';
+        $body .= '<label class="form-label" for="pki-leaf-file">'
+            . _('Certificate, or full chain, leaf first (PEM)') . '</label>';
+        $body .= self::makeInput(
+            'form-control',
+            'leafcert',
+            '',
+            'file',
+            'pki-leaf-file',
+            '',
+            false,
+            false,
+            -1,
+            -1,
+            'accept=".pem,.crt,.cer"'
+        );
+        $body .= '<label class="form-label" for="pki-leaf-key">'
+            . _('Private key (PEM)') . '</label>';
+        $body .= self::makeInput(
+            'form-control',
+            'leafkey',
+            '',
+            'file',
+            'pki-leaf-key',
+            '',
+            false,
+            false,
+            -1,
+            -1,
+            'accept=".pem,.key"'
+        );
+        $body .= '<label class="form-label" for="pki-leaf-chain">'
+            . _('Intermediates, if they are in their own file (PEM, optional)')
+            . '</label>';
+        $body .= self::makeInput(
+            'form-control',
+            'leafchain',
+            '',
+            'file',
+            'pki-leaf-chain',
+            '',
+            false,
+            false,
+            -1,
+            -1,
+            'accept=".pem,.crt,.cer"'
+        );
+        $body .= '<label class="form-label" for="pki-leaf-p12">'
+            . _('Or one PKCS#12 file carrying all of it (.p12/.pfx)') . '</label>';
+        $body .= self::makeInput(
+            'form-control',
+            'leafp12',
+            '',
+            'file',
+            'pki-leaf-p12',
+            '',
+            false,
+            false,
+            -1,
+            -1,
+            'accept=".p12,.pfx"'
+        );
+        $body .= '<label class="form-label" for="pki-leaf-pass">'
+            . _('Passphrase, if the PKCS#12 file or the key has one') . '</label>';
+        $body .= self::makeInput(
+            'form-control',
+            'leafpass',
+            '',
+            'password',
+            'pki-leaf-pass',
+            '',
+            false,
+            false,
+            -1,
+            -1,
+            'autocomplete="new-password"'
+        );
+        $body .= self::makeInput('', 'action', '', 'hidden', 'pki-leaf-action', 'importLeaf');
+        $buttons .= self::makeButton(
+            'pki-import-leaf',
+            _('Upload and use it'),
+            'btn btn-primary float-end'
+        );
+
+        return self::makeFormTag(
+            '',
+            'pki-leaf-form',
+            $this->formAction,
+            'post',
+            'multipart/form-data',
+            true
+        )
+            . $this->_box('', $body, ['footer' => $buttons])
+            . '</form>';
+    }
+    /**
      * The three install preferences that decide what FOG does to the web
      * certificate on its next run.
      *
@@ -1181,6 +1424,12 @@ class FOGConfigurationPage extends FOGPage
                 case 'clearRoot':
                     $this->_pkiClearRoot();
                     break;
+                case 'adoptCustomLeaf':
+                    $this->_pkiAdoptCustomLeaf();
+                    break;
+                case 'importLeaf':
+                    $this->_pkiImportLeaf();
+                    break;
                 case 'setPreference':
                     $this->_pkiSetPreference();
                     break;
@@ -1196,6 +1445,183 @@ class FOGConfigurationPage extends FOGPage
                 ]
             );
         }
+    }
+    /**
+     * Adopt the pair sitting in the customizations directory.
+     *
+     * Posts nothing but the action. The verb takes no argument either -- the
+     * directory comes out of the helper's own root-only config, so this is
+     * stricter than ADR 0036's rule rather than an exception to it. A free-text
+     * path field was the obvious alternative and is the one that ADR rejected:
+     * the moment the caller names a file, the helper's job becomes proving a
+     * path is safe.
+     *
+     * @return void
+     */
+    private function _pkiAdoptCustomLeaf()
+    {
+        $res = self::_pkiRun(['adopt-custom-leaf']);
+        if (!$res['ok']) {
+            throw new \Exception(
+                $res['out'] ?: _('That certificate was refused')
+            );
+        }
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            [
+                'msg' => self::_pkiLeafMessage($res['out']),
+                'title' => _('Certificate in use')
+            ]
+        );
+    }
+    /**
+     * Stage an uploaded certificate, key, chain and passphrase, and hand the
+     * lot to the helper under one request id.
+     *
+     * Nothing is validated here beyond the uploads themselves -- not the PEM
+     * framing, not the key, not the pair. The helper parses all of it, refuses
+     * a CA, refuses an expired certificate, refuses a chain that does not
+     * build, and chooses every destination, because this side is the side that
+     * might be compromised.
+     *
+     * The passphrase is staged as a FILE and never passed as an argument: this
+     * builds a command line for sudo, and an argument is readable in /proc by
+     * every local user for as long as the call lasts.
+     *
+     * @return void
+     */
+    private function _pkiImportLeaf()
+    {
+        $staging = self::_pkiStagingDir();
+        if (!$staging) {
+            throw new \Exception(
+                _('Certificate management is not configured on this server')
+            );
+        }
+        // A certificate and key are a few kilobytes; a PKCS#12 with a chain in
+        // it is a few more. Capped before anything is written into the staging
+        // directory rather than after.
+        $fields = [
+            'leafcert' => 'pem',
+            'leafkey' => 'key',
+            'leafchain' => 'chain',
+            'leafp12' => 'p12'
+        ];
+        $reqid = bin2hex(random_bytes(16));
+        $staged = [];
+        $have = false;
+        $res = ['ok' => false, 'out' => ''];
+        try {
+            foreach ($fields as $field => $ext) {
+                if (!isset($_FILES[$field])
+                    || UPLOAD_ERR_NO_FILE === ($_FILES[$field]['error'] ?? UPLOAD_ERR_NO_FILE)
+                ) {
+                    continue;
+                }
+                if (UPLOAD_ERR_OK !== ($_FILES[$field]['error'] ?? UPLOAD_ERR_NO_FILE)) {
+                    throw new UploadException($_FILES[$field]['error']);
+                }
+                if (!is_uploaded_file($_FILES[$field]['tmp_name'] ?? '')) {
+                    throw new \Exception(_('That upload did not arrive intact'));
+                }
+                if (($_FILES[$field]['size'] ?? 0) > 256 * 1024) {
+                    throw new \Exception(
+                        _('That file is too large to be a certificate or a key')
+                    );
+                }
+                $dest = $staging . DS . $reqid . '.' . $ext;
+                if (!move_uploaded_file($_FILES[$field]['tmp_name'], $dest)) {
+                    throw new \Exception(_('Could not stage the uploaded file'));
+                }
+                $staged[] = $dest;
+                $have = true;
+            }
+            if (!$have) {
+                throw new \Exception(
+                    _(
+                        'Upload a certificate and its key, or one PKCS#12 file '
+                        . 'carrying both'
+                    )
+                );
+            }
+            $pass = (string) filter_input(INPUT_POST, 'leafpass');
+            if ('' !== $pass) {
+                $dest = $staging . DS . $reqid . '.pass';
+                // 0600 before the bytes land, not after: the staging directory
+                // is the web user's own, so the window where the group could
+                // read it is the window worth not having.
+                if (!touch($dest) || !chmod($dest, 0600)) {
+                    throw new \Exception(_('Could not stage the passphrase'));
+                }
+                // Staged and restricted BEFORE the secret lands in it. fopen()
+                // would create the file at the umask's mode and leave a window
+                // in which it is group-readable, and the group on the staging
+                // directory is the web user's own.
+                $staged[] = $dest;
+                if (false === file_put_contents($dest, $pass)) {
+                    throw new \Exception(_('Could not stage the passphrase'));
+                }
+            }
+            $res = self::_pkiRun(['import-leaf', $reqid]);
+        } finally {
+            // Unconditional, and in a finally so a throw on the way in cannot
+            // leave a private key sitting in a directory the web user can read.
+            foreach ($staged as $file) {
+                if (file_exists($file)) {
+                    unlink($file);
+                }
+            }
+        }
+        if (!$res['ok']) {
+            throw new \Exception(
+                $res['out'] ?: _('That certificate was refused')
+            );
+        }
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            [
+                'msg' => self::_pkiLeafMessage($res['out']),
+                'title' => _('Certificate in use')
+            ]
+        );
+    }
+    /**
+     * Turn the helper's "OK <subject> reload:<state>" line into something an
+     * administrator can act on.
+     *
+     * The reload state matters enough to report rather than swallow. Unlike the
+     * three install preferences, a certificate change is meant to take effect
+     * at once -- so "installed, but the web server did not reload" is a
+     * different situation from success, and the thing to do about it is
+     * different too.
+     *
+     * @param string $out the helper's success line.
+     *
+     * @return string
+     */
+    private static function _pkiLeafMessage($out)
+    {
+        $reload = '';
+        if (preg_match('/reload:([a-z]+)$/', trim($out), $m)) {
+            $reload = $m[1];
+        }
+        if ('ok' === $reload) {
+            return _(
+                'This server is now serving that certificate, and the web '
+                . 'server has been reloaded.'
+            );
+        }
+        if ('failed' === $reload) {
+            return _(
+                'The certificate is installed and recorded, but the web server '
+                . 'would not reload, so it is still serving the previous one. '
+                . 'Reload it by hand, or re-run the installer.'
+            );
+        }
+        return _(
+            'The certificate is installed and recorded. Reload the web server '
+            . 'for it to be served.'
+        );
     }
     /**
      * Stage an uploaded root CA and hand it to the helper.

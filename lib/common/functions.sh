@@ -534,7 +534,7 @@ backupPreservedCustomizations() {
     # So: back up (live directory) minus (what the source tree ships). No
     # guessing, and a fully custom name is covered however it got there.
     [[ -z ${BOOT_kernel_backups_kept} || ! ${BOOT_kernel_backups_kept} =~ ^[0-9]+$ || ${BOOT_kernel_backups_kept} -lt 1 ]] && BOOT_kernel_backups_kept=3
-    local kbdir="${customizationsDir}/kernel-backups" k kf bn n
+    local kbdir="${customizationsDir}/kernel-backups" k kf bn n same
     local shippeddir="${webdirsrc%/}/service/ipxe"
     if [[ -d $ipxedir ]]; then
         mkdir -p "$kbdir" >>$error_log 2>&1 || warn=1
@@ -550,6 +550,40 @@ backupPreservedCustomizations() {
             [[ $n =~ ^[0-9]+$ ]] || continue
             [[ $n -ge ${BOOT_kernel_backups_kept} ]] && rm -rf "$k" >>$error_log 2>&1
         done
+        # Does gen-1 already hold exactly this capture set, byte for byte?
+        #
+        # The rotation used to run on every install unconditionally, and not
+        # every FOG release ships a new FOS kernel -- so three upgrades
+        # carrying one kernel left gen-1, gen-2 and gen-3 holding three
+        # identical copies, and "keep 3" meant one real version. The depth an
+        # admin asked for silently evaporated, and restorekernel.sh --list
+        # offered three snapshots that were the same snapshot.
+        #
+        # Compared by CONTENT and in BOTH directions. A file the admin added
+        # since the last install is a change; so is one they deleted, which a
+        # subset test would call unchanged. Same filters as the copy loop
+        # below, so the two cannot disagree about what a generation holds.
+        same=1
+        if [[ -d "${kbdir}/gen-1" ]]; then
+            for kf in "${ipxedir}"/*; do
+                [[ -f $kf ]] || continue
+                bn=$(basename "$kf")
+                [[ -e "${shippeddir}/${bn}" ]] && continue
+                case $bn in
+                    bzImage.*|bzImage32.*|arm_Image.*|init.xz.*|init_32.xz.*|arm_init.cpio.gz.*) continue ;;
+                esac
+                cmp -s "$kf" "${kbdir}/gen-1/${bn}" || { same=0; break; }
+            done
+            if [[ $same -eq 1 ]]; then
+                for kf in "${kbdir}/gen-1"/*; do
+                    [[ -f $kf ]] || continue
+                    bn=$(basename "$kf")
+                    [[ -f "${ipxedir}/${bn}" ]] || { same=0; break; }
+                done
+            fi
+        else
+            same=0
+        fi
         # GH-1579: rotate on BOOT_kernel_backups_kept, not on the retired
         # pre-GH-1120 spelling kernelBackupGenerations. That name now survives
         # only as a migration source (see migrateDeprecatedKeys) and in the
@@ -559,9 +593,15 @@ backupPreservedCustomizations() {
         # onward were never created, which silently made
         # --kernel-backup-count a no-op and restorekernel.sh --generation N
         # unusable for any N above 1.
-        for ((k = BOOT_kernel_backups_kept - 1; k >= 1; k--)); do
-            [[ -d "${kbdir}/gen-${k}" ]] && mv "${kbdir}/gen-${k}" "${kbdir}/gen-$((k + 1))" >>$error_log 2>&1
-        done
+        #
+        # Skipped entirely when nothing changed: rotating identical content
+        # spends a generation to record that an upgrade happened, and the
+        # generations are for kernels, not for installer runs.
+        if [[ $same -eq 0 ]]; then
+            for ((k = BOOT_kernel_backups_kept - 1; k >= 1; k--)); do
+                [[ -d "${kbdir}/gen-${k}" ]] && mv "${kbdir}/gen-${k}" "${kbdir}/gen-$((k + 1))" >>$error_log 2>&1
+            done
+        fi
         mkdir -p "${kbdir}/gen-1" >>$error_log 2>&1 || warn=1
         # cp -a preserves the version/tag_name xattrs downloadfiles() stamps on
         # each kernel, so every generation says which FOS release it came from
@@ -683,6 +723,35 @@ restorePreservedCustomizations() {
             # this kernel; a sibling would just be a duplicate.
             cmp -s "${kbdir}/gen-1/${bn}" "${ipxedir}/${bn}" && continue
             [[ -e "${ipxedir}/${bn}.${tag}" ]] || cp -a "${kbdir}/gen-1/${bn}" "${ipxedir}/${bn}.${tag}" >>$error_log 2>&1
+        done
+    fi
+    # Files the admin marked to be kept, put back if the fresh tree has none
+    # of that name.
+    #
+    # The web root is deleted and rebuilt on every install, and a per-release
+    # sibling is deliberately NOT part of a generation -- it is already a copy
+    # of a kernel, and snapshotting it would multiply the same bytes by the
+    # generation count. So nothing else brings one back, and "keep this
+    # kernel" would have survived exactly until the next upgrade.
+    #
+    # The six default names are excluded, the same way the generation restore
+    # above excludes them: picking up the new kernel is the point of an
+    # update. Keeping bzImage ITSELF is therefore close to meaningless -- keep
+    # the sibling or a custom name, which is what the tab steers toward.
+    #
+    # ORDER DEPENDENCY, and it fails silently if broken: the directory is
+    # created by _ensureCustomizationsTree(), which runs inside
+    # configureHttpd() -- installfog.sh calls that BEFORE this function
+    # (backup, then configureHttpd, then restore). Moving either past the
+    # other leaves this reading a directory that does not exist yet, which
+    # the -d guard turns into "nothing was kept" rather than an error, and
+    # the admin's kernel is gone with the record still saying it was kept.
+    if [[ -d "${kbdir}/keep" ]]; then
+        for f in "${kbdir}/keep"/*; do
+            [[ -f $f ]] || continue
+            bn=$(basename "$f")
+            [[ $defaultnames == *" $bn "* ]] && continue
+            [[ -e "${ipxedir}/${bn}" ]] || cp -a "$f" "${ipxedir}/${bn}" >>$error_log 2>&1 || st=1
         done
     fi
     [[ -d $ipxedir ]] && chown -R ${SVC_user}:${apacheuser} "$ipxedir" >>$error_log 2>&1
@@ -5790,6 +5859,18 @@ _installPkiAdminHelper() {
         # does --ca-root, which used to record its own source path and so
         # named a temp file that was gone by the next run.
         echo "PKI_EXTERNAL_ROOT=${webdir}/ca/.externalRoot.pem"
+        # Where a certificate you brought lives, and where the intermediates
+        # that come with one are recorded. adopt-custom-leaf takes NO argument
+        # at all -- it reads this directory out of the config rather than being
+        # handed a path, which is stricter than ADR 0036 asks for rather than an
+        # exception to it.
+        echo "PKI_CUSTOM_DIR=$(_customPkiDir)"
+        echo "PKI_WEB_EXTERNAL_CHAIN=${webdir}/leaf/.externalChain.pem"
+        # The web engine, so the helper can reload it after installing a
+        # certificate. This is the one change it makes that takes effect before
+        # the next installer run; see ADR 0036's 2026-09-02 amendment for why
+        # certificate material differs from the yes/no preferences.
+        echo "WEB_ENGINE=${WEB_server_engine}"
         echo "PKI_CLIENT_CERT=${PKI_client_encrypt_cert}"
         if [[ -f $sbca ]]; then
             echo "PKI_SB_CA_CERT=${sbca}"
@@ -8202,6 +8283,26 @@ _ensureCustomizationsTree() {
     # zone's own leaf/ directory is.
     chmod 0700 "$customdir" >>$error_log 2>&1
     [[ -n $optdir ]] && mkdir -p "$optdir" >>$error_log 2>&1
+    # kernel-backups/keep is the one directory under here the WEB TIER writes.
+    # Marking a boot file to be kept copies it in from service/ipxe, and the
+    # copy is the record: the pruner tests for its existence with no manifest
+    # to read and nothing to drift.
+    #
+    # No sudo helper and no privileged path. The alternative was to follow
+    # packages/secureboot/fog-sign-kernel, but that helper's whole security
+    # property is taking NO arguments -- every path it touches comes from a
+    # root-owned config -- and a helper taking a filename would give that up.
+    # It buys nothing either way: kernelfetch() already writes arbitrary files
+    # into service/ipxe over SSH with the TFTP credentials, so "the web tier
+    # can place a boot file" is a capability it already has.
+    #
+    # 2775 with the group setgid, so a file the web user copies in stays
+    # group-readable to the installer that later restores it.
+    if [[ -n $optdir ]]; then
+        mkdir -p "$optdir/kernel-backups/keep" >>$error_log 2>&1
+        chown "${SVC_user}:${apacheuser}" "$optdir/kernel-backups/keep" >>$error_log 2>&1
+        chmod 2775 "$optdir/kernel-backups/keep" >>$error_log 2>&1
+    fi
     if [[ ! -f "$etcdir/readme.txt" ]]; then
         cat > "$etcdir/readme.txt" <<'ETCREADME'
 This directory is for configuration you supply yourself.
@@ -8307,6 +8408,64 @@ _certKeyPairMatches() {
 # chains to a publicly-trusted root needs no chain file from us for the browser
 # to be happy, and createWebIntermediateCA() already honors an admin's chain
 # path on every run. Requiring one here would decline perfectly good setups.
+# Record the intermediates an administrator dropped beside their leaf.
+#
+# Copied to a canonical path with every self-signed certificate REMOVED, and
+# then ${PKI_web_trust_chain} is pointed at it. Both halves are load-bearing.
+#
+# The copy is for the reason the imported root gets one: a setting that records
+# wherever the admin's file happened to be names a temp file by next year
+# (GH-1683).
+#
+# The strip is because _resolveTrustAnchor() anchors every self-signed
+# certificate it finds in the chain file. A root left in there would be trusted
+# by this host as a side effect of supplying a chain, without anybody deciding
+# to trust it -- which is precisely what import-root's self-signed-only rule
+# exists to prevent. An administrator whose root is not trusted yet imports it
+# deliberately, on the Certificates page or with --ca-root.
+#
+# fog-pki-admin's adopt-custom-leaf does the same two things to the same path,
+# so the page and the installer cannot disagree about what this server serves.
+_adoptCustomChain() {
+    local src="$1" out tmpd f subj issuer st=1
+    [[ -n $src && -f $src ]] || return 1
+    command -v openssl >/dev/null 2>&1 || return 1
+    out="$(_pkiZoneDir web)/leaf/.externalChain.pem"
+    mkdir -p "$(dirname "$out")" >>$error_log 2>&1
+    tmpd=$(mktemp -d) || return 1
+    : > "${tmpd}/chain.pem"
+    if _splitPemBundle "$src" "$tmpd"; then
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+            issuer=$(openssl x509 -in "$f" -noout -issuer 2>/dev/null)
+            [[ -z $subj ]] && continue
+            [[ ${subj#subject=} == "${issuer#issuer=}" ]] && continue
+            cat "$f" >> "${tmpd}/chain.pem"
+        done
+    fi
+    if [[ -s ${tmpd}/chain.pem ]]; then
+        # Mode, not ownership: the installer is already root, so the file is
+        # root-owned either way -- and forcing it would make this function
+        # untestable outside a root shell for no gain.
+        if install -m 0644 "${tmpd}/chain.pem" "$out" >>$error_log 2>&1; then
+            PKI_web_trust_chain="$out"
+            st=0
+        fi
+    fi
+    rm -rf "$tmpd" >>$error_log 2>&1
+    return $st
+}
+# The optional third name: the intermediates for a leaf you brought.
+#
+# Echoes the path when there is one, and returns 1 when there is not. Optional
+# where the pair is required, because a leaf signed straight off a root needs no
+# intermediates and demanding one would refuse a valid setup.
+_customPkiChain() {
+    local f="$(_customPkiDir)/web-leaf-chain.pem"
+    [[ -f $f ]] || return 1
+    printf '%s' "$f"
+}
 _customPkiPair() {
     local dir cert key
     dir="$(_customPkiDir)"
@@ -10251,7 +10410,7 @@ createSSLCA() {
     # vhost names the files and the certificate names itself.
     _ensureCustomizationsTree
     if ! _externallyManagedLeaf; then
-        local extReason="" extCert="" extKey="" customPair=""
+        local extReason="" extCert="" extKey="" customPair="" customChain=""
         if extReason=$(_detectExternalCertManagement); then
             # Signal 0 first, and it wins outright: a pair sitting in the
             # customizations tree is the admin saying which certificate to use,
@@ -10262,6 +10421,12 @@ createSSLCA() {
             customPair=$(_customPkiPair) && {
                 extCert=$(echo "$customPair" | sed -n 1p)
                 extKey=$(echo "$customPair" | sed -n 2p)
+                # The chain is adopted with the pair rather than separately.
+                # Doing it here, inside the signal-0 arm, is deliberate: the
+                # other signals describe a leaf FOG was ALREADY pointed at, and
+                # repointing the trust chain in those cases would overwrite a
+                # setting the admin may have made by hand.
+                customChain=$(_customPkiChain) && _adoptCustomChain "$customChain"
             }
             if [[ -z $extCert ]]; then
                 extCert=$(_vhostCertPath)
