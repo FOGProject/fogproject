@@ -183,7 +183,7 @@ dumpdir="${DB_backup_path%/}/fogDBbackups"
 # ---------------------------------------------------------------------------
 # Report. This runs on every invocation, because a checkout or a restore that
 # does not first say what it found is a checkout or a restore nobody can
-# check afterwards.
+# check afterward.
 # ---------------------------------------------------------------------------
 echo " * Checkout: ${gitpath}"
 if [[ -z $recorded ]]; then
