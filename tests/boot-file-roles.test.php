@@ -156,7 +156,7 @@ function fixturePeBinary()
 }
 
 /**
- * A raw binary image with no recognisable header at all -- memtest.bin, and
+ * A raw binary image with no recognizable header at all -- memtest.bin, and
  * the memdisk shipped in the repo tree.
  *
  * NUL bytes matter: an all-printable stand-in is TEXT, and text is not a
