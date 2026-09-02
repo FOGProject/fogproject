@@ -590,7 +590,26 @@ class Group extends FOGController
                     $multicastsessionassocs
                 );
                 $this->_createSnapinTasking($now, -1);
-            } elseif ($TaskType->isDeploy()) {
+            } elseif ($TaskType->isDeploy() || $TaskType->isCapture()) {
+                // Capture shares the deploy insert: the two differ only by
+                // typeID, which is already a parameter. There used to be no
+                // capture arm at all, so a capture arrived here, matched
+                // nothing, and left without a row -- and the caller then
+                // reported success over an empty tasks table (#1677). On
+                // this branch it is reachable from POST /group/{id}/task,
+                // which takes any task type.
+                //
+                // Capture is a one-host task type (ttIsAccess='host'):
+                // several hosts writing the same image at once would corrupt
+                // it. Refuse it here rather than silently create the race.
+                if ($TaskType->isCapture() && count($hostids ?: []) > 1) {
+                    throw new Exception(
+                        sprintf(
+                            _('%s can only be run on one host at a time'),
+                            $TaskType->get('name')
+                        )
+                    );
+                }
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
                 /**
