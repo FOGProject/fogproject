@@ -546,7 +546,7 @@ The installer creates it, and `restorecon`s it — which is also the fix for the
 SELinux footgun above, since a directory FOG creates carries the right label
 instead of whatever an arbitrary location happened to have.
 
-**Drop a pair in and re-run the installer.** Two names:
+**Drop a pair in and re-run the installer.** Two names, both required (a third, optional one for the chain is below):
 
 ```
 /etc/fog/customizations/pki/web-leaf.pem
@@ -572,6 +572,44 @@ side for the reason the PKI tree itself moved there; kernels and boot images sta
 under `/opt` because the FHS does not put binaries in `/etc`. See
 [ADR 0040](adr/0040-certificates-you-bring-live-in-a-customizations-tree.md).
 
+### If your CA is not one this server already trusts
+
+A leaf is not servable on its own. Two separate things have to be true, and
+neither is implied by the other:
+
+1. **The intermediates have to reach the vhost**, or clients get an incomplete
+   chain. Add a third, optional file beside the pair:
+
+   ```
+   /etc/fog/customizations/pki/web-leaf-chain.pem
+   ```
+
+   Or make `web-leaf.pem` a fullchain — leaf first, then intermediates, the
+   shape every ACME client emits. FOG splits it and keeps **only the leaf** at
+   the canonical leaf path, because a bundle stored there grows by one copy of
+   the intermediate on every run and iPXE stops booting long before a browser
+   complains (GH-863). The order of the file does not matter: certificates are
+   classified by whether they are self-signed and by whether the public key
+   matches the key, never by position.
+
+2. **The root has to be anchored**, or every HTTPS call this server makes to
+   itself fails to verify — which is most of what the installer does after it
+   writes the vhost. Import it from the Certificates page, or pass
+   `--web-ca-root`. A self-signed root left in the chain file is **not** taken
+   as consent to trust it; FOG reports which issuer is missing and waits for the
+   import.
+
+The two go together. FOG refuses to adopt a leaf when no path builds — a
+refusal, not a warning, because adopting one trades a server that works for one
+that does not, and the failure shows up as unrelated HTTPS errors much later.
+The refusal names the issuer it could not find.
+
+If your deployment is genuinely one where no path can build on this host —
+split-horizon DNS, an internal CA reachable only elsewhere, clients that pin —
+set the canonical paths by hand as described under **Certificate paths** above
+and re-run the installer. That route does not consult the chain, and it is
+deliberately not a checkbox on the Certificates page: it is the one case where
+you are telling FOG you know better than its verification.
 ## Let's Encrypt and ACME
 
 **FOG does not run an ACME client and will not.** Use `certbot`, `acme.sh`, or

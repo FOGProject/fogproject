@@ -7,6 +7,28 @@ accepted, and implemented on `working-1.6` as `_customPkiDir()` /
 with `PKI_custom_dir` recorded in `.fogsettings` and signal 0 of
 `_detectExternalCertManagement()`.
 
+## Amended 2026-09-02 — a third name, for the chain
+
+`web-leaf-chain.pem` joins `web-leaf.pem` and `web-leaf.key` as a documented
+name in this directory, optional where the other two are required. It settles a
+gap FOGProject/fogproject#1685 found: a leaf issued by an external CA is not
+servable on its own. The chain has to reach the vhost, and the pair test here
+deliberately excludes `PKI_web_trust_chain`, so a leaf whose intermediates are
+nowhere could be adopted and then fail to build a path.
+
+Three names rather than two does not weaken "two names, not a glob" — the
+reasoning was never about the count. It was that FOG must not choose between
+candidates on its own, and an explicitly documented third name chooses nothing.
+A fullchain `web-leaf.pem` is also accepted, and is split rather than stored
+whole: the leaf slot takes exactly one certificate, for the GH-863 reason
+recorded in [ADR 0036](0036-the-web-tier-changes-pki-through-a-fixed-verb-set.md)'s
+2026-09-02 amendment.
+
+Adoption otherwise behaves as decided below. A chain that does not let the leaf
+verify is a refusal, not a warning, and a self-signed root found in the supplied
+material is reported for an explicit import rather than anchored — the amendment
+to ADR 0036 carries both rules and the reason the second one is not optional.
+
 ## Context
 
 [ADR 0024](0024-fogsettings-unified-key-model.md) settled how FOG uses a
