@@ -234,17 +234,46 @@ markInstallCommit() {
 # nothing to go back to -- in both cases the failure is not about the code
 # having changed, so pointing at git would be a wrong diagnosis.
 offerRevert() {
-    local status=$1 head
+    local status=$1 head recorded
     [[ $status -eq 0 ]] && return 0
-    [[ -n ${FOG_last_good_commit} ]] || return 0
     [[ -d ${FOG_git_path}/.git ]] || return 0
+
+    # Read back off disk, NOT from $FOG_last_good_commit in memory.
+    #
+    # markInstallCommit() sets the in-memory value before writeUpdateFile()
+    # persists it -- it has to, because writeUpdateFile emits the file FROM
+    # that variable. So if anything between the two fails, including
+    # writeUpdateFile itself, memory already holds the current HEAD and a
+    # comparison against it finds them equal and says nothing. That is exactly
+    # the run this function exists for.
+    #
+    # .fogsettings is the honest answer: it still names the last commit that
+    # actually got as far as being written down. On a run that succeeded it
+    # holds HEAD, and the comparison below correctly stays quiet.
+    # No back-reference: strip the key, then the quoting. Simpler to read and
+    # immune to the escaping accidents a capture group invites here.
+    recorded=$(sed -n 's/^FOG_last_good_commit=//p' \
+        "${fogprogramdir}/.fogsettings" 2>/dev/null | tr -d "\"' " | tail -n1)
+    [[ -n $recorded ]] || return 0
+
     head=$(git -C "${FOG_git_path}" rev-parse HEAD 2>/dev/null) || return 0
-    [[ -z $head || $head == ${FOG_last_good_commit} ]] && return 0
+    [[ -z $head || $head == $recorded ]] && return 0
     echo
+    # --detach, not `reset --hard`. The case this exists for is an update that
+    # switched channels and then failed, so the checkout is on (say)
+    # working-1.6 while the last good commit belongs to stable -- and
+    # `reset --hard` would point the working-1.6 REF at a stable commit,
+    # leaving a diverged branch that git status complains about long after the
+    # install is fixed. Detaching moves only HEAD, which is all that is wanted:
+    # the next updatefog.sh run checks out a branch again anyway.
+    #
+    # This is a different judgment from gitUpdateToBranch, which keeps
+    # reset --hard deliberately -- there it is discarding local mess to make an
+    # update possible, here it is navigating history.
     echo " * This install did not finish, and the checkout has moved since the"
     echo " | last one that did. To put the code back where it was and re-run:"
     echo " |"
-    echo " |     git -C ${FOG_git_path} reset --hard ${FOG_last_good_commit}"
+    echo " |     git -C ${FOG_git_path} checkout --detach ${recorded}"
     echo " |     cd ${FOG_git_path}/bin && ./installfog.sh"
     echo " |"
     echo " | Nothing has been reverted for you. Your customizations were already"
@@ -470,11 +499,22 @@ backupPreservedCustomizations() {
     # So: back up (live directory) minus (what the source tree ships). No
     # guessing, and a fully custom name is covered however it got there.
     [[ -z ${BOOT_kernel_backups_kept} || ! ${BOOT_kernel_backups_kept} =~ ^[0-9]+$ || ${BOOT_kernel_backups_kept} -lt 1 ]] && BOOT_kernel_backups_kept=3
-    local kbdir="${customizationsDir}/kernel-backups" k kf bn
+    local kbdir="${customizationsDir}/kernel-backups" k kf bn n
     local shippeddir="${webdirsrc%/}/service/ipxe"
     if [[ -d $ipxedir ]]; then
         mkdir -p "$kbdir" >>$error_log 2>&1 || warn=1
-        rm -rf "${kbdir}/gen-${BOOT_kernel_backups_kept}" >>$error_log 2>&1
+        # Every generation at or above the retention, not just gen-N. Lowering
+        # --kernel-backup-count from 5 to 3 used to leave gen-4 and gen-5 on
+        # disk forever: outside the rotation loop below, so never shifted and
+        # never pruned, frozen at whatever they last held -- while
+        # restorekernel.sh --list went on offering them as though they were
+        # current snapshots.
+        for k in "${kbdir}"/gen-*; do
+            [[ -d $k ]] || continue
+            n="${k##*/gen-}"
+            [[ $n =~ ^[0-9]+$ ]] || continue
+            [[ $n -ge ${BOOT_kernel_backups_kept} ]] && rm -rf "$k" >>$error_log 2>&1
+        done
         # GH-1579: rotate on BOOT_kernel_backups_kept, not on the retired
         # pre-GH-1120 spelling kernelBackupGenerations. That name now survives
         # only as a migration source (see migrateDeprecatedKeys) and in the

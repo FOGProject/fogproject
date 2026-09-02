@@ -322,6 +322,28 @@ if [[ -d ${gitpath}/.git ]]; then
     echo " | To move an existing install to another channel, use:"
     echo " |   cd ${gitpath}/bin && ./updatefog.sh --channel ${channel}"
     echo
+    # FETCH FIRST, and this is not optional on this path.
+    #
+    # The checkout below is the same line for a fresh clone and for a
+    # pre-existing one, and a pre-existing one may not have heard of the branch
+    # being asked for. Two ways that went wrong, both silent about the real
+    # cause:
+    #
+    #   --channel rc resolves against the REMOTE, so it can name rc-1.6.4 while
+    #   this clone has never fetched it -- the checkout then failed with
+    #   "the branch may have been renamed", which is not what happened.
+    #
+    #   A stale local `stable` checks out perfectly well and bootstrap installs
+    #   a months-old tree while reporting success, which is worse.
+    echo -n " * Fetching ${gitpath}... "
+    if git -C "$gitpath" fetch --all --prune >/dev/null 2>&1; then
+        echo "Done"
+    else
+        echo "Failed"
+        echo " | Could not fetch. Continuing with what is already in the"
+        echo " | checkout -- if the install turns out to be an old version,"
+        echo " | this is why."
+    fi
 else
     if [[ -e $gitpath && -n $(ls -A "$gitpath" 2>/dev/null) ]]; then
         fail "${gitpath} exists and is not empty, but is not a git checkout." \

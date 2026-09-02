@@ -281,13 +281,39 @@ fi
 # installfog.sh asks anything the working copy has already moved. --yes skips
 # both.
 if [[ -z $autoYes ]]; then
+    # Refuse before asking, when there is nobody to ask.
+    #
+    # `read` gets EOF from cron or the GUI, confirmGo comes back empty, the
+    # catch-all arm below fired and this exited 0 -- so the caller recorded a
+    # successful update that never happened. A scheduled job reporting success
+    # forever is worse than one reporting a failure, because nobody looks at
+    # the first kind.
+    #
+    # The tty is tested by OPENING it, not by [[ -t 0 ]]: stdin can be
+    # redirected for perfectly ordinary reasons while a terminal is still
+    # there to prompt on, and /dev/tty exists in contexts where opening it
+    # fails with ENXIO.
+    if ! (exec < /dev/tty) 2>/dev/null; then
+        echo " * No terminal is available to confirm this update on, and --yes"
+        echo " | was not given, so nothing has been changed."
+        echo " |"
+        echo " | Pass -y/--yes to run unattended, which is what cron and the"
+        echo " | web UI should do."
+        exit 7
+    fi
     echo -n " * Continue with this update? (Y/N) "
     read confirmGo
     case $confirmGo in
         [Yy] | [Yy][Ee][Ss]) ;;
-        *)
+        # A deliberate "no" is not a failure, so it stays exit 0. The EOF case
+        # above never reaches here.
+        [Nn] | [Nn][Oo])
             echo " * Update canceled."
             exit 0
+            ;;
+        *)
+            echo " * Answer not recognized -- update canceled."
+            exit 3
             ;;
     esac
 fi
