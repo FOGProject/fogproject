@@ -22,6 +22,16 @@
  *    the emitted markup and a rearrangement that still contains every string
  *    would pass a grep.
  *
+ * 3. THE HOST'S POWER MANAGEMENT TAB DOES NOT OFFER AN IMMEDIATE ACTION.
+ *    Not a tidiness rule -- a permission one. `hostPowermanagementPost` is
+ *    reached as sub=powermanagement, which _subToAction() resolves to
+ *    host.EDIT on a POST, so anything reachable through it is gated as "may
+ *    change this host's settings". A schedule is that. An immediate shut
+ *    down is not, and it had two ways in: `pmaddod` behind "Create New
+ *    Immediate", and a `pmupdate` branch no page had posted to in years
+ *    that could still flip a saved schedule to on-demand. Both are checked
+ *    for here, and so is the literal 0 the insert now pins.
+ *
  * The Wake-Up half -- moved into the pane rather than duplicated -- is
  * checked on the source instead, and deliberately. Rendering it needs the
  * task types themselves, and Route::getList() reaches far enough into the
@@ -216,5 +226,92 @@ if (preg_match(
 } else {
     $t->check('the power click handler is readable', false);
 }
+
+// -------------------------------------------------------------------------
+// 4. The host's Power Management tab is schedules only.
+// -------------------------------------------------------------------------
+$host = new HostManagement();
+$obj = \FOG\Base\FOGCore::getClass('Host');
+$obj->set('id', 5);
+$objProp = new \ReflectionProperty(get_class($host), 'obj');
+$objProp->setAccessible(true);
+$objProp->setValue($host, $obj);
+
+ob_start();
+$host->hostPowermanagement();
+$tab = (string)ob_get_clean();
+
+// The control. newPMDisplay(true) is the form that carries the on-demand
+// marker, so its absence below is a fact about the page rather than about
+// the string never having existed.
+$pmDisplay = new \ReflectionMethod(get_class($host), 'newPMDisplay');
+$pmDisplay->setAccessible(true);
+$t->check(
+    'the immediate form is what carries the pmaddod marker',
+    false !== strpos((string)$pmDisplay->invoke($host, true), 'pmaddod')
+);
+$t->check(
+    'the tab renders the schedule form',
+    false !== strpos($tab, 'name="pmadd"')
+);
+$t->check(
+    'and no form on it posts an immediate action',
+    false === strpos($tab, 'pmaddod')
+);
+$t->check(
+    'there is no immediate control to press',
+    false === strpos($tab, 'ondemandModal')
+    && false === strpos($tab, 'ondemandBtn')
+);
+
+// The server half. The render above covers what the page offers; these
+// cover what the endpoint would accept from a hand-made POST, which is the
+// part that actually matters for a permission.
+$hostSrc = (string)file_get_contents($web . '/src/Pages/HostManagement.php');
+$postAt = strpos($hostSrc, 'public function hostPowermanagementPost()');
+$method = '';
+if (false !== $postAt) {
+    $open = strpos($hostSrc, '{', $postAt);
+    $depth = 0;
+    for ($i = $open; $i < strlen($hostSrc); $i++) {
+        if ('{' === $hostSrc[$i]) {
+            $depth++;
+        } elseif ('}' === $hostSrc[$i]) {
+            $depth--;
+            if (0 === $depth) {
+                $method = substr($hostSrc, $open, $i - $open + 1);
+                break;
+            }
+        }
+    }
+}
+$t->check('the endpoint body is readable', '' !== $method);
+$t->check(
+    'the endpoint has no on-demand branch left',
+    '' !== $method
+    && false === strpos($method, 'pmaddod')
+    && false === strpos($method, 'pmupdate')
+);
+$t->check(
+    'and it writes a literal 0, not whatever the request asked for',
+    '' !== $method
+    && (bool)preg_match("#->set\('onDemand', 0\)#", $method)
+);
+// Both sides of the boundary in one place, so the pair reads as the rule it
+// is rather than as two unrelated facts: the edit-gated sub takes
+// schedules, the task-gated one takes immediate actions.
+$t->check(
+    'the immediate endpoint is still the task-gated one',
+    'task' === FogTestHarness::callStatic(
+        'Authorization',
+        '_subToAction',
+        ['taskPowerMulti', true]
+    )
+    && 'edit' === FogTestHarness::callStatic(
+        'Authorization',
+        '_subToAction',
+        ['powermanagement', true]
+    )
+);
 
 $t->finish();
