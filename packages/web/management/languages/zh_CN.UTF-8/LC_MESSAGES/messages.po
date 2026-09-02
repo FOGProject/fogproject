@@ -1087,9 +1087,6 @@ msgstr "%s是必需的"
 msgid "An optional last column may list associations to create, using the format \"label:value|value;label:value\". Values may be ids or names; unknown references are skipped with a warning rather than failing the row."
 msgstr ""
 
-msgid "An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
-msgstr ""
-
 #, fuzzy
 msgid "An ou already exists with this name!"
 msgstr "图像已经存在具有此名称！"
@@ -5521,6 +5518,9 @@ msgstr "最大客户"
 msgid "Max Size"
 msgstr "最大尺寸"
 
+msgid "Maximum rows per class; 0 or absent means no cap."
+msgstr ""
+
 #, fuzzy
 msgid "Member"
 msgstr "会员"
@@ -7808,6 +7808,9 @@ msgstr "搜索"
 msgid "Search every class at once"
 msgstr ""
 
+msgid "Search every class at once (path form)"
+msgstr ""
+
 msgid "Search results returned false"
 msgstr ""
 
@@ -9125,6 +9128,9 @@ msgstr "文本"
 msgid "Text to match against the id and name. A few classes match more: host also on MAC, storagenode on node hostname, setting on value."
 msgstr ""
 
+msgid "Text to match against the name (and the id, when the text is a whole number). Matched literally: % and _ are not wildcards."
+msgstr ""
+
 #, fuzzy
 msgid "That certificate is not available on this server."
 msgstr "有此服务器上没有组。"
@@ -9418,6 +9424,9 @@ msgstr "目的"
 msgid "The objects to apply these values to. An empty or absent list matches nothing and edits nothing."
 msgstr ""
 
+msgid "The older spelling of /unisearch?q=. An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
+msgstr ""
+
 msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
 msgstr ""
 
@@ -9507,6 +9516,13 @@ msgid "The storage groups associated storage node is not valid"
 msgstr "存储组相关联的存储节点无效"
 
 msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
+
+msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
+msgstr ""
+
+#, php-format
+msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
 msgid "The trust anchor, published as ca.cert.der. Every fog-client pins this one."
