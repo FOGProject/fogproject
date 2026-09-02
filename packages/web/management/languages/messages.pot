@@ -2310,6 +2310,9 @@ msgstr ""
 msgid "Enrollment kit"
 msgstr ""
 
+msgid "Enter a name manually"
+msgstr ""
+
 #, php-format
 msgid "Enter a valid %s name"
 msgstr ""
@@ -8353,6 +8356,9 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr ""
 
+msgid "This name is not a recognised file in the boot directory."
+msgstr ""
+
 msgid "This node could not be found"
 msgstr ""
 
@@ -9794,9 +9800,6 @@ msgid "nodes containing this image"
 msgstr ""
 
 msgid "not built yet"
-msgstr ""
-
-msgid "not found on disk"
 msgstr ""
 
 msgid "not found on this node"

@@ -2682,6 +2682,9 @@ msgstr ""
 msgid "Enrollment kit"
 msgstr ""
 
+msgid "Enter a name manually"
+msgstr ""
+
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "Please enter a valid hostname"
@@ -9754,6 +9757,9 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr "Already registered as"
 
+msgid "This name is not a recognised file in the boot directory."
+msgstr ""
+
 #, fuzzy
 msgid "This node could not be found"
 msgstr "Could not read temp file"
@@ -11403,10 +11409,6 @@ msgid "not built yet"
 msgstr ""
 
 #, fuzzy
-msgid "not found on disk"
-msgstr "Image not found on node"
-
-#, fuzzy
 msgid "not found on this node"
 msgstr "Image not found on node"
 
@@ -12615,6 +12617,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "No database to work off"
+
+#, fuzzy
+#~ msgid "not found on disk"
+#~ msgstr "Image not found on node"
 
 #, fuzzy
 #~ msgid "to clear the field on every host in this group."

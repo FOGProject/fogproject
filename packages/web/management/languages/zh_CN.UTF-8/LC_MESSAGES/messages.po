@@ -2682,6 +2682,9 @@ msgstr ""
 msgid "Enrollment kit"
 msgstr ""
 
+msgid "Enter a name manually"
+msgstr ""
+
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "请输入一个有效的主机名"
@@ -9741,6 +9744,9 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr "已注册为"
 
+msgid "This name is not a recognised file in the boot directory."
+msgstr ""
+
 #, fuzzy
 msgid "This node could not be found"
 msgstr "无法读取临时文件"
@@ -11391,10 +11397,6 @@ msgid "not built yet"
 msgstr ""
 
 #, fuzzy
-msgid "not found on disk"
-msgstr "图片没有节点发现"
-
-#, fuzzy
 msgid "not found on this node"
 msgstr "图片没有节点发现"
 
@@ -12607,6 +12609,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "没有数据库工作关闭"
+
+#, fuzzy
+#~ msgid "not found on disk"
+#~ msgstr "图片没有节点发现"
 
 #, fuzzy
 #~ msgid "to clear the field on every host in this group."

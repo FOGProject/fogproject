@@ -4609,16 +4609,16 @@ class HostManagement extends FOGPage
             case 'image':
                 return self::getClass('ImageManager')
                     ->buildSelectBox('', $name, 'name', '', false, 'id', $id);
-            /**
-             * The same picker the single-host form uses. Mass edit was left on
-             * a free-text box when the dropdowns landed, so the one place a
-             * typo reaches four hundred hosts at once was the one place
-             * offering no list to choose from.
-             *
-             * Blank is a legitimate mass-edit value here -- it means "clear
-             * the override and inherit the global default" -- which is why
-             * the spec's 'empty' is '' rather than null.
-             */
+                /**
+                 * The same picker the single-host form uses. Mass edit was left on
+                 * a free-text box when the dropdowns landed, so the one place a
+                 * typo reaches four hundred hosts at once was the one place
+                 * offering no list to choose from.
+                 *
+                 * Blank is a legitimate mass-edit value here -- it means "clear
+                 * the override and inherit the global default" -- which is why
+                 * the spec's 'empty' is '' rather than null.
+                 */
             case 'kernel':
                 return self::kernelFileSelect(
                     $name,

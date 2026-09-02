@@ -2680,6 +2680,9 @@ msgstr ""
 msgid "Enrollment kit"
 msgstr ""
 
+msgid "Enter a name manually"
+msgstr ""
+
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "Bitte geben Sie einen gültigen Hostnamen ein"
@@ -9747,6 +9750,9 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr "Bereits registriert als"
 
+msgid "This name is not a recognised file in the boot directory."
+msgstr ""
+
 #, fuzzy
 msgid "This node could not be found"
 msgstr "Temporäre Datei konnte nicht gelesen werden."
@@ -11399,10 +11405,6 @@ msgid "not built yet"
 msgstr ""
 
 #, fuzzy
-msgid "not found on disk"
-msgstr "auf diesem Knoten nicht gefunden"
-
-#, fuzzy
 msgid "not found on this node"
 msgstr "auf diesem Knoten nicht gefunden"
 
@@ -12659,6 +12661,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "Keine Datenbank zum"
+
+#, fuzzy
+#~ msgid "not found on disk"
+#~ msgstr "auf diesem Knoten nicht gefunden"
 
 #, fuzzy
 #~ msgid "to clear the field on every host in this group."

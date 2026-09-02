@@ -2602,6 +2602,9 @@ msgstr ""
 msgid "Enrollment kit"
 msgstr ""
 
+msgid "Enter a name manually"
+msgstr ""
+
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "有効なホスト名を入力してください"
@@ -9399,6 +9402,9 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr "既に次の名前で登録されています:"
 
+msgid "This name is not a recognised file in the boot directory."
+msgstr ""
+
 #, fuzzy
 msgid "This node could not be found"
 msgstr "強制終了できませんでした"
@@ -10988,10 +10994,6 @@ msgstr "このイメージを含むノード"
 
 msgid "not built yet"
 msgstr ""
-
-#, fuzzy
-msgid "not found on disk"
-msgstr "このノード上に見つかりません"
 
 msgid "not found on this node"
 msgstr "このノード上に見つかりません"
@@ -13802,6 +13804,10 @@ msgstr ""
 
 #~ msgid "no login will appear"
 #~ msgstr "ログイン画面は表示されません"
+
+#, fuzzy
+#~ msgid "not found on disk"
+#~ msgstr "このノード上に見つかりません"
 
 #~ msgid "of"
 #~ msgstr "の"
