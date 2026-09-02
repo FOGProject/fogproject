@@ -30,7 +30,7 @@ $t = new FogChecks();
 
 $define = new \ReflectionMethod('FOG\Router\Route', 'defineRoutes');
 $define->setAccessible(true);
-$router = \FastRoute\simpleDispatcher(
+$router = \FOG\Router\Route::newDispatcher(
     function (\FastRoute\RouteCollector $r) use ($define) {
         $define->invoke(null, $r);
     }
@@ -111,6 +111,23 @@ $t->check('cancel id=5', '5' === ($vars['id'] ?? null));
 // no-colon literal alternation with no optional marker at all.
 assertFound($t, 'GET /filedeletequeue/current', 'GET', '/filedeletequeue/current');
 assertFound($t, 'GET /filedeletequeue/active', 'GET', '/filedeletequeue/active');
+
+// A `*` capture followed by an OPTIONAL segment. AltoRouter matched the
+// route as one regex whose greedy optional group claimed "/5" and left the
+// lazy `.+?` with "a". FastRoute expands the optional into two routes and
+// its default parser tries the SHORTER first, where `.+?` runs to the end
+// of the path and swallows the limit -- the sidebar search box then
+// searched for "a/5" and matched nothing, for every term. The dispatcher
+// is built by Route::newDispatcher(), which tries the longer form first.
+$vars = assertFound($t, 'unisearch with limit dispatches', 'POST', '/unisearch/a/5');
+$t->check('unisearch item=a', 'a' === ($vars['item'] ?? null));
+$t->check('unisearch limit=5', '5' === ($vars['limit'] ?? null));
+$vars = assertFound($t, 'unisearch without limit dispatches', 'GET', '/unisearch/a');
+$t->check('unisearch bare has no limit', !array_key_exists('limit', $vars));
+// The longer form failing falls through to the shorter one, so a term whose
+// tail is not a number is still the whole term, as it was under AltoRouter.
+$vars = assertFound($t, 'unisearch non-numeric tail dispatches', 'GET', '/unisearch/a/b');
+$t->check('unisearch item=a/b when the tail is not a limit', 'a/b' === ($vars['item'] ?? null));
 
 // The no-colon alternation mechanism itself: dispatching directly (bypassing
 // setMatches()) exposes the throwaway placeholder FastRoute's grammar

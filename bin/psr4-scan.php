@@ -146,6 +146,7 @@ const TABLE = [
     'Route' => 'Router',
     'OpenAPI' => 'Router',
     'HTTPResponseCodes' => 'Router',
+    'LongestFirstRouteParser' => 'Router',
     'Authorization' => 'Auth',
     'CSRF' => 'Auth',
     'SiteScope' => 'Auth',
