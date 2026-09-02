@@ -39,6 +39,15 @@ use FOG\Router\Route;
  * mechanism FOGPage.php's kernel-upload action already uses for the same
  * reason: the TFTP root can be a remote storage node, not the web server.
  *
+ * The kernel and init the file names go there too. U-Boot's pxe code
+ * fetches every `kernel`/`initrd` line through the same TFTP getter as the
+ * config, relative to the DHCP bootfile's directory; it has no HTTP path
+ * at all (boot/pxe_utils.c). So the document is rendered with bare
+ * filenames, and the bytes those names resolve to are copied from
+ * FOG_TFTP_PXE_KERNEL_DIR into the TFTP root beside pxelinux.cfg/ -- once,
+ * and again only when the size no longer matches, so a kernel update from
+ * the web UI reaches wget-less boards on the next task or reconcile.
+ *
  * Two ways this gets called, both intentionally cheap for the common case
  * where nothing here is in use at all (no hosts with MACs, or a fleet with
  * no wget-less boards): a direct call at the moment a task is queued,
@@ -82,8 +91,17 @@ class UbootTftpSync extends FOGBase
      *
      * @throws \Exception when the SSH connection fails
      */
+    /**
+     * Boot files already confirmed present in the TFTP root during this
+     * connection, so reconcile() stats each once, not once per host.
+     *
+     * @var array<string, true>
+     */
+    private static $_staged = [];
+
     private static function _connect()
     {
+        self::$_staged = [];
         list($tftpHost, $tftpUser, $tftpPass, $tftpRoot) = self::getSetting(
             [
                 'FOG_TFTP_HOST',
@@ -166,6 +184,60 @@ class UbootTftpSync extends FOGBase
     }
 
     /**
+     * Copies the kernel and init a rendered document names into the TFTP
+     * root, when they are not already there at the same size.
+     *
+     * Reads the local copy from FOG_TFTP_PXE_KERNEL_DIR, which is where the
+     * Kernel Update page and the installer put it. A setup whose kernel
+     * directory is not on this web server has no local file to read, and
+     * that throws rather than writing nothing: the callers already log
+     * every failure here to the fault log, and a board finding
+     * `File not found` for a kernel that FOG quietly never staged would be
+     * the silent failure this class exists to avoid.
+     *
+     * Size is the change detector, not a hash: it is one sftp stat against
+     * one local stat, and a kernel or init replaced by a different build is
+     * a different size in practice. The cost of a false "unchanged" is one
+     * stale kernel until the next upload; the cost of hashing 80 MB over
+     * sftp on every task would be paid by every host, every time.
+     *
+     * @param string   $root  the TFTP root (parent of pxelinux.cfg/)
+     * @param string[] $files basenames to stage
+     *
+     * @return void
+     *
+     * @throws \Exception when a named file is not in the local kernel dir
+     */
+    private static function _stageBootFiles($root, array $files)
+    {
+        $kernelDir = rtrim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'), '/');
+        foreach ($files as $name) {
+            if ('' === $name || isset(self::$_staged[$name])) {
+                continue;
+            }
+            $local = $kernelDir . '/' . $name;
+            if (!is_file($local)) {
+                throw new \Exception(
+                    sprintf(
+                        _('U-Boot TFTP sync: %s is not in %s, so a board booting over TFTP cannot fetch it'),
+                        $name,
+                        $kernelDir
+                    )
+                );
+            }
+            $remote = $root . '/' . $name;
+            $stat = self::$FOGSSH->exists($remote) ?
+                self::$FOGSSH->sftp_stat($remote) :
+                false;
+            if (!is_array($stat) || ($stat['size'] ?? -1) !== filesize($local)) {
+                self::$FOGSSH->put($local, $remote);
+                self::$FOGSSH->sftp_chmod($remote, 0644);
+            }
+            self::$_staged[$name] = true;
+        }
+    }
+
+    /**
      * Renders and writes (or removes) one host's pxelinux.cfg files.
      *
      * @param string $dir  the remote pxelinux.cfg directory
@@ -180,9 +252,10 @@ class UbootTftpSync extends FOGBase
             return;
         }
         if ($Host->isValid() && $Host->get('task')->isValid()) {
-            $content = UbootBootMenu::renderForHost($Host);
+            $built = UbootBootMenu::buildForHost($Host, true);
+            self::_stageBootFiles(dirname($dir), $built['files']);
             foreach ($names as $name) {
-                self::_write($dir . '/' . $name, $content);
+                self::_write($dir . '/' . $name, $built['content']);
             }
         } else {
             foreach ($names as $name) {
@@ -314,10 +387,11 @@ class UbootTftpSync extends FOGBase
                 if (!$names) {
                     continue;
                 }
-                $content = UbootBootMenu::renderForHost($Host);
+                $built = UbootBootMenu::buildForHost($Host, true);
+                self::_stageBootFiles(dirname($dir), $built['files']);
                 foreach ($names as $name) {
                     $keep[$name] = true;
-                    self::_write($dir . '/' . $name, $content);
+                    self::_write($dir . '/' . $name, $built['content']);
                 }
             }
             foreach (self::$FOGSSH->scanFilesystem($dir) as $path) {

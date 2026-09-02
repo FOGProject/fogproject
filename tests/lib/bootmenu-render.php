@@ -301,4 +301,6 @@ if (!empty($scenario['hooks'])) {
     exit(0);
 }
 
-new $menuClass();
+// The second argument is UbootBootMenu's TFTP-path mode; IpxeBootMenu
+// declares no such parameter and PHP ignores the surplus argument.
+new $menuClass(true, !empty($scenario['tftp']));

@@ -133,9 +133,21 @@ is simply never seen. That design does not survive contact with a board that
 cannot make the HTTP request at all. `UbootTftpSync` exists for exactly that
 gap, and only that gap: boards that speak `wget` never touch it.
 
-It writes the same content `boot.php` would have answered with, as a real
-file, to every MAC a host is registered under, named by the same `01-<mac>`
-convention `pxe get` already expects. It does this at the moments that matter
+It writes the content `boot.php` would have answered with, as a real file,
+to every MAC a host is registered under, named by the same `01-<mac>`
+convention `pxe get` already expects -- with one difference. The HTTP answer
+names the kernel and init as `http://` URLs, which a `wget`-capable board
+can follow. U-Boot's `pxe` code cannot: it fetches every `kernel` and
+`initrd` line through the same TFTP getter as the config file, relative to
+the DHCP bootfile's directory, and has no notion of a URL at all (see
+`boot/pxe_utils.c` upstream -- `kernel http://...` becomes a TFTP request
+for a file literally named that). So the TFTP copy names them as bare
+filenames, `arm_Image` and `arm_init.cpio.gz`, and the sync copies those two
+files out of `FOG_TFTP_PXE_KERNEL_DIR` into the TFTP root beside
+`pxelinux.cfg/` -- once, and again whenever the size changes, so a kernel
+uploaded from the Kernel Update page reaches wget-less boards on their next
+task or reconcile pass. A host's own kernel/init override is staged the same
+way. It does this at the moments that matter
 -- a task is queued, completed, canceled, or fails -- so a board rebooting
 right after a task is queued finds a file waiting rather than racing FOG's own
 database write. A periodic reconcile pass (`Service/TaskScheduler.php`, same
@@ -153,6 +165,11 @@ Two things this depends on that the direct-`wget` path does not:
   FOG's kernel-upload feature already uses to reach a TFTP root that may not
   be the web server itself -- if kernel uploads to ARM boards already work,
   these are already configured.
+- **The kernel and init must be readable on this web server**, at
+  `FOG_TFTP_PXE_KERNEL_DIR`, because that is where the sync copies them from.
+  A setup whose kernel directory lives on a different TFTP host has nothing
+  local to copy, and the sync reports that to the fault log rather than
+  writing a file that names a kernel it never staged.
 - **`FOG_TFTP_ROOT_DIR` must be the directory tftpd serves from.** The
   installer sets it (`/tftpboot` on most distributions) and the file is
   written to `pxelinux.cfg/` under it, because that is where `pxe get` looks:

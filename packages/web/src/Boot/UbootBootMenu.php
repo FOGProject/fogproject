@@ -76,6 +76,14 @@ class UbootBootMenu extends BootMenuBase
      */
     private $_initrdUrl;
     /**
+     * Basenames of the kernel and init this document boots, in that
+     * order -- what UbootTftpSync has to stage next to the file when the
+     * board can only fetch over TFTP.
+     *
+     * @var string[]
+     */
+    private $_kernelFiles = [];
+    /**
      * The rendered extlinux document, once built
      *
      * @var string
@@ -98,12 +106,29 @@ class UbootBootMenu extends BootMenuBase
      */
     public static function renderForHost(Host $Host)
     {
+        return self::buildForHost($Host)['content'];
+    }
+
+    /**
+     * Renders for one host and also names the files the document boots.
+     *
+     * @param Host $Host the host to render for
+     * @param bool $tftp render `kernel`/`initrd` as TFTP-relative basenames
+     *                   rather than HTTP URLs -- see the constructor
+     *
+     * @return array{content: string, files: string[]}
+     */
+    public static function buildForHost(Host $Host, $tftp = false)
+    {
         $previousHost = self::$Host;
         self::$Host = $Host;
         try {
-            $menu = new self(false);
+            $menu = new self(false, $tftp);
 
-            return $menu->_output;
+            return [
+                'content' => $menu->_output,
+                'files' => $menu->_kernelFiles,
+            ];
         } finally {
             self::$Host = $previousHost;
         }
@@ -116,10 +141,22 @@ class UbootBootMenu extends BootMenuBase
      *                         way a live HTTP request needs -- false is
      *                         renderForHost()'s path, which wants the
      *                         string back with the process left running
+     * @param bool $tftp       name the kernel and init as bare filenames
+     *                         instead of HTTP URLs. A board without wget
+     *                         fetches this document with `pxe get`, and
+     *                         U-Boot's pxe code (boot/pxe_utils.c) fetches
+     *                         every `kernel`/`initrd` path through the same
+     *                         TFTP getter, prefixed with the DHCP bootfile's
+     *                         directory -- it has no notion of a URL, so
+     *                         `kernel http://...` becomes a TFTP request for
+     *                         a file of that name. The bare name resolves
+     *                         beside the pxelinux.cfg/ directory whatever
+     *                         that prefix is, which is where UbootTftpSync
+     *                         stages the files.
      *
      * @return void
      */
-    public function __construct($emitOutput = true)
+    public function __construct($emitOutput = true, $tftp = false)
     {
         parent::__construct();
 
@@ -172,8 +209,13 @@ class UbootBootMenu extends BootMenuBase
             $imagefile = self::$Host->get('init') ?: $imagefile;
         }
 
-        $this->_kernelUrl = $web . 'service/ipxe/' . basename($bzImage);
-        $this->_initrdUrl = $web . 'service/ipxe/' . basename($imagefile);
+        $this->_kernelFiles = [basename($bzImage), basename($imagefile)];
+        if ($tftp) {
+            list($this->_kernelUrl, $this->_initrdUrl) = $this->_kernelFiles;
+        } else {
+            $this->_kernelUrl = $web . 'service/ipxe/' . basename($bzImage);
+            $this->_initrdUrl = $web . 'service/ipxe/' . basename($imagefile);
+        }
 
         $StorageNodeID = self::minId(
             Route::getIds('storagenode', ['isEnabled' => 1, 'isMaster' => 1])
