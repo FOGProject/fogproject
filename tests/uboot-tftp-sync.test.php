@@ -188,6 +188,39 @@ class FakeTftpFs extends \FOG\Net\FOGSSH
     /** @var array path => mode, every sftp_chmod() call */
     public $chmodCalls = [];
 
+    /** @var string[] every remote path put() wrote, in order */
+    public $putCalls = [];
+
+    /**
+     * Clears the put() log between staging calls. A method rather than a
+     * direct `$fakeFs->putCalls = []` at the call site, because phpstan
+     * narrows the property to array{} after that assignment and cannot see
+     * through callStatic() to the writes that follow, so every comparison
+     * after it reads as always-false.
+     *
+     * @return void
+     */
+    public function resetPuts()
+    {
+        $this->putCalls = [];
+    }
+
+    /**
+     * ssh2_sftp_stat()'s shape for the one key the sync reads.
+     *
+     * @param string $path remote path
+     *
+     * @return array{size: int}|false
+     */
+    public function sftp_stat($path)
+    {
+        if (!isset($this->contents[$path])) {
+            return false;
+        }
+
+        return ['size' => strlen($this->contents[$path])];
+    }
+
     /**
      * Mirrors the real connect()'s actual contract (self|false), not its
      * @return object docblock -- the real method's own catch branch returns
@@ -232,6 +265,7 @@ class FakeTftpFs extends \FOG\Net\FOGSSH
 
     public function put($localfile, $remotefile)
     {
+        $this->putCalls[] = $remotefile;
         $this->tree[$remotefile] = 'file';
         $this->contents[$remotefile] = file_get_contents($localfile);
     }
@@ -270,13 +304,20 @@ class FakeTftpFs extends \FOG\Net\FOGSSH
     }
 }
 
+// A real directory standing in for <webroot>/service/ipxe/: the path the
+// pxelinux.cfg dir must NOT be built from (topic 18229), and the place
+// _stageBootFiles() reads the kernel and init from.
+$kernelDir = dirname(FOG_CACHE_DIR) . '/service/ipxe';
+mkdir($kernelDir, 0755, true);
+file_put_contents($kernelDir . '/arm_Image', str_repeat('K', 4096));
+file_put_contents($kernelDir . '/arm_init.cpio.gz', str_repeat('I', 2048));
+
 $tftpSettings = [
     'FOG_TFTP_HOST' => 'tftp.example.test',
     'FOG_TFTP_FTP_USERNAME' => 'fogtftp',
     'FOG_TFTP_FTP_PASSWORD' => 's3cret',
     'FOG_TFTP_ROOT_DIR' => '/srv/tftp/',
-    // The HTTP kernel dir: the path the sync must NOT build from (topic 18229).
-    'FOG_TFTP_PXE_KERNEL_DIR' => '/var/www/html/fog/service/ipxe/',
+    'FOG_TFTP_PXE_KERNEL_DIR' => $kernelDir . '/',
 ];
 $db->responder = function ($sql, $params) use ($tftpSettings) {
     if (false !== stripos($sql, 'FROM `globalSettings`')) {
@@ -404,11 +445,100 @@ foreach (['materializeMany', 'removeMany'] as $method) {
     );
 }
 
+/*
+ * _stageBootFiles(): the kernel and init a TFTP-mode document names have
+ * to exist in the TFTP root, beside pxelinux.cfg/, or `pxe boot` gets
+ * `File not found` for a file FOG never copied. Size is the change
+ * detector and a per-connection cache keeps reconcile() to one stat per
+ * file, so each of those has to be shown to do its job on its own.
+ */
+$root = '/srv/tftp';
+$stageArgs = [$root, ['arm_Image', 'arm_init.cpio.gz']];
+$fakeFs->resetPuts();
+FogTestHarness::setStatic('FOG\Boot\UbootTftpSync', '_staged', []);
+FogTestHarness::callStatic('FOG\Boot\UbootTftpSync', '_stageBootFiles', $stageArgs);
+$t->check(
+    'a kernel and init missing from the TFTP root are uploaded beside pxelinux.cfg/',
+    [$root . '/arm_Image', $root . '/arm_init.cpio.gz'] === $fakeFs->putCalls
+    && str_repeat('K', 4096) === ($fakeFs->contents[$root . '/arm_Image'] ?? '')
+    && str_repeat('I', 2048) === ($fakeFs->contents[$root . '/arm_init.cpio.gz'] ?? '')
+);
+$t->check(
+    'staged boot files are made world-readable for a tftpd running as another user',
+    0644 === ($fakeFs->chmodCalls[$root . '/arm_Image'] ?? null)
+    && 0644 === ($fakeFs->chmodCalls[$root . '/arm_init.cpio.gz'] ?? null)
+);
+
+$fakeFs->resetPuts();
+FogTestHarness::setStatic('FOG\Boot\UbootTftpSync', '_staged', []);
+FogTestHarness::callStatic('FOG\Boot\UbootTftpSync', '_stageBootFiles', $stageArgs);
+$t->check(
+    'a boot file already present at the same size is not uploaded again (size compare, cache cleared)',
+    [] === $fakeFs->putCalls
+);
+
+file_put_contents($kernelDir . '/arm_Image', str_repeat('K', 5000));
+$fakeFs->resetPuts();
+FogTestHarness::setStatic('FOG\Boot\UbootTftpSync', '_staged', []);
+FogTestHarness::callStatic('FOG\Boot\UbootTftpSync', '_stageBootFiles', $stageArgs);
+$t->check(
+    'a boot file whose size changed locally is uploaded again, and only that one',
+    [$root . '/arm_Image'] === $fakeFs->putCalls
+    && 5000 === strlen($fakeFs->contents[$root . '/arm_Image'])
+);
+
+file_put_contents($kernelDir . '/arm_Image', str_repeat('K', 6000));
+$fakeFs->resetPuts();
+// Cache deliberately NOT cleared: the size differs, but this connection
+// already confirmed the file, so a second host in the same reconcile pass
+// must not stat or upload it again.
+FogTestHarness::callStatic('FOG\Boot\UbootTftpSync', '_stageBootFiles', $stageArgs);
+$t->check(
+    'within one connection a file already confirmed is not re-checked',
+    [] === $fakeFs->putCalls
+);
+
+FogTestHarness::setStatic('FOG\Boot\UbootTftpSync', '_staged', []);
+$threw = '';
+try {
+    FogTestHarness::callStatic(
+        'FOG\Boot\UbootTftpSync',
+        '_stageBootFiles',
+        [$root, ['arm_Image.custom']]
+    );
+} catch (\Exception $e) {
+    $threw = $e->getMessage();
+}
+$t->check(
+    'a named boot file absent from the local kernel dir throws, naming the file',
+    false !== strpos($threw, 'arm_Image.custom')
+    && false !== strpos($threw, $kernelDir)
+);
+
+$t->check(
+    '_syncOne() renders in TFTP mode and stages the boot files before writing',
+    (bool)preg_match(
+        '#if \(\$Host->isValid\(\) && \$Host->get\(.task.\)->isValid\(\)\) \{'
+        . '\s*\$built = UbootBootMenu::buildForHost\(\$Host, true\);'
+        . '\s*self::_stageBootFiles\(dirname\(\$dir\), \$built\[.files.\]\);#s',
+        $syncSource
+    )
+);
+$t->check(
+    'reconcile() renders in TFTP mode and stages the boot files before writing',
+    (bool)preg_match(
+        '#\$Host = new Host\(\$hostID\);.{0,300}?'
+        . '\$built = UbootBootMenu::buildForHost\(\$Host, true\);'
+        . '\s*self::_stageBootFiles\(dirname\(\$dir\), \$built\[.files.\]\);#s',
+        $syncSource
+    )
+);
+
 $t->check(
     '_syncOne() writes only when the host and its task are both valid',
     (bool)preg_match(
         '#if \(\$Host->isValid\(\) && \$Host->get\(.task.\)->isValid\(\)\) \{'
-        . '\s*\$content = UbootBootMenu::renderForHost\(\$Host\);#s',
+        . '\s*\$built = UbootBootMenu::buildForHost\(\$Host, true\);#s',
         $syncSource
     )
 );
