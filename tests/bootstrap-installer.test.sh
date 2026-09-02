@@ -70,11 +70,55 @@ check "--help exits 0" "$?"
 check "--help works before the root check, so a user can read it" \
     "$(bash "$bootstrap" --help 2>&1 | grep -q -- '--channel'; echo $?)"
 
-bash "$bootstrap" >/dev/null 2>&1
-check "a non-root run exits 1, like installfog.sh" \
-    "$([[ $? -eq 1 ]]; echo $?)"
+# A non-root run now ELEVATES rather than refusing, so what is asserted is
+# that it reaches for sudo with the arguments it was given -- and that it still
+# refuses, with a reason, when it cannot.
+#
+# sudo is stubbed. The real one would prompt for a password, which no test
+# should do, and what matters here is which command gets handed to it.
+elevwork="$work/elevate"
+mkdir -p "$elevwork/sb"
+printf '#!/bin/bash\necho "SUDO $*" >> "$ELEVLOG"\n' > "$elevwork/sb/sudo"
+chmod +x "$elevwork/sb/sudo"
+elevlog="$elevwork/log"
 
-check "and says the same thing installfog.sh says" \
+: > "$elevlog"
+elevout=$( export PATH="$elevwork/sb:$PATH" ELEVLOG="$elevlog"
+           bash "$bootstrap" --channel beta < /dev/null 2>&1 )
+
+check "a non-root run from a file re-runs itself under sudo" \
+    "$(grep -q '^SUDO ' "$elevlog"; echo $?)"
+
+check "and passes the arguments through" \
+    "$(grep -q -- '--channel beta' "$elevlog"; echo $?)"
+
+check "and sets the loop guard so the child cannot elevate again" \
+    "$(grep -q 'FOG_BOOTSTRAP_ELEVATED=1' "$elevlog"; echo $?)"
+
+check "and says what it is about to do first" \
+    "$(grep -qi 'Re-running this file under sudo' <<< "$elevout"; echo $?)"
+
+# The guard itself: a child that is still not root must refuse, not fetch and
+# elevate a second time.
+: > "$elevlog"
+elevout=$( export PATH="$elevwork/sb:$PATH" ELEVLOG="$elevlog" FOG_BOOTSTRAP_ELEVATED=1
+elevstatus=0
+( export PATH="$elevwork/sb:$PATH" ELEVLOG="$elevlog" FOG_BOOTSTRAP_ELEVATED=1
+  bash "$bootstrap" --channel beta < /dev/null ) >/dev/null 2>&1 || elevstatus=$?
+check "and exits non-zero" \
+    "$([[ $elevstatus -ne 0 ]]; echo $?)"
+
+           bash "$bootstrap" --channel beta < /dev/null 2>&1 )
+
+check "an already-elevated run that is still not root does not elevate again" \
+    "$([[ ! -s $elevlog ]]; echo $?)"
+
+
+check "and still says it must be run as root" \
+    "$(grep -q 'must be run as root user' <<< "$elevout"; echo $?)"
+
+check "naming the reason rather than a generic message" \
+    "$(grep -qi 'sudoers rule' <<< "$elevout"; echo $?)"
     "$(bash "$bootstrap" 2>&1 | grep -q 'must be run as root user'; echo $?)"
 
 for bad in "--nonsense" "--channel" "--branch" "--git-path relative/path"; do
@@ -164,13 +208,18 @@ cat > "$stubs/git" <<'EOF'
 echo "git $*" >> "$CALLS"
 case "$1" in
     clone)
-        mkdir -p "$3/.git" "$3/bin"
-        cat > "$3/bin/installfog.sh" <<'INNER'
+        # The destination is the LAST argument, not $3. It was $3 until
+        # --progress was added ahead of it, which is exactly the kind of
+        # positional assumption a stub should not make about the code it
+        # stands in for.
+        dest="${@: -1}"
+        mkdir -p "$dest/.git" "$dest/bin"
+        cat > "$dest/bin/installfog.sh" <<'INNER'
 #!/bin/bash
 echo "installfog $*" >> "$CALLS"
 exit 0
 INNER
-        chmod +x "$3/bin/installfog.sh"
+        chmod +x "$dest/bin/installfog.sh"
         ;;
     ls-remote)
         # No release candidate published, which is origin's real state.
@@ -405,13 +454,87 @@ check "rc-1.6.10 beats rc-1.6.2 and the decoy" \
     "$([[ $(rcBranch) == rc-1.6.10 ]]; echo $?)"
 
 # ---------------------------------------------------------------------------
+# An existing FOG INSTALL is a different question from an existing CHECKOUT.
+#
+# The checkout test above asks whether --git-path holds a clone. A server
+# installed from a checkout somewhere else, or from a tarball, answers no to
+# that -- so this used to clone a second copy and run the installer over a live
+# server without ever saying it was an upgrade. Found on the first real machine
+# it was run on.
+# ---------------------------------------------------------------------------
+inst="$work/installed"
+mkdir -p "$inst/etc/fog" "$inst/opt/fog" "$inst/checkout/bin"
+printf "fogprogramdir='%s/opt/fog'\n" "$inst" > "$inst/etc/fog/fog.conf"
+printf '#!/bin/bash\necho "UPDATEFOG $*" >> "$CALLS"\n' > "$inst/checkout/bin/updatefog.sh"
+chmod +x "$inst/checkout/bin/updatefog.sh"
+
+# A copy pointed at the fixture's /etc and /opt rather than the real ones.
+instsut="$work/bootstrap-installed.sh"
+sed -e 's/^if \[\[ ! \$EUID -eq 0 \]\]; then$/if false; then/' \
+    -e "s#/etc/fog/fog.conf#$inst/etc/fog/fog.conf#g" \
+    -e "s#/opt/fog/.fogsettings#$inst/opt/fog/.fogsettings#g" \
+    "$bootstrap" > "$instsut"
+
+runInstalled() {
+    ( export PATH="$stubs:$PATH" CALLS="$calls" OS="Linux"
+      export linuxReleaseName="Ubuntu" OSVersion=22
+      unset osfamily
+      cd "$work" && bash "$instsut" "$@" )
+}
+
+# --- installed, WITH a checkout: hand over to the updater ------------------
+printf "FOG_git_path='%s/checkout'\n" "$inst" > "$inst/opt/fog/.fogsettings"
+: > "$calls"
+instout=$(runInstalled --channel beta --yes --git-path "$work/should-not-be-used" 2>&1)
+
+check "an existing install is noticed" \
+    "$(grep -q 'FOG is already installed' <<< "$instout"; echo $?)"
+
+check "and the updater is handed the job" \
+    "$(grep -q '^UPDATEFOG' "$calls"; echo $?)"
+
+check "with the channel passed through" \
+    "$(grep -q 'UPDATEFOG.*--channel beta' "$calls"; echo $?)"
+
+check "and --yes passed through" \
+    "$(grep -qE 'UPDATEFOG.*(-y|--yes)' "$calls"; echo $?)"
+
+check "nothing is cloned" \
+    "$(! grep -q '^git clone' "$calls"; echo $?)"
+
+check "and the recorded checkout is used, not --git-path" \
+    "$([[ ! -d $work/should-not-be-used ]]; echo $?)"
+
+# --- installed, NO checkout recorded: clone, and say it is an upgrade ------
+: > "$inst/opt/fog/.fogsettings"
+: > "$calls"
+instout=$(runInstalled --channel beta --yes --git-path "$work/tarballupgrade" 2>&1)
+
+check "a tarball install still gets a clone" \
+    "$(grep -q '^git clone' "$calls"; echo $?)"
+
+check "but is told plainly that this UPGRADES the running server" \
+    "$(grep -qi 'UPGRADE the existing server' <<< "$instout"; echo $?)"
+
+check "and the clone warns that the repository is large" \
+    "$(grep -qi 'repository is large' <<< "$instout"; echo $?)"
+
+
+# ---------------------------------------------------------------------------
 # It must not grow into an installer.
 # ---------------------------------------------------------------------------
 body=$(sed 's/#.*//' "$bootstrap")
 check "bootstrap does not source anything from the repo" \
     "$(! grep -qE '^\s*\.\s+\.\./lib|^\s*source\s' <<< "$body"; echo $?)"
+# READING .fogsettings is expected now -- that is how it notices FOG is
+# already installed. WRITING it is still not its job: the installer and the
+# updater own that file, and a bootstrap that edited it would be a second
+# author.
 check "bootstrap does not write .fogsettings" \
-    "$(! grep -q 'fogsettings' <<< "$body"; echo $?)"
+    "$(! grep -qE '>>?[[:space:]]*"?[^[:space:]]*[.]fogsettings' <<< "$body"; echo $?)"
+
+check "and does not call writeUpdateFile" \
+    "$(! grep -q 'writeUpdateFile' <<< "$body"; echo $?)"
 
 printf '\n%s: %d passed, %d failed\n' "$(basename "$0")" "$pass" "$fail"
 [[ $fail -eq 0 ]]
