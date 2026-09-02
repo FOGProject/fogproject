@@ -961,7 +961,7 @@ class Route extends FOGBase
          * dispatch, below; an install served from the document root itself
          * wants that prefix empty.
          */
-        self::$router = \FastRoute\simpleDispatcher(
+        self::$router = self::newDispatcher(
             static function (\FastRoute\RouteCollector $r) {
                 self::defineRoutes($r);
             }
@@ -969,6 +969,25 @@ class Route extends FOGBase
         self::setMatches();
         self::runMatches();
         self::printer(self::$data);
+    }
+    /**
+     * Builds the dispatcher every route in this file is matched by.
+     *
+     * One place, so the tests dispatch through the same parser production
+     * does: the route table is written in AltoRouter's syntax and its
+     * optional segments assume a greedy optional group, which FastRoute's
+     * default parser does not give -- see LongestFirstRouteParser.
+     *
+     * @param callable $define Receives the RouteCollector to register into.
+     *
+     * @return \FastRoute\Dispatcher
+     */
+    public static function newDispatcher(callable $define)
+    {
+        return \FastRoute\simpleDispatcher(
+            $define,
+            ['routeParser' => LongestFirstRouteParser::class]
+        );
     }
     /**
      * The configured webroot, normalized with a leading and trailing slash.
