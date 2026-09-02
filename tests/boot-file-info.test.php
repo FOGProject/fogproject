@@ -43,13 +43,20 @@ mkdir($dir, 0755, true);
 $banner = '6.6.30 (fos@buildroot) #1 SMP Wed Aug 6 11:10:46 UTC 2026';
 $kernel = str_repeat("\x00", 4096);
 $kernel = substr_replace($kernel, 'MZ', 0, 2);
+// A real PE header and a current boot protocol: HdrS alone is also true of
+// grub.exe and memdisk. See tests/boot-file-roles.test.php.
+$kernel = substr_replace($kernel, pack('V', 0x40), 0x3c, 4);
+$kernel = substr_replace($kernel, "PE\x00\x00", 0x40, 4);
 $kernel = substr_replace($kernel, 'HdrS', 0x202, 4);
+$kernel = substr_replace($kernel, pack('v', 0x020f), 0x206, 2);
 $kernel = substr_replace($kernel, pack('v', 0x100), 0x20e, 2);
 $kernel = substr_replace($kernel, $banner . "\x00", 0x300, strlen($banner) + 1);
 file_put_contents($dir . '/bzImage', $kernel);
 
 $armKernel = str_repeat("\x00", 4096);
 $armKernel = substr_replace($armKernel, 'MZ', 0, 2);
+$armKernel = substr_replace($armKernel, pack('V', 0x40), 0x3c, 4);
+$armKernel = substr_replace($armKernel, "PE\x00\x00", 0x40, 4);
 $armKernel = substr_replace($armKernel, 'ARMd', 0x38, 4);
 file_put_contents($dir . '/arm_Image', $armKernel);
 
