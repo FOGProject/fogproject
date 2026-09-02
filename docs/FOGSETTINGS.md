@@ -63,7 +63,8 @@ in this area:
 | Kind | Meaning | Examples |
 |---|---|---|
 | **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `PKI_sb_enabled`, `SVC_firewall_control`, `FOG_update_channel`, `FOG_install_mode`, `PKI_internal_subnets`, `BOOT_kernel_backups_kept`, `WEB_url_primary` |
-| **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `FOG_program_dir`, `FOG_git_path`, `FOG_packages`, `WEB_php_version`, `BOOT_url_proto`, every canonical `PKI_*` path |
+| **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `FOG_program_dir`, `FOG_git_path`, `FOG_packages`, `WEB_php_version`, `BOOT_url_proto`, most canonical `PKI_*` paths |
+| **Honored record** | Recomputed only while it still holds one of the installer's own defaults; any other value is left alone on every run, so the admin may point it at their own file | `PKI_web_vhost_cert`, `PKI_web_vhost_key`, `PKI_web_trust_chain` |
 | **Hand-set** | Nothing in the installer writes it; it survives only because the merge preserves unknown lines | `inetConnectTimeout`, `inetMaxTime`, `storageLocationCapture`, `ftppasvmin`/`ftppasvmax`, `mcastportmin`/`mcastportmax` |
 | **Inferred preference** | A preference the installer may write *once* from what it observed, and then treats as the admin's | `WEB_https_redirect`, `BOOT_url_proto_forced` |
 
@@ -262,10 +263,11 @@ NET_interface='eth0'
 ...
 
 ## Derived -- do not edit
-## Canonical certificate paths. The installer recomputes these every
-## run, so editing a path here moves nothing. To use a certificate FOG
-## did not issue, leave the path alone and make it resolve to your file
-## (a symlink is enough) -- FOG then reads the target and leaves it be.
+## Canonical certificate paths. The installer recomputes most of these
+## every run, so editing one here moves nothing.
+##
+## The exceptions are PKI_web_vhost_cert, PKI_web_vhost_key and
+## PKI_web_trust_chain ...
 PKI_root_ca_cert='...'
 ...
 ## End of FOG Settings
