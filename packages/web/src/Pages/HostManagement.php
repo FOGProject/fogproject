@@ -4294,7 +4294,14 @@ class HostManagement extends FOGPage
                 'empty' => 0,
                 'label' => _('Host Printer Management Level'),
                 'kind' => 'printerlevel',
-                'tab' => 'general'
+                // FOG Client, not General. On a host's own page this is drawn
+                // by hostPrinters() -- the Printer Associations tab -- and
+                // there is no Printer Associations here, because an
+                // association is not a value a mass edit sets. What is left
+                // when you take the list away is a statement about how hard
+                // the client works on printers at check-in, which is what the
+                // rest of this tab is: resolution, auto-logout, this.
+                'tab' => 'client'
             ],
             // The two booleans. A boolean has no meaningful "clear", so the
             // form draws them as No change / Enable on all / Disable on all
@@ -4465,11 +4472,13 @@ class HostManagement extends FOGPage
      * this is purely how the fields are laid out, and the POST is byte for
      * byte what it was.
      *
-     * The names and the grouping mirror a single host's own page on purpose.
-     * `enforce` is on General here because that is where it is on the host
-     * page (HostManagement::hostGeneral()), not because it has nothing to do
-     * with AD -- following the host page is the rule, and second-guessing it
-     * per field is how the two drift apart.
+     * The names and the grouping mirror a single host's own page on purpose,
+     * and the two fields that look misplaced are the ones following that rule
+     * hardest: `enforce` is on General because hostGeneral() draws it there,
+     * not because it has nothing to do with AD, and `printerLevel` is on FOG
+     * Client because hostPrinters() draws it and there is no Printer
+     * Associations tab here. Second-guessing the host page per field is how
+     * the two drift apart.
      *
      * Plugin-contributed fields get their own tab, which is what tabFields()
      * does with plugin-contributed tabs everywhere else, and it is only drawn
