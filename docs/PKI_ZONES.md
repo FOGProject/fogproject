@@ -632,6 +632,17 @@ administrator is granted it):
   and not only browsers. A certificate that does not match the pending key is
   refused, which is what makes "no key transits the web application" a checked
   property. Generating another request replaces the pending one.
+
+  Those names, and FOG's own `O`/`OU`, are a **pre-fill rather than a fence**.
+  Open *Change what the request asks for* and you can set the organization,
+  organizational unit, locality, state and two-letter country code your CA
+  requires, and edit the name list — which is the usual reason an internal
+  issuing policy rejects a request. A field you leave empty is left out of the
+  request, not filled in with FOG's. Removing this server's own name is allowed
+  and warned about, because netboot and FOG's calls to itself address it by a
+  name the certificate carries. Every value is validated before openssl sees
+  it: a `/`, an `=` or a line break in a subject field is refused rather than
+  escaped.
 - **Upload a certificate and its key.** PEM, a fullchain with the leaf first,
   or one PKCS#12 (`.p12`/`.pfx`) file carrying key, leaf and chain together —
   which is what an export from `certlm.msc` or IIS gives you. A passphrase on
@@ -902,6 +913,24 @@ During installation fog-client adds the certificate it pins to the Windows
 Root store. Under the historic layout that was the single flat CA, which is
 also what this layout anchors at — so nothing is broken and nothing needs to
 change for this release.
+
+**And that certificate is FOG's own root, always.** `ca.cert.der` is a copy of
+`PKI_root_ca_cert` and nothing else ever joins it. An external root you import,
+or the CA that signed a leaf you brought, is **not** published to clients, and
+that is deliberate rather than pending: putting it there would change the
+certificate every registered fog-client pins, and every one of them would stop
+authenticating until it was re-pinned. Keeping the root out of the web leaf's
+business is the same separation that lets you renew what a browser sees without
+disturbing a fleet.
+
+So when you bring your own leaf, FOG assumes **your CA is already trusted by
+your clients** by your own means — which it almost always is, since a corporate
+CA arrives by GPO or AD like every other trust decision, and a public one needs
+nothing. Note also that fog-client does not use HTTPS by default, so its
+check-in does not depend on the web leaf at all. The one configuration this
+leaves out in the cold is a *private* CA that has not been distributed to the
+machines that must trust it, and that is a gap in the CA's own rollout rather
+than something FOG can close from here.
 
 It is worth stating what that now buys, because it was previously listed as a
 blocker. The pinned certificate **is** the root of the whole hierarchy, so a

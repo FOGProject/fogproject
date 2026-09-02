@@ -47,7 +47,27 @@
       return;
     }
     csrBtn.prop('disabled', true);
-    $.apiCall('post', csrForm.attr('action'), {action: 'makeLeafCsr'},
+    // The optional details ride along with the action. Collected by id rather
+    // than serialized from a form, because these fields sit in the card that
+    // routes one and two share and must not be dragged in by route three's
+    // upload form -- and an empty field is simply not sent, which is what
+    // makes an untouched form ask for FOG's own derived request.
+    var payload = {action: 'makeLeafCsr'};
+    $.each({
+      csrcn: '#pki-csrcn',
+      csro: '#pki-csro',
+      csrou: '#pki-csrou',
+      csrl: '#pki-csrl',
+      csrst: '#pki-csrst',
+      csrc: '#pki-csrc',
+      csrnames: '#pki-csrnames'
+    }, function(key, sel) {
+      var el = $(sel);
+      if (el.length && $.trim(el.val()) !== '') {
+        payload[key] = el.val();
+      }
+    });
+    $.apiCall('post', csrForm.attr('action'), payload,
       function(err) {
         csrBtn.prop('disabled', false);
         if (err) {

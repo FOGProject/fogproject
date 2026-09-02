@@ -175,6 +175,33 @@ with a memory — a browser that has seen it refuses plain HTTP to this host for
 six months out of its own cache, so turning the switch off does nothing for
 anyone who has already visited.
 
+**A signing request may carry the administrator's own subject.** The names and
+the distinguished name that go into `make-leaf-csr`'s request are supplied by the
+web tier, and that is a value not drawn from a fixed set -- the rule this ADR
+leads with. It is admitted because of what the artifact is, not because the rule
+bends: a request is a **request**, vetted by the administrator's own CA; FOG's
+Web CA `nameConstraints` do not apply, since FOG is not the signer; and the key
+is generated at `0400 root:root` and never leaves, so a compromised web tier that
+talked a lax CA into signing a name it does not own still cannot use the result.
+
+The bound is not an allowlist of values but a discipline about bytes. Every field
+is validated and **re-emitted** into a config the helper builds: a `/` or an `=`
+or a line break in a distinguished-name value is refused rather than escaped,
+because the value is written both into an openssl `-subj` string, where `/`
+starts another field, and into a config file, where a newline starts another
+section. `fog-sign-node-cert` already applies exactly this to a node's proposed
+names -- "the bytes openssl reads are ones this script constructed".
+
+Two things follow that are worth stating so they are not tidied away.
+`PKI_allowed_domain_names` deliberately does **not** bound the requested names:
+it constrains what FOG's own CA may sign, and narrowing it here would refuse the
+case the route exists for. And a request that drops the name this server answers
+to is **reported, not refused** -- netboot and FOG's own self-calls address this
+server by a name the served certificate carries (ADR 0018), but a load-balancer
+name is a legitimate reason to know better, and refusing would make this the one
+route that cannot express what a CA requires. The zero-argument call still asks
+for FOG's derived names under FOG's own organization, so the default is unchanged.
+
 **The helper still duplicates rather than shares.** `_certKeyPairMatches()`,
 `_customPkiPair()`, `_splitPemBundle()`, `_rootFromChain()` and `_linkCanonical()`
 are ported into `fog-pki-admin`, not called. An installed server has `bin/` but

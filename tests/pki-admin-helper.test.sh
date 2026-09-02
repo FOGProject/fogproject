@@ -815,6 +815,123 @@ check "$?" "1" "a regenerated request refuses the certificate issued from the pr
 rm -f "$STAGING/$id".*
 rm -rf "$CUSTOM/csr"
 
+echo
+echo "== make-leaf-csr with details: the baseline is a pre-fill, not a fence =="
+# The derived request is right for most servers and is what the zero-argument
+# call asks for. It is not right for every CA: an internal issuing policy
+# commonly requires the organization's own O, OU and locality and refuses a
+# request carrying somebody else's. So the details are editable -- which means
+# the web tier names values not drawn from a fixed set, and every one of them is
+# validated and re-emitted here rather than passed through.
+subjectOfCsr() { openssl req -in "$1" -noout -subject 2>/dev/null | sed 's/ *= */=/g'; }
+sansOfCsr() {
+    openssl req -in "$1" -noout -text 2>/dev/null \
+        | grep -A1 'Subject Alternative Name' | tail -1 | sed 's/^ *//'
+}
+stageSpec() { # <spec body> -> echoes the request id
+    local id; id=$(openssl rand -hex 16)
+    printf '%b' "$1" > "$STAGING/$id.spec"
+    printf '%s' "$id"
+}
+
+# The shipped shape, asserted so the optional argument cannot change it.
+rm -rf "$CUSTOM/csr"
+"$HELPER" make-leaf-csr >/dev/null 2>&1
+check "$?" "0" "the zero-argument call still works"
+case "$(subjectOfCsr "$CUSTOM/csr/web-leaf.csr")" in
+    *"O=FOG Project"*) ok "and still carries FOG's own organization" ;;
+    *)                 bad "the derived request lost FOG's organization" ;;
+esac
+
+# The whole point: the administrator's own organization, unit and locality.
+rm -rf "$CUSTOM/csr"
+id=$(stageSpec 'CN=fog.example.org\nO=Example Corporation\nOU=Infrastructure\nL=Springfield\nST=Illinois\nC=us\nDNS=fog.example.org\nIP=10.0.0.5\n')
+out=$("$HELPER" make-leaf-csr "$id" 2>&1)
+check "$?" "0" "a request carrying the admin's own subject is generated"
+subj=$(subjectOfCsr "$CUSTOM/csr/web-leaf.csr")
+case "$subj" in
+    *"O=Example Corporation"*) ok "the organization is theirs" ;;
+    *)                         bad "the organization did not carry: $subj" ;;
+esac
+case "$subj" in
+    *"L=Springfield"*ST=Illinois*) ok "and so are the locality and state" ;;
+    *)                             bad "locality/state did not carry: $subj" ;;
+esac
+# Two letters, upper-cased by the helper, because a CA that wants a country
+# code wants it in the form the standard specifies.
+case "$subj" in
+    *"C=US"*) ok "the country code is normalized to upper case" ;;
+    *)        bad "the country code did not carry as US: $subj" ;;
+esac
+case "$subj" in
+    *"CN=fog.example.org"*) ok "and the common name survives the other fields" ;;
+    *)                      bad "the CN was lost: $subj" ;;
+esac
+sans=$(sansOfCsr "$CUSTOM/csr/web-leaf.csr")
+case "$sans" in
+    *"DNS:fog.example.org"*"IP Address:10.0.0.5"*) ok "the names asked for are the names requested" ;;
+    *)                                             bad "the names did not carry: $sans" ;;
+esac
+rm -f "$STAGING/$id.spec"
+
+# A field left out is left OUT, never defaulted to FOG's. An administrator who
+# omits O should not find FOG's name in their corporate certificate.
+rm -rf "$CUSTOM/csr"
+id=$(stageSpec 'CN=fog.example.org\nDNS=fog.example.org\n')
+"$HELPER" make-leaf-csr "$id" >/dev/null 2>&1
+check "$?" "0" "a request with only a CN and a name is generated"
+case "$(subjectOfCsr "$CUSTOM/csr/web-leaf.csr")" in
+    *"FOG Project"*) bad "an omitted organization was filled in with FOG's own" ;;
+    *)               ok "an omitted field is omitted, not filled in with FOG's own" ;;
+esac
+rm -f "$STAGING/$id.spec"
+
+# Dropping this server's own name is allowed and REPORTED. Netboot and FOG's
+# own calls to itself address this server by a name the certificate carries
+# (ADR 0018), but a load-balancer name is a legitimate reason to know better --
+# and refusing would make this the one route that cannot express what a CA
+# requires.
+rm -rf "$CUSTOM/csr"
+id=$(stageSpec 'CN=lb.example.org\nDNS=lb.example.org\n')
+out=$("$HELPER" make-leaf-csr "$id" 2>&1)
+check "$?" "0" "a request that drops this server's own name is still generated"
+case "$out" in
+    *"hostname:false"*) ok "and the success line says the name is missing" ;;
+    *)                  bad "the missing hostname was not reported: $out" ;;
+esac
+rm -f "$STAGING/$id.spec"
+
+echo
+echo "== and every detail is validated before openssl reads it =="
+# A DN value goes into an openssl -subj string, where "/" starts another field,
+# and into a config file, where a newline starts another section. Both are
+# refused rather than escaped. The canary proves no refusal ran anything.
+CSRCANARY=/opt/fog/csrcanary
+for case in \
+    'newline in O|CN=a.example.org\nO=Evil\\nOU = injected\nDNS=a.example.org\n' \
+    'slash in O|CN=a.example.org\nO=Evil/CN=other\nDNS=a.example.org\n' \
+    'equals in OU|CN=a.example.org\nOU=a=b\nDNS=a.example.org\n' \
+    'a three-letter country code|CN=a.example.org\nC=USA\nDNS=a.example.org\n' \
+    'no common name at all|O=Example\nDNS=a.example.org\n' \
+    'a field this request does not accept|CN=a.example.org\nEMAIL=root@example.org\nDNS=a.example.org\n' \
+    'a DNS entry that is not a name|CN=a.example.org\nDNS=not a hostname\n' \
+    "command substitution in a name|CN=a.example.org\nDNS=\$(touch ${CSRCANARY}).example.org\n" \
+    'a shell metacharacter in a name|CN=a.example.org\nDNS=a.example.org;id\n'; do
+    label="${case%%|*}"
+    body="${case#*|}"
+    rm -rf "$CUSTOM/csr"
+    id=$(stageSpec "$body")
+    "$HELPER" make-leaf-csr "$id" >/dev/null 2>&1
+    check "$?" "1" "make-leaf-csr refuses ${label}"
+    [[ -e "$CUSTOM/csr/web-leaf.key" ]] \
+        && bad "refusing ${label} left a key behind" \
+        || ok "refusing ${label} generated no key"
+    rm -f "$STAGING/$id.spec"
+done
+[[ -e $CSRCANARY ]] && bad "a refused request executed an injected payload" \
+    || ok "no refused request executed anything"
+rm -rf "$CUSTOM/csr"
+
 echo "== the helper refuses to run without its config =="
 mv "$CONF" "$CONF.away"
 out=$("$HELPER" status 2>&1)

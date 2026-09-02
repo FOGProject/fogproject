@@ -529,6 +529,123 @@ leafAltNames() {
         printf 'DNS.%d = %s\n' "$d" "$n"
     done < <(leafDnsNames)
 }
+# --- customizing what the request asks for ------------------------------------
+#
+# The derived names above are right for most servers, and they are the whole of
+# what the zero-argument call asks for. They are not enough for every CA: an
+# internal issuing policy commonly requires the organization's own O, OU and
+# locality, and refuses a request carrying somebody else's. So the request is a
+# BASELINE the page pre-fills and an administrator may edit, not a fence.
+#
+# That means the web tier names values not drawn from a fixed set, which is the
+# rule ADR 0036 leads with. What makes it safe here is the shape of the thing
+# rather than an allowlist: a signing request is a REQUEST, vetted by the
+# administrator's own CA; FOG's Web CA nameConstraints do not apply because FOG
+# is not the signer; and the key is generated at 0400 root:root and never
+# leaves, so a compromised web tier that talked a lax CA into signing a name it
+# does not own still cannot use the result.
+#
+# Every value below is validated and RE-EMITTED into a config this script
+# builds. The bytes openssl reads are ones this script constructed -- the
+# discipline fog-sign-node-cert already applies to a node's proposed names.
+
+# A distinguished-name value that cannot escape either place it is written.
+#
+# It goes into an openssl -subj string, where "/" starts another field, and into
+# a config file, where a newline starts another directive or section. Both are
+# refused rather than escaped: no organization name needs either, and a refusal
+# an administrator can read beats a quoting rule the next reader has to verify.
+validDnValue() {
+    local v="$1"
+    [[ -n $v && ${#v} -le 64 ]] || return 1
+    [[ $v == *$'\n'* || $v == *$'\r'* ]] && return 1
+    [[ $v == */* || $v == *=* ]] && return 1
+    # Printable ASCII only. A DN carrying UTF-8 is legal X.509 and a common
+    # source of CA-side rejections that are miserable to diagnose from here.
+    [[ $v =~ ^[[:print:]]+$ ]] || return 1
+    return 0
+}
+
+# A subjectAltName entry: a DNS name or an IP address, and nothing else.
+#
+# Deliberately NOT bounded by ${PKI_allowed_domain_names}. That list constrains
+# what FOG's own CA may sign, and this request goes to the administrator's CA --
+# narrowing it here would refuse the case the route exists for.
+validSanValue() {
+    local kind="$1" v="$2"
+    [[ -n $v && ${#v} -le 253 ]] || return 1
+    if [[ $kind == IP ]]; then
+        [[ $v =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ || $v =~ ^[0-9A-Fa-f:]+$ ]] || return 1
+        return 0
+    fi
+    [[ $v =~ ^[A-Za-z0-9*]([A-Za-z0-9*-]*[A-Za-z0-9*])?(\.[A-Za-z0-9*]([A-Za-z0-9*-]*[A-Za-z0-9*])?)*$ ]] || return 1
+    [[ $v == *..* ]] && return 1
+    return 0
+}
+
+# Read the staged request details and set what the verb needs.
+#
+# One KEY=value per line: CN, O, OU, L, ST, C for the subject and DNS= / IP=
+# for the names. Only CN is required; a field left out is left out of the
+# request rather than defaulted to FOG's own, so an administrator who omits O
+# gets what the zero-argument call would have produced instead of FOG's name in
+# their corporate certificate. Names left out fall back to the derived set.
+#
+# An unknown key is refused rather than ignored: a typo should be reported, not
+# silently drop the name somebody meant to add.
+#
+# Sets $specSubject, $specAltNames and $specHasHostname.
+readCsrSpec() {
+    local spec="$1" line key value cn="" dns=0 ip=0
+    specSubject=""
+    specAltNames=""
+    specHasHostname=0
+    while IFS= read -r line || [[ -n $line ]]; do
+        line="${line%$'\r'}"
+        [[ -z $line || $line == \#* ]] && continue
+        [[ $line == *=* ]] || die "malformed line in the request details"
+        key="${line%%=*}"
+        value="${line#*=}"
+        [[ -z $value ]] && continue
+        case "$key" in
+            CN|O|OU|L|ST)
+                validDnValue "$value" \
+                    || die "${key} may not contain a slash, an equals sign or a line break, and is limited to 64 printable characters"
+                [[ $key == CN ]] && cn="$value"
+                specSubject="${specSubject}/${key}=${value}"
+                ;;
+            C)
+                [[ $value =~ ^[A-Za-z][A-Za-z]$ ]] \
+                    || die "C must be a two-letter country code"
+                specSubject="${specSubject}/C=${value^^}"
+                ;;
+            DNS)
+                validSanValue DNS "$value" || die "not a usable DNS name: ${value}"
+                dns=$((dns + 1))
+                specAltNames="${specAltNames}DNS.${dns} = ${value}"$'\n'
+                ;;
+            IP)
+                validSanValue IP "$value" || die "not a usable IP address: ${value}"
+                ip=$((ip + 1))
+                specAltNames="${specAltNames}IP.${ip} = ${value}"$'\n'
+                ;;
+            *)
+                die "not a field this request accepts: ${key}"
+                ;;
+        esac
+    done < "$spec"
+
+    [[ -n $cn ]] || die "a common name (CN) is required"
+    # Whether the name this server answers to survived the edits. Reported, not
+    # enforced: netboot and FOG's own self-calls need it (ADR 0018), but a
+    # load-balancer name is a legitimate reason to know better, and refusing
+    # would make this the one route that cannot express what a CA requires.
+    local host
+    host=$(leafCommonName)
+    [[ -n $specAltNames && $specAltNames == *"= ${host}"$'\n'* ]] && specHasHostname=1
+    [[ -z $specAltNames ]] && specHasHostname=1
+    return 0
+}
 
 # Put validated material into the customizations tree and serve it.
 #
@@ -1098,13 +1215,38 @@ make-leaf-csr)
     # Every call makes a NEW key. A request you generate replaces the one
     # pending, and the page says so where the button is; reusing a key across
     # requests would mean a verb to discard one, for a saving nobody asked for.
-    [[ $# -eq 0 ]] || die "usage: fog-pki-admin make-leaf-csr"
+    # An optional request id, and it is the only difference between the two
+    # shapes of this verb. Without one, the request carries the derived names
+    # and FOG's own O/OU, exactly as this verb shipped. With one, the details
+    # staged under it are validated and re-emitted -- because a CA with an
+    # issuing policy of its own will refuse a request carrying somebody else's
+    # organization, and that is the case this route exists for.
+    [[ $# -le 1 ]] || die "usage: fog-pki-admin make-leaf-csr [request-id]"
     [[ -n $PKI_CUSTOM_DIR ]] || die "no customizations directory is configured -- re-run the FOG installer"
     tmpd=$(mktemp -d) || die "could not create a temporary directory"
     trap 'rm -rf "$tmpd"' EXIT
     chmod 0700 "$tmpd" 2>/dev/null
     cn=$(leafCommonName)
     altnames=$(leafAltNames)
+    subject="/CN=${cn}/O=FOG Project/OU=FOG Web UI"
+    hashostname=1
+    if [[ $# -eq 1 ]]; then
+        reqid="$1"
+        [[ $reqid =~ ^[a-f0-9]{32}$ ]] || die "malformed request id"
+        spec="${PKI_STAGING}/${reqid}.spec"
+        [[ -f $spec ]] || die "no request details were staged"
+        readCsrSpec "$spec"
+        subject="$specSubject"
+        hashostname=$specHasHostname
+        # Names given replace the derived set; names omitted leave it in place.
+        # Replacing rather than appending is deliberate: an administrator
+        # editing the list is telling FOG which names to ask for, and silently
+        # re-adding one they removed would be the page overruling them.
+        [[ -n $specAltNames ]] && altnames="$specAltNames"
+        # The CN carries into the derived DNS list only in the zero-argument
+        # shape. A custom CN that is not in the names is a warning, not an
+        # error -- see hostname: on the success line.
+    fi
     [[ -n $altnames ]] || die "no names to put in the request -- is .fogsettings readable?"
     cat > "${tmpd}/req.cnf" <<EOF
 [req]
@@ -1113,8 +1255,6 @@ req_extensions = v3_req
 prompt = no
 [req_distinguished_name]
 CN = ${cn}
-O = FOG Project
-OU = FOG Web UI
 [v3_req]
 subjectAltName = @alt_names
 [alt_names]
@@ -1126,7 +1266,7 @@ EOF
     ( umask 077 && openssl genrsa -out "${tmpd}/key" 4096 >/dev/null 2>&1 ) \
         || die "could not generate a private key"
     openssl req -new -sha512 -key "${tmpd}/key" -config "${tmpd}/req.cnf" \
-        -subj "/CN=${cn}/O=FOG Project/OU=FOG Web UI" -out "${tmpd}/csr" >/dev/null 2>&1 \
+        -subj "$subject" -out "${tmpd}/csr" >/dev/null 2>&1 \
         || die "could not build the signing request"
     mkdir -p "$(pendingDir)" 2>/dev/null
     chmod 0700 "$(pendingDir)" 2>/dev/null
@@ -1137,7 +1277,11 @@ EOF
         || die "could not write $(pendingKey)"
     install -o root -g root -m 0644 "${tmpd}/csr" "$(pendingCsr)" 2>/dev/null \
         || die "could not write $(pendingCsr)"
-    echo "OK ${cn} $(printf '%s\n' "$altnames" | grep -c .)"
+    # hostname: says whether the name this server answers to is still among
+    # the names requested. The page turns a "false" into a warning, because
+    # netboot and FOG's own self-calls address this server by a name the served
+    # certificate carries (ADR 0018).
+    echo "OK ${cn} $(printf '%s\n' "$altnames" | grep -c .) hostname:$(jbool $hashostname)"
     ;;
 
 install-leaf-cert)
