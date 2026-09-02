@@ -5759,6 +5759,20 @@ abstract class FOGPage extends FOGBase
     const BOOT_ROLE_PAYLOAD = 'payload';
     const BOOT_ROLE_OTHER = 'unclassified';
     /**
+     * Every bootFile row, keyed by filename, loaded at most once per request.
+     *
+     * bootFileInfo() is called once per file in the boot directory, and a
+     * listing walks the whole directory -- so a lookup per file is a query
+     * per file, twice over on a host form that asks for kernels and then for
+     * inits. One query answers all of them.
+     *
+     * null means "not loaded yet", which is not the same as an empty map: a
+     * server with no rows yet must not be re-queried once per file.
+     *
+     * @var array|null
+     */
+    private static $_bootFileRows = null;
+    /**
      * Picker value meaning "I will type the name myself".
      *
      * Not a filename any filesystem would produce, and matched literally by
@@ -5916,6 +5930,332 @@ abstract class FOGPage extends FOGBase
         return $ver;
     }
     /**
+     * Reads one extended attribute, and says why when it cannot.
+     *
+     * PHP has no xattr reader. The PECL extension is absent on every server
+     * this runs on and this codebase has never used it, so the FOS release
+     * tag -- which exists only as an xattr -- can be reached no other way
+     * than by running `attr`.
+     *
+     * That is exactly the call that fails invisibly today. status/kernelvers
+     * runs `attr -g` through shell_exec, discards stderr, and renders an
+     * empty result as `Unknown`, so at least seven different causes arrive
+     * looking identical: no attr binary, SELinux refusing httpd_t the exec,
+     * a mount without user_xattr, the attribute genuinely never set, a
+     * permissions failure, disabled shell functions, and a parse artifact
+     * from omitting -q. An admin cannot act on any of them.
+     *
+     * So this captures stderr and the exit status and answers with a reason.
+     * -q is passed, which the old call site omitted: without it `attr -g`
+     * prints a header line before the value and `tail -n1` has to guess.
+     *
+     * @param string $path full path to the file
+     * @param string $attr attribute name, e.g. 'tag_name'
+     *
+     * @return array ['value' => string, 'reason' => string]
+     */
+    public static function bootFileXattr($path, $attr)
+    {
+        $none = function ($why) {
+            return ['value' => '', 'reason' => $why];
+        };
+        if (!is_file($path) || !is_readable($path)) {
+            return $none(_('the file cannot be read'));
+        }
+        if (!function_exists('proc_open')) {
+            return $none(_('the web server may not run external commands'));
+        }
+        $cmd = sprintf(
+            'attr -q -g %s %s',
+            escapeshellarg($attr),
+            escapeshellarg($path)
+        );
+        $pipes = [];
+        $proc = @proc_open(
+            $cmd,
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes
+        );
+        if (!is_resource($proc)) {
+            return $none(_('the web server may not run external commands'));
+        }
+        $out = (string)stream_get_contents($pipes[1]);
+        $err = (string)stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $code = proc_close($proc);
+
+        $value = trim(trim(trim($out), '"'));
+        if ($value !== '') {
+            return ['value' => $value, 'reason' => ''];
+        }
+        /**
+         * Every branch below is a DIFFERENT operational problem with a
+         * different fix, which is the whole reason for reading stderr rather
+         * than treating empty output as one answer.
+         */
+        if (127 === $code || false !== stripos($err, 'not found')) {
+            return $none(_('attr is not installed on this server'));
+        }
+        if (false !== stripos($err, 'not supported')) {
+            return $none(_('this filesystem does not carry extended attributes'));
+        }
+        if (false !== stripos($err, 'permission')) {
+            return $none(_('the web server may not read this file'));
+        }
+        if (false !== stripos($err, 'no such attribute')
+            || 0 === $code
+        ) {
+            return $none(_('not recorded on this file'));
+        }
+
+        return $none(
+            $err !== ''
+            ? trim($err)
+            : _('attr could not be run -- SELinux may be denying it')
+        );
+    }
+    /**
+     * Everything known about one boot directory file, cached.
+     *
+     * The filesystem is the inventory: existence, size and mtime are read
+     * here, live, every time. The bootFile row is consulted for what reading
+     * the directory cannot answer, and is rewritten whenever the stat has
+     * moved -- so a kernel copied in by hand is picked up on the next
+     * listing and one deleted by hand simply stops appearing.
+     *
+     * Two of the three cached values are caches in the ordinary sense: role
+     * and version come out of the file's own bytes and could be re-read at
+     * any time. The release tag is not. It may be permanently unreadable on
+     * this server (see bootFileXattr), so it is stored the first time it can
+     * be read at all and served from the row afterward -- a stored tag is
+     * never discarded because a later read failed.
+     *
+     * @param string $path full path to the file
+     *
+     * @return array
+     */
+    public static function bootFileInfo($path)
+    {
+        $name = basename($path);
+        $stat = @stat($path);
+        if ($stat === false) {
+            return [
+                'name' => $name,
+                'exists' => false,
+                'role' => self::BOOT_ROLE_OTHER,
+                'size' => 0,
+                'mtime' => 0,
+                'checksum' => '',
+                'kernelVersion' => '',
+                'releaseTag' => '',
+                'tagReason' => _('the file cannot be read'),
+                'pinned' => false
+            ];
+        }
+        $size = (int)$stat['size'];
+        /**
+         * mtime, not ctime. The old panel used ctime and reported every
+         * file's "Installed Date" as the date of the last install, because
+         * restorePreservedCustomizations() chowns the whole directory on
+         * every run and that moves ctime on files it did not touch.
+         */
+        $mtime = (int)$stat['mtime'];
+
+        $row = self::_bootFileRow($name);
+        $fresh = (
+            $row
+            && (int)$row->get('size') === $size
+            && (int)self::_stampToTime($row->get('mtime')) === $mtime
+        );
+        if ($fresh) {
+            $tagValue = trim((string)$row->get('releaseTag'));
+            $tagReason = '';
+            if ('' === $tagValue) {
+                /**
+                 * No stored tag, so ask again rather than reporting a
+                 * remembered failure. Two reasons, and both matter:
+                 *
+                 * the REASON is current-state information -- "attr is not
+                 * installed on this server" stops being true the moment
+                 * somebody installs it, and telling an admin a stale cause
+                 * is how this panel became useless in the first place;
+                 *
+                 * and it self-heals. A server that could not read the tag
+                 * yesterday and can today picks it up on the next listing
+                 * without waiting for the file to change.
+                 *
+                 * This costs one attr call per file that has no tag, and
+                 * nothing at all for a file that has one -- which is the
+                 * common case on any server where the read works.
+                 */
+                $again = self::bootFileXattr($path, 'tag_name');
+                if ('' !== $again['value']) {
+                    $tagValue = $again['value'];
+                    self::_bootFileStore($row, ['releaseTag' => $tagValue]);
+                } else {
+                    $tagReason = $again['reason'];
+                }
+            }
+
+            return [
+                'name' => $name,
+                'exists' => true,
+                'role' => (string)$row->get('role'),
+                'size' => $size,
+                'mtime' => $mtime,
+                'checksum' => (string)$row->get('checksum'),
+                'kernelVersion' => (string)$row->get('kernelVersion'),
+                'releaseTag' => $tagValue,
+                'tagReason' => $tagReason,
+                'pinned' => (bool)(int)$row->get('pinned')
+            ];
+        }
+
+        $role = self::bootFileRole($path);
+        $version = self::bootFileKernelVersion($path);
+        $tag = self::bootFileXattr($path, 'tag_name');
+        /**
+         * An init records its Buildroot version under `version` where a
+         * kernel records the kernel version, and a kernel's own banner is
+         * more trustworthy than the xattr -- an in-place overwrite leaves
+         * FOG's old xattrs on the admin's file, so the xattr can be
+         * confidently wrong where the bytes cannot.
+         */
+        if ('' === $version) {
+            $version = self::bootFileXattr($path, 'version')['value'];
+        }
+        $keptTag = $tag['value'];
+        if ('' === $keptTag && $row) {
+            $keptTag = (string)$row->get('releaseTag');
+        }
+        $checksum = (string)@hash_file('sha256', $path);
+
+        self::_bootFileStore(
+            $row,
+            [
+                'name' => $name,
+                'size' => $size,
+                /**
+                 * Written and read back in UTC, explicitly. These two
+                 * columns are a cache KEY, not a display value: they are
+                 * only ever compared against a fresh stat, so the write and
+                 * the read have to agree with each other whatever the
+                 * server's zone and the viewer's zone happen to be. Format
+                 * through the display zone and parse back through the
+                 * default one, and the comparison fails on any server where
+                 * those differ -- which would not break anything visibly, it
+                 * would just silently re-read every file on every render and
+                 * make the cache pointless. The date a human sees is
+                 * formatted from the live stat, not from here.
+                 */
+                'mtime' => gmdate('Y-m-d H:i:s', $mtime),
+                'checksum' => $checksum,
+                'role' => $role,
+                'kernelVersion' => $version,
+                'releaseTag' => $keptTag,
+                'inspected' => gmdate('Y-m-d H:i:s')
+            ]
+        );
+
+        return [
+            'name' => $name,
+            'exists' => true,
+            'role' => $role,
+            'size' => $size,
+            'mtime' => $mtime,
+            'checksum' => $checksum,
+            'kernelVersion' => $version,
+            'releaseTag' => $keptTag,
+            'tagReason' => ('' === $keptTag ? $tag['reason'] : ''),
+            'pinned' => (bool)($row ? (int)$row->get('pinned') : 0)
+        ];
+    }
+    /**
+     * Loads the bootFile row for $name, or null.
+     *
+     * Answers null rather than throwing when the record store cannot be
+     * reached: the records are an accelerator and a place to keep an admin's
+     * pin, not the inventory, so a listing must still render without them.
+     *
+     * @param string $name the filename
+     *
+     * @return \FOG\Items\BootFile|null
+     */
+    private static function _bootFileRow($name)
+    {
+        if (null === self::$_bootFileRows) {
+            self::$_bootFileRows = [];
+            try {
+                $rows = self::getClass('BootFileManager')->find();
+                foreach ((array)$rows as $row) {
+                    if ($row && $row->isValid()) {
+                        self::$_bootFileRows[(string)$row->get('name')] = $row;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Left as an empty map, deliberately: the records are an
+                // accelerator, and an unreachable store must cost one failed
+                // query per request rather than one per file.
+                self::$_bootFileRows = [];
+            }
+        }
+
+        return self::$_bootFileRows[$name] ?? null;
+    }
+    /**
+     * Writes what was just read about a file back to its record.
+     *
+     * Deliberately silent on failure. Rendering a list of kernels is not the
+     * moment to fail a page because a cache write did not land, and the next
+     * listing will simply read the file again.
+     *
+     * @param mixed $row  existing record or null
+     * @param array $data field values to store
+     *
+     * @return void
+     */
+    private static function _bootFileStore($row, array $data)
+    {
+        try {
+            $obj = $row ?: self::getClass('BootFile');
+            foreach ($data as $field => $value) {
+                $obj->set($field, $value);
+            }
+            $obj->save();
+            // Keep the request's map in step, so a second listing in the same
+            // request sees what the first one just inspected rather than
+            // inspecting it again.
+            if (null !== self::$_bootFileRows && !empty($data['name'])) {
+                self::$_bootFileRows[(string)$data['name']] = $obj;
+            }
+        } catch (\Throwable $e) {
+            return;
+        }
+    }
+    /**
+     * Turns a stored datetime into a unix timestamp, or 0.
+     *
+     * @param mixed $stamp the stored value
+     *
+     * @return int
+     */
+    private static function _stampToTime($stamp)
+    {
+        $stamp = trim((string)$stamp);
+        // validDate() rather than testing for a zero-date literal: it already
+        // knows both spellings of one, and there is meant to be exactly one
+        // definition of what an empty date is.
+        if ('' === $stamp || !self::validDate($stamp)) {
+            return 0;
+        }
+        // ' UTC' because _bootFileStore() writes gmdate(). See the note
+        // there: these two have to agree with each other, not with a zone.
+        $time = strtotime($stamp . ' UTC');
+
+        return (false === $time) ? 0 : (int)$time;
+    }
+    /**
      * Lists the boot directory files holding the role $type, newest first.
      *
      * Kernels and inits are files on disk, not database records, so there is
@@ -5975,7 +6315,14 @@ abstract class FOGPage extends FOGBase
             if (!is_file($path)) {
                 continue;
             }
-            if (self::bootFileRole($path) === $want) {
+            /**
+             * bootFileInfo(), not bootFileRole(): the role is the same answer
+             * either way, but going through the record means a render costs a
+             * stat and one query rather than a 4KiB read of every file in the
+             * directory, on every host form, group form, mass edit modal and
+             * settings page.
+             */
+            if (self::bootFileInfo($path)['role'] === $want) {
                 $out[] = $file;
             }
         }

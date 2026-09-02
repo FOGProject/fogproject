@@ -10704,3 +10704,58 @@ $this->schema[] = [
     . "first and read the log before choosing Enforce.','log',"
     . "'General Settings')",
 ];
+
+// 414
+$this->schema[] = [
+    // What FOG has decided about each file in the FOS boot directory.
+    //
+    // The filesystem stays the inventory: existence, size and mtime are read
+    // live on every listing, so a file copied in by hand appears and one
+    // deleted by hand disappears with nothing to reconcile. This table holds
+    // only what the directory cannot tell us --
+    //
+    //   bfRole            the answer bootFileRole() read out of the bytes,
+    //                     cached so a page render costs a stat rather than a
+    //                     4KiB read of every file in the directory.
+    //   bfKernelVersion   the banner the x86 setup header points at. Also
+    //                     just a cache; it is re-readable at any time.
+    //   bfReleaseTag      the FOS release. NOT a cache -- this one may be
+    //                     unrecoverable. It lives in an extended attribute,
+    //                     PHP has no xattr reader (the PECL extension is
+    //                     absent everywhere and this codebase has never used
+    //                     it), and `attr` is unavailable to the web user on
+    //                     any SELinux-enforcing RHEL-family server, on a
+    //                     mount without user_xattr, and wherever the package
+    //                     was skipped. So it is stored the first time it can
+    //                     be read at all and served from here afterward.
+    //   bfPinned          "no pruner may delete this". Nothing on disk can
+    //                     carry an admin's intent.
+    //
+    // bfSize and bfMtime are NOT the inventory -- they are the cache key.
+    // A file whose stat has moved is re-read; one whose stat matches is
+    // trusted.
+    //
+    // Its own table rather than globalSettings rows, for the reason step 397
+    // gives for storageEpoch: the configuration page renders every row of
+    // that table with no WHERE and `setting` is a routed class, so per-file
+    // records there would be one careless edit away from changing what an
+    // unrelated file means. Keyed on the filename because that is what every
+    // caller has in hand -- a host's hostKernel column, a dropdown's posted
+    // value, a pruner's directory entry. Content identity is bfChecksum's
+    // job, and two names sharing a checksum are the same kernel twice.
+    "CREATE TABLE IF NOT EXISTS `bootFile` ( "
+    . "`bfID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`bfName` varchar(191) NOT NULL DEFAULT '', "
+    . "`bfSize` bigint(20) NOT NULL DEFAULT 0, "
+    . "`bfMtime` datetime DEFAULT NULL, "
+    . "`bfChecksum` varchar(64) NOT NULL DEFAULT '', "
+    . "`bfRole` varchar(20) NOT NULL DEFAULT 'unclassified', "
+    . "`bfKernelVersion` varchar(191) NOT NULL DEFAULT '', "
+    . "`bfReleaseTag` varchar(191) NOT NULL DEFAULT '', "
+    . "`bfInspected` datetime DEFAULT NULL, "
+    . "`bfPinned` tinyint(1) NOT NULL DEFAULT 0, "
+    . "PRIMARY KEY (`bfID`), "
+    . "UNIQUE KEY `bfName` (`bfName`), "
+    . "KEY `bfRole` (`bfRole`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];

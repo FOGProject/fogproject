@@ -12,7 +12,56 @@
     }
   });
 
-  // Storage Node version and kernel version information.
+  /**
+   * Escape a value from the node before putting it in the page.
+   *
+   * These rows carry filenames off a disk and version banners out of a
+   * kernel image, so they are data, not markup.
+   */
+  function esc(v) {
+    return $('<div>').text(v === null || v === undefined ? '' : v).html();
+  }
+
+  function bootFileTable(data) {
+    var rows = data.rows || [],
+      html = '',
+      i,
+      row;
+    if (!rows.length) {
+      return '<div class="alert alert-warning">' + esc(data.empty_lang)
+        + '</div>';
+    }
+    html = '<table class="table table-striped">'
+      + '<tbody>'
+      + '<tr>'
+      + '<th>' + esc(data.file_lang) + '</th>'
+      + '<th>' + esc(data.role_lang) + '</th>'
+      + '<th>' + esc(data.version_lang) + '</th>'
+      + '<th>' + esc(data.release_lang) + '</th>'
+      + '<th>' + esc(data.ins_lang) + '</th>'
+      + '</tr>';
+    for (i = 0; i < rows.length; i++) {
+      row = rows[i];
+      html += '<tr>'
+        + '<td>' + esc(row.name) + '</td>'
+        + '<td>' + esc(row.role_label || row.role) + '</td>'
+        // A value that could not be read says so, in muted text. It used to
+        // render as "Unknown" whatever the reason was.
+        + '<td>' + (row.version
+          ? esc(row.version)
+          : '<span class="text-muted">' + esc(data.unreadable_lang)
+            + '</span>') + '</td>'
+        + '<td>' + (row.release
+          ? esc(row.release)
+          : '<span class="text-muted">' + esc(row.note) + '</span>') + '</td>'
+        + '<td>' + esc(row.installed) + '</td>'
+        + '</tr>';
+    }
+
+    return html + '</tbody></table>';
+  }
+
+  // Storage Node version and boot file information.
   $('.kernvers').each(function() {
     URL = $(this).attr('urlcall');
     newelement = document.createElement('a');
@@ -31,94 +80,42 @@
           $(this).text('No data returned');
           return;
         }
-        data = JSON.parse(data);
-        let [int64_relk, int64_ver, int64k_ins] = data.int64bit.split('|');
-        let [int32_relk, int32_ver, int32k_ins] = data.int32bit.split('|');
-        let [arm64_relk, arm64_ver, arm64k_ins] = data.arm64bit.split('|');
-        let [int64_rel, int64_brt, int64i_ins] = data.initI64.split('|');
-        let [int32_rel, int32_brt, int32i_ins] = data.initI32.split('|');
-        let [arm64_rel, arm64_brt, arm64i_ins] = data.initA64.split('|');
+        // The master proxies this request to the node, so a node that is
+        // unreachable, or answering with an error page, arrives here as a
+        // body that is not JSON. Parsing it unguarded threw and left the
+        // panel blank, which looks identical to a node with nothing
+        // installed.
+        if (typeof data === 'string') {
+          try {
+            data = JSON.parse(data);
+          } catch (e) {
+            $(this).html(
+                '<div class="alert alert-warning">'
+                + esc('Storage Node did not return boot file information')
+                + '</div>'
+            );
+            return;
+          }
+        }
         $(this).html(
             '<div class="card">'
             + '<div class="card-header">'
-            + '<h4 class="card-title">' + data.node_version_lang + '</h4>'
+            + '<h4 class="card-title">' + esc(data.node_version_lang)
+            + '</h4>'
             + '</div>'
             + '<div class="card-body">'
-            + data.node_vers
+            + esc(data.node_vers)
             + '</div>'
             + '</div>'
             + '<div class="card">'
             + '<div class="card-header">'
-            + '<h4 class="card-title">' + data.kern_version_lang + '</h4>'
+            + '<h4 class="card-title">' + esc(data.boot_files_lang) + '</h4>'
             + '</div>'
             + '<div class="card-body">'
-            + '<table class="table table-striped">'
-            + '<tbody>'
-            + '<tr>'
-            + '<th>' + data.arch_lang + '</th>'
-            + '<th>' + data.rel_lang + '</th>'
-            + '<th>' + data.kern_lang + '</th>'
-            + '<th>' + data.ins_lang + '</th>'
-            + '</tr>'
-            + '<tr>'
-            + '<td>' + data.intel64_lang + '</td>'
-            + '<td>' + int64_relk + '</td>'
-            + '<td>' + int64_ver + '</td>'
-            + '<td>' + int64k_ins + '</td>'
-            + '</tr>'
-            + '<tr>'
-            + '<td>' + data.intel32_lang + '</td>'
-            + '<td>' + int32_relk + '</td>'
-            + '<td>' + int32_ver + '</td>'
-            + '<td>' + int32k_ins + '</td>'
-            + '</tr>'
-            + '<tr>'
-            + '<td>' + data.arm64_lang + '</td>'
-            + '<td>' + arm64_relk + '</td>'
-            + '<td>' + arm64_ver + '</td>'
-            + '<td>' + arm64k_ins + '</td>'
-            + '</tr>'
-            + '</tbody>'
-            + '</table>'
-            + '</div>'
-            + '</div>'
-            + '<div class="card">'
-            + '<div class="card-header">'
-            + '<h4 class="card-title">' + data.init_version_lang + '</h4>'
-            + '</div>'
-            + '<div class="card-body">'
-            + '<table class="table table-striped">'
-            + '<tbody>'
-            + '<tr>'
-            + '<th>' + data.arch_lang + '</th>'
-            + '<th>' + data.rel_lang + '</th>'
-            + '<th>' + data.build_lang + '</th>'
-            + '<th>' + data.ins_lang + '</th>'
-            + '</tr>'
-            + '<tr>'
-            + '<td>' + data.intel64_lang + '</td>'
-            + '<td>' + int64_rel + '</td>'
-            + '<td>' + int64_brt + '</td>'
-            + '<td>' + int64i_ins + '</td>'
-            + '</tr>'
-            + '<tr>'
-            + '<td>' + data.intel32_lang + '</td>'
-            + '<td>' + int32_rel + '</td>'
-            + '<td>' + int32_brt + '</td>'
-            + '<td>' + int32i_ins + '</td>'
-            + '</tr>'
-            + '<tr>'
-            + '<td>' + data.arm64_lang + '</td>'
-            + '<td>' + arm64_rel + '</td>'
-            + '<td>' + arm64_brt + '</td>'
-            + '<td>' + arm64i_ins + '</td>'
-            + '</tr>'
-            + '</tbody>'
-            + '</table>'
+            + bootFileTable(data)
             + '</div>'
             + '</div>'
         );
-        console.log(data);
       },
       error: function(jqXHR, textStatus, errorThrown) {
         $(this).text(textStatus);

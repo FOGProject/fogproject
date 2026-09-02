@@ -1314,8 +1314,15 @@ msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passre
 msgstr ""
 
 #, fuzzy
+msgid "Boot Files"
+msgstr "Options de démarrage:"
+
+#, fuzzy
 msgid "Boot Options"
 msgstr "Options de démarrage:"
+
+msgid "Boot Payload"
+msgstr ""
 
 msgid "Boot files from"
 msgstr ""
@@ -1368,10 +1375,6 @@ msgstr ""
 #, fuzzy
 msgid "Building the blobs failed."
 msgstr "Échec du chargement: %s"
-
-#, fuzzy
-msgid "Buildroot Version"
-msgstr "CPU Version"
 
 #, php-format
 msgid "Bulk edit %s"
@@ -2949,6 +2952,17 @@ msgstr ""
 msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
+#, fuzzy
+msgid "FOS Init"
+msgstr "Liste des hôtes"
+
+#, fuzzy
+msgid "FOS Kernel"
+msgstr "Noyau"
+
+msgid "FOS Release"
+msgstr ""
+
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
@@ -4502,10 +4516,6 @@ msgid "Init images."
 msgstr "Invalid image"
 
 #, fuzzy
-msgid "InitRD Versions"
-msgstr "CPU Version"
-
-#, fuzzy
 msgid "Initial Template"
 msgstr "snapin Template"
 
@@ -4865,13 +4875,6 @@ msgstr "Kernel Update"
 #, fuzzy
 msgid "Kernel Update Fail"
 msgstr "Kernel Update"
-
-#, fuzzy
-msgid "Kernel Version"
-msgstr "Kernel versions"
-
-msgid "Kernel Versions"
-msgstr "Kernel versions"
 
 #, fuzzy
 msgid "Kernels present on disk"
@@ -5920,6 +5923,9 @@ msgstr ""
 msgid "No archive was uploaded."
 msgstr "Aucun fichier a été téléchargé"
 
+msgid "No boot files found. Check FOG_TFTP_PXE_KERNEL_DIR."
+msgstr ""
+
 #, fuzzy
 msgid "No certificate file was uploaded"
 msgstr "Aucun fichier a été téléchargé"
@@ -6212,10 +6218,6 @@ msgstr "Indisponible"
 #, fuzzy
 msgid "Not Found"
 msgstr "Icône Fichier introuvable"
-
-#, fuzzy
-msgid "Not Installed"
-msgstr "Plugins installés"
 
 msgid "Not Registered Hosts"
 msgstr "Hosts Pas encore inscrit"
@@ -7299,10 +7301,6 @@ msgstr "Inscrit"
 
 msgid "Registered Hosts"
 msgstr "hôtes inscrits"
-
-#, fuzzy
-msgid "Release Version"
-msgstr "Dernière version"
 
 #, php-format
 msgid "Reloaded %d setting(s) into cache"
@@ -10888,6 +10886,13 @@ msgstr ""
 msgid "as its primary group"
 msgstr "Mise à jour de groupe principal"
 
+msgid "attr could not be run -- SELinux may be denying it"
+msgstr ""
+
+#, fuzzy
+msgid "attr is not installed on this server"
+msgstr "Il n'y a pas de groupes sur ce serveur."
+
 msgid "automatically"
 msgstr ""
 
@@ -11406,6 +11411,14 @@ msgid "not reachable"
 msgstr "Indisponible"
 
 #, fuzzy
+msgid "not readable"
+msgstr "Indisponible"
+
+#, fuzzy
+msgid "not recorded on this file"
+msgstr "Image not found sur le noeud"
+
+#, fuzzy
 msgid "ntfy Accounts"
 msgstr "Comptes Slack"
 
@@ -11590,6 +11603,10 @@ msgstr ""
 msgid "the Linux kernel which is used to"
 msgstr ""
 
+#, fuzzy
+msgid "the file cannot be read"
+msgstr " | Fichier ou chemin ne peut pas être atteint"
+
 msgid "the following command in a terminal"
 msgstr ""
 
@@ -11607,6 +11624,12 @@ msgstr ""
 msgid "the local login form stays available at %s"
 msgstr ""
 
+msgid "the web server may not read this file"
+msgstr ""
+
+msgid "the web server may not run external commands"
+msgstr ""
+
 #, fuzzy
 msgid "there one enabled within this Storage Group"
 msgstr "Impossible de trouver un nœud de stockage est-il un permis dans ce groupe de stockage"
@@ -11622,6 +11645,9 @@ msgid "this account has no role, so it has no access to any management page. Ask
 msgstr ""
 
 msgid "this backup will enable you to return to the"
+msgstr ""
+
+msgid "this filesystem does not carry extended attributes"
 msgstr ""
 
 #, fuzzy
@@ -11911,6 +11937,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Attempting to ping host"
 #~ msgstr "Tenter de faire un ping"
+
+#, fuzzy
+#~ msgid "Buildroot Version"
+#~ msgstr "CPU Version"
 
 #, fuzzy
 #~ msgid "Bulk Changes"
@@ -12256,6 +12286,10 @@ msgstr ""
 #~ msgstr "Importer des utilisateurs"
 
 #, fuzzy
+#~ msgid "InitRD Versions"
+#~ msgstr "CPU Version"
+
+#, fuzzy
 #~ msgid "Install"
 #~ msgstr "Plugins installés"
 
@@ -12270,6 +12304,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Inventory Report"
 #~ msgstr "Inventaire"
+
+#, fuzzy
+#~ msgid "Kernel Version"
+#~ msgstr "Kernel versions"
+
+#~ msgid "Kernel Versions"
+#~ msgstr "Kernel versions"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -12330,6 +12371,10 @@ msgstr ""
 #~ msgstr "Modifier Groupe"
 
 #, fuzzy
+#~ msgid "Not Installed"
+#~ msgstr "Plugins installés"
+
+#, fuzzy
 #~ msgid "Pause"
 #~ msgstr "Utilisateur"
 
@@ -12355,6 +12400,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Product Keys"
 #~ msgstr "Hôte clé de produit"
+
+#, fuzzy
+#~ msgid "Release Version"
+#~ msgstr "Dernière version"
 
 #, fuzzy
 #~ msgid "Remove Selected"

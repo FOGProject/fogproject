@@ -1281,8 +1281,15 @@ msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passre
 msgstr ""
 
 #, fuzzy
+msgid "Boot Files"
+msgstr "Opzioni di avvio:"
+
+#, fuzzy
 msgid "Boot Options"
 msgstr "Opzioni di avvio:"
+
+msgid "Boot Payload"
+msgstr ""
 
 msgid "Boot files from"
 msgstr ""
@@ -1328,10 +1335,6 @@ msgstr "Sfoglia"
 #, fuzzy
 msgid "Building the blobs failed."
 msgstr "Caricamento non riuscito"
-
-#, fuzzy
-msgid "Buildroot Version"
-msgstr "Versione client"
 
 #, php-format
 msgid "Bulk edit %s"
@@ -2875,6 +2878,17 @@ msgstr ""
 msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
+#, fuzzy
+msgid "FOS Init"
+msgstr "Host Init"
+
+#, fuzzy
+msgid "FOS Kernel"
+msgstr "nocciolo"
+
+msgid "FOS Release"
+msgstr ""
+
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
@@ -4375,10 +4389,6 @@ msgstr "Non trovato su questo nodo"
 msgid "Init images."
 msgstr "immagine non valido"
 
-#, fuzzy
-msgid "InitRD Versions"
-msgstr "Versione client"
-
 msgid "Initial Template"
 msgstr "Modello iniziale"
 
@@ -4724,13 +4734,6 @@ msgstr "Aggiornamento del kernel"
 #, fuzzy
 msgid "Kernel Update Fail"
 msgstr "Aggiornamento del kernel"
-
-#, fuzzy
-msgid "Kernel Version"
-msgstr "versioni del kernel"
-
-msgid "Kernel Versions"
-msgstr "versioni del kernel"
 
 #, fuzzy
 msgid "Kernels present on disk"
@@ -5748,6 +5751,9 @@ msgstr ""
 msgid "No archive was uploaded."
 msgstr "Nessun file è stato caricato"
 
+msgid "No boot files found. Check FOG_TFTP_PXE_KERNEL_DIR."
+msgstr ""
+
 #, fuzzy
 msgid "No certificate file was uploaded"
 msgstr "Nessun file è stato caricato"
@@ -6027,10 +6033,6 @@ msgstr "Non disponibile"
 #, fuzzy
 msgid "Not Found"
 msgstr "File Icona non trovato"
-
-#, fuzzy
-msgid "Not Installed"
-msgstr "plugin installati"
 
 msgid "Not Registered Hosts"
 msgstr "Host non registrati"
@@ -7091,10 +7093,6 @@ msgstr "Registrato"
 
 msgid "Registered Hosts"
 msgstr "host registrati"
-
-#, fuzzy
-msgid "Release Version"
-msgstr "Ultima versione"
 
 #, php-format
 msgid "Reloaded %d setting(s) into cache"
@@ -10567,6 +10565,13 @@ msgstr "come FOG proverà ad andare in internet"
 msgid "as its primary group"
 msgstr "come il suo gruppo primario"
 
+msgid "attr could not be run -- SELinux may be denying it"
+msgstr ""
+
+#, fuzzy
+msgid "attr is not installed on this server"
+msgstr "Non ci sono gruppi su questo server"
+
 msgid "automatically"
 msgstr "automaticamente"
 
@@ -11059,6 +11064,14 @@ msgid "not reachable"
 msgstr "Non disponibile"
 
 #, fuzzy
+msgid "not readable"
+msgstr "Non disponibile"
+
+#, fuzzy
+msgid "not recorded on this file"
+msgstr "Non trovato su questo nodo"
+
+#, fuzzy
 msgid "ntfy Accounts"
 msgstr "Slack Accounts"
 
@@ -11236,6 +11249,10 @@ msgstr ""
 msgid "the Linux kernel which is used to"
 msgstr "il kernel Linux che verrà usato"
 
+#, fuzzy
+msgid "the file cannot be read"
+msgstr "Impossibile raggiungere il file o il percorso"
+
 msgid "the following command in a terminal"
 msgstr "il seguente comando in un terminale"
 
@@ -11253,6 +11270,12 @@ msgstr ""
 msgid "the local login form stays available at %s"
 msgstr ""
 
+msgid "the web server may not read this file"
+msgstr ""
+
+msgid "the web server may not run external commands"
+msgstr ""
+
 msgid "there one enabled within this Storage Group"
 msgstr "c'è uno abilitato all'interno di questo gruppo di archiviazione"
 
@@ -11268,6 +11291,9 @@ msgstr ""
 
 msgid "this backup will enable you to return to the"
 msgstr "Questo backup vi permetterà di ritornare alla"
+
+msgid "this filesystem does not carry extended attributes"
+msgstr ""
 
 #, fuzzy
 msgid "this image is taking on the server."
@@ -11549,6 +11575,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Attempting to ping host"
 #~ msgstr "Il tentativo di ping"
+
+#, fuzzy
+#~ msgid "Buildroot Version"
+#~ msgstr "Versione client"
 
 #, fuzzy
 #~ msgid "Bulk Changes"
@@ -11898,6 +11928,10 @@ msgstr ""
 #~ msgstr "Importa utenti"
 
 #, fuzzy
+#~ msgid "InitRD Versions"
+#~ msgstr "Versione client"
+
+#, fuzzy
 #~ msgid "Install"
 #~ msgstr "plugin installati"
 
@@ -11911,6 +11945,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Inventory Report"
 #~ msgstr "Inventario"
+
+#, fuzzy
+#~ msgid "Kernel Version"
+#~ msgstr "versioni del kernel"
+
+#~ msgid "Kernel Versions"
+#~ msgstr "versioni del kernel"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -11976,6 +12017,10 @@ msgstr ""
 #~ msgid "Non-Administrator Group"
 #~ msgstr "Gruppo amministrativo"
 
+#, fuzzy
+#~ msgid "Not Installed"
+#~ msgstr "plugin installati"
+
 #~ msgid "Pause"
 #~ msgstr "Pausa"
 
@@ -12007,6 +12052,10 @@ msgstr ""
 
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "Registro deve essere gestito da hook o eventi"
+
+#, fuzzy
+#~ msgid "Release Version"
+#~ msgstr "Ultima versione"
 
 #, fuzzy
 #~ msgid "Remove Selected"

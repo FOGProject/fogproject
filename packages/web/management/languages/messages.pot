@@ -1136,7 +1136,13 @@ msgstr ""
 msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
 msgstr ""
 
+msgid "Boot Files"
+msgstr ""
+
 msgid "Boot Options"
+msgstr ""
+
+msgid "Boot Payload"
 msgstr ""
 
 msgid "Boot files from"
@@ -1179,9 +1185,6 @@ msgid "Browse"
 msgstr ""
 
 msgid "Building the blobs failed."
-msgstr ""
-
-msgid "Buildroot Version"
 msgstr ""
 
 #, php-format
@@ -2546,6 +2549,15 @@ msgstr ""
 msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
 msgstr ""
 
+msgid "FOS Init"
+msgstr ""
+
+msgid "FOS Kernel"
+msgstr ""
+
+msgid "FOS Release"
+msgstr ""
+
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
@@ -3849,9 +3861,6 @@ msgstr ""
 msgid "Init images."
 msgstr ""
 
-msgid "InitRD Versions"
-msgstr ""
-
 msgid "Initial Template"
 msgstr ""
 
@@ -4160,12 +4169,6 @@ msgid "Kernel Update"
 msgstr ""
 
 msgid "Kernel Update Fail"
-msgstr ""
-
-msgid "Kernel Version"
-msgstr ""
-
-msgid "Kernel Versions"
 msgstr ""
 
 msgid "Kernels present on disk"
@@ -5055,6 +5058,9 @@ msgstr ""
 msgid "No archive was uploaded."
 msgstr ""
 
+msgid "No boot files found. Check FOG_TFTP_PXE_KERNEL_DIR."
+msgstr ""
+
 msgid "No certificate file was uploaded"
 msgstr ""
 
@@ -5306,9 +5312,6 @@ msgid "Not Available"
 msgstr ""
 
 msgid "Not Found"
-msgstr ""
-
-msgid "Not Installed"
 msgstr ""
 
 msgid "Not Registered Hosts"
@@ -6241,9 +6244,6 @@ msgid "Registered"
 msgstr ""
 
 msgid "Registered Hosts"
-msgstr ""
-
-msgid "Release Version"
 msgstr ""
 
 #, php-format
@@ -9358,6 +9358,12 @@ msgstr ""
 msgid "as its primary group"
 msgstr ""
 
+msgid "attr could not be run -- SELinux may be denying it"
+msgstr ""
+
+msgid "attr is not installed on this server"
+msgstr ""
+
 msgid "automatically"
 msgstr ""
 
@@ -9811,6 +9817,12 @@ msgstr ""
 msgid "not reachable"
 msgstr ""
 
+msgid "not readable"
+msgstr ""
+
+msgid "not recorded on this file"
+msgstr ""
+
 msgid "ntfy Accounts"
 msgstr ""
 
@@ -9981,6 +9993,9 @@ msgstr ""
 msgid "the Linux kernel which is used to"
 msgstr ""
 
+msgid "the file cannot be read"
+msgstr ""
+
 msgid "the following command in a terminal"
 msgstr ""
 
@@ -9997,6 +10012,12 @@ msgstr ""
 msgid "the local login form stays available at %s"
 msgstr ""
 
+msgid "the web server may not read this file"
+msgstr ""
+
+msgid "the web server may not run external commands"
+msgstr ""
+
 msgid "there one enabled within this Storage Group"
 msgstr ""
 
@@ -10011,6 +10032,9 @@ msgid "this account has no role, so it has no access to any management page. Ask
 msgstr ""
 
 msgid "this backup will enable you to return to the"
+msgstr ""
+
+msgid "this filesystem does not carry extended attributes"
 msgstr ""
 
 msgid "this image is taking on the server."
