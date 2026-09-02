@@ -3547,18 +3547,6 @@ msgid "Group Kernel Arguments"
 msgstr "Argumentos grupo Kernel"
 
 #, fuzzy
-msgid "Group Location"
-msgstr "Lista de host"
-
-#, fuzzy
-msgid "Group Location Update Success"
-msgstr "actualización de servicio no pudo"
-
-#, fuzzy
-msgid "Group Location Updated!"
-msgstr "información de LDAP actualizado!"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "Camino snapin"
 
@@ -3593,18 +3581,6 @@ msgid "Group Name Attribute"
 msgstr "Nombre de usuario"
 
 #, fuzzy
-msgid "Group OU"
-msgstr "Grupo"
-
-#, fuzzy
-msgid "Group OU Update Success"
-msgstr "creado por el usuario"
-
-#, fuzzy
-msgid "Group OU Updated!"
-msgstr "grupo añadió"
-
-#, fuzzy
 msgid "Group Order"
 msgstr "Grupo"
 
@@ -3637,14 +3613,6 @@ msgstr "replicador de imagen"
 
 #, fuzzy
 msgid "Group Update Fail"
-msgstr "Grupo Error de creación"
-
-#, fuzzy
-msgid "Group Update Location Fail"
-msgstr "Grupo Error de creación"
-
-#, fuzzy
-msgid "Group Update OU Fail"
 msgstr "Grupo Error de creación"
 
 #, fuzzy
@@ -4704,6 +4672,10 @@ msgid "Invalid IP"
 msgstr "identificación invalida"
 
 #, fuzzy
+msgid "Invalid Location selected"
+msgstr "unidad no válida pasó"
+
+#, fuzzy
 msgid "Invalid Login"
 msgstr "carpeta no válida"
 
@@ -4713,6 +4685,10 @@ msgstr ""
 #, fuzzy
 msgid "Invalid Multicast Session"
 msgstr "Iniciar la sesión de multidifusión"
+
+#, fuzzy
+msgid "Invalid OU selected"
+msgstr "Eliminar seleccionado"
 
 #, fuzzy
 msgid "Invalid Path"
@@ -12252,8 +12228,32 @@ msgstr ""
 #~ msgstr "Asociación para la imagen"
 
 #, fuzzy
+#~ msgid "Group Location"
+#~ msgstr "Lista de host"
+
+#, fuzzy
+#~ msgid "Group Location Update Success"
+#~ msgstr "actualización de servicio no pudo"
+
+#, fuzzy
+#~ msgid "Group Location Updated!"
+#~ msgstr "información de LDAP actualizado!"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "Lista de host"
+
+#, fuzzy
+#~ msgid "Group OU"
+#~ msgstr "Grupo"
+
+#, fuzzy
+#~ msgid "Group OU Update Success"
+#~ msgstr "creado por el usuario"
+
+#, fuzzy
+#~ msgid "Group OU Updated!"
+#~ msgstr "grupo añadió"
 
 #, fuzzy
 #~ msgid "Group Printer Configuration"
@@ -12273,6 +12273,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group Site Updated!"
 #~ msgstr "grupo añadió"
+
+#, fuzzy
+#~ msgid "Group Update Location Fail"
+#~ msgstr "Grupo Error de creación"
+
+#, fuzzy
+#~ msgid "Group Update OU Fail"
+#~ msgstr "Grupo Error de creación"
 
 #, fuzzy
 #~ msgid "Group Update Site Fail"

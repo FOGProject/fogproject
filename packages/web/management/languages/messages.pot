@@ -3016,15 +3016,6 @@ msgstr ""
 msgid "Group Kernel Arguments"
 msgstr ""
 
-msgid "Group Location"
-msgstr ""
-
-msgid "Group Location Update Success"
-msgstr ""
-
-msgid "Group Location Updated!"
-msgstr ""
-
 msgid "Group Login History"
 msgstr ""
 
@@ -3052,15 +3043,6 @@ msgstr ""
 msgid "Group Name Attribute"
 msgstr ""
 
-msgid "Group OU"
-msgstr ""
-
-msgid "Group OU Update Success"
-msgstr ""
-
-msgid "Group OU Updated!"
-msgstr ""
-
 msgid "Group Order"
 msgstr ""
 
@@ -3086,12 +3068,6 @@ msgid "Group Task History"
 msgstr ""
 
 msgid "Group Update Fail"
-msgstr ""
-
-msgid "Group Update Location Fail"
-msgstr ""
-
-msgid "Group Update OU Fail"
 msgstr ""
 
 msgid "Group Update Success"
@@ -3952,6 +3928,9 @@ msgstr ""
 msgid "Invalid IP"
 msgstr ""
 
+msgid "Invalid Location selected"
+msgstr ""
+
 msgid "Invalid Login"
 msgstr ""
 
@@ -3959,6 +3938,9 @@ msgid "Invalid MAC Address!"
 msgstr ""
 
 msgid "Invalid Multicast Session"
+msgstr ""
+
+msgid "Invalid OU selected"
 msgstr ""
 
 msgid "Invalid Path"

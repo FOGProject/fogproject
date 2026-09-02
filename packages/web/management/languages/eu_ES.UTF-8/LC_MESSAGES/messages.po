@@ -3496,18 +3496,6 @@ msgid "Group Kernel Arguments"
 msgstr "Gruppe-Kernel Argumente"
 
 #, fuzzy
-msgid "Group Location"
-msgstr "Host Standort"
-
-#, fuzzy
-msgid "Group Location Update Success"
-msgstr "Standort erfolgreich aktualisiert"
-
-#, fuzzy
-msgid "Group Location Updated!"
-msgstr "Standort aktualisiert"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "Login-Verlauf"
 
@@ -3538,18 +3526,6 @@ msgstr "Gruppenname"
 #, fuzzy
 msgid "Group Name Attribute"
 msgstr "Gruppemmitglieder Attribut"
-
-#, fuzzy
-msgid "Group OU"
-msgstr "Gruppe"
-
-#, fuzzy
-msgid "Group OU Update Success"
-msgstr "Gruppe erfolgreich aktualisiert"
-
-#, fuzzy
-msgid "Group OU Updated!"
-msgstr "Gruppe aktualisiert"
 
 #, fuzzy
 msgid "Group Order"
@@ -3584,14 +3560,6 @@ msgstr "Image-Verlauf"
 
 #, fuzzy
 msgid "Group Update Fail"
-msgstr "Gruppe aktualisieren fehlgeschlagen"
-
-#, fuzzy
-msgid "Group Update Location Fail"
-msgstr "Gruppe aktualisieren fehlgeschlagen"
-
-#, fuzzy
-msgid "Group Update OU Fail"
 msgstr "Gruppe aktualisieren fehlgeschlagen"
 
 #, fuzzy
@@ -4625,6 +4593,10 @@ msgstr "Ungültige ID übergeben"
 msgid "Invalid IP"
 msgstr "Ungültige IP"
 
+#, fuzzy
+msgid "Invalid Location selected"
+msgstr "Ungültiger Token übergeben"
+
 msgid "Invalid Login"
 msgstr "ungültiger Login"
 
@@ -4634,6 +4606,10 @@ msgstr "Ungültige MAC-Adresse!"
 #, fuzzy
 msgid "Invalid Multicast Session"
 msgstr "ungültige Multicast-Sitzung"
+
+#, fuzzy
+msgid "Invalid OU selected"
+msgstr "Ausgewählte löschen"
 
 #, fuzzy
 msgid "Invalid Path"
@@ -12094,8 +12070,32 @@ msgstr ""
 #~ msgstr "Imagezuordnung"
 
 #, fuzzy
+#~ msgid "Group Location"
+#~ msgstr "Host Standort"
+
+#, fuzzy
+#~ msgid "Group Location Update Success"
+#~ msgstr "Standort erfolgreich aktualisiert"
+
+#, fuzzy
+#~ msgid "Group Location Updated!"
+#~ msgstr "Standort aktualisiert"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "Host Standort"
+
+#, fuzzy
+#~ msgid "Group OU"
+#~ msgstr "Gruppe"
+
+#, fuzzy
+#~ msgid "Group OU Update Success"
+#~ msgstr "Gruppe erfolgreich aktualisiert"
+
+#, fuzzy
+#~ msgid "Group OU Updated!"
+#~ msgstr "Gruppe aktualisiert"
 
 #, fuzzy
 #~ msgid "Group Printer Configuration"
@@ -12118,6 +12118,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group Site Updated!"
 #~ msgstr "Gruppe aktualisiert"
+
+#, fuzzy
+#~ msgid "Group Update Location Fail"
+#~ msgstr "Gruppe aktualisieren fehlgeschlagen"
+
+#, fuzzy
+#~ msgid "Group Update OU Fail"
+#~ msgstr "Gruppe aktualisieren fehlgeschlagen"
 
 #, fuzzy
 #~ msgid "Group Update Site Fail"
