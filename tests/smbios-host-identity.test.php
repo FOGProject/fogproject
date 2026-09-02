@@ -22,6 +22,9 @@
  *      into both serials scores once.
  *   4. The winner must hold the top score alone. A tie is "no opinion".
  *   5. The asset tag breaks a tie but cannot win by itself.
+ *   6. Registration acts on the firmware only in enforce mode and only when
+ *      the MAC found nothing; a known MAC is never overruled, and log mode
+ *      never attaches.
  *
  * DB-free: SmbiosIdentity is pure by design so this file can drive it
  * with arrays. HostManager::resolveHostBySmbios() only adds the query and
@@ -175,5 +178,22 @@ $t->check(
         $tagged
     ) === 11
 );
+
+// 6. Registration gating.
+foreach ([
+    ['enforce', 0, 7, 'attach', 'enforce, MAC unknown, firmware unique: attach'],
+    ['log', 0, 7, 'log', 'log mode never attaches'],
+    ['off', 0, 7, 'none', 'off says nothing'],
+    ['', 0, 7, 'none', 'missing setting is off'],
+    ['enforce', 3, 7, 'log', 'a known MAC is never overruled, even in enforce'],
+    ['enforce', 7, 7, 'none', 'agreement is silence'],
+    ['enforce', 0, 0, 'none', 'no firmware match is silence'],
+    ['log', 3, 7, 'log', 'log mode logs a disagreement'],
+] as [$mode, $macID, $smbiosID, $want, $label]) {
+    $t->check(
+        "registration: $label",
+        SmbiosIdentity::registrationAction($mode, $macID, $smbiosID) === $want
+    );
+}
 
 $t->finish();
