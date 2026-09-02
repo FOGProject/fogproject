@@ -279,6 +279,41 @@ offerRevert() {
     echo " | Nothing has been reverted for you. Your customizations were already"
     echo " | restored by this run -- see docs/SUPPORTED_CUSTOMIZATIONS.md -- and"
     echo " | bin/restorekernel.sh --list will show the kernel sets kept for you."
+
+    # THE CODE IS ONLY HALF THE STATE.
+    #
+    # updateDB() migrates the schema, and a great many install steps run after
+    # it -- so a failure is quite likely to be one where the database has
+    # already gone forward. Telling somebody to check out the old commit and
+    # re-run, without saying that, sends old code at a newer schema.
+    #
+    # Said only when it actually happened. recordPreUpgradeSchema() captures
+    # the version immediately before the migration; if the database still
+    # reports that number, nothing moved and the short message above is the
+    # whole truth.
+    #
+    # bin/revertfog.sh is deliberately NOT offered here. It restores a
+    # pre-upgrade 1.5 dump and _dumpNotFifteenReason() refuses anything that
+    # looks like 1.6 -- so pointing at it would send someone to a tool that
+    # turns them away. A manual restore of the dump below is the way back.
+    local nowSchema
+    nowSchema=$(schemaVersionInDB 2>/dev/null)
+    if [[ -n $fogPreUpgradeSchema && -n $nowSchema && $nowSchema != "$fogPreUpgradeSchema" ]]; then
+        echo " |"
+        echo " | THE DATABASE HAS ALREADY BEEN MIGRATED by this run, from schema"
+        echo " | ${fogPreUpgradeSchema} to ${nowSchema}. Moving the checkout back is NOT enough on"
+        echo " | its own -- the older code would run against the newer schema."
+        if [[ -n $fogPreUpgradeDump && -s $fogPreUpgradeDump ]]; then
+            echo " |"
+            echo " | Restore the dump taken immediately before the migration:"
+            echo " |"
+            echo " |     mysql -u ${DB_user} -p ${DB_name} < ${fogPreUpgradeDump}"
+        else
+            echo " |"
+            echo " | No pre-migration dump was written for this run, so there is"
+            echo " | nothing here to restore the schema from."
+        fi
+    fi
     echo
     return 0
 }
@@ -1368,8 +1403,23 @@ backupDB() {
             read
         fi
     else
+        # Published for offerRevert(). A failed install AFTER updateDB() cannot
+        # be undone by moving the checkout back -- the schema has already gone
+        # forward -- and this is the only thing that can undo it. bin/revertfog.sh
+        # deliberately refuses a 1.6 dump, so for an intra-1.6 failure a manual
+        # restore of this file is the way back, and the message has to be able
+        # to name it.
+        fogPreUpgradeDump="$dbbackupfile"
         echo "Done"
     fi
+}
+# The schema version before updateDB() runs, so offerRevert() can tell a
+# failure that migrated the database from one that did not. Called from
+# installfog.sh immediately before the migration; a value here that differs
+# from the one in the database at exit means the schema moved.
+recordPreUpgradeSchema() {
+    fogPreUpgradeSchema=$(schemaVersionInDB 2>/dev/null)
+    return 0
 }
 # Prove the web tier actually renders a page before we trust anything that
 # talks to it. A PHP fatal in the boot chain returns an empty (or truncated)

@@ -70,6 +70,10 @@ if ! grep -q 'offerRevert()' <<< "$snippet" || ! grep -q 'markInstallCommit()' <
     echo "  test at them -- do not delete the assertions." >&2
     exit 1
 fi
+# offerRevert asks the database what schema it is on. Stubbed: these tests
+# have no mysql, and what is under test is the DECISION, not the query.
+schemaVersionInDB() { echo "$FAKE_SCHEMA_NOW"; }
+
 eval "$snippet"
 
 work=$(mktemp -d)
@@ -364,6 +368,67 @@ check "an unrecognized answer does not exit 0" \
 
 check "a deliberate no is still exit 0" \
     "$(grep -qE '\[Nn\] \| \[Nn\]\[Oo\]\)' <<< "$u"; echo $?)"
+
+
+# ---------------------------------------------------------------------------
+# The code is only half the state.
+#
+# updateDB() migrates the schema and many install steps run after it, so a
+# failure is quite likely to be one where the database has already moved.
+# Telling somebody to check out the old commit and re-run, without saying so,
+# sends old code at a newer schema.
+#
+# Said only when it actually happened -- the common case is a failure before
+# the migration, and a warning there would be false.
+# ---------------------------------------------------------------------------
+record "$first"
+
+fogPreUpgradeSchema=""
+FAKE_SCHEMA_NOW="270"
+fogPreUpgradeDump=""
+check "no recorded pre-migration schema means no database warning" \
+    "$(! grep -qi 'DATABASE HAS ALREADY BEEN MIGRATED' <<< "$(offerRevert 1)"; echo $?)"
+
+fogPreUpgradeSchema="270"
+FAKE_SCHEMA_NOW="270"
+check "a schema that did not move means no database warning" \
+    "$(! grep -qi 'DATABASE HAS ALREADY BEEN MIGRATED' <<< "$(offerRevert 1)"; echo $?)"
+
+fogPreUpgradeSchema="270"
+FAKE_SCHEMA_NOW="284"
+dbout=$(offerRevert 1)
+check "a schema that DID move is reported" \
+    "$(grep -qi 'DATABASE HAS ALREADY BEEN MIGRATED' <<< "$dbout"; echo $?)"
+
+check "and both schema numbers are named" \
+    "$(grep -q '270 to 284' <<< "$dbout"; echo $?)"
+
+check "and it says the checkout alone is not enough" \
+    "$(grep -qi 'NOT enough' <<< "$dbout"; echo $?)"
+
+# With a dump, name it. Without one, say there is none rather than pointing at
+# a file that is not there.
+dumpfile="$work/fog_sql_test.sql"
+echo "-- dump" > "$dumpfile"
+fogPreUpgradeDump="$dumpfile"
+DB_user=fogmaster
+DB_name=fog
+check "the pre-migration dump is named when there is one" \
+    "$(grep -q "$dumpfile" <<< "$(offerRevert 1)"; echo $?)"
+
+fogPreUpgradeDump=""
+check "and its absence is stated rather than implied" \
+    "$(grep -qi 'No pre-migration dump was written' <<< "$(offerRevert 1)"; echo $?)"
+
+# revertfog.sh restores a pre-upgrade 1.5 dump and refuses anything that looks
+# like 1.6 (_dumpNotFifteenReason). Pointing at it here would send someone to a
+# tool that turns them away.
+fogPreUpgradeDump="$dumpfile"
+check "revertfog.sh is not offered for an intra-1.6 failure" \
+    "$(! grep -q 'revertfog' <<< "$(offerRevert 1)"; echo $?)"
+
+fogPreUpgradeSchema=""
+FAKE_SCHEMA_NOW=""
 
 
 printf '\n%s: %d passed, %d failed\n' "$(basename "$0")" "$pass" "$fail"
