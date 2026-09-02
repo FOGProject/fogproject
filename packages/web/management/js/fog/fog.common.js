@@ -5223,6 +5223,72 @@ function reinitialize() {
       });
   };
 
+  /**
+   * The Local files tab's row actions on Kernel Update / Initrd Update.
+   *
+   * node=about is sent explicitly. The download endpoints are requested with
+   * no node at all, which is why they needed entries in
+   * GLOBAL_SUB_OVERRIDES to be permission-checked properly -- these resolve
+   * against the page's own node instead, so their permissions are declared
+   * where the rest of that page's are.
+   *
+   * Delegated and namespaced: the pane arrives with the page, by AJAX.
+   */
+  var setupBootFileActions = function() {
+    var post = function(sub, data, confirmText) {
+      if (confirmText && !window.confirm(confirmText)) {
+        return;
+      }
+      $.apiCall(
+          'post',
+          '?node=about&sub=' + sub,
+          data,
+          function(err) {
+            if (!err) {
+              // Re-read rather than patch the row in place: the server
+              // decides what is now in use as what, and which rows may
+              // still offer a Delete button. Guessing that here would be a
+              // second copy of those rules.
+              //
+              // location.reload(), the same way the certificates pane on
+              // this page refreshes after a write. The API token pane calls
+              // table.ajax.reload() instead, but that is a DataTable and
+              // this pane deliberately is not.
+              location.reload();
+            }
+          }
+      );
+    };
+
+    $(document)
+      .off('click.fogBootFileAct')
+      .on('click.fogBootFileAct', '.fog-bootfile-keep', function(e) {
+        e.preventDefault();
+        var $b = $(this);
+        post('bootfilekeep', {
+          name: $b.data('name'),
+          keep: $b.data('keep')
+        });
+      })
+      .on('click.fogBootFileAct', '.fog-bootfile-default', function(e) {
+        e.preventDefault();
+        var $a = $(this);
+        post('bootfiledefault', {
+          name: $a.data('name'),
+          key: $a.data('key')
+        });
+      })
+      .on('click.fogBootFileAct', '.fog-bootfile-delete', function(e) {
+        e.preventDefault();
+        var name = $(this).data('name');
+        post(
+            'bootfiledelete',
+            {name: name},
+            'Delete ' + name + ' from the boot directory?'
+        );
+      });
+  };
+
   $.debugLog("=== DEBUG LOGGING ENABLED ===");
   setupIntegrations();
   if ($.fn.inputmask) {
@@ -5244,6 +5310,7 @@ function reinitialize() {
     });
   });
   setupBootFilePickers();
+  setupBootFileActions();
   disableFormDefaults();
   wireImportForm();
   setupPasswordReveal();

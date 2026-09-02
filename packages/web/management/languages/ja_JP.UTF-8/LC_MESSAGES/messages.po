@@ -186,9 +186,21 @@ msgstr ""
 msgid "%s can only be run on one host at a time"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%s cannot be used as %s."
+msgstr "Windows で使用できます"
+
 #, php-format
 msgid "%s could not be loaded. Check that %s declares a class of that exact name."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s could not be removed."
+msgstr "キャンセルできませんでした"
+
+#, fuzzy, php-format
+msgid "%s deleted."
+msgstr "削除済み"
 
 #, php-format
 msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
@@ -203,8 +215,20 @@ msgid "%s images"
 msgstr "イメージ"
 
 #, php-format
+msgid "%s is in use as %s. Point that at another file first."
+msgstr ""
+
+#, php-format
 msgid "%s is maintained by the server and cannot be set"
 msgstr ""
+
+#, php-format
+msgid "%s is marked to be kept. Stop keeping it first."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%s is no longer kept."
+msgstr "選択したプリンターを追加"
 
 #, php-format
 msgid "%s is not a readable .tar.gz archive."
@@ -220,6 +244,10 @@ msgstr ""
 
 #, php-format
 msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
+msgid "%s is now %s."
 msgstr ""
 
 #, php-format
@@ -248,6 +276,10 @@ msgstr ""
 
 #, php-format
 msgid "%s viewed your account on %s."
+msgstr ""
+
+#, php-format
+msgid "%s will be kept."
 msgstr ""
 
 msgid "(all)"
@@ -1220,6 +1252,10 @@ msgstr "ホスト自動ログアウト"
 msgid "Automatic enrollment (Setup/Custom Mode)"
 msgstr ""
 
+#, fuzzy
+msgid "Available downloads"
+msgstr "利用可能なスナップイン"
+
 msgid "BIOS Date"
 msgstr "BIOS 日付"
 
@@ -1263,6 +1299,18 @@ msgstr "バインドパスワード"
 
 msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
 msgstr ""
+
+#, fuzzy
+msgid "Boot File Deleted"
+msgstr "削除"
+
+#, fuzzy
+msgid "Boot File Failed"
+msgstr "ブートオプション"
+
+#, fuzzy
+msgid "Boot File Updated"
+msgstr "サイトを更新しました！"
 
 #, fuzzy
 msgid "Boot Files"
@@ -1626,6 +1674,9 @@ msgstr "シャーシバージョン"
 
 #, php-format
 msgid "Check %s over before installing it."
+msgstr ""
+
+msgid "Check FOG_TFTP_PXE_KERNEL_DIR."
 msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
@@ -2276,8 +2327,31 @@ msgstr "既定の更新レート"
 msgid "Default Width"
 msgstr "既定の幅"
 
+#, fuzzy
+msgid "Default init, ARM64"
+msgstr "既定の幅"
+
+#, fuzzy
+msgid "Default init, i386"
+msgstr "既定の幅"
+
+#, fuzzy
+msgid "Default init, x86_64"
+msgstr "既定の幅"
+
 msgid "Default is disabled"
 msgstr "既定では無効です"
+
+#, fuzzy
+msgid "Default kernel, ARM64"
+msgstr "既定の更新レート"
+
+#, fuzzy
+msgid "Default kernel, i386"
+msgstr "既定で有効"
+
+msgid "Default kernel, x86_64"
+msgstr ""
 
 #, fuzzy
 msgid "Default nested group depth"
@@ -4320,6 +4394,10 @@ msgid "In FOG"
 msgstr "FOG 内"
 
 #, fuzzy
+msgid "In use as"
+msgstr "次を使用する必要があります"
+
+#, fuzzy
 msgid "Include"
 msgstr "含まれる項目"
 
@@ -4680,6 +4758,12 @@ msgid "Join Domain after image task"
 msgstr "展開後にドメイン参加"
 
 msgid "Kbps"
+msgstr ""
+
+msgid "Keep"
+msgstr ""
+
+msgid "Kept"
 msgstr ""
 
 msgid "Kernel"
@@ -5067,6 +5151,10 @@ msgstr "読み込みに失敗しました"
 msgid "Loading data to field"
 msgstr "フィールドにデータを読み込んでいます"
 
+#, fuzzy
+msgid "Local files"
+msgstr "ロケーション"
+
 msgid "Location"
 msgstr "ロケーション"
 
@@ -5343,6 +5431,9 @@ msgstr "メモリ"
 msgid "Memory limit cannot be less than 128"
 msgstr "メニュー項目またはタイトルは空にできません"
 
+msgid "Memtest payload"
+msgstr ""
+
 #, fuzzy
 msgid "Menu Description"
 msgstr "説明"
@@ -5424,6 +5515,9 @@ msgstr "モデル"
 #, fuzzy
 msgid "Models"
 msgstr "モデル"
+
+msgid "Modified"
+msgstr ""
 
 #, fuzzy
 msgid "Module"
@@ -5758,6 +5852,10 @@ msgstr ""
 msgid "No file was uploaded"
 msgstr "ファイルはアップロードされませんでした"
 
+#, fuzzy
+msgid "No files in the boot directory."
+msgstr "スナップインジョブの作成に失敗しました"
+
 msgid "No files matched multicast image pattern"
 msgstr ""
 
@@ -5913,6 +6011,9 @@ msgstr "このイメージを削除できる有効なマスターノードがあ
 #, fuzzy
 msgid "No storagegroups assigned to this snapin"
 msgstr "割り当てられたイメージのストレージグループが無効です"
+
+msgid "No such file in the boot directory."
+msgstr ""
 
 #, fuzzy
 msgid "No such filter"
@@ -7753,6 +7854,10 @@ msgstr ""
 msgid "Set Storage Group as Primary for Snapins"
 msgstr "ストレージグループの説明"
 
+#, fuzzy
+msgid "Set as"
+msgstr "設定に失敗しました"
+
 msgid "Set failed"
 msgstr "設定に失敗しました"
 
@@ -8236,6 +8341,9 @@ msgstr "サイトの更新に失敗しました！"
 
 msgid "Status"
 msgstr "状態"
+
+msgid "Stop keeping"
+msgstr ""
 
 msgid "Storage"
 msgstr "ストレージ"
@@ -8941,6 +9049,10 @@ msgstr ""
 msgid "The body is {\"value\": \"...\"}; a form field of the same name is accepted too. An EMPTY value deletes the preference rather than storing emptiness, so a reset leaves no row saying \"no opinion\". Values are capped at 64KB and refused rather than truncated -- a truncated saved state cannot be told from a corrupt one when it is read back."
 msgstr ""
 
+#, fuzzy
+msgid "The boot directory cannot be read."
+msgstr "ファイルまたはパスに到達できません"
+
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
@@ -9136,6 +9248,10 @@ msgstr ""
 
 msgid "The public half of the keypair fog-client encrypts its check-in to."
 msgstr ""
+
+#, fuzzy
+msgid "The record could not be written."
+msgstr "強制終了できませんでした"
 
 msgid "The resource is not in a cancellable state."
 msgstr ""
@@ -9721,6 +9837,10 @@ msgstr "利用できません"
 #, fuzzy
 msgid "Uncategorized"
 msgstr "権限がありません"
+
+#, fuzzy
+msgid "Unclassified"
+msgstr "関連付けられたホスト"
 
 #, fuzzy
 msgid "Unicast"
@@ -10366,6 +10486,10 @@ msgstr "少なくとも 1 つのグループを関連付ける必要がありま
 
 #, fuzzy
 msgid "You do not have permission to change LDAP group associations."
+msgstr "少なくとも 1 つのグループを関連付ける必要があります"
+
+#, fuzzy
+msgid "You do not have permission to change boot files."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
 #, fuzzy
@@ -11108,6 +11232,9 @@ msgstr ""
 msgid "row(s) converted from 0 to NULL"
 msgstr ""
 
+msgid "same contents as"
+msgstr ""
+
 msgid "second"
 msgstr "秒"
 
@@ -11621,9 +11748,6 @@ msgstr ""
 #~ msgid "Attempting to ping host"
 #~ msgstr "ping を試行しています"
 
-#~ msgid "Available Snapins"
-#~ msgstr "利用可能なスナップイン"
-
 #~ msgid "Barcode Numbers"
 #~ msgstr "バーコード番号"
 
@@ -12057,10 +12181,6 @@ msgstr ""
 #~ msgid "Failed to upload \"%s\" to Master Node"
 #~ msgstr "\"%s\" のマスターノードへのアップロードに失敗しました"
 
-#, fuzzy
-#~ msgid "File Deleter"
-#~ msgstr "削除"
-
 #~ msgid "File Integrity Management"
 #~ msgstr "ファイル整合性管理"
 
@@ -12282,10 +12402,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Site Update Success"
 #~ msgstr "サイトを更新しました"
-
-#, fuzzy
-#~ msgid "Host Site Updated!"
-#~ msgstr "サイトを更新しました！"
 
 #~ msgid "Host Snapins"
 #~ msgstr "ホスト スナップイン"
@@ -12510,9 +12626,6 @@ msgstr ""
 #~ msgid "Is restricted"
 #~ msgstr "制限付き"
 
-#~ msgid "It can be used on Windows"
-#~ msgstr "Windows で使用できます"
-
 #~ msgid "It is primarily geared for the smart installer methodology now"
 #~ msgstr "現在は主にスマートインストーラー方式向けに設計されています"
 
@@ -12676,9 +12789,6 @@ msgstr ""
 
 #~ msgid "Must have an image associated"
 #~ msgstr "イメージが関連付けられている必要があります"
-
-#~ msgid "Must use an"
-#~ msgstr "次を使用する必要があります"
 
 #~ msgid "NAME"
 #~ msgstr "名前"
@@ -13742,9 +13852,6 @@ msgstr ""
 
 #~ msgid "defined reports that may not be a part of"
 #~ msgstr "一部ではない可能性がある定義済みレポート"
-
-#~ msgid "deleted"
-#~ msgstr "削除済み"
 
 #, fuzzy
 #~ msgid "disabled (all)"
