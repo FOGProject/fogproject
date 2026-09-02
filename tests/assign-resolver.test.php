@@ -228,6 +228,8 @@ $need = [
     'groupPrinterAssoc',
     'moduleStatusByHost',
     'groupModuleAssoc',
+    'powerManagement',
+    'groupPowerManagement',
 ];
 foreach ($need as $table) {
     if (!isset($expected[$table]['create'])) {
@@ -500,6 +502,157 @@ $defaulted = \FOG\Assign\Resolver::resolveModules([12]);
 $check(
     'a module row inserted without a state resolves as enabled',
     ($defaulted[12] ?? []) === [960]
+);
+
+/*
+ * 20-27: power management, the fourth grant (ADR 0038).
+ *
+ * A schedule is the one grant whose IDENTITY is a composite -- a cron
+ * expression plus an action -- rather than an id, so the dedup key is a
+ * string this resolver builds. That is the thing worth seeding a database
+ * for: every way of getting it wrong produces a list that still looks like a
+ * list of schedules.
+ *
+ * host 10 (groups 3 'zebra' order 1, 1 'middle' order 5, 2 'aaa-last' order 9):
+ *   direct  pmID 1  `0 2 * * *` reboot        <- first
+ *           pmID 2  `30 3 * * *` shutdown     <- second
+ *           pmID 3  `0 4 * * *` shutdown  ON DEMAND -- must NOT appear
+ *   grants  group 3 `15 1 * * *` wol          <- third (zebra resolves first)
+ *           group 3 `0 2 * * *` reboot        -- identical to the host's, so
+ *                                                deduped away
+ *           group 1 `45 5 * * -1` shutdown    <- fourth, dow normalized to 7
+ *           group 2 `15 1 * * *` wol          -- same as group 3's, deduped
+ *
+ * The ids fight the answer here too: taking the group rows in gpmID order
+ * without the group ordering would put middle's 45-past before zebra's, and
+ * ordering groups by id would put middle(1) before zebra(3).
+ */
+$pdo->exec(
+    "INSERT INTO `powerManagement` "
+    . "(`pmID`,`pmHostID`,`pmMin`,`pmHour`,`pmDom`,`pmMonth`,`pmDow`,"
+    . "`pmAction`,`pmOndemand`) VALUES "
+    . "(1,10,'0','2','*','*','*','reboot',0),"
+    . "(2,10,'30','3','*','*','*','shutdown',0),"
+    . "(3,10,'0','4','*','*','*','shutdown',1)"
+);
+$pdo->exec(
+    "INSERT INTO `groupPowerManagement` "
+    . "(`gpmID`,`gpmGroupID`,`gpmMin`,`gpmHour`,`gpmDom`,`gpmMonth`,`gpmDow`,"
+    . "`gpmAction`) VALUES "
+    . "(1,1,'45','5','*','*','-1','shutdown'),"
+    . "(2,3,'15','1','*','*','*','wol'),"
+    . "(3,3,'0','2','*','*','*','reboot'),"
+    . "(4,2,'15','1','*','*','*','wol')"
+);
+
+$pm = \FOG\Assign\Resolver::resolvePowerManagement([10, 11, 12, 13]);
+$flat = static function ($list) {
+    return array_map(
+        static function ($s) {
+            return $s['cron'] . '|' . $s['action'];
+        },
+        (array)$list
+    );
+};
+
+// 20: host-direct first, in pmID order, then the groups in resolved order.
+$check(
+    'schedules resolve host-direct first, then groups in decision-6 order',
+    $flat($pm[10] ?? []) === [
+        '0 2 * * *|reboot',
+        '30 3 * * *|shutdown',
+        '15 1 * * *|wol',
+        '45 5 * * 7|shutdown'
+    ]
+);
+
+// 21: the on-demand row is not a schedule. Asserted on its own rather than
+// left implicit in check 20, because it is the one exclusion that would look
+// like a working resolver -- the client would simply shut a machine down at
+// 04:00 every day forever, having been handed a task as a cron.
+$check(
+    'an on-demand host row is excluded from the resolved schedules',
+    !in_array('0 4 * * *|shutdown', $flat($pm[10] ?? []), true)
+);
+
+// 22: the identical cron+action reached host 10 both directly and from group
+// 3, and appears once at the HOST's position. A dedup keyed on anything else
+// -- the row id, the action alone -- gives a different list.
+$check(
+    'a schedule reached directly and by grant appears once, at the host position',
+    1 === count(
+        array_keys($flat($pm[10] ?? []), '0 2 * * *|reboot', true)
+    )
+);
+
+// 23: groups 3 and 2 grant the SAME wol schedule. Two groups, one
+// instruction: waking a machine twice is harmless, but rebooting one twice is
+// not, and the dedup has to be a property of the resolver rather than of
+// which action it happens to be.
+$check(
+    'the same schedule granted by two groups appears once',
+    1 === count(array_keys($flat($pm[10] ?? []), '15 1 * * *|wol', true))
+);
+
+// 24: `wol` comes back. The resolver serves both the client (which wants
+// shutdown and reboot) and TaskScheduler (which wants wake), so filtering
+// here would mean a second resolver and a second ordering.
+$check(
+    'wol schedules are returned rather than filtered by the resolver',
+    in_array('15 1 * * *|wol', $flat($pm[10] ?? []), true)
+);
+
+// 25: a -1 weekday becomes 7. FOG's cron picker writes -1 for Sunday and
+// Quartz -- what the FOG client schedules against -- refuses it, so a
+// Sunday-night shutdown would silently never run.
+$check(
+    'a -1 weekday is normalized to 7 in the cron expression',
+    in_array('45 5 * * 7|shutdown', $flat($pm[10] ?? []), true)
+);
+
+// 25b: a WILDCARD weekday survives. This is its own check because it is its
+// own bug, and one that only appears on PHP 8: the inline version this
+// replaced read `if ($dow < 0)`, and `'*' < 0` is TRUE there -- comparing a
+// non-numeric string with a number casts the NUMBER to string, and '*' (42)
+// sorts below '0' (48). Every daily schedule was therefore handed to the
+// client as `... 7`, Sundays only, on any server running PHP 8. On 7.4 the
+// same expression is false. Nothing about FOG had to change for a working
+// schedule to stop running; the server just had to be upgraded.
+$check(
+    'a wildcard weekday is left alone rather than rewritten to 7',
+    in_array('30 3 * * *|shutdown', $flat($pm[10] ?? []), true)
+    && !in_array('30 3 * * 7|shutdown', $flat($pm[10] ?? []), true)
+);
+
+// 26: a host with nothing anywhere is still a key, for the reason
+// resolveSnapins() gives.
+$check(
+    'a host with no schedules is still a key, with an empty list',
+    array_key_exists(12, $pm) && [] === $pm[12]
+);
+
+// 27: host 13 has no `hosts` row at all -- the manager-bypass property. A
+// read that went through a manager would pick up `hostMAC.hmPrimary = '1'`
+// in its WHERE and drop it, and a machine that quietly stops shutting down
+// reports itself to nobody.
+$check(
+    'a host present only in the association tables still resolves its grants',
+    $flat($pm[13] ?? []) === ['15 1 * * *|wol', '0 2 * * *|reboot']
+);
+
+// 28: the decision-9 gate on this resolver's own table.
+$pdo->exec('DROP TABLE `groupPowerManagement`');
+$threw = false;
+$message = '';
+try {
+    \FOG\Assign\Resolver::resolvePowerManagement([10]);
+} catch (\RuntimeException $e) {
+    $threw = true;
+    $message = $e->getMessage();
+}
+$check(
+    'a failed schedule read throws rather than resolving to nothing',
+    $threw && 0 === strpos($message, 'Assignment resolution failed')
 );
 
 // The decision-9 gate again, on the table this resolver added. Same reason:

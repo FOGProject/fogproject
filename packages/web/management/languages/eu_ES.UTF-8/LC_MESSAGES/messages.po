@@ -1737,6 +1737,10 @@ msgstr ""
 msgid "Clear one of your preferences"
 msgstr ""
 
+#, fuzzy
+msgid "Clear schedules from member hosts"
+msgstr "plane Power"
+
 msgid "Click"
 msgstr "Klicken Sie"
 
@@ -2139,6 +2143,10 @@ msgid "Create New Windows Key"
 msgstr "Neuen Drucker erstellen"
 
 #, fuzzy
+msgid "Create Scheduled Power grant"
+msgstr "plane Power"
+
+#, fuzzy
 msgid "Create Scheduled Power task"
 msgstr "plane Power"
 
@@ -2347,13 +2355,6 @@ msgstr "Verzögert"
 
 msgid "Delete"
 msgstr "Löschen"
-
-#, fuzzy
-msgid "Delete All"
-msgstr "Löschen fehlgeschlagen"
-
-msgid "Delete All Powermanagement Items"
-msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
@@ -2775,6 +2776,9 @@ msgid "Every file was uploaded."
 msgstr "Keine Datei wurde hochgeladen"
 
 msgid "Every filter the CALLING user may see on that grid: their own, every global one, and any shared with them by name, through a user group, or through a role. There is no user in the path and no way to name one. mayShareGlobally reports whether the caller holds savedfilter.create, so a client can omit the \"everyone\" option rather than offer it and fail on save."
+msgstr ""
+
+msgid "Every host in this group runs these schedules, including hosts added later. Nothing is written onto a host; a host keeps its own schedules as well."
 msgstr ""
 
 msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
@@ -3270,6 +3274,9 @@ msgstr "FOG-Forum"
 msgid "Found"
 msgstr "Gefundene"
 
+msgid "Found a group wake on lan grant that should run."
+msgstr ""
+
 msgid "Found a scheduled task that should run."
 msgstr ""
 
@@ -3403,6 +3410,10 @@ msgid "Got in line at"
 msgstr ""
 
 #, fuzzy
+msgid "Grant sent to group"
+msgstr "Ausgewählte Speichergruppen hinzufügen"
+
+#, fuzzy
 msgid "Granted To"
 msgstr "Erstellt von"
 
@@ -3534,6 +3545,10 @@ msgstr "Gruppe aktualisiert"
 #, fuzzy
 msgid "Group Order"
 msgstr "Gruppe"
+
+#, fuzzy
+msgid "Group Power Management Task run time"
+msgstr "Power Management"
 
 msgid "Group Primary Disk"
 msgstr "Primäre Festplatte der Gruppe"
@@ -6917,6 +6932,10 @@ msgid "Power Management"
 msgstr "Power Management"
 
 #, fuzzy
+msgid "Power Management Grants"
+msgstr "Power Management"
+
+#, fuzzy
 msgid "Power Management Task run time"
 msgstr "Power Management"
 
@@ -9583,7 +9602,13 @@ msgstr ""
 msgid "This account is for API access only and cannot sign in."
 msgstr ""
 
+msgid "This acts on the hosts that are in the group right now. It is a task, not a grant: a host added afterward is not affected."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
+msgstr ""
+
+msgid "This deletes the power management schedules held by the hosts that are in this group right now. It does NOT touch this group's grants, and it also removes schedules those hosts were given individually."
 msgstr ""
 
 msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
@@ -9760,9 +9785,6 @@ msgstr ""
 
 msgid "This will allow you to configure how services"
 msgstr "Hiermit können Sie konfigurieren, "
-
-msgid "This will delete all powermanagement items from all hosts in this group"
-msgstr ""
 
 msgid "This would leave no account able to administer FOG without its identity provider."
 msgstr ""
@@ -10203,9 +10225,6 @@ msgid "Use extreme caution with this setting"
 msgstr "Seien Sie seeehr vorsichtig mit diesen Einstellungen"
 
 msgid "Use processEvent instead"
-msgstr ""
-
-msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
 #, fuzzy
@@ -11845,10 +11864,6 @@ msgstr ""
 #~ msgstr "Benutzer hinzufügen fehlgeschlagen!"
 
 #, fuzzy
-#~ msgid "Add selected to group"
-#~ msgstr "Ausgewählte Speichergruppen hinzufügen"
-
-#, fuzzy
 #~ msgid "Administrator Group"
 #~ msgstr "Admingruppe"
 
@@ -11905,6 +11920,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pfad ist nicht verfügbar"
+
+#, fuzzy
+#~ msgid "Delete All"
+#~ msgstr "Löschen fehlgeschlagen"
 
 #, fuzzy
 #~ msgid "Deprecated."

@@ -358,6 +358,185 @@ class Resolver extends FOGBase
         return $resolved;
     }
     /**
+     * Resolves the power-management SCHEDULES for each host.
+     *
+     * ADR 0038. Host-direct `powerManagement` rows unioned with the grants of
+     * every group the host belongs to, in the order decision 6 sets.
+     *
+     * SCHEDULES ONLY -- `pmOndemand` rows are excluded, and that is not a
+     * filter for convenience. An on-demand row is an immediate shutdown,
+     * reboot or wake that the client consumes and deletes on its next
+     * check-in: it is a task, acting on the membership at the moment it was
+     * created, and it has no group-granted counterpart to union with. There
+     * is no `gpmOndemand` column for the same reason.
+     *
+     * EVERY ACTION IS RETURNED, `wol` included, and the caller filters. Two
+     * very different consumers read these rows -- the FOG client, which runs
+     * shutdown and reboot itself on a Quartz cron, and TaskScheduler, which
+     * sends the magic packet for `wol` because a sleeping machine cannot ask
+     * for anything. Filtering here would mean two resolvers, and two orderings
+     * that drift; the same reasoning the class docblock gives for there being
+     * one of these at all.
+     *
+     * THE IDENTITY OF A SCHEDULE IS ITS CRON PLUS ITS ACTION, which is what
+     * deduplication keys on. That is the same key `powerManagement`.`cron` and
+     * `groupPowerManagement`.`gpmCron` are unique on, and it is the only key
+     * that means anything: two rows saying "reboot at 03:00" are one
+     * instruction however many places they arrived from, and running the
+     * second would reboot a machine that had just come back up.
+     *
+     * @param array $hostIDs the hosts to resolve for
+     *
+     * @return array hostID => [['cron' => string, 'action' => string], ...].
+     *               Every host id passed in is a key, with an empty array when
+     *               it has nothing; see resolveSnapins() for why.
+     * @throws \RuntimeException on any query failure
+     */
+    public static function resolvePowerManagement(array $hostIDs)
+    {
+        $hostIDs = self::_ids($hostIDs);
+        if (count($hostIDs) < 1) {
+            return [];
+        }
+        $resolved = [];
+        $direct = [];
+        $rows = self::_rows(
+            'SELECT `pmHostID`, `pmMin`, `pmHour`, `pmDom`, `pmMonth`, '
+            . '`pmDow`, `pmAction` FROM `powerManagement` '
+            . 'WHERE `pmHostID` IN (' . implode(',', $hostIDs) . ') '
+            // `= 0` rather than `<> 1`: the column is NOT NULL DEFAULT 0, so
+            // there is no third state to be careful about, and an explicit
+            // equality is what an index can use.
+            . 'AND `pmOndemand` = 0 '
+            . 'ORDER BY `pmHostID`, `pmID`'
+        );
+        foreach ($rows as $row) {
+            $direct[(int)$row['pmHostID']][] = self::_schedule($row, 'pm');
+        }
+
+        list($groupsByHost, $groupIDs) = self::_membership($hostIDs);
+        $byGroup = [];
+        if (count($groupIDs) > 0) {
+            $rows = self::_rows(
+                'SELECT `gpmGroupID`, `gpmMin`, `gpmHour`, `gpmDom`, '
+                . '`gpmMonth`, `gpmDow`, `gpmAction` '
+                . 'FROM `groupPowerManagement` '
+                . 'WHERE `gpmGroupID` IN (' . implode(',', $groupIDs) . ') '
+                . 'ORDER BY `gpmID`'
+            );
+            foreach ($rows as $row) {
+                $byGroup[(int)$row['gpmGroupID']][] = self::_schedule(
+                    $row,
+                    'gpm'
+                );
+            }
+        }
+        $ordered = self::_orderedGroupIDs($groupIDs);
+
+        foreach ($hostIDs as $hostID) {
+            $out = [];
+            $seen = [];
+            foreach ($direct[$hostID] ?? [] as $schedule) {
+                $key = $schedule['cron'] . '|' . $schedule['action'];
+                if (isset($seen[$key])) {
+                    continue;
+                }
+                $seen[$key] = true;
+                $out[] = $schedule;
+            }
+            foreach ($ordered as $groupID) {
+                if (!isset($groupsByHost[$hostID][$groupID])) {
+                    continue;
+                }
+                foreach ($byGroup[$groupID] ?? [] as $schedule) {
+                    $key = $schedule['cron'] . '|' . $schedule['action'];
+                    if (isset($seen[$key])) {
+                        continue;
+                    }
+                    $seen[$key] = true;
+                    $out[] = $schedule;
+                }
+            }
+            $resolved[$hostID] = $out;
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * Joins five cron fields into the one expression everything else reads.
+     *
+     * PUBLIC because it is the only implementation. The host table and the
+     * group table must format the same five fields identically -- the
+     * deduplication key in resolvePowerManagement() is the formatted string,
+     * so a stray space would make one schedule look like two and run it twice
+     * -- and the group page's grid has to show the admin the same expression
+     * the client will be given. GroupPowerManagement::getCron() calls this
+     * rather than repeating it.
+     *
+     * `-1` for the weekday becomes `7`. FOG's own cron picker writes -1 for
+     * Sunday and Quartz, which the client schedules against, will not take it.
+     * Client\PM::json() normalized it inline and nothing else did, which is
+     * how the server-side WOL path came to disagree with the client one.
+     *
+     * THE is_numeric() GUARD IS A BUG FIX, not defensive padding. The inline
+     * version read `if ($dow < 0)`, and on PHP 8 `'*' < 0` is TRUE: comparing
+     * a non-numeric string with a number casts the NUMBER to string, and '*'
+     * (42) sorts below '0' (48). So every schedule with a wildcard weekday --
+     * which is every daily schedule anyone has ever set -- was handed to the
+     * client as `... 7`, meaning Sundays only. On PHP 7.4 the same expression
+     * is false, because that version cast the string to int instead, so the
+     * defect appeared when a server was upgraded past PHP 8 and nothing about
+     * FOG changed. Verified both ways, 2026-09-01.
+     *
+     * @param string $min   the minute field
+     * @param string $hour  the hour field
+     * @param string $dom   the day-of-month field
+     * @param string $month the month field
+     * @param string $dow   the day-of-week field
+     *
+     * @return string the five-field cron expression
+     */
+    public static function cronExpression($min, $hour, $dom, $month, $dow)
+    {
+        $dow = trim((string)$dow);
+        if (is_numeric($dow) && (int)$dow < 0) {
+            $dow = 7;
+        }
+
+        return sprintf(
+            '%s %s %s %s %s',
+            trim((string)$min),
+            trim((string)$hour),
+            trim((string)$dom),
+            trim((string)$month),
+            $dow
+        );
+    }
+
+    /**
+     * Turns one schedule row into a cron expression and an action.
+     *
+     * @param array  $row    the row, as an associative array
+     * @param string $prefix the column prefix, `pm` or `gpm`
+     *
+     * @return array ['cron' => string, 'action' => string]
+     */
+    private static function _schedule(array $row, $prefix)
+    {
+        return [
+            'cron' => self::cronExpression(
+                $row[$prefix . 'Min'],
+                $row[$prefix . 'Hour'],
+                $row[$prefix . 'Dom'],
+                $row[$prefix . 'Month'],
+                $row[$prefix . 'Dow']
+            ),
+            'action' => (string)$row[$prefix . 'Action']
+        ];
+    }
+
+    /**
      * Reads group membership for a set of hosts.
      *
      * Straight off `groupMembers`, for the transitive-filter reason in the

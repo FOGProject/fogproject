@@ -209,7 +209,18 @@ class TaskScheduler extends FOGService
                 }
             );
             $ptaskcount = $PMTasks->recordsFiltered;
-            $taskCount = $staskcount + $ptaskcount;
+
+            // Group-granted wake schedules (ADR 0038), read HERE rather than
+            // at the loop below so they are inside the count. The early
+            // `no tasks found` return is what made this necessary: a server
+            // whose only wake schedule is a group grant has no host rows at
+            // all, and the daemon would have thrown before ever reaching the
+            // grant loop -- a schedule that silently never fires.
+            $GroupPMGrants = self::getClass('GroupPowerManagementManager')
+                ->wakeGrants();
+            $gtaskcount = count($GroupPMGrants);
+
+            $taskCount = $staskcount + $ptaskcount + $gtaskcount;
             if ($taskCount <= 0) {
                 throw new \Exception(' * No tasks found!');
             }
@@ -352,6 +363,51 @@ class TaskScheduler extends FOGService
                         ' | %s %s',
                         _('Task sent to'),
                         $Task->getHost()->get('name')
+                    )
+                );
+            }
+            // Group-granted wake schedules (ADR 0038).
+            //
+            // A SEPARATE LOOP, NOT AN ADDITION TO THE RESOLVER'S OUTPUT.
+            // Assign\Resolver::resolvePowerManagement() answers "what does
+            // THIS host run", which is the right question for the client and
+            // the wrong one here: answering it for a wake would mean asking it
+            // of every host on the server on every tick, to find the handful
+            // whose group happens to fire this minute. The grant is the unit
+            // that has a timer, so the grant is what is iterated, and
+            // membership is expanded only once one is due.
+            //
+            // Only `wol`. A group-granted shutdown or reboot is carried out by
+            // the FOG client on each member, which gets it from the resolver
+            // through Client\PM -- the server has nothing to send. A wake is
+            // the one action a sleeping machine cannot perform for itself.
+            foreach ($GroupPMGrants as $Task) {
+                $Timer = $Task->getTimer();
+                self::outall(
+                    ' * '
+                    . _('Group Power Management Task run time')
+                    . ': '
+                    . $Timer->toString()
+                );
+                self::outall(
+                    sprintf(
+                        ' * %s ',
+                        $Timer->shouldRunNowCheck()
+                    )
+                );
+                if (!$Timer->shouldRunNow()) {
+                    continue;
+                }
+                self::outall(
+                    ' * '
+                    . _('Found a group wake on lan grant that should run.')
+                );
+                $Task->wakeOnLAN();
+                self::outall(
+                    sprintf(
+                        ' | %s %s',
+                        _('Grant sent to group'),
+                        $Task->getGroup()->get('name')
                     )
                 );
             }

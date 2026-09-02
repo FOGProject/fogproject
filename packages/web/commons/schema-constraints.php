@@ -308,6 +308,19 @@ return [
     // module inherited the number.
     ['child' => 'groupModuleAssoc', 'column' => 'gmaGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 10],
     ['child' => 'groupModuleAssoc', 'column' => 'gmaModuleID', 'parent' => 'modules', 'pcolumn' => 'id', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 10],
+    // ADR 0038: Power Management is the fourth grant. Group 11, created
+    // empty by step 410 so there is nothing to sweep before the flip.
+    //
+    // `satellite` rather than `junction`, and it sits with the grants
+    // above rather than in the satellite block, because it is one of
+    // them: the class is about SHAPE and the placement is about what the
+    // row is for. A schedule references only its group -- there is no
+    // second end to link to -- which is the same shape as
+    // powerManagement.pmHostID one level down. CASCADE for the reason
+    // group 9 gives, with a sharper edge here: an orphan schedule left
+    // against a reused group id would silently start shutting down every
+    // host that inherited the number.
+    ['child' => 'groupPowerManagement', 'column' => 'gpmGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 11],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];

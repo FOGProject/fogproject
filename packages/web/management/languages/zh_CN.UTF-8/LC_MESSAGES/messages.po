@@ -1740,6 +1740,10 @@ msgstr ""
 msgid "Clear one of your preferences"
 msgstr ""
 
+#, fuzzy
+msgid "Clear schedules from member hosts"
+msgstr "调度"
+
 msgid "Click"
 msgstr "点击"
 
@@ -2142,6 +2146,10 @@ msgid "Create New Windows Key"
 msgstr "新建%s"
 
 #, fuzzy
+msgid "Create Scheduled Power grant"
+msgstr "调度"
+
+#, fuzzy
 msgid "Create Scheduled Power task"
 msgstr "调度"
 
@@ -2350,13 +2358,6 @@ msgstr "延迟"
 
 msgid "Delete"
 msgstr "删除"
-
-#, fuzzy
-msgid "Delete All"
-msgstr "删除的文件数据"
-
-msgid "Delete All Powermanagement Items"
-msgstr ""
 
 #, fuzzy
 msgid "Delete Fail"
@@ -2777,6 +2778,9 @@ msgid "Every file was uploaded."
 msgstr "没有文件被上传"
 
 msgid "Every filter the CALLING user may see on that grid: their own, every global one, and any shared with them by name, through a user group, or through a role. There is no user in the path and no way to name one. mayShareGlobally reports whether the caller holds savedfilter.create, so a client can omit the \"everyone\" option rather than offer it and fail on save."
+msgstr ""
+
+msgid "Every host in this group runs these schedules, including hosts added later. Nothing is written onto a host; a host keeps its own schedules as well."
 msgstr ""
 
 msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
@@ -3272,6 +3276,9 @@ msgstr "FOG论坛"
 msgid "Found"
 msgstr ""
 
+msgid "Found a group wake on lan grant that should run."
+msgstr ""
+
 msgid "Found a scheduled task that should run."
 msgstr ""
 
@@ -3403,6 +3410,10 @@ msgstr "更新位置"
 
 msgid "Got in line at"
 msgstr ""
+
+#, fuzzy
+msgid "Grant sent to group"
+msgstr "打印机"
 
 #, fuzzy
 msgid "Granted To"
@@ -3537,6 +3548,10 @@ msgstr "集团补充"
 #, fuzzy
 msgid "Group Order"
 msgstr "组"
+
+#, fuzzy
+msgid "Group Power Management Task run time"
+msgstr "用户管理"
 
 msgid "Group Primary Disk"
 msgstr "集团主磁盘"
@@ -6914,6 +6929,10 @@ msgid "Power Management"
 msgstr "用户管理"
 
 #, fuzzy
+msgid "Power Management Grants"
+msgstr "用户管理"
+
+#, fuzzy
 msgid "Power Management Task run time"
 msgstr "用户管理"
 
@@ -9577,7 +9596,13 @@ msgstr ""
 msgid "This account is for API access only and cannot sign in."
 msgstr ""
 
+msgid "This acts on the hosts that are in the group right now. It is a task, not a grant: a host added afterward is not affected."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
+msgstr ""
+
+msgid "This deletes the power management schedules held by the hosts that are in this group right now. It does NOT touch this group's grants, and it also removes schedules those hosts were given individually."
 msgstr ""
 
 msgid "This directory does not advertise support for nested group chaining, so the chain strategy would match nothing. Use the expand strategy instead."
@@ -9753,9 +9778,6 @@ msgid "This tells the client to force reboots for host name changing and AD Join
 msgstr ""
 
 msgid "This will allow you to configure how services"
-msgstr ""
-
-msgid "This will delete all powermanagement items from all hosts in this group"
 msgstr ""
 
 msgid "This would leave no account able to administer FOG without its identity provider."
@@ -10198,9 +10220,6 @@ msgid "Use extreme caution with this setting"
 msgstr ""
 
 msgid "Use processEvent instead"
-msgstr ""
-
-msgid "Use the buttons below to create a new power management task to all hosts in this group."
 msgstr ""
 
 #, fuzzy
@@ -11832,10 +11851,6 @@ msgstr ""
 #~ msgstr "添加管理单元失败！"
 
 #, fuzzy
-#~ msgid "Add selected to group"
-#~ msgstr "打印机"
-
-#, fuzzy
 #~ msgid "Administrator Group"
 #~ msgstr "修改组"
 
@@ -11889,6 +11904,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Database connection unavailable"
 #~ msgstr "没有可用的散列"
+
+#, fuzzy
+#~ msgid "Delete All"
+#~ msgstr "删除的文件数据"
 
 #, fuzzy
 #~ msgid "Deprecated."
