@@ -140,6 +140,21 @@ return [
                 'alSpanID' => 'varchar(32) NOT NULL DEFAULT \'\'',
             ],
         ],
+        'bootFile' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `bootFile` ( `bfID` int(11) NOT NULL AUTO_INCREMENT, `bfName` varchar(191) NOT NULL DEFAULT \'\', `bfSize` bigint(20) NOT NULL DEFAULT 0, `bfMtime` datetime DEFAULT NULL, `bfChecksum` varchar(64) NOT NULL DEFAULT \'\', `bfRole` varchar(20) NOT NULL DEFAULT \'unclassified\', `bfKernelVersion` varchar(191) NOT NULL DEFAULT \'\', `bfReleaseTag` varchar(191) NOT NULL DEFAULT \'\', `bfInspected` datetime DEFAULT NULL, `bfPinned` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`bfID`), UNIQUE KEY `bfName` (`bfName`), KEY `bfRole` (`bfRole`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'bfID' => 'int(11) NOT NULL',
+                'bfName' => 'varchar(191) NOT NULL DEFAULT \'\'',
+                'bfSize' => 'bigint(20) NOT NULL DEFAULT 0',
+                'bfMtime' => 'datetime DEFAULT NULL',
+                'bfChecksum' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'bfRole' => 'varchar(20) NOT NULL DEFAULT \'unclassified\'',
+                'bfKernelVersion' => 'varchar(191) NOT NULL DEFAULT \'\'',
+                'bfReleaseTag' => 'varchar(191) NOT NULL DEFAULT \'\'',
+                'bfInspected' => 'datetime DEFAULT NULL',
+                'bfPinned' => 'tinyint(1) NOT NULL DEFAULT 0',
+            ],
+        ],
         'clientUpdates' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `clientUpdates` ( `cuID` int(11) NOT NULL AUTO_INCREMENT, `cuName` varchar(200) NOT NULL DEFAULT \'\', `cuMD5` varchar(100) NOT NULL DEFAULT \'\', `cuType` varchar(30) NOT NULL DEFAULT \'\', `cuFile` longblob NOT NULL DEFAULT \'\', PRIMARY KEY (`cuID`), KEY `new_index` (`cuName`), KEY `new_index1` (`cuType`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
