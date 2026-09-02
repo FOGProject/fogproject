@@ -238,6 +238,87 @@ _discardOrphanedCommLeaf
     && ok "a matching pair is left alone" \
     || bad "a matching pair was deleted"
 
+# --- the record has to SURVIVE writeUpdateFile, and the next run ------------
+# The resolver above was already correct; the bug was that writeUpdateFile then
+# assigned the zone path over its answer, so `--client-cert/--client-key` were
+# honored for exactly one run and silently reverted. Nothing tested
+# writeUpdateFile against these keys at all, which is how that survived.
+#
+# Two passes, because one pass cannot see the bug: pass one held the admin's
+# path in the live variable regardless, and only the FILE it wrote was wrong.
+run2work="$WORK/tworun"
+fogprogramdir="$run2work/opt/fog"
+snapindir="$fogprogramdir/snapins"
+PKI_client_cert_dir="$snapindir/ssl"
+# Into the scratch tree, or _pkiRootDir() reaches for the host's own /etc/fog
+# and _pkiZoneDir client resolves outside anything this test created.
+PKI_root_dir="$fogprogramdir/pki"
+mkdir -p "${PKI_client_cert_dir}" "$fogprogramdir/pki/client/leaf"
+apacheuser="${apacheuser:-www-data}"
+version="1.6.0"
+PKI_client_encrypt_cert="$WORK/a.crt"
+PKI_client_encrypt_key="$WORK/a.key"
+
+# writeUpdateFile reads a great deal of the install's state. Give it only what
+# it needs to emit a file; every unset managed key emits an empty line, which is
+# fine here -- the two keys under test are what this asserts.
+writeUpdateFile >/dev/null 2>&1
+
+settings="$fogprogramdir/.fogsettings"
+[[ -f $settings ]] \
+    && ok "writeUpdateFile emitted a settings file" \
+    || bad "writeUpdateFile wrote no settings file"
+
+is "${PKI_client_encrypt_key}" "$WORK/a.key" \
+   "pass 1: the live key still names the admin's file after writeUpdateFile"
+is "${PKI_client_encrypt_cert}" "$WORK/a.crt" \
+   "pass 1: the live cert still names the admin's file after writeUpdateFile"
+is "$(sed -n "s/^PKI_client_encrypt_key='\(.*\)'$/\1/p" "$settings")" "$WORK/a.key" \
+   "pass 1: the RECORDED key is the admin's file, not the zone path"
+is "$(sed -n "s/^PKI_client_encrypt_cert='\(.*\)'$/\1/p" "$settings")" "$WORK/a.crt" \
+   "pass 1: the RECORDED cert is the admin's file, not the zone path"
+
+# Pass two is the run that used to lose it: read the file back the way the
+# installer does, then resolve and record again with no flags passed.
+unset PKI_client_encrypt_key PKI_client_encrypt_cert
+. "$settings" >/dev/null 2>&1
+is "${PKI_client_encrypt_key}" "$WORK/a.key" \
+   "pass 2: sourcing .fogsettings hands back the admin's key"
+
+_resolveClientLeafPaths >/dev/null 2>&1
+is "${PKI_client_encrypt_key}" "$WORK/a.key" \
+   "pass 2: _resolveClientLeafPaths keeps it"
+writeUpdateFile >/dev/null 2>&1
+is "$(sed -n "s/^PKI_client_encrypt_key='\(.*\)'$/\1/p" "$settings")" "$WORK/a.key" \
+   "pass 2: the record survives a second run with no flags"
+
+# And the compat link must still POINT at the admin's file, because that is what
+# FOGBase::certDecrypt() opens -- it hardcodes the .srvprivate.key filename and
+# never reads PKI_client_encrypt_key. A link into the zone here means every
+# fog-client authenticates against the wrong key, or none.
+_linkClientLeafCompat >/dev/null 2>&1
+[[ -L "${PKI_client_cert_dir}/.srvprivate.key" ]] \
+    && ok "the canonical name is a symlink, not a copy of the key" \
+    || bad "the canonical name is not a symlink -- the key was duplicated"
+is "$(readlink -f "${PKI_client_cert_dir}/.srvprivate.key")" "$(readlink -f "$WORK/a.key")" \
+   "the canonical name resolves to the admin's key"
+
+# _separateCommKey runs FIRST in createSSLCA, before the resolver, and used to
+# know only about the client zone. FOG's own compat link at the admin's file
+# resolves outside that zone, so it dereferenced the link and copied the key
+# back into $snapindir/ssl as a real file -- which the resolver's migrate loop
+# then moved into the zone. That unwound the relocation on every run, and left a
+# private key lying in the directory the snapin replicator walks.
+_separateCommKey >/dev/null 2>&1
+[[ -L "${PKI_client_cert_dir}/.srvprivate.key" ]] \
+    && ok "_separateCommKey leaves FOG's own link at the admin's file alone" \
+    || bad "_separateCommKey dereferenced the link and copied the admin's key"
+is "$(readlink -f "${PKI_client_cert_dir}/.srvprivate.key")" "$(readlink -f "$WORK/a.key")" \
+   "and it still resolves to the admin's key"
+[[ ! -f "$fogprogramdir/pki/client/leaf/.srvprivate.key" ]] \
+    && ok "the admin's key was not migrated into FOG's zone" \
+    || bad "the admin's key material was moved into FOG's own zone"
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
 exit 0

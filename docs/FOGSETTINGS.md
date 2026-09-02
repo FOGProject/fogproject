@@ -64,7 +64,7 @@ in this area:
 |---|---|---|
 | **Preference** | The admin's decision. Persisted so it survives an upgrade, and *nothing* may silently reverse it | `PKI_sb_enabled`, `SVC_firewall_control`, `FOG_update_channel`, `FOG_install_mode`, `PKI_internal_subnets`, `BOOT_kernel_backups_kept`, `WEB_url_primary` |
 | **Record** | Written so it can be read back for reference. The installer recomputes the real value every run and ignores what is stored | `FOG_program_dir`, `FOG_git_path`, `FOG_packages`, `WEB_php_version`, `BOOT_url_proto`, most canonical `PKI_*` paths |
-| **Honored record** | Recomputed only while it still holds one of the installer's own defaults; any other value is left alone on every run, so the admin may point it at their own file | `PKI_web_vhost_cert`, `PKI_web_vhost_key`, `PKI_web_trust_chain` |
+| **Honored record** | Recomputed only while it still holds one of the installer's own defaults; any other value is left alone on every run, so the admin may point it at their own file | `PKI_web_vhost_cert`, `PKI_web_vhost_key`, `PKI_web_trust_chain`, `PKI_client_encrypt_cert`, `PKI_client_encrypt_key` |
 | **Hand-set** | Nothing in the installer writes it; it survives only because the merge preserves unknown lines | `inetConnectTimeout`, `inetMaxTime`, `storageLocationCapture`, `ftppasvmin`/`ftppasvmax`, `mcastportmin`/`mcastportmax` |
 | **Inferred preference** | A preference the installer may write *once* from what it observed, and then treats as the admin's | `WEB_https_redirect`, `BOOT_url_proto_forced` |
 
@@ -208,8 +208,14 @@ the same treatment via `resolvedfoggitpath`.
 `FOG_program_dir` is therefore a **record** of where the install is, written from
 the live variable. `settingLine()` resolves values by indirect expansion
 (`${!key}`), so that record needs its own explicit assignment in
-`writeUpdateFile()` or the emitted line would simply be empty. The same applies
-to `PKI_client_encrypt_cert`/`_key`.
+`writeUpdateFile()` or the emitted line would simply be empty.
+
+`PKI_client_encrypt_cert`/`_key` need an assignment there for the same reason,
+but they are **honored records**, not plain ones: the assignment goes through
+`_clientLeafTarget()`, which answers the client zone path for an unset or
+FOG-owned value and leaves an admin's own path -- from `--client-cert` /
+`--client-key` -- untouched. Assigning the zone path directly recorded FOG's
+file over the admin's, so the relocation was silently gone by the next run.
 
 Renaming the `fog.conf` variable is a separate change: every existing server
 already carries the old spelling in that file.

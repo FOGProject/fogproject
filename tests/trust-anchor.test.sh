@@ -274,9 +274,10 @@ else
     bad "I: _resolveTrustAnchor returned non-zero"
 fi
 
-# Case J -- validateExternalCA persists the admin's SOURCE path, which is
-# routinely a temp file that is gone by the next run. That must be a no-op,
-# not a failure.
+# Case J -- a recorded imported root that is no longer on disk must be a
+# no-op, not a failure. Until GH-1683 this was the COMMON case, because
+# validateExternalCA persisted the admin's source path; both import routes now
+# record a canonical copy, so it is what is left: a file deleted by hand.
 newcase J
 PKI_root_ca_cert="$WORK/fog/root.pem"
 PKI_web_external_root_cert="$WORK/this-file-was-deleted.pem"
@@ -297,6 +298,54 @@ if _resolveTrustAnchor; then
 else
     bad "K: _resolveTrustAnchor returned non-zero with an imported root present"
 fi
+
+# Case L -- the recorded path must OUTLIVE the source (GH-1683).
+#
+# validateExternalCA used to persist $rootsrc, the path the admin passed to
+# --ca-root, which is routinely a temp file. By the next run the key named
+# something that no longer existed, so case J's skip -- correct in itself -- was
+# what actually happened on most external-CA servers, and the imported root
+# quietly stopped being anchored. It now records the canonical copy beside the
+# rest of the imported zone, which is the same file the Certificates page's
+# helper writes.
+#
+# Driving the real validateExternalCA needs the two output helpers stubbed:
+# errorStat exits on a non-zero status, which inside a test reads as a pass.
+newcase L
+# newcase already points $fogprogramdir and PKI_root_dir into the scratch tree.
+dots() { :; }
+errorStat() { :; }
+PKI_root_ca_cert="$WORK/fog/root.pem"
+# A source that is deleted straight after the import, exactly as a temp file is.
+cp "$WORK/ext/root.pem" "$WORK/L-source-root.pem"
+cp "$WORK/ext/int.pem" "$WORK/L-source-int.pem"
+cp "$WORK/ext/int.key" "$WORK/L-source-int.key"
+importWebCACert="$WORK/L-source-int.pem"
+importWebCAKey="$WORK/L-source-int.key"
+importWebCARoot="$WORK/L-source-root.pem"
+
+validateExternalCA web >/dev/null 2>&1
+
+canonroot="$(_pkiZoneDir web)/ca/.externalRoot.pem"
+[[ -f $canonroot ]] \
+    && ok "L: the imported root is copied into the zone" \
+    || bad "L: no canonical copy of the imported root was written"
+check "${PKI_web_external_root_cert}" "$canonroot" \
+    "L: the CANONICAL path is recorded, not the admin's source"
+
+# The whole point: delete the source the way a temp file goes, and the anchor
+# must still pick the imported root up.
+rm -f "$WORK/L-source-root.pem"
+if _resolveTrustAnchor; then
+    check "$(count_certs "$trustAnchorPem")" "2" \
+        "L: the anchor still carries the imported root after the source is gone"
+    has_fp "$trustAnchorPem" "$EXTROOT_FP" \
+        && ok "L: and it is the imported root" \
+        || bad "L: the imported root is not in the anchor"
+else
+    bad "L: _resolveTrustAnchor returned non-zero after the source was removed"
+fi
+unset importWebCACert importWebCAKey importWebCARoot
 
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
