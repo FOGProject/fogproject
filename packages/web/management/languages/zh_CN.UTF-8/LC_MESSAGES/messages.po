@@ -9744,7 +9744,7 @@ msgstr ""
 msgid "This machine already registered as %s"
 msgstr "已注册为"
 
-msgid "This name is not a recognised file in the boot directory."
+msgid "This name is not a recognized file in the boot directory."
 msgstr ""
 
 #, fuzzy
