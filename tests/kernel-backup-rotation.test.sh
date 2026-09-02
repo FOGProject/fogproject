@@ -193,5 +193,122 @@ check "a retention of 1 still holds the newest snapshot" \
 check "the rotation does not read the retired kernelBackupGenerations" \
     "$(! sed 's/#.*//' <<< "$snippet" | grep -q 'kernelBackupGenerations'; echo $?)"
 
+# ---------------------------------------------------------------------------
+# A generation records a KERNEL, not an installer run.
+#
+# The rotation ran unconditionally, and not every FOG release ships a new FOS
+# kernel. Three upgrades carrying one kernel therefore left gen-1, gen-2 and
+# gen-3 holding three identical copies: the depth an admin asked for
+# evaporated silently, and restorekernel.sh --list offered three snapshots
+# that were the same snapshot.
+#
+# These cases need the COPY loop as well as the prune and the rotate -- the
+# comparison is against what gen-1 actually holds -- so they run a second
+# extraction that reaches through it. Same reason as the first: a textual
+# check for cmp would pass on a comparison made in one direction only, and
+# one direction is exactly the bug a subset test would ship (a file the admin
+# DELETED since the last install reads as unchanged).
+# ---------------------------------------------------------------------------
+snippet_full=$(awk '
+    /BOOT_kernel_backups_kept\} -lt 1 \]\] &&/ { grab = 1 }
+    grab { print }
+    grab && /cp -a "\$kf" "\$\{kbdir\}\/gen-1\/\$\{bn\}"/ { seen = 1 }
+    seen && /^        done$/ { exit }
+' "$functions")
+
+if [[ -z $snippet_full ]]; then
+    echo "FAIL: could not find the capture block (prune, rotate and copy) in" >&2
+    echo "  lib/common/functions.sh. If it moved or was rewritten, point this" >&2
+    echo "  test at it -- do not delete the assertion." >&2
+    exit 1
+fi
+
+eval "capture() {
+    local warn=0
+$snippet_full
+    fi
+}"
+
+customizationsDir="$work/dedupe"
+kbdir="$customizationsDir/kernel-backups"
+unset BOOT_kernel_backups_kept kernelBackupGenerations
+rm -rf "$ipxedir"
+mkdir -p "$ipxedir"
+
+printf 'kernel-A' > "$ipxedir/bzImage"
+capture
+
+check "the first capture creates gen-1" \
+    "$([[ -f $kbdir/gen-1/bzImage ]]; echo $?)"
+
+# Same bytes, second install. Nothing changed, so nothing should move.
+capture
+
+check "an install that changed no kernel does not spend a generation" \
+    "$([[ ! -d $kbdir/gen-2 ]]; echo $?)"
+
+check "and gen-1 still holds the kernel" \
+    "$([[ $(cat "$kbdir/gen-1/bzImage") == kernel-A ]]; echo $?)"
+
+# A genuinely new kernel.
+printf 'kernel-B' > "$ipxedir/bzImage"
+capture
+
+check "a new kernel does spend a generation" \
+    "$([[ -d $kbdir/gen-2 ]]; echo $?)"
+
+check "gen-1 holds the new kernel" \
+    "$([[ $(cat "$kbdir/gen-1/bzImage") == kernel-B ]]; echo $?)"
+
+check "gen-2 holds the one it replaced" \
+    "$([[ $(cat "$kbdir/gen-2/bzImage") == kernel-A ]]; echo $?)"
+
+# Three no-change installs in a row must not consume the whole retention,
+# which is the reported redundancy stated as an assertion.
+capture
+capture
+capture
+
+check "three unchanged installs leave the retention untouched" \
+    "$([[ -d $kbdir/gen-1 && -d $kbdir/gen-2 && ! -d $kbdir/gen-3 ]]; echo $?)"
+
+# A file the admin ADDED is a change.
+printf 'mine' > "$ipxedir/bzImage_MyHardware"
+capture
+
+check "a file the admin added counts as a change" \
+    "$([[ -d $kbdir/gen-3 && -f $kbdir/gen-1/bzImage_MyHardware ]]; echo $?)"
+
+# And one they DELETED is a change too -- the case a subset comparison, run
+# in one direction only, would call unchanged.
+customizationsDir="$work/dedupe-del"
+kbdir="$customizationsDir/kernel-backups"
+rm -rf "$ipxedir"
+mkdir -p "$ipxedir"
+printf 'one' > "$ipxedir/bzImage"
+printf 'two' > "$ipxedir/bzImage_Extra"
+capture
+rm -f "$ipxedir/bzImage_Extra"
+capture
+
+check "a file the admin deleted counts as a change" \
+    "$([[ -d $kbdir/gen-2 ]]; echo $?)"
+
+check "and the deleted file is still recoverable from the older generation" \
+    "$([[ -f $kbdir/gen-2/bzImage_Extra && ! -f $kbdir/gen-1/bzImage_Extra ]]; echo $?)"
+
+# The comparison must not be fooled by same size, different content.
+customizationsDir="$work/dedupe-size"
+kbdir="$customizationsDir/kernel-backups"
+rm -rf "$ipxedir"
+mkdir -p "$ipxedir"
+printf 'AAAA' > "$ipxedir/bzImage"
+capture
+printf 'BBBB' > "$ipxedir/bzImage"
+capture
+
+check "content is compared, not size" \
+    "$([[ -d $kbdir/gen-2 ]]; echo $?)"
+
 printf '\n%s: %d passed, %d failed\n' "$(basename "$0")" "$pass" "$fail"
 [[ $fail -eq 0 ]]
