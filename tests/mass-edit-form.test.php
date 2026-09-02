@@ -550,6 +550,11 @@ $where = [
     'image' => 'general',
     'kernel' => 'general',
     'enforce' => 'general',
+    // Not General. The host page draws this on Printer Associations, and
+    // there is no Printer Associations tab here -- an association is not a
+    // value a mass edit sets -- so what is left is a statement about how the
+    // client handles printers, which is what this tab holds.
+    'printerLevel' => 'client',
     'useAD' => 'ad',
     'ADPass' => 'ad',
     'autologout' => 'client',
