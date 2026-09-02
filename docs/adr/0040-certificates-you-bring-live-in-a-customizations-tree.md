@@ -7,6 +7,53 @@ accepted, and implemented on `working-1.6` as `_customPkiDir()` /
 with `PKI_custom_dir` recorded in `.fogsettings` and signal 0 of
 `_detectExternalCertManagement()`.
 
+## Amended 2026-09-02 — two trees, by direction, is the design
+
+FOGProject/fogproject#1684 asked the question "One unified tree" below
+deferred: can one directory be both an input and an output? **No**, and the
+reason is the conflict rule, not the root it sits under. The `/opt` side
+restores by *absence* — `restorePreservedCustomizations()` puts a file back
+only when the rebuilt tree no longer has it, and leaves a fresh shipped file
+alone. The `/etc` side adopts by *presence* — what is there overrides what FOG
+would otherwise generate. One directory cannot honor both: either an
+administrator's drop-in is silently outranked by whatever FOG shipped, or a
+stale backup FOG made for itself silently outranks the fresh file. Two trees
+with one rule each is what keeps "FOG's copy" and "yours" distinguishable in a
+support thread, and the FHS split in ADR 0037 lands on the same answer for the
+independent reason that binaries cannot live under `/etc`.
+
+So the split is by **direction**, and it is the design rather than an accident
+to be tidied: `/etc/fog/customizations` is written by the administrator and
+only read by FOG; `/opt/fog/customizations` is written by FOG and never needs
+the administrator's hand. The two readmes already say exactly that and point
+at each other. The name stays `customizations` on both sides — `custom` beside
+`customizations`, with opposite data directions, would be worse than either
+word alone.
+
+What the rest of `docs/SUPPORTED_CUSTOMIZATIONS.md` gets from a blessed
+*input* path, item by item, is nothing today:
+
+| item | what it needs | already has it? |
+|---|---|---|
+| custom-named kernels and inits | to be **found** and to be **kept** | found: GH-1688 classifies by header magic, any name, no config. kept: the backup set is (live dir) minus (source tree), a naming guarantee that holds without a location |
+| the iPXE menu background | to survive the rebuild | round-tripped through `ipxe-bg/`; it is set through the UI, so a pre-run drop-in has no caller |
+| replaced iPXE binaries | to survive the rebuild | round-tripped through `ipxe-legacy/`; a blessed input would have to hold binaries, which rules out `/etc` |
+| reports you have written | to survive the rebuild | `restoreReports()` since GH-1580, its own mechanism |
+| vhost outside the managed block | to survive the rewrite | `spliceManagedBlock()` preserves it in place |
+
+Certificates were different on all four counts ADR 0040 lists — secret,
+irreplaceable, needing SELinux labels, and previously documented by invented
+example. None of the five above is any of those. A second input tree is
+therefore a mechanism waiting for a customer, and it is not built. The
+constraints #1684 records stand unchanged: `bin/restorekernel.sh` and
+`bin/revertfog.sh` keep resolving `$fogprogramdir/customizations/kernel-backups`,
+`_resolveCustomizationsDir()` stays resolved on call, and the frozen vhost
+marker keeps naming `docs/SUPPORTED_CUSTOMIZATIONS.md`.
+
+If something later does need a pre-run input that is not a certificate, it
+goes under `/etc/fog/customizations/<thing>/` when it is small configuration,
+and the `/opt` side stays output-only. That is the whole of the rule.
+
 ## Amended 2026-09-02 — a third name, for the chain
 
 `web-leaf-chain.pem` joins `web-leaf.pem` and `web-leaf.key` as a documented
@@ -151,6 +198,8 @@ costs nothing and the readmes can then explain one concept.
 right long-term shape for the rest of `docs/SUPPORTED_CUSTOMIZATIONS.md`, but it
 cannot be one *location*: see the split above. Filed as its own issue, since it
 also has to decide whether one directory can be both an input and an output.
+Decided in the 2026-09-02 amendment above: it cannot, and the split by direction
+is the design.
 
 **Leave it to the documentation.** Zero code, and it is what was tried. The recipe
 in #178 is the evidence: with no blessed location, each document picks one, and
