@@ -6710,11 +6710,45 @@ _hardenPkiPermissions() {
     # going through the compat link would work by accident -- but it silently
     # does nothing at all on the run before the link exists, and names the wrong
     # thing in the error log when it fails.
+    #
+    # This now retargets an admin's own file when --client-cert/--client-key
+    # relocated the keypair, and that is deliberate rather than incidental.
+    # certDecrypt() opens this key on every fog-client authorize(), so it HAS to
+    # be readable by the web user; the web leaf's key is exempted from hardening
+    # because an ACME client owns and rewrites it, and nothing owns this one.
     if [[ -f ${PKI_client_encrypt_key} ]]; then
         chown root:${apacheuser} "${PKI_client_encrypt_key}" >>$error_log 2>&1
         chmod 0640 "${PKI_client_encrypt_key}" >>$error_log 2>&1
     fi
     errorStat $?
+    # A chown on the file cannot fix an unreadable PARENT, so a relocated key
+    # under, say, /root/ still leaves every client failing to authenticate with
+    # "Private key not readable" as the only clue -- per client, and naming
+    # nothing. Ask the question the web tier will ask, as the user it will ask
+    # it as, and say so here where somebody is watching.
+    #
+    # runuser then su, the same fallback _keaValidate() uses, and NOT sudo: sudo
+    # needs a sudoers rule for root -> ${apacheuser} that a hardened box may not
+    # have, and a warning that fires because the TEST could not run is worse
+    # than no warning at all. When neither tool is present the check is skipped
+    # rather than guessed.
+    if [[ -f ${PKI_client_encrypt_key} ]]; then
+        commReadable=""
+        if command -v runuser >/dev/null 2>&1; then
+            runuser -u "${apacheuser}" -- test -r "${PKI_client_encrypt_key}" \
+                >>$error_log 2>&1 && commReadable=yes || commReadable=no
+        elif command -v su >/dev/null 2>&1; then
+            su -s /bin/sh -c "test -r '${PKI_client_encrypt_key}'" "${apacheuser}" \
+                >>$error_log 2>&1 && commReadable=yes || commReadable=no
+        fi
+        if [[ $commReadable == no ]]; then
+            echo " * The web server cannot read the client communication key:"
+            echo "     ${PKI_client_encrypt_key}"
+            echo "   Every fog-client will fail to authenticate until it can."
+            echo "   Check that ${apacheuser} can traverse each parent directory."
+        fi
+        unset commReadable
+    fi
     # configureSnapins now prunes ${PKI_client_cert_dir}, so its recursive relabel no longer
     # reaches here either. Re-assert it, or SELinux denies the web tier the
     # read the mode above just granted.
@@ -7125,8 +7159,26 @@ writeUpdateFile() {
         # overwriting it: _customPkiDir() echoes $PKI_custom_dir when that is
         # already set, and only falls back to the default when it is not.
         PKI_custom_dir="$(_customPkiDir)"
-        PKI_client_encrypt_key="$(_pkiZoneDir client)/leaf/.srvprivate.key"
-        PKI_client_encrypt_cert="$(_pkiZoneDir client)/leaf/.srvpublic.crt"
+        # Through _clientLeafTarget(), NOT straight to the zone path, for the
+        # same reason as the two above: --client-cert/--client-key name the
+        # admin's own comm keypair, and assigning the zone path here recorded
+        # FOG's file over theirs. The next run sourced that, and the relocation
+        # was gone with nothing reported -- while installfog.sh's own flag
+        # gating already assumes these keys persist across runs, which is the
+        # promise this restores rather than a new one.
+        #
+        # Safe to call from here: _clientLeafTarget is pure -- readlink -f and
+        # nothing else, no mkdir and no writes -- and it already answers the
+        # zone path for an unset record, for the zone path itself, for the
+        # historic canonical name, and for a recorded path that no longer
+        # exists. Same three arguments _resolveClientLeafPaths passes, so the
+        # two cannot disagree about what counts as FOG's own file.
+        PKI_client_encrypt_key="$(_clientLeafTarget "${PKI_client_encrypt_key}" \
+            "$(_pkiZoneDir client)/leaf/.srvprivate.key" \
+            "${PKI_client_cert_dir}/.srvprivate.key")"
+        PKI_client_encrypt_cert="$(_clientLeafTarget "${PKI_client_encrypt_cert}" \
+            "$(_pkiZoneDir client)/leaf/.srvpublic.crt" \
+            "${PKI_client_cert_dir}/.srvpublic.crt")"
     fi
 
     # Managed keys, in the canonical order a freshly written file uses. This one
@@ -7497,12 +7549,19 @@ writeUpdateFile() {
                 printf '## Canonical certificate paths. The installer recomputes most of these\n'
                 printf '## every run, so editing one here moves nothing.\n'
                 printf '##\n'
-                printf '## The exceptions are PKI_web_vhost_cert, PKI_web_vhost_key and\n'
-                printf '## PKI_web_trust_chain. To serve a certificate FOG did not issue you may\n'
-                printf '## either leave those alone and make each path resolve to your file (a\n'
-                printf '## symlink is enough), or set them to where your files really are -- the\n'
-                printf '## installer only resets one of them while it still holds a default of\n'
-                printf '## its own. Either way FOG stops re-issuing that leaf.\n'
+                printf '## The exceptions are PKI_web_vhost_cert, PKI_web_vhost_key,\n'
+                printf '## PKI_web_trust_chain, PKI_client_encrypt_cert and\n'
+                printf '## PKI_client_encrypt_key. To serve or use a certificate FOG did not\n'
+                printf '## issue you may either leave those alone and make each path resolve to\n'
+                printf '## your file (a symlink is enough), or set them to where your files\n'
+                printf '## really are -- the installer only resets one of them while it still\n'
+                printf '## holds a default of its own. Either way FOG stops re-issuing it.\n'
+                printf '##\n'
+                printf '## The two client_encrypt keys are the fog-client communication keypair,\n'
+                printf '## normally set with --client-cert/--client-key. Relocating them is a\n'
+                printf '## re-pin event if the material differs: the installer says so, and the\n'
+                printf '## key must stay readable by the web server or no client can\n'
+                printf '## authenticate.\n'
                 printf '##\n'
                 printf '## Simplest of all: drop web-leaf.pem and web-leaf.key into\n'
                 printf '## PKI_custom_dir above and re-run the installer, which finds the pair\n'
@@ -9429,6 +9488,20 @@ _separateCommKey() {
     # _externallyManagedLeaf asks of the web leaf.
     zonedir=$(readlink -f "$(_pkiZoneDir client)" 2>/dev/null)
     [[ -n $zonedir && $target == "$zonedir"/* ]] && return 0
+    # And FOG's own compat link at the ADMIN's file is equally not something to
+    # separate -- it is what --client-cert/--client-key mean. The zone test
+    # above cannot see that case, because the whole point of a relocated comm
+    # keypair is that it lives outside the zone.
+    #
+    # Without this the relocation unwinds itself on the very next run: the link
+    # is dereferenced, the admin's key is copied back into $snapindir/ssl as a
+    # REAL file, and _resolveClientLeafPaths' migrate loop then moves that file
+    # into the zone -- so FOG quietly takes ownership of key material the admin
+    # asked it only to point at. The record surviving writeUpdateFile is what
+    # makes this test possible; the two halves are one fix.
+    [[ -n ${PKI_client_encrypt_key} \
+        && $target == "$(readlink -f "${PKI_client_encrypt_key}" 2>/dev/null)" ]] \
+        && return 0
     dots "Separating the client communication key from the web key"
     rm -f "$canon" >>$error_log 2>&1
     cp -f "$target" "$canon" >>$error_log 2>&1

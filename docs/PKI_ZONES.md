@@ -458,12 +458,27 @@ installs, not storage nodes — see
 [MULTI_SERVER_CA.md](MULTI_SERVER_CA.md), which covers this flag set applied
 across a fleet and the alternatives to it.
 
-**The Client Communication zone is not replaceable this way, deliberately.**
-It is anchored at the certificate every fog-client has pinned, so replacing it
-means re-deploying trust to every registered machine. That is possible — push
-the new `ca.cert.der` by GPO or by reinstalling fog-client — but there is no
-built-in path for it, because there is no way to do it without touching every
-endpoint.
+**The Client Communication zone's CA is not replaceable this way, deliberately.**
+The zone is anchored at the certificate every fog-client has pinned, so
+replacing that *authority* means re-deploying trust to every registered
+machine. That is possible — push the new `ca.cert.der` by GPO or by
+reinstalling fog-client — but there is no built-in path for it, because there is
+no way to do it without touching every endpoint.
+
+Relocating the zone's **leaf** is a different thing, and is supported:
+`--client-cert` and `--client-key` name your own communication keypair, and FOG
+points its canonical names at it rather than issuing its own. The two keys are
+recorded as `PKI_client_encrypt_cert` and `PKI_client_encrypt_key`, and survive
+every later run.
+
+Two things to know before using them. If the material differs from what the
+server issued before, that **is** a re-pin event for every registered client —
+the installer compares fingerprints and says so, but it will not stop you. And
+the private key must stay readable by the web server, because
+`FOGBase::certDecrypt()` opens it on every client `authorize()`; the installer
+sets `0640 root:<apache user>` on the file itself and warns if the web user
+still cannot read it, which is what an untraversable parent directory looks
+like.
 
 **If your CA carries `pathlen:0`** — an ordinary thing for an enterprise to
 issue — it cannot anchor an intermediate. The installer detects this, says so,
