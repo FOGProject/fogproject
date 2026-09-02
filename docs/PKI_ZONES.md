@@ -518,6 +518,45 @@ sudo helper depends on.
 > carry on as the *web* key — so an ACME renewal writing it no longer changes
 > what `certDecrypt()` reads.
 
+### Where to put a certificate you brought
+
+`/etc/fog/customizations/pki/`, recorded as `PKI_custom_dir`. It is a **sibling**
+of `$(_pkiRootDir)`, not a directory inside it, and that is the whole mechanism:
+`_externallyManagedLeaf()` asks whether the canonical path resolves inside the
+web zone, so anything here answers "the admin's" with no flag to set and nothing
+that can go stale. A `custom/` directory *under* `/etc/fog/pki` would answer the
+opposite and be regenerated over.
+
+The installer creates it, and `restorecon`s it — which is also the fix for the
+SELinux footgun above, since a directory FOG creates carries the right label
+instead of whatever an arbitrary location happened to have.
+
+**Drop a pair in and re-run the installer.** Two names:
+
+```
+/etc/fog/customizations/pki/web-leaf.pem
+/etc/fog/customizations/pki/web-leaf.key
+```
+
+`_detectExternalCertManagement()` finds them (signal 0), `createSSLCA()` points
+`PKI_web_vhost_cert`/`PKI_web_vhost_key` at them, and FOG stops re-issuing that
+leaf. Nothing to edit.
+
+Both files are required, and they have to be a genuine pair — compared by subject
+public key, not by RSA modulus, so an EC key is judged correctly (GH-1393). A
+missing or mismatched key is **not** adopted: FOG's own leaf still serves, while
+adopting one would point the vhost at a certificate the web server cannot start
+with. Other filenames are not guessed at; record the path explicitly instead, as
+above.
+
+`/etc/fog/customizations` is not `$fogprogramdir/customizations`, and the two run
+in opposite directions — FOG writes the `/opt` one (copies of your files, made
+before a run rebuilds the tree they lived in), and only reads the `/etc` one.
+There is a `readme.txt` in each saying so. Keys and certificates are on the `/etc`
+side for the reason the PKI tree itself moved there; kernels and boot images stay
+under `/opt` because the FHS does not put binaries in `/etc`. See
+[ADR 0040](adr/0040-certificates-you-bring-live-in-a-customizations-tree.md).
+
 ## Let's Encrypt and ACME
 
 **FOG does not run an ACME client and will not.** Use `certbot`, `acme.sh`, or
@@ -576,6 +615,13 @@ acme.sh --issue -d fog.example.com -w /var/www/html    # HTTP-01, docroot
 
 **Install into the paths FOG already serves from**, rather than acme.sh's own
 default cert store, so nothing else needs to change:
+
+> Simpler, and the route the walkthrough in fog-docs now takes: install to
+> `/etc/fog/customizations/pki/web-leaf.{pem,key}` instead and re-run the
+> installer, which finds the pair and points the canonical paths at it. See
+> "Where to put a certificate you brought" above. The in-tree form below still
+> works and needs no installer run, which is why it is kept.
+
 ```bash
 acme.sh --install-cert -d fog.example.com \
     --key-file       /opt/fog/pki/web/leaf/.webLeaf.key \
