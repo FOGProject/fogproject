@@ -258,6 +258,36 @@ else
     bad "the web leaf SAN stamp was never written ($stamp)"
 fi
 
+# The stamp is written in TWO places, and they have to agree on what it is.
+#
+# _createWebLeaf() hashes conf/ca.cnf AND the Web CA's SHA-256 fingerprint --
+# the fingerprint was added so that swapping the Web CA forces a re-sign even
+# when the name set has not changed. packages/pki/renewal-helper issues a leaf
+# without the installer and writes the same stamp, and it hashed ca.cnf ALONE:
+# so after a renewal the installer computed a stamp it could never match and
+# re-issued over the certificate that had just been renewed, and nothing said
+# so.
+#
+# Asserted at the source, because the failure takes two runs of two different
+# scripts to show up behaviorally, and by then it has already discarded a
+# certificate somebody paid for.
+echo
+echo "== both writers of the leaf stamp hash the same two things =="
+for writer in "$FUNCS" "$REPO/packages/pki/renewal-helper"; do
+    label="${writer##*/}"
+    if ! grep -q 'ca[.]cnf' "$writer" 2>/dev/null; then
+        bad "${label} does not hash ca.cnf into the leaf stamp"
+        continue
+    fi
+    # The fingerprint has to sit within a few lines of the ca.cnf read: both
+    # write the stamp as one braced group piped through md5.
+    if grep -A3 'ca[.]cnf' "$writer" 2>/dev/null | grep -q 'fingerprint -sha256'; then
+        ok "${label} hashes ca.cnf and the CA fingerprint together"
+    else
+        bad "${label} hashes ca.cnf without the CA fingerprint -- a renewal it writes gets re-issued over"
+    fi
+done
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || {
     echo "  (openssl errors, if any, are in $error_log -- first pass wrote ${first_run_log_size} bytes)"

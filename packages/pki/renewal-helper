@@ -164,7 +164,16 @@ _reissueWeb() {
     # Same stamp _createWebLeaf writes, so the next installfog.sh run doesn't
     # mistake this fresh cert for one that needs re-issuing over a name-set
     # mismatch that was never there.
-    openssl md5 < "$pkiconfdir/ca.cnf" 2>/dev/null > "${leafdir}/.webLeaf.sans"
+    #
+    # BOTH inputs, and the second one is why this line was wrong. _createWebLeaf
+    # hashes ca.cnf AND the Web CA's SHA-256 fingerprint -- the fingerprint was
+    # added so that swapping the Web CA forces a re-sign even when the name set
+    # has not changed. Hashing ca.cnf alone produced a stamp the installer could
+    # never match, so the next run re-issued over the certificate this script
+    # had just renewed, and nothing said so.
+    { cat "$pkiconfdir/ca.cnf" 2>/dev/null
+      openssl x509 -in "$capem" -noout -fingerprint -sha256 2>/dev/null
+    } | openssl md5 2>/dev/null > "${leafdir}/.webLeaf.sans"
     # Anchored on the web zone's own trust anchor, which _resolveTrustAnchor
     # writes with BOTH the FOG root and an external root where there is one --
     # so this verifies on an external-CA install too, where PKI_root_ca_cert

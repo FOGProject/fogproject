@@ -1000,6 +1000,67 @@ class FOGConfigurationPage extends FOGPage
             ) . '</p>';
         }
 
+        // The details, offered rather than imposed. FOG's derived names and its
+        // own O/OU are right for most servers, and that is what an untouched
+        // form asks for. They are not right for every CA: an internal issuing
+        // policy commonly requires the organization's own O, OU and locality
+        // and refuses a request carrying somebody else's -- which would send an
+        // administrator back to the command line for the one route that exists
+        // to keep them off it.
+        //
+        // Collapsed by default, because reading six fields to discover you did
+        // not need them is a worse first impression than a button.
+        if ($mayEdit) {
+            $body .= '<details class="mb-2"><summary>'
+                . _('Change what the request asks for (optional)')
+                . '</summary><div class="mt-2">';
+            $body .= '<p class="form-text">' . _(
+                'Left as it is, FOG asks for the names it would put in its own '
+                . 'certificate, under its own organization. Fill any of these in '
+                . 'and the request carries yours instead. A field left empty is '
+                . 'left out of the request rather than filled in with FOG\'s.'
+            ) . '</p>';
+            $dn = [
+                'csrcn' => [_('Common name (CN)'), self::_pkiDerivedCn($status), true],
+                'csro' => [_('Organization (O)'), '', false],
+                'csrou' => [_('Organizational unit (OU)'), '', false],
+                'csrl' => [_('City or locality (L)'), '', false],
+                'csrst' => [_('State or province (ST)'), '', false],
+                'csrc' => [_('Country code (C), two letters'), '', false]
+            ];
+            foreach ($dn as $field => $meta) {
+                $body .= '<label class="form-label" for="pki-' . $field . '">'
+                    . \Initiator::e($meta[0]) . '</label>';
+                $body .= self::makeInput(
+                    'form-control',
+                    $field,
+                    (string) $meta[1],
+                    'text',
+                    'pki-' . $field,
+                    $meta[2] ? '' : _('optional'),
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    'maxlength="64"'
+                );
+            }
+            $body .= '<label class="form-label" for="pki-csrnames">'
+                . _('Names the certificate must cover, one per line')
+                . '</label>';
+            $body .= '<textarea class="form-control" id="pki-csrnames"'
+                . ' name="csrnames" rows="5" spellcheck="false">'
+                . \Initiator::e(self::_pkiDerivedNames($status))
+                . '</textarea>';
+            $body .= '<p class="form-text">' . _(
+                'Pre-filled with what FOG would ask for. Prefix an address with '
+                . 'IP: if it is not obvious. Removing this server\'s own name is '
+                . 'allowed and warned about: netboot and FOG\'s own calls to '
+                . 'itself address it by a name the certificate carries.'
+            ) . '</p>';
+            $body .= '</div></details>';
+        }
+
         $bodyLeaf = '<h5>' . _('3. Upload a certificate and its key') . '</h5>';
         $bodyLeaf .= '<p class="form-text">' . _(
             'A PEM certificate with its key, or one PKCS#12 (.p12/.pfx) file '
@@ -1697,27 +1758,184 @@ class FOGConfigurationPage extends FOGPage
      */
     private function _pkiMakeLeafCsr()
     {
-        $res = self::_pkiRun(['make-leaf-csr']);
+        // Nothing is validated here. The helper parses every field, refuses a
+        // slash, an equals sign or a line break in a DN value, refuses a name
+        // that is not a name, and re-emits its own openssl config from what
+        // survived -- because this side is the side that might be compromised.
+        $spec = self::_pkiCsrSpec();
+        $args = ['make-leaf-csr'];
+        $staged = '';
+        try {
+            if ('' !== $spec) {
+                $staging = self::_pkiStagingDir();
+                if (!$staging) {
+                    throw new \Exception(
+                        _('Certificate management is not configured on this server')
+                    );
+                }
+                $reqid = bin2hex(random_bytes(16));
+                $staged = $staging . DS . $reqid . '.spec';
+                if (false === file_put_contents($staged, $spec)) {
+                    throw new \Exception(_('Could not stage the request details'));
+                }
+                $args[] = $reqid;
+            }
+            $res = self::_pkiRun($args);
+        } finally {
+            if ('' !== $staged && file_exists($staged)) {
+                unlink($staged);
+            }
+        }
         if (!$res['ok']) {
             throw new \Exception(
                 $res['out'] ?: _('The signing request could not be generated')
             );
         }
-        // "OK <cn> <count>"
-        $parts = explode(' ', $res['out'], 3);
+        // "OK <cn> <count> hostname:<true|false>"
+        $parts = explode(' ', $res['out'], 4);
+        $msg = sprintf(
+            _(
+                'A signing request for %s is ready to download. Have your CA '
+                . 'sign it, then upload the certificate here.'
+            ),
+            $parts[1] ?? ''
+        );
+        if (false !== strpos($res['out'], 'hostname:false')) {
+            $msg .= ' ' . _(
+                'Note that the names you asked for do not include the name this '
+                . 'server answers to, so netboot and FOG\'s own calls to itself '
+                . 'will not accept the certificate that comes back.'
+            );
+        }
         $this->_jsonExit(
             HTTPResponseCodes::HTTP_SUCCESS,
-            [
-                'msg' => sprintf(
-                    _(
-                        'A signing request for %s is ready to download. Have '
-                        . 'your CA sign it, then upload the certificate here.'
-                    ),
-                    $parts[1] ?? ''
-                ),
-                'title' => _('Signing request generated')
-            ]
+            ['msg' => $msg, 'title' => _('Signing request generated')]
         );
+    }
+    /**
+     * The request details the administrator typed, as the helper's spec format.
+     *
+     * Returns '' when the form was left alone, which is what makes the plain
+     * derived request the default: no spec staged, no argument passed, and the
+     * helper takes the branch it shipped with.
+     *
+     * Assembled as KEY=value lines and handed over as a FILE, never as
+     * arguments: this builds a command line for sudo, and an argument is
+     * readable in /proc by every local user for the length of the call. The
+     * values are not sanitized here beyond dropping empties -- the helper
+     * validates and re-emits, and a check on this side would be defense in
+     * depth at best.
+     *
+     * @return string
+     */
+    private static function _pkiCsrSpec()
+    {
+        $fields = [
+            'csrcn' => 'CN',
+            'csro' => 'O',
+            'csrou' => 'OU',
+            'csrl' => 'L',
+            'csrst' => 'ST',
+            'csrc' => 'C'
+        ];
+        $lines = [];
+        $touched = false;
+        foreach ($fields as $field => $key) {
+            $value = trim((string) filter_input(INPUT_POST, $field));
+            if ('' === $value) {
+                continue;
+            }
+            if ('CN' !== $key) {
+                $touched = true;
+            }
+            $lines[] = $key . '=' . $value;
+        }
+        $names = (string) filter_input(INPUT_POST, 'csrnames');
+        $given = [];
+        foreach (preg_split('/[\r\n]+/', $names) as $line) {
+            $line = trim($line);
+            if ('' === $line) {
+                continue;
+            }
+            if (0 === stripos($line, 'IP:')) {
+                $given[] = 'IP=' . trim(substr($line, 3));
+                continue;
+            }
+            // An address typed without the prefix is still an address. Asking
+            // an administrator to remember which of their own names are IPs is
+            // a rule the form would have to teach for no reason.
+            $given[] = (filter_var($line, FILTER_VALIDATE_IP) ? 'IP=' : 'DNS=')
+                . $line;
+        }
+        if ($given) {
+            $touched = true;
+            $lines = array_merge($lines, $given);
+        }
+        // A CN on its own is what the form shows when it was never edited, so
+        // it does not by itself mean "use a custom request".
+        return $touched ? implode("\n", $lines) . "\n" : '';
+    }
+    /**
+     * The common name the helper would derive, for pre-filling the form.
+     *
+     * Read off the pending request when there is one, so an administrator
+     * editing a request sees what it actually asked for; otherwise off the
+     * certificate the vhost is serving. Never computed here -- the helper owns
+     * that derivation, and a second copy in PHP would drift.
+     *
+     * @param array|null $status the helper's report.
+     *
+     * @return string
+     */
+    private static function _pkiDerivedCn($status)
+    {
+        $pending = (array) (($status ?? [])['pending_csr'] ?? []);
+        if (!empty($pending['subject'])
+            && preg_match('/CN\s*=\s*([^,\/]+)/', (string) $pending['subject'], $m)
+        ) {
+            return trim($m[1]);
+        }
+        $cert = self::_pkiCert($status, 'vhost');
+        if ($cert && !empty($cert['subject'])
+            && preg_match('/CN\s*=\s*([^,\/]+)/', (string) $cert['subject'], $m)
+        ) {
+            return trim($m[1]);
+        }
+        return '';
+    }
+    /**
+     * The names the helper would put in the request, one per line.
+     *
+     * Taken from the pending request's own SAN list where there is one. The
+     * helper reports them in openssl's config shape ("DNS.1 = host"), which is
+     * not a thing to make an administrator edit, so it is flattened to the
+     * bare names and IP entries are prefixed the way the form documents.
+     *
+     * @param array|null $status the helper's report.
+     *
+     * @return string
+     */
+    private static function _pkiDerivedNames($status)
+    {
+        $pending = (array) (($status ?? [])['pending_csr'] ?? []);
+        $raw = (string) ($pending['names'] ?? '');
+        if ('' === trim($raw)) {
+            return '';
+        }
+        $out = [];
+        foreach (preg_split('/[\r\n,]+/', $raw) as $line) {
+            $line = trim($line);
+            if ('' === $line) {
+                continue;
+            }
+            // "DNS.1 = host", "IP.1 = 10.0.0.5", or already-bare names.
+            if (preg_match('/^(DNS|IP)[.\d]*\s*=\s*(.+)$/i', $line, $m)) {
+                $out[] = ('IP' === strtoupper($m[1]) ? 'IP:' : '') . trim($m[2]);
+                continue;
+            }
+            $out[] = $line;
+        }
+        return implode("\n", $out);
     }
     /**
      * Stage the certificate a CA issued from the pending request, and hand it
