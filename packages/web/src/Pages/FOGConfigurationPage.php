@@ -1885,26 +1885,6 @@ class FOGConfigurationPage extends FOGPage
                                 $row['settingKey']
                             );
                             break;
-                            /**
-                             * The default kernels are filenames in the FOS boot
-                             * directory, so offer what is actually there --
-                             * including the per-release siblings the installer
-                             * leaves behind on every update, which is what makes
-                             * "put the default back on the previous kernel" a
-                             * selection rather than a typed guess.
-                             */
-                        case 'FOG_TFTP_PXE_KERNEL':
-                        case 'FOG_TFTP_PXE_KERNEL_32':
-                        case 'FOG_TFTP_PXE_KERNEL_ARM':
-                        case 'FOG_MEMTEST_KERNEL':
-                            $input = self::kernelFileSelect(
-                                $row['settingID'],
-                                $row['settingValue'],
-                                'kernel',
-                                'form-control',
-                                $row['settingKey']
-                            );
-                            break;
                         case (isset($needstobecheckbox[$row['settingKey']])):
                             $input = self::makeInput(
                                 '',
@@ -3157,6 +3137,55 @@ class FOGConfigurationPage extends FOGPage
         array $needstobecheckbox
     ) {
         switch ($row['settingKey']) {
+            /**
+             * The default kernels, inits and the memtest payload are all
+             * filenames in the FOS boot directory, so offer what is actually
+             * there -- the per-release siblings the installer leaves behind
+             * included, which is what makes "put the default back on the
+             * previous kernel" a selection rather than a typed guess.
+             *
+             * These cases used to live in getIpxeList(), whose $ServicesToSee
+             * allow-list does not contain any of these keys -- so the switch
+             * arm never ran and this page rendered the default kernel as a
+             * plain text box. This is the renderer the settings page actually
+             * uses.
+             *
+             * The role differs per key and that is the point:
+             * FOG_MEMTEST_KERNEL is NAMED for a kernel but points at a boot
+             * payload (memtest.bin, memdisk, grub.exe). One list serving both
+             * meanings is what offered those three as a boot kernel.
+             */
+            case 'FOG_TFTP_PXE_KERNEL':
+            case 'FOG_TFTP_PXE_KERNEL_32':
+            case 'FOG_TFTP_PXE_KERNEL_ARM':
+                $input = self::kernelFileSelect(
+                    $row['settingID'],
+                    $row['settingValue'],
+                    'kernel',
+                    'form-control',
+                    $row['settingKey']
+                );
+                break;
+            case 'FOG_PXE_BOOT_IMAGE':
+            case 'FOG_PXE_BOOT_IMAGE_32':
+            case 'FOG_PXE_BOOT_IMAGE_ARM':
+                $input = self::kernelFileSelect(
+                    $row['settingID'],
+                    $row['settingValue'],
+                    'init',
+                    'form-control',
+                    $row['settingKey']
+                );
+                break;
+            case 'FOG_MEMTEST_KERNEL':
+                $input = self::kernelFileSelect(
+                    $row['settingID'],
+                    $row['settingValue'],
+                    'payload',
+                    'form-control',
+                    $row['settingKey']
+                );
+                break;
             case 'FOG_VIEW_DEFAULT_SCREEN':
                 $vals = [
                     _('10') => 10,

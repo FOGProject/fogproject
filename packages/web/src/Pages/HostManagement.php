@@ -4188,7 +4188,7 @@ class HostManagement extends FOGPage
                 'field' => 'kernel',
                 'empty' => '',
                 'label' => _('Host Kernel'),
-                'kind' => 'text',
+                'kind' => 'kernel',
                 'tab' => 'general'
             ],
             'kernelArgs' => [
@@ -4209,7 +4209,7 @@ class HostManagement extends FOGPage
                 'field' => 'init',
                 'empty' => '',
                 'label' => _('Host Init'),
-                'kind' => 'text',
+                'kind' => 'init',
                 'tab' => 'general'
             ],
             'biosexit' => [
@@ -4609,6 +4609,34 @@ class HostManagement extends FOGPage
             case 'image':
                 return self::getClass('ImageManager')
                     ->buildSelectBox('', $name, 'name', '', false, 'id', $id);
+            /**
+             * The same picker the single-host form uses. Mass edit was left on
+             * a free-text box when the dropdowns landed, so the one place a
+             * typo reaches four hundred hosts at once was the one place
+             * offering no list to choose from.
+             *
+             * Blank is a legitimate mass-edit value here -- it means "clear
+             * the override and inherit the global default" -- which is why
+             * the spec's 'empty' is '' rather than null.
+             */
+            case 'kernel':
+                return self::kernelFileSelect(
+                    $name,
+                    '',
+                    'kernel',
+                    'form-control',
+                    $id,
+                    _('Use the default kernel')
+                );
+            case 'init':
+                return self::kernelFileSelect(
+                    $name,
+                    '',
+                    'init',
+                    'form-control',
+                    $id,
+                    _('Use the default init')
+                );
             case 'biosexit':
             case 'efiexit':
                 return Setting::buildExitSelector($name, '', true, $id);

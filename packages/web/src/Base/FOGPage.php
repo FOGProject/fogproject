@@ -5696,8 +5696,176 @@ abstract class FOGPage extends FOGBase
             . '</label>';
     }
     /**
-     * Lists the kernel or init files actually present in the FOS boot
-     * directory, newest first.
+     * What a file in the FOS boot directory is FOR.
+     *
+     * A FOS Kernel boots the imaging environment; a FOS Init is the initramfs
+     * it boots with; a Boot Payload is something the boot menu can chain but
+     * which does not boot FOS (memdisk, memtest.bin, grub.exe, refind*.efi);
+     * anything else sharing that directory is Unclassified.
+     */
+    const BOOT_ROLE_KERNEL = 'kernel';
+    const BOOT_ROLE_INIT = 'init';
+    const BOOT_ROLE_PAYLOAD = 'payload';
+    const BOOT_ROLE_OTHER = 'unclassified';
+    /**
+     * Picker value meaning "I will type the name myself".
+     *
+     * Not a filename any filesystem would produce, and matched literally by
+     * fog.common.js -- change it in both places or in neither.
+     */
+    const BOOT_MANUAL_VALUE = '__fog_manual__';
+    /**
+     * Decides what a boot directory file is, by reading it.
+     *
+     * Deciding by NAME is what put memdisk, memtest.bin and grub.exe in the
+     * Host Kernel dropdown: there was no positive test for a kernel, only
+     * "an init looks like this, so everything else is a kernel". A blacklist
+     * of extensions cannot be completed either -- an old backup script
+     * leaving refind.efi.new behind defeats it -- and a hand-compiled kernel
+     * under any name has to keep working.
+     *
+     * So read the file instead. The tests are exact and cost one 4KiB read
+     * rather than a scan of a 50MB image:
+     *
+     * - x86/x86_64: 'HdrS', the Linux setup header's own magic, at 0x202.
+     * - arm64: 'ARMd', the Image header's magic, at 0x38.
+     *
+     * grub.exe and memdisk are PE binaries too, so a PE check alone could not
+     * separate them from an EFI-stub kernel; these two can.
+     *
+     * Note what is deliberately NOT excluded by name: only FOG's own web
+     * assets that share this directory, and the .unsigned working files
+     * _resignKernels() leaves behind. Everything else that is neither kernel
+     * nor init is a payload, because memtest.bin and memdisk are raw images
+     * with no magic to match on and FOG_MEMTEST_KERNEL legitimately points at
+     * them.
+     *
+     * @param string $path full path to the file
+     *
+     * @return string one of the BOOT_ROLE_* constants
+     */
+    public static function bootFileRole($path)
+    {
+        if (!is_file($path) || !is_readable($path)) {
+            return self::BOOT_ROLE_OTHER;
+        }
+        $name = basename($path);
+        if (preg_match('/\.(unsigned|php|png|jpe?g|gif|svg|css|js|conf)$/i', $name)) {
+            return self::BOOT_ROLE_OTHER;
+        }
+        $head = self::readMagic($path, 4096);
+        if ($head === '') {
+            return self::BOOT_ROLE_OTHER;
+        }
+        if (self::_looksLikeInit($head)) {
+            return self::BOOT_ROLE_INIT;
+        }
+        if (self::_looksLikeKernel($head)) {
+            return self::BOOT_ROLE_KERNEL;
+        }
+        return self::BOOT_ROLE_PAYLOAD;
+    }
+    /**
+     * True when $head carries a Linux kernel image's own header magic.
+     *
+     * @param string $head leading bytes of the file
+     *
+     * @return bool
+     */
+    private static function _looksLikeKernel($head)
+    {
+        // x86/x86_64 bzImage: setup header magic, four bytes at 0x202.
+        if (substr($head, 0x202, 4) === 'HdrS') {
+            return true;
+        }
+        /**
+         * arm64 Image: header magic 0x644d5241 at 0x38, which is the bytes
+         * 'ARMd'. An arm64 kernel is also a PE image when built with EFI stub
+         * support, so this has to be checked in its own right rather than
+         * inferred from MZ.
+         */
+        if (substr($head, 0x38, 4) === 'ARMd') {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * True when $head carries an initramfs archive or compression magic.
+     *
+     * FOS ships init.xz and arm_init.cpio.gz, but a hand-built initramfs may
+     * use any compressor the kernel can unpack, so accept those too rather
+     * than pinning the two names FOG happens to download.
+     *
+     * @param string $head leading bytes of the file
+     *
+     * @return bool
+     */
+    private static function _looksLikeInit($head)
+    {
+        $magics = [
+            "\xfd" . '7zXZ' . "\x00",
+            "\x1f\x8b",
+            "\x28\xb5\x2f\xfd",
+            "\x04\x22\x4d\x18",
+            'BZh',
+            "\x5d\x00\x00",
+            "\x89" . 'LZO',
+            '070701',
+            '070702',
+            '070707',
+            "\xc7\x71",
+        ];
+        foreach ($magics as $magic) {
+            if (0 === strpos($head, $magic)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Reads a kernel image's own version banner, or '' when it has none.
+     *
+     * The x86 setup header records where its version string lives: a 16-bit
+     * offset at 0x20e, relative to 0x200. That is exact, so there is no
+     * scanning and no guessing.
+     *
+     * arm64 Image has no equivalent field, so this answers '' there. A caller
+     * displaying this must say the version is unavailable rather than
+     * inventing one; reporting a wrong version is worse than reporting none.
+     *
+     * @param string $path full path to the file
+     *
+     * @return string e.g. '6.6.30 (fos@buildroot) #1 SMP', or ''
+     */
+    public static function bootFileKernelVersion($path)
+    {
+        $head = self::readMagic($path, 4096);
+        if (substr($head, 0x202, 4) !== 'HdrS') {
+            return '';
+        }
+        $at = @unpack('v', substr($head, 0x20e, 2));
+        if (!is_array($at) || empty($at[1])) {
+            return '';
+        }
+        $at = $at[1] + 0x200;
+        $bytes = self::readMagic($path, $at + 512);
+        if (strlen($bytes) <= $at) {
+            return '';
+        }
+        $parts = explode("\x00", substr($bytes, $at, 512), 2);
+        $ver = trim($parts[0]);
+        /**
+         * Refuse anything not plainly printable. A bad offset lands in the
+         * middle of the compressed image, and rendering that as a version
+         * would be worse than saying nothing.
+         */
+        if ($ver === '' || preg_match('/[^\x20-\x7e]/', $ver)) {
+            return '';
+        }
+        return $ver;
+    }
+    /**
+     * Lists the boot directory files holding the role $type, newest first.
      *
      * Kernels and inits are files on disk, not database records, so there is
      * nothing for buildSelectBox() to enumerate. Reading the directory is the
@@ -5706,13 +5874,29 @@ abstract class FOGPage extends FOGBase
      * on every update, that directory is exactly the list of "current, or any
      * version still on this server, or anything I put here myself".
      *
-     * @param string $type 'kernel' or 'init'
+     * The role is decided by bootFileRole(), so a field asking for a kernel
+     * is offered kernels only. One list serving both the Host Kernel field
+     * and FOG_MEMTEST_KERNEL is what put memdisk in the kernel dropdown.
+     *
+     * @param string $type 'kernel', 'init' or 'payload'
      *
      * @return array filenames
      */
     public static function kernelFileList($type = 'kernel')
     {
-        $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        /**
+         * An empty list is a legitimate answer, and kernelFileSelect() turns
+         * it into a plain text input -- so a server whose boot directory has
+         * moved stays editable. A settings read that cannot answer at all is
+         * the same situation from the caller's point of view, and one field
+         * out of the thirty on a mass edit form must not take the form down
+         * with it.
+         */
+        try {
+            $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        } catch (\Throwable $e) {
+            return [];
+        }
         if (empty($dir) || !is_dir($dir) || !is_readable($dir)) {
             return [];
         }
@@ -5720,32 +5904,27 @@ abstract class FOGPage extends FOGBase
         if ($files === false) {
             return [];
         }
+        switch ($type) {
+            case 'init':
+                $want = self::BOOT_ROLE_INIT;
+                break;
+            case 'payload':
+                $want = self::BOOT_ROLE_PAYLOAD;
+                break;
+            default:
+                $want = self::BOOT_ROLE_KERNEL;
+                break;
+        }
         $out = [];
         foreach ($files as $file) {
             if ($file === '.' || $file === '..') {
                 continue;
             }
-            if (!is_file($dir . DIRECTORY_SEPARATOR . $file)) {
+            $path = $dir . DIRECTORY_SEPARATOR . $file;
+            if (!is_file($path)) {
                 continue;
             }
-            /**
-             * Split by shape rather than by a fixed list of names, so a
-             * custom kernel and the per-release siblings both appear.
-             *
-             * .unsigned copies are excluded -- they are _resignKernels()
-             * working files, not something to boot.
-             *
-             * The web assets and config that share this directory
-             * (boot.php/advanced.php/index.php, the bg images, refind.conf)
-             * are excluded too. "Anything that is not an init" swept all of
-             * them into the kernel list, which is not a menu anybody wants to
-             * pick a kernel out of.
-             */
-            if (preg_match('/\.(unsigned|php|png|jpe?g|gif|svg|conf|efi)$/i', $file)) {
-                continue;
-            }
-            $isInit = (bool)preg_match('/(^|\/)(init|arm_init)|\.(xz|cpio\.gz)/i', $file);
-            if ($type === 'init' ? $isInit : !$isInit) {
+            if (self::bootFileRole($path) === $want) {
                 $out[] = $file;
             }
         }
@@ -5806,14 +5985,14 @@ abstract class FOGPage extends FOGBase
             );
         }
         /**
-         * A stored value naming a file that is no longer on disk must still
-         * appear, and still be selected. Dropping it would silently rewrite
-         * the host's kernel to the default the moment anyone opened the form.
+         * A stored value naming a file that is not on disk -- or one the
+         * classifier does not recognise as this role -- must still appear and
+         * must still be what the form posts. Dropping it would silently
+         * rewrite the host's kernel to the default the moment anyone opened
+         * the form. It is shown in the manual box below, with a note, rather
+         * than as an option that pretends the file is there.
          */
-        $missing = ($current !== '' && !in_array($current, $files, true));
-        if ($missing) {
-            array_unshift($files, $current);
-        }
+        $manualValue = ($current !== '' && !in_array($current, $files, true));
         /**
          * The blank option is load-bearing, not filler. On a host or group an
          * empty kernel/init means "inherit the global default", so it must be
@@ -5836,23 +6015,56 @@ abstract class FOGPage extends FOGBase
                 . ($file === $current ? ' selected' : '')
                 . '>'
                 . \Initiator::e($file)
-                . (
-                    $missing && $file === $current ?
-                    ' (' . _('not found on disk') . ')' :
-                    ''
-                )
                 . '</option>';
         }
+        /**
+         * The typed failsafe. A dropdown can only offer what the classifier
+         * recognised, and an admin running a kernel it does not recognise --
+         * or about to copy one in -- still has to be able to name it. This is
+         * also the escape hatch if the classifier is ever wrong.
+         *
+         * The TEXT INPUT carries the field name and is what posts, always;
+         * the select has no name and is a picker that writes into it. So with
+         * no JavaScript the field degrades to the free-text box it was before
+         * the dropdowns landed, rather than to nothing.
+         */
+        $opts .= '<option value="' . self::BOOT_MANUAL_VALUE . '"'
+            . ($manualValue ? ' selected' : '')
+            . '>- '
+            . _('Enter a name manually')
+            . ' -</option>';
 
-        return '<select class="'
+        return '<div class="fog-bootfile">'
+            . '<select class="'
             . $class
-            . ' fog-select2" name="'
-            . $name
+            . ' fog-select2 fog-bootfile-picker" data-target="'
+            . \Initiator::e($id)
             . '" id="'
-            . $id
-            . '" autocomplete="off">'
+            . \Initiator::e($id)
+            . '-picker" autocomplete="off">'
             . $opts
-            . '</select>';
+            . '</select>'
+            . '<input type="text" class="'
+            . $class
+            . ' fog-bootfile-value mt-1'
+            . ($manualValue ? '' : ' d-none')
+            . '" name="'
+            . \Initiator::e($name)
+            . '" id="'
+            . \Initiator::e($id)
+            . '" value="'
+            . \Initiator::e($current)
+            . '" placeholder="'
+            . ($type === 'init' ? 'customInit.xz' : 'bzImage_Custom')
+            . '" autocomplete="off">'
+            . (
+                $manualValue ?
+                '<small class="form-text text-warning fog-bootfile-note">'
+                . _('This name is not a recognised file in the boot directory.')
+                . '</small>' :
+                ''
+            )
+            . '</div>';
     }
     /**
      * Makes an input element.
