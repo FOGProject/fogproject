@@ -3733,8 +3733,24 @@ function fogSizeScroller(dt, release) {
   if (!body.length || !body.is(':visible')) {
     return; // not rendered, or in a hidden tab
   }
+  // Measure to the bottom of the CARD, not of the DataTables container.
+  //
+  // The container ends at the info line ("Showing 1 to 21 of 86 entries").
+  // The card carries a FOOTER below that holding the toolbar -- Delete
+  // selected, Mass edit, Queue Task, Add to group, Add -- and sizing the
+  // scroll body against the container therefore pushed exactly that footer's
+  // height off the bottom of the window. The one card on the page that is
+  // supposed to fit was the one whose buttons you could not reach without
+  // scrolling, and the taller the window the more rows Scroller asked for, so
+  // it never came back into view on its own.
+  //
+  // belowBody is a DISTANCE between two edges of the same box, so it is
+  // correct even while the card is currently overflowing -- which it is, at
+  // the moment this runs, on every load. Falls back to the container when
+  // there is no card ancestor (a bare grid in a modal or a report).
+  var outer = $(container).closest('.card')[0] || container;
   var bodyRect = body[0].getBoundingClientRect(),
-    belowBody = container.getBoundingClientRect().bottom - bodyRect.bottom,
+    belowBody = outer.getBoundingClientRect().bottom - bodyRect.bottom,
     gap = 20, // breathing room above the window bottom
     avail = window.innerHeight - bodyRect.top - belowBody - gap;
   if (avail < 150) {
