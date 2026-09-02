@@ -3385,18 +3385,6 @@ msgid "Group Kernel Arguments"
 msgstr "グループカーネル引数"
 
 #, fuzzy
-msgid "Group Location"
-msgstr "グループの関連付け"
-
-#, fuzzy
-msgid "Group Location Update Success"
-msgstr "ロケーションを更新しました"
-
-#, fuzzy
-msgid "Group Location Updated!"
-msgstr "ロケーションを更新しました！"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "ログイン履歴"
 
@@ -3429,18 +3417,6 @@ msgid "Group Name Attribute"
 msgstr "グループメンバー属性"
 
 #, fuzzy
-msgid "Group OU"
-msgstr "グループ"
-
-#, fuzzy
-msgid "Group OU Update Success"
-msgstr "グループの更新に成功しました"
-
-#, fuzzy
-msgid "Group OU Updated!"
-msgstr "グループを更新しました！"
-
-#, fuzzy
 msgid "Group Order"
 msgstr "グループ"
 
@@ -3471,14 +3447,6 @@ msgid "Group Task History"
 msgstr "イメージ履歴"
 
 msgid "Group Update Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "Group Update Location Fail"
-msgstr "グループの更新に失敗しました"
-
-#, fuzzy
-msgid "Group Update OU Fail"
 msgstr "グループの更新に失敗しました"
 
 msgid "Group Update Success"
@@ -4462,6 +4430,10 @@ msgstr "無効な ID が渡されました"
 msgid "Invalid IP"
 msgstr "無効な IP"
 
+#, fuzzy
+msgid "Invalid Location selected"
+msgstr "無効なトークンが渡されました"
+
 msgid "Invalid Login"
 msgstr "無効なログイン"
 
@@ -4470,6 +4442,10 @@ msgstr "無効な MAC アドレスです！"
 
 msgid "Invalid Multicast Session"
 msgstr "無効なマルチキャストセッション"
+
+#, fuzzy
+msgid "Invalid OU selected"
+msgstr "Initrd をインストール"
 
 msgid "Invalid Path"
 msgstr "無効なパス"
@@ -12094,8 +12070,32 @@ msgstr ""
 #~ msgstr "グループイメージの関連付け"
 
 #, fuzzy
+#~ msgid "Group Location"
+#~ msgstr "グループの関連付け"
+
+#, fuzzy
+#~ msgid "Group Location Update Success"
+#~ msgstr "ロケーションを更新しました"
+
+#, fuzzy
+#~ msgid "Group Location Updated!"
+#~ msgstr "ロケーションを更新しました！"
+
+#, fuzzy
 #~ msgid "Group Mappings"
 #~ msgstr "グループ管理"
+
+#, fuzzy
+#~ msgid "Group OU"
+#~ msgstr "グループ"
+
+#, fuzzy
+#~ msgid "Group OU Update Success"
+#~ msgstr "グループの更新に成功しました"
+
+#, fuzzy
+#~ msgid "Group OU Updated!"
+#~ msgstr "グループを更新しました！"
 
 #~ msgid "Group Power Management Remove"
 #~ msgstr "グループ電源管理を削除"
@@ -12127,6 +12127,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group Site Updated!"
 #~ msgstr "サイトを更新しました！"
+
+#, fuzzy
+#~ msgid "Group Update Location Fail"
+#~ msgstr "グループの更新に失敗しました"
+
+#, fuzzy
+#~ msgid "Group Update OU Fail"
+#~ msgstr "グループの更新に失敗しました"
 
 #, fuzzy
 #~ msgid "Group Update Site Fail"
