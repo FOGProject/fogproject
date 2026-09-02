@@ -9645,6 +9645,10 @@ msgstr "Txt deve essere una stringa"
 msgid "Type"
 msgstr "Tipo"
 
+#, php-format
+msgid "U-Boot TFTP sync: %s is not in %s, so a board booting over TFTP cannot fetch it"
+msgstr ""
+
 msgid "UEFI, state unreadable"
 msgstr ""
 
