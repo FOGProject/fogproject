@@ -156,6 +156,47 @@ final class SmbiosIdentity
         return $filter;
     }
     /**
+     * What registration does with a firmware match (#198).
+     *
+     * Registration used to know only the MAC, so a machine whose NIC was
+     * replaced came back as a brand-new host and its old record -- image,
+     * groups, snapins, AD join -- became a leftover. Now the firmware is
+     * asked as well. This decides what its answer is worth, on its own so
+     * the gating can be proven with three integers and no database:
+     *
+     *   'none'   nothing to say: the mode is off, the firmware found no
+     *            host, or it found the same host the MAC found.
+     *   'log'    write the disagreement and let the MAC decide, as before.
+     *            Every outcome in log mode, and an enforce-mode disagreement
+     *            where the MAC DID find a host: a known MAC is never
+     *            overruled at registration, because "already registered as
+     *            Y" is at worst an inconvenience while re-pointing Y's MACs
+     *            is not.
+     *   'attach' enforce mode, the MAC found nothing, the firmware found
+     *            exactly one host: this machine IS that host with a new
+     *            NIC. Its MACs are added to the host and the registration
+     *            is answered "already registered", the same answer a known
+     *            MAC gets.
+     *
+     * @param string $mode     the FOG_HOST_IDENTIFY_SMBIOS value, lowercased
+     * @param int    $macID    host the MACs resolved to, 0 for none
+     * @param int    $smbiosID host the firmware resolved to, 0 for none
+     *
+     * @return string 'none', 'log' or 'attach'
+     */
+    public static function registrationAction($mode, $macID, $smbiosID)
+    {
+        $macID = (int)$macID;
+        $smbiosID = (int)$smbiosID;
+        if (!in_array($mode, ['log', 'enforce'], true) || $smbiosID < 1) {
+            return 'none';
+        }
+        if ($macID > 0) {
+            return $macID === $smbiosID ? 'none' : 'log';
+        }
+        return $mode === 'enforce' ? 'attach' : 'log';
+    }
+    /**
      * Pick the one host the reported identifiers point at, or nothing.
      *
      * The rules, each of which exists because its absence has already

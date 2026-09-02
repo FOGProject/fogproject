@@ -70,6 +70,16 @@ sure, and only when told to.**
    validated on every write (Aisle 019).
 6. **The four columns get indexes** (schema step 413). The lookup runs on
    every boot request and `inventory` had none.
+7. **Registration asks the firmware too** (added 2026-09-02). FOS already
+   sends the UUID with every registration and now sends all four fields.
+   `Registration::regExists()` resolves them through the same rule under
+   the same setting. A known MAC still wins and still refuses, in every
+   mode. When the MAC finds nothing and the firmware finds exactly one
+   host, `log` writes the line and registers a new host as before, and
+   `enforce` adds the machine's MACs to that host and answers "already
+   registered", the same answer a known MAC gets: the machine is that
+   host with a new NIC. `SmbiosIdentity::registrationAction()` holds the
+   gating so it is provable with three integers.
 
 ## Why log mode first
 
@@ -98,6 +108,16 @@ toggle and a revert.
   client, whose requests carry the same field names with different
   contents. It would run a wasted query per inventory POST that could not
   change the answer.
+- **Refuse, but do not attach, at registration in enforce mode.** Safer by
+  one step, and it leaves the administrator adding the new MAC to the old
+  host by hand, which is the exact chore the identity exists to remove. The
+  attach happens only in enforce, only when no host owns the MAC, and is
+  audited under `host.register`.
+- **Let a MAC-less machine register.** The bench case, one USB NIC shared
+  across many machines, is detectable now but not registrable: a host must
+  own a unique primary MAC. That is a change to the hosts table's
+  uniqueness rule and to everything that assumes a MAC, and it is its own
+  decision.
 - **Overwrite serials at boot.** Would hide the iPXE-versus-dmidecode
   disagreements that log mode exists to surface, by ping-ponging the value
   between the two writers.
@@ -106,6 +126,8 @@ toggle and a revert.
 
 - A CSV-imported host becomes firmware-findable after its first PXE boot,
   not its first image.
+- A machine whose NIC was replaced keeps its host record on re-registration
+  under `enforce`, instead of becoming a duplicate.
 - The error log gains two new line shapes, both prefixed `FOG host
   identity`. Documentation for the setting should point administrators at
   them.

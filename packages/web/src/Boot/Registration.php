@@ -15,6 +15,9 @@ namespace FOG\Boot;
 
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
+use FOG\Base\SmbiosIdentity;
+use FOG\Items\Host;
+use FOG\Managers\HostManager;
 use FOG\Items\TaskType;
 use FOG\Router\Route;
 
@@ -129,9 +132,32 @@ class Registration extends FOGBase
      */
     public function regExists($check = false)
     {
+        // The firmware is asked first and acted on last (#198). Resolving
+        // it before the MAC costs one indexed query and lets a disagreement
+        // be logged whichever way the MAC goes; SmbiosIdentity::
+        // registrationAction() says what the answer is worth.
+        $mode = strtolower(
+            trim((string)self::getSetting('FOG_HOST_IDENTIFY_SMBIOS'))
+        );
+        $smbios = $this->_smbiosFromRequest();
+        $smbiosID = 0;
+        if (in_array($mode, ['log', 'enforce'], true)
+            && strlen(implode('', $smbios))
+        ) {
+            $smbiosID = (int)HostManager::resolveHostBySmbios($smbios);
+        }
         try {
             self::getClass('HostManager')->getHostByMacAddresses($this->PriMAC);
+            if (!self::$Host->isValid()) {
+                self::getClass('HostManager')->getHostByMacAddresses($this->MACs);
+            }
             if (self::$Host->isValid()) {
+                $this->_smbiosOutcome(
+                    $mode,
+                    $smbios,
+                    $smbiosID,
+                    (int)self::$Host->get('id')
+                );
                 throw new \Exception(
                     sprintf(
                         _('This machine already registered as %s'),
@@ -139,8 +165,7 @@ class Registration extends FOGBase
                     )
                 );
             }
-            self::getClass('HostManager')->getHostByMacAddresses($this->MACs);
-            if (self::$Host->isValid()) {
+            if ($this->_smbiosOutcome($mode, $smbios, $smbiosID, 0) === 'attach') {
                 throw new \Exception(
                     sprintf(
                         _('This machine already registered as %s'),
@@ -156,6 +181,96 @@ class Registration extends FOGBase
             throw new \Exception('#!ok');
         }
         return false;
+    }
+    /**
+     * The firmware fields FOS sent with the registration (#198).
+     *
+     * FOS base64-encodes every registration field, so these are decoded
+     * here rather than through stripAndDecode(), which HTML-escapes what
+     * it decodes -- the same trap as a credential escaped before its hash
+     * compare. An older FOS sends only the UUID, and a value that is not
+     * base64 at all is kept as sent; SmbiosIdentity drops what is empty.
+     *
+     * @return array field => canonicalized value, every field present
+     */
+    private function _smbiosFromRequest()
+    {
+        $smbios = [];
+        foreach (SmbiosIdentity::FIELDS as $field) {
+            $raw = (string)(filter_input(INPUT_POST, $field) ?: '');
+            $decoded = base64_decode(str_replace(' ', '+', $raw), true);
+            $smbios[$field] = SmbiosIdentity::canonicalize(
+                $decoded === false ? $raw : $decoded
+            );
+        }
+        return $smbios;
+    }
+    /**
+     * Log, and in enforce mode act on, the firmware's answer (#198).
+     *
+     * 'attach' is the only outcome with a side effect: the registering
+     * machine's MACs are added to the host the firmware named, that host
+     * becomes self::$Host, and an audit header records it under the same
+     * host.register type a new host gets, because from the administrator's
+     * side it is the same event -- a machine came in through registration
+     * and left with a record. The MACs are known to belong to no host at
+     * this point, or the MAC lookup would have found one.
+     *
+     * @param string $mode     the setting, lowercased
+     * @param array  $smbios   the fields as sent
+     * @param int    $smbiosID host the firmware resolved to, 0 for none
+     * @param int    $macID    host the MACs resolved to, 0 for none
+     *
+     * @return string the SmbiosIdentity::registrationAction() taken
+     */
+    private function _smbiosOutcome($mode, array $smbios, $smbiosID, $macID)
+    {
+        $action = SmbiosIdentity::registrationAction($mode, $macID, $smbiosID);
+        if ($action === 'none') {
+            return $action;
+        }
+        $SmbiosHost = new Host($smbiosID);
+        $fields = [];
+        foreach (SmbiosIdentity::usable($smbios) as $k => $v) {
+            $fields[] = "$k=$v";
+        }
+        $macs = array_merge([$this->PriMAC], (array)$this->MACs);
+        error_log(
+            sprintf(
+                'FOG host identity (registration, %s): MAC %s resolved %s; '
+                . 'SMBIOS resolved "%s" (id %d) on %s; %s',
+                $mode,
+                implode(',', $macs),
+                $macID
+                    ? sprintf('"%s" (id %d)', self::$Host->get('name'), $macID)
+                    : 'no host',
+                $SmbiosHost->get('name'),
+                $smbiosID,
+                implode(', ', $fields),
+                $action === 'attach'
+                    ? 'MACs attached to it, registration answered as existing'
+                    : ($macID
+                        ? 'MAC kept'
+                        : 'registering as a new host (log mode)')
+            )
+        );
+        if ($action === 'attach') {
+            Audit::record([
+                'type' => 'host.register',
+                'authSource' => Audit::SOURCE_ANONYMOUS,
+                'subjectType' => 'host',
+                'subjectID' => $smbiosID,
+                'subjectLabel' => (string)$SmbiosHost->get('name'),
+                'renderable' => 1,
+                'text' => sprintf(
+                    'firmware identity: attached %s',
+                    implode(',', $macs)
+                )
+            ]);
+            $SmbiosHost->addMAC($macs);
+            self::$Host = $SmbiosHost;
+        }
+        return $action;
     }
     /**
      * Perform the registration.
