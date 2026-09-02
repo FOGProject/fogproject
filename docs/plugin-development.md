@@ -1089,6 +1089,21 @@ clobbered, because there was no way to say *leave this host alone*. Both were
 converted to this seam in fog-plugins #36 and are the worked example to copy:
 `AddLocationHost::massEditFields()` / `massEditApply()`.
 
+**A tab on the Group page must be a grant.** Since the group split (ADR 0038)
+the Group page carries only what a group *grants* to its members — snapins,
+printers, modules, power schedules. Those are set-shaped: two groups'
+contributions union instead of fighting, and a host added later receives them
+without anyone re-saving. A plugin that injects a tab on `node=group` through
+`PLUGINS_INJECT_TABDATA` must offer that same shape. If your value is a single
+field a host holds one of — a location, an OU, a flag — it is not a grant, and
+pushing it from a group tab is exactly the write-to-every-member loop this
+seam replaced. Put it on `HOST_MASSEDIT_*` and inject your host tab on
+`node=host` only. Core cannot check this for you (a tab is opaque HTML), so
+the rule is enforced by review, and the tell is visible: `FOGPage::tabFields()`
+does not draw the Plugins tab at all when nothing injects for a node, and a
+stock 1.6 install shows no Plugins tab on the Group page. If yours puts one
+there, ask whether what it holds is a grant.
+
 **Contribute a field** — fired when the Mass Edit form is built, and again
 when it is applied, with the same arguments both times so the two can never
 disagree about which keys exist:
