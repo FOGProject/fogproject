@@ -10706,6 +10706,7 @@ $this->schema[] = [
 ];
 
 // 414
+$this->schema[] = [
     // What FOG has decided about each file in the FOS boot directory.
     //
     // The filesystem stays the inventory: existence, size and mtime are read
@@ -10757,8 +10758,10 @@ $this->schema[] = [
     . "UNIQUE KEY `bfName` (`bfName`), "
     . "KEY `bfRole` (`bfRole`) "
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
 
 // 415
+$this->schema[] = [
     // Memtest86+ 8.10 replaces the 2013 Memtest86+ 5.01 ISO that memdisk
     // loaded. The new file boots on both legacy BIOS and UEFI, which the
     // memdisk chain never could (#321). Only a value still at the old
