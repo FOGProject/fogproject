@@ -2816,8 +2816,23 @@ abstract class FOGPage extends FOGBase
                     }
                     self::$FOGSSH->put($tmpfile, $orig);
                     self::$FOGSSH->sftp_chmod($orig, 0644);
-                    $br_cmd = "attr -s version -V $br_ver $orig";
-                    $tg_cmd = "attr -s tag_name -V $tg_ver $orig";
+                    /**
+                     * Quoted, because $br_ver and $tg_ver come from the POST
+                     * body and this string is run as a command on the storage
+                     * node. Unquoted, a value carrying a space or a shell
+                     * metacharacter is read as further commands.
+                     */
+                    $stampFailed = false;
+                    $br_cmd = sprintf(
+                        'attr -s version -V %s %s',
+                        escapeshellarg((string)$br_ver),
+                        escapeshellarg($orig)
+                    );
+                    $tg_cmd = sprintf(
+                        'attr -s tag_name -V %s %s',
+                        escapeshellarg((string)$tg_ver),
+                        escapeshellarg($orig)
+                    );
                     $output_br = self::$FOGSSH->exec($br_cmd);
                     $output_tg = self::$FOGSSH->exec($tg_cmd);
                     $error_br = self::$FOGSSH->fetch_stream($output_br, SSH2_STREAM_STDERR);
@@ -2829,10 +2844,12 @@ abstract class FOGPage extends FOGBase
                     $error_br_t = stream_get_contents($error_br);
                     $error_tg_t = stream_get_contents($error_tg);
                     if ($error_br_t) {
+                        $stampFailed = true;
                         error_log(_('Error on ssh command setting version'). ' ' . $br_cmd);
                         error_log(_('Error'). ': ' . $error_br_t);
                     }
                     if ($error_tg_t) {
+                        $stampFailed = true;
                         error_log(_('Error on ssh command setting tag_name'). ' ' . $tg_cmd);
                         error_log(_('Error'). ': ' . $error_tg_t);
                     }
@@ -2846,12 +2863,23 @@ abstract class FOGPage extends FOGBase
                         unlink($tmpfile);
                     }
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
+                    /**
+                     * A failed stamp used to be logged and nothing else, so
+                     * the file simply reported an unknown version later with
+                     * no record of why. Say it here, where the admin is.
+                     */
+                    $msgText = $resigned
+                        ? _('File uploaded to storage node and '
+                            . 're-signed for Secure Boot!')
+                        : _('File uploaded to storage node!');
+                    if ($stampFailed) {
+                        $msgText .= ' ' . _('The version and release could '
+                            . 'not be recorded on the file, so it will '
+                            . 'report as unknown. See the PHP error log.');
+                    }
                     $this->jsonSend($code, json_encode(
                         [
-                            'msg' => $resigned
-                                ? _('File uploaded to storage node and '
-                                    . 're-signed for Secure Boot!')
-                                : _('File uploaded to storage node!'),
+                            'msg' => $msgText,
                             'title' => _('Update Kernel Success')
                         ]
                     ));
@@ -3164,8 +3192,23 @@ abstract class FOGPage extends FOGBase
                     }
                     self::$FOGSSH->put($tmpfile, $orig);
                     self::$FOGSSH->sftp_chmod($orig, 0644);
-                    $br_cmd = "attr -s version -V $br_ver $orig";
-                    $tg_cmd = "attr -s tag_name -V $tg_ver $orig";
+                    /**
+                     * Quoted, because $br_ver and $tg_ver come from the POST
+                     * body and this string is run as a command on the storage
+                     * node. Unquoted, a value carrying a space or a shell
+                     * metacharacter is read as further commands.
+                     */
+                    $stampFailed = false;
+                    $br_cmd = sprintf(
+                        'attr -s version -V %s %s',
+                        escapeshellarg((string)$br_ver),
+                        escapeshellarg($orig)
+                    );
+                    $tg_cmd = sprintf(
+                        'attr -s tag_name -V %s %s',
+                        escapeshellarg((string)$tg_ver),
+                        escapeshellarg($orig)
+                    );
                     $output_br = self::$FOGSSH->exec($br_cmd);
                     $output_tg = self::$FOGSSH->exec($tg_cmd);
                     $error_br = self::$FOGSSH->fetch_stream($output_br, SSH2_STREAM_STDERR);
@@ -3177,10 +3220,12 @@ abstract class FOGPage extends FOGBase
                     $error_br_t = stream_get_contents($error_br);
                     $error_tg_t = stream_get_contents($error_tg);
                     if ($error_br_t) {
+                        $stampFailed = true;
                         error_log(_('Error on ssh command setting version'). ' ' . $br_cmd);
                         error_log(_('Error'). ': ' . $error_br_t);
                     }
                     if ($error_tg_t) {
+                        $stampFailed = true;
                         error_log(_('Error on ssh command setting tag_name'). ' ' . $tg_cmd);
                         error_log(_('Error'). ': ' . $error_tg_t);
                     }
@@ -3194,9 +3239,15 @@ abstract class FOGPage extends FOGBase
                         unlink($tmpfile);
                     }
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
+                    $msgText = _('File uploaded to storage node!');
+                    if ($stampFailed) {
+                        $msgText .= ' ' . _('The version and release could '
+                            . 'not be recorded on the file, so it will '
+                            . 'report as unknown. See the PHP error log.');
+                    }
                     $this->jsonSend($code, json_encode(
                         [
-                            'msg' => _('File uploaded to storage node!'),
+                            'msg' => $msgText,
                             'title' => _('Update Initrd Success')
                         ]
                     ));
