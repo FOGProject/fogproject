@@ -3172,6 +3172,19 @@ class FOGConfigurationPage extends FOGPage
                     $vals
                 );
                 break;
+            case 'FOG_HOST_IDENTIFY_SMBIOS':
+                $vals = [
+                    _('Off - MAC address only') => 'off',
+                    _('Log - MAC decides, log disagreements') => 'log',
+                    _('Enforce - firmware identity wins') => 'enforce'
+                ];
+                $input = self::_selectInput(
+                    $row['settingID'],
+                    $row['settingKey'],
+                    $row['settingValue'],
+                    $vals
+                );
+                break;
             case 'FOG_TABLE_SCROLL_MODE':
                 $vals = [
                     _('Infinite scroll') => 'infinite',

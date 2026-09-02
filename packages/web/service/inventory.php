@@ -13,6 +13,7 @@
 
 use FOG\Audit\Audit;
 use FOG\Base\FOGCore;
+use FOG\Base\SmbiosIdentity;
 use FOG\Items\Inventory;
 
 /**
@@ -103,11 +104,19 @@ try {
         'gpuvendors',
         'gpuproducts',
     ];
+    // Identifier fields that may be matched against iPXE/SMBIOS values at
+    // boot time. Canonicalize on write so the stored value compares
+    // reliably with what iPXE reports (see SmbiosIdentity::canonicalize).
+    $identifierFields = ['sysuuid', 'sysserial', 'mbserial'];
     foreach ($allowedFields as $field) {
         if (!isset($_REQUEST[$field])) {
             continue;
         }
-        $Inventory->set($field, $_REQUEST[$field]);
+        $value = $_REQUEST[$field];
+        if (in_array($field, $identifierFields, true)) {
+            $value = SmbiosIdentity::canonicalize($value);
+        }
+        $Inventory->set($field, $value);
     }
     // hdinfo is a compound string that is parsed out into separate columns.
     if (isset($_REQUEST['hdinfo'])) {

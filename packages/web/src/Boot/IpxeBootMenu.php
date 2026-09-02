@@ -14,8 +14,10 @@
 namespace FOG\Boot;
 
 use FOG\Base\FOGBase;
+use FOG\Base\SmbiosIdentity;
 use FOG\Items\Architecture;
 use FOG\Items\Host;
+use FOG\Managers\HostManager;
 use FOG\Items\Image;
 use FOG\Items\MulticastSession;
 use FOG\Items\MulticastSessionAssociation;
@@ -624,6 +626,8 @@ class IpxeBootMenu extends BootMenuBase
         parent::__construct();
         // Before anything else uses it: the machine has just told us
         // what it is, and this is the only moment FOG ever hears it.
+        // Identity first -- the two records below write onto the host.
+        self::_applySmbiosIdentity();
         self::_recordHostArch();
         self::_recordSecureBootState();
         $arch = self::_arch();
@@ -756,36 +760,8 @@ class IpxeBootMenu extends BootMenuBase
             . '://${fog-ip}/${fog-webroot}',
             'set setmacto ${netX/mac}',
         ];
-        $sysuuid = filter_input(INPUT_POST, 'sysuuid') ?: filter_input(INPUT_GET, 'sysuuid') ?: '';
         if (self::$Host->isValid()) {
-            // Aisle 019: validate EVERY write, not just the first one. The
-            // non-empty guard this replaces (removed by b0b303828e) meant a host
-            // that already had a sysuuid took the POSTed value UNVALIDATED, so a
-            // second unauthenticated boot.php POST could store arbitrary HTML --
-            // which the Inventory Report then rendered raw. A bare `mac=` POST
-            // with no sysuuid at all also blanked a good stored value.
-            // Skipping the write on a bad/absent value (rather than blanking it)
-            // keeps the legitimate motherboard-swap case that b0b303828e was
-            // presumably after: a well-formed UUID that differs from the stored
-            // one still updates. A malformed or missing one can no longer
-            // destroy what is already there.
-            if ($sysuuid
-                && preg_match(
-                    '/^[0-9A-Fa-f]{8}-'
-                    . '[0-9A-Fa-f]{4}-'
-                    . '[0-9A-Fa-f]{4}-'
-                    . '[0-9A-Fa-f]{4}-'
-                    . '[0-9A-Fa-f]{12}$/',
-                    $sysuuid
-                )
-                && self::$Host->get('inventory')->get('sysuuid') != $sysuuid
-            ) {
-                self::$Host->get('inventory')->getManager()->update(
-                    ['hostID' => self::$Host->get('id')],
-                    '',
-                    ['sysuuid' => $sysuuid]
-                );
-            }
+            self::_recordBootIdentifiers();
             // getItem(), not indiv(): a miss answers null rather than
             // reaching breakHead()'s exit, which on a boot request means the
             // machine gets a truncated iPXE script instead of a menu.
@@ -1168,6 +1144,9 @@ class IpxeBootMenu extends BootMenuBase
             $params,
             [
                 'param sysuuid ${uuid}',
+                'param sysserial ${serial}',
+                'param mbserial ${board-serial}',
+                'param caseasset ${asset}',
                 'isset ${netX/mac} && param macboot ${netX/mac} ||',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
@@ -2222,6 +2201,9 @@ class IpxeBootMenu extends BootMenuBase
             $params = trim(implode("\n", (array)$params));
             $params .= "\n"
                 . 'param sysuuid ${uuid}\n'
+                . 'param sysserial ${serial}\n'
+                . 'param mbserial ${board-serial}\n'
+                . 'param caseasset ${asset}\n'
                 . 'goto bootme';
             $Send = self::fastmerge($Send, [$params]);
         }
@@ -2624,4 +2606,196 @@ class IpxeBootMenu extends BootMenuBase
         ];
         $this->_parseMe($Send);
     }
+    /**
+     * Let what the firmware reported override, or merely second-guess, what
+     * the MAC resolved (#198).
+     *
+     * FOG_HOST_IDENTIFY_SMBIOS decides how far this goes:
+     *
+     *  - `off`     -- the SMBIOS values are ignored.
+     *  - `log`     -- the MAC's answer stands. Whenever the firmware would
+     *                 have answered differently (a different host, or a host
+     *                 where the MAC found none) one line goes to the error
+     *                 log naming both. This is the mode a site runs first:
+     *                 it is the only way to learn what its vendors' firmware
+     *                 actually reports before any of it is trusted.
+     *  - `enforce` -- a unique SMBIOS match wins over the MAC. The override
+     *                 is still logged, because a machine being re-identified
+     *                 is something an administrator must be able to find.
+     *
+     * A missing or unknown setting is `off`: an install whose schema has
+     * not been updated yet must behave as it did before the row existed.
+     * When the firmware is silent, ambiguous, or the two agree, nothing
+     * happens in any mode -- the MAC fallback is the whole safety net.
+     *
+     * This runs HERE, on the iPXE boot path, and not in getHostItem(), the
+     * chokepoint every caller shares, on purpose. Only iPXE sends these
+     * four values in the clear. FOS's inventory POST uses the same field
+     * names for base64-encoded values, and its check-in sends the UUID with
+     * a `mac=` that already came from the resolved host; running the lookup
+     * there would be a wasted query per request that could never change
+     * the answer. Every task FOS runs is handed the STORED primary MAC on
+     * its kernel line, so deciding once, here, is enough.
+     *
+     * @return void
+     */
+    private static function _applySmbiosIdentity()
+    {
+        $smbios = [];
+        foreach (SmbiosIdentity::FIELDS as $field) {
+            $smbios[$field] = (string)(
+                filter_input(INPUT_POST, $field)
+                ?: filter_input(INPUT_GET, $field)
+                ?: ''
+            );
+        }
+        $mode = strtolower(
+            trim((string)self::getSetting('FOG_HOST_IDENTIFY_SMBIOS'))
+        );
+        if (!in_array($mode, ['log', 'enforce'], true)) {
+            return;
+        }
+        if (!strlen(implode('', $smbios))) {
+            return;
+        }
+        $macHost = self::$Host;
+        $macID = $macHost->isValid() ? (int)$macHost->get('id') : 0;
+        $smbiosID = (int)HostManager::resolveHostBySmbios($smbios);
+        if ($smbiosID < 1 || $smbiosID === $macID) {
+            return;
+        }
+        $SmbiosHost = new Host($smbiosID);
+        $fields = [];
+        foreach (SmbiosIdentity::usable($smbios) as $k => $v) {
+            $fields[] = "$k=$v";
+        }
+        error_log(
+            sprintf(
+                'FOG host identity (%s): MAC resolved %s; SMBIOS resolved '
+                . '"%s" (id %d) on %s; %s',
+                $mode,
+                $macID
+                    ? sprintf('"%s" (id %d)', $macHost->get('name'), $macID)
+                    : 'no host',
+                $SmbiosHost->get('name'),
+                $smbiosID,
+                implode(', ', $fields),
+                $mode === 'enforce'
+                    ? 'SMBIOS wins'
+                    : 'MAC kept (log mode)'
+            )
+        );
+        if ($mode === 'enforce') {
+            self::$Host = $SmbiosHost;
+        }
+    }
+    /**
+     * Store what the firmware reported into the host's inventory (#198).
+     *
+     * iPXE sends the four SmbiosIdentity::FIELDS with every boot. A host
+     * created in the UI, by CSV or over the API has no inventory row until
+     * it has run a full FOS inventory, and until then nothing can find it
+     * by firmware -- so the row is CREATED here when missing, carrying only
+     * these fields. That is the one write this method makes to a row FOS
+     * has not filled, and the reason a CSV-imported host becomes
+     * SMBIOS-findable after its first boot rather than its first image.
+     *
+     * The UUID keeps its long-standing rule: a well-formed value that
+     * differs from the stored one replaces it (a motherboard swap). Aisle
+     * 019: it is validated on EVERY write, because an unauthenticated
+     * boot.php POST used to be able to store arbitrary HTML that the
+     * Inventory report rendered raw, and a bare `mac=` POST blanked a good
+     * value. A malformed or missing UUID leaves the stored one alone.
+     *
+     * The serials and the asset tag only FILL A GAP. They never overwrite:
+     * FOS's dmidecode is the authority for those and the next inventory
+     * refreshes them. When a stored value differs from what iPXE reports
+     * one line goes to the error log -- that disagreement is precisely the
+     * byte-fidelity question #198 could not answer from a lab, and every
+     * booting machine now answers it.
+     *
+     * @return void
+     */
+    private static function _recordBootIdentifiers()
+    {
+        $reported = [];
+        foreach (SmbiosIdentity::FIELDS as $field) {
+            $reported[$field] = SmbiosIdentity::canonicalize(
+                filter_input(INPUT_POST, $field)
+                ?: filter_input(INPUT_GET, $field)
+                ?: ''
+            );
+        }
+        // A request that carries none of them (an older boot script, a
+        // bare `mac=` POST) has nothing to say and must not touch the row.
+        if (!strlen(implode('', $reported))) {
+            return;
+        }
+        $uuidOk = (bool)preg_match(
+            '/^[0-9A-Fa-f]{8}-'
+            . '[0-9A-Fa-f]{4}-'
+            . '[0-9A-Fa-f]{4}-'
+            . '[0-9A-Fa-f]{4}-'
+            . '[0-9A-Fa-f]{12}$/',
+            $reported['sysuuid']
+        );
+        // Anything else is free text from firmware. Printable ASCII within
+        // the column keeps the Aisle 019 property for the new fields too.
+        $textOk = function ($v) {
+            return $v !== '' && preg_match('/^[\x20-\x7E]{1,250}$/', $v);
+        };
+        $Inventory = self::$Host->get('inventory');
+        $hostID = (int)self::$Host->get('id');
+        $write = [];
+        if (!$Inventory->isValid()) {
+            // No row yet. Only usable values are worth a row at all.
+            $usable = SmbiosIdentity::usable($reported);
+            if (empty($usable)) {
+                return;
+            }
+            $New = self::getClass('Inventory')->set('hostID', $hostID);
+            foreach ($usable as $field => $value) {
+                if ($field === 'sysuuid' ? $uuidOk : $textOk($value)) {
+                    $New->set($field, $value);
+                }
+            }
+            $New->save();
+            return;
+        }
+        if ($uuidOk
+            && $Inventory->get('sysuuid') != $reported['sysuuid']
+        ) {
+            $write['sysuuid'] = $reported['sysuuid'];
+        }
+        foreach (['sysserial', 'mbserial', 'caseasset'] as $field) {
+            $value = $reported[$field];
+            if (!$textOk($value)) {
+                continue;
+            }
+            $stored = SmbiosIdentity::canonicalize($Inventory->get($field));
+            if ($stored === '') {
+                $write[$field] = $value;
+            } elseif (strcasecmp($stored, $value) !== 0) {
+                error_log(
+                    sprintf(
+                        'FOG host identity: host "%s" (id %d) %s is "%s" in '
+                        . 'inventory but iPXE reports "%s"; inventory kept',
+                        self::$Host->get('name'),
+                        $hostID,
+                        $field,
+                        $stored,
+                        $value
+                    )
+                );
+            }
+        }
+        if (!empty($write)) {
+            $Inventory->getManager()->update(
+                ['hostID' => $hostID],
+                '',
+                $write
+            );
+        }
+    }
+
 }
