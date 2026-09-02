@@ -323,6 +323,10 @@ msgstr "1 ora"
 msgid "1 Year"
 msgstr "Annuale"
 
+#, fuzzy
+msgid "1. A certificate already on this server"
+msgstr "Non ci sono gruppi su questo server"
+
 msgid "10"
 msgstr ""
 
@@ -341,7 +345,14 @@ msgstr ""
 msgid "2 Minutes"
 msgstr "2 minuti"
 
+#, fuzzy
+msgid "2. A certificate signing request"
+msgstr "Nessun file è stato caricato"
+
 msgid "25"
+msgstr ""
+
+msgid "3. Upload a certificate and its key"
 msgstr ""
 
 msgid "30 Days"
@@ -376,11 +387,17 @@ msgstr ""
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
+msgid "A CA certificate is refused. Replacing FOG's own root is a migration rather than a setting -- see the Using your own PKI tab."
+msgstr ""
+
 msgid "A FOG username and password."
 msgstr ""
 
 msgid "A LDAP setup already exists with this name!"
 msgstr "Un'impostazione LDAP esiste già con questo nome!"
+
+msgid "A PEM certificate with its key, or one PKCS#12 (.p12/.pfx) file carrying both. A full chain is fine -- put the leaf first -- and the intermediates are separated out for you."
+msgstr ""
 
 msgid "A TCP/IP port printer requires an IP address or hostname."
 msgstr ""
@@ -507,6 +524,10 @@ msgstr "Un nome host con questo nome esiste già"
 msgid "A root CA uploaded on this page. Absent unless one was imported."
 msgstr ""
 
+#, php-format
+msgid "A root was supplied alongside it (%s). FOG does not trust a root just because it arrived beside a certificate -- import it deliberately on the External root CA tab, then adopt."
+msgstr ""
+
 #, fuzzy
 msgid "A scheduled time is required"
 msgstr "È richiesto un nome di gruppo!"
@@ -566,6 +587,10 @@ msgstr "Uno stato di attività già esiste con questo nome!"
 
 msgid "A task type already exists with this name!"
 msgstr "Un tipo di attività esiste già con questo nome!"
+
+#, php-format
+msgid "A usable pair is waiting: %s, valid until %s."
+msgstr ""
 
 msgid "A user already exists with this name"
 msgstr "Esiste già un utente con questo nome!"
@@ -935,6 +960,10 @@ msgstr "Gruppo amministrativo"
 #, fuzzy
 msgid "Administrator (full access)"
 msgstr "Gruppo amministrativo"
+
+#, fuzzy
+msgid "Adopt the certificate in that directory"
+msgstr "Impossibile creare Snapin lavoro"
 
 msgid "Advanced"
 msgstr "Avanzate"
@@ -1649,8 +1678,15 @@ msgid "Certificate download failed"
 msgstr "Scaricamento fallito"
 
 #, fuzzy
+msgid "Certificate in use"
+msgstr "Crea nuova posizione"
+
+#, fuzzy
 msgid "Certificate management is not configured on this server"
 msgstr "Non ci sono immagini su questo server"
+
+msgid "Certificate, or full chain, leaf first (PEM)"
+msgstr ""
 
 #, fuzzy
 msgid "Certificates"
@@ -1999,11 +2035,19 @@ msgid "Could not send data from file"
 msgstr "Impossibile leggere il file tmp."
 
 #, fuzzy
+msgid "Could not stage the passphrase"
+msgstr "Impossibile leggere il file tmp."
+
+#, fuzzy
 msgid "Could not stage the upload."
 msgstr "Impossibile leggere il file tmp."
 
 #, fuzzy
 msgid "Could not stage the uploaded certificate"
+msgstr "Impossibile leggere il file tmp."
+
+#, fuzzy
+msgid "Could not stage the uploaded file"
 msgstr "Impossibile leggere il file tmp."
 
 #, fuzzy
@@ -2579,6 +2623,10 @@ msgstr "Scaricamento fallito"
 msgid "Downloaded file is not a bootable kernel image"
 msgstr ""
 
+#, php-format
+msgid "Drop %s and %s into %s and FOG adopts them -- no setting to edit. Add %s as well if your CA issued intermediates. The installer does the same thing on its next run, so this button only saves you the wait."
+msgstr ""
+
 msgid "Dropped"
 msgstr "Dropped"
 
@@ -2940,6 +2988,9 @@ msgstr "FOG database è possibile farlo utilizzando"
 msgid "FOG is unable to communicate with the database"
 msgstr "FOG non è in grado di comunicare con il database"
 
+msgid "FOG issues its own web server certificate. If you would rather it served one of yours -- from an ACME client, your corporate CA, or a purchased certificate -- there are three ways to say so, and the first two never send the private key to this web application."
+msgstr ""
+
 msgid "FOG refuses to deploy an image to a host that cannot run it."
 msgstr ""
 
@@ -3259,6 +3310,9 @@ msgid "For ipxe command related items (e.g. colour, cpair, etc...) click "
 msgstr ""
 
 msgid "For service accounts and unattended integrations. The token acts with that user's roles, and the audit log records that you issued it for them."
+msgstr ""
+
+msgid "For sites whose policy is that a private key never moves. Not on this page yet; FOG already does exactly this for storage node certificates, and the same route for the web certificate is tracked as a follow-up."
 msgstr ""
 
 msgid "Forbidden (disallowed Origin)"
@@ -4529,6 +4583,9 @@ msgstr "Interfaccia non pronta, in attesa che venga visualizzata"
 #, fuzzy
 msgid "Interface throughput"
 msgstr "Interfaccia"
+
+msgid "Intermediates, if they are in their own file (PEM, optional)"
+msgstr ""
 
 msgid "Invalid"
 msgstr "Non valido"
@@ -6062,6 +6119,9 @@ msgstr ""
 msgid "No token passed to authenticate this host"
 msgstr "Nessuna Imagine valida definita per questo host"
 
+msgid "No trust path builds for it yet, so adopting it would be refused. Supply the intermediates, and import the issuing root on the External root CA tab if it is not a public CA."
+msgstr ""
+
 msgid "No type information available for this column."
 msgstr ""
 
@@ -6178,6 +6238,9 @@ msgid "Not syncing Snapin"
 msgstr "Non sincronizzazione gli Snapin"
 
 msgid "Not yet seen"
+msgstr ""
+
+msgid "Nothing is in that directory yet."
 msgstr ""
 
 msgid "Nothing needs it day to day. Restore it only to issue a new intermediate, or a certificate for a new storage node."
@@ -6405,6 +6468,9 @@ msgstr "Campo operazione non impostato"
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward. The Chocolatey entry expects the uploaded file to be a Chocolatey packages.config naming the packages to install."
 msgstr ""
 
+msgid "Or one PKCS#12 file carrying all of it (.p12/.pfx)"
+msgstr ""
+
 msgid "Or there was no number defined for joining session"
 msgstr "Oppure non è stato definito alcun numero per l'accesso alla sessione"
 
@@ -6476,6 +6542,9 @@ msgstr "Partclone zstd diviso per 200MiB"
 
 msgid "Partimage"
 msgstr "partimage"
+
+msgid "Passphrase, if the PKCS#12 file or the key has one"
+msgstr ""
 
 msgid "Password"
 msgstr "parola d'ordine"
@@ -6956,6 +7025,10 @@ msgstr "aggiornato stampante!"
 
 msgid "Printers"
 msgstr "Stampanti"
+
+#, fuzzy
+msgid "Private key (PEM)"
+msgstr "Chiave privata non è riuscita"
 
 msgid "Private key failed"
 msgstr "Chiave privata non è riuscita"
@@ -8964,6 +9037,14 @@ msgid "That certificate is not available on this server."
 msgstr "Non ci sono gruppi su questo server"
 
 #, fuzzy
+msgid "That certificate was refused"
+msgstr "Nessun file è stato caricato"
+
+#, fuzzy
+msgid "That file is too large to be a certificate or a key"
+msgstr "fallito il salvataggio"
+
+#, fuzzy
 msgid "That file is too large to be a root CA certificate"
 msgstr "fallito il salvataggio"
 
@@ -9001,6 +9082,10 @@ msgstr ""
 #, fuzzy
 msgid "That session has already started"
 msgstr "Questo host esiste già"
+
+#, fuzzy
+msgid "That upload did not arrive intact"
+msgstr "Non ci sono immagini su questo server"
 
 #, fuzzy
 msgid "That upload is no longer available."
@@ -9112,6 +9197,12 @@ msgid "The breakdowns cover every inventoried machine. The range selects invento
 msgstr ""
 
 msgid "The calling user's preferences."
+msgstr ""
+
+msgid "The certificate is installed and recorded, but the web server would not reload, so it is still serving the previous one. Reload it by hand, or re-run the installer."
+msgstr ""
+
+msgid "The certificate is installed and recorded. Reload the web server for it to be served."
 msgstr ""
 
 msgid "The certificate management helper is not installed on this server, so this page can only show what it can read for itself. Re-run the installer to enable it. On a storage node this is expected: a node has no CA of its own."
@@ -9425,6 +9516,9 @@ msgstr "Non ci sono snapins su questo server"
 msgid "There are open slots"
 msgstr "Ci sono slot aperti"
 
+msgid "There is a certificate in that directory, but no private key that matches it. Both files are required and they have to be a genuine pair, so FOG is leaving its own certificate in place -- adopting a certificate the web server cannot start with would be the worse outcome."
+msgstr ""
+
 msgid "There is a host in a tasking"
 msgstr "C'è un host con un compito"
 
@@ -9560,6 +9654,9 @@ msgstr ""
 msgid "This is the minimum space for the host this is deploying to."
 msgstr ""
 
+msgid "This is the one route that sends a private key through this web application. It is written to disk by root and never kept here, but it does pass through for the length of one request. If the certificate is a wildcard it covers hosts other than this one, so prefer route 1 or 2 where your policy allows."
+msgstr ""
+
 msgid "This is the only time it will be shown. FOG stores only a hash of it and cannot show it again. If you lose it, delete this token and issue another."
 msgstr ""
 
@@ -9597,6 +9694,12 @@ msgid "This server becomes the platform owner, so Microsoft's published CA certi
 msgstr ""
 
 msgid "This server has not published the automatic Secure Boot enrollment blobs (PK.auth, KEK.auth and db.auth), so automatic enrollment is unavailable. There are three reasons that happens:"
+msgstr ""
+
+msgid "This server is already serving a certificate managed outside FOG, so FOG will not reissue or re-key it. That is derived from where the certificate actually is, not from a setting."
+msgstr ""
+
+msgid "This server is now serving that certificate, and the web server has been reloaded."
 msgstr ""
 
 msgid "This server records which person signed in to which machine, and when, and no retention window is set. Click"
@@ -10047,7 +10150,13 @@ msgstr "Carica Report"
 msgid "Upload Reports"
 msgstr "Carica Report"
 
+msgid "Upload a certificate and its key, or one PKCS#12 file carrying both"
+msgstr ""
+
 msgid "Upload a root CA certificate to have this server trust it. It is added to the host's own trust store, so every HTTPS call this server makes will accept a certificate issued beneath it, and it is re-applied on every later installer run."
+msgstr ""
+
+msgid "Upload and use it"
 msgstr ""
 
 msgid "Upload file extension must be, jpg, jpeg, or png"

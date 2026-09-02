@@ -610,6 +610,37 @@ set the canonical paths by hand as described under **Certificate paths** above
 and re-run the installer. That route does not consult the chain, and it is
 deliberately not a checkbox on the Certificates page: it is the one case where
 you are telling FOG you know better than its verification.
+
+### Doing it from the Certificates page instead
+
+The **Web server certificate** tab does the same three things without a shell,
+gated on `system.pki` (deny by default, so it is invisible until an
+administrator is granted it):
+
+- **Adopt what is in the customizations directory.** The same detection, the
+  same refusals, and the web server is reloaded, so it takes effect when you
+  click rather than on the next installer run. The tab says what is sitting in
+  the directory before you commit to it — whether the pair matches, and whether
+  a trust path builds.
+- **Upload a certificate and its key.** PEM, a fullchain with the leaf first,
+  or one PKCS#12 (`.p12`/`.pfx`) file carrying key, leaf and chain together —
+  which is what an export from `certlm.msc` or IIS gives you. A passphrase on
+  either is fine. What arrives is written into the customizations directory, so
+  the next installer run adopts it again rather than regenerating over it, and
+  anything already there is kept as `*.replaced`.
+- **Import the issuing root**, on the External root CA tab, when it is not a
+  public CA.
+
+Two limits are deliberate. **A CA certificate is refused as the web leaf** —
+`basicConstraints CA:TRUE` is checked, because a CA private key must not come
+through the web application at all; replacing FOG's own root is a migration and
+the page composes the `installfog.sh` invocation for it instead. And the upload
+route is the only one that sends a private key through PHP, for the length of
+one request: it is written by root and never kept there, but if the certificate
+is a **wildcard** it covers hosts other than this server, so prefer the drop-in
+where your policy allows. See
+[ADR 0036](adr/0036-the-web-tier-changes-pki-through-a-fixed-verb-set.md)'s
+2026-09-02 amendment for the reasoning.
 ## Let's Encrypt and ACME
 
 **FOG does not run an ACME client and will not.** Use `certbot`, `acme.sh`, or
