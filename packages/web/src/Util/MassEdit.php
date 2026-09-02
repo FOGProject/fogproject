@@ -231,8 +231,11 @@ class MassEdit extends FOGBase
      * @param array $resolved output of resolve()
      * @param array $spec     key => ['field' => <FOGController field name>,
      *                        'empty' => <what CLEAR writes, default ''>].
-     *                        A key absent from the spec is skipped: the spec
-     *                        is what says a key may touch a column at all.
+     *                        `empty` may be null, and null is written as
+     *                        NULL rather than treated as absent -- that is
+     *                        what a column with a foreign key needs. A key
+     *                        absent from the spec is skipped: the spec is
+     *                        what says a key may touch a column at all.
      *
      * @return array field name => value, ready for a manager update(). EMPTY
      *               when nothing was set or cleared -- and an empty map must
@@ -260,11 +263,23 @@ class MassEdit extends FOGBase
                 $updates[$spec[$key]['field']] = $instruction['value'];
             } elseif (self::CLEAR === $action) {
                 // Per field, because "empty" is not one value. A varchar
-                // column clears to '', an int foreign key to 0; writing ''
-                // into an int column stores 0 on a permissive server and
-                // errors on a strict one, so the answer belongs in the spec
-                // rather than in a cast here.
-                $updates[$spec[$key]['field']] = $spec[$key]['empty'] ?? '';
+                // column clears to '', a plain int to 0, and a column
+                // carrying a FOREIGN KEY to null -- 0 is not exempt from a
+                // constraint, so clearing `hosts`.`hostImage` to 0 is
+                // rejected outright unless an image with id 0 exists, which
+                // none does. The answer belongs in the spec rather than in a
+                // cast here.
+                //
+                // array_key_exists, NOT `?? ''`. Null is the whole point for
+                // the foreign-key case and `??` treats it as absent, so the
+                // coalesce silently turned every intended NULL back into ''
+                // -- which an int column then stores as 0, i.e. exactly the
+                // value that fails. A spec that genuinely omits `empty`
+                // still gets ''.
+                $updates[$spec[$key]['field']] =
+                    array_key_exists('empty', $spec[$key])
+                    ? $spec[$key]['empty']
+                    : '';
             }
         }
 
