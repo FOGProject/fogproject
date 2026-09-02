@@ -9265,6 +9265,9 @@ msgstr "Impossible de créer la tâche"
 msgid "The current user is invalid."
 msgstr "Type de tâche n'est pas valide"
 
+msgid "The database refused the update; nothing was changed"
+msgstr ""
+
 msgid "The default printer for hosts in this group. A host that has its own default keeps it."
 msgstr ""
 

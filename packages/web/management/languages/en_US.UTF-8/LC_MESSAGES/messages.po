@@ -9280,6 +9280,9 @@ msgstr "Failed to create task"
 msgid "The current user is invalid."
 msgstr "Task type is not valid"
 
+msgid "The database refused the update; nothing was changed"
+msgstr ""
+
 msgid "The default printer for hosts in this group. A host that has its own default keeps it."
 msgstr ""
 

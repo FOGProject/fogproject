@@ -9443,6 +9443,9 @@ msgstr "No se pudo crear la tarea"
 msgid "The current user is invalid."
 msgstr "tipo de tarea no es válida"
 
+msgid "The database refused the update; nothing was changed"
+msgstr ""
+
 msgid "The default printer for hosts in this group. A host that has its own default keeps it."
 msgstr ""
 
