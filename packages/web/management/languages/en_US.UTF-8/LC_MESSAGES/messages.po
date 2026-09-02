@@ -11735,6 +11735,9 @@ msgstr ""
 msgid "value must be numeric"
 msgstr "You must enter a name"
 
+msgid "was retired in FOG 1.6. A group now grants its snapins, printers, modules and power schedules to every member, hosts added later included, which is what this plugin copied rows to imitate. Its database trigger was removed by the upgrade and must not come back."
+msgstr ""
+
 msgid "weekday"
 msgstr ""
 
