@@ -738,6 +738,14 @@ restorePreservedCustomizations() {
     # above excludes them: picking up the new kernel is the point of an
     # update. Keeping bzImage ITSELF is therefore close to meaningless -- keep
     # the sibling or a custom name, which is what the tab steers toward.
+    #
+    # ORDER DEPENDENCY, and it fails silently if broken: the directory is
+    # created by _ensureCustomizationsTree(), which runs inside
+    # configureHttpd() -- installfog.sh calls that BEFORE this function
+    # (backup, then configureHttpd, then restore). Moving either past the
+    # other leaves this reading a directory that does not exist yet, which
+    # the -d guard turns into "nothing was kept" rather than an error, and
+    # the admin's kernel is gone with the record still saying it was kept.
     if [[ -d "${kbdir}/keep" ]]; then
         for f in "${kbdir}/keep"/*; do
             [[ -f $f ]] || continue
