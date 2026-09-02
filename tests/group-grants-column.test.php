@@ -15,11 +15,16 @@
  *
  *   1. ONE query per page, not one per row and not one per kind of grant.
  *      This is GH-707's rule, and the reason the column is primed at all.
- *   2. It counts all three things a group grants under this ADR -- snapins,
- *      printers and modules -- and nothing else. An image is not among them:
- *      a group PUSHES an image imperatively (Group::addImage), it does not
- *      grant one.
- *   3. The badges come out in a fixed order (snapins, printers, modules)
+ *   2. It counts all FOUR things a group grants under this ADR -- snapins,
+ *      printers, modules and power schedules -- and nothing else. An image is
+ *      not among them: a group PUSHES an image imperatively
+ *      (Group::addImage), it does not grant one. Power was the fourth grant
+ *      to land and the column was written for three, so the check below is
+ *      per-table rather than a count: adding a grant and forgetting this
+ *      column is a group that reads as a plain label while it pushes
+ *      shutdowns at every host in it.
+ *   3. The badges come out in a fixed order (snapins, printers, modules,
+ *      power schedules)
  *      whatever order the rows come back in. A UNION has no order of its
  *      own, so without the bucketing two groups could show the same grants
  *      in different orders on the same page.
@@ -96,6 +101,7 @@ function grantsFor($id)
 // invariant 3 is testing the bucketing rather than the fixture's own order.
 $answer = [
     ['kind' => 'module', 'gid' => 1, 'n' => 1],
+    ['kind' => 'power', 'gid' => 1, 'n' => 2],
     ['kind' => 'printer', 'gid' => 2, 'n' => 4],
     ['kind' => 'snapin', 'gid' => 1, 'n' => 2],
     ['kind' => 'printer', 'gid' => 1, 'n' => 1],
@@ -105,7 +111,14 @@ $log = primeGrants($db, [1, 2, 3], $answer);
 $t->check('the primer issues exactly one query', 1 === count($log));
 
 $sql = isset($log[0]) ? $log[0] : '';
-foreach (['groupSnapinAssoc', 'groupPrinterAssoc', 'groupModuleAssoc'] as $tbl) {
+foreach (
+    [
+        'groupSnapinAssoc',
+        'groupPrinterAssoc',
+        'groupModuleAssoc',
+        'groupPowerManagement'
+    ] as $tbl
+) {
     $t->check(
         "the one query counts $tbl",
         false !== strpos($sql, '`' . $tbl . '`')
@@ -118,21 +131,22 @@ $t->check(
 );
 $t->check(
     'it asks only for the ids on the page',
-    3 === substr_count($sql, 'IN (1,2,3)')
+    4 === substr_count($sql, 'IN (1,2,3)')
 );
 $t->check(
     'each arm groups by the assoc row it counts',
-    3 === substr_count($sql, 'GROUP BY')
+    4 === substr_count($sql, 'GROUP BY')
 );
 
 // Invariant 3: fixed display order regardless of the row order above.
 $t->check(
-    'group 1 reads snapins, printers, modules in that order',
-    ['2 snapins', '1 printer', '1 module'] === grantsFor(1)
+    'group 1 reads snapins, printers, modules, power in that order',
+    ['2 snapins', '1 printer', '1 module', '2 power schedules']
+    === grantsFor(1)
 );
 $t->check(
     'a single grant takes the singular form',
-    ['1 module'] === array_slice(grantsFor(1), -1)
+    ['1 module'] === array_slice(grantsFor(1), -2, 1)
 );
 $t->check(
     'group 2 reads only what it grants',
@@ -161,7 +175,7 @@ $t->check(
 );
 $t->check(
     'a non-numeric id is cast, not dropped',
-    3 === substr_count($sql, 'IN (4,7)')
+    4 === substr_count($sql, 'IN (4,7)')
 );
 $t->check(
     'ids that are not positive are dropped',

@@ -7881,11 +7881,19 @@ class Route extends FOGBase
     /**
      * Counts what every group on the grid page grants, in one query.
      *
-     * ADR 0038 Decision 16a requirement 5. The three tables are the three
-     * things a group grants under this ADR and the three FOG\Assign\Resolver
-     * resolves -- snapins, printers and modules. An image is NOT among them:
-     * a group pushes an image onto its hosts imperatively (Group::addImage),
-     * it does not grant one, so it is not a property of the group to show.
+     * ADR 0038 Decision 16a requirement 5. The four tables are the four
+     * things a group grants under this ADR and the four FOG\Assign\Resolver
+     * resolves -- snapins, printers, modules and power schedules. An image is
+     * NOT among them: a group pushes an image onto its hosts imperatively
+     * (Group::addImage), it does not grant one, so it is not a property of
+     * the group to show.
+     *
+     * Power arrived after the other three and has to be counted DISTINCT.
+     * The other three assoc tables hold one row per granted thing; a power
+     * grant is one row per schedule, and two schedules on the same group are
+     * two rows that mean two things -- so the count is of rows either way,
+     * but the arm is written the same shape as its siblings deliberately, so
+     * the next grant added here has an obvious template to copy.
      *
      * The strings are composed here rather than client-side because they are
      * translated, and the browser has no catalog. The renderer's job is to
@@ -7915,7 +7923,8 @@ class Route extends FOGBase
         $kinds = [
             'snapin' => ['groupSnapinAssoc', 'gsaGroupID'],
             'printer' => ['groupPrinterAssoc', 'gpaGroupID'],
-            'module' => ['groupModuleAssoc', 'gmaGroupID']
+            'module' => ['groupModuleAssoc', 'gmaGroupID'],
+            'power' => ['groupPowerManagement', 'gpmGroupID']
         ];
         $selects = [];
         foreach ($kinds as $kind => $spec) {
@@ -7928,7 +7937,8 @@ class Route extends FOGBase
         }
         $rows = self::_rawRows(implode(' UNION ALL ', $selects));
         // Bucketed by kind first so the badges come out in a fixed order --
-        // snapins, printers, modules -- whatever order the UNION returns.
+        // snapins, printers, modules, power schedules -- whatever order the
+        // UNION returns.
         $byKind = [];
         foreach ($rows as $row) {
             $gid = (int) $row['gid'];
@@ -7956,7 +7966,7 @@ class Route extends FOGBase
      * catalog extractor to find them; building the msgid from $kind would
      * leave every one of these untranslated in every language.
      *
-     * @param string $kind One of snapin, printer, module.
+     * @param string $kind One of snapin, printer, module, power.
      * @param int    $n    How many, for the plural form.
      *
      * @return string A format string taking one %d.
@@ -7968,6 +7978,15 @@ class Route extends FOGBase
                 return ngettext('%d snapin', '%d snapins', $n);
             case 'printer':
                 return ngettext('%d printer', '%d printers', $n);
+            case 'power':
+                // "schedule" rather than "power", because the column already
+                // reads as a list of what the group hands out and a bare
+                // "2 power" is not a thing anyone would say.
+                return ngettext(
+                    '%d power schedule',
+                    '%d power schedules',
+                    $n
+                );
             default:
                 return ngettext('%d module', '%d modules', $n);
         }
