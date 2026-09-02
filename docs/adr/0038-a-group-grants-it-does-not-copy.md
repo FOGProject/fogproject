@@ -2,9 +2,15 @@
 
 ## Status
 
-**accepted** 2026-09-01. No code has been written for it yet — this ADR
-deliberately proposed none in the pass that produced it — and **the whole
-change targets 1.6.0**, not a 1.6.0/1.6.x split.
+**accepted** 2026-09-01, and **built** — every work unit in the proposal's
+§2.5 table is merged, plus a fourth grant this ADR did not originally name
+(see *A fourth grant arrived after acceptance*, below the Status block).
+**The whole change targets 1.6.0**, not a 1.6.0/1.6.x split.
+
+The sentence that stood here said no code had been written. That was true on
+the day this was accepted and has not been since. It is replaced rather than
+struck through, because a status line is the one part of an ADR that gets read
+on its own.
 
 The proposal's own earlier recommendation was to split it across two releases,
 and the maintainer overturned that with an argument this ADR records because it
@@ -144,6 +150,38 @@ mention — `locationAssoc` (`:58`), `printerAssoc` (`:63`), `snapinAssoc`
 **creates a snapin job and runs them** (`:78`, `:86`). So on a server with this
 plugin, adding a host to a group is not only a configuration change: it starts
 work on the machine.
+
+## A fourth grant arrived after acceptance
+
+Decision 1 splits a group's contents by lifetime, and Decision 3 admits modules
+as the third grant. A fourth was put to the same test and passed it: **power
+schedules**.
+
+A schedule is declarative and set-shaped in exactly the way the other three
+are. "Shut down at 22:00 on weeknights" is a standing statement about the
+members; several groups can hold one without contradicting each other; and the
+union of two schedules is a machine that does both — which is a meaningful
+answer, and precisely what a location or an OU cannot give, which is why those
+went to mass edit instead (Decision 13). So it is a grant:
+`groupPowerManagement`, schema steps 410 and 411, resolved by
+`FOG\Assign\Resolver::resolvePowerManagement()` beside the other three.
+
+An **immediate** shut down, restart or wake is not a grant. It acts on the
+membership at the instant it is pressed and leaves nothing standing behind it,
+which is Decision 1's definition of a task — and a standing grant of "shut down
+immediately" would fire again for every machine that ever joined the group.
+
+Two things this changes elsewhere in the document, recorded here rather than
+edited into every sentence that counts the grants:
+
+- Decision 16a requirement 5's Grants column counts **four** kinds, not three.
+- Decision 8's resolver gains a fourth entry point.
+
+Building it also surfaced a live defect older than any of this work: a weekday
+of `*` reached the FOG client as `... 7`, meaning Sundays only, on any PHP 8
+server. `'*' < 0` is true on PHP 8 and false on PHP 7.4, so every daily power
+schedule silently stopped running when a server's PHP was upgraded and nothing
+about FOG itself changed.
 
 ## Decision
 
