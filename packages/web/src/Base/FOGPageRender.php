@@ -847,27 +847,48 @@ trait FOGPageRender
     }
 
     /**
-     * Builds the Basic/Advanced task-type accordion.
+     * Builds the Basic / Power / Advanced task-type accordion.
      *
      * `taskTypes` already carries both axes this needs. `ttIsAdvanced`
-     * splits the two panes -- Deploy and Multi-Cast are basic, everything
-     * from Memtest to Password Reset is advanced -- and `ttIsAccess` says
-     * which kind of target a type applies to: `host`, `group`, or `both`.
-     * Neither is derived here; the caller passes the access values it wants
-     * and gets back the accordion.
+     * splits basic from advanced -- Deploy and Multi-Cast are basic,
+     * everything from Memtest to Password Reset is advanced -- and
+     * `ttIsAccess` says which kind of target a type applies to: `host`,
+     * `group`, or `both`. Neither is derived here; the caller passes the
+     * access values it wants and gets back the accordion.
      *
-     * The anchor is the caller's, because the two users of this need
-     * different links from the same rows: the host edit page tasks one host
-     * and names it in the URL, while the list tasks whatever is selected and
-     * has to defer that to the browser. Everything around the anchor -- the
-     * two collapsible cards, the striped tables, the hooks a plugin adds
-     * rows through -- is the same either way.
+     * The anchor is the caller's, because the users of this need different
+     * links from the same rows: the host edit page tasks one host and names
+     * it in the URL, while the list tasks whatever is selected and has to
+     * defer that to the browser. Everything around the anchor -- the
+     * collapsible cards, the striped tables, the hooks a plugin adds rows
+     * through -- is the same either way.
      *
-     * @param array    $access       ttIsAccess values to include.
-     * @param callable $anchor       fn(stdClass $TaskType): string, the link.
-     * @param string   $accordionId  DOM id for the accordion wrapper.
-     * @param string   $basicHook    Event fired with the basic rows.
-     * @param string   $advancedHook Event fired with the advanced rows.
+     * THE POWER PANE, AND WHY IT SITS IN THE MIDDLE. Shut down, restart and
+     * wake are tasks in every sense that matters: each acts on the machines
+     * you have selected at the moment you press it, and none of them is a
+     * standing statement about anything. Two of the three had nowhere to be
+     * asked for except a single host's Power Management tab, so there was no
+     * way to shut down a selection at all; the third, Wake-Up, was a task
+     * type filed under Advanced beside Memtest and the disk wipes, which is
+     * not where anyone looks for it.
+     *
+     * So the three are collected into one pane between Basic and Advanced.
+     * Wake-Up MOVES here rather than being duplicated -- it is excluded from
+     * whichever of the other two panes `ttIsAdvanced` would have put it in --
+     * and it is still rendered with the caller's own anchor, so it queues
+     * exactly the task it always did. The pane appears only when the caller
+     * supplies $powerAnchor, so a surface that cannot carry out an immediate
+     * power action does not offer one.
+     *
+     * @param array         $access       ttIsAccess values to include.
+     * @param callable      $anchor       fn(stdClass $TaskType): string.
+     * @param string        $accordionId  DOM id for the accordion wrapper.
+     * @param string        $basicHook    Event fired with the basic rows.
+     * @param string        $advancedHook Event fired with the advanced rows.
+     * @param callable|null $powerAnchor  fn(string $action, string $label,
+     *                                    string $icon): string, the link for
+     *                                    shutdown and reboot. Null omits the
+     *                                    pane entirely.
      *
      * @return string The accordion markup.
      */
@@ -876,7 +897,8 @@ trait FOGPageRender
         callable $anchor,
         $accordionId,
         $basicHook = '',
-        $advancedHook = ''
+        $advancedHook = '',
+        callable $powerAnchor = null
     ) {
         $items = Route::getList(
             'tasktype',
@@ -885,11 +907,37 @@ trait FOGPageRender
             'id'
         );
 
+        $power = [];
+        if (null !== $powerAnchor) {
+            // Icons chosen from the set the task types already use, so the
+            // pane does not look like it came from somewhere else.
+            $power[$powerAnchor('shutdown', _('Shut Down'), 'power-off')] = _(
+                'Shuts down the selected machines. The FOG client carries '
+                . 'this out at its next check-in, so a machine that is off, '
+                . 'or has no client installed, is unaffected.'
+            );
+            $power[$powerAnchor('reboot', _('Restart'), 'arrow-rotate-right')]
+                = _(
+                    'Restarts the selected machines. As with Shut Down, the '
+                    . 'FOG client carries this out at its next check-in.'
+                );
+        }
+
         $panes = [];
         foreach ([0, 1] as $advanced) {
             $data = [];
             foreach ($items as $TaskType) {
                 if ($advanced != $TaskType->isAdvanced) {
+                    continue;
+                }
+                // Wake-Up belongs with the other two power actions, not in
+                // whichever pane ttIsAdvanced happens to put it in. Moved
+                // rather than copied: offering the same task twice in one
+                // accordion is worse than offering it in the wrong place.
+                if (count($power) > 0
+                    && TaskType::WAKE_UP == $TaskType->id
+                ) {
+                    $power[$anchor($TaskType)] = $TaskType->description;
                     continue;
                 }
                 $data[$anchor($TaskType)] = $TaskType->description;
@@ -901,28 +949,57 @@ trait FOGPageRender
             $panes[$advanced] = self::stripedTable($data);
         }
 
+        // Basic, Power, Advanced. The order is the answer to "what am I most
+        // likely to want": imaging first, the three one-click power actions
+        // next, and the things that need thinking about last.
+        $cards = [
+            [
+                'id' => 'Basic',
+                'title' => _('Basic Tasks'),
+                'class' => 'primary',
+                'body' => $panes[0],
+                'open' => true
+            ]
+        ];
+        if (count($power) > 0) {
+            $cards[] = [
+                'id' => 'Power',
+                'title' => _('Power'),
+                'class' => 'info',
+                'body' => self::stripedTable($power),
+                'open' => false
+            ];
+        }
+        $cards[] = [
+            'id' => 'Advanced',
+            'title' => _('Advanced Tasks'),
+            'class' => 'warning',
+            'body' => $panes[1],
+            'open' => false
+        ];
+
         ob_start();
         echo '<div id="' . $accordionId . '">';
-        foreach ([0, 1] as $advanced) {
-            $paneId = $accordionId . ($advanced ? 'Advanced' : 'Basic');
+        foreach ($cards as $card) {
+            $paneId = $accordionId . $card['id'];
             echo '<div class="card card-'
-                . ($advanced ? 'warning' : 'primary')
+                . $card['class']
                 . ' card-outline">';
             echo '<div class="card-header">';
             echo '<h4 class="card-title">';
             echo '<a href="#' . $paneId . '" class="" data-bs-toggle="collapse" '
                 . 'data-bs-parent="#' . $accordionId . '">';
-            echo $advanced ? _('Advanced Tasks') : _('Basic Tasks');
+            echo $card['title'];
             echo '</a>';
             echo '</h4>';
             echo '</div>';
             echo '<div id="' . $paneId . '" class="collapse'
-                . ($advanced ? '' : ' show')
+                . ($card['open'] ? ' show' : '')
                 . '">';
             echo '<div class="card-body">';
             echo '<table class="table table-striped">';
             echo '<tbody>';
-            echo $panes[$advanced];
+            echo $card['body'];
             echo '</tbody>';
             echo '</table>';
             echo '</div>';

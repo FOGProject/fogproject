@@ -639,7 +639,11 @@
     // 'both'. The server refuses the same two cases in
     // assertSelectionTaskable(), so this is the courtesy, not the guard.
     function applyTaskAvailability(count) {
-        $('.queuetaskitem').each(function() {
+        // Every item that declares an access, not just the task types. The
+        // power items carry data-access="both" and so are never hidden, but
+        // reading the attribute rather than the class means one rule applies
+        // to the whole accordion instead of a list of exceptions.
+        $('[data-access]', queuePicker).each(function() {
             var access = $(this).attr('data-access'),
                 usable = true;
             if (access === 'group' && count < 2) {
@@ -673,6 +677,36 @@
 
     queueTaskModal.on('hidden.bs.modal', function() {
         showQueuePicker();
+    });
+
+    // Shut down, restart and wake take no options, so there is no second
+    // pane to fetch -- the click IS the action. Read the selection HERE for
+    // the same reason the Create button below does: the grid is live behind
+    // the modal, so what was ticked when it opened is not necessarily what is
+    // ticked now, and the ids are what the server acts on.
+    $('.powertaskitem').on('click', function(e) {
+        e.preventDefault();
+        var action = $(this).attr('data-power'),
+            hosts = $.getSelectedIds(table),
+            $item = $(this);
+
+        if (hosts.length < 1) {
+            return;
+        }
+        $item.addClass('disabled');
+        $.apiCall(
+            'post',
+            '../management/index.php?node=host&sub=taskPowerMulti',
+            {action: action, hosts: hosts},
+            function(err) {
+                $item.removeClass('disabled');
+                if (err) {
+                    return;
+                }
+                queueTaskModal.modal('hide');
+                table.rows({selected: true}).deselect();
+            }
+        );
     });
 
     $('.queuetaskitem').on('click', function(e) {

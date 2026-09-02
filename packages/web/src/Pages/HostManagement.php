@@ -5700,7 +5700,20 @@ class HostManagement extends FOGPage
             },
             'taskAccordian',
             'HOST_BASICTASKS_DATA',
-            'HOST_ADVANCEDTASKS_DATA'
+            'HOST_ADVANCEDTASKS_DATA',
+            function ($action, $label, $icon) {
+                // `powertaskitem`, not `taskitem`: the tasking JS treats a
+                // taskitem as "fetch this type's options form", and these
+                // have no options. The action is what the server needs and
+                // the only thing carried.
+                return '<a href="#" class="powertaskitem" data-power="'
+                    . \Initiator::e($action)
+                    . '"><i class="fas fa-'
+                    . \Initiator::e($icon)
+                    . ' fa-2x"></i><br/>'
+                    . \Initiator::e($label)
+                    . '</a>';
+            }
         );
 
         $modalApprovalBtns = self::makeButton(
@@ -5822,7 +5835,20 @@ class HostManagement extends FOGPage
             },
             'queueTaskAccordion',
             'HOST_BASICTASKS_DATA',
-            'HOST_ADVANCEDTASKS_DATA'
+            'HOST_ADVANCEDTASKS_DATA',
+            function ($action, $label, $icon) {
+                // data-access="both": an immediate power action is as valid
+                // on one machine as on forty, unlike Capture and Multi-Cast.
+                // Carried anyway so applyTaskAvailability() has one rule to
+                // apply rather than a list of exceptions to remember.
+                return '<a href="#" class="powertaskitem" data-power="'
+                    . \Initiator::e($action)
+                    . '" data-access="both"><i class="fas fa-'
+                    . \Initiator::e($icon)
+                    . ' fa-2x"></i><br/>'
+                    . \Initiator::e($label)
+                    . '</a>';
+            }
         );
 
         // Green, not gray. Tasking is a genuinely different operation from
@@ -5867,6 +5893,158 @@ class HostManagement extends FOGPage
             'modal' => $modal,
             'quick' => $this->_quickTaskItems()
         ];
+    }
+    /**
+     * Carries out an immediate power action on a selection of hosts.
+     *
+     * Shut down and restart are `powerManagement` rows with `pmOndemand = 1`:
+     * the FOG client asks for them on its next check-in, acts, and the row is
+     * deleted. Wake is not a row at all -- a sleeping machine cannot ask for
+     * anything, so the server sends the magic packet here and now.
+     *
+     * A TASK, NOT A GRANT, and it is on the task surface for that reason. It
+     * acts on the hosts that are selected at the moment you press it and
+     * leaves nothing standing behind it. Group POWER SCHEDULES are the other
+     * thing entirely and live on the group as grants (ADR 0038); an immediate
+     * action has no group-owned counterpart because a grant of "shut down
+     * immediately" would fire again for every host that joined later.
+     *
+     * THE NAME IS THE PERMISSION. Authorization::_subToAction() reads the
+     * prefix off the sub and answers `task` for `deploy`, `multicast` and
+     * `task` -- so `taskPowerMulti` is gated as host.task, and renaming it to
+     * something tidier like `powerMulti` would silently reclassify it as
+     * host.EDIT on the POST. Anyone who could rename a host could then shut
+     * down the fleet. The same convention already covers `wakeemup` and
+     * `clearpmtasks`, which that function lists by name because they do not
+     * carry a prefix; this one carries the prefix instead.
+     * tests/host-list-queue-task.test.php executes the resolution rather than
+     * trusting the reading.
+     *
+     * The rest of the gate is deployMultiPost()'s, deliberately and not by
+     * coincidence: the ids come from the browser, so one host outside the
+     * caller's site scope must deny the whole request rather than quietly
+     * acting on the rest. Pending hosts are excluded for the same reason
+     * tasking excludes them -- a machine that has not been approved is not
+     * one to act on.
+     *
+     * @return void
+     */
+    public function taskPowerMulti()
+    {
+        // Dispatch anchor. FOGPageManager::render() will not look for
+        // taskPowerMultiPost() until a method literally named for the sub
+        // resolves, so without this the POST below is unreachable and the
+        // request is answered by the host list instead -- 200, valid JSON,
+        // no msg, and a button that silently does nothing. See
+        // FOGPagePost::methodNotAllowed().
+        //
+        // There is no GET form here on purpose: a power action takes no
+        // options, which is the whole reason it is one click.
+        self::methodNotAllowed();
+    }
+    /**
+     * Carries out an immediate power action on a selection of hosts.
+     *
+     * See taskPowerMulti() above for why the bare method exists.
+     *
+     * @return void
+     */
+    public function taskPowerMultiPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+
+        try {
+            $action = trim((string)filter_input(INPUT_POST, 'action'));
+            // Whitelisted, not passed through. The column is an ENUM, so an
+            // unknown value would be stored as '' by a non-strict server
+            // rather than refused -- a row the client reads as no action at
+            // all and deletes, which looks exactly like the action having
+            // been carried out.
+            if (!in_array($action, ['shutdown', 'reboot', 'wol'], true)) {
+                throw new \Exception(_('Unknown power action'));
+            }
+
+            $hosts = filter_input(
+                INPUT_POST,
+                'hosts',
+                FILTER_DEFAULT,
+                FILTER_REQUIRE_ARRAY
+            );
+            $hosts = array_values(
+                array_unique(
+                    array_filter(
+                        array_map('intval', (array)$hosts)
+                    )
+                )
+            );
+            if (count($hosts) < 1) {
+                throw new \Exception(_('No hosts are selected'));
+            }
+            Authorization::requirePageObjectScopeMass('host', $hosts);
+
+            $hosts = Route::getIds(
+                'host',
+                [
+                    'id' => $hosts,
+                    'pending' => ['', 0]
+                ]
+            );
+            if (count($hosts ?: []) < 1) {
+                throw new \Exception(_('No hosts available'));
+            }
+
+            if ('wol' === $action) {
+                foreach (Route::getList('host', ['id' => $hosts]) as $Host) {
+                    self::getClass('Host', $Host->id)->wakeOnLAN();
+                }
+            } else {
+                // insertBatch UPSERTS against `powerManagement`.`cron`, so
+                // pressing this twice before the client checks in leaves one
+                // row rather than two -- which is what you want from a button
+                // whose effect is "shut this machine down".
+                $items = [];
+                foreach ($hosts as $hostID) {
+                    $items[] = [$hostID, '', '', '', '', '', 1, $action];
+                }
+                self::getClass('PowerManagementManager')
+                    ->insertBatch(
+                        [
+                            'hostID',
+                            'min',
+                            'hour',
+                            'dom',
+                            'month',
+                            'dow',
+                            'onDemand',
+                            'action'
+                        ],
+                        $items
+                    );
+            }
+
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_OK,
+                json_encode(
+                    [
+                        'msg' => sprintf(
+                            _('Power action sent to %d host(s)'),
+                            count($hosts)
+                        )
+                    ]
+                )
+            );
+        } catch (\Exception $e) {
+            // Always 400. Every throw above is a refusal of what was asked --
+            // an unknown action, an empty or out-of-scope selection, nothing
+            // left after the pending filter -- and there is no branch here
+            // that can fail for the server's own reasons, so a 500 arm would
+            // be a branch no request could reach.
+            self::jsonSend(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(['error' => $e->getMessage()])
+            );
+        }
     }
     /**
      * The one-click task types offered beside the grid's own controls.
