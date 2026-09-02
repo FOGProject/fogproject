@@ -214,6 +214,19 @@ return [
                 'gmaModuleID' => 'int(11) NOT NULL',
             ],
         ],
+        'groupPowerManagement' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `groupPowerManagement` ( `gpmID` int(11) NOT NULL AUTO_INCREMENT, `gpmGroupID` int(11) NOT NULL, `gpmMin` varchar(50) NOT NULL DEFAULT \'\', `gpmHour` varchar(50) NOT NULL DEFAULT \'\', `gpmDom` varchar(50) NOT NULL DEFAULT \'\', `gpmMonth` varchar(50) NOT NULL DEFAULT \'\', `gpmDow` varchar(50) NOT NULL DEFAULT \'\', `gpmAction` enum(\'shutdown\',\'reboot\',\'wol\') NOT NULL, PRIMARY KEY (`gpmID`), UNIQUE KEY `gpmCron` (`gpmGroupID`,`gpmMin`,`gpmHour`,`gpmDom`,`gpmMonth`,`gpmDow`,`gpmAction`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'gpmID' => 'int(11) NOT NULL',
+                'gpmGroupID' => 'int(11) NOT NULL',
+                'gpmMin' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'gpmHour' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'gpmDom' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'gpmMonth' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'gpmDow' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'gpmAction' => 'enum(\'shutdown\',\'reboot\',\'wol\') NOT NULL',
+            ],
+        ],
         'groupPrinterAssoc' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `groupPrinterAssoc` ( `gpaID` int(11) NOT NULL AUTO_INCREMENT, `gpaGroupID` int(11) NOT NULL, `gpaPrinterID` int(11) NOT NULL, `gpaIsDefault` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`gpaID`), UNIQUE KEY `gpaGroupPrinter` (`gpaGroupID`,`gpaPrinterID`), KEY `gpaPrinterID` (`gpaPrinterID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [

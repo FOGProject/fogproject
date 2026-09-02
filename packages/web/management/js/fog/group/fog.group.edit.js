@@ -415,29 +415,34 @@
 
     // ---------------------------------------------------------------
     // POWER MANAGEMENT TAB
-    var powermanagementForm = $('#group-powermanagement-cron-form'),
-        powermanagementFormBtn = $('#powermanagement-send'),
-        powermanagementDeleteBtn = $('#powermanagement-delete'),
+    //
+    // ADR 0038: the grid lists the GROUP'S OWN grants -- one row per schedule
+    // the group grants, not a summary of what its member hosts hold. It reads
+    // ?sub=getGrouppowermanagementList, a page endpoint rather than a REST
+    // route, for the reason GroupManagement::getGrouppowermanagementList()
+    // gives.
+    var powermanagementDeleteBtn = $('#powermanagement-delete'),
         powermanagementDeleteModal = $('#deletepowermanagementmodal'),
-        powermanagementDeleteCancelBtn = $('#deletepowermanagementCancel'),
         powermanagementDeleteConfirmBtn = $('#deletepowermanagementConfirm'),
+        pmGrantDelete = $('#pm-delete'),
         ondemandModalBtn = $('#ondemandBtn'),
+        ondemandModal = $('#ondemandModal'),
         ondemandModalConfirmBtn = $('#ondemandCreateBtn'),
         scheduleModalBtn = $('#scheduleBtn'),
+        scheduleModal = $('#scheduleModal'),
         scheduleModalConfirmBtn = $('#scheduleCreateBtn'),
-        // Insert Form cron elements.
-        minutes = $('.cronmin', powermanagementForm),
-        hours = $('.cronhour', powermanagementForm),
-        dom = $('.crondom', powermanagementForm),
-        month = $('.cronmonth', powermanagementForm),
-        dow = $('.crondow', powermanagementForm),
-        ondemand = $('#scheduleOnDemand', powermanagementForm),
-        action = $('.pmaction', powermanagementForm);
+        instantForm = $('#group-powermanagement-instant-form'),
+        scheduleForm = $('#group-powermanagement-cron-form'),
+        minutes = $('.cronmin', scheduleForm),
+        hours = $('.cronhour', scheduleForm),
+        dom = $('.crondom', scheduleForm),
+        month = $('.cronmonth', scheduleForm),
+        dow = $('.crondow', scheduleForm);
 
     $('.fogcron').cron({
         initial: '* * * * *',
         onChange: function() {
-            vals = $(this).cron('value').split(' ');
+            var vals = $(this).cron('value').split(' ');
             minutes.val(vals[0]);
             hours.val(vals[1]);
             dom.val(vals[2]);
@@ -445,90 +450,140 @@
             dow.val(vals[4]);
         }
     });
-    // When On Demand checked remove the cron layout.
-    ondemand.on('change', function(e) {
-        if (!this.checked) {
-            return;
+
+    // No select callback: the delete button posts the ticked ids and an empty
+    // post is a no-op, which is how the host page's identical grid behaves.
+    // A disable-on-empty handler here would have to agree with registerTable's
+    // notion of "selected" on first draw, and getting that wrong leaves the
+    // button dead rather than merely unhelpful.
+    var powermanagementTable = $('#group-powermanagement-table').registerTable(null, {
+        columns: [
+            {data: 'id'},
+            {data: 'action'}
+        ],
+        columnDefs: [
+            {
+                targets: 0,
+                // The five cron fields joined for display. escapeHtml on each
+                // rather than $.escapedColumn on the column, because the cell
+                // is built from five values and there is no single one to
+                // escape.
+                render: function(data, type, row) {
+                    return escapeHtml(row.min)
+                        + ' '
+                        + escapeHtml(row.hour)
+                        + ' '
+                        + escapeHtml(row.dom)
+                        + ' '
+                        + escapeHtml(row.month)
+                        + ' '
+                        + escapeHtml(row.dow);
+                }
+            }
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getGrouppowermanagementList&id='
+                + Common.id,
+            type: 'post'
         }
-        $(this).parents('.card-body').find('.form-group:eq(0)').find(':input').prop('disabled', true);
-    });
-    ondemand.on('change', function(e) {
-        if (this.checked) {
-            return;
-        }
-        $(this).parents('.card-body').find('.form-group:eq(0)').find(':input').prop('disabled', false);
     });
 
-    powermanagementForm.on('submit', function(e) {
+    scheduleForm.on('submit', function(e) {
         e.preventDefault();
     });
-    powermanagementFormBtn.on('click', function() {
-        powermanagementFormBtn.prop('disabled', true);
-        powermanagementForm.processForm(function(err) {
-            powermanagementFormBtn.prop('disabled', false);
+    instantForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+
+    // New scheduled grant.
+    scheduleModalBtn.on('click', function(e) {
+        e.preventDefault();
+        scheduleModal.modal('show');
+    });
+    scheduleModal.registerModal(
+        function(e) {
+            scheduleModalConfirmBtn.on('click', function() {
+                $(this).prop('disabled', true);
+                scheduleForm.processForm(function(err) {
+                    scheduleModalConfirmBtn.prop('disabled', false);
+                    if (err) {
+                        return;
+                    }
+                    scheduleModal.modal('hide');
+                    powermanagementTable.draw(false);
+                });
+            });
+        },
+        function(e) {
+            $(this).modal('hide');
+        }
+    );
+
+    // New immediate task. Still a fan-out, so it changes nothing in the grid
+    // above -- no redraw, because no grant was created.
+    ondemandModalBtn.on('click', function(e) {
+        e.preventDefault();
+        ondemandModal.modal('show');
+    });
+    ondemandModal.registerModal(
+        function(e) {
+            ondemandModalConfirmBtn.on('click', function() {
+                $(this).prop('disabled', true);
+                instantForm.processForm(function(err) {
+                    ondemandModalConfirmBtn.prop('disabled', false);
+                    if (err) {
+                        return;
+                    }
+                    ondemandModal.modal('hide');
+                });
+            });
+        },
+        function(e) {
+            $(this).modal('hide');
+        }
+    );
+
+    // Revoke the ticked grants.
+    pmGrantDelete.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            toDel = $.getSelectedIds(powermanagementTable),
+            opts = {
+                pmremove: 1,
+                remgrants: toDel
+            };
+        $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;
             }
-            minutes.val('');
-            hours.val('');
-            dom.val('');
-            month.val('');
-            dow.val('');
-            action.val('');
-            specialCrons.val('');
-            ondemand.prop('checked', false).trigger('change');
+            powermanagementTable.draw(false);
+            powermanagementTable.rows({selected: true}).deselect();
         });
     });
-    // Powermanagement delete confirmation modal.
+
+    // The legacy sweep: member hosts' OWN rows, not this group's grants.
     powermanagementDeleteBtn.on('click', function(e) {
         e.preventDefault();
         powermanagementDeleteModal.modal('show');
     });
-
-    // Modal Confirmed
     powermanagementDeleteConfirmBtn.on('click', function(e) {
         e.preventDefault();
-        // Our Powermanagement Items.
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
             opts = {
                 pmdelete: 1
             };
-        $.apiCall(method,action,opts,function(err) {
+        $.apiCall(method, action, opts, function(err) {
             if (err) {
                 return;
             }
             powermanagementDeleteModal.modal('hide');
-        });
-    });
-    // New ondemand element.
-    ondemandModalBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#ondemandModal').modal('show');
-    });
-    ondemandModalConfirmBtn.on('click', function(e) {
-        e.preventDefault();
-        var form = $('#group-powermanagement-instant-form');
-        form.processForm(function(err) {
-            if (err) {
-                return;
-            }
-            $('#ondemandModal').modal('hide');
-        });
-    });
-    // New scheduled element.
-    scheduleModalBtn.on('click', function(e) {
-        e.preventDefault();
-        $('#scheduleModal').modal('show');
-    });
-    scheduleModalConfirmBtn.on('click', function(e) {
-        e.preventDefault();
-        var form = $('#group-powermanagement-cron-form');
-        form.processForm(function(err) {
-            if (err) {
-                return;
-            }
-            $('#scheduleModal').modal('hide');
         });
     });
 

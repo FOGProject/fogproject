@@ -13,6 +13,7 @@
 
 namespace FOG\Client;
 
+use FOG\Assign\Resolver;
 use FOG\Router\Route;
 
 /**
@@ -62,41 +63,29 @@ class PM extends FOGClient
                 'action' => ['shutdown', 'reboot']
             ]
         );
-        $PMFind = [
-            'hostID' => self::$Host->get('id'),
-            'onDemand' => [0, ''],
-            'action' => ['shutdown', 'reboot']
-        ];
-        $PMTasks = Route::getList(
-            'powermanagement',
-            $PMFind
-        );
+        // ADR 0038: the schedules come from the resolver, so a host gets its
+        // own rows AND every schedule granted by a group it belongs to. The
+        // on-demand half above stays a direct read: it is a task the client
+        // consumes and deletes, not a standing statement about the host, and
+        // it has no group-granted counterpart to union with.
+        //
+        // `wol` is dropped here and only here. The resolver returns every
+        // action because TaskScheduler needs the wake ones -- a sleeping
+        // machine cannot ask for anything, so the server sends the packet --
+        // but handing `wol` to a running client would schedule it to wake
+        // itself, which is either a no-op or, on a machine that suspends
+        // between now and then, a cron the client can no longer run.
+        $hostID = (int)self::$Host->get('id');
+        $resolved = Resolver::resolvePowerManagement([$hostID]);
         $data = [
             'onDemand' => $action,
             'tasks' => [],
         ];
-        foreach ($PMTasks as $PMTask) {
-            $min = trim($PMTask->min);
-            $hour = trim($PMTask->hour);
-            $dom = trim($PMTask->dom);
-            $month = trim($PMTask->month);
-            $dow = trim($PMTask->dow);
-            if ($dow < 0) {
-                $dow = 7;
+        foreach ($resolved[$hostID] ?? [] as $schedule) {
+            if ('wol' === $schedule['action']) {
+                continue;
             }
-            $cron = sprintf(
-                '%s %s %s %s %s',
-                $min,
-                $hour,
-                $dom,
-                $month,
-                $dow
-            );
-            $action = $PMTask->action;
-            $data['tasks'][] = [
-                'cron' => $cron,
-                'action' => $action
-            ];
+            $data['tasks'][] = $schedule;
         }
         return $data;
     }

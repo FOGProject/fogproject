@@ -10574,3 +10574,73 @@ $this->schema[] = [
     "ALTER TABLE `moduleStatusByHost` MODIFY `msState` tinyint(1) "
     . "NOT NULL DEFAULT 1",
 ];
+
+// 410
+$this->schema[] = [
+    // ADR 0038: Power Management becomes the fourth grant.
+    //
+    // It was the last control on the group page that still FANNED OUT. Saving
+    // a schedule wrote one `powerManagement` row per host that happened to be
+    // a member at that instant, recorded nothing about where the rows came
+    // from, and so could not be replayed: a host added afterward got no
+    // schedule, a host removed kept one forever, and "Delete All" reached only
+    // the current membership. The group page's own text said "to all hosts in
+    // this group", which was true at the moment of the press and false by the
+    // next membership change.
+    //
+    // THERE IS NO `gpmOndemand` COLUMN, and its absence is the design.
+    // `powerManagement.pmOndemand` marks a row that is not a schedule at all
+    // -- an immediate shutdown, reboot or wake, consumed and deleted on the
+    // next client check-in. That is a TASK: it acts on the membership at the
+    // moment you start it, which is exactly what a task should do and exactly
+    // what a grant must not do. A grant of "shut down immediately" would fire
+    // again for every host that joined the group afterward. Immediate actions
+    // therefore stay a fan-out and move to the task surface; only the
+    // SCHEDULE, which is a standing statement about the group, becomes a row
+    // here.
+    //
+    // The unique key mirrors `powerManagement`.`cron` for the same reason it
+    // exists there: insertBatch() UPSERTS, so saving an identical schedule
+    // twice must be a no-op rather than a second row that fires the same
+    // action a second time.
+    //
+    // Empty on creation and nothing migrated, exactly as steps 403 and 407 did
+    // for the other three grants (decision 18). The rows on hosts today are
+    // indistinguishable from ones an admin set per-host -- that is the whole
+    // defect -- so there is nothing to migrate FROM. Every host keeps
+    // precisely the schedules it has, and a group gains its grant when someone
+    // sets one.
+    "CREATE TABLE IF NOT EXISTS `groupPowerManagement` ( "
+    . "`gpmID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`gpmGroupID` int(11) NOT NULL, "
+    . "`gpmMin` varchar(50) NOT NULL DEFAULT '', "
+    . "`gpmHour` varchar(50) NOT NULL DEFAULT '', "
+    . "`gpmDom` varchar(50) NOT NULL DEFAULT '', "
+    . "`gpmMonth` varchar(50) NOT NULL DEFAULT '', "
+    . "`gpmDow` varchar(50) NOT NULL DEFAULT '', "
+    . "`gpmAction` enum('shutdown','reboot','wol') NOT NULL, "
+    . "PRIMARY KEY (`gpmID`), "
+    . "UNIQUE KEY `gpmCron` "
+    . "(`gpmGroupID`,`gpmMin`,`gpmHour`,`gpmDom`,`gpmMonth`,`gpmDow`,`gpmAction`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci "
+    . "ROW_FORMAT=DYNAMIC",
+];
+
+// 411
+// The foreign key for the table step 410 just created, per ADR 0031.
+//
+// Group 11, and like groups 7 through 10 it has nothing to sweep first: a
+// table created empty one step earlier cannot hold an orphan.
+//
+// `satellite`, not `junction`, and CASCADE. It matches
+// `powerManagement`.`pmHostID`, which is the same shape one level down: a
+// schedule is wholly owned by the thing it schedules and has no meaning
+// without it. Leaving the row behind would offer a schedule against a group
+// id that has since been reused, and every host in the group that inherited
+// the number would silently start shutting down.
+$this->schema[] =
+    function () {
+        \FOG\Db\SchemaReconciler::applyConstraints(11);
+
+        return true;
+    };

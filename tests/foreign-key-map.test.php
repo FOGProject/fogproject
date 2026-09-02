@@ -350,6 +350,12 @@ $expected = [
     // reasoning as group 9.
     'groupModuleAssoc.gmaGroupID',
     'groupModuleAssoc.gmaModuleID',
+    // Group 11 -- Power Management, the fourth grant. `satellite` rather
+    // than junction: a schedule references only its group, there being no
+    // second end to link to. CASCADE, with a sharper edge than group 9's:
+    // an orphan schedule left against a reused group id would silently
+    // start shutting down every host that inherited the number.
+    'groupPowerManagement.gpmGroupID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its
     // manager's schema(); see fog-plugins tests/foreign-keys.test.php,

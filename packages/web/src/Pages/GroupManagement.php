@@ -671,16 +671,54 @@ class GroupManagement extends FOGPage
         $this->assocPost('addModule', 'removeModule');
     }
     /**
-     * Display the group PM stuff.
+     * Display the group Power Management grants.
+     *
+     * ADR 0038: this tab GRANTS a schedule, it does not copy one.
+     *
+     * It used to write one `powerManagement` row per host that happened to be
+     * a member at the moment you pressed the button, and record nothing about
+     * where those rows came from. A host added afterward got no schedule, a
+     * host removed kept one forever, and "Delete All" reached only the current
+     * membership. The tab's own text said "to all hosts in this group", which
+     * was true for one instant and wrong from the next membership change on.
+     *
+     * The grid lists the GROUP'S OWN grants -- not a summary of what its
+     * members hold. What a given machine actually runs is its own schedules
+     * unioned with the grants of every group it is in, resolved at read time
+     * by Assign\Resolver::resolvePowerManagement(). The host's own Power
+     * Management tab remains the answer to "what is THIS machine scheduled to
+     * do".
+     *
+     * IMMEDIATE ACTIONS ARE STILL A FAN-OUT, and that is correct rather than
+     * an omission. An immediate shutdown, reboot or wake acts on the
+     * membership at the moment you start it, which is what a task should do; a
+     * GRANT of "shut down immediately" would fire again for every host that
+     * joined the group later. There is no `gpmOndemand` column for that
+     * reason.
      *
      * @return void
      */
     public function groupPowermanagement()
     {
+        $this->headerData = [
+            _('Cron Schedule'),
+            _('Action')
+        ];
+        $this->attributes = [
+            [],
+            []
+        ];
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'group-powermanagement',
+                $this->obj->get('id')
+            )
+            . '" ';
         $buttons = self::makeButton(
-            'powermanagement-delete',
-            _('Delete All'),
-            'btn btn-danger float-start'
+            'pm-delete',
+            _('Delete selected'),
+            'btn btn-danger float-start',
+            $props
         );
         $splitButtons = self::makeSplitButton(
             'scheduleBtn',
@@ -703,7 +741,8 @@ class GroupManagement extends FOGPage
         $ondemandModalBtns .= self::makeButton(
             'ondemandCreateBtn',
             _('Create'),
-            'btn btn-outline-secondary float-end'
+            'btn btn-outline-secondary float-end',
+            $props
         );
         $scheduleModalBtns = self::makeButton(
             'scheduleCancelBtn',
@@ -714,18 +753,21 @@ class GroupManagement extends FOGPage
         $scheduleModalBtns .= self::makeButton(
             'scheduleCreateBtn',
             _('Create'),
-            'btn btn-outline-secondary float-end'
+            'btn btn-outline-secondary float-end',
+            $props
         );
+        // The legacy sweep. Kept, and deliberately NOT relabeled as a way to
+        // clear the grants above: it does the opposite thing. Grants live on
+        // the group and are removed with "Delete selected"; this reaches into
+        // the member hosts and deletes the rows THEY hold, which on an
+        // upgraded server is where every schedule this tab ever created ended
+        // up. Without it there is no way to undo a pre-1.6 fan-out short of
+        // opening each host in turn.
         $modaldeleteBtns = self::makeButton(
             'deletepowermanagementConfirm',
             _('Confirm'),
             'btn btn-outline-secondary float-end',
-            ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'group-powermanagement',
-                $this->obj->get('id')
-            )
-            . '" '
+            $props
         );
         $modaldeleteBtns .= self::makeButton(
             'deletepowermanagementCancel',
@@ -733,56 +775,93 @@ class GroupManagement extends FOGPage
             'btn btn-outline-secondary float-start',
             'data-bs-dismiss="modal"'
         );
-        $modalondemand = self::makeModal(
-            'ondemandModal',
-            _('Create Immediate Power task'),
-            $this->newPMDisplay(true),
-            $ondemandModalBtns,
-            '',
-            'info'
-        );
-        $modalschedule = self::makeModal(
-            'scheduleModal',
-            _('Create Scheduled Power task'),
-            $this->newPMDisplay(false),
-            $scheduleModalBtns,
-            '',
-            'primary'
-        );
-        $modaldelete = self::makeModal(
-            'deletepowermanagementmodal',
-            _('Delete All Powermanagement Items'),
-            _(
-                'This will delete all powermanagement '
-                . 'items from all hosts in this group'
-            ),
-            $modaldeleteBtns,
-            '',
-            'warning'
+        $sweepButton = self::makeButton(
+            'powermanagement-delete',
+            _('Clear schedules from member hosts'),
+            'btn btn-outline-danger float-start'
         );
         echo '<!-- Power Management -->';
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
-        echo _('Power Management');
+        echo _('Power Management Grants');
         echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
         echo '<p class="form-text">';
         echo _(
-            'Use the buttons below to create a new power management task to all '
-            . 'hosts in this group.'
+            'Every host in this group runs these schedules, including hosts '
+            . 'added later. Nothing is written onto a host; a host keeps its '
+            . 'own schedules as well.'
         );
         echo '</p>';
         echo '</div>';
+        echo '<div class="card-body">';
+        $this->render(
+            12,
+            'group-powermanagement-table',
+            $buttons . $splitButtons
+        );
+        echo '</div>';
         echo '<div class="card-footer">';
-        echo $buttons;
-        echo $splitButtons;
-        echo $modalondemand;
-        echo $modalschedule;
-        echo $modaldelete;
+        echo $sweepButton;
+        echo self::makeModal(
+            'ondemandModal',
+            _('Create Immediate Power task'),
+            '<p class="form-text">'
+            . _(
+                'This acts on the hosts that are in the group right now. It '
+                . 'is a task, not a grant: a host added afterward is not '
+                . 'affected.'
+            )
+            . '</p>'
+            . $this->newPMDisplay(true),
+            $ondemandModalBtns,
+            '',
+            'info'
+        );
+        echo self::makeModal(
+            'scheduleModal',
+            _('Create Scheduled Power grant'),
+            $this->newPMDisplay(false),
+            $scheduleModalBtns,
+            '',
+            'primary'
+        );
+        echo self::makeModal(
+            'deletepowermanagementmodal',
+            _('Clear schedules from member hosts'),
+            _(
+                'This deletes the power management schedules held by the '
+                . 'hosts that are in this group right now. It does NOT touch '
+                . 'this group\'s grants, and it also removes schedules those '
+                . 'hosts were given individually.'
+            ),
+            $modaldeleteBtns,
+            '',
+            'warning'
+        );
         echo '</div>';
         echo '</div>';
+    }
+    /**
+     * Gets this group's power management grants for the grid.
+     *
+     * Route::listem() rather than a REST route: `grouppowermanagement` is
+     * deliberately NOT in Route::$validClasses, exactly as
+     * `groupsnapinassociation` and `groupmoduleassociation` are not. listem()
+     * validates nothing itself -- that list gates the HTTP API surface -- so
+     * a page can drive its own grid off a table without the grant becoming a
+     * new public endpoint and a new permission to grant.
+     *
+     * @return void
+     */
+    public function getGrouppowermanagementList()
+    {
+        Route::listem(
+            'grouppowermanagement',
+            ['groupID' => $this->obj->get('id')]
+        );
+        echo Route::getData();
+        exit;
     }
     /**
      * Modify the power management stuff.
@@ -792,7 +871,7 @@ class GroupManagement extends FOGPage
     public function groupPowermanagementPost()
     {
         self::checkAuthAndCSRF();
-        $hostIDs = (array)$this->obj->get('hosts');
+        $groupID = (int)$this->obj->get('id');
         if (isset($_POST['pmadd']) || isset($_POST['pmaddod'])) {
             $onDemand = (int)isset($_POST['pmaddod']);
             $min = trim((string)filter_input(INPUT_POST, 'scheduleCronMin'));
@@ -804,50 +883,83 @@ class GroupManagement extends FOGPage
             if (!$action) {
                 throw new \Exception(_('You must select an action to perform'));
             }
-            $items = [];
-            if ($onDemand && $action === 'wol') {
-                $this->obj->wakeOnLAN();
+            if ($onDemand) {
+                // STILL A FAN-OUT, and correctly so -- an immediate action is
+                // a task against the membership at this instant. Wake is the
+                // one the server performs itself, because a sleeping machine
+                // cannot ask for anything.
+                $hostIDs = (array)$this->obj->get('hosts');
+                if ('wol' === $action) {
+                    $this->obj->wakeOnLAN();
+                    return;
+                }
+                $items = [];
+                foreach ($hostIDs as $hostID) {
+                    $items[] = [
+                        $hostID,
+                        $min,
+                        $hour,
+                        $dom,
+                        $month,
+                        $dow,
+                        1,
+                        $action
+                    ];
+                }
+                if (count($items) > 0) {
+                    self::getClass('PowerManagementManager')
+                        ->insertBatch(
+                            [
+                                'hostID',
+                                'min',
+                                'hour',
+                                'dom',
+                                'month',
+                                'dow',
+                                'onDemand',
+                                'action'
+                            ],
+                            $items
+                        );
+                }
                 return;
             }
-            if (!$onDemand) {
-                $min = FOGCron::_sanitizeCronField($min);
-                $hour = FOGCron::_sanitizeCronField($hour);
-                $dom = FOGCron::_sanitizeCronField($dom);
-                $month = FOGCron::_sanitizeCronField($month);
-                $dow = FOGCron::_sanitizeCronField($dow);
-            }
-            foreach ((array)$hostIDs as &$hostID) {
-                $items[] = [
-                    $hostID,
-                    $min,
-                    $hour,
-                    $dom,
-                    $month,
-                    $dow,
-                    $onDemand,
-                    $action
-                ];
-                unset($hostID);
-            }
-            $fields = [
-                'hostID',
-                'min',
-                'hour',
-                'dom',
-                'month',
-                'dow',
-                'onDemand',
-                'action'
-            ];
-            if (count($items) > 0) {
-                self::getClass('PowerManagementManager')
-                    ->insertBatch($fields, $items);
-            }
+            // ONE ROW, ABOUT THE GROUP. Not one per member.
+            self::getClass('GroupPowerManagement')
+                ->set('groupID', $groupID)
+                ->set('min', FOGCron::_sanitizeCronField($min))
+                ->set('hour', FOGCron::_sanitizeCronField($hour))
+                ->set('dom', FOGCron::_sanitizeCronField($dom))
+                ->set('month', FOGCron::_sanitizeCronField($month))
+                ->set('dow', FOGCron::_sanitizeCronField($dow))
+                ->set('action', $action)
+                ->save();
+        }
+        if (isset($_POST['pmremove'])) {
+            $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+            $grantIDs = filter_input_array(
+                INPUT_POST,
+                ['remgrants' => $flags]
+            );
+            $grantIDs = (array)($grantIDs['remgrants'] ?? []);
+            // Scoped to THIS group as well as to the ids. The ids arrive from
+            // the browser, and a grant id is not a secret -- without the
+            // groupID clause a crafted post would revoke another group's
+            // schedule.
+            Route::deletemass(
+                'grouppowermanagement',
+                [
+                    'id' => $grantIDs,
+                    'groupID' => $groupID
+                ]
+            );
         }
         if (isset($_POST['pmdelete'])) {
+            // The legacy sweep -- member hosts' own rows, not this group's
+            // grants. See groupPowermanagement().
             Route::deletemass(
                 'powermanagement',
-                ['hostID' => $hostIDs]
+                ['hostID' => (array)$this->obj->get('hosts')]
             );
         }
     }
