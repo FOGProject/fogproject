@@ -51,6 +51,34 @@
 
 version="1.0.0"
 
+# Under `curl ... | bash` this script's stdin IS the pipe carrying its own
+# source. Exiting early leaves curl with a half-written pipe, and curl then
+# reports
+#
+#     curl: (23) Failure writing output to destination
+#
+# which reads like a download problem and buries the message that actually
+# matters. Reading the rest away lets curl finish and exit 0, so the only thing
+# left on screen is what this script said.
+#
+# BOUNDED, and only on a pipe. `cat > /dev/null` was the obvious way to write
+# this and it hangs: stdin can be an open pipe whose writer never closes -- any
+# parent process that holds the other end -- and then the drain waits forever
+# for an EOF that is not coming. A bootstrap that hangs instead of printing its
+# error is worse than the curl warning it was trying to suppress.
+#
+# So: only when stdin really is a pipe, in chunks, with a read timeout to end
+# it if nothing more arrives, and a hard cap so it cannot spin. The script is
+# some tens of kilobytes, so one or two chunks is the normal case.
+drainStdin() {
+    [[ -p /dev/stdin ]] || return 0
+    local discard i=0
+    while [[ $i -lt 64 ]] && IFS= read -r -t 2 -n 65536 discard 2>/dev/null; do
+        i=$((i + 1))
+    done
+    return 0
+}
+
 usage() {
     echo -e "Usage: curl -fsSL <url>/bootstrap.sh | bash -s -- [options]"
     echo -e "       $0 [options]\n"
@@ -78,14 +106,23 @@ fail() {
         shift
     done
     echo
+    drainStdin
     exit "$1"
 }
 
 repo="https://github.com/FOGProject/fogproject.git"
+# Where this script fetches ITSELF from, for the piped elevation path below.
+# Overridable, because the constant names one branch and a copy taken from
+# another would otherwise be replaced by working-1.6's.
+selfurl="${FOG_BOOTSTRAP_URL:-https://raw.githubusercontent.com/FOGProject/fogproject/working-1.6/bin/bootstrap.sh}"
 gitpath="/root/fogproject"
 channel="stable"
 branch=""
 autoYes=""
+
+# Kept before the option loop shifts them away: the elevation below re-runs
+# this script and needs the arguments as they were given.
+origArgs=("$@")
 
 # Hand-rolled rather than getopt(1), because getopt is part of util-linux and
 # this script runs before any package has been installed. On a minimal image it
@@ -121,12 +158,83 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# ---------------------------------------------------------------------------
+# Get to root, rather than refuse and make the user retype the command.
+#
+# TWO SHAPES, because a piped script cannot re-run itself: $0 is `bash`, not a
+# file, and stdin has already been partly consumed by the time control reaches
+# here.
+#
+#   From a FILE -- exec sudo on $0. Clean, and the bytes that run as root are
+#                  the bytes already on disk, which the admin can have read.
+#
+#   From a PIPE -- there is nothing on disk for sudo to run, so the script is
+#                  FETCHED A SECOND TIME and that copy is piped to sudo bash.
+#
+# THE SECOND FETCH IS WORTH KNOWING ABOUT, so it is printed before it happens
+# rather than done quietly. The URL tracks a branch, so if a push lands between
+# the two downloads the copy that runs as root is not the copy that was read.
+# FOG_BOOTSTRAP_URL points it elsewhere; the documented `| sudo bash` form
+# avoids the second fetch entirely and is what the docs lead with.
+#
+# FOG_BOOTSTRAP_ELEVATED stops a loop. If sudo succeeds and the child is still
+# not root -- a sudoers rule that grants a different user, say -- it must not
+# fetch and elevate again.
+elevate() {
+    [[ -z $FOG_BOOTSTRAP_ELEVATED ]] || return 1
+    command -v sudo >/dev/null 2>&1 || return 1
+
+    if [[ -f $0 ]]; then
+        echo " * Not running as root. Re-running this file under sudo:"
+        echo " |"
+        echo " |   sudo bash $0 ${origArgs[*]}"
+        echo
+        drainStdin
+        exec sudo env FOG_BOOTSTRAP_ELEVATED=1 bash "$0" "${origArgs[@]}"
+    fi
+
+    # Piped, so there is no file to hand sudo.
+    command -v curl >/dev/null 2>&1 || return 1
+    echo " * Not running as root, and this script arrived over a pipe -- so"
+    echo " | there is no file on disk for sudo to run. Fetching it again and"
+    echo " | running that copy as root:"
+    echo " |"
+    echo " |   curl -fsSL ${selfurl} | sudo bash -s -- ${origArgs[*]}"
+    echo " |"
+    echo " | This downloads the script a second time, so what runs as root is"
+    echo " | not guaranteed to be the byte-for-byte copy you just read. To avoid"
+    echo " | that, interrupt now and fetch it once to a file instead:"
+    echo " |"
+    echo " |   curl -fsSL -o bootstrap.sh ${selfurl}"
+    echo " |   less bootstrap.sh"
+    echo " |   sudo bash bootstrap.sh ${origArgs[*]}"
+    echo
+    drainStdin
+    exec sudo env FOG_BOOTSTRAP_ELEVATED=1 bash -c         'url="$1"; shift; curl -fsSL "$url" | bash -s -- "$@"' _ "$selfurl" "${origArgs[@]}"
+}
+
 if [[ ! $EUID -eq 0 ]]; then
-    # Same message and same exit code as installfog.sh's own root check. No
-    # auto-elevation: piping a script from the internet into a shell that then
-    # reaches for sudo by itself is precisely the shape nobody should get used
-    # to trusting.
+    elevate
+    # Only reached when elevation could not happen. Say which of the three
+    # reasons it was, because the fix differs for each.
     echo "FOG Installation must be run as root user"
+    echo
+    if [[ -n $FOG_BOOTSTRAP_ELEVATED ]]; then
+        echo " | sudo ran, and this is still not root -- so a sudoers rule sent"
+        echo " | it somewhere other than root. Run it as root directly."
+    elif ! command -v sudo >/dev/null 2>&1; then
+        echo " | sudo is not installed here. Become root first:"
+        echo " |"
+        echo " |   su -"
+        echo " |   curl -fsSL ${selfurl} | bash -s -- ${origArgs[*]}"
+    else
+        echo " | curl is not available to fetch this script again, which is how"
+        echo " | a piped run reaches root. Fetch it to a file instead:"
+        echo " |"
+        echo " |   wget -O bootstrap.sh ${selfurl}"
+        echo " |   sudo bash bootstrap.sh ${origArgs[*]}"
+    fi
+    drainStdin
     exit 1
 fi
 
@@ -317,6 +425,62 @@ fi
 # somebody's working tree. bin/updatefog.sh is the thing that moves an existing
 # checkout between channels, and it knows how to do it safely.
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Is FOG already installed on this machine?
+#
+# The check below this one asks whether there is a CHECKOUT at --git-path,
+# which is a different question and was the only one being asked. A server
+# installed from a checkout somewhere else, or from a tarball, answered "no" --
+# so this cloned a second copy and ran the installer over the live server
+# without ever saying it was doing an upgrade.
+#
+# /etc/fog/fog.conf is the same pointer installfog.sh and updatefog.sh follow
+# (GH-850), so this finds what they would find.
+# ---------------------------------------------------------------------------
+existingProgramDir=""
+existingGitPath=""
+if [[ -r /etc/fog/fog.conf ]]; then
+    existingProgramDir=$(sed -n 's/^fogprogramdir=//p' /etc/fog/fog.conf 2>/dev/null | tr -d "\"' " | tail -n1)
+fi
+[[ -z $existingProgramDir ]] && [[ -r /opt/fog/.fogsettings ]] && existingProgramDir="/opt/fog"
+existingProgramDir="${existingProgramDir%/}"
+
+if [[ -n $existingProgramDir && -r ${existingProgramDir}/.fogsettings ]]; then
+    existingGitPath=$(sed -n 's/^FOG_git_path=//p' "${existingProgramDir}/.fogsettings" 2>/dev/null | tr -d "\"' " | tail -n1)
+    [[ -z $existingGitPath ]] && existingGitPath=$(sed -n 's/^fog_git_path=//p' "${existingProgramDir}/.fogsettings" 2>/dev/null | tr -d "\"' " | tail -n1)
+
+    echo " * FOG is already installed at ${existingProgramDir}."
+
+    # Hand over to the updater when there is a checkout for it to work in.
+    # That is the same job, done by the script that owns it -- and it uses the
+    # checkout this server actually installed from rather than cloning a
+    # second one somewhere else.
+    if [[ -n $existingGitPath && -x ${existingGitPath}/bin/updatefog.sh ]]; then
+        updateArgs=()
+        [[ $fromChannel -eq 1 ]] && updateArgs+=(--channel "$channel")
+        [[ -n $branch && $fromChannel -eq 0 ]] && updateArgs+=(--branch "$branch")
+        [[ -n $autoYes ]] && updateArgs+=(-y)
+        echo " | Its checkout is ${existingGitPath}, so this is an update rather"
+        echo " | than an install. Handing over to the updater:"
+        echo " |"
+        echo " |   cd ${existingGitPath}/bin && ./updatefog.sh ${updateArgs[*]}"
+        echo
+        drainStdin
+        cd "${existingGitPath}/bin" || fail "Could not enter ${existingGitPath}/bin." 6
+        exec bash ./updatefog.sh "${updateArgs[@]}"
+    fi
+
+    # Installed, but with no checkout to update from -- a tarball install, or
+    # one whose checkout has been deleted. Cloning is the right move, and the
+    # installer picks the existing server up through /etc/fog/fog.conf. Say so,
+    # because "install" and "upgrade the running server" are not the same thing
+    # to whoever typed this.
+    echo " | There is no git checkout recorded for it, so this will clone one"
+    echo " | and UPGRADE the existing server in place. Your data and settings"
+    echo " | are kept; the installer finds them through /etc/fog/fog.conf."
+    echo
+fi
+
 if [[ -d ${gitpath}/.git ]]; then
     echo " * ${gitpath} is already a git checkout -- not cloning over it."
     echo " | To move an existing install to another channel, use:"
@@ -349,8 +513,14 @@ else
         fail "${gitpath} exists and is not empty, but is not a git checkout." \
              "Move it aside, or choose another path with --git-path." 6
     fi
+    # --progress explicitly, and a warning first. The repository is around
+    # 200,000 objects; the receive phase is long enough on an ordinary link
+    # that a quiet clone looks like a hang, which is what it looked like on the
+    # first real server this ran on.
     echo " * Cloning FOG into ${gitpath}"
-    git clone "$repo" "$gitpath" || fail "git clone failed." 6
+    echo " | This repository is large -- roughly 200,000 objects -- so expect"
+    echo " | several minutes, and longer on a slow connection."
+    git clone --progress "$repo" "$gitpath" || fail "git clone failed." 6
 fi
 
 echo " * Checking out ${branch}"
