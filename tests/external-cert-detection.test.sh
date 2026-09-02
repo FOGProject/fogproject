@@ -348,6 +348,71 @@ else
     ok "O: an empty PKI_custom_dir leaves a FOG-issued leaf alone"
 fi
 
+
+# P. The optional third name. A leaf signed straight off a root needs no
+#    intermediates, so demanding one would refuse a valid setup -- hence
+#    _customPkiChain() returns 1 rather than dying when the file is absent.
+reset_env
+if _customPkiChain >/dev/null 2>&1; then
+    bad "P: _customPkiChain claimed a chain file that is not there"
+else
+    ok "P: no chain file is not an error"
+fi
+printf 'not-a-chain\n' > "$WORK/custom-pki/web-leaf-chain.pem"
+reset_env
+if [[ $(_customPkiChain) == "$WORK/custom-pki/web-leaf-chain.pem" ]]; then
+    ok "P2: _customPkiChain names the third documented file when it exists"
+else
+    bad "P2: _customPkiChain did not return the chain path"
+fi
+rm -f "$WORK/custom-pki/web-leaf-chain.pem"
+
+# Q. _adoptCustomChain() strips self-signed certificates out of what it
+#    records, and this is the assertion that matters most in this file.
+#    _resolveTrustAnchor() anchors every self-signed certificate it finds in
+#    ${PKI_web_trust_chain}, so a root left in the chain would be trusted by
+#    this host as a side effect of an admin supplying a chain -- turning the
+#    deliberate import on the Certificates page into theatre.
+if [[ -f $WORK/ssl/ca.pem && -f $WORK/zoned/int.pem ]]; then
+    reset_env
+    # A chain file carrying an intermediate AND the self-signed root.
+    cat "$WORK/zoned/int.pem" "$WORK/ssl/ca.pem" > "$WORK/custom-pki/web-leaf-chain.pem" 2>/dev/null
+    if _adoptCustomChain "$WORK/custom-pki/web-leaf-chain.pem" >/dev/null 2>&1; then
+        out="$(_pkiZoneDir web)/leaf/.externalChain.pem"
+        check "$(grep -c 'BEGIN CERTIFICATE' "$out" 2>/dev/null)" "1" \
+            "Q: the recorded chain keeps one certificate, not two"
+        if grep -q 'BEGIN CERTIFICATE' "$out" 2>/dev/null; then
+            rm -rf "$WORK/qq"; mkdir -p "$WORK/qq"
+            awk -v d="$WORK/qq" '/BEGIN CERTIFICATE/{n++} n{print > (d "/c" n ".pem")}' "$out"
+            qsubj=$(openssl x509 -in "$WORK/qq/c1.pem" -noout -subject 2>/dev/null | sed 's/ *= */=/g')
+            qissuer=$(openssl x509 -in "$WORK/qq/c1.pem" -noout -issuer 2>/dev/null | sed 's/ *= */=/g')
+            if [[ ${qsubj#subject=} == "${qissuer#issuer=}" ]]; then
+                bad "Q2: the certificate left in the chain is self-signed -- it would be anchored"
+            else
+                ok "Q2: what is left in the chain is an intermediate, never a root"
+            fi
+        fi
+        # And ${PKI_web_trust_chain} is repointed at the canonical copy, not at
+        # wherever the admin's file happened to be -- the GH-1683 lesson.
+        check "$PKI_web_trust_chain" "$(_pkiZoneDir web)/leaf/.externalChain.pem" \
+            "Q3: the chain is recorded at a canonical path"
+    else
+        bad "Q: _adoptCustomChain refused a chain carrying an intermediate"
+    fi
+
+    # Q4. A chain file with NOTHING but a root in it records nothing. There is
+    #     no intermediate to serve, and repointing the setting at an empty file
+    #     would cost the server the chain it already had.
+    reset_env
+    before="$PKI_web_trust_chain"
+    cp "$WORK/ssl/ca.pem" "$WORK/custom-pki/web-leaf-chain.pem"
+    _adoptCustomChain "$WORK/custom-pki/web-leaf-chain.pem" >/dev/null 2>&1
+    check "$PKI_web_trust_chain" "$before" \
+        "Q4: a chain of only a root records nothing and leaves the setting alone"
+    rm -f "$WORK/custom-pki/web-leaf-chain.pem"
+else
+    echo "  SKIP  Q: the openssl fixtures for a chain were not built"
+fi
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
 exit 0

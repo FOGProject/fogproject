@@ -1,6 +1,6 @@
 /**
- * The Certificates page: import a root CA, remove one, set the three install
- * preferences.
+ * The Certificates page: import a root CA, remove one, bring your own web
+ * server certificate, set the three install preferences.
  *
  * Everything here posts to ?node=about&sub=certificates, which Authorization
  * gates on system.pki for POST and settings.view for GET. A viewer without the
@@ -14,9 +14,16 @@
 (function($) {
   var rootForm = $('#pki-root-form'),
     importBtn = $('#pki-import-root'),
-    clearBtn = $('#pki-clear-root');
+    clearBtn = $('#pki-clear-root'),
+    leafForm = $('#pki-leaf-form'),
+    adoptBtn = $('#pki-adopt-leaf'),
+    leafBtn = $('#pki-import-leaf');
 
   rootForm.on('submit', function(e) {
+    e.preventDefault();
+  });
+
+  leafForm.on('submit', function(e) {
     e.preventDefault();
   });
 
@@ -52,6 +59,50 @@
         }
         location.reload();
       });
+  });
+
+  adoptBtn.on('click', function(e) {
+    e.preventDefault();
+    if (!window.confirm(
+      'Serve the certificate in the customizations directory instead of the '
+      + 'one FOG issued? The web server is reloaded, so this takes effect now.'
+    )) {
+      return;
+    }
+    adoptBtn.prop('disabled', true);
+    $.apiCall('post', leafForm.attr('action'), {action: 'adoptCustomLeaf'},
+      function(err) {
+        adoptBtn.prop('disabled', false);
+        if (err) {
+          return;
+        }
+        location.reload();
+      });
+  });
+
+  leafBtn.on('click', function(e) {
+    e.preventDefault();
+    if (!window.confirm(
+      'Upload this certificate and its private key, and serve it? The key '
+      + 'passes through the web application for this one request. If it is a '
+      + 'wildcard, it covers hosts other than this server.'
+    )) {
+      return;
+    }
+    leafBtn.prop('disabled', true);
+    // processForm builds the FormData from the form element, so the four file
+    // inputs, the passphrase and the hidden action all travel in one POST --
+    // the helper needs them under a single request id.
+    leafForm.processForm(function(err) {
+      leafBtn.prop('disabled', false);
+      if (err) {
+        return;
+      }
+      // Reloaded rather than patched: adopting a certificate changes the chain
+      // table, the derived "managed elsewhere" state, whether the key-exposure
+      // alarm fires, and this tab's own summary of the directory.
+      location.reload();
+    });
   });
 
   // One handler for all three switches. Each posts only its own key, so two

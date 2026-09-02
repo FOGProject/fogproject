@@ -21,8 +21,8 @@
 # Invoked through sudo by the Certificates page after it has checked
 # system.pki. The split is the same one fog-sign-node-cert draws: the page
 # decides WHO may ask, this decides WHAT may be asked for and holds every
-# path. A compromise of the web application can therefore drive these five
-# verbs and nothing else -- it cannot read a private key, cannot name a file,
+# path. A compromise of the web application can therefore drive this fixed
+# verb set and nothing else -- it cannot read a private key, cannot name a file,
 # and cannot put a byte of its own choosing into .fogsettings.
 #
 # That last one is the reason this script exists at all rather than a sudo
@@ -55,7 +55,7 @@ CONF="/opt/fog/.fog-pki-admin"
 die() { echo "$*" >&2; exit 1; }
 
 [[ $EUID -eq 0 ]] || die "fog-pki-admin must run as root"
-[[ $# -ge 1 ]] || die "usage: fog-pki-admin <status|export|import-root|clear-root|set-preference> [args]"
+[[ $# -ge 1 ]] || die "usage: fog-pki-admin <status|export|import-root|clear-root|adopt-custom-leaf|import-leaf|set-preference> [args]"
 
 verb="$1"
 shift
@@ -80,6 +80,9 @@ shift
 : "${PKI_WEB_VHOST_KEY:=}"
 : "${PKI_SB_CA_KEY:=}"
 : "${PKI_CLIENT_KEY:=}"
+: "${PKI_CUSTOM_DIR:=}"
+: "${PKI_WEB_EXTERNAL_CHAIN:=}"
+: "${WEB_ENGINE:=}"
 
 [[ -d $PKI_STAGING ]] || die "staging directory is not configured"
 
@@ -363,6 +366,234 @@ readSetting() {
     printf '%s' "$line"
 }
 
+# --- bringing your own web leaf ----------------------------------------------
+#
+# Three routes reach this code, and only the last of them ever sees a private
+# key inside PHP: a pair dropped into the customizations tree, a pair uploaded
+# through the page, and a PKCS#12 container. All three converge on
+# adoptCustomLeaf() so there is ONE validation path and one place that can
+# decide to refuse. See ADR 0036's 2026-09-02 amendment for why a leaf key may
+# come this way when a CA key may not.
+
+# Whether $1 (a certificate) and $2 (a private key) are actually a pair.
+#
+# Compares the SUBJECT PUBLIC KEY, not an RSA modulus. `openssl rsa -modulus`
+# cannot read an EC or Ed25519 key at all, so a modulus comparison answers "does
+# not match" for a perfectly good pair, and answers it identically to a genuine
+# mismatch (GH-1393).
+#
+# Reads only the FIRST certificate of $1, because `openssl x509 -in` does. That
+# is not a limitation here, it is the test that matters: the first certificate
+# in the file is the one the web server pairs with the key, and the one
+# _writeWebChainFiles() reads back as the leaf.
+#
+# Ported from _certKeyPairMatches() in lib/common/functions.sh, duplicated for
+# the reason splitBundle() is, and pinned against it by
+# tests/pki-admin-helper.test.sh.
+certKeyPairMatches() {
+    local cert="$1" key="$2" certpub keypub
+    [[ -n $cert && -f $cert && -n $key && -f $key ]] || return 1
+    certpub=$(openssl x509 -pubkey -noout -in "$cert" 2>/dev/null)
+    keypub=$(openssl pkey -pubout -in "$key" 2>/dev/null)
+    [[ -n $certpub && -n $keypub && $certpub == "$keypub" ]]
+}
+
+# The three documented names in the customizations tree. The chain is optional;
+# the other two are not. Three names rather than two does not weaken ADR 0040's
+# "two names, not a glob" -- the reasoning was that FOG must not choose between
+# candidates on its own, and a documented name chooses nothing.
+customLeafCert()  { printf '%s' "${PKI_CUSTOM_DIR%/}/web-leaf.pem"; }
+customLeafKey()   { printf '%s' "${PKI_CUSTOM_DIR%/}/web-leaf.key"; }
+customLeafChain() { printf '%s' "${PKI_CUSTOM_DIR%/}/web-leaf-chain.pem"; }
+
+# Sort supplied certificate material into a leaf, intermediates, and roots.
+#
+# $1 certificate or fullchain, $2 private key, $3 an optional separate chain
+# file, $4 a scratch directory. Writes ${4}/leaf.pem, ${4}/chain.pem and
+# ${4}/roots.pem, and leaves the subjects of any self-signed certificates in
+# $sortedRoots. Returns 1 when nothing in the material matches the key.
+#
+# Classified by PROPERTY, never by position: whichever certificate matches the
+# key is the leaf, self-signed ones are roots, everything else is an
+# intermediate. Position cannot be trusted -- createWebIntermediateCA() writes
+# issuer-first with the root appended, validateExternalCA() writes the root
+# FIRST, and an administrator's own file may be in any order at all.
+#
+# The roots are separated rather than discarded, so the caller can name the
+# issuer somebody still has to import. Leaving one in the chain file would
+# ANCHOR it: rebuildAnchor() here and _resolveTrustAnchor() in the installer
+# both take every self-signed certificate out of ${PKI_WEB_CHAIN}. That would
+# make "trust this root" a decision the upload had quietly already taken, which
+# is exactly what import-root's self-signed-only rule exists to prevent.
+sortLeafMaterial() {
+    local cert="$1" key="$2" extra="$3" dir="$4" f subj
+    sortedRoots=""
+    : > "${dir}/leaf.pem"
+    : > "${dir}/chain.pem"
+    : > "${dir}/roots.pem"
+    mkdir -p "${dir}/split" || return 1
+    splitBundle "$cert" "${dir}/split" || return 1
+    if [[ -n $extra && -f $extra ]]; then
+        mkdir -p "${dir}/split-extra" || return 1
+        if splitBundle "$extra" "${dir}/split-extra"; then
+            for f in "${dir}/split-extra"/c*.pem; do
+                [[ -f $f ]] && cp "$f" "${dir}/split/x${f##*/}"
+            done
+        fi
+    fi
+    for f in "${dir}/split"/*.pem; do
+        [[ -f $f ]] || continue
+        openssl x509 -in "$f" -noout >/dev/null 2>&1 \
+            || die "that file contains something that is not a certificate"
+        if [[ ! -s ${dir}/leaf.pem ]] && certKeyPairMatches "$f" "$key"; then
+            openssl x509 -in "$f" > "${dir}/leaf.pem" 2>/dev/null
+            continue
+        fi
+        if isSelfSigned "$f"; then
+            openssl x509 -in "$f" >> "${dir}/roots.pem" 2>/dev/null
+            subj=$(certField "$f" subject)
+            sortedRoots="${sortedRoots}${subj}"$'\n'
+            continue
+        fi
+        openssl x509 -in "$f" >> "${dir}/chain.pem" 2>/dev/null
+    done
+    [[ -s ${dir}/leaf.pem ]]
+}
+
+# Does a path build for this leaf, against what this server ACTUALLY trusts?
+#
+# ${PKI_WEB_ANCHOR} is the same bundle FOG verifies its own HTTPS self-calls
+# against, so this asks the question that matters rather than a weaker one: an
+# administrator who has imported their corporate root passes, and one who has
+# not is told so before the vhost is repointed.
+verifyLeafChain() {
+    local leaf="$1" chain="$2"
+    [[ -n $PKI_WEB_ANCHOR && -s $PKI_WEB_ANCHOR ]] || return 1
+    if [[ -s $chain ]]; then
+        openssl verify -trusted "$PKI_WEB_ANCHOR" -untrusted "$chain" "$leaf" \
+            >/dev/null 2>&1
+    else
+        openssl verify -trusted "$PKI_WEB_ANCHOR" "$leaf" >/dev/null 2>&1
+    fi
+}
+
+# Refuse anything that would leave this server worse off than it is now.
+#
+# Declining is the safe direction throughout: FOG's own leaf, or the previously
+# adopted one, keeps serving. Installing a certificate the web server cannot
+# start with, or one nothing can build a path to, costs an administrator the
+# management interface they were using to do it.
+checkLeafMaterial() {
+    local cert="$1" key="$2" chain="$3" dir="$4" issuer
+    certKeyPairMatches "$cert" "$key" || {
+        if sortLeafMaterial "$cert" "$key" "$chain" "$dir" 2>/dev/null; then
+            die "the FIRST certificate in that file is not the one matching the key -- put the leaf first, then the intermediates, because that is the one the web server pairs with the key"
+        fi
+        die "that certificate and that private key are not a pair"
+    }
+    sortLeafMaterial "$cert" "$key" "$chain" "$dir" \
+        || die "no certificate in that file matches the private key"
+
+    # The leaf must not be a CA. This is the checked property behind "no CA
+    # private key reaches this channel" -- without it the sentence is a promise
+    # rather than something the helper enforces.
+    if isCACert "${dir}/leaf.pem"; then
+        die "that certificate is a CA (basicConstraints CA:TRUE), not a server certificate -- FOG will not take a CA private key through this page, and a CA is not what a vhost serves"
+    fi
+    openssl x509 -in "${dir}/leaf.pem" -noout -checkend 0 >/dev/null 2>&1 \
+        || die "that certificate has already expired"
+
+    if ! verifyLeafChain "${dir}/leaf.pem" "${dir}/chain.pem"; then
+        issuer=$(certField "${dir}/leaf.pem" issuer)
+        if [[ -s ${dir}/roots.pem ]]; then
+            die "no trust path builds for that certificate. Its issuer is ${issuer}, and the root you supplied is not trusted by this server yet -- import it on this page first, then try again. FOG does not anchor a root just because it arrived beside a certificate."
+        fi
+        die "no trust path builds for that certificate. Its issuer is ${issuer}, and this server has nothing that chains to it -- supply the intermediates, and import the issuing root on this page if it is not a public CA."
+    fi
+    return 0
+}
+
+# Make the running web server serve what was just installed.
+#
+# The one thing in this helper that takes effect before the next installer run,
+# and deliberately: a page whose "use this certificate" button does not change
+# what the server serves is a button that does not work. ADR 0036's amendment
+# records that narrowing, and it is scoped to certificate material -- the three
+# yes/no preferences still wait for the installer, because they are flags it
+# reads back rather than bytes it serves.
+#
+# Reported rather than fatal, for the reason anchorInHostStore() is: the
+# certificate is installed either way, and an administrator who has to reload by
+# hand is better off than one told the import failed over something that landed.
+reloadWebServer() {
+    [[ -n ${WEB_ENGINE:-} ]] || { printf 'reload:unavailable'; return 0; }
+    command -v systemctl >/dev/null 2>&1 || { printf 'reload:unavailable'; return 0; }
+    # reload first, restart only if the engine will not reload -- matching what
+    # the installer does at lib/common/functions.sh's own reload site. A reload
+    # keeps established connections, including the one the admin is clicking in.
+    if systemctl reload "$WEB_ENGINE" >/dev/null 2>&1 \
+        || systemctl restart "$WEB_ENGINE" >/dev/null 2>&1; then
+        printf 'reload:ok'
+    else
+        printf 'reload:failed'
+    fi
+    return 0
+}
+
+# Point this server at the leaf in the customizations tree, and serve it.
+#
+# The canonical paths become SYMLINKS to the administrator's files rather than
+# copies, which is what createSSLCA() does with the same material on an
+# installer run. Agreement between the two matters more than tidiness here: the
+# installer redoes this link on its next run, so if the helper resolved the same
+# input differently, a re-run would silently undo what the page did.
+adoptCustomLeaf() {
+    local cert key chain tmpd out
+    [[ -n $PKI_CUSTOM_DIR ]] || die "no customizations directory is configured -- re-run the FOG installer"
+    [[ -n $PKI_WEB_VHOST_CERT && -n $PKI_WEB_VHOST_KEY ]] || die "no canonical web leaf paths are configured -- re-run the FOG installer"
+    cert=$(customLeafCert)
+    key=$(customLeafKey)
+    chain=$(customLeafChain)
+    [[ -f $cert ]] || die "no certificate at ${cert}"
+    [[ -f $key ]] || die "no private key at ${key} -- both files are required, and they have to be a pair"
+    [[ -f $chain ]] || chain=""
+
+    tmpd=$(mktemp -d) || die "could not create a temporary directory"
+    chmod 0700 "$tmpd" 2>/dev/null
+    checkLeafMaterial "$cert" "$key" "$chain" "$tmpd"
+
+    # The intermediates go to a canonical path of the helper's choosing and
+    # ${PKI_web_trust_chain} is pointed at it -- the same shape import-root uses
+    # for the external root, and for the same reason: a path recorded from
+    # wherever the file happened to arrive is a path that names a temp file by
+    # next year (GH-1683).
+    #
+    # Only when there are intermediates. A leaf signed straight off a root has
+    # none, and repointing the key at an empty file would cost the server the
+    # chain it already had.
+    if [[ -s ${tmpd}/chain.pem && -n $PKI_WEB_EXTERNAL_CHAIN ]]; then
+        install -o root -g root -m 0644 "${tmpd}/chain.pem" "$PKI_WEB_EXTERNAL_CHAIN" 2>/dev/null \
+            || die "could not write ${PKI_WEB_EXTERNAL_CHAIN}"
+        writeSetting PKI_web_trust_chain "$PKI_WEB_EXTERNAL_CHAIN" \
+            || die "the chain was written but could not be recorded in .fogsettings"
+    fi
+
+    mkdir -p "$(dirname "$PKI_WEB_VHOST_CERT")" "$(dirname "$PKI_WEB_VHOST_KEY")" 2>/dev/null
+    ln -sfn "$cert" "$PKI_WEB_VHOST_CERT" 2>/dev/null \
+        || die "could not point ${PKI_WEB_VHOST_CERT} at ${cert}"
+    ln -sfn "$key" "$PKI_WEB_VHOST_KEY" 2>/dev/null \
+        || die "could not point ${PKI_WEB_VHOST_KEY} at ${key}"
+
+    # Rebuilt because the chain file just changed, and the anchor is derived
+    # from it. Not fatal on its own: the leaf is linked and serving either way,
+    # and the anchor is rebuilt again on the next installer run.
+    rebuildAnchor >/dev/null 2>&1 || true
+
+    out="OK $(certField "${tmpd}/leaf.pem" subject) $(reloadWebServer)"
+    rm -rf "$tmpd"
+    echo "$out"
+}
+
 case "$verb" in
 
 status)
@@ -458,6 +689,40 @@ EOF
     fi
     printf '  "trust_store": {"available": %s, "directory": %s, "anchored": %s},\n' \
         "$(jbool $store)" "$(jstr "$storedir")" "$(jbool $anchored)"
+
+    # What is sitting in the customizations tree, so the page can offer to
+    # adopt it -- or say why it cannot -- before anybody clicks. Read-only and
+    # derived, like externally_managed_leaf above: nothing here changes what
+    # the server serves, and the same three questions are asked again by
+    # adopt-custom-leaf, because a status call and a later click are two
+    # different moments and the files may have changed between them.
+    custpresent=0; custpair=0; custchain=0; custsubject=""; custexpiry=""
+    custverifies=0; custroot=""
+    if [[ -n $PKI_CUSTOM_DIR ]]; then
+        custcert=$(customLeafCert)
+        custkey=$(customLeafKey)
+        custchainfile=$(customLeafChain)
+        [[ -f $custcert ]] && custpresent=1
+        [[ -f $custchainfile ]] && custchain=1
+        if [[ -f $custcert && -f $custkey ]] && certKeyPairMatches "$custcert" "$custkey"; then
+            custpair=1
+            custsubject=$(certField "$custcert" subject)
+            custexpiry=$(certField "$custcert" enddate)
+            custtmp=$(mktemp -d 2>/dev/null)
+            if [[ -n $custtmp ]]; then
+                [[ -f $custchainfile ]] || custchainfile=""
+                if sortLeafMaterial "$custcert" "$custkey" "$custchainfile" "$custtmp" 2>/dev/null; then
+                    verifyLeafChain "${custtmp}/leaf.pem" "${custtmp}/chain.pem" && custverifies=1
+                    [[ -s ${custtmp}/roots.pem ]] && custroot=$(certField "${custtmp}/roots.pem" subject)
+                fi
+                rm -rf "$custtmp"
+            fi
+        fi
+    fi
+    printf '  "custom_pki": {"dir": %s, "present": %s, "pair_ok": %s, "chain_file": %s, "subject": %s, "not_after": %s, "chain_verifies": %s, "supplied_root": %s},\n' \
+        "$(jstr "$PKI_CUSTOM_DIR")" "$(jbool $custpresent)" "$(jbool $custpair)" \
+        "$(jbool $custchain)" "$(jstr "$custsubject")" "$(jstr "$custexpiry")" \
+        "$(jbool $custverifies)" "$(jstr "$custroot")"
 
     printf '  "preferences": {'
     first=1
@@ -556,6 +821,115 @@ clear-root)
     setPreferencePath "" || die "could not clear the imported root in .fogsettings"
     rebuildAnchor || die "the certificate was removed but the trust anchor could not be rebuilt"
     echo "OK 0 $(anchorInHostStore)"
+    ;;
+
+adopt-custom-leaf)
+    # No arguments at all -- not even an allowlisted token. The directory comes
+    # from the root-only config, so this verb is stricter than ADR 0036
+    # requires rather than an exception to it. A free-text path field was the
+    # obvious alternative and is the one that ADR rejected: the moment the
+    # caller names a file, the helper's job becomes proving a path is safe.
+    [[ $# -eq 0 ]] || die "usage: fog-pki-admin adopt-custom-leaf"
+    adoptCustomLeaf
+    ;;
+
+import-leaf)
+    # Everything the administrator uploaded arrives under one request id, and
+    # the helper reads it as a blob claiming to be certificate material. The
+    # page validates none of it, on purpose -- PHP is the side that might be
+    # compromised.
+    #
+    # The staged names, all optional except that there must be enough to work
+    # with: <reqid>.pem (leaf or fullchain), <reqid>.key, <reqid>.chain,
+    # <reqid>.p12, <reqid>.pass.
+    #
+    # The passphrase is a FILE, never an argument. This script is invoked
+    # through sudo from a command line the page builds, and an argument is
+    # readable in /proc by every local user for as long as the call lasts.
+    [[ $# -eq 1 ]] || die "usage: fog-pki-admin import-leaf <request-id>"
+    reqid="$1"
+    [[ $reqid =~ ^[a-f0-9]{32}$ ]] || die "malformed request id"
+    [[ -n $PKI_CUSTOM_DIR ]] || die "no customizations directory is configured -- re-run the FOG installer"
+
+    stagedPem="${PKI_STAGING}/${reqid}.pem"
+    stagedKey="${PKI_STAGING}/${reqid}.key"
+    stagedChain="${PKI_STAGING}/${reqid}.chain"
+    stagedP12="${PKI_STAGING}/${reqid}.p12"
+    stagedPass="${PKI_STAGING}/${reqid}.pass"
+
+    tmpd=$(mktemp -d) || die "could not create a temporary directory"
+    trap 'rm -rf "$tmpd"' EXIT
+    chmod 0700 "$tmpd" 2>/dev/null
+    : > "${tmpd}/chain.in"
+
+    if [[ -f $stagedP12 ]]; then
+        # PKCS#12 (RFC 7292) -- one container carrying the key, the leaf and
+        # usually the chain. It is what an administrator exports from certlm.msc
+        # or IIS, and unpacking it here rather than asking them to convert it by
+        # hand is the whole point of accepting it.
+        passin="pass:"
+        [[ -f $stagedPass ]] && passin="file:${stagedPass}"
+        openssl pkcs12 -in "$stagedP12" -passin "$passin" -nokeys -clcerts \
+            -out "${tmpd}/leaf.in" 2>/dev/null \
+            || die "that PKCS#12 file could not be opened -- check the passphrase"
+        [[ -s ${tmpd}/leaf.in ]] || die "that PKCS#12 file carries no certificate"
+        openssl pkcs12 -in "$stagedP12" -passin "$passin" -nokeys -cacerts \
+            -out "${tmpd}/chain.in" 2>/dev/null || : > "${tmpd}/chain.in"
+        # -nodes: the key is written unencrypted because the web server has to
+        # read it at start-up with nobody there to type a passphrase.
+        openssl pkcs12 -in "$stagedP12" -passin "$passin" -nocerts -nodes \
+            -out "${tmpd}/key.in" 2>/dev/null \
+            || die "that PKCS#12 file carries no private key"
+        [[ -s ${tmpd}/key.in ]] || die "that PKCS#12 file carries no private key"
+    else
+        [[ -f $stagedPem ]] || die "no certificate was uploaded"
+        [[ -f $stagedKey ]] || die "no private key was uploaded -- FOG needs the key as well as the certificate, or a PKCS#12 file carrying both"
+        cp "$stagedPem" "${tmpd}/leaf.in"
+        # Normalized through `openssl pkey` rather than installed as handed
+        # over. An encrypted key would leave the web server prompting for a
+        # passphrase at start-up and never getting an answer, and the failure
+        # would arrive as a server that does not come back.
+        if [[ -f $stagedPass ]]; then
+            openssl pkey -in "$stagedKey" -passin "file:${stagedPass}" \
+                -out "${tmpd}/key.in" 2>/dev/null \
+                || die "that private key could not be decrypted -- check the passphrase"
+        else
+            openssl pkey -in "$stagedKey" -out "${tmpd}/key.in" 2>/dev/null \
+                || die "that private key could not be read -- if it is passphrase-protected, supply the passphrase"
+        fi
+        [[ -f $stagedChain ]] && cp "$stagedChain" "${tmpd}/chain.in"
+    fi
+
+    # Checked BEFORE anything is written where the server reads, so a refusal
+    # leaves the previous certificate serving and the customizations tree
+    # untouched.
+    mkdir -p "${tmpd}/check" || die "could not create a temporary directory"
+    checkLeafMaterial "${tmpd}/leaf.in" "${tmpd}/key.in" "${tmpd}/chain.in" "${tmpd}/check"
+
+    # Installed into the customizations tree, which is where a certificate you
+    # brought is documented to live (ADR 0040). Two things follow that no other
+    # destination gives for free: the next installer run adopts it again as
+    # signal 0 rather than regenerating over it, and adopt-custom-leaf and this
+    # verb end up running exactly the same code.
+    #
+    # Anything already there is kept beside it rather than destroyed. This
+    # directory exists for the administrator's own files, so a page that
+    # overwrote one without trace would be spending something it does not own.
+    mkdir -p "$PKI_CUSTOM_DIR" 2>/dev/null
+    chmod 0700 "$PKI_CUSTOM_DIR" 2>/dev/null
+    for f in "$(customLeafCert)" "$(customLeafKey)" "$(customLeafChain)"; do
+        [[ -e $f ]] && mv -f "$f" "${f}.replaced" 2>/dev/null
+    done
+    install -o root -g root -m 0644 "${tmpd}/leaf.in" "$(customLeafCert)" 2>/dev/null \
+        || die "could not write $(customLeafCert)"
+    install -o root -g root -m 0600 "${tmpd}/key.in" "$(customLeafKey)" 2>/dev/null \
+        || die "could not write $(customLeafKey)"
+    if [[ -s ${tmpd}/chain.in ]]; then
+        install -o root -g root -m 0644 "${tmpd}/chain.in" "$(customLeafChain)" 2>/dev/null \
+            || die "could not write $(customLeafChain)"
+    fi
+
+    adoptCustomLeaf
     ;;
 
 set-preference)

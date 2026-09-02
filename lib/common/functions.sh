@@ -5790,6 +5790,18 @@ _installPkiAdminHelper() {
         # does --ca-root, which used to record its own source path and so
         # named a temp file that was gone by the next run.
         echo "PKI_EXTERNAL_ROOT=${webdir}/ca/.externalRoot.pem"
+        # Where a certificate you brought lives, and where the intermediates
+        # that come with one are recorded. adopt-custom-leaf takes NO argument
+        # at all -- it reads this directory out of the config rather than being
+        # handed a path, which is stricter than ADR 0036 asks for rather than an
+        # exception to it.
+        echo "PKI_CUSTOM_DIR=$(_customPkiDir)"
+        echo "PKI_WEB_EXTERNAL_CHAIN=${webdir}/leaf/.externalChain.pem"
+        # The web engine, so the helper can reload it after installing a
+        # certificate. This is the one change it makes that takes effect before
+        # the next installer run; see ADR 0036's 2026-09-02 amendment for why
+        # certificate material differs from the yes/no preferences.
+        echo "WEB_ENGINE=${WEB_server_engine}"
         echo "PKI_CLIENT_CERT=${PKI_client_encrypt_cert}"
         if [[ -f $sbca ]]; then
             echo "PKI_SB_CA_CERT=${sbca}"
@@ -8307,6 +8319,64 @@ _certKeyPairMatches() {
 # chains to a publicly-trusted root needs no chain file from us for the browser
 # to be happy, and createWebIntermediateCA() already honors an admin's chain
 # path on every run. Requiring one here would decline perfectly good setups.
+# Record the intermediates an administrator dropped beside their leaf.
+#
+# Copied to a canonical path with every self-signed certificate REMOVED, and
+# then ${PKI_web_trust_chain} is pointed at it. Both halves are load-bearing.
+#
+# The copy is for the reason the imported root gets one: a setting that records
+# wherever the admin's file happened to be names a temp file by next year
+# (GH-1683).
+#
+# The strip is because _resolveTrustAnchor() anchors every self-signed
+# certificate it finds in the chain file. A root left in there would be trusted
+# by this host as a side effect of supplying a chain, without anybody deciding
+# to trust it -- which is precisely what import-root's self-signed-only rule
+# exists to prevent. An administrator whose root is not trusted yet imports it
+# deliberately, on the Certificates page or with --ca-root.
+#
+# fog-pki-admin's adopt-custom-leaf does the same two things to the same path,
+# so the page and the installer cannot disagree about what this server serves.
+_adoptCustomChain() {
+    local src="$1" out tmpd f subj issuer st=1
+    [[ -n $src && -f $src ]] || return 1
+    command -v openssl >/dev/null 2>&1 || return 1
+    out="$(_pkiZoneDir web)/leaf/.externalChain.pem"
+    mkdir -p "$(dirname "$out")" >>$error_log 2>&1
+    tmpd=$(mktemp -d) || return 1
+    : > "${tmpd}/chain.pem"
+    if _splitPemBundle "$src" "$tmpd"; then
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+            issuer=$(openssl x509 -in "$f" -noout -issuer 2>/dev/null)
+            [[ -z $subj ]] && continue
+            [[ ${subj#subject=} == "${issuer#issuer=}" ]] && continue
+            cat "$f" >> "${tmpd}/chain.pem"
+        done
+    fi
+    if [[ -s ${tmpd}/chain.pem ]]; then
+        # Mode, not ownership: the installer is already root, so the file is
+        # root-owned either way -- and forcing it would make this function
+        # untestable outside a root shell for no gain.
+        if install -m 0644 "${tmpd}/chain.pem" "$out" >>$error_log 2>&1; then
+            PKI_web_trust_chain="$out"
+            st=0
+        fi
+    fi
+    rm -rf "$tmpd" >>$error_log 2>&1
+    return $st
+}
+# The optional third name: the intermediates for a leaf you brought.
+#
+# Echoes the path when there is one, and returns 1 when there is not. Optional
+# where the pair is required, because a leaf signed straight off a root needs no
+# intermediates and demanding one would refuse a valid setup.
+_customPkiChain() {
+    local f="$(_customPkiDir)/web-leaf-chain.pem"
+    [[ -f $f ]] || return 1
+    printf '%s' "$f"
+}
 _customPkiPair() {
     local dir cert key
     dir="$(_customPkiDir)"
@@ -10251,7 +10321,7 @@ createSSLCA() {
     # vhost names the files and the certificate names itself.
     _ensureCustomizationsTree
     if ! _externallyManagedLeaf; then
-        local extReason="" extCert="" extKey="" customPair=""
+        local extReason="" extCert="" extKey="" customPair="" customChain=""
         if extReason=$(_detectExternalCertManagement); then
             # Signal 0 first, and it wins outright: a pair sitting in the
             # customizations tree is the admin saying which certificate to use,
@@ -10262,6 +10332,12 @@ createSSLCA() {
             customPair=$(_customPkiPair) && {
                 extCert=$(echo "$customPair" | sed -n 1p)
                 extKey=$(echo "$customPair" | sed -n 2p)
+                # The chain is adopted with the pair rather than separately.
+                # Doing it here, inside the signal-0 arm, is deliberate: the
+                # other signals describe a leaf FOG was ALREADY pointed at, and
+                # repointing the trust chain in those cases would overwrite a
+                # setting the admin may have made by hand.
+                customChain=$(_customPkiChain) && _adoptCustomChain "$customChain"
             }
             if [[ -z $extCert ]]; then
                 extCert=$(_vhostCertPath)
