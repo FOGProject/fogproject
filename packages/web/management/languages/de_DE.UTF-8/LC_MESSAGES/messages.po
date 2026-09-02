@@ -77,6 +77,10 @@ msgid "%s Name"
 msgstr " Name"
 
 #, php-format
+msgid "%s can only be run on one host at a time"
+msgstr ""
+
+#, php-format
 msgid "%s is required"
 msgstr "%s ist erforderlich"
 
