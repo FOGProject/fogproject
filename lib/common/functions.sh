@@ -7493,7 +7493,7 @@ writeUpdateFile() {
             SVC_user)                 printf '\n## SVC -- FOG own system account and host services\n' ;;
             PKI_sb_enabled)           printf '\n## PKI -- certificate authorities and trust\n' ;;
             PKI_root_ca_cert)
-                printf '\n## Derived -- mostly recomputed, three are yours to point\n'
+                printf '\n## Derived -- do not edit\n'
                 printf '## Canonical certificate paths. The installer recomputes most of these\n'
                 printf '## every run, so editing one here moves nothing.\n'
                 printf '##\n'
@@ -8068,7 +8068,7 @@ _migratePkiTree() {
 # /etc/fog/customizations is the /etc counterpart of the existing
 # $fogprogramdir/customizations, and the two run in OPPOSITE directions. FOG
 # writes $fogprogramdir/customizations: it copies the admin's files there before
-# a run rebuilds the tree they lived in, and restores from it afterwards. Nothing
+# a run rebuilds the tree they lived in, and restores from it afterward. Nothing
 # but the admin writes /etc/fog/customizations -- it is an input, and FOG only
 # reads it.
 #
@@ -8147,7 +8147,7 @@ There is a second customizations directory, and it is not this one:
                             makes of your files before a run rebuilds the tree
                             they lived in -- the iPXE boot menu background,
                             replaced iPXE binaries, previous kernel
-                            generations -- and FOG restores from it afterwards.
+                            generations -- and FOG restores from it afterward.
 
 Why two: keys and certificates are small, secret and irreplaceable, so they
 belong under /etc, which is what a backup policy and a config-management run
@@ -8166,7 +8166,7 @@ ETCREADME
 This directory is written BY FOG. You do not need to put anything here.
 
 Before a run rebuilds a tree that might hold something of yours, FOG copies
-what it finds into here, and restores it afterwards:
+what it finds into here, and restores it afterward:
 
   ipxe-bg/          the iPXE boot menu background image
   ipxe-legacy/      iPXE binaries you replaced in the TFTP tree
