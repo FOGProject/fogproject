@@ -1511,6 +1511,10 @@ while [[ -z $blGo ]]; do
                     restoreReports
                     checkWebTier
                     backupDB
+                    # Immediately before the migration, so offerRevert() can
+                    # tell a failure that moved the schema from one that did
+                    # not. See recordPreUpgradeSchema.
+                    recordPreUpgradeSchema
                     updateDB
                     configureStorage
                     # Before configureDHCP, not with the rest of the TFTP
