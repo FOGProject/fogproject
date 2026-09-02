@@ -2199,11 +2199,18 @@ class IpxeBootMenu extends BootMenuBase
                 }
             }
             $params = trim(implode("\n", (array)$params));
+            // Real newlines, one command per line. This used to be written
+            // with '\n' inside SINGLE quotes, which PHP emits as a literal
+            // backslash-n, so iPXE received one line -- `param sysuuid
+            // ${uuid}\ngoto bootme` -- and stored the whole remainder as the
+            // sysuuid VALUE. That is why the UUID regex on the write side
+            // never matched a menu-item request and only the first request
+            // of a boot (default.ipxe) ever recorded anything (#198).
             $params .= "\n"
-                . 'param sysuuid ${uuid}\n'
-                . 'param sysserial ${serial}\n'
-                . 'param mbserial ${board-serial}\n'
-                . 'param caseasset ${asset}\n'
+                . 'param sysuuid ${uuid}' . "\n"
+                . 'param sysserial ${serial}' . "\n"
+                . 'param mbserial ${board-serial}' . "\n"
+                . 'param caseasset ${asset}' . "\n"
                 . 'goto bootme';
             $Send = self::fastmerge($Send, [$params]);
         }
