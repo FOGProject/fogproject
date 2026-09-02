@@ -441,6 +441,65 @@ class Page extends FOGBase
         return $this;
     }
     /**
+     * The ?ver= a stylesheet or script tag carries, so a changed file is
+     * fetched again rather than served from the browser's cache.
+     *
+     * FOG_BCACHE_VER was the whole of this, bumped by hand whenever a
+     * script changed -- and not bumped when it was forgotten, which with
+     * a 30-day max-age on static files meant a returning browser ran the
+     * previous fog.common.js against the current server for a month. The
+     * file's own mtime cannot be forgotten: a deploy that changes the file
+     * changes it, and a deploy that does not leaves the cache valid. The
+     * constant stays in front as the global bust it always was, for the
+     * day a change needs EVERY asset refetched at once.
+     *
+     * Paths are what the tags carry, relative to the management directory
+     * (`js/fog/fog.common.js`, `../management/css/fog.css`, a plugin's
+     * `../lib/plugins/<name>/js/...`). One that resolves to no file --
+     * an absolute URL, a CDN, a typo -- gets the bare constant, which is
+     * what it got before.
+     *
+     * @param string $path The asset path as written in the tag.
+     *
+     * @return string
+     */
+    public static function assetVersion($path)
+    {
+        $path = (string)$path;
+        $file = '';
+        if ('' !== $path
+            && false === strpos($path, '://')
+            && 0 !== strpos($path, '//')
+            && 0 !== strpos($path, '/')
+        ) {
+            $file = (string)realpath(
+                dirname(__DIR__, 2) . '/management/' . $path
+            );
+        }
+        if ('' === $file || !is_file($file)) {
+            return (string)FOG_BCACHE_VER;
+        }
+        return FOG_BCACHE_VER . '.' . (int)filemtime($file);
+    }
+    /**
+     * The asset paths of one X-FOG-* header, each with its ?ver= appended.
+     *
+     * @param array $paths Asset paths as the tags would carry them.
+     *
+     * @return array
+     */
+    private static function _versionedAssets($paths)
+    {
+        $out = [];
+        foreach ((array)$paths as $path) {
+            if (null === $path || '' === $path) {
+                continue;
+            }
+            $out[] = $path . '?ver=' . self::assetVersion($path);
+        }
+        return $out;
+    }
+    /**
      * Adds a css path
      *
      * @param string $path the path to add
@@ -535,7 +594,7 @@ class Page extends FOGBase
                         echo _('The current user is invalid.');
                         echo '</p>';
                         echo '</noscript>';
-                        echo '<script src="js/fog/redirect.js?ver=' . FOG_BCACHE_VER . '"></script>';
+                        echo '<script src="js/fog/redirect.js?ver=' . self::assetVersion('js/fog/redirect.js') . '"></script>';
                         break;
                     case 1:
                         header(
@@ -556,28 +615,36 @@ class Page extends FOGBase
                                 memory_get_peak_usage()
                             )
                         );
+                        // Each path carries its own ?ver= (see
+                        // assetVersion()), the same string the full-page
+                        // template put on the tag, so the client's delta
+                        // between what is loaded and what this page needs
+                        // compares like with like. The client appends
+                        // X-FOG-BCacheVer only to a path that has no
+                        // version of its own; that header stays for a
+                        // fog.common.js older than this server.
                         header(
                             'X-FOG-Stylesheets: '
                             . json_encode(
-                                $this->stylesheets
+                                self::_versionedAssets($this->stylesheets)
                             )
                         );
                         header(
                             'X-FOG-JavaScripts: '
                             . json_encode(
-                                $this->javascripts
+                                self::_versionedAssets($this->javascripts)
                             )
                         );
                         header(
                             'X-FOG-Common-JavaScripts: '
                             . json_encode(
-                                self::$commonJavascripts
+                                self::_versionedAssets(self::$commonJavascripts)
                             )
                         );
                         header(
                             'X-FOG-Once-JavaScripts: '
                             . json_encode(
-                                self::$onceJavascripts
+                                self::_versionedAssets(self::$onceJavascripts)
                             )
                         );
                         header(

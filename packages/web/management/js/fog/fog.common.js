@@ -5714,8 +5714,12 @@ function clearAllIntervals(){
       if(styles.indexOf(style) === -1) styleDelta[style] = -1;
     }
     // -> If a style is not loaded and the current page needs it, add it.
+    // styles[] already carries its ?ver= (added above, or sent by the
+    // server); suffixing it again here produced "path?ver=N?ver=N", which
+    // never matched a loaded href, so every navigation appended one more
+    // copy of every stylesheet.
     for(var styleIndex in styles){
-      var style = styles[styleIndex] + "?ver=" + assetVersion;
+      var style = styles[styleIndex];
       if(loadedStyles.indexOf(style) === -1) styleDelta[style] = 1;
     }
 
