@@ -276,6 +276,9 @@ offerRevert() {
     echo " |     git -C ${FOG_git_path} checkout --detach ${recorded}"
     echo " |     cd ${FOG_git_path}/bin && ./installfog.sh"
     echo " |"
+    echo " | bin/revertupdate.sh does the same checkout for you, and it can be run"
+    echo " | later -- this message appears only now, the script reads the same record."
+    echo " |"
     echo " | Nothing has been reverted for you. Your customizations were already"
     echo " | restored by this run -- see docs/SUPPORTED_CUSTOMIZATIONS.md -- and"
     echo " | bin/restorekernel.sh --list will show the kernel sets kept for you."
@@ -295,7 +298,11 @@ offerRevert() {
     # bin/revertfog.sh is deliberately NOT offered here. It restores a
     # pre-upgrade 1.5 dump and _dumpNotFifteenReason() refuses anything that
     # looks like 1.6 -- so pointing at it would send someone to a tool that
-    # turns them away. A manual restore of the dump below is the way back.
+    # turns them away. bin/revertupdate.sh is the tool for this case (GH-1659):
+    # it restores a dump only when the dump's schema matches the checked-out
+    # code, which is the proof this situation needs. The manual command is
+    # still printed, because the dump path is the one thing worth having in
+    # the log if the script is never run.
     local nowSchema
     nowSchema=$(schemaVersionInDB 2>/dev/null)
     if [[ -n $fogPreUpgradeSchema && -n $nowSchema && $nowSchema != "$fogPreUpgradeSchema" ]]; then
@@ -305,9 +312,12 @@ offerRevert() {
         echo " | its own -- the older code would run against the newer schema."
         if [[ -n $fogPreUpgradeDump && -s $fogPreUpgradeDump ]]; then
             echo " |"
-            echo " | Restore the dump taken immediately before the migration:"
+            echo " | Restore the dump taken immediately before the migration, after"
+            echo " | the checkout above so the code matches it:"
             echo " |"
-            echo " |     mysql -u ${DB_user} -p ${DB_name} < ${fogPreUpgradeDump}"
+            echo " |     cd ${FOG_git_path}/bin && ./revertupdate.sh --checkout --restore-db ${fogPreUpgradeDump}"
+            echo " |"
+            echo " | or by hand:  mysql -u ${DB_user} -p ${DB_name} < ${fogPreUpgradeDump}"
         else
             echo " |"
             echo " | No pre-migration dump was written for this run, so there is"

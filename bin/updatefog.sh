@@ -373,4 +373,6 @@ fi
 echo " * installfog.sh failed (exit $installStatus)."
 echo " * The system has NOT been reverted. See $error_log -- if the checkout"
 echo " | moved, the installer named the commit to reset to at the end of it."
+echo " | bin/revertupdate.sh reports the same, and can do the checkout and the"
+echo " | database restore for you."
 exit $installStatus

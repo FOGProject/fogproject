@@ -1,5 +1,8 @@
 # Reverting a 1.6 upgrade back to 1.5
 
+> For an update that stayed on 1.6, see **Going back from a 1.6 → 1.6 update**
+> at the end of this document; `revertfog.sh` refuses a 1.6-era dump by design.
+
 `bin/revertfog.sh` puts a server that upgraded to 1.6 back onto its pre-upgrade
 1.5 database, web tree and FOS kernels. It restores **data**, not code: the last
 thing it prints is a reminder to re-run `bin/installfog.sh` from a 1.5 checkout,
@@ -145,8 +148,45 @@ itself. Check these first, and stop if any is missing.
 5. **Take your own backup as well.** `DB_backup_path` defaults to `/home/`, on
    the same machine and often the same disk as the database it is protecting.
 
+## Going back from a 1.6 → 1.6 update: `bin/revertupdate.sh`
+
+`revertfog.sh` is the 1.5 crossing and refuses a 1.6-era dump on purpose.
+An update that stayed on 1.6 and then turned out to be broken -- or failed
+after `updateDB()` had already migrated the schema -- is `bin/revertupdate.sh`
+(GH-1659). It reads two things the update already recorded and surfaces them
+on demand rather than only from the installer's failure trap:
+
+| record | written by | used for |
+|---|---|---|
+| `FOG_last_good_commit` in `.fogsettings` | `markInstallCommit()`, on every completed install | `--checkout` |
+| `fog_sql_<ver>_<ts>.sql` under `${DB_backup_path}/fogDBbackups/` | `backupDB()`, immediately before the migration | `--restore-db` |
+
+Run with no action it **reports and changes nothing**: where the checkout is
+against where the last completed install ran from, what schema the database
+is on, and for each dump on disk whether it fits the code checked out now,
+the code the record names, or neither.
+
+The proof between a dump and the database is a different one from
+`_dumpNotFifteenReason()`: not "is this dump 1.5" but **"does this dump's
+`schemaVersion` row equal the `FOG_SCHEMA` of the code that is checked out"**.
+Both numbers are readable without touching the database -- the row from the
+dump, the constant from `git show <commit>:packages/web/src/Base/System.php` --
+so a mismatch is refused before anything is connected to, stopped or dropped.
+That is what stops the script creating the state it exists to undo: old code
+at a newer schema, or new code at an older one. `--checkout` first, then
+`--restore-db`, or both flags together, is the order that makes a
+pre-migration dump fit.
+
+`--restore-db` takes its own safety dump first (`fog_sql_prerevert_<ts>.sql`,
+beside the others), stops the daemons, drops the tables by name and restores.
+Neither action touches the deployed web tree: re-running `installfog.sh` from
+the checked-out code is what puts it back in service, and the script says so.
+`tests/revertupdate.test.sh` pins the refusals, the order, and that a refusal
+invokes nothing.
+
 ## Related
 
+- `bin/revertupdate.sh` — the 1.6 → 1.6 way back, above.
 - `bin/restorekernel.sh` — the FOS kernel/init generations, reused as step 6.
 - `docs/development/upgrade-rehearsal.md` — rehearsing the upgrade before you
   run it for real.
