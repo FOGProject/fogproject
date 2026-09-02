@@ -458,12 +458,27 @@ installs, not storage nodes — see
 [MULTI_SERVER_CA.md](MULTI_SERVER_CA.md), which covers this flag set applied
 across a fleet and the alternatives to it.
 
-**The Client Communication zone is not replaceable this way, deliberately.**
-It is anchored at the certificate every fog-client has pinned, so replacing it
-means re-deploying trust to every registered machine. That is possible — push
-the new `ca.cert.der` by GPO or by reinstalling fog-client — but there is no
-built-in path for it, because there is no way to do it without touching every
-endpoint.
+**The Client Communication zone's CA is not replaceable this way, deliberately.**
+The zone is anchored at the certificate every fog-client has pinned, so
+replacing that *authority* means re-deploying trust to every registered
+machine. That is possible — push the new `ca.cert.der` by GPO or by
+reinstalling fog-client — but there is no built-in path for it, because there is
+no way to do it without touching every endpoint.
+
+Relocating the zone's **leaf** is a different thing, and is supported:
+`--client-cert` and `--client-key` name your own communication keypair, and FOG
+points its canonical names at it rather than issuing its own. The two keys are
+recorded as `PKI_client_encrypt_cert` and `PKI_client_encrypt_key`, and survive
+every later run.
+
+Two things to know before using them. If the material differs from what the
+server issued before, that **is** a re-pin event for every registered client —
+the installer compares fingerprints and says so, but it will not stop you. And
+the private key must stay readable by the web server, because
+`FOGBase::certDecrypt()` opens it on every client `authorize()`; the installer
+sets `0640 root:<apache user>` on the file itself and warns if the web user
+still cannot read it, which is what an untraversable parent directory looks
+like.
 
 **If your CA carries `pathlen:0`** — an ordinary thing for an enterprise to
 issue — it cannot anchor an intermediate. The installer detects this, says so,
@@ -518,6 +533,83 @@ sudo helper depends on.
 > carry on as the *web* key — so an ACME renewal writing it no longer changes
 > what `certDecrypt()` reads.
 
+### Where to put a certificate you brought
+
+`/etc/fog/customizations/pki/`, recorded as `PKI_custom_dir`. It is a **sibling**
+of `$(_pkiRootDir)`, not a directory inside it, and that is the whole mechanism:
+`_externallyManagedLeaf()` asks whether the canonical path resolves inside the
+web zone, so anything here answers "the admin's" with no flag to set and nothing
+that can go stale. A `custom/` directory *under* `/etc/fog/pki` would answer the
+opposite and be regenerated over.
+
+The installer creates it, and `restorecon`s it — which is also the fix for the
+SELinux footgun above, since a directory FOG creates carries the right label
+instead of whatever an arbitrary location happened to have.
+
+**Drop a pair in and re-run the installer.** Two names, both required (a third, optional one for the chain is below):
+
+```
+/etc/fog/customizations/pki/web-leaf.pem
+/etc/fog/customizations/pki/web-leaf.key
+```
+
+`_detectExternalCertManagement()` finds them (signal 0), `createSSLCA()` points
+`PKI_web_vhost_cert`/`PKI_web_vhost_key` at them, and FOG stops re-issuing that
+leaf. Nothing to edit.
+
+Both files are required, and they have to be a genuine pair — compared by subject
+public key, not by RSA modulus, so an EC key is judged correctly (GH-1393). A
+missing or mismatched key is **not** adopted: FOG's own leaf still serves, while
+adopting one would point the vhost at a certificate the web server cannot start
+with. Other filenames are not guessed at; record the path explicitly instead, as
+above.
+
+`/etc/fog/customizations` is not `$fogprogramdir/customizations`, and the two run
+in opposite directions — FOG writes the `/opt` one (copies of your files, made
+before a run rebuilds the tree they lived in), and only reads the `/etc` one.
+There is a `readme.txt` in each saying so. Keys and certificates are on the `/etc`
+side for the reason the PKI tree itself moved there; kernels and boot images stay
+under `/opt` because the FHS does not put binaries in `/etc`. See
+[ADR 0040](adr/0040-certificates-you-bring-live-in-a-customizations-tree.md).
+
+### If your CA is not one this server already trusts
+
+A leaf is not servable on its own. Two separate things have to be true, and
+neither is implied by the other:
+
+1. **The intermediates have to reach the vhost**, or clients get an incomplete
+   chain. Add a third, optional file beside the pair:
+
+   ```
+   /etc/fog/customizations/pki/web-leaf-chain.pem
+   ```
+
+   Or make `web-leaf.pem` a fullchain — leaf first, then intermediates, the
+   shape every ACME client emits. FOG splits it and keeps **only the leaf** at
+   the canonical leaf path, because a bundle stored there grows by one copy of
+   the intermediate on every run and iPXE stops booting long before a browser
+   complains (GH-863). The order of the file does not matter: certificates are
+   classified by whether they are self-signed and by whether the public key
+   matches the key, never by position.
+
+2. **The root has to be anchored**, or every HTTPS call this server makes to
+   itself fails to verify — which is most of what the installer does after it
+   writes the vhost. Import it from the Certificates page, or pass
+   `--web-ca-root`. A self-signed root left in the chain file is **not** taken
+   as consent to trust it; FOG reports which issuer is missing and waits for the
+   import.
+
+The two go together. FOG refuses to adopt a leaf when no path builds — a
+refusal, not a warning, because adopting one trades a server that works for one
+that does not, and the failure shows up as unrelated HTTPS errors much later.
+The refusal names the issuer it could not find.
+
+If your deployment is genuinely one where no path can build on this host —
+split-horizon DNS, an internal CA reachable only elsewhere, clients that pin —
+set the canonical paths by hand as described under **Certificate paths** above
+and re-run the installer. That route does not consult the chain, and it is
+deliberately not a checkbox on the Certificates page: it is the one case where
+you are telling FOG you know better than its verification.
 ## Let's Encrypt and ACME
 
 **FOG does not run an ACME client and will not.** Use `certbot`, `acme.sh`, or
@@ -576,6 +668,13 @@ acme.sh --issue -d fog.example.com -w /var/www/html    # HTTP-01, docroot
 
 **Install into the paths FOG already serves from**, rather than acme.sh's own
 default cert store, so nothing else needs to change:
+
+> Simpler, and the route the walkthrough in fog-docs now takes: install to
+> `/etc/fog/customizations/pki/web-leaf.{pem,key}` instead and re-run the
+> installer, which finds the pair and points the canonical paths at it. See
+> "Where to put a certificate you brought" above. The in-tree form below still
+> works and needs no installer run, which is why it is kept.
+
 ```bash
 acme.sh --install-cert -d fog.example.com \
     --key-file       /opt/fog/pki/web/leaf/.webLeaf.key \

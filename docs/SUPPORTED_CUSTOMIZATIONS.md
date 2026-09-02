@@ -53,6 +53,11 @@ fog-docs at `docs/1.6/management/server/supported-customizations.md`.
   managed block.
 - **Yours to place**: files under names FOG does not ship. Nothing removes
   them.
+- **Adopted**: a `web-leaf.pem`/`web-leaf.key` pair in
+  `/etc/fog/customizations/pki` is picked up on the next run and served, with
+  nothing to configure. That directory is the `/etc` counterpart of
+  `$fogprogramdir/customizations` and runs the other way round -- FOG writes the
+  `/opt` one, and only reads the `/etc` one. There is a `readme.txt` in each.
 - **Not preserved**: edits *inside* the managed block, direct edits to
   `default.ipxe`, and anything under the web root that FOG does not ship — the
   tree is rebuilt wholesale on every run.

@@ -123,6 +123,29 @@ $scenarios = [
             'task' => $deployTask,
         ],
     ],
+    // The TFTP-sync rendering: a wget-less board fetches kernel and initrd
+    // over TFTP relative to the DHCP bootfile's directory, so the lines
+    // carry bare filenames, never URLs (U-Boot boot/pxe_utils.c has no URL
+    // handling at all). Everything else is identical to the HTTP document.
+    'task-deploy-tftp' => [
+        'tftp' => true,
+        'host' => [
+            'id' => 1,
+            'name' => 'pi4',
+            'task' => $deployTask,
+        ],
+    ],
+    // A host's own kernel/init override stays a bare filename too.
+    'host-kernel-override-tftp' => [
+        'tftp' => true,
+        'host' => [
+            'id' => 1,
+            'name' => 'pi4',
+            'kernel' => 'arm_Image.custom',
+            'init' => 'arm_init.custom.cpio.gz',
+            'task' => $deployTask,
+        ],
+    ],
     // Host kernelArgs reach the append line, same as they do under iPXE.
     'host-kernel-args' => [
         'host' => [

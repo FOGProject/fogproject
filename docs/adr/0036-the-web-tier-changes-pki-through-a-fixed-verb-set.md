@@ -5,6 +5,188 @@
 accepted, and implemented on `working-1.6` as `packages/pki/fog-pki-admin` plus
 `_installPkiAdminHelper()`.
 
+## Amended 2026-09-02 — the leaf is not the CA
+
+Settles FOGProject/fogproject#1685, and reverses one of the alternatives
+rejected below. GH-1681 changed the ground: `/etc/fog/customizations/pki` is now
+a documented place to put a certificate you brought, and a `web-leaf.pem` /
+`web-leaf.key` pair dropped there is signal 0 of
+`_detectExternalCertManagement()`. The page already *reports* the derived
+`externally_managed_leaf` state; nothing could act on it.
+
+**What this ADR never decided.** The decision below is about a root CA, and it
+says so throughout — `import-root`, the anchor, "what this server trusts". A
+leaf appears once, in the Consequences, only to say `acmeLeaf` is retired and
+the state is derived. Leaf *import* was not considered and not rejected. Read as
+a blanket rule, "PHP is the threat model" forecloses it; that reading is wider
+than what was argued for, and this amendment narrows the rule to what the
+argument actually supports.
+
+**The narrowing.** No **CA** private key transits PHP. A vhost leaf key may. The
+two are not the same asset:
+
+| material | blast radius if the web tier is compromised |
+|---|---|
+| root CA key | the certificate every `fog-client` **pins** — impersonate the imaging server to the whole estate, push arbitrary images and snapins as SYSTEM |
+| vhost leaf key | TLS for the console, on a box whose web tier the attacker already owns |
+
+The qualifier that keeps this honest is **wildcards**. A `*.example.com` key is
+the common case an administrator already holds, and it covers hosts that are not
+this one — so its theft is the one outcome that escalates past "the attacker
+already owns this web tier". That is a reason to say so at the point of upload
+and to prefer the two routes that never send a key, not a reason to refuse the
+channel: every enrollment protocol that avoids it is CSR-based (PKCS#10, ACME,
+EST, CMP), PKCS#12 exists precisely to transport a key with its certificate, and
+the appliances that do accept one — pfSense, UniFi, iDRAC, Proxmox, IIS, cPanel
+— are all cases where the management UI is already the privileged process.
+
+**What does not change.** The web tier still names a verb and an allowlisted
+token, and still never names a path. `import-leaf` is a sixth verb, not a
+reversal of the rule: the helper decides every destination, exactly as
+`import-root` does. In particular the PKCS#12 **passphrase is not an argument**.
+`_pkiRun()` builds a command line and `exec()`s it, so an argument is readable
+in `/proc` by every local user for the life of the call; the passphrase is
+staged as a second file under the same `reqid`, read with `openssl -passin
+file:`, and unlinked with it.
+
+**Three routes, because they suit different policies.** In the order the page
+offers them:
+
+| route | verbs | does a key transit PHP? |
+|---|---|---|
+| adopt what is in `PKI_custom_dir` | `adopt-custom-leaf` | no |
+| CSR out, certificate in | `make-leaf-csr`, `install-leaf-cert <reqid>` | no — the helper generates the key at `0400 root:root` |
+| upload a leaf bundle | `import-leaf <reqid>` | yes, for one request |
+
+`adopt-custom-leaf` takes **no argument at all**: the directory comes from the
+helper's own `0600 root:root` config. A free-text "use the certificate at this
+path" field was the obvious alternative and is refused on the grounds already
+recorded below — the sibling directory GH-1681 blessed is what makes a
+fixed-location action possible instead. `make-leaf-csr` follows
+`packages/web/service/nodecert.php`, which has signed storage-node CSRs without
+moving a key since before this page existed.
+
+**Accept the artifacts administrators actually hold.** A fullchain PEM — leaf,
+intermediates, sometimes the root — or a bare leaf with a separate
+`web-leaf-chain.pem`, or a PKCS#12 container. All are split by the helper and
+classified by property, never by position: the certificate whose public key
+matches the private key is the leaf, and the remaining non-self-signed ones are
+the chain. Position cannot be trusted, and `_writeWebChainFiles()` and
+`_rootFromChain()` already say why — FOG's own writers disagree, with
+`createWebIntermediateCA()` writing issuer-first and `validateExternalCA()`
+writing the root first.
+
+**The leaf slot receives exactly one certificate.** A fullchain input is split
+before anything is written, never stored whole. GH-863 is what this rule is made
+of: once `PKI_web_vhost_cert` named the assembled bundle, every run appended one
+more copy of the intermediate — fourteen certificates on a live server — and
+iPXE validates pairwise from the trusted root upwards, so copy 2 was checked
+against copy 1 as its issuer and every HTTPS netboot died at `boot.php` with
+nothing server-side saying why. Browsers tolerated it. This is the highest-risk
+regression in the feature, and it is pinned by test.
+
+**New checked properties**, the analogue of `import-root` keeping only
+self-signed certificates:
+
+- The leaf must **not** be a CA. Refusing `CA:TRUE` is what makes "no CA private
+  key reaches this channel" a checked property rather than a promise.
+- The certificate and key must be a genuine pair, by `_certKeyPairMatches()`'s
+  subject-public-key comparison — not an RSA modulus, which cannot read an EC
+  key at all (GH-1393).
+- The leaf must be in date, and a path must **build**: `openssl verify -trusted
+  <anchor set> -untrusted <supplied chain>`. Adopting a leaf whose chain does
+  not build trades a working server for a broken one, because FOG's own HTTPS
+  self-calls stop verifying — which is what `tests/selfcall-verification.test.sh`
+  exists to catch. The refusal names the issuer that is missing.
+  `docs/PKI_ZONES.md` documents the one escape hatch, for split-horizon and
+  pinned deployments; it is not a checkbox on the page.
+
+**A root inside an uploaded bundle is reported, never anchored.** The page says
+which issuer the leaf chains to and that this server does not trust it yet, and
+offers a separate import that runs the existing `import-root` path. Anchoring
+changes what the whole host accepts, so it stays a decision somebody makes
+knowingly — the reasoning that already keeps `import-root` self-signed-only.
+
+This obliges the new verbs to **strip self-signed certificates out of whatever
+they write to `PKI_web_trust_chain`**, and the reason is not tidiness.
+`_resolveTrustAnchor()` anchors `_rootFromChain("${PKI_web_trust_chain}")`, so a
+root left in the chain file is anchored on the next rebuild and the explicit
+import becomes theatre. Note the asymmetry, before anyone simplifies the strip
+away: the *served* chain is already safe, because `_writeWebChainFiles()` filters
+self-signed out when it assembles — "a self-signed certificate in here is the
+root, and it is the one thing that must not be sent". It is the anchor path that
+needs the strip.
+
+**Certificate material takes effect at once; flags still wait for the
+installer.** This narrows the Consequence below that says the preferences "take
+effect on the next installer run and not before". That reasoning is right for a
+flag the installer reads back and wrong for a certificate: a button labeled
+"use this certificate" that does not change what the server serves is a button
+that does not work. So the certificate verbs relink `PKI_web_vhost_cert` and
+`PKI_web_vhost_key` and reload the web server. The vhost needs no rewrite — it
+already names the canonical paths — so relink plus reload is the whole of it.
+The preferences are unchanged.
+
+**`set-preference`'s allowlist becomes per-key, and this reverses a rejected
+alternative.** The value pattern was one `^(yes|no)$` for all three keys.
+`BOOT_url_proto` is `http` or `https`, so the domain becomes per-key —
+`^(http|https)$` for that one. Still a value drawn from a fixed set, so the rule
+holds; it is the implementation that generalizes.
+
+The reversal is the substantive part, and is stated plainly rather than left to
+be discovered. "`BOOT_url_proto_forced` in the allowlist" is rejected below,
+because "forcing netboot to HTTPS with neither steering key set … breaks PXE for
+machines that cannot fix themselves. Not a thing a misclick should reach."
+Adding `BOOT_url_proto` achieves what that entry would have, and this ADR should
+not pretend otherwise: `_resolveInstallMode()` sets `BOOT_url_proto_forced=yes`
+whenever an explicit value is supplied, so writing the protocol **is** forcing
+it.
+
+What answers the original objection is the two conditions it named, both now
+met. The switch is never offered alone — `BOOT_url_proto`,
+`BOOT_rebuild_ipxe_with_my_ca` and `PKI_web_cert_publicly_trusted` are presented
+as **one decision**, because "can iPXE validate what this server serves" is one
+question and three keys are how it is answered. And it is not a misclick: the
+page states that a leaf iPXE cannot verify means every netboot dies at
+`boot.php`; that under `BOOT_url_proto=https` ADR 0018 makes `FOG_WEB_HOST` a
+record rather than a control, rewritten on every run; and that the install
+**stops** if the served certificate carries no usable name, since
+`--extra-server-name` feeds only FOG's own SAN list and cannot rescue a leaf
+issued outside FOG. The gate is still `system.pki`, deny by default.
+
+**The redirect and netboot transport are two settings, and the page must stop
+implying otherwise.** `WEB_https_redirect` already excludes netboot, and does it
+conditionally: when `BOOT_url_proto != https` the vhost skips the redirect for
+`service/ipxe/`, `service/secureboot/` and `service/uboot/` — the three paths a
+bootloader fetches for itself, the last being U-Boot's HTTP-only `wget`, which
+cannot follow a redirect at all. `management/other/ca.cert.der` is exempt
+**unconditionally**, whatever the netboot transport, because redirecting it would
+make fetching the CA require already trusting the CA. Everything else FOS
+fetches uses `curl -Lks` and so survives a redirect, which is load-bearing and
+recorded nowhere else: a FOS fetch that ever drops `-k` has to be added to the
+exclusion too.
+
+Two obligations follow. The behavior is **pinned by test against the generated
+config for both engines**, because `docs/PKI_ZONES.md` lists the nginx branch of
+this exclusion among the things that have never executed. And the page states
+that the redirect is **not fully reversible**: it also emits
+`Strict-Transport-Security max-age=15768000`, which is the redirect's semantics
+with a memory — a browser that has seen it refuses plain HTTP to this host for
+six months out of its own cache, so turning the switch off does nothing for
+anyone who has already visited.
+
+**The helper still duplicates rather than shares.** `_certKeyPairMatches()`,
+`_customPkiPair()`, `_splitPemBundle()`, `_rootFromChain()` and `_linkCanonical()`
+are ported into `fog-pki-admin`, not called. An installed server has `bin/` but
+no `lib/`, so there is nothing to share — the same reason the helper already
+carries its own copy of `_splitPemBundle()` and the anchor rebuild, and the same
+obligation: the tests pin both copies against one behavior.
+`_detectExternalCertManagement()` is **not** ported. Signal 0 is as portable as
+`_customPkiPair()`, but signals 1 through 3 need `$etcconf` — the live,
+OS-specific vhost path — along with `$fogprogramdir` and `$PKI_client_cert_dir`,
+and a helper that reconstructed those would be answering a question it cannot
+see the inputs to.
+
 ## Context
 
 `FOGConfigurationPage::certificates()` was read-only. Everything an
@@ -151,5 +333,8 @@ machines that cannot fix themselves. Not a thing a misclick should reach.
   `acmeLeaf` is derived rather than stored
 - [ADR 0015](0015-install-settings-are-independent-keys.md) — the three
   preferences are independent keys
+- Issue: FOGProject/fogproject#1685 — the 2026-09-02 amendment; FOGProject/fogproject#1681 blessed the directory it adopts from
+- [ADR 0040](0040-certificates-you-bring-live-in-a-customizations-tree.md) — the customizations tree the leaf is adopted out of
+- [ADR 0018](0018-netboot-addresses-this-server-by-its-certificate-name.md) — why `BOOT_url_proto=https` makes `FOG_WEB_HOST` a record
 - `docs/PKI_ZONES.md` — the zones the slots name
 - `docs/FOGSETTINGS.md` — the reader table this helper is now the second entry in

@@ -618,4 +618,7 @@ Canonical labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-hu
 
 ### Domain docs
 
-Single-context: `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Single-context: `CONTEXT.md` and `docs/adr/` at the repo root.
+`CONTEXT.md` is the glossary and nothing else -- no implementation detail, no
+decisions. A decision that is hard to reverse, surprising without context, and
+the result of a real trade-off gets an ADR instead.

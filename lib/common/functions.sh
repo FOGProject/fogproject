@@ -534,7 +534,7 @@ backupPreservedCustomizations() {
     # So: back up (live directory) minus (what the source tree ships). No
     # guessing, and a fully custom name is covered however it got there.
     [[ -z ${BOOT_kernel_backups_kept} || ! ${BOOT_kernel_backups_kept} =~ ^[0-9]+$ || ${BOOT_kernel_backups_kept} -lt 1 ]] && BOOT_kernel_backups_kept=3
-    local kbdir="${customizationsDir}/kernel-backups" k kf bn n
+    local kbdir="${customizationsDir}/kernel-backups" k kf bn n same
     local shippeddir="${webdirsrc%/}/service/ipxe"
     if [[ -d $ipxedir ]]; then
         mkdir -p "$kbdir" >>$error_log 2>&1 || warn=1
@@ -550,6 +550,40 @@ backupPreservedCustomizations() {
             [[ $n =~ ^[0-9]+$ ]] || continue
             [[ $n -ge ${BOOT_kernel_backups_kept} ]] && rm -rf "$k" >>$error_log 2>&1
         done
+        # Does gen-1 already hold exactly this capture set, byte for byte?
+        #
+        # The rotation used to run on every install unconditionally, and not
+        # every FOG release ships a new FOS kernel -- so three upgrades
+        # carrying one kernel left gen-1, gen-2 and gen-3 holding three
+        # identical copies, and "keep 3" meant one real version. The depth an
+        # admin asked for silently evaporated, and restorekernel.sh --list
+        # offered three snapshots that were the same snapshot.
+        #
+        # Compared by CONTENT and in BOTH directions. A file the admin added
+        # since the last install is a change; so is one they deleted, which a
+        # subset test would call unchanged. Same filters as the copy loop
+        # below, so the two cannot disagree about what a generation holds.
+        same=1
+        if [[ -d "${kbdir}/gen-1" ]]; then
+            for kf in "${ipxedir}"/*; do
+                [[ -f $kf ]] || continue
+                bn=$(basename "$kf")
+                [[ -e "${shippeddir}/${bn}" ]] && continue
+                case $bn in
+                    bzImage.*|bzImage32.*|arm_Image.*|init.xz.*|init_32.xz.*|arm_init.cpio.gz.*) continue ;;
+                esac
+                cmp -s "$kf" "${kbdir}/gen-1/${bn}" || { same=0; break; }
+            done
+            if [[ $same -eq 1 ]]; then
+                for kf in "${kbdir}/gen-1"/*; do
+                    [[ -f $kf ]] || continue
+                    bn=$(basename "$kf")
+                    [[ -f "${ipxedir}/${bn}" ]] || { same=0; break; }
+                done
+            fi
+        else
+            same=0
+        fi
         # GH-1579: rotate on BOOT_kernel_backups_kept, not on the retired
         # pre-GH-1120 spelling kernelBackupGenerations. That name now survives
         # only as a migration source (see migrateDeprecatedKeys) and in the
@@ -559,9 +593,15 @@ backupPreservedCustomizations() {
         # onward were never created, which silently made
         # --kernel-backup-count a no-op and restorekernel.sh --generation N
         # unusable for any N above 1.
-        for ((k = BOOT_kernel_backups_kept - 1; k >= 1; k--)); do
-            [[ -d "${kbdir}/gen-${k}" ]] && mv "${kbdir}/gen-${k}" "${kbdir}/gen-$((k + 1))" >>$error_log 2>&1
-        done
+        #
+        # Skipped entirely when nothing changed: rotating identical content
+        # spends a generation to record that an upgrade happened, and the
+        # generations are for kernels, not for installer runs.
+        if [[ $same -eq 0 ]]; then
+            for ((k = BOOT_kernel_backups_kept - 1; k >= 1; k--)); do
+                [[ -d "${kbdir}/gen-${k}" ]] && mv "${kbdir}/gen-${k}" "${kbdir}/gen-$((k + 1))" >>$error_log 2>&1
+            done
+        fi
         mkdir -p "${kbdir}/gen-1" >>$error_log 2>&1 || warn=1
         # cp -a preserves the version/tag_name xattrs downloadfiles() stamps on
         # each kernel, so every generation says which FOS release it came from
@@ -683,6 +723,35 @@ restorePreservedCustomizations() {
             # this kernel; a sibling would just be a duplicate.
             cmp -s "${kbdir}/gen-1/${bn}" "${ipxedir}/${bn}" && continue
             [[ -e "${ipxedir}/${bn}.${tag}" ]] || cp -a "${kbdir}/gen-1/${bn}" "${ipxedir}/${bn}.${tag}" >>$error_log 2>&1
+        done
+    fi
+    # Files the admin marked to be kept, put back if the fresh tree has none
+    # of that name.
+    #
+    # The web root is deleted and rebuilt on every install, and a per-release
+    # sibling is deliberately NOT part of a generation -- it is already a copy
+    # of a kernel, and snapshotting it would multiply the same bytes by the
+    # generation count. So nothing else brings one back, and "keep this
+    # kernel" would have survived exactly until the next upgrade.
+    #
+    # The six default names are excluded, the same way the generation restore
+    # above excludes them: picking up the new kernel is the point of an
+    # update. Keeping bzImage ITSELF is therefore close to meaningless -- keep
+    # the sibling or a custom name, which is what the tab steers toward.
+    #
+    # ORDER DEPENDENCY, and it fails silently if broken: the directory is
+    # created by _ensureCustomizationsTree(), which runs inside
+    # configureHttpd() -- installfog.sh calls that BEFORE this function
+    # (backup, then configureHttpd, then restore). Moving either past the
+    # other leaves this reading a directory that does not exist yet, which
+    # the -d guard turns into "nothing was kept" rather than an error, and
+    # the admin's kernel is gone with the record still saying it was kept.
+    if [[ -d "${kbdir}/keep" ]]; then
+        for f in "${kbdir}/keep"/*; do
+            [[ -f $f ]] || continue
+            bn=$(basename "$f")
+            [[ $defaultnames == *" $bn "* ]] && continue
+            [[ -e "${ipxedir}/${bn}" ]] || cp -a "$f" "${ipxedir}/${bn}" >>$error_log 2>&1 || st=1
         done
     fi
     [[ -d $ipxedir ]] && chown -R ${SVC_user}:${apacheuser} "$ipxedir" >>$error_log 2>&1
@@ -5785,9 +5854,10 @@ _installPkiAdminHelper() {
         # filesystem could disagree; deriving it in two places from the same
         # test keeps that property.
         echo "PKI_WEB_ZONE_DIR=${webdir}"
-        # The canonical home for a root imported from the page. Not the
-        # admin's own path: --ca-root persists the SOURCE, which is routinely
-        # a temp file that is gone by the next run.
+        # The canonical home for an imported root, whichever route it came
+        # in by -- the page's import-root writes here, and since GH-1683 so
+        # does --ca-root, which used to record its own source path and so
+        # named a temp file that was gone by the next run.
         echo "PKI_EXTERNAL_ROOT=${webdir}/ca/.externalRoot.pem"
         echo "PKI_CLIENT_CERT=${PKI_client_encrypt_cert}"
         if [[ -f $sbca ]]; then
@@ -6105,9 +6175,12 @@ _resolveTrustAnchor() {
     #
     # Additive and idempotent everywhere else: on a full --external-ca install
     # this certificate is already in the chain above, so the fingerprint check
-    # collapses it. The -f guard matters -- validateExternalCA persists the
-    # admin's SOURCE path, which is routinely a temp file that is gone by the
-    # next run.
+    # collapses it. The -f guard is belt and braces now rather than
+    # load-bearing: validateExternalCA used to persist the admin's SOURCE
+    # path, routinely a temp file gone by the next run, so this silently
+    # anchored nothing on most external-CA servers (GH-1683). Both import
+    # routes now record the canonical copy, and the guard stays only for a
+    # file an admin has since deleted by hand.
     if [[ -n ${PKI_web_external_root_cert} && -f ${PKI_web_external_root_cert} ]]; then
         local tmpd extroot
         tmpd=$(mktemp -d 2>>$error_log)
@@ -6710,11 +6783,45 @@ _hardenPkiPermissions() {
     # going through the compat link would work by accident -- but it silently
     # does nothing at all on the run before the link exists, and names the wrong
     # thing in the error log when it fails.
+    #
+    # This now retargets an admin's own file when --client-cert/--client-key
+    # relocated the keypair, and that is deliberate rather than incidental.
+    # certDecrypt() opens this key on every fog-client authorize(), so it HAS to
+    # be readable by the web user; the web leaf's key is exempted from hardening
+    # because an ACME client owns and rewrites it, and nothing owns this one.
     if [[ -f ${PKI_client_encrypt_key} ]]; then
         chown root:${apacheuser} "${PKI_client_encrypt_key}" >>$error_log 2>&1
         chmod 0640 "${PKI_client_encrypt_key}" >>$error_log 2>&1
     fi
     errorStat $?
+    # A chown on the file cannot fix an unreadable PARENT, so a relocated key
+    # under, say, /root/ still leaves every client failing to authenticate with
+    # "Private key not readable" as the only clue -- per client, and naming
+    # nothing. Ask the question the web tier will ask, as the user it will ask
+    # it as, and say so here where somebody is watching.
+    #
+    # runuser then su, the same fallback _keaValidate() uses, and NOT sudo: sudo
+    # needs a sudoers rule for root -> ${apacheuser} that a hardened box may not
+    # have, and a warning that fires because the TEST could not run is worse
+    # than no warning at all. When neither tool is present the check is skipped
+    # rather than guessed.
+    if [[ -f ${PKI_client_encrypt_key} ]]; then
+        commReadable=""
+        if command -v runuser >/dev/null 2>&1; then
+            runuser -u "${apacheuser}" -- test -r "${PKI_client_encrypt_key}" \
+                >>$error_log 2>&1 && commReadable=yes || commReadable=no
+        elif command -v su >/dev/null 2>&1; then
+            su -s /bin/sh -c "test -r '${PKI_client_encrypt_key}'" "${apacheuser}" \
+                >>$error_log 2>&1 && commReadable=yes || commReadable=no
+        fi
+        if [[ $commReadable == no ]]; then
+            echo " * The web server cannot read the client communication key:"
+            echo "     ${PKI_client_encrypt_key}"
+            echo "   Every fog-client will fail to authenticate until it can."
+            echo "   Check that ${apacheuser} can traverse each parent directory."
+        fi
+        unset commReadable
+    fi
     # configureSnapins now prunes ${PKI_client_cert_dir}, so its recursive relabel no longer
     # reaches here either. Re-assert it, or SELinux denies the web tier the
     # read the mode above just granted.
@@ -7121,8 +7228,30 @@ writeUpdateFile() {
         # copy of the default, and so an install that predates the move keeps
         # working off its recorded (empty -> compat symlink) value.
         PKI_root_dir="$(_pkiRootDir)"
-        PKI_client_encrypt_key="$(_pkiZoneDir client)/leaf/.srvprivate.key"
-        PKI_client_encrypt_cert="$(_pkiZoneDir client)/leaf/.srvpublic.crt"
+        # Idempotent, and it PRESERVES a relocated value rather than
+        # overwriting it: _customPkiDir() echoes $PKI_custom_dir when that is
+        # already set, and only falls back to the default when it is not.
+        PKI_custom_dir="$(_customPkiDir)"
+        # Through _clientLeafTarget(), NOT straight to the zone path, for the
+        # same reason as the two above: --client-cert/--client-key name the
+        # admin's own comm keypair, and assigning the zone path here recorded
+        # FOG's file over theirs. The next run sourced that, and the relocation
+        # was gone with nothing reported -- while installfog.sh's own flag
+        # gating already assumes these keys persist across runs, which is the
+        # promise this restores rather than a new one.
+        #
+        # Safe to call from here: _clientLeafTarget is pure -- readlink -f and
+        # nothing else, no mkdir and no writes -- and it already answers the
+        # zone path for an unset record, for the zone path itself, for the
+        # historic canonical name, and for a recorded path that no longer
+        # exists. Same three arguments _resolveClientLeafPaths passes, so the
+        # two cannot disagree about what counts as FOG's own file.
+        PKI_client_encrypt_key="$(_clientLeafTarget "${PKI_client_encrypt_key}" \
+            "$(_pkiZoneDir client)/leaf/.srvprivate.key" \
+            "${PKI_client_cert_dir}/.srvprivate.key")"
+        PKI_client_encrypt_cert="$(_clientLeafTarget "${PKI_client_encrypt_cert}" \
+            "$(_pkiZoneDir client)/leaf/.srvpublic.crt" \
+            "${PKI_client_cert_dir}/.srvpublic.crt")"
     fi
 
     # Managed keys, in the canonical order a freshly written file uses. This one
@@ -7339,6 +7468,14 @@ writeUpdateFile() {
         # material live. NOT where FOG's CAs live any more, which is the whole
         # reason the old name (sslpath) had to go.
         PKI_client_cert_dir
+        # Where the admin drops certificates and keys they brought themselves:
+        # /etc/fog/customizations/pki, a SIBLING of PKI_root_dir rather than a
+        # directory inside it. That is load-bearing -- _externallyManagedLeaf()
+        # answers "the admin manages this leaf" for anything resolving outside
+        # the web zone, so a sibling needs no flag and nothing that can go
+        # stale. Relocatable, like PKI_root_dir, so the shell tests can point it
+        # at a scratch directory.
+        PKI_custom_dir
         # --- canonical paths (records) ---
         #
         # The trust anchor: what ca.cert.der publishes and what fog-client pins.
@@ -7482,10 +7619,26 @@ writeUpdateFile() {
             PKI_sb_enabled)           printf '\n## PKI -- certificate authorities and trust\n' ;;
             PKI_root_ca_cert)
                 printf '\n## Derived -- do not edit\n'
-                printf '## Canonical certificate paths. The installer recomputes these every\n'
-                printf '## run, so editing a path here moves nothing. To use a certificate FOG\n'
-                printf '## did not issue, leave the path alone and make it resolve to your file\n'
-                printf '## (a symlink is enough) -- FOG then reads the target and leaves it be.\n'
+                printf '## Canonical certificate paths. The installer recomputes most of these\n'
+                printf '## every run, so editing one here moves nothing.\n'
+                printf '##\n'
+                printf '## The exceptions are PKI_web_vhost_cert, PKI_web_vhost_key,\n'
+                printf '## PKI_web_trust_chain, PKI_client_encrypt_cert and\n'
+                printf '## PKI_client_encrypt_key. To serve or use a certificate FOG did not\n'
+                printf '## issue you may either leave those alone and make each path resolve to\n'
+                printf '## your file (a symlink is enough), or set them to where your files\n'
+                printf '## really are -- the installer only resets one of them while it still\n'
+                printf '## holds a default of its own. Either way FOG stops re-issuing it.\n'
+                printf '##\n'
+                printf '## The two client_encrypt keys are the fog-client communication keypair,\n'
+                printf '## normally set with --client-cert/--client-key. Relocating them is a\n'
+                printf '## re-pin event if the material differs: the installer says so, and the\n'
+                printf '## key must stay readable by the web server or no client can\n'
+                printf '## authenticate.\n'
+                printf '##\n'
+                printf '## Simplest of all: drop web-leaf.pem and web-leaf.key into\n'
+                printf '## PKI_custom_dir above and re-run the installer, which finds the pair\n'
+                printf '## and points these at it for you.\n'
                 ;;
         esac
     }
@@ -7786,6 +7939,12 @@ validateExternalCA() {
     cp "$keysrc" "$destdir/$destkey" >>$error_log 2>&1
     cat "$rootsrc" "$certsrc" > "$destdir/$destchain" 2>>$error_log
     chmod 600 "$destdir/$destkey" >>$error_log 2>&1
+    # The root as well, under the name the Certificates page's helper already
+    # publishes as PKI_EXTERNAL_ROOT. Copied here rather than merely referenced
+    # for the same reason as the three above -- and see the persisted slot below
+    # for what recording the source path instead used to cost.
+    cp "$rootsrc" "$destdir/.externalRoot.pem" >>$error_log 2>&1
+    chmod 0644 "$destdir/.externalRoot.pem" >>$error_log 2>&1
     # ${PKI_web_ca_key}/${PKI_web_ca_cert}/${PKI_web_trust_chain} name the CA that signs the vhost leaf --
     # which is what an external CA replaces, and all it replaces. The root that
     # fog-client pins is ${PKI_root_ca_cert} and is not touched here.
@@ -7797,7 +7956,16 @@ validateExternalCA() {
     # and _resolveTrustAnchor() reads it back out from here -- conflating it
     # with the root fog-client pins is exactly the mistake the three-zone split
     # exists to prevent.
-    PKI_web_external_root_cert="$rootsrc"
+    #
+    # The CANONICAL copy, not $rootsrc. --ca-root is routinely handed a temp
+    # file, so recording the source left this key naming something that no
+    # longer existed by the next run: _resolveTrustAnchor()'s -f guard then made
+    # the miss silent, and GH-1121's fix -- reading this key so an import is not
+    # undone by the next installer run -- held only for roots imported through
+    # the Certificates page. fog-pki-admin's setPreferencePath() has always
+    # recorded the canonical path; this is the CLI half catching up, and it puts
+    # both import routes on one file.
+    PKI_web_external_root_cert="$destdir/.externalRoot.pem"
     errorStat $?
     # iPXE's verifier is narrower than openssl's, and THIS certificate is the
     # one it gets: _resolveIpxeTrust() sets ${ipxetrust} to ${PKI_web_ca_cert},
@@ -8041,6 +8209,201 @@ _migratePkiTree() {
     # rather than ship a tree whose labels change under them later.
     command -v restorecon >/dev/null 2>&1 && restorecon -RF "$target" >>$error_log 2>&1
     return 0
+}
+# Where an administrator drops material they brought themselves.
+#
+# /etc/fog/customizations is the /etc counterpart of the existing
+# $fogprogramdir/customizations, and the two run in OPPOSITE directions. FOG
+# writes $fogprogramdir/customizations: it copies the admin's files there before
+# a run rebuilds the tree they lived in, and restores from it afterward. Nothing
+# but the admin writes /etc/fog/customizations -- it is an input, and FOG only
+# reads it.
+#
+# The split by root is the same one ADR 0037 made for FOG's own PKI. /etc is for
+# small, secret, irreplaceable configuration that a backup policy and a
+# config-management run are meant to capture; /opt/<pkg> is for a package's own
+# static files, and the FHS does not allow binaries under /etc -- which is what
+# keeps kernels and iPXE backgrounds on the /opt side.
+#
+# The PKI subdirectory is a SIBLING of $(_pkiRootDir), never a subdirectory of
+# it, and that is the entire mechanism rather than a tidiness preference:
+# _externallyManagedLeaf() decides "is this leaf FOG's or the admin's" by asking
+# whether the canonical path resolves inside the web zone. A sibling answers
+# "the admin's" with no new state to record and nothing that can go stale.
+_customPkiDir() {
+    local root="${PKI_custom_dir:-}"
+    # Derived from _pkiRootDir() rather than hardcoded to /etc/fog, so that
+    # relocating the PKI tree relocates this alongside it. On a default install
+    # that is /etc/fog/pki -> /etc/fog -> /etc/fog/customizations/pki, which is
+    # the documented path. It also keeps the shell tests off the host: they
+    # already point PKI_root_dir at a scratch directory, and without this a run
+    # that reached _ensureCustomizationsTree would mkdir the real
+    # /etc/fog/customizations on whatever box the suite ran on.
+    [[ -n $root ]] || root="$(dirname "$(_pkiRootDir)")/customizations/pki"
+    echo "${root%/}"
+}
+# The two readme files, and the directories that hold them.
+#
+# Idempotent, and it does NOT overwrite a readme an admin has edited: the file is
+# written only when absent. A run that rewrote it would be a run that discards
+# the note somebody left for the next person, which is the opposite of what a
+# directory for the admin's own files should do.
+#
+# Both readmes are written, not just the /etc one, because the pair only makes
+# sense read together -- "why are there two of these" is the question the files
+# exist to answer, and a server upgraded from before this change has the /opt
+# directory already and would otherwise get no explanation at all.
+_ensureCustomizationsTree() {
+    local etcdir customdir optdir
+    # Derived from _customPkiDir() rather than hardcoded, so that setting
+    # PKI_custom_dir relocates BOTH the pki directory and its parent. The shell
+    # tests depend on that: a hardcoded /etc/fog/customizations here would have
+    # every test run mkdir into the real host filesystem.
+    etcdir="$(dirname "$(_customPkiDir)")"
+    customdir="$(_customPkiDir)"
+    _resolveCustomizationsDir
+    optdir="$customizationsDir"
+    # 0755: the web tier traverses neither of these, but an admin reads them, and
+    # the PKI subdirectory below tightens to 0700 on its own.
+    mkdir -p "$etcdir" "$customdir" >>$error_log 2>&1 || return 1
+    chmod 0755 "$etcdir" >>$error_log 2>&1
+    # A private key lands here, so the directory is no more open than the web
+    # zone's own leaf/ directory is.
+    chmod 0700 "$customdir" >>$error_log 2>&1
+    [[ -n $optdir ]] && mkdir -p "$optdir" >>$error_log 2>&1
+    # kernel-backups/keep is the one directory under here the WEB TIER writes.
+    # Marking a boot file to be kept copies it in from service/ipxe, and the
+    # copy is the record: the pruner tests for its existence with no manifest
+    # to read and nothing to drift.
+    #
+    # No sudo helper and no privileged path. The alternative was to follow
+    # packages/secureboot/fog-sign-kernel, but that helper's whole security
+    # property is taking NO arguments -- every path it touches comes from a
+    # root-owned config -- and a helper taking a filename would give that up.
+    # It buys nothing either way: kernelfetch() already writes arbitrary files
+    # into service/ipxe over SSH with the TFTP credentials, so "the web tier
+    # can place a boot file" is a capability it already has.
+    #
+    # 2775 with the group setgid, so a file the web user copies in stays
+    # group-readable to the installer that later restores it.
+    if [[ -n $optdir ]]; then
+        mkdir -p "$optdir/kernel-backups/keep" >>$error_log 2>&1
+        chown "${SVC_user}:${apacheuser}" "$optdir/kernel-backups/keep" >>$error_log 2>&1
+        chmod 2775 "$optdir/kernel-backups/keep" >>$error_log 2>&1
+    fi
+    if [[ ! -f "$etcdir/readme.txt" ]]; then
+        cat > "$etcdir/readme.txt" <<'ETCREADME'
+This directory is for configuration you supply yourself.
+
+FOG only READS what is here. Nothing in an install or an update writes or
+removes your files, so anything you put here survives every run.
+
+  pki/    certificates and private keys you brought -- from your own CA, from
+          Let's Encrypt or another ACME client, or purchased. FOG treats a
+          certificate here as yours: it will not re-issue it, re-key it, or
+          change the permissions on its private key.
+
+          To use one, make FOG's canonical path resolve to your file, or record
+          your path in the matching PKI_ key in .fogsettings. Either works.
+          See https://docs.fogproject.org/lets-encrypt-setup for a worked
+          example.
+
+There is a second customizations directory, and it is not this one:
+
+  /opt/fog/customizations   written BY FOG, not by you. It holds copies FOG
+                            makes of your files before a run rebuilds the tree
+                            they lived in -- the iPXE boot menu background,
+                            replaced iPXE binaries, previous kernel
+                            generations -- and FOG restores from it afterward.
+
+Why two: keys and certificates are small, secret and irreplaceable, so they
+belong under /etc, which is what a backup policy and a config-management run
+already capture. Kernels and boot images are large, rebuildable binaries, and
+the filesystem standard does not put binaries under /etc. FOG's own PKI moved
+to /etc/fog/pki for the same reason.
+
+Note that pki/ here sits BESIDE /etc/fog/pki, not inside it. That is what makes
+FOG treat what you put here as yours: anything under /etc/fog/pki is read as a
+certificate FOG issued and manages, and would be regenerated over.
+ETCREADME
+        chmod 0644 "$etcdir/readme.txt" >>$error_log 2>&1
+    fi
+    if [[ -n $optdir && ! -f "$optdir/readme.txt" ]]; then
+        cat > "$optdir/readme.txt" <<'OPTREADME'
+This directory is written BY FOG. You do not need to put anything here.
+
+Before a run rebuilds a tree that might hold something of yours, FOG copies
+what it finds into here, and restores it afterward:
+
+  ipxe-bg/          the iPXE boot menu background image
+  ipxe-legacy/      iPXE binaries you replaced in the TFTP tree
+  kernel-backups/   previous kernel and init generations, newest kept first.
+                    bin/restorekernel.sh restores from these.
+
+If a restore ever fails, your files are still here -- nothing is deleted on the
+way through.
+
+There is a second customizations directory, and it works the other way round:
+
+  /etc/fog/customizations   written by YOU, only read by FOG. That is where
+                            certificates and private keys you supply go, under
+                            pki/.
+
+Why two: keys and certificates are small, secret and irreplaceable, so they
+belong under /etc, which is what a backup policy already captures. Kernels and
+boot images are large, rebuildable binaries, and the filesystem standard does
+not put binaries under /etc.
+OPTREADME
+        chmod 0644 "$optdir/readme.txt" >>$error_log 2>&1
+    fi
+    # cp/cat inherit this process's context, and /etc/fog/customizations should
+    # carry etc_t the way /etc/fog/pki does -- see _migratePkiTree() for why this
+    # is done now rather than left for whoever next runs a relabel.
+    command -v restorecon >/dev/null 2>&1 && restorecon -RF "$etcdir" >>$error_log 2>&1
+    return 0
+}
+# Whether $1 (a certificate) and $2 (a private key) are actually a pair.
+#
+# Compares the SUBJECT PUBLIC KEY, not an RSA modulus. `openssl rsa -modulus`
+# cannot read an EC or Ed25519 key at all, so a modulus comparison reports "does
+# not match" for a perfectly good pair and, worse, reports it identically to a
+# genuine mismatch -- GH-1393. `openssl x509 -pubkey` and `openssl pkey -pubout`
+# are algorithm-agnostic and answer the question actually being asked.
+#
+# Returns 1 when either file is missing or openssl cannot read one. That is the
+# safe direction here: every caller uses this to decide whether to ADOPT a pair,
+# and "I could not prove these match" must not adopt.
+_certKeyPairMatches() {
+    local cert="$1" key="$2" certpub keypub
+    [[ -n $cert && -f $cert && -n $key && -f $key ]] || return 1
+    command -v openssl >/dev/null 2>&1 || return 1
+    certpub=$(openssl x509 -pubkey -noout -in "$cert" 2>/dev/null)
+    keypub=$(openssl pkey -pubout -in "$key" 2>/dev/null)
+    [[ -n $certpub && -n $keypub && $certpub == "$keypub" ]]
+}
+# The admin-supplied web leaf pair, if there is a usable one.
+#
+# Echoes the certificate path and then the key path, one per line, and returns 0.
+# Returns 1 and echoes nothing when the pair is absent, incomplete or mismatched.
+#
+# Two documented names, not a glob. A glob would have to choose between several
+# candidates on its own -- and the run where it chooses wrong is a run that
+# points the vhost at the wrong certificate without saying so. An admin whose
+# files are named something else records the path in .fogsettings instead, which
+# is the explicit route and needs no guessing.
+#
+# ${PKI_web_trust_chain} is deliberately NOT part of the pair test. A leaf that
+# chains to a publicly-trusted root needs no chain file from us for the browser
+# to be happy, and createWebIntermediateCA() already honors an admin's chain
+# path on every run. Requiring one here would decline perfectly good setups.
+_customPkiPair() {
+    local dir cert key
+    dir="$(_customPkiDir)"
+    cert="${dir}/web-leaf.pem"
+    key="${dir}/web-leaf.key"
+    _certKeyPairMatches "$cert" "$key" || return 1
+    echo "$cert"
+    echo "$key"
 }
 # Single source of truth for the PKI layout, one directory per zone under
 # _pkiRootDir, each split by its callers into ca/ (the zone's own CA) and leaf/
@@ -9233,6 +9596,20 @@ _separateCommKey() {
     # _externallyManagedLeaf asks of the web leaf.
     zonedir=$(readlink -f "$(_pkiZoneDir client)" 2>/dev/null)
     [[ -n $zonedir && $target == "$zonedir"/* ]] && return 0
+    # And FOG's own compat link at the ADMIN's file is equally not something to
+    # separate -- it is what --client-cert/--client-key mean. The zone test
+    # above cannot see that case, because the whole point of a relocated comm
+    # keypair is that it lives outside the zone.
+    #
+    # Without this the relocation unwinds itself on the very next run: the link
+    # is dereferenced, the admin's key is copied back into $snapindir/ssl as a
+    # REAL file, and _resolveClientLeafPaths' migrate loop then moves that file
+    # into the zone -- so FOG quietly takes ownership of key material the admin
+    # asked it only to point at. The record surviving writeUpdateFile is what
+    # makes this test possible; the two halves are one fix.
+    [[ -n ${PKI_client_encrypt_key} \
+        && $target == "$(readlink -f "${PKI_client_encrypt_key}" 2>/dev/null)" ]] \
+        && return 0
     dots "Separating the client communication key from the web key"
     rm -f "$canon" >>$error_log 2>&1
     cp -f "$target" "$canon" >>$error_log 2>&1
@@ -9809,7 +10186,26 @@ _resolveVhostNames() {
 # nothing. Vhost drift is likewise only advisory: an admin may have edited the
 # vhost for reasons that have nothing to do with the certificate.
 _detectExternalCertManagement() {
-    local p leaf vhostcert
+    local p leaf vhostcert customdir
+    # 0. A leaf and its key dropped into the customizations tree, under the two
+    #    documented names. This is the only signal that fires when FOG is not
+    #    already pointed at the admin's file and the vhost does not name it
+    #    either -- i.e. the admin did the simplest possible thing, put the files
+    #    somewhere FOG told them to and re-ran the installer. Everything below
+    #    needs one of those two to have happened first.
+    #
+    #    BOTH files, and they must actually be a pair. Adopting a leaf whose key
+    #    is missing or mismatched points the vhost at a certificate the web
+    #    server cannot start with, which is a worse outcome than not adopting:
+    #    FOG's own leaf still works, so declining leaves a serving server.
+    #
+    #    The caller asks _customPkiPair() the same question again rather than
+    #    reading a variable set here, because this function is called in a
+    #    command substitution -- anything it assigns dies with the subshell.
+    if _customPkiPair >/dev/null; then
+        echo "$(_customPkiDir)/web-leaf.pem is a certificate you supplied, with a matching key"
+        return 0
+    fi
     # 1. FOG pointed at a file inside an ACME client's tree. The most direct
     #    evidence available -- somebody already told FOG to use their leaf.
     for p in "${PKI_web_vhost_key}" "${PKI_web_vhost_cert}"; do
@@ -9942,11 +10338,24 @@ createSSLCA() {
     # that used to do the damage silently, so the safe behavior has to be the
     # DEFAULT rather than an answer. Everything needed is already on disk: the
     # vhost names the files and the certificate names itself.
+    _ensureCustomizationsTree
     if ! _externallyManagedLeaf; then
-        local extReason="" extCert="" extKey=""
+        local extReason="" extCert="" extKey="" customPair=""
         if extReason=$(_detectExternalCertManagement); then
-            extCert=$(_vhostCertPath)
-            extKey=$(_vhostKeyPath)
+            # Signal 0 first, and it wins outright: a pair sitting in the
+            # customizations tree is the admin saying which certificate to use,
+            # and neither the vhost nor ${PKI_web_vhost_cert} can point at it yet
+            # -- that is what this run is for. Asked again here because the
+            # detector runs in a command substitution and cannot hand anything
+            # back except its reason string.
+            customPair=$(_customPkiPair) && {
+                extCert=$(echo "$customPair" | sed -n 1p)
+                extKey=$(echo "$customPair" | sed -n 2p)
+            }
+            if [[ -z $extCert ]]; then
+                extCert=$(_vhostCertPath)
+                extKey=$(_vhostKeyPath)
+            fi
             # Fall back to whatever FOG was already pointed at -- signal 1 of
             # the detector is exactly the case where those ARE the admin's
             # files and the vhost may not exist yet.

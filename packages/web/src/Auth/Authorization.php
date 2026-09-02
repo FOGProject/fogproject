@@ -209,7 +209,28 @@ class Authorization extends FOGBase
             // on the next installer run. "May change a setting" is not
             // self-evidently "may decide what this server trusts", and SIX
             // page nodes already map onto settings.edit (GH-1121).
-            'certificates' => ['GET' => 'settings.view', 'POST' => 'system.pki']
+            'certificates' => ['GET' => 'settings.view', 'POST' => 'system.pki'],
+            /**
+             * The Local files tab's actions. Viewing the tab is reading
+             * server configuration and stays on settings.view through
+             * _subToAction(); acting on a file is not, so each says so.
+             *
+             * Node-scoped, NOT in GLOBAL_SUB_OVERRIDES. The download subs
+             * are global only because the download JS requests them with no
+             * node at all and they dispatch under the exempt 'home' node --
+             * a shape worth not repeating, so these post with node=about and
+             * resolve here.
+             *
+             * Three subs rather than one endpoint taking an action
+             * parameter, for the reason the API token grid gives: separate
+             * subs CAN each carry their own permission later. Deleting a
+             * bootable kernel and pointing a default at one are not
+             * self-evidently the same power, even though both need
+             * settings.edit today.
+             */
+            'bootfilekeep' => 'settings.edit',
+            'bootfiledefault' => 'settings.edit',
+            'bootfiledelete' => 'settings.edit'
         ],
         'user' => [
             'userapitokenlist' => 'apitoken.view',

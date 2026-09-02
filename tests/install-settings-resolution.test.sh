@@ -318,6 +318,7 @@ modelKeys="
     FOG_packages FOG_program_dir FOG_send_reports FOG_update_channel
     NET_fog_server_ip NET_hostname NET_interface NET_subnet_mask
     PKI_allowed_domain_names PKI_client_cert_dir PKI_client_encrypt_cert PKI_client_encrypt_key
+    PKI_custom_dir
     PKI_internal_subnets PKI_root_ca_cert PKI_root_ca_key PKI_root_dir
     PKI_san_dns_names
     PKI_san_ip_addresses PKI_sb_ca_cert PKI_sb_codesign_cert PKI_sb_codesign_key

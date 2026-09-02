@@ -329,9 +329,12 @@ $t->check(
         $cfg
     )
 );
+// Counts every POST-only anchor on the page, not only this pane's three, so
+// it moves whenever FOG Configuration gains another one. Eight since the
+// Local files tab added bootfilekeep, bootfiledefault and bootfiledelete.
 $t->check(
     'every mutating anchor refuses the verb instead of doing the work',
-    5 === preg_match_all('/\$this->_postOnly\(\);/', $cfg)
+    8 === preg_match_all('/\$this->_postOnly\(\);/', $cfg)
 );
 $t->check(
     'refusing means 405, not a silent 200',

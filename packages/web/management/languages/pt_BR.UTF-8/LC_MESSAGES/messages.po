@@ -196,8 +196,20 @@ msgid "%s can only be run on one host at a time"
 msgstr ""
 
 #, php-format
+msgid "%s cannot be used as %s."
+msgstr ""
+
+#, php-format
 msgid "%s could not be loaded. Check that %s declares a class of that exact name."
 msgstr ""
+
+#, fuzzy, php-format
+msgid "%s could not be removed."
+msgstr "foi atualizado com sucesso"
+
+#, fuzzy, php-format
+msgid "%s deleted."
+msgstr "excluídos"
 
 #, php-format
 msgid "%s does not declare schema() migrations, so re-installing it would drop and recreate its tables. Uninstall it first if that is what you want."
@@ -212,8 +224,20 @@ msgid "%s images"
 msgstr "imagens"
 
 #, php-format
+msgid "%s is in use as %s. Point that at another file first."
+msgstr ""
+
+#, php-format
 msgid "%s is maintained by the server and cannot be set"
 msgstr ""
+
+#, php-format
+msgid "%s is marked to be kept. Stop keeping it first."
+msgstr ""
+
+#, fuzzy, php-format
+msgid "%s is no longer kept."
+msgstr " não existe mais"
 
 #, php-format
 msgid "%s is not a readable .tar.gz archive."
@@ -229,6 +253,10 @@ msgstr ""
 
 #, php-format
 msgid "%s is not writable by the web server. Run \"bin/fog-plugin-uploads.sh enable\" as root."
+msgstr ""
+
+#, php-format
+msgid "%s is now %s."
 msgstr ""
 
 #, php-format
@@ -257,6 +285,10 @@ msgstr ""
 
 #, php-format
 msgid "%s viewed your account on %s."
+msgstr ""
+
+#, php-format
+msgid "%s will be kept."
 msgstr ""
 
 msgid "(all)"
@@ -1267,6 +1299,10 @@ msgstr "Padrão log out tempo (em minutos)"
 msgid "Automatic enrollment (Setup/Custom Mode)"
 msgstr ""
 
+#, fuzzy
+msgid "Available downloads"
+msgstr "Nenhum arquivo foi transferido"
+
 msgid "BIOS Date"
 msgstr "data do BIOS"
 
@@ -1313,8 +1349,27 @@ msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passre
 msgstr ""
 
 #, fuzzy
+msgid "Boot File Deleted"
+msgstr "Falha ao excluir arquivo"
+
+#, fuzzy
+msgid "Boot File Failed"
+msgstr "Opções de inicialização:"
+
+#, fuzzy
+msgid "Boot File Updated"
+msgstr "Serviço Atualizado!"
+
+#, fuzzy
+msgid "Boot Files"
+msgstr "Opções de inicialização:"
+
+#, fuzzy
 msgid "Boot Options"
 msgstr "Opções de inicialização:"
+
+msgid "Boot Payload"
+msgstr ""
 
 msgid "Boot files from"
 msgstr ""
@@ -1367,10 +1422,6 @@ msgstr ""
 #, fuzzy
 msgid "Building the blobs failed."
 msgstr "Carga falhou: %s"
-
-#, fuzzy
-msgid "Buildroot Version"
-msgstr "Versão CPU"
 
 #, php-format
 msgid "Bulk edit %s"
@@ -1683,6 +1734,9 @@ msgstr "chassis Versão"
 
 #, php-format
 msgid "Check %s over before installing it."
+msgstr ""
+
+msgid "Check FOG_TFTP_PXE_KERNEL_DIR."
 msgstr ""
 
 msgid "Check the capture folder is owned by and writable to the storage node user"
@@ -2349,8 +2403,31 @@ msgid "Default Width"
 msgstr "Largura padrão"
 
 #, fuzzy
+msgid "Default init, ARM64"
+msgstr "Largura padrão"
+
+#, fuzzy
+msgid "Default init, i386"
+msgstr "Largura padrão"
+
+#, fuzzy
+msgid "Default init, x86_64"
+msgstr "Largura padrão"
+
+#, fuzzy
 msgid "Default is disabled"
 msgstr "As doações são deficientes"
+
+#, fuzzy
+msgid "Default kernel, ARM64"
+msgstr "Padrão Refresh Rate"
+
+#, fuzzy
+msgid "Default kernel, i386"
+msgstr "Atualizar impressora"
+
+msgid "Default kernel, x86_64"
+msgstr ""
 
 #, fuzzy
 msgid "Default nested group depth"
@@ -2682,6 +2759,9 @@ msgstr ""
 msgid "Enrollment kit"
 msgstr ""
 
+msgid "Enter a name manually"
+msgstr ""
+
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "Por favor insira um nome de host válido"
@@ -2943,6 +3023,17 @@ msgid "FOG uses certificates for three unrelated jobs: the web server, the encry
 msgstr ""
 
 msgid "FOG will refuse these deploy tasks. Assign an image built for the same architecture, or capture one."
+msgstr ""
+
+#, fuzzy
+msgid "FOS Init"
+msgstr "Lista de Host"
+
+#, fuzzy
+msgid "FOS Kernel"
+msgstr "Núcleo"
+
+msgid "FOS Release"
 msgstr ""
 
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
@@ -4461,6 +4552,9 @@ msgstr "Dentro "
 msgid "In FOG"
 msgstr "Dentro "
 
+msgid "In use as"
+msgstr ""
+
 msgid "Include"
 msgstr ""
 
@@ -4496,10 +4590,6 @@ msgstr "Imagem não encontrada no nó"
 #, fuzzy
 msgid "Init images."
 msgstr "imagem inválido"
-
-#, fuzzy
-msgid "InitRD Versions"
-msgstr "Versão CPU"
 
 #, fuzzy
 msgid "Initial Template"
@@ -4846,6 +4936,12 @@ msgstr ""
 msgid "Kbps"
 msgstr ""
 
+msgid "Keep"
+msgstr ""
+
+msgid "Kept"
+msgstr ""
+
 msgid "Kernel"
 msgstr "Núcleo"
 
@@ -4861,13 +4957,6 @@ msgstr "Kernel Atualização"
 #, fuzzy
 msgid "Kernel Update Fail"
 msgstr "Kernel Atualização"
-
-#, fuzzy
-msgid "Kernel Version"
-msgstr "Versões do kernel"
-
-msgid "Kernel Versions"
-msgstr "Versões do kernel"
 
 #, fuzzy
 msgid "Kernels present on disk"
@@ -5253,6 +5342,10 @@ msgstr "Carga falhou: %s"
 msgid "Loading data to field"
 msgstr "Carregamento de dados para o campo %s"
 
+#, fuzzy
+msgid "Local files"
+msgstr "localizações"
+
 msgid "Location"
 msgstr "Localização"
 
@@ -5541,6 +5634,9 @@ msgstr "Memória"
 msgid "Memory limit cannot be less than 128"
 msgstr "Artigo ou título de menu não pode ficar em branco"
 
+msgid "Memtest payload"
+msgstr ""
+
 #, fuzzy
 msgid "Menu Description"
 msgstr "Descrição"
@@ -5621,6 +5717,9 @@ msgstr "Modelo"
 #, fuzzy
 msgid "Models"
 msgstr "Modelo"
+
+msgid "Modified"
+msgstr ""
 
 #, fuzzy
 msgid "Module"
@@ -5917,6 +6016,9 @@ msgstr ""
 msgid "No archive was uploaded."
 msgstr "Nenhum arquivo foi transferido"
 
+msgid "No boot files found. Check FOG_TFTP_PXE_KERNEL_DIR."
+msgstr ""
+
 #, fuzzy
 msgid "No certificate file was uploaded"
 msgstr "Nenhum arquivo foi transferido"
@@ -5958,6 +6060,10 @@ msgstr ""
 
 msgid "No file was uploaded"
 msgstr "Nenhum arquivo foi transferido"
+
+#, fuzzy
+msgid "No files in the boot directory."
+msgstr "Falha ao criar Snapin Job"
 
 msgid "No files matched multicast image pattern"
 msgstr ""
@@ -6120,6 +6226,9 @@ msgstr "Uma imagem já existe com este nome!"
 msgid "No storagegroups assigned to this snapin"
 msgstr "O grupo de armazenamento de imagens atribuído não é válido"
 
+msgid "No such file in the boot directory."
+msgstr ""
+
 msgid "No such filter"
 msgstr ""
 
@@ -6209,10 +6318,6 @@ msgstr "Não disponível"
 #, fuzzy
 msgid "Not Found"
 msgstr "Ícone do Arquivo não encontrado"
-
-#, fuzzy
-msgid "Not Installed"
-msgstr "Plugins instalados"
 
 msgid "Not Registered Hosts"
 msgstr "Hosts não registrada"
@@ -7297,10 +7402,6 @@ msgstr "Registrado"
 msgid "Registered Hosts"
 msgstr "hosts registrados"
 
-#, fuzzy
-msgid "Release Version"
-msgstr "Última versão"
-
 #, php-format
 msgid "Reloaded %d setting(s) into cache"
 msgstr ""
@@ -8019,6 +8120,10 @@ msgid "Set Storage Group as Primary for Snapins"
 msgstr "Nome do grupo de armazenamento"
 
 #, fuzzy
+msgid "Set as"
+msgstr "atualização do Service falhou"
+
+#, fuzzy
 msgid "Set failed"
 msgstr "atualização do Service falhou"
 
@@ -8534,6 +8639,9 @@ msgstr "atualização da impressora falhou!"
 
 msgid "Status"
 msgstr "estado"
+
+msgid "Stop keeping"
+msgstr ""
 
 msgid "Storage"
 msgstr "Armazenamento"
@@ -9277,6 +9385,10 @@ msgstr ""
 msgid "The body is {\"value\": \"...\"}; a form field of the same name is accepted too. An EMPTY value deletes the preference rather than storing emptiness, so a reset leaves no row saying \"no opinion\". Values are capped at 64KB and refused rather than truncated -- a truncated saved state cannot be told from a corrupt one when it is read back."
 msgstr ""
 
+#, fuzzy
+msgid "The boot directory cannot be read."
+msgstr " | Arquivo ou o caminho não pode ser alcançado"
+
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
@@ -9473,6 +9585,10 @@ msgstr ""
 msgid "The public half of the keypair fog-client encrypts its check-in to."
 msgstr ""
 
+#, fuzzy
+msgid "The record could not be written."
+msgstr "Não foi possível ler arquivo temporário"
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -9544,6 +9660,9 @@ msgstr "O arquivo enviado excede a directiva upload_max_filesize em php.ini"
 
 msgid "The uploaded file was only partially uploaded"
 msgstr "O arquivo enviado foi apenas parcialmente carregado"
+
+msgid "The version and release could not be recorded on the file, so it will report as unknown. See the PHP error log."
+msgstr ""
 
 msgid "The web application can read the following private keys. It should not be able to read any of them, and anything able to run code in this web application can copy them."
 msgstr ""
@@ -9739,6 +9858,9 @@ msgstr ""
 #, fuzzy, php-format
 msgid "This machine already registered as %s"
 msgstr "Já está registado como"
+
+msgid "This name is not a recognized file in the boot directory."
+msgstr ""
 
 #, fuzzy
 msgid "This node could not be found"
@@ -9939,6 +10061,10 @@ msgstr "Evento deve ser uma string"
 msgid "Type"
 msgstr "Digitar"
 
+#, php-format
+msgid "U-Boot TFTP sync: %s is not in %s, so a board booting over TFTP cannot fetch it"
+msgstr ""
+
 msgid "UEFI, state unreadable"
 msgstr ""
 
@@ -10062,6 +10188,10 @@ msgstr "Não disponível"
 
 msgid "Uncategorized"
 msgstr ""
+
+#, fuzzy
+msgid "Unclassified"
+msgstr "No nó associado"
 
 msgid "Unicast"
 msgstr "unicast"
@@ -10735,6 +10865,10 @@ msgstr ""
 msgid "You do not have permission to change LDAP group associations."
 msgstr ""
 
+#, fuzzy
+msgid "You do not have permission to change boot files."
+msgstr "Sem conexão com o banco de dados"
+
 msgid "You do not have permission to change provider group associations."
 msgstr ""
 
@@ -10875,6 +11009,13 @@ msgstr ""
 #, fuzzy
 msgid "as its primary group"
 msgstr "Grupo primário de actualização"
+
+msgid "attr could not be run -- SELinux may be denying it"
+msgstr ""
+
+#, fuzzy
+msgid "attr is not installed on this server"
+msgstr "Não existem grupos neste servidor."
 
 msgid "automatically"
 msgstr ""
@@ -11386,16 +11527,20 @@ msgid "not built yet"
 msgstr ""
 
 #, fuzzy
-msgid "not found on disk"
-msgstr "Imagem não encontrada no nó"
-
-#, fuzzy
 msgid "not found on this node"
 msgstr "Imagem não encontrada no nó"
 
 #, fuzzy
 msgid "not reachable"
 msgstr "Não disponível"
+
+#, fuzzy
+msgid "not readable"
+msgstr "Não disponível"
+
+#, fuzzy
+msgid "not recorded on this file"
+msgstr "Imagem não encontrada no nó"
 
 #, fuzzy
 msgid "ntfy Accounts"
@@ -11486,6 +11631,9 @@ msgid "row(s)"
 msgstr ""
 
 msgid "row(s) converted from 0 to NULL"
+msgstr ""
+
+msgid "same contents as"
 msgstr ""
 
 #, fuzzy
@@ -11582,6 +11730,10 @@ msgstr ""
 msgid "the Linux kernel which is used to"
 msgstr ""
 
+#, fuzzy
+msgid "the file cannot be read"
+msgstr " | Arquivo ou o caminho não pode ser alcançado"
+
 msgid "the following command in a terminal"
 msgstr ""
 
@@ -11599,6 +11751,12 @@ msgstr ""
 msgid "the local login form stays available at %s"
 msgstr ""
 
+msgid "the web server may not read this file"
+msgstr ""
+
+msgid "the web server may not run external commands"
+msgstr ""
+
 #, fuzzy
 msgid "there one enabled within this Storage Group"
 msgstr "Não foi possível encontrar um nó de armazenamento Existe um ativado dentro deste grupo de armazenamento"
@@ -11614,6 +11772,9 @@ msgid "this account has no role, so it has no access to any management page. Ask
 msgstr ""
 
 msgid "this backup will enable you to return to the"
+msgstr ""
+
+msgid "this filesystem does not carry extended attributes"
 msgstr ""
 
 #, fuzzy
@@ -11905,6 +12066,10 @@ msgstr ""
 #~ msgstr "A tentativa de executar ping"
 
 #, fuzzy
+#~ msgid "Buildroot Version"
+#~ msgstr "Versão CPU"
+
+#, fuzzy
 #~ msgid "Bulk Changes"
 #~ msgstr "Salvar alterações"
 
@@ -12031,10 +12196,6 @@ msgstr ""
 #~ msgstr "Falha ao atualizar / criar o registo de imagem"
 
 #, fuzzy
-#~ msgid "File Deleter"
-#~ msgstr "Falha ao excluir arquivo"
-
-#, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Eu não sou o servidor web nevoeiro"
 
@@ -12157,10 +12318,6 @@ msgstr ""
 #~ msgstr "Instalar / Atualizar sucesso!"
 
 #, fuzzy
-#~ msgid "Host Site Updated!"
-#~ msgstr "Serviço Atualizado!"
-
-#, fuzzy
 #~ msgid "Host Snapins"
 #~ msgstr "História Snapin"
 
@@ -12248,6 +12405,10 @@ msgstr ""
 #~ msgstr "importar usuários"
 
 #, fuzzy
+#~ msgid "InitRD Versions"
+#~ msgstr "Versão CPU"
+
+#, fuzzy
 #~ msgid "Install"
 #~ msgstr "Plugins instalados"
 
@@ -12262,6 +12423,13 @@ msgstr ""
 #, fuzzy
 #~ msgid "Inventory Report"
 #~ msgstr "Inventário"
+
+#, fuzzy
+#~ msgid "Kernel Version"
+#~ msgstr "Versões do kernel"
+
+#~ msgid "Kernel Versions"
+#~ msgstr "Versões do kernel"
 
 #, fuzzy
 #~ msgid "LDAP User Filter"
@@ -12322,6 +12490,10 @@ msgstr ""
 #~ msgstr "modificar Grupo"
 
 #, fuzzy
+#~ msgid "Not Installed"
+#~ msgstr "Plugins instalados"
+
+#, fuzzy
 #~ msgid "Pause"
 #~ msgstr "Do utilizador"
 
@@ -12347,6 +12519,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Product Keys"
 #~ msgstr "Hospedar de Chave de Produto"
+
+#, fuzzy
+#~ msgid "Release Version"
+#~ msgstr "Última versão"
 
 #, fuzzy
 #~ msgid "Remove Selected"
@@ -12602,6 +12778,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "no database to"
 #~ msgstr "Nenhum banco de dados para trabalhar fora"
+
+#, fuzzy
+#~ msgid "not found on disk"
+#~ msgstr "Imagem não encontrada no nó"
 
 #, fuzzy
 #~ msgid "to clear the field on every host in this group."

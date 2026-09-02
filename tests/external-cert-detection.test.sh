@@ -53,6 +53,10 @@ reset_env() {
     etcconf=""; PKI_client_cert_dir="$WORK/ssl"; PKI_root_ca_cert="$WORK/ssl/ca.pem"; PKI_web_trust_chain=""
     PKI_web_vhost_cert="$WORK/ssl/leaf.pem"; PKI_web_vhost_key="$WORK/ssl/leaf.key"
     PKI_web_cert_publicly_trusted=""
+    # Never the real /etc/fog/customizations/pki: signal 0 of the detector
+    # reads this directory, so an unset value would have every case below
+    # answer out of the host filesystem.
+    PKI_custom_dir="$WORK/custom-pki"
     error_log="$WORK/error.log"
 }
 
@@ -208,7 +212,7 @@ check "$(_vhostCertPath)" "$WORK/foreign/fullchain.pem" "H: KeyFile listed first
 managedNow="$(sed -n '/local -a managedKeys=(/,/^    )/p' "$FUNCS" \
     | sed -e 's/#.*$//' -e 's/local -a managedKeys=(//' -e 's/)//' \
     | tr -s ' \n' '\n\n' | grep -vE '^$')"
-for k in PKI_web_vhost_cert PKI_web_vhost_key; do
+for k in PKI_web_vhost_cert PKI_web_vhost_key PKI_custom_dir; do
     if printf '%s\n' "$managedNow" | grep -qxF "$k"; then
         ok "I: $k is in managedKeys"
     else
@@ -274,6 +278,74 @@ if _detectExternalCertManagement >/dev/null; then
     ok "K2: the bare leaf alone genuinely does not chain (K is a real test)"
 else
     bad "K2: the bare leaf verified without its intermediate; K proves nothing"
+fi
+
+
+echo "== signal 0: a pair dropped into the customizations tree is adopted =="
+
+# The blessed custom directory. A cert here is the admin's by construction --
+# it is a SIBLING of the PKI tree, so _externallyManagedLeaf() reads it as
+# external with no flag to record. Build one genuine self-signed pair, plus a
+# second unrelated key to prove the pair test is real.
+mkdir -p "$WORK/custom-pki"
+openssl req -x509 -newkey rsa:2048 -nodes -subj "/CN=fog.example.org" \
+    -keyout "$WORK/custom-pki/web-leaf.key" -out "$WORK/custom-pki/web-leaf.pem" \
+    -days 1 >/dev/null 2>&1
+openssl genrsa -out "$WORK/custom-pki/unrelated.key" 2048 >/dev/null 2>&1
+
+# L. Both files present and a genuine pair -- the whole point of the feature.
+reset_env
+if _detectExternalCertManagement >/dev/null; then
+    ok "L: a matching pair in PKI_custom_dir is detected"
+else
+    bad "L: a matching pair in PKI_custom_dir was not detected"
+fi
+
+# L2. And the caller can get the paths back. The detector runs in a command
+#     substitution, so it cannot hand them over -- _customPkiPair() is what the
+#     adoption site asks instead, and if it ever stops agreeing with the
+#     detector the vhost gets pointed at the wrong file.
+reset_env
+if pair=$(_customPkiPair) \
+    && [[ $(echo "$pair" | sed -n 1p) == "$WORK/custom-pki/web-leaf.pem" ]] \
+    && [[ $(echo "$pair" | sed -n 2p) == "$WORK/custom-pki/web-leaf.key" ]]; then
+    ok "L2: _customPkiPair returns the cert then the key"
+else
+    bad "L2: _customPkiPair did not return the pair the detector fired on"
+fi
+
+# M. A leaf with no key beside it. MUST NOT fire: adopting it points the vhost
+#    at a certificate the web server cannot start with, and FOG's own leaf was
+#    working. Declining leaves a serving server, which is the safe direction.
+reset_env
+mv "$WORK/custom-pki/web-leaf.key" "$WORK/custom-pki/web-leaf.key.hidden"
+if _detectExternalCertManagement >/dev/null; then
+    bad "M: fired on a leaf with no key, which would break the web server"
+else
+    ok "M: a leaf with no key is not adopted"
+fi
+mv "$WORK/custom-pki/web-leaf.key.hidden" "$WORK/custom-pki/web-leaf.key"
+
+# N. A key that is not the leaf's. Same reasoning as M, and the case a modulus
+#    comparison would get wrong for an EC pair -- see _certKeyPairMatches().
+reset_env
+cp "$WORK/custom-pki/web-leaf.key" "$WORK/custom-pki/web-leaf.key.real"
+cp "$WORK/custom-pki/unrelated.key" "$WORK/custom-pki/web-leaf.key"
+if _detectExternalCertManagement >/dev/null; then
+    bad "N: fired on a cert and key that are not a pair"
+else
+    ok "N: a mismatched cert/key pair is not adopted"
+fi
+cp "$WORK/custom-pki/web-leaf.key.real" "$WORK/custom-pki/web-leaf.key"
+
+# O. An empty custom directory must not change the answer for a normal install.
+reset_env
+PKI_custom_dir="$WORK/custom-pki-empty"
+mkdir -p "$PKI_custom_dir"
+if _detectExternalCertManagement >/dev/null; then
+    bad "O: fired on a genuine FOG install with an empty PKI_custom_dir"
+else
+    ok "O: an empty PKI_custom_dir leaves a FOG-issued leaf alone"
 fi
 
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"

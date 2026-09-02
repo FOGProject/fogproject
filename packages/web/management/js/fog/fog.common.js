@@ -5189,6 +5189,106 @@ function reinitialize() {
     $(':input:not(textarea)', this).off('keypress');
   };
 
+  /**
+   * The boot-file pickers on the host, group, mass edit and settings forms.
+   *
+   * The text input carries the field name and is the thing that posts; the
+   * select has no name at all and only writes into it. That is what makes
+   * these fields degrade to a plain text box if this never runs, rather than
+   * posting nothing -- and it is why the picker can offer "type it myself"
+   * without the server needing a second field to read.
+   *
+   * Delegated and namespaced, because pages arrive by AJAX and doPageLoad()
+   * runs this again on every one of them.
+   */
+  var setupBootFilePickers = function() {
+    var MANUAL = '__fog_manual__'; // FOGPage::BOOT_MANUAL_VALUE
+    $(document)
+      .off('change.fogBootFile')
+      .on('change.fogBootFile', '.fog-bootfile-picker', function() {
+        var $picker = $(this),
+          $value = $('#' + $picker.data('target')),
+          picked = $picker.val();
+        if (!$value.length) {
+          return;
+        }
+        if (picked === MANUAL) {
+          $value.removeClass('d-none').val('').trigger('focus');
+        } else {
+          $value.addClass('d-none').val(picked);
+        }
+        // The server's "not a recognized file" note described the value the
+        // form loaded with. Once you change the control it is stale.
+        $picker.closest('.fog-bootfile').find('.fog-bootfile-note').remove();
+      });
+  };
+
+  /**
+   * The Local files tab's row actions on Kernel Update / Initrd Update.
+   *
+   * node=about is sent explicitly. The download endpoints are requested with
+   * no node at all, which is why they needed entries in
+   * GLOBAL_SUB_OVERRIDES to be permission-checked properly -- these resolve
+   * against the page's own node instead, so their permissions are declared
+   * where the rest of that page's are.
+   *
+   * Delegated and namespaced: the pane arrives with the page, by AJAX.
+   */
+  var setupBootFileActions = function() {
+    var post = function(sub, data, confirmText) {
+      if (confirmText && !window.confirm(confirmText)) {
+        return;
+      }
+      $.apiCall(
+          'post',
+          '?node=about&sub=' + sub,
+          data,
+          function(err) {
+            if (!err) {
+              // Re-read rather than patch the row in place: the server
+              // decides what is now in use as what, and which rows may
+              // still offer a Delete button. Guessing that here would be a
+              // second copy of those rules.
+              //
+              // location.reload(), the same way the certificates pane on
+              // this page refreshes after a write. The API token pane calls
+              // table.ajax.reload() instead, but that is a DataTable and
+              // this pane deliberately is not.
+              location.reload();
+            }
+          }
+      );
+    };
+
+    $(document)
+      .off('click.fogBootFileAct')
+      .on('click.fogBootFileAct', '.fog-bootfile-keep', function(e) {
+        e.preventDefault();
+        var $b = $(this);
+        post('bootfilekeep', {
+          name: $b.data('name'),
+          keep: $b.data('keep')
+        });
+      })
+      .on('click.fogBootFileAct', '.fog-bootfile-default', function(e) {
+        e.preventDefault();
+        var $a = $(this);
+        post('bootfiledefault', {
+          name: $a.data('name'),
+          key: $a.data('key')
+        });
+      })
+      .on('click.fogBootFileAct', '.fog-bootfile-delete', function(e) {
+        e.preventDefault();
+        var name = $(this).data('name');
+        post(
+            'bootfiledelete',
+            {name: name},
+            'Delete ' + name + ' from the boot directory?'
+        );
+      });
+  };
+
   $.debugLog("=== DEBUG LOGGING ENABLED ===");
   setupIntegrations();
   if ($.fn.inputmask) {
@@ -5209,6 +5309,8 @@ function reinitialize() {
       dropdownParent: $modal.length ? $modal : $(document.body)
     });
   });
+  setupBootFilePickers();
+  setupBootFileActions();
   disableFormDefaults();
   wireImportForm();
   setupPasswordReveal();

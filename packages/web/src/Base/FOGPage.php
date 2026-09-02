@@ -2816,8 +2816,23 @@ abstract class FOGPage extends FOGBase
                     }
                     self::$FOGSSH->put($tmpfile, $orig);
                     self::$FOGSSH->sftp_chmod($orig, 0644);
-                    $br_cmd = "attr -s version -V $br_ver $orig";
-                    $tg_cmd = "attr -s tag_name -V $tg_ver $orig";
+                    /**
+                     * Quoted, because $br_ver and $tg_ver come from the POST
+                     * body and this string is run as a command on the storage
+                     * node. Unquoted, a value carrying a space or a shell
+                     * metacharacter is read as further commands.
+                     */
+                    $stampFailed = false;
+                    $br_cmd = sprintf(
+                        'attr -s version -V %s %s',
+                        escapeshellarg((string)$br_ver),
+                        escapeshellarg($orig)
+                    );
+                    $tg_cmd = sprintf(
+                        'attr -s tag_name -V %s %s',
+                        escapeshellarg((string)$tg_ver),
+                        escapeshellarg($orig)
+                    );
                     $output_br = self::$FOGSSH->exec($br_cmd);
                     $output_tg = self::$FOGSSH->exec($tg_cmd);
                     $error_br = self::$FOGSSH->fetch_stream($output_br, SSH2_STREAM_STDERR);
@@ -2829,10 +2844,12 @@ abstract class FOGPage extends FOGBase
                     $error_br_t = stream_get_contents($error_br);
                     $error_tg_t = stream_get_contents($error_tg);
                     if ($error_br_t) {
+                        $stampFailed = true;
                         error_log(_('Error on ssh command setting version'). ' ' . $br_cmd);
                         error_log(_('Error'). ': ' . $error_br_t);
                     }
                     if ($error_tg_t) {
+                        $stampFailed = true;
                         error_log(_('Error on ssh command setting tag_name'). ' ' . $tg_cmd);
                         error_log(_('Error'). ': ' . $error_tg_t);
                     }
@@ -2846,12 +2863,23 @@ abstract class FOGPage extends FOGBase
                         unlink($tmpfile);
                     }
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
+                    /**
+                     * A failed stamp used to be logged and nothing else, so
+                     * the file simply reported an unknown version later with
+                     * no record of why. Say it here, where the admin is.
+                     */
+                    $msgText = $resigned
+                        ? _('File uploaded to storage node and '
+                            . 're-signed for Secure Boot!')
+                        : _('File uploaded to storage node!');
+                    if ($stampFailed) {
+                        $msgText .= ' ' . _('The version and release could '
+                            . 'not be recorded on the file, so it will '
+                            . 'report as unknown. See the PHP error log.');
+                    }
                     $this->jsonSend($code, json_encode(
                         [
-                            'msg' => $resigned
-                                ? _('File uploaded to storage node and '
-                                    . 're-signed for Secure Boot!')
-                                : _('File uploaded to storage node!'),
+                            'msg' => $msgText,
                             'title' => _('Update Kernel Success')
                         ]
                     ));
@@ -3164,8 +3192,23 @@ abstract class FOGPage extends FOGBase
                     }
                     self::$FOGSSH->put($tmpfile, $orig);
                     self::$FOGSSH->sftp_chmod($orig, 0644);
-                    $br_cmd = "attr -s version -V $br_ver $orig";
-                    $tg_cmd = "attr -s tag_name -V $tg_ver $orig";
+                    /**
+                     * Quoted, because $br_ver and $tg_ver come from the POST
+                     * body and this string is run as a command on the storage
+                     * node. Unquoted, a value carrying a space or a shell
+                     * metacharacter is read as further commands.
+                     */
+                    $stampFailed = false;
+                    $br_cmd = sprintf(
+                        'attr -s version -V %s %s',
+                        escapeshellarg((string)$br_ver),
+                        escapeshellarg($orig)
+                    );
+                    $tg_cmd = sprintf(
+                        'attr -s tag_name -V %s %s',
+                        escapeshellarg((string)$tg_ver),
+                        escapeshellarg($orig)
+                    );
                     $output_br = self::$FOGSSH->exec($br_cmd);
                     $output_tg = self::$FOGSSH->exec($tg_cmd);
                     $error_br = self::$FOGSSH->fetch_stream($output_br, SSH2_STREAM_STDERR);
@@ -3177,10 +3220,12 @@ abstract class FOGPage extends FOGBase
                     $error_br_t = stream_get_contents($error_br);
                     $error_tg_t = stream_get_contents($error_tg);
                     if ($error_br_t) {
+                        $stampFailed = true;
                         error_log(_('Error on ssh command setting version'). ' ' . $br_cmd);
                         error_log(_('Error'). ': ' . $error_br_t);
                     }
                     if ($error_tg_t) {
+                        $stampFailed = true;
                         error_log(_('Error on ssh command setting tag_name'). ' ' . $tg_cmd);
                         error_log(_('Error'). ': ' . $error_tg_t);
                     }
@@ -3194,9 +3239,15 @@ abstract class FOGPage extends FOGBase
                         unlink($tmpfile);
                     }
                     $code = HTTPResponseCodes::HTTP_SUCCESS;
+                    $msgText = _('File uploaded to storage node!');
+                    if ($stampFailed) {
+                        $msgText .= ' ' . _('The version and release could '
+                            . 'not be recorded on the file, so it will '
+                            . 'report as unknown. See the PHP error log.');
+                    }
                     $this->jsonSend($code, json_encode(
                         [
-                            'msg' => _('File uploaded to storage node!'),
+                            'msg' => $msgText,
                             'title' => _('Update Initrd Success')
                         ]
                     ));
@@ -5696,8 +5747,703 @@ abstract class FOGPage extends FOGBase
             . '</label>';
     }
     /**
-     * Lists the kernel or init files actually present in the FOS boot
-     * directory, newest first.
+     * What a file in the FOS boot directory is FOR.
+     *
+     * A FOS Kernel boots the imaging environment; a FOS Init is the initramfs
+     * it boots with; a Boot Payload is something the boot menu can chain but
+     * which does not boot FOS (memdisk, memtest.bin, grub.exe, refind*.efi);
+     * anything else sharing that directory is Unclassified.
+     */
+    const BOOT_ROLE_KERNEL = 'kernel';
+    const BOOT_ROLE_INIT = 'init';
+    const BOOT_ROLE_PAYLOAD = 'payload';
+    const BOOT_ROLE_OTHER = 'unclassified';
+    /**
+     * Every bootFile row, keyed by filename, loaded at most once per request.
+     *
+     * bootFileInfo() is called once per file in the boot directory, and a
+     * listing walks the whole directory -- so a lookup per file is a query
+     * per file, twice over on a host form that asks for kernels and then for
+     * inits. One query answers all of them.
+     *
+     * null means "not loaded yet", which is not the same as an empty map: a
+     * server with no rows yet must not be re-queried once per file.
+     *
+     * @var array|null
+     */
+    private static $_bootFileRows = null;
+    /**
+     * Picker value meaning "I will type the name myself".
+     *
+     * Not a filename any filesystem would produce, and matched literally by
+     * fog.common.js -- change it in both places or in neither.
+     */
+    const BOOT_MANUAL_VALUE = '__fog_manual__';
+    /**
+     * Decides what a boot directory file is, by reading it.
+     *
+     * Deciding by NAME is what put memdisk, memtest.bin and grub.exe in the
+     * Host Kernel dropdown: there was no positive test for a kernel, only
+     * "an init looks like this, so everything else is a kernel". A blacklist
+     * of extensions cannot be completed either -- an old backup script
+     * leaving refind.efi.new behind defeats it -- and a hand-compiled kernel
+     * under any name has to keep working.
+     *
+     * So read the file instead. The tests are exact and cost one 4KiB read
+     * rather than a scan of a 50MB image:
+     *
+     * - x86/x86_64: 'HdrS', the Linux setup header's own magic, at 0x202.
+     * - arm64: 'ARMd', the Image header's magic, at 0x38.
+     *
+     * grub.exe and memdisk are PE binaries too, so a PE check alone could not
+     * separate them from an EFI-stub kernel; these two can.
+     *
+     * Note what is deliberately NOT excluded by name: only FOG's own web
+     * assets that share this directory, and the .unsigned working files
+     * _resignKernels() leaves behind. Everything else that is neither kernel
+     * nor init is a payload, because memtest.bin and memdisk are raw images
+     * with no magic to match on and FOG_MEMTEST_KERNEL legitimately points at
+     * them.
+     *
+     * @param string $path full path to the file
+     *
+     * @return string one of the BOOT_ROLE_* constants
+     */
+    public static function bootFileRole($path)
+    {
+        if (!is_file($path) || !is_readable($path)) {
+            return self::BOOT_ROLE_OTHER;
+        }
+        $name = basename($path);
+        if (preg_match('/\.(unsigned|php|png|jpe?g|gif|svg|css|js|conf)$/i', $name)) {
+            return self::BOOT_ROLE_OTHER;
+        }
+        $head = self::readMagic($path, 4096);
+        if ($head === '') {
+            return self::BOOT_ROLE_OTHER;
+        }
+        if (self::_looksLikeInit($head)) {
+            return self::BOOT_ROLE_INIT;
+        }
+        if (self::_looksLikeKernel($head)) {
+            return self::BOOT_ROLE_KERNEL;
+        }
+        return self::BOOT_ROLE_PAYLOAD;
+    }
+    /**
+     * True when $head carries a Linux kernel image's own header magic.
+     *
+     * @param string $head leading bytes of the file
+     *
+     * @return bool
+     */
+    private static function _looksLikeKernel($head)
+    {
+        // x86/x86_64 bzImage: setup header magic, four bytes at 0x202.
+        if (substr($head, 0x202, 4) === 'HdrS') {
+            return true;
+        }
+        /**
+         * arm64 Image: header magic 0x644d5241 at 0x38, which is the bytes
+         * 'ARMd'. An arm64 kernel is also a PE image when built with EFI stub
+         * support, so this has to be checked in its own right rather than
+         * inferred from MZ.
+         */
+        if (substr($head, 0x38, 4) === 'ARMd') {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * True when $head carries an initramfs archive or compression magic.
+     *
+     * FOS ships init.xz and arm_init.cpio.gz, but a hand-built initramfs may
+     * use any compressor the kernel can unpack, so accept those too rather
+     * than pinning the two names FOG happens to download.
+     *
+     * @param string $head leading bytes of the file
+     *
+     * @return bool
+     */
+    private static function _looksLikeInit($head)
+    {
+        $magics = [
+            "\xfd" . '7zXZ' . "\x00",
+            "\x1f\x8b",
+            "\x28\xb5\x2f\xfd",
+            "\x04\x22\x4d\x18",
+            'BZh',
+            "\x5d\x00\x00",
+            "\x89" . 'LZO',
+            '070701',
+            '070702',
+            '070707',
+            "\xc7\x71",
+        ];
+        foreach ($magics as $magic) {
+            if (0 === strpos($head, $magic)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Reads a kernel image's own version banner, or '' when it has none.
+     *
+     * The x86 setup header records where its version string lives: a 16-bit
+     * offset at 0x20e, relative to 0x200. That is exact, so there is no
+     * scanning and no guessing.
+     *
+     * arm64 Image has no equivalent field, so this answers '' there. A caller
+     * displaying this must say the version is unavailable rather than
+     * inventing one; reporting a wrong version is worse than reporting none.
+     *
+     * @param string $path full path to the file
+     *
+     * @return string e.g. '6.6.30 (fos@buildroot) #1 SMP', or ''
+     */
+    public static function bootFileKernelVersion($path)
+    {
+        $head = self::readMagic($path, 4096);
+        if (substr($head, 0x202, 4) !== 'HdrS') {
+            return '';
+        }
+        $at = @unpack('v', substr($head, 0x20e, 2));
+        if (!is_array($at) || empty($at[1])) {
+            return '';
+        }
+        $at = $at[1] + 0x200;
+        $bytes = self::readMagic($path, $at + 512);
+        if (strlen($bytes) <= $at) {
+            return '';
+        }
+        $parts = explode("\x00", substr($bytes, $at, 512), 2);
+        $ver = trim($parts[0]);
+        /**
+         * Refuse anything not plainly printable. A bad offset lands in the
+         * middle of the compressed image, and rendering that as a version
+         * would be worse than saying nothing.
+         */
+        if ($ver === '' || preg_match('/[^\x20-\x7e]/', $ver)) {
+            return '';
+        }
+        return $ver;
+    }
+    /**
+     * Reads one extended attribute, and says why when it cannot.
+     *
+     * PHP has no xattr reader. The PECL extension is absent on every server
+     * this runs on and this codebase has never used it, so the FOS release
+     * tag -- which exists only as an xattr -- can be reached no other way
+     * than by running `attr`.
+     *
+     * That is exactly the call that fails invisibly today. status/kernelvers
+     * runs `attr -g` through shell_exec, discards stderr, and renders an
+     * empty result as `Unknown`, so at least seven different causes arrive
+     * looking identical: no attr binary, SELinux refusing httpd_t the exec,
+     * a mount without user_xattr, the attribute genuinely never set, a
+     * permissions failure, disabled shell functions, and a parse artifact
+     * from omitting -q. An admin cannot act on any of them.
+     *
+     * So this captures stderr and the exit status and answers with a reason.
+     * -q is passed, which the old call site omitted: without it `attr -g`
+     * prints a header line before the value and `tail -n1` has to guess.
+     *
+     * @param string $path full path to the file
+     * @param string $attr attribute name, e.g. 'tag_name'
+     *
+     * @return array ['value' => string, 'reason' => string]
+     */
+    public static function bootFileXattr($path, $attr)
+    {
+        $none = function ($why) {
+            return ['value' => '', 'reason' => $why];
+        };
+        if (!is_file($path) || !is_readable($path)) {
+            return $none(_('the file cannot be read'));
+        }
+        if (!function_exists('proc_open')) {
+            return $none(_('the web server may not run external commands'));
+        }
+        $cmd = sprintf(
+            'attr -q -g %s %s',
+            escapeshellarg($attr),
+            escapeshellarg($path)
+        );
+        $pipes = [];
+        $proc = @proc_open(
+            $cmd,
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes
+        );
+        if (!is_resource($proc)) {
+            return $none(_('the web server may not run external commands'));
+        }
+        $out = (string)stream_get_contents($pipes[1]);
+        $err = (string)stream_get_contents($pipes[2]);
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        $code = proc_close($proc);
+
+        $value = trim(trim(trim($out), '"'));
+        if ($value !== '') {
+            return ['value' => $value, 'reason' => ''];
+        }
+        /**
+         * Every branch below is a DIFFERENT operational problem with a
+         * different fix, which is the whole reason for reading stderr rather
+         * than treating empty output as one answer.
+         */
+        if (127 === $code || false !== stripos($err, 'not found')) {
+            return $none(_('attr is not installed on this server'));
+        }
+        if (false !== stripos($err, 'not supported')) {
+            return $none(_('this filesystem does not carry extended attributes'));
+        }
+        if (false !== stripos($err, 'permission')) {
+            return $none(_('the web server may not read this file'));
+        }
+        if (false !== stripos($err, 'no such attribute')
+            || 0 === $code
+        ) {
+            return $none(_('not recorded on this file'));
+        }
+
+        return $none(
+            $err !== ''
+            ? trim($err)
+            : _('attr could not be run -- SELinux may be denying it')
+        );
+    }
+    /**
+     * Everything known about one boot directory file, cached.
+     *
+     * The filesystem is the inventory: existence, size and mtime are read
+     * here, live, every time. The bootFile row is consulted for what reading
+     * the directory cannot answer, and is rewritten whenever the stat has
+     * moved -- so a kernel copied in by hand is picked up on the next
+     * listing and one deleted by hand simply stops appearing.
+     *
+     * Two of the three cached values are caches in the ordinary sense: role
+     * and version come out of the file's own bytes and could be re-read at
+     * any time. The release tag is not. It may be permanently unreadable on
+     * this server (see bootFileXattr), so it is stored the first time it can
+     * be read at all and served from the row afterward -- a stored tag is
+     * never discarded because a later read failed.
+     *
+     * @param string $path full path to the file
+     *
+     * @return array
+     */
+    public static function bootFileInfo($path)
+    {
+        $name = basename($path);
+        $stat = @stat($path);
+        if ($stat === false) {
+            return [
+                'name' => $name,
+                'exists' => false,
+                'role' => self::BOOT_ROLE_OTHER,
+                'size' => 0,
+                'mtime' => 0,
+                'checksum' => '',
+                'kernelVersion' => '',
+                'releaseTag' => '',
+                'tagReason' => _('the file cannot be read'),
+                'pinned' => false
+            ];
+        }
+        $size = (int)$stat['size'];
+        /**
+         * mtime, not ctime. The old panel used ctime and reported every
+         * file's "Installed Date" as the date of the last install, because
+         * restorePreservedCustomizations() chowns the whole directory on
+         * every run and that moves ctime on files it did not touch.
+         */
+        $mtime = (int)$stat['mtime'];
+
+        $row = self::_bootFileRow($name);
+        $fresh = (
+            $row
+            && (int)$row->get('size') === $size
+            && (int)self::_stampToTime($row->get('mtime')) === $mtime
+        );
+        if ($fresh) {
+            $tagValue = trim((string)$row->get('releaseTag'));
+            $tagReason = '';
+            if ('' === $tagValue) {
+                /**
+                 * No stored tag, so ask again rather than reporting a
+                 * remembered failure. Two reasons, and both matter:
+                 *
+                 * the REASON is current-state information -- "attr is not
+                 * installed on this server" stops being true the moment
+                 * somebody installs it, and telling an admin a stale cause
+                 * is how this panel became useless in the first place;
+                 *
+                 * and it self-heals. A server that could not read the tag
+                 * yesterday and can today picks it up on the next listing
+                 * without waiting for the file to change.
+                 *
+                 * This costs one attr call per file that has no tag, and
+                 * nothing at all for a file that has one -- which is the
+                 * common case on any server where the read works.
+                 */
+                $again = self::bootFileXattr($path, 'tag_name');
+                if ('' !== $again['value']) {
+                    $tagValue = $again['value'];
+                    self::_bootFileStore($row, ['releaseTag' => $tagValue]);
+                } else {
+                    $tagReason = $again['reason'];
+                }
+            }
+
+            return [
+                'name' => $name,
+                'exists' => true,
+                'role' => (string)$row->get('role'),
+                'size' => $size,
+                'mtime' => $mtime,
+                'checksum' => (string)$row->get('checksum'),
+                'kernelVersion' => (string)$row->get('kernelVersion'),
+                'releaseTag' => $tagValue,
+                'tagReason' => $tagReason,
+                'pinned' => (bool)(int)$row->get('pinned')
+            ];
+        }
+
+        $role = self::bootFileRole($path);
+        $version = self::bootFileKernelVersion($path);
+        $tag = self::bootFileXattr($path, 'tag_name');
+        /**
+         * An init records its Buildroot version under `version` where a
+         * kernel records the kernel version, and a kernel's own banner is
+         * more trustworthy than the xattr -- an in-place overwrite leaves
+         * FOG's old xattrs on the admin's file, so the xattr can be
+         * confidently wrong where the bytes cannot.
+         */
+        if ('' === $version) {
+            $version = self::bootFileXattr($path, 'version')['value'];
+        }
+        $keptTag = $tag['value'];
+        if ('' === $keptTag && $row) {
+            $keptTag = (string)$row->get('releaseTag');
+        }
+        $checksum = (string)@hash_file('sha256', $path);
+
+        self::_bootFileStore(
+            $row,
+            [
+                'name' => $name,
+                'size' => $size,
+                /**
+                 * Written and read back in UTC, explicitly. These two
+                 * columns are a cache KEY, not a display value: they are
+                 * only ever compared against a fresh stat, so the write and
+                 * the read have to agree with each other whatever the
+                 * server's zone and the viewer's zone happen to be. Format
+                 * through the display zone and parse back through the
+                 * default one, and the comparison fails on any server where
+                 * those differ -- which would not break anything visibly, it
+                 * would just silently re-read every file on every render and
+                 * make the cache pointless. The date a human sees is
+                 * formatted from the live stat, not from here.
+                 */
+                'mtime' => gmdate('Y-m-d H:i:s', $mtime),
+                'checksum' => $checksum,
+                'role' => $role,
+                'kernelVersion' => $version,
+                'releaseTag' => $keptTag,
+                'inspected' => gmdate('Y-m-d H:i:s')
+            ]
+        );
+
+        return [
+            'name' => $name,
+            'exists' => true,
+            'role' => $role,
+            'size' => $size,
+            'mtime' => $mtime,
+            'checksum' => $checksum,
+            'kernelVersion' => $version,
+            'releaseTag' => $keptTag,
+            'tagReason' => ('' === $keptTag ? $tag['reason'] : ''),
+            'pinned' => (bool)($row ? (int)$row->get('pinned') : 0)
+        ];
+    }
+    /**
+     * Loads the bootFile row for $name, or null.
+     *
+     * Answers null rather than throwing when the record store cannot be
+     * reached: the records are an accelerator and a place to keep an admin's
+     * pin, not the inventory, so a listing must still render without them.
+     *
+     * @param string $name the filename
+     *
+     * @return \FOG\Items\BootFile|null
+     */
+    private static function _bootFileRow($name)
+    {
+        if (null === self::$_bootFileRows) {
+            self::$_bootFileRows = [];
+            try {
+                $rows = self::getClass('BootFileManager')->find();
+                foreach ((array)$rows as $row) {
+                    if ($row && $row->isValid()) {
+                        self::$_bootFileRows[(string)$row->get('name')] = $row;
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Left as an empty map, deliberately: the records are an
+                // accelerator, and an unreachable store must cost one failed
+                // query per request rather than one per file.
+                self::$_bootFileRows = [];
+            }
+        }
+
+        return self::$_bootFileRows[$name] ?? null;
+    }
+    /**
+     * Writes what was just read about a file back to its record.
+     *
+     * Deliberately silent on failure. Rendering a list of kernels is not the
+     * moment to fail a page because a cache write did not land, and the next
+     * listing will simply read the file again.
+     *
+     * @param mixed $row  existing record or null
+     * @param array $data field values to store
+     *
+     * @return void
+     */
+    private static function _bootFileStore($row, array $data)
+    {
+        try {
+            $obj = $row ?: self::getClass('BootFile');
+            foreach ($data as $field => $value) {
+                $obj->set($field, $value);
+            }
+            $obj->save();
+            // Keep the request's map in step, so a second listing in the same
+            // request sees what the first one just inspected rather than
+            // inspecting it again.
+            if (null !== self::$_bootFileRows && !empty($data['name'])) {
+                self::$_bootFileRows[(string)$data['name']] = $obj;
+            }
+        } catch (\Throwable $e) {
+            return;
+        }
+    }
+    /**
+     * Turns a stored datetime into a unix timestamp, or 0.
+     *
+     * @param mixed $stamp the stored value
+     *
+     * @return int
+     */
+    private static function _stampToTime($stamp)
+    {
+        $stamp = trim((string)$stamp);
+        // validDate() rather than testing for a zero-date literal: it already
+        // knows both spellings of one, and there is meant to be exactly one
+        // definition of what an empty date is.
+        if ('' === $stamp || !self::validDate($stamp)) {
+            return 0;
+        }
+        // ' UTC' because _bootFileStore() writes gmdate(). See the note
+        // there: these two have to agree with each other, not with a zone.
+        $time = strtotime($stamp . ' UTC');
+
+        return (false === $time) ? 0 : (int)$time;
+    }
+    /**
+     * Marks a boot file as one no pruner may remove, or unmarks it.
+     *
+     * The one fact about these files that cannot be read off the disk: it is
+     * an intention, not a property. Stored on the record, and reported by
+     * bootFileInfo() so the listing can show it.
+     *
+     * @param string $name filename in the boot directory
+     * @param bool   $keep true to keep, false to stop keeping
+     *
+     * @return bool whether the record was written
+     */
+    public static function bootFileSetPinned($name, $keep)
+    {
+        $name = basename(trim((string)$name));
+        if ('' === $name) {
+            return false;
+        }
+        /**
+         * The copy first, then the flag.
+         *
+         * The copy is what actually protects the file, so a flag written
+         * without one would promise something nothing delivers -- and on the
+         * next upgrade the file would be gone with the record still saying
+         * it was kept. Unpinning goes the same way round for the same
+         * reason: remove the copy, then say it is no longer kept.
+         */
+        if (!self::_bootFileKeepCopy($name, $keep)) {
+            return false;
+        }
+        try {
+            $row = self::_bootFileRow($name) ?: self::getClass('BootFile');
+            $row->set('name', $name)
+                ->set('pinned', $keep ? 1 : 0);
+            $row->save();
+            if (null !== self::$_bootFileRows) {
+                self::$_bootFileRows[$name] = $row;
+            }
+        } catch (\Throwable $e) {
+            return false;
+        }
+
+        return true;
+    }
+    /**
+     * Puts a copy of a boot file where an upgrade will find it, or removes it.
+     *
+     * `customizations/kernel-backups/keep/` -- and the copy IS the record.
+     * The pruner and the restore are shell functions running while the web
+     * root is being rebuilt, with no database in reach, so the alternative
+     * was a manifest for them to read. A copy needs no parsing and cannot
+     * drift from what it describes, which is the same reasoning
+     * restorekernel.sh gives for using xattrs instead of a manifest.
+     *
+     * It also earns its space: the web root is deleted and rebuilt on every
+     * install, and a per-release sibling is deliberately not part of a
+     * generation, so without this a kept sibling survives exactly until the
+     * next upgrade.
+     *
+     * Known limit, inherited rather than introduced: the source path is the
+     * local one, the same path the listing reads. On a deployment where
+     * FOG_TFTP_HOST is another machine the listing is already reading a
+     * different disk from the one kernelfetch() writes, and this follows the
+     * listing -- what the admin clicked Keep on is what they were shown.
+     *
+     * @param string $name filename in the boot directory
+     * @param bool   $keep true to place the copy, false to remove it
+     *
+     * @return bool
+     */
+    private static function _bootFileKeepCopy($name, $keep)
+    {
+        if (!defined('FOG_BASE_DIR')) {
+            // No installer-written paths file, so there is no customizations
+            // tree to copy into. Nothing to do rather than a failure: a
+            // source checkout has no boot directory to protect either.
+            return true;
+        }
+        $keepDir = FOG_BASE_DIR . DS . 'customizations' . DS
+            . 'kernel-backups' . DS . 'keep';
+        $target = $keepDir . DS . $name;
+        if (!$keep) {
+            if (!is_file($target)) {
+                return true;
+            }
+
+            return @unlink($target);
+        }
+        if (!is_dir($keepDir)) {
+            // Created by the installer, deliberately not here: it is created
+            // once, owned by the service user and group-writable to the web
+            // user, and a directory the web tier makes for itself would own
+            // it instead.
+            return false;
+        }
+        $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        $source = $dir . DIRECTORY_SEPARATOR . $name;
+        if ('' === $dir || !is_file($source)) {
+            return false;
+        }
+        if (is_file($target) && self::_sameFile($source, $target)) {
+            return true;
+        }
+
+        return @copy($source, $target);
+    }
+    /**
+     * Whether two paths hold the same bytes.
+     *
+     * Size first, because it settles almost every case without reading
+     * either file, and these are kernels.
+     *
+     * @param string $a first path
+     * @param string $b second path
+     *
+     * @return bool
+     */
+    private static function _sameFile($a, $b)
+    {
+        if (filesize($a) !== filesize($b)) {
+            return false;
+        }
+
+        return hash_file('sha256', $a) === hash_file('sha256', $b);
+    }
+    /**
+     * Removes a boot file, and the record that described it.
+     *
+     * Over the same SSH/SFTP connection kernelfetch() uses to put files
+     * there, not with unlink(). That is where the writes go, FOG_TFTP_HOST
+     * may not be this machine, and using the write path for the delete means
+     * the two cannot disagree about which directory is real. It also means
+     * a server with no SSH credentials configured cannot delete -- which is
+     * the same server that cannot download a kernel either, so it is one
+     * missing configuration rather than a new one.
+     *
+     * The record goes too. Leaving it would strand a row describing a file
+     * that is gone; the listing starts from the directory, so nothing would
+     * ever read it again.
+     *
+     * @param string $name filename in the boot directory
+     *
+     * @throws \Exception when the file cannot be removed
+     *
+     * @return void
+     */
+    public static function bootFileRemove($name)
+    {
+        $name = basename(trim((string)$name));
+        $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        if ('' === $name || '' === $dir) {
+            throw new \Exception(_('No such file in the boot directory.'));
+        }
+        $target = sprintf('/%s/%s', trim($dir, '/'), $name);
+        $keys = [
+            'FOG_TFTP_FTP_PASSWORD',
+            'FOG_TFTP_FTP_USERNAME',
+            'FOG_TFTP_HOST'
+        ];
+        list($pass, $user, $host) = self::getSetting($keys);
+        self::$FOGSSH->username = $user;
+        self::$FOGSSH->password = $pass;
+        self::$FOGSSH->host = $host;
+        if (!self::$FOGSSH->connect()) {
+            throw new \Exception(_('Unable to connect to ssh'));
+        }
+        $gone = self::$FOGSSH->delete($target);
+        self::$FOGSSH->disconnect();
+        if (!$gone) {
+            throw new \Exception(
+                sprintf(_('%s could not be removed.'), $name)
+            );
+        }
+        try {
+            $row = self::_bootFileRow($name);
+            if ($row) {
+                $row->destroy();
+            }
+            if (null !== self::$_bootFileRows) {
+                unset(self::$_bootFileRows[$name]);
+            }
+        } catch (\Throwable $e) {
+            // The file is gone, which is what was asked. A stranded record
+            // is never read again -- listings start from the directory.
+            return;
+        }
+    }
+    /**
+     * Lists the boot directory files holding the role $type, newest first.
      *
      * Kernels and inits are files on disk, not database records, so there is
      * nothing for buildSelectBox() to enumerate. Reading the directory is the
@@ -5706,13 +6452,29 @@ abstract class FOGPage extends FOGBase
      * on every update, that directory is exactly the list of "current, or any
      * version still on this server, or anything I put here myself".
      *
-     * @param string $type 'kernel' or 'init'
+     * The role is decided by bootFileRole(), so a field asking for a kernel
+     * is offered kernels only. One list serving both the Host Kernel field
+     * and FOG_MEMTEST_KERNEL is what put memdisk in the kernel dropdown.
+     *
+     * @param string $type 'kernel', 'init' or 'payload'
      *
      * @return array filenames
      */
     public static function kernelFileList($type = 'kernel')
     {
-        $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        /**
+         * An empty list is a legitimate answer, and kernelFileSelect() turns
+         * it into a plain text input -- so a server whose boot directory has
+         * moved stays editable. A settings read that cannot answer at all is
+         * the same situation from the caller's point of view, and one field
+         * out of the thirty on a mass edit form must not take the form down
+         * with it.
+         */
+        try {
+            $dir = trim((string)self::getSetting('FOG_TFTP_PXE_KERNEL_DIR'));
+        } catch (\Throwable $e) {
+            return [];
+        }
         if (empty($dir) || !is_dir($dir) || !is_readable($dir)) {
             return [];
         }
@@ -5720,32 +6482,34 @@ abstract class FOGPage extends FOGBase
         if ($files === false) {
             return [];
         }
+        switch ($type) {
+            case 'init':
+                $want = self::BOOT_ROLE_INIT;
+                break;
+            case 'payload':
+                $want = self::BOOT_ROLE_PAYLOAD;
+                break;
+            default:
+                $want = self::BOOT_ROLE_KERNEL;
+                break;
+        }
         $out = [];
         foreach ($files as $file) {
             if ($file === '.' || $file === '..') {
                 continue;
             }
-            if (!is_file($dir . DIRECTORY_SEPARATOR . $file)) {
+            $path = $dir . DIRECTORY_SEPARATOR . $file;
+            if (!is_file($path)) {
                 continue;
             }
             /**
-             * Split by shape rather than by a fixed list of names, so a
-             * custom kernel and the per-release siblings both appear.
-             *
-             * .unsigned copies are excluded -- they are _resignKernels()
-             * working files, not something to boot.
-             *
-             * The web assets and config that share this directory
-             * (boot.php/advanced.php/index.php, the bg images, refind.conf)
-             * are excluded too. "Anything that is not an init" swept all of
-             * them into the kernel list, which is not a menu anybody wants to
-             * pick a kernel out of.
+             * bootFileInfo(), not bootFileRole(): the role is the same answer
+             * either way, but going through the record means a render costs a
+             * stat and one query rather than a 4KiB read of every file in the
+             * directory, on every host form, group form, mass edit modal and
+             * settings page.
              */
-            if (preg_match('/\.(unsigned|php|png|jpe?g|gif|svg|conf|efi)$/i', $file)) {
-                continue;
-            }
-            $isInit = (bool)preg_match('/(^|\/)(init|arm_init)|\.(xz|cpio\.gz)/i', $file);
-            if ($type === 'init' ? $isInit : !$isInit) {
+            if (self::bootFileInfo($path)['role'] === $want) {
                 $out[] = $file;
             }
         }
@@ -5806,14 +6570,14 @@ abstract class FOGPage extends FOGBase
             );
         }
         /**
-         * A stored value naming a file that is no longer on disk must still
-         * appear, and still be selected. Dropping it would silently rewrite
-         * the host's kernel to the default the moment anyone opened the form.
+         * A stored value naming a file that is not on disk -- or one the
+         * classifier does not recognize as this role -- must still appear and
+         * must still be what the form posts. Dropping it would silently
+         * rewrite the host's kernel to the default the moment anyone opened
+         * the form. It is shown in the manual box below, with a note, rather
+         * than as an option that pretends the file is there.
          */
-        $missing = ($current !== '' && !in_array($current, $files, true));
-        if ($missing) {
-            array_unshift($files, $current);
-        }
+        $manualValue = ($current !== '' && !in_array($current, $files, true));
         /**
          * The blank option is load-bearing, not filler. On a host or group an
          * empty kernel/init means "inherit the global default", so it must be
@@ -5836,23 +6600,56 @@ abstract class FOGPage extends FOGBase
                 . ($file === $current ? ' selected' : '')
                 . '>'
                 . \Initiator::e($file)
-                . (
-                    $missing && $file === $current ?
-                    ' (' . _('not found on disk') . ')' :
-                    ''
-                )
                 . '</option>';
         }
+        /**
+         * The typed failsafe. A dropdown can only offer what the classifier
+         * recognized, and an admin running a kernel it does not recognize --
+         * or about to copy one in -- still has to be able to name it. This is
+         * also the escape hatch if the classifier is ever wrong.
+         *
+         * The TEXT INPUT carries the field name and is what posts, always;
+         * the select has no name and is a picker that writes into it. So with
+         * no JavaScript the field degrades to the free-text box it was before
+         * the dropdowns landed, rather than to nothing.
+         */
+        $opts .= '<option value="' . self::BOOT_MANUAL_VALUE . '"'
+            . ($manualValue ? ' selected' : '')
+            . '>- '
+            . _('Enter a name manually')
+            . ' -</option>';
 
-        return '<select class="'
+        return '<div class="fog-bootfile">'
+            . '<select class="'
             . $class
-            . ' fog-select2" name="'
-            . $name
+            . ' fog-select2 fog-bootfile-picker" data-target="'
+            . \Initiator::e($id)
             . '" id="'
-            . $id
-            . '" autocomplete="off">'
+            . \Initiator::e($id)
+            . '-picker" autocomplete="off">'
             . $opts
-            . '</select>';
+            . '</select>'
+            . '<input type="text" class="'
+            . $class
+            . ' fog-bootfile-value mt-1'
+            . ($manualValue ? '' : ' d-none')
+            . '" name="'
+            . \Initiator::e($name)
+            . '" id="'
+            . \Initiator::e($id)
+            . '" value="'
+            . \Initiator::e($current)
+            . '" placeholder="'
+            . ($type === 'init' ? 'customInit.xz' : 'bzImage_Custom')
+            . '" autocomplete="off">'
+            . (
+                $manualValue ?
+                '<small class="form-text text-warning fog-bootfile-note">'
+                . _('This name is not a recognized file in the boot directory.')
+                . '</small>' :
+                ''
+            )
+            . '</div>';
     }
     /**
      * Makes an input element.
