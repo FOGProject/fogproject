@@ -191,6 +191,15 @@ class Route extends FOGBase
      */
     public static $apiRequest = false;
     /**
+     * The host behind the verified fog-agent client certificate, set
+     * before dispatch for every /agent/v1/ route except enroll. Handlers
+     * under that prefix can rely on it: a request with no bound host
+     * never reaches them.
+     *
+     * @var \FOG\Items\Host|null
+     */
+    public static $agentHost = null;
+    /**
      * Requested relation-expansion tokens (lowercased) from ?expand=a,b,c.
      *
      * @var array
@@ -876,7 +885,12 @@ class Route extends FOGBase
             // swagger.json is where a great many people and tools look first,
             // Swagger UI having been the name for this long before it was
             // renamed OpenAPI. Same handler, same document.
-            $webrootbase . 'swagger.json'
+            $webrootbase . 'swagger.json',
+            // fog-agent enrollment. The caller has no certificate yet -- that
+            // is what it is asking for -- so it cannot authenticate. The
+            // handler issues nothing on its own authority: see
+            // FOG\Agent\Enrollment for the three approvals.
+            $webrootbase . 'agent/v1/enroll'
         ];
         /**
          * A plugin may declare one of its /ext/ routes reachable without API
@@ -911,6 +925,28 @@ class Route extends FOGBase
          * traffic (the CSRF-able surface) without touching headless clients.
          */
         $sessionAuthed = self::$FOGUser->isValid();
+        /**
+         * fog-agent past enrollment authenticates with the client
+         * certificate the web server verified -- never a token, never a
+         * session (design 0001 5.2). Decided HERE, before any route
+         * matches, so a handler under the prefix cannot be reached
+         * without a bound host whatever it forgets to check. Enroll is
+         * the one exception and it is in $unauthexact above.
+         */
+        if (!$isunauth
+            && 0 === strpos($requripath, $webrootbase . 'agent/v1/')
+        ) {
+            self::$agentHost = self::_agentPrincipal();
+            if (!self::$agentHost) {
+                HTTPResponseCodes::breakHead(
+                    HTTPResponseCodes::HTTP_UNAUTHORIZED,
+                    json_encode(['error' => 'client certificate required'])
+                );
+            }
+            // Authenticated by certificate: the token and session tests
+            // below are for humans and API tokens and would only 401 it.
+            $isunauth = true;
+        }
         if (!$sessionAuthed
             && !$isunauth
         ) {
@@ -1511,6 +1547,12 @@ class Route extends FOGBase
         );
         self::_registerRoute($r, 'HEAD|GET', '/system/[status|info]', [__CLASS__, 'status'], 'status');
         self::_registerRoute($r, 'GET', '/system/openapi', [__CLASS__, 'openapi'], 'openapi');
+        // fog-agent (protocol v1). The enroll route is public, listed in
+        // $unauthexact above; the other two are the admin's side of it.
+        self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
+        self::_registerRoute($r, 'POST', '/agent/v1/poll', [__CLASS__, 'agentPoll'], 'agentpoll');
+        self::_registerRoute($r, 'GET', '/agent/enrollments', [__CLASS__, 'agentEnrollments'], 'agentenrollments');
+        self::_registerRoute($r, 'POST', '/agent/enrollment/[i:id]/[*:action]', [__CLASS__, 'agentEnrollmentDecide'], 'agentenrollmentdecide');
         // Alias. swagger.json is the filename people and tooling reach
         // for first -- Swagger UI predates the OpenAPI rename and the
         // habit stuck. Same handler, same document, so neither name is
@@ -2739,6 +2781,198 @@ class Route extends FOGBase
             // have to fetch all of it. Same source either way, so the two
             // cannot disagree.
             'paging' => OpenAPI::pagingLimits(),
+            'msg' => _('success')
+        ];
+    }
+    /**
+     * fog-agent enrollment, protocol v1.
+     *
+     * Public: the agent is asking for the credential it would otherwise
+     * present. Everything that decides lives in FOG\Agent\Enrollment; this
+     * only moves bytes. The status codes are the contract the agent was
+     * written against (its docs/design/protocol-v1.md): 200 issued, 202
+     * pending, 403 denied, 426 wrong protocol.
+     *
+     * @return void
+     */
+    public static function agentEnroll()
+    {
+        $remoteIP = filter_var((string)self::$remoteaddr, FILTER_VALIDATE_IP)
+            ? (string)self::$remoteaddr
+            : '';
+        list($code, $payload) = \FOG\Agent\Enrollment::handle(self::_jsonBody(), $remoteIP);
+        HTTPResponseCodes::breakHead($code, json_encode($payload));
+    }
+    /**
+     * The host behind this request's client certificate, or null.
+     *
+     * Principal::verify() does the cryptography; this is the binding: the
+     * certificate's key must be the key enrollment stored on exactly one
+     * live, non-pending host. A deleted host or a re-enrolled key both
+     * come back null, which the gate turns into a 401 -- and a 401 is what
+     * tells the agent to drop its certificate and enroll again.
+     *
+     * @return \FOG\Items\Host|null
+     */
+    private static function _agentPrincipal()
+    {
+        $verified = \FOG\Agent\Principal::verify(
+            $_SERVER,
+            BASEPATH . 'management/other/agent-ca-bundle.pem'
+        );
+        if (null === $verified) {
+            return null;
+        }
+        // A direct statement, NOT getIds('host'): that lookup puts the
+        // calling user's site scope into the WHERE, and this request has
+        // no user -- the agent IS the host -- so the scope resolves to
+        // 1=0 and every agent on the server gets 401. Proved live
+        // 2026-09-03: verify() passed, getIds() returned [], poll failed.
+        // One indexed column, so this is as cheap as the scoped path.
+        //
+        // LIMIT 2, because exactly one host may carry this key. Two would
+        // mean the binding is ambiguous, and an ambiguous principal is no
+        // principal.
+        $res = self::$DB->query(
+            'SELECT `hostID` FROM `hosts`'
+            . ' WHERE `hostAgentFingerprint` = :fp AND `hostPending` = 0'
+            . ' LIMIT 2',
+            [],
+            ['fp' => $verified['fingerprint']]
+        );
+        if (false !== $res->error) {
+            return null;
+        }
+        $rows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        if (!is_array($rows) || 1 !== count($rows)) {
+            return null;
+        }
+        $Host = new \FOG\Items\Host((int)$rows[0]['hostID']);
+        if (!$Host->isValid()) {
+            return null;
+        }
+        return $Host;
+    }
+    /**
+     * fog-agent's poll: "I am here, this version; anything for me?"
+     *
+     * The hard floor of protocol 1 (design 0001 5.1). Records the check-in
+     * and answers with what this server can do, so a feature the server
+     * lacks is simply not listed and the agent leaves it idle. Nothing
+     * secret rides this answer. Written through the manager rather than
+     * Host::save() because a save re-writes the MAC association on every
+     * call, and this is called every few minutes by every host.
+     *
+     * @return void
+     */
+    public static function agentPoll()
+    {
+        $Host = self::$agentHost;
+        $body = self::_jsonBody();
+        $version = substr(
+            preg_replace('/[^A-Za-z0-9.+_-]/', '', (string)($body['agent_version'] ?? '')),
+            0,
+            50
+        );
+        $fields = ['agentCheckin' => self::niceDate()->format('Y-m-d H:i:s')];
+        if ('' !== $version) {
+            $fields['agentVersion'] = $version;
+        }
+        self::getClass('HostManager')->update(
+            ['id' => (int)$Host->get('id')],
+            '',
+            $fields
+        );
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_OK,
+            json_encode(
+                [
+                    'status' => 'ok',
+                    'protocol' => \FOG\Agent\Enrollment::PROTOCOL,
+                    'host' => [
+                        'id' => (int)$Host->get('id'),
+                        'name' => (string)$Host->get('name'),
+                    ],
+                    // Grows as capabilities land server-side; an empty
+                    // list is a valid answer and the agent idles on it.
+                    'capabilities' => [],
+                    'poll_interval' => 300,
+                    'server_time' => self::niceDate()->format('c'),
+                ]
+            )
+        );
+    }
+    /**
+     * The pending fog-agent enrollments, for the admin's list.
+     *
+     * The CSR is left out: it is large and the admin decides on the
+     * identity, the hostname and where the request came from, not on the
+     * key bytes.
+     *
+     * @return void
+     */
+    public static function agentEnrollments()
+    {
+        $rows = [];
+        foreach ((array)self::getList('agentenrollment', ['state' => 'pending'], 'AND', 'id') as $row) {
+            $row = (array)$row;
+            $identity = json_decode((string)($row['identity'] ?? ''), true);
+            $rows[] = [
+                'id' => (int)($row['id'] ?? 0),
+                'hostID' => (int)($row['hostID'] ?? 0),
+                'hostname' => (string)($row['hostname'] ?? ''),
+                'os' => (string)($row['os'] ?? ''),
+                'arch' => (string)($row['arch'] ?? ''),
+                'agentVersion' => (string)($row['agentVersion'] ?? ''),
+                'remoteIP' => (string)($row['remoteIP'] ?? ''),
+                'reason' => (string)($row['reason'] ?? ''),
+                'fingerprint' => (string)($row['fingerprint'] ?? ''),
+                'identity' => is_array($identity) ? $identity : [],
+                'created' => (string)($row['created'] ?? ''),
+                'updated' => (string)($row['updated'] ?? '')
+            ];
+        }
+        self::$data = ['data' => $rows, 'msg' => _('success')];
+    }
+    /**
+     * Approve or deny one pending fog-agent enrollment.
+     *
+     * Approving signs the stored request and binds the key to the host; the
+     * agent collects the certificate on its next poll. Denying pins the key
+     * as refused so its repeats are answered without re-deciding.
+     *
+     * @param int    $id     the enrollment row
+     * @param string $action approve or deny
+     *
+     * @return void
+     */
+    public static function agentEnrollmentDecide($id, $action)
+    {
+        $by = (string)self::$FOGUser->get('name');
+        try {
+            switch ((string)$action) {
+                case 'approve':
+                    $Row = \FOG\Agent\Enrollment::approve((int)$id, $by);
+                    break;
+                case 'deny':
+                    $Row = \FOG\Agent\Enrollment::deny((int)$id, $by);
+                    break;
+                default:
+                    self::sendResponse(HTTPResponseCodes::HTTP_NOT_FOUND, _('unknown action'));
+                    return;
+            }
+        } catch (\RuntimeException $e) {
+            $code = (int)$e->getCode();
+            self::sendResponse(
+                $code >= 400 && $code <= 599 ? $code : HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode(['error' => $e->getMessage()])
+            );
+            return;
+        }
+        self::$data = [
+            'id' => (int)$Row->get('id'),
+            'hostID' => (int)$Row->get('hostID'),
+            'state' => (string)$Row->get('state'),
             'msg' => _('success')
         ];
     }

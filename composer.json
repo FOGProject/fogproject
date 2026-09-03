@@ -13,5 +13,10 @@
     "config": {
         "optimize-autoloader": false,
         "sort-packages": true
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "FOG\\Build\\PhpStan\\": "build/phpstan/"
+        }
     }
 }

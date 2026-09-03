@@ -356,6 +356,7 @@ $expected = [
     // an orphan schedule left against a reused group id would silently
     // start shutting down every host that inherited the number.
     'groupPowerManagement.gpmGroupID',
+    'agentEnrollment.aeHostID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its
     // manager's schema(); see fog-plugins tests/foreign-keys.test.php,

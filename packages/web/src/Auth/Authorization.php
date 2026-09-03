@@ -334,6 +334,14 @@ class Authorization extends FOGBase
         // than left to the unknown-route fallback so the intent is recorded.
         'openapi' => null,
         'openapiSwaggerAlias' => null,
+        // fog-agent enrollment: public by construction (the caller is asking
+        // for its credential), and it decides nothing an admin did not
+        // approve -- see FOG\Agent\Enrollment. The admin side reads and
+        // edits hosts, so it carries the host permissions.
+        'agentenroll' => null,
+        'agentpoll' => null,                 // fog-agent: gated by the client certificate in Route, not by a token
+        'agentenrollments' => 'host.view',
+        'agentenrollmentdecide' => 'host.edit',
         'export' => 'system.export',
         'kernelUpdate' => 'settings.view',
         'initrdUpdate' => 'settings.view',

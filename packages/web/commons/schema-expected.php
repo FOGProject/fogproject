@@ -82,6 +82,41 @@ return [
         ],
     ],
     'tables' => [
+        'agentEnrollment' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `agentEnrollment` ( `aeID` int(11) NOT NULL AUTO_INCREMENT, `aeHostID` int(11) NOT NULL DEFAULT 0, `aeFingerprint` varchar(64) NOT NULL DEFAULT \'\', `aeCSR` text NOT NULL, `aeIdentity` text NOT NULL DEFAULT \'\', `aeHostname` varchar(191) NOT NULL DEFAULT \'\', `aeOS` varchar(20) NOT NULL DEFAULT \'\', `aeArch` varchar(20) NOT NULL DEFAULT \'\', `aeAgentVersion` varchar(50) NOT NULL DEFAULT \'\', `aeRemoteIP` varchar(45) NOT NULL DEFAULT \'\', `aeReason` varchar(32) NOT NULL DEFAULT \'\', `aeState` varchar(16) NOT NULL DEFAULT \'pending\', `aeCert` text NOT NULL DEFAULT \'\', `aeCreated` datetime DEFAULT NULL, `aeUpdated` datetime DEFAULT NULL, `aeDecided` datetime DEFAULT NULL, `aeDecidedBy` varchar(191) NOT NULL DEFAULT \'\', `aeDecidedVia` varchar(16) NOT NULL DEFAULT \'\', PRIMARY KEY (`aeID`), UNIQUE KEY `aeFingerprint` (`aeFingerprint`), KEY `aeState` (`aeState`), KEY `aeHostID` (`aeHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'aeID' => 'int(11) NOT NULL',
+                'aeHostID' => 'int(11) NOT NULL DEFAULT 0',
+                'aeFingerprint' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'aeCSR' => 'text NOT NULL',
+                'aeIdentity' => 'text NOT NULL DEFAULT \'\'',
+                'aeHostname' => 'varchar(191) NOT NULL DEFAULT \'\'',
+                'aeOS' => 'varchar(20) NOT NULL DEFAULT \'\'',
+                'aeArch' => 'varchar(20) NOT NULL DEFAULT \'\'',
+                'aeAgentVersion' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'aeRemoteIP' => 'varchar(45) NOT NULL DEFAULT \'\'',
+                'aeReason' => 'varchar(32) NOT NULL DEFAULT \'\'',
+                'aeState' => 'varchar(16) NOT NULL DEFAULT \'pending\'',
+                'aeCert' => 'text NOT NULL DEFAULT \'\'',
+                'aeCreated' => 'datetime DEFAULT NULL',
+                'aeUpdated' => 'datetime DEFAULT NULL',
+                'aeDecided' => 'datetime DEFAULT NULL',
+                'aeDecidedBy' => 'varchar(191) NOT NULL DEFAULT \'\'',
+                'aeDecidedVia' => 'varchar(16) NOT NULL DEFAULT \'\'',
+            ],
+        ],
+        'agentEnrollToken' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `agentEnrollToken` ( `atID` int(11) NOT NULL AUTO_INCREMENT, `atName` varchar(191) NOT NULL DEFAULT \'\', `atHash` varchar(64) NOT NULL DEFAULT \'\', `atUses` int(11) NOT NULL DEFAULT 1, `atExpires` datetime DEFAULT NULL, `atCreatedBy` varchar(191) NOT NULL DEFAULT \'\', `atCreated` datetime DEFAULT NULL, PRIMARY KEY (`atID`), UNIQUE KEY `atHash` (`atHash`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'atID' => 'int(11) NOT NULL',
+                'atName' => 'varchar(191) NOT NULL DEFAULT \'\'',
+                'atHash' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'atUses' => 'int(11) NOT NULL DEFAULT 1',
+                'atExpires' => 'datetime DEFAULT NULL',
+                'atCreatedBy' => 'varchar(191) NOT NULL DEFAULT \'\'',
+                'atCreated' => 'datetime DEFAULT NULL',
+            ],
+        ],
         'apiTokens' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `apiTokens` ( `atID` int(11) NOT NULL AUTO_INCREMENT, `atUserID` int(11) NOT NULL DEFAULT 0, `atName` varchar(255) NOT NULL DEFAULT \'\', `atHash` char(64) NOT NULL DEFAULT \'\', `atEnabled` tinyint(1) NOT NULL DEFAULT 1, `atCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `atCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `atLastUsed` datetime DEFAULT NULL, PRIMARY KEY (`atID`), UNIQUE KEY `atHash` (`atHash`), KEY `atUserID` (`atUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -319,7 +354,7 @@ return [
             ],
         ],
         'hosts' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) DEFAULT NULL, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` tinyint(1) NOT NULL DEFAULT 0, `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` tinyint(1) NOT NULL DEFAULT 1, `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, `hostArchID` mediumint(9) DEFAULT NULL, `hostSbState` varchar(16) DEFAULT NULL, `hostSbStateTime` datetime DEFAULT NULL, `hostSbEnrolled` datetime DEFAULT NULL, `hostSbEnrollCert` varchar(95) DEFAULT NULL, `hostSbEnrollVia` varchar(16) DEFAULT NULL, PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) DEFAULT NULL, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` tinyint(1) NOT NULL DEFAULT 0, `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` tinyint(1) NOT NULL DEFAULT 1, `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, `hostArchID` mediumint(9) DEFAULT NULL, `hostSbState` varchar(16) DEFAULT NULL, `hostSbStateTime` datetime DEFAULT NULL, `hostSbEnrolled` datetime DEFAULT NULL, `hostSbEnrollCert` varchar(95) DEFAULT NULL, `hostSbEnrollVia` varchar(16) DEFAULT NULL, `hostAgentFingerprint` varchar(64) NOT NULL DEFAULT \'\', `hostAgentNotAfter` datetime DEFAULT NULL, `hostAgentVersion` varchar(50) NOT NULL DEFAULT \'\', `hostAgentCheckin` datetime DEFAULT NULL, PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`), KEY `hostAgentFingerprint` (`hostAgentFingerprint`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hostID' => 'int(11) NOT NULL',
                 'hostName' => 'varchar(16) NOT NULL',
@@ -351,6 +386,10 @@ return [
                 'hostExitEfi' => 'longtext DEFAULT NULL',
                 'hostEnforce' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'hostInfoKey' => 'varchar(255) DEFAULT NULL',
+                'hostAgentFingerprint' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'hostAgentNotAfter' => 'datetime DEFAULT NULL',
+                'hostAgentVersion' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'hostAgentCheckin' => 'datetime DEFAULT NULL',
                 'hostInfoLock' => 'tinyint(1) DEFAULT 0',
                 'hostSecTokenPrev' => 'longtext NOT NULL DEFAULT \'\'',
                 'hostLastPing' => 'datetime DEFAULT NULL',

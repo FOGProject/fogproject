@@ -321,6 +321,18 @@ return [
     // against a reused group id would silently start shutting down every
     // host that inherited the number.
     ['child' => 'groupPowerManagement', 'column' => 'gpmGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 11],
+    // FOG Agent enrollment. Group 12, created empty by step 416 so there is
+    // nothing to sweep before the flip.
+    //
+    // `satellite`: an enrollment row is the agent's standing with ONE host --
+    // pending, issued or denied -- and means nothing once that host is gone.
+    // Every row gets a host, because an unknown machine is given a pending
+    // host at enrollment time, the same way iPXE registration does it.
+    // CASCADE rather than RESTRICT because deleting the pending host IS how
+    // an admin forgets a machine; the agent then comes back as unknown and
+    // waits for a fresh decision. A denied row going with its host is the
+    // same outcome, and the decision itself is in auditLog.
+    ['child' => 'agentEnrollment', 'column' => 'aeHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 12],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];

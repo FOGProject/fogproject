@@ -1136,6 +1136,9 @@ msgstr ""
 msgid "An SQL error occurred"
 msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
+msgid "An enrollment token, if the installer was given one."
+msgstr ""
+
 #, fuzzy
 msgid "An entry already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
@@ -1225,9 +1228,15 @@ msgstr "hôte approuvé"
 msgid "Approve Pending Hosts"
 msgstr "Les hôtes en attente"
 
+msgid "Approve or deny an agent enrollment"
+msgstr ""
+
 #, fuzzy
 msgid "Approve selected"
 msgstr "Approuver hôtes sélectionnés"
+
+msgid "Approved but the signer is unavailable; the agent retries."
+msgstr ""
 
 #, fuzzy
 msgid "Approved selected hosts!"
@@ -1310,6 +1319,9 @@ msgid "Audit row was not stored"
 msgstr ""
 
 msgid "Authenticated but not permitted."
+msgstr ""
+
+msgid "Authenticated by the client certificate enrollment issued, verified by the web server and bound to the host by its key fingerprint before the route runs; no token or session applies. Records the check-in and answers with what this server can do. A certificate that no longer binds to a live host gets 401, which tells the agent to enroll again."
 msgstr ""
 
 msgid "Authentication missing or invalid."
@@ -2455,6 +2467,9 @@ msgstr "Options de débogage"
 msgid "Debug Task"
 msgstr "Déboguer"
 
+msgid "Decided."
+msgstr ""
+
 msgid "Default"
 msgstr "Défaut"
 
@@ -2554,6 +2569,9 @@ msgstr ""
 #, fuzzy
 msgid "Deleting remote file"
 msgstr "Menu create a échoué"
+
+msgid "Denied by an admin. The agent backs off to hourly."
+msgstr ""
 
 msgid "Deploy"
 msgstr "Déployer"
@@ -2936,6 +2954,9 @@ msgstr ""
 msgid "Every configured multicast port is already in use"
 msgstr ""
 
+msgid "Every enrollment still waiting for a decision, without the CSR. What the Pending Agents page reads."
+msgstr ""
+
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "Aucun fichier a été téléchargé"
@@ -3037,6 +3058,13 @@ msgstr ""
 
 msgid "FOG"
 msgstr "BROUILLARD"
+
+#, fuzzy
+msgid "FOG Agent enrollment"
+msgstr "a été mis à jour avec succès"
+
+msgid "FOG Agent poll"
+msgstr ""
 
 #, fuzzy
 msgid "FOG Client"
@@ -5012,6 +5040,9 @@ msgstr ""
 msgid "Issued by %s"
 msgstr ""
 
+msgid "Issued. The certificate and the host it binds to."
+msgstr ""
+
 msgid "Issuer"
 msgstr ""
 
@@ -6347,6 +6378,9 @@ msgstr "Une image existe déjà avec ce nom!"
 msgid "No storagegroups assigned to this snapin"
 msgstr "Le groupe de stockage d'images attribuée est non valable"
 
+msgid "No such enrollment, or no such action."
+msgstr ""
+
 msgid "No such file in the boot directory."
 msgstr ""
 
@@ -6390,6 +6424,9 @@ msgstr ""
 
 msgid "No values passed"
 msgstr "Aucune valeur passées"
+
+msgid "No verified client certificate, or one bound to no live host."
+msgstr ""
 
 #, fuzzy
 msgid "No viable macs to use"
@@ -6867,8 +6904,22 @@ msgstr "en attente MACs"
 msgid "Pending Registered Hosts"
 msgstr "Dans l'attente des hôtes enregistrés"
 
+#, fuzzy
+msgid "Pending Registration created by FOG_AGENT"
+msgstr "Inscription en attente créée par FOG_CLIENT"
+
 msgid "Pending Registration created by FOG_CLIENT"
 msgstr "Inscription en attente créée par FOG_CLIENT"
+
+#, fuzzy
+msgid "Pending agent enrollments"
+msgstr "Dans l'attente des hôtes enregistrés"
+
+msgid "Pending an admin decision. Poll again after retry_after seconds."
+msgstr ""
+
+msgid "Pending enrollment rows."
+msgstr ""
 
 #, fuzzy
 msgid "Pending host"
@@ -7896,6 +7947,9 @@ msgid "SB Enrolled"
 msgstr ""
 
 msgid "SHA-256"
+msgstr ""
+
+msgid "SMBIOS system UUID, system serial, board serial, chassis asset tag and the MAC list, as fog-agent identity prints them."
 msgstr ""
 
 #, fuzzy
@@ -9489,6 +9543,9 @@ msgstr "Il n'y a pas de groupes sur ce serveur."
 msgid "The CA private key is on this server"
 msgstr "Il n'y a pas de groupes sur ce serveur."
 
+msgid "The CSR is not a usable P-256 request, or a required field is missing."
+msgstr ""
+
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrolls outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
@@ -9520,6 +9577,9 @@ msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
+msgstr ""
+
+msgid "The agent speaks a protocol this server does not."
 msgstr ""
 
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
@@ -9606,6 +9666,10 @@ msgstr ""
 msgid "The default printer for hosts in this group. A host that has its own default keeps it."
 msgstr ""
 
+#, fuzzy
+msgid "The enrollment is no longer pending."
+msgstr " n'existe plus"
+
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
@@ -9632,6 +9696,10 @@ msgstr ""
 #, fuzzy
 msgid "The grid key."
 msgstr "Impossible de créer la tâche"
+
+#, fuzzy
+msgid "The host this certificate is, and the capabilities this server offers."
+msgstr "Il n'y a pas de groupes sur ce serveur."
 
 #, fuzzy
 msgid "The identity provider could not be reached"
@@ -9688,6 +9756,9 @@ msgid "The issuer must be a full URL"
 msgstr ""
 
 msgid "The key will be assigned to registered hosts when a"
+msgstr ""
+
+msgid "The leaf followed by the agent CA, PEM."
 msgstr ""
 
 msgid "The logical sector size of the disk this image was captured from."
@@ -9808,6 +9879,9 @@ msgstr ""
 msgid "The signed certificate, or full chain, leaf first (PEM)"
 msgstr ""
 
+msgid "The signer is unavailable; nothing changed."
+msgstr ""
+
 #, fuzzy
 msgid "The signing request could not be generated"
 msgstr "Impossible de lire le fichier temporaire"
@@ -9824,7 +9898,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -10370,6 +10443,9 @@ msgid "Unattributed"
 msgstr "Nom d'utilisateur"
 
 msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
+msgstr ""
+
+msgid "Unauthenticated, because this is how an agent obtains the client certificate it will authenticate with afterward. The agent posts a certificate signing request and its firmware identity; the server resolves the machine the way iPXE registration does and answers issued, pending or denied. Pending is the normal first answer for a machine nobody has approved yet -- the agent polls until an admin decides on /agent/enrollment/{id}/{action}, an enrollment token pre-approves it, or the server itself imaged the host recently (FOG_AGENT_ENROLL_DEPLOY_WINDOW). A pending agent can do nothing else: without a certificate no other agent route accepts it. Protocol 1."
 msgstr ""
 
 #, fuzzy
@@ -10963,6 +11039,9 @@ msgstr ""
 msgid "Who a filter can be shared with"
 msgstr ""
 
+msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflict, reissue."
+msgstr ""
+
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
 msgstr ""
 
@@ -11209,6 +11288,9 @@ msgid "answering \"does not exist\" for a read that never ran"
 msgstr ""
 
 msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "approve signs the CSR, binds the certificate to the host and takes the host out of pending; deny records the refusal. Either way the agent learns the outcome on its next poll. Audited as agent.enroll."
 msgstr ""
 
 #, fuzzy
@@ -12074,6 +12156,10 @@ msgstr "Indisponible"
 #, fuzzy
 msgid "unchanged for"
 msgstr "imager"
+
+#, fuzzy
+msgid "unknown action"
+msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
 msgid "unrecorded"
 msgstr ""

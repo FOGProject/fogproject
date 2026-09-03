@@ -124,7 +124,15 @@ class Host extends FOGController
         'efiexit' => 'hostExitEfi',
         'enforce' => 'hostEnforce',
         'token' => 'hostInfoKey',
-        'tokenlock' => 'hostInfoLock'
+        'tokenlock' => 'hostInfoLock',
+        // fog-agent binding (schema 416). agentFingerprint is the sha256 of
+        // the agent key's SubjectPublicKeyInfo and is what a client
+        // certificate is matched against; the rest is what the agent last
+        // reported about itself.
+        'agentFingerprint' => 'hostAgentFingerprint',
+        'agentNotAfter' => 'hostAgentNotAfter',
+        'agentVersion' => 'hostAgentVersion',
+        'agentCheckin' => 'hostAgentCheckin'
     ];
     /**
      * The required fields

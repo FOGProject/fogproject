@@ -10770,3 +10770,94 @@ $this->schema[] = [
     . "WHERE `settingKey`='FOG_MEMTEST_KERNEL' "
     . "AND `settingValue`='memtest.bin'",
 ];
+
+// 416
+$this->schema[] = [
+    // fog-agent enrollment (docs/design in the fog-agent repo, section 4;
+    // wire contract in its docs/design/protocol-v1.md).
+    //
+    // An agent that has no certificate yet presents its firmware identity,
+    // its MACs and a CSR. Nothing is issued until one of three approvals
+    // happens: an admin clicks Approve, a valid enrollment token was
+    // presented, or this server itself imaged the host within
+    // FOG_AGENT_ENROLL_DEPLOY_WINDOW hours. Until then the request waits
+    // here, verbatim, so that what gets signed on approval is exactly what
+    // was presented and not a re-read of anything the agent could change in
+    // between.
+    //
+    // One row per KEY (aeFingerprint is the sha256 of the SubjectPublicKeyInfo),
+    // not per request: an agent repeats the identical request every few
+    // minutes while it waits, and the repeat refreshes the row rather than
+    // adding one. A denied key stays denied across repeats for the same
+    // reason.
+    //
+    //   aeHostID     0 until the request is bound to a host. Set at approval,
+    //                or immediately when the identity resolved to a host and
+    //                the request is merely waiting for a click.
+    //   aeIdentity   the SMBIOS tuple, smbios version and MAC list as the
+    //                agent sent them, JSON. Kept raw: canonicalization is
+    //                SmbiosIdentity's job at read time, the same as for boot.
+    //   aeReason     why it is waiting: unknown-host, known-host-no-agent,
+    //                rebind, identity-conflict. Shown to the admin.
+    //   aeState      pending, issued, denied.
+    //   aeCert       the issued leaf plus its chain, PEM. Filled at approval
+    //                so the agent's next poll can collect it; cleared once
+    //                collected so a database read does not hand out a
+    //                certificate twice.
+    "CREATE TABLE IF NOT EXISTS `agentEnrollment` ( "
+    . "`aeID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`aeHostID` int(11) NOT NULL DEFAULT 0, "
+    . "`aeFingerprint` varchar(64) NOT NULL DEFAULT '', "
+    . "`aeCSR` text NOT NULL, "
+    . "`aeIdentity` text NOT NULL DEFAULT '', "
+    . "`aeHostname` varchar(191) NOT NULL DEFAULT '', "
+    . "`aeOS` varchar(20) NOT NULL DEFAULT '', "
+    . "`aeArch` varchar(20) NOT NULL DEFAULT '', "
+    . "`aeAgentVersion` varchar(50) NOT NULL DEFAULT '', "
+    . "`aeRemoteIP` varchar(45) NOT NULL DEFAULT '', "
+    . "`aeReason` varchar(32) NOT NULL DEFAULT '', "
+    . "`aeState` varchar(16) NOT NULL DEFAULT 'pending', "
+    . "`aeCert` text NOT NULL DEFAULT '', "
+    . "`aeCreated` datetime DEFAULT NULL, "
+    . "`aeUpdated` datetime DEFAULT NULL, "
+    . "`aeDecided` datetime DEFAULT NULL, "
+    . "`aeDecidedBy` varchar(191) NOT NULL DEFAULT '', "
+    . "`aeDecidedVia` varchar(16) NOT NULL DEFAULT '', "
+    . "PRIMARY KEY (`aeID`), "
+    . "UNIQUE KEY `aeFingerprint` (`aeFingerprint`), "
+    . "KEY `aeState` (`aeState`), "
+    . "KEY `aeHostID` (`aeHostID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Enrollment tokens: an admin's pre-approval, minted in the UI and baked
+    // into an installer or an image's bootstrap file. Only the sha256 of the
+    // token is stored, so a database read does not yield a usable token.
+    // atUses counts down; -1 means unlimited until atExpires.
+    "CREATE TABLE IF NOT EXISTS `agentEnrollToken` ( "
+    . "`atID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`atName` varchar(191) NOT NULL DEFAULT '', "
+    . "`atHash` varchar(64) NOT NULL DEFAULT '', "
+    . "`atUses` int(11) NOT NULL DEFAULT 1, "
+    . "`atExpires` datetime DEFAULT NULL, "
+    . "`atCreatedBy` varchar(191) NOT NULL DEFAULT '', "
+    . "`atCreated` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`atID`), "
+    . "UNIQUE KEY `atHash` (`atHash`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // What the host knows about its agent. The fingerprint is the binding:
+    // a client certificate whose key does not hash to this value is not this
+    // host's agent, whatever its subject says. Same shape as the Secure Boot
+    // enrollment columns above it in the host table.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostAgentFingerprint` varchar(64) NOT NULL DEFAULT '', "
+    . "ADD COLUMN `hostAgentNotAfter` datetime DEFAULT NULL, "
+    . "ADD COLUMN `hostAgentVersion` varchar(50) NOT NULL DEFAULT '', "
+    . "ADD COLUMN `hostAgentCheckin` datetime DEFAULT NULL, "
+    . "ADD KEY `hostAgentFingerprint` (`hostAgentFingerprint`)",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_ENROLL_DEPLOY_WINDOW','Hours after this server completes "
+    . "a deploy to a host during which an agent presenting that host''s "
+    . "firmware identity is enrolled without an admin approving it. The "
+    . "deploy was the approval. 0 disables the shortcut and every "
+    . "enrollment waits for a click or a token.','24','General Settings')",
+];

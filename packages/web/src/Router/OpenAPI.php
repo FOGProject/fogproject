@@ -2466,6 +2466,190 @@ class OpenAPI extends FOGBase
                     )
                 )
             ],
+            '/agent/v1/enroll' => [
+                'post' => self::_op(
+                    '',
+                    'agentenroll',
+                    _('FOG Agent enrollment'),
+                    _('Unauthenticated, because this is how an agent obtains '
+                        . 'the client certificate it will authenticate with '
+                        . 'afterward. The agent posts a certificate signing '
+                        . 'request and its firmware identity; the server '
+                        . 'resolves the machine the way iPXE registration '
+                        . 'does and answers issued, pending or denied. Pending '
+                        . 'is the normal first answer for a machine nobody has '
+                        . 'approved yet -- the agent polls until an admin '
+                        . 'decides on /agent/enrollment/{id}/{action}, an '
+                        . 'enrollment token pre-approves it, or the server '
+                        . 'itself imaged the host recently '
+                        . '(FOG_AGENT_ENROLL_DEPLOY_WINDOW). A pending agent '
+                        . 'can do nothing else: without a certificate no other '
+                        . 'agent route accepts it. Protocol 1.'),
+                    [
+                        '200' => [
+                            'description' => _('Issued. The certificate and '
+                                . 'the host it binds to.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['issued']],
+                                    'host_id' => ['type' => 'integer'],
+                                    'certificate_pem' => [
+                                        'type' => 'string',
+                                        'description' => _('The leaf followed by the agent CA, PEM.')
+                                    ],
+                                    'not_after' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
+                        '202' => [
+                            'description' => _('Pending an admin decision. '
+                                . 'Poll again after retry_after seconds.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['pending']],
+                                    'reason' => [
+                                        'type' => 'string',
+                                        'description' => _('Why it waits: unknown-host, '
+                                            . 'known-host-no-agent, rebind, '
+                                            . 'identity-conflict, reissue.')
+                                    ],
+                                    'retry_after' => ['type' => 'integer']
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('The CSR is not a usable P-256 request, or a required field is missing.')],
+                        '403' => ['description' => _('Denied by an admin. The agent backs off to hourly.')],
+                        '426' => ['description' => _('The agent speaks a protocol this server does not.')],
+                        '503' => ['description' => _('Approved but the signer is unavailable; the agent retries.')]
+                    ],
+                    [],
+                    [
+                        'required' => true,
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['protocol', 'csr_pem', 'identity'],
+                            'properties' => [
+                                'protocol' => ['type' => 'integer', 'enum' => [1]],
+                                'agent_version' => ['type' => 'string'],
+                                'os' => ['type' => 'string'],
+                                'arch' => ['type' => 'string'],
+                                'hostname' => ['type' => 'string'],
+                                'identity' => [
+                                    'type' => 'object',
+                                    'description' => _('SMBIOS system UUID, system serial, '
+                                        . 'board serial, chassis asset tag and the MAC list, '
+                                        . 'as fog-agent identity prints them.')
+                                ],
+                                'csr_pem' => ['type' => 'string'],
+                                'token' => [
+                                    'type' => 'string',
+                                    'description' => _('An enrollment token, if the installer was given one.')
+                                ]
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/v1/poll' => [
+                'post' => self::_op(
+                    '',
+                    'agentpoll',
+                    _('FOG Agent poll'),
+                    _('Authenticated by the client certificate enrollment '
+                        . 'issued, verified by the web server and bound to '
+                        . 'the host by its key fingerprint before the route '
+                        . 'runs; no token or session applies. Records the '
+                        . 'check-in and answers with what this server can '
+                        . 'do. A certificate that no longer binds to a live '
+                        . 'host gets 401, which tells the agent to enroll '
+                        . 'again.'),
+                    [
+                        '200' => [
+                            'description' => _('The host this certificate is, '
+                                . 'and the capabilities this server offers.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['ok']],
+                                    'protocol' => ['type' => 'integer'],
+                                    'host' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'id' => ['type' => 'integer'],
+                                            'name' => ['type' => 'string']
+                                        ]
+                                    ],
+                                    'capabilities' => [
+                                        'type' => 'array',
+                                        'items' => ['type' => 'string']
+                                    ],
+                                    'poll_interval' => ['type' => 'integer'],
+                                    'server_time' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')]
+                    ],
+                    [],
+                    [
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'agent_version' => ['type' => 'string']
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/enrollments' => [
+                'get' => self::_op(
+                    '',
+                    'agentenrollments',
+                    _('Pending agent enrollments'),
+                    _('Every enrollment still waiting for a decision, '
+                        . 'without the CSR. What the Pending Agents page reads.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'data' => ['type' => 'array', 'items' => ['type' => 'object']],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('Pending enrollment rows.')
+                    )
+                )
+            ],
+            '/agent/enrollment/{id}/{action}' => [
+                'post' => self::_op(
+                    '',
+                    'agentenrollmentdecide',
+                    _('Approve or deny an agent enrollment'),
+                    _('approve signs the CSR, binds the certificate to the '
+                        . 'host and takes the host out of pending; deny '
+                        . 'records the refusal. Either way the agent learns '
+                        . 'the outcome on its next poll. Audited as '
+                        . 'agent.enroll.'),
+                    [
+                        '200' => ['description' => _('Decided.')],
+                        '404' => ['description' => _('No such enrollment, or no such action.')],
+                        '503' => ['description' => _('The signer is unavailable; nothing changed.')]
+                    ] + self::_conflictResponse(
+                        _('The enrollment is no longer pending.')
+                    ),
+                    [
+                        self::_idParameter(),
+                        [
+                            'name' => 'action',
+                            'in' => 'path',
+                            'required' => true,
+                            'schema' => ['type' => 'string', 'enum' => ['approve', 'deny']]
+                        ]
+                    ]
+                )
+            ],
             '/system/openapi' => [
                 'get' => self::_op(
                     '',

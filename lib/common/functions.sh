@@ -5749,6 +5749,14 @@ _installNodeCertSigner() {
             echo "PKI_SB_CA_CERT=${sbca}"
             echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
         fi
+        # The agent zone, when it exists (createAgentIntermediateCA runs
+        # from createSSLCA, so a master that has run this installer once has
+        # it). Same gate as the Secure Boot pair: a path that is not there is
+        # not a capability.
+        if [[ -f "$(_pkiZoneDir agent)/ca/.fogAgentCA.pem" ]]; then
+            echo "PKI_AGENT_CA_CERT=$(_pkiZoneDir agent)/ca/.fogAgentCA.pem"
+            echo "PKI_AGENT_CA_KEY=$(_pkiZoneDir agent)/ca/.fogAgentCA.key"
+        fi
         echo "PKI_STAGING=${stagedir}"
     } > "$conf"
     chown root:root "$conf" >>$error_log 2>&1
@@ -5892,6 +5900,14 @@ _installPkiAdminHelper() {
             echo "PKI_SB_CA_KEY=$(_pkiZoneDir secureboot)/ca/.fogSBCA.key"
         fi
         echo "PKI_SETTINGS=${fogprogramdir}/.fogsettings"
+        # The agent zone, when it exists (createAgentIntermediateCA runs
+        # from createSSLCA, so a master that has run this installer once has
+        # it). Same gate as the Secure Boot pair: a path that is not there is
+        # not a capability.
+        if [[ -f "$(_pkiZoneDir agent)/ca/.fogAgentCA.pem" ]]; then
+            echo "PKI_AGENT_CA_CERT=$(_pkiZoneDir agent)/ca/.fogAgentCA.pem"
+            echo "PKI_AGENT_CA_KEY=$(_pkiZoneDir agent)/ca/.fogAgentCA.key"
+        fi
         echo "PKI_STAGING=${stagedir}"
     } > "$conf"
     chown root:root "$conf" >>$error_log 2>&1
@@ -8132,6 +8148,12 @@ emitNginxPhpBody() {
     # PHP_AUTH_USER/PHP_AUTH_PW were never populated and basic auth
     # could not succeed.
     echo "    fastcgi_param HTTP_AUTHORIZATION \$http_authorization;" >> "$1"
+    # fog-agent authenticates with a client certificate; PHP needs the
+    # verdict and the certificate itself (URL-escaped: the raw form has
+    # newlines, which a fastcgi param cannot carry). Empty for everyone
+    # else, and Agent\Principal treats empty as "no certificate".
+    echo "    fastcgi_param SSL_CLIENT_VERIFY \$ssl_client_verify;" >> "$1"
+    echo "    fastcgi_param SSL_CLIENT_CERT \$ssl_client_escaped_cert;" >> "$1"
     echo "    fastcgi_buffers 16 16k;" >> "$1"
     echo "    fastcgi_buffer_size 32k;" >> "$1"
 }
@@ -8589,7 +8611,7 @@ _customPkiPair() {
 _pkiZoneDir() {
     local root
     case "$1" in
-        root|web|client|secureboot) root="$(_pkiRootDir)" ;;
+        root|web|client|secureboot|agent) root="$(_pkiRootDir)" ;;
         *) return 0 ;;
     esac
     echo "${root}/$1"
@@ -9426,6 +9448,39 @@ EOF
     chmod 0600 "${outdir}/${keyfile}" >>$error_log 2>&1
     chmod 0644 "${outdir}/${certfile}" >>$error_log 2>&1
     return $st
+}
+# The agent zone: an intermediate that issues CLIENT certificates to
+# fog-agent installs, through fog-sign-node-cert's agent type. Its own zone
+# rather than a use of the Web CA for two reasons the web zone's own notes
+# make clear: the Web CA may be one the admin brought (a public CA issues no
+# client certificates at all), and an EKU on a CA bounds what it can issue,
+# so clientAuth here means nothing from this zone can ever pose as a server
+# however its leaf is written. Always minted under the FOG root -- it is what
+# the vhost will be told to trust for client certificates, and it must be
+# something this server holds.
+createAgentIntermediateCA() {
+    local agentdir cadir
+    agentdir="$(_pkiZoneDir agent)"
+    cadir="${agentdir}/ca"
+    mkdir -p "$cadir" >>$error_log 2>&1
+    chmod 0700 "$cadir" >>$error_log 2>&1
+    PKI_agent_ca_key="${cadir}/.fogAgentCA.key"
+    PKI_agent_ca_cert="${cadir}/.fogAgentCA.pem"
+    if [[ ! -f ${PKI_agent_ca_cert} ]]; then
+        dots "Creating FOG Agent CA"
+        _issueIntermediateCA "FOG Agent CA" "$cadir" ".fogAgentCA.key" ".fogAgentCA.pem" \
+            "extendedKeyUsage = clientAuth" "FOG Agent"
+        errorStat $?
+    fi
+    # The trust file for VERIFYING agent certificates: the agent CA and the
+    # root it chains to, public halves only, world-readable. Three readers:
+    # the vhost (ssl_client_certificate / SSLCACertificateFile), PHP
+    # (Agent\Principal re-verifies against it, see that class for why), and
+    # the copy published under management/other for the same reason
+    # ca.cert.pem is. Rewritten every run so it follows a re-minted CA.
+    PKI_agent_ca_bundle="${agentdir}/agent-ca-bundle.pem"
+    cat "${PKI_agent_ca_cert}" "${PKI_root_ca_cert}" > "${PKI_agent_ca_bundle}" 2>>$error_log
+    chmod 0644 "${PKI_agent_ca_bundle}" >>$error_log 2>&1
 }
 # Did ${PKI_root_ca_cert} actually issue ${PKI_web_ca_cert}?
 #
@@ -10731,6 +10786,10 @@ EOF
             PKI_web_trust_chain="${PKI_root_ca_cert}"
         fi
     fi
+    # Outside the web-zone branch on purpose: an install that brought its own
+    # Web CA still needs an agent CA, and it is issued by the FOG root, which
+    # every master holds whatever signs its web leaf.
+    createAgentIntermediateCA
     _resolveWebLeafPaths
     _createWebLeaf
     _writeWebChainFiles
@@ -10770,6 +10829,13 @@ EOF
     # certificate.
     cp -f "${PKI_root_ca_cert}" $webdirdest/management/other/ca.cert.pem >>$error_log 2>&1
     openssl x509 -outform der -in $webdirdest/management/other/ca.cert.pem -out $webdirdest/management/other/ca.cert.der >>$error_log 2>&1
+    # What Agent\Principal verifies client certificates against (see
+    # createAgentIntermediateCA). A storage node mints no agent CA and
+    # publishes nothing here, and the router's agent gate then refuses
+    # every certificate, which is right: a node is not an agent server.
+    if [[ -n ${PKI_agent_ca_bundle:-} && -f ${PKI_agent_ca_bundle} ]]; then
+        cp -f "${PKI_agent_ca_bundle}" $webdirdest/management/other/agent-ca-bundle.pem >>$error_log 2>&1
+    fi
     errorStat $?
     dots "Resetting SSL Permissions"
     chown -R $apacheuser:$apacheuser $webdirdest/management/other >>$error_log 2>&1
@@ -10909,6 +10975,21 @@ EOF
                         # it and the root.
                         echo "    ssl_certificate ${sslfullchain:-${PKI_web_vhost_cert}};" >> "$etcconf"
                         echo "    ssl_certificate_key ${PKI_web_vhost_key};" >> "$etcconf"
+                        # fog-agent client certificates. `optional`, and at
+                        # server scope because nginx allows nothing finer:
+                        # a browser is never asked for one it does not have
+                        # -- the request names only the FOG Agent CA, which
+                        # no browser holds a certificate from -- and a
+                        # request with no certificate reaches PHP with an
+                        # empty verdict, where the router's agent gate
+                        # decides. Verification against the agent bundle
+                        # (agent CA + root) and depth 2 for exactly that
+                        # chain. Absent on a node, which mints no agent CA.
+                        if [[ -n ${PKI_agent_ca_bundle:-} && -f ${PKI_agent_ca_bundle} ]]; then
+                            echo "    ssl_client_certificate ${PKI_agent_ca_bundle};" >> "$etcconf"
+                            echo "    ssl_verify_client optional;" >> "$etcconf"
+                            echo "    ssl_verify_depth 2;" >> "$etcconf"
+                        fi
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         # Zone name is FOG-specific on purpose. Alpine's stock
                         # nginx.conf already declares `shared:SSL:2m` in the
@@ -11086,6 +11167,21 @@ EOF
                         # it and the root.
                         echo "    ssl_certificate ${sslfullchain:-${PKI_web_vhost_cert}};" >> "$etcconf"
                         echo "    ssl_certificate_key ${PKI_web_vhost_key};" >> "$etcconf"
+                        # fog-agent client certificates. `optional`, and at
+                        # server scope because nginx allows nothing finer:
+                        # a browser is never asked for one it does not have
+                        # -- the request names only the FOG Agent CA, which
+                        # no browser holds a certificate from -- and a
+                        # request with no certificate reaches PHP with an
+                        # empty verdict, where the router's agent gate
+                        # decides. Verification against the agent bundle
+                        # (agent CA + root) and depth 2 for exactly that
+                        # chain. Absent on a node, which mints no agent CA.
+                        if [[ -n ${PKI_agent_ca_bundle:-} && -f ${PKI_agent_ca_bundle} ]]; then
+                            echo "    ssl_client_certificate ${PKI_agent_ca_bundle};" >> "$etcconf"
+                            echo "    ssl_verify_client optional;" >> "$etcconf"
+                            echo "    ssl_verify_depth 2;" >> "$etcconf"
+                        fi
                         echo "    ssl_session_timeout 1d;" >> "$etcconf"
                         # Zone name is FOG-specific on purpose. Alpine's stock
                         # nginx.conf already declares `shared:SSL:2m` in the
@@ -11311,7 +11407,27 @@ EOF
                         # supports 2.4.6, which would silently serve only the first
                         # certificate -- the exact failure this is here to fix.
                         [[ -n $sslchainonly ]] && echo "    SSLCertificateChainFile $sslchainonly" >> "$etcconf"
-                        echo "    SSLCACertificateFile ${PKI_web_trust_chain}" >> "$etcconf"
+                        # fog-agent client certificates. Apache verifies them
+                        # against SSLCACertificateFile, so with an agent CA
+                        # present that file is the agent bundle (agent CA +
+                        # root) rather than the web trust chain -- the
+                        # directive governs client verification only, the
+                        # server's own chain is SSLCertificateChainFile above.
+                        # `optional` at vhost scope: a Location-scoped
+                        # requirement means renegotiation, which TLS 1.3 has
+                        # not got and Go's client does not do. The env vars
+                        # are exported only under /agent/, the one place PHP
+                        # reads them. Agent\Principal re-verifies regardless.
+                        if [[ -n ${PKI_agent_ca_bundle:-} && -f ${PKI_agent_ca_bundle} ]]; then
+                            echo "    SSLCACertificateFile ${PKI_agent_ca_bundle}" >> "$etcconf"
+                            echo "    SSLVerifyClient optional" >> "$etcconf"
+                            echo "    SSLVerifyDepth 2" >> "$etcconf"
+                            echo "    <Location ${WEB_root}agent/>" >> "$etcconf"
+                            echo "        SSLOptions +StdEnvVars +ExportCertData" >> "$etcconf"
+                            echo "    </Location>" >> "$etcconf"
+                        else
+                            echo "    SSLCACertificateFile ${PKI_web_trust_chain}" >> "$etcconf"
+                        fi
                         echo "    <IfModule http2_module>" >> "$etcconf"
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
                         echo "    </IfModule>" >> "$etcconf"
@@ -11438,7 +11554,27 @@ EOF
                         # supports 2.4.6, which would silently serve only the first
                         # certificate -- the exact failure this is here to fix.
                         [[ -n $sslchainonly ]] && echo "    SSLCertificateChainFile $sslchainonly" >> "$etcconf"
-                        echo "    SSLCACertificateFile ${PKI_web_trust_chain}" >> "$etcconf"
+                        # fog-agent client certificates. Apache verifies them
+                        # against SSLCACertificateFile, so with an agent CA
+                        # present that file is the agent bundle (agent CA +
+                        # root) rather than the web trust chain -- the
+                        # directive governs client verification only, the
+                        # server's own chain is SSLCertificateChainFile above.
+                        # `optional` at vhost scope: a Location-scoped
+                        # requirement means renegotiation, which TLS 1.3 has
+                        # not got and Go's client does not do. The env vars
+                        # are exported only under /agent/, the one place PHP
+                        # reads them. Agent\Principal re-verifies regardless.
+                        if [[ -n ${PKI_agent_ca_bundle:-} && -f ${PKI_agent_ca_bundle} ]]; then
+                            echo "    SSLCACertificateFile ${PKI_agent_ca_bundle}" >> "$etcconf"
+                            echo "    SSLVerifyClient optional" >> "$etcconf"
+                            echo "    SSLVerifyDepth 2" >> "$etcconf"
+                            echo "    <Location ${WEB_root}agent/>" >> "$etcconf"
+                            echo "        SSLOptions +StdEnvVars +ExportCertData" >> "$etcconf"
+                            echo "    </Location>" >> "$etcconf"
+                        else
+                            echo "    SSLCACertificateFile ${PKI_web_trust_chain}" >> "$etcconf"
+                        fi
                         echo "    <IfModule http2_module>" >> "$etcconf"
                         echo "        Protocols h2 http/1.1" >> "$etcconf"
                         echo "    </IfModule>" >> "$etcconf"

@@ -368,7 +368,6 @@ class Registration extends FOGBase
                 ->addGroup($groupsToJoin)
                 ->addSnapin($snapinsToJoin)
                 ->addPriMAC($this->PriMAC)
-                ->addMAC($this->MACs)
                 ->setAD(
                     $useAD,
                     $ADDomain,
@@ -390,6 +389,13 @@ class Registration extends FOGBase
                 );
             }
             self::$Host->load();
+            // Only after the save: addMAC() writes the hostMAC rows at once
+            // with the id the object holds, and before save() a new host
+            // holds none, so the secondaries went in with an empty hostID
+            // (the insertBatch guard now rejects that outright). The
+            // primary is unaffected -- addPriMAC() stages it and save()
+            // writes it once the id exists.
+            self::$Host->addMAC($this->MACs);
             Audit::identify(
                 'host',
                 (int)self::$Host->get('id'),
@@ -661,8 +667,7 @@ class Registration extends FOGBase
                 ->set('name', $this->macsimple)
                 ->set('description', $this->description)
                 ->set('modules', $this->modulesToJoin)
-                ->addPriMAC($this->PriMAC)
-                ->addMAC($this->MACs);
+                ->addPriMAC($this->PriMAC);
             if ($prodkeyget > 0) {
                 $productKey = trim((string)filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));
                 if ($productKey !== '' && !preg_match('/^[A-Za-z0-9\\-]{1,29}$/', $productKey)) {
@@ -681,6 +686,13 @@ class Registration extends FOGBase
                 );
             }
             self::$Host->load();
+            // Only after the save: addMAC() writes the hostMAC rows at once
+            // with the id the object holds, and before save() a new host
+            // holds none, so the secondaries went in with an empty hostID
+            // (the insertBatch guard now rejects that outright). The
+            // primary is unaffected -- addPriMAC() stages it and save()
+            // writes it once the id exists.
+            self::$Host->addMAC($this->MACs);
             Audit::identify(
                 'host',
                 (int)self::$Host->get('id'),

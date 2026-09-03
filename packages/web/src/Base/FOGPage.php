@@ -6287,9 +6287,14 @@ abstract class FOGPage extends FOGBase
         if (null === self::$_bootFileRows) {
             self::$_bootFileRows = [];
             try {
-                $rows = self::getClass('BootFileManager')->find();
-                foreach ((array)$rows as $row) {
-                    if ($row && $row->isValid()) {
+                // getIds(), not the manager: 1.6's FOGManagerController has
+                // no find(). The 1.5 call this replaces threw "undefined
+                // method" into the catch below on every request, so the
+                // accelerator had never once been populated -- exactly the
+                // silent failure that catch was NOT meant to cover.
+                foreach ((array)self::getIds('bootfile') as $id) {
+                    $row = new \FOG\Items\BootFile((int)$id);
+                    if ($row->isValid()) {
                         self::$_bootFileRows[(string)$row->get('name')] = $row;
                     }
                 }
