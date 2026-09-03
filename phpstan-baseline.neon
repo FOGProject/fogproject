@@ -2325,7 +2325,7 @@ parameters:
 		-
 			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
 			identifier: argument.type
-			count: 1
+			count: 2
 			path: packages/web/src/Base/FOGPage.php
 
 		-

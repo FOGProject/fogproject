@@ -6287,9 +6287,26 @@ abstract class FOGPage extends FOGBase
         if (null === self::$_bootFileRows) {
             self::$_bootFileRows = [];
             try {
-                $rows = self::getClass('BootFileManager')->find();
-                foreach ((array)$rows as $row) {
-                    if ($row && $row->isValid()) {
+                /**
+                 * Route::getIds(), which is how every other list-all in
+                 * this class is done. The first version called
+                 * BootFileManager->find(), a 1.5 method that does not exist
+                 * on the 1.6 manager, so it threw "undefined method" into
+                 * the catch below on every request and the map was never
+                 * populated. The cost of that was not one failed query: it
+                 * was every file in the boot directory re-read, re-hashed
+                 * (264MB on a stock install) and re-saved on every host
+                 * and group page, ~1.8s before the first byte.
+                 *
+                 * `false` for the filter, like HookManager's own lookup:
+                 * an empty array asks the request body for a filter, and a
+                 * host form POSTs a `name` field, which would filter the
+                 * rows down to the one boot file called after the host.
+                 */
+                $ids = Route::getIds('bootfile', false);
+                foreach ((array)$ids as $id) {
+                    $row = new \FOG\Items\BootFile((int)$id);
+                    if ($row->isValid()) {
                         self::$_bootFileRows[(string)$row->get('name')] = $row;
                     }
                 }

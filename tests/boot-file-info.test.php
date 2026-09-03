@@ -184,6 +184,72 @@ $t->check(
     $page::bootFileInfo($dir . '/bzImage') == $info
 );
 
+// --- a stored record is USED, not re-derived -----------------------------
+
+/**
+ * The map of bootFile rows was never populated: the loader called a 1.5
+ * manager method that does not exist on 1.6, threw into its own catch, and
+ * every host and group page re-read, re-hashed and re-saved every file in
+ * the boot directory -- 264MB and ~1.8s on a stock install. The catch is
+ * there for an unreachable store, so nothing else could see the difference
+ * between "no rows" and "the query never ran".
+ *
+ * So answer the store here, with a row that is fresh for bzImage (same size,
+ * same mtime) and carries a checksum no hash could produce. A loader that
+ * reads the row serves that checksum; one that never gets the row re-hashes
+ * the file and reports the real digest. The row is deliberately NOT stale:
+ * a stale row is re-inspected by design, so it could not tell the two apart.
+ */
+$cached = 'served-from-the-record-not-the-file';
+$db->responder = function ($sql, $params) use ($dir, $cached) {
+    if (false !== stripos($sql, 'FROM `globalSettings`')) {
+        return [
+            [
+                'settingKey' => 'FOG_TFTP_PXE_KERNEL_DIR',
+                'settingValue' => $dir . '/'
+            ]
+        ];
+    }
+    if (false !== stripos($sql, 'FROM `bootFile`')) {
+        $row = [
+                'bfID' => 7,
+                'bfName' => 'bzImage',
+                'bfSize' => 4096,
+                'bfMtime' => gmdate('Y-m-d H:i:s', filemtime($dir . '/bzImage')),
+                'bfChecksum' => $cached,
+                'bfRole' => 'kernel',
+                'bfKernelVersion' => 'cached',
+                'bfReleaseTag' => 'cached-tag',
+                'bfInspected' => gmdate('Y-m-d H:i:s'),
+                'bfPinned' => 0
+        ];
+        // load() reads its by-id SELECT through fetch()->get() with no
+        // field -- ONE flat row -- where the id listing wants a list of
+        // rows. Same distinction tests/route-write-path-guards.test.php
+        // draws; a wrapped row here is not an error, it is an empty record.
+        return preg_match('/WHERE `bfID`=:id\b/', $sql) ? $row : [$row];
+    }
+
+    return null;
+};
+// The per-request map was filled (with nothing) by the calls above.
+FogTestHarness::setStatic($page, '_bootFileRows', null);
+$writesBefore = count(
+    preg_grep('/^\s*(INSERT|UPDATE)\b.*`bootFile`/i', $db->log)
+);
+$fromRow = $page::bootFileInfo($dir . '/bzImage');
+$writesAfter = count(
+    preg_grep('/^\s*(INSERT|UPDATE)\b.*`bootFile`/i', $db->log)
+);
+$t->check(
+    'a fresh record answers for the file: the checksum is the stored one',
+    $cached === $fromRow['checksum']
+);
+$t->check(
+    'a fresh record is not rewritten on read',
+    $writesBefore === $writesAfter
+);
+
 // --- the panel no longer hardcodes six names or drops stderr -------------
 
 $panel = file_get_contents(

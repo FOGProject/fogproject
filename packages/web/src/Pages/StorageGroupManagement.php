@@ -796,7 +796,19 @@ class StorageGroupManagement extends FOGPage
      */
     public function edit()
     {
-        $master = $this->obj->getMasterStorageNode();
+        /**
+         * A group with no members has no master, and
+         * getMasterStorageNode() says so by throwing -- right for tasking,
+         * which cannot proceed without one, and fatal here, where the page
+         * is the only way to GIVE the group its first member. The list
+         * formatter in Route already catches this for the same reason; the
+         * note below already spells "None" for a master that is not a node.
+         */
+        try {
+            $master = $this->obj->getMasterStorageNode();
+        } catch (\Exception $e) {
+            $master = null;
+        }
         $this->notes = [
             _('Storage Group') => $this->obj->get('name'),
             _('Master Node') => (
