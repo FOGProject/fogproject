@@ -3660,20 +3660,20 @@ abstract class FOGPage extends FOGBase
         self::getClass('RegisterClient')->json();
         ob_end_clean();
         try {
+            // The legacy client has no module for `software`: the agent
+            // takes it through /agent/v1 (Agent\State). Left in this list
+            // the default branch below resolves the key to Items\Software,
+            // which has no json(), and every legacy check-in fatals.
             $igMods = [
                 'dircleanup',
                 'usercleanup',
                 'clientupdater',
                 'hostregister',
+                'software',
             ];
             $globalModules = array_diff(
                 self::getGlobalModuleStatus(false, true),
-                [
-                    'dircleanup',
-                    'usercleanup',
-                    'clientupdater',
-                    'hostregister'
-                ]
+                $igMods
             );
             $globalInfo = self::getGlobalModuleStatus();
             $globalDisabled = [];
@@ -6312,7 +6312,7 @@ abstract class FOGPage extends FOGBase
                 // method" into the catch below on every request, so the
                 // accelerator had never once been populated -- exactly the
                 // silent failure that catch was NOT meant to cover.
-                foreach ((array)self::getIds('bootfile') as $id) {
+                foreach ((array)Route::getIds('bootfile', false) as $id) {
                     $row = new \FOG\Items\BootFile((int)$id);
                     if ($row->isValid()) {
                         self::$_bootFileRows[(string)$row->get('name')] = $row;
