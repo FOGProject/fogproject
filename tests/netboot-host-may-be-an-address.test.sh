@@ -47,16 +47,31 @@ bad() { FAIL=$((FAIL + 1)); printf '  FAIL  %s\n' "$1"; }
 
 # --- the code under test ----------------------------------------------------
 for fn in validip _certDnsNames _certServesAddress _certServesName \
-          _servedCertServes _resolveNetbootHost; do
+          _servedCertServes _currentWebHostRow _resolveNetbootHost; do
     body=$(awk "/^${fn}\(\) \{/,/^\}/" "$FUNCS")
     [[ -n $body ]] || { echo "ERROR: could not extract $fn from $FUNCS" >&2; exit 1; }
     eval "$body" || { echo "ERROR: could not eval $fn" >&2; exit 1; }
 done
 
-# _resolveNetbootHost asks these two for the world around it. Stubbed so each
-# case can put the installer in a known state without an install.
+# _resolveNetbootHost asks these for the world around it. Stubbed so each case
+# can put the installer in a known state without an install. The resolver reads
+# the FOG_WEB_HOST row first, so mysql is stubbed from the start: STORED is what
+# the row holds, and sections A-E run with it empty -- the fresh-install shape,
+# where only the certificate has a say.
 _servedCertName() { echo "$STUB_SERVED_NAME"; }
 _vhostCertPath()  { echo "$STUB_CERT"; }
+STORED=""
+sqloptionsuser=""; DB_password=""; DB_name="fog"; error_log="$WORK/err.log"
+mysql() {
+    # The SELECT answers with the case's stored value; anything else is a
+    # write, which section F exists to detect.
+    if [[ "$*" == *SELECT*FOG_WEB_HOST* ]]; then
+        echo "$STORED"
+        return 0
+    fi
+    WROTE=yes
+    return 0
+}
 # Set, so the refusal path returns instead of exiting this test.
 exitFail=yes
 PKI_web_vhost_cert=""
@@ -143,19 +158,8 @@ body=$(awk '/^recordNetbootWebHost\(\) \{/,/^\}/' "$FUNCS")
 eval "$body" || { echo "ERROR: could not eval recordNetbootWebHost" >&2; exit 1; }
 
 BOOT_url_proto=https
-sqloptionsuser=""; DB_password=""; DB_name="fog"; error_log="$WORK/err.log"
 dots() { :; }
 errorStat() { :; }
-mysql() {
-    # The SELECT answers with the case's stored value; anything else is the
-    # write this test exists to detect.
-    if [[ "$*" == *SELECT*FOG_WEB_HOST* ]]; then
-        echo "$STORED"
-        return 0
-    fi
-    WROTE=yes
-    return 0
-}
 
 recorded() {
     STORED="$1"; WROTE=""; netboothost=""
@@ -210,6 +214,37 @@ case "$(said 'NULL')" in
         bad "a fresh install warned about a value that never existed" ;;
     *)  ok "no stale-registration warning when there was no previous value" ;;
 esac
+
+# --- H. the kept value is the netboot host, for BOTH hops ------------------
+# Section F proves the row is left alone. This proves default.ipxe follows it.
+# The keep used to live only in recordNetbootWebHost, while
+# configureDefaultiPXEfile had already taken the certificate's leading name
+# from _resolveNetbootHost -- so a server whose row was the IP chained
+# https://<name>/.../boot.php and then used https://<ip>/ for everything after
+# it. On a PXE segment with no DNS for the name, iPXE stopped at hop one with
+# "DNS name does not exist" (2026-09-03, 7550precision.lan vs 10.255.20.1).
+# _resolveNetbootHost is what configureDefaultiPXEfile reads, so it is the
+# thing to pin.
+resolved() {
+    STORED="$1"; netboothost=""
+    _resolveNetbootHost >/dev/null 2>&1
+    echo "$netboothost"
+}
+
+STUB_CERT="$WORK/withip.pem"; STUB_SERVED_NAME="fogserver.test"
+
+[[ $(resolved "10.255.20.1") == "10.255.20.1" ]] \
+    && ok "default.ipxe chains to a kept address, not to the certificate name" \
+    || bad "the row was kept as 10.255.20.1 but default.ipxe would chain to $(resolved 10.255.20.1); the two hops disagree"
+
+[[ $(resolved "somewhere.else") == "fogserver.test" ]] \
+    && ok "a value the certificate cannot prove is replaced by the certificate name" \
+    || bad "an unprovable FOG_WEB_HOST reached default.ipxe"
+
+STUB_CERT="$WORK/nameonly.pem"
+[[ $(resolved "10.255.20.1") == "fogserver.test" ]] \
+    && ok "an address the certificate does not carry does not reach default.ipxe" \
+    || bad "an address absent from the certificate reached default.ipxe; netboot would fail the handshake"
 
 # --- report -----------------------------------------------------------------
 echo
