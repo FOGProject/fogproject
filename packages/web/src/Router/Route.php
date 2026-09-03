@@ -75,6 +75,7 @@ class Route extends FOGBase
     const ENTITY_LINK_COLUMNS = [
         'groupID' => ['group', 'group'],
         'snapinID' => ['snapin', 'Snapin'],
+        'softwareID' => ['software', 'Software'],
         'storagegroupID' => ['storagegroup', 'storagegroup'],
         'storagenodeID' => ['storagenode', 'storagenode'],
         'userID' => ['user', 'user']
@@ -652,6 +653,10 @@ class Route extends FOGBase
         'snapingroupassociation',
         'snapinjob',
         'snapintask',
+        'software',
+        'softwareassociation',
+        'groupsoftwareassociation',
+        'softwarestatus',
         'storagegroup',
         'storagenode',
         'task',
@@ -1569,6 +1574,7 @@ class Route extends FOGBase
         self::_registerRoute($r, 'POST', '/agent/v1/result', [__CLASS__, 'agentResult'], 'agentresult');
         self::_registerRoute($r, 'GET', '/agent/v1/snapin/[i:id]/file', [__CLASS__, 'agentSnapinFile'], 'agentsnapinfile');
         self::_registerRoute($r, 'POST', '/agent/v1/snapin/[i:id]/result', [__CLASS__, 'agentSnapinResult'], 'agentsnapinresult');
+        self::_registerRoute($r, 'POST', '/agent/v1/software/[i:id]/result', [__CLASS__, 'agentSoftwareResult'], 'agentsoftwareresult');
         self::_registerRoute($r, 'GET', '/agent/enrollments', [__CLASS__, 'agentEnrollments'], 'agentenrollments');
         self::_registerRoute($r, 'POST', '/agent/enrollment/[i:id]/[*:action]', [__CLASS__, 'agentEnrollmentDecide'], 'agentenrollmentdecide');
         self::_registerRoute($r, 'GET', '/agent/tokens', [__CLASS__, 'agentTokens'], 'agenttokens');
@@ -3016,6 +3022,32 @@ class Route extends FOGBase
             json_encode(['status' => 'ok', 'outcome' => $outcome])
         );
     }
+
+    /**
+     * POST /agent/v1/software/{id}/result: one software entry's report,
+     * answered with the server's outcome (design 0003).
+     *
+     * @param int $id the software id
+     *
+     * @return void
+     */
+    public static function agentSoftwareResult($id)
+    {
+        $body = self::_jsonBody();
+        try {
+            $outcome = \FOG\Agent\SoftwareSet::report(self::$agentHost, (int)$id, (array)$body);
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(
+                self::_agentErrorCode($e),
+                json_encode(['status' => 'error', 'error' => $e->getMessage()])
+            );
+            return;
+        }
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_OK,
+            json_encode(['status' => 'ok', 'outcome' => $outcome])
+        );
+    }
     /**
      * The HTTP status for an agent-side RuntimeException: its code when it
      * is one of the statuses these routes answer with, else 400.
@@ -4058,6 +4090,7 @@ class Route extends FOGBase
                     // ENTITY_LINK_COLUMNS and _entityLinkColumn().
                 case 'groupID':
                 case 'snapinID':
+                case 'softwareID':
                 case 'storagegroupID':
                 case 'storagenodeID':
                 case 'userID':
@@ -8453,6 +8486,7 @@ class Route extends FOGBase
         // them reads a row it does not count.
         $kinds = [
             'snapin' => ['groupSnapinAssoc', 'gsaGroupID'],
+            'software' => ['groupSoftwareAssoc', 'gswaGroupID'],
             'printer' => ['groupPrinterAssoc', 'gpaGroupID'],
             'module' => ['groupModuleAssoc', 'gmaGroupID'],
             'power' => ['groupPowerManagement', 'gpmGroupID']
@@ -9258,6 +9292,17 @@ class Route extends FOGBase
                 $findWhere = ['printerID' => $itemIDs];
                 $removeItems = [
                     'printerassociation' => $findWhere
+                ];
+                break;
+            case 'software':
+                // Design 0003: an entry's assignments, grants and the
+                // status rows hosts reported for it go with it. No tasks
+                // to cancel; software is state, not a job.
+                $findWhere = ['softwareID' => $itemIDs];
+                $removeItems = [
+                    'softwareassociation' => $findWhere,
+                    'groupsoftwareassociation' => $findWhere,
+                    'softwarestatus' => $findWhere
                 ];
                 break;
             case 'snapin':

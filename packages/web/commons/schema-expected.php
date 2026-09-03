@@ -307,6 +307,15 @@ return [
                 'gsaSequence' => 'int(11) NOT NULL DEFAULT 0',
             ],
         ],
+        'groupSoftwareAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `groupSoftwareAssoc` ( `gswaID` int(11) NOT NULL AUTO_INCREMENT, `gswaGroupID` int(11) NOT NULL, `gswaSoftwareID` int(11) NOT NULL, `gswaSequence` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`gswaID`), UNIQUE KEY `gswaGroupSoftware` (`gswaGroupID`,`gswaSoftwareID`), KEY `gswaSoftwareID` (`gswaSoftwareID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'gswaID' => 'int(11) NOT NULL',
+                'gswaGroupID' => 'int(11) NOT NULL',
+                'gswaSoftwareID' => 'int(11) NOT NULL',
+                'gswaSequence' => 'int(11) NOT NULL DEFAULT 0',
+            ],
+        ],
         'history' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `history` ( `hID` int(11) NOT NULL AUTO_INCREMENT, `hText` text NOT NULL, `hUser` varchar(200) NOT NULL DEFAULT \'\', `hTime` timestamp NOT NULL DEFAULT current_timestamp(), `hIP` varchar(50) NOT NULL DEFAULT \'\', `hType` varchar(16) NOT NULL DEFAULT \'\', `hSubjectType` varchar(64) NOT NULL DEFAULT \'\', `hSubjectID` int(11) DEFAULT NULL, `hSubjectLabel` varchar(200) NOT NULL DEFAULT \'\', PRIMARY KEY (`hID`), KEY `hTime` (`hTime`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -588,7 +597,7 @@ return [
             ],
         ],
         'nfsGroupMembers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `nfsGroupMembers` ( `ngmID` int(11) NOT NULL AUTO_INCREMENT, `ngmMemberName` varchar(250) NOT NULL DEFAULT \'\', `ngmMemberDescription` longtext NOT NULL DEFAULT \'\', `ngmIsMasterNode` char(1) NOT NULL DEFAULT \'\', `ngmGroupID` int(11) NOT NULL, `ngmRootPath` longtext NOT NULL, `ngmSSLPath` longtext NOT NULL DEFAULT \'\', `ngmFTPPath` longtext NOT NULL, `ngmMaxBitrate` varchar(25) DEFAULT NULL, `ngmHelloInterval` varchar(8) DEFAULT NULL, `ngmGraphColor` varchar(6) DEFAULT NULL, `ngmSnapinPath` longtext NOT NULL DEFAULT \'\', `ngmIsEnabled` char(1) NOT NULL DEFAULT \'\', `ngmHostname` varchar(250) NOT NULL, `ngmMaxClients` int(11) NOT NULL DEFAULT 0, `ngmBandwidthLimit` int(20) NOT NULL DEFAULT 0, `ngmUser` varchar(250) NOT NULL, `ngmPass` varchar(250) NOT NULL, `ngmKey` varchar(250) NOT NULL DEFAULT \'\', `ngmInterface` varchar(25) NOT NULL DEFAULT \'enp58s0u2u4\', `ngmGraphEnabled` tinyint(1) NOT NULL DEFAULT 1, `ngmWebroot` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`ngmID`), UNIQUE KEY `ngmMemberName` (`ngmMemberName`), UNIQUE KEY `ngmMemberName_2` (`ngmMemberName`), KEY `new_index` (`ngmMemberName`), KEY `new_index2` (`ngmIsMasterNode`), KEY `new_index3` (`ngmGroupID`), KEY `new_index4` (`ngmIsEnabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `nfsGroupMembers` ( `ngmID` int(11) NOT NULL AUTO_INCREMENT, `ngmMemberName` varchar(250) NOT NULL DEFAULT \'\', `ngmMemberDescription` longtext NOT NULL DEFAULT \'\', `ngmIsMasterNode` char(1) NOT NULL DEFAULT \'\', `ngmGroupID` int(11) NOT NULL, `ngmRootPath` longtext NOT NULL, `ngmSSLPath` longtext NOT NULL DEFAULT \'\', `ngmFTPPath` longtext NOT NULL, `ngmMaxBitrate` varchar(25) DEFAULT NULL, `ngmHelloInterval` varchar(8) DEFAULT NULL, `ngmGraphColor` varchar(6) DEFAULT NULL, `ngmSnapinPath` longtext NOT NULL DEFAULT \'\', `ngmIsEnabled` char(1) NOT NULL DEFAULT \'\', `ngmHostname` varchar(250) NOT NULL, `ngmMaxClients` int(11) NOT NULL DEFAULT 0, `ngmBandwidthLimit` int(20) NOT NULL DEFAULT 0, `ngmUser` varchar(250) NOT NULL, `ngmPass` varchar(250) NOT NULL, `ngmKey` varchar(250) NOT NULL DEFAULT \'\', `ngmInterface` varchar(25) NOT NULL DEFAULT \'\', `ngmGraphEnabled` tinyint(1) NOT NULL DEFAULT 1, `ngmWebroot` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`ngmID`), UNIQUE KEY `ngmMemberName` (`ngmMemberName`), UNIQUE KEY `ngmMemberName_2` (`ngmMemberName`), KEY `new_index` (`ngmMemberName`), KEY `new_index2` (`ngmIsMasterNode`), KEY `new_index3` (`ngmGroupID`), KEY `new_index4` (`ngmIsEnabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'ngmID' => 'int(11) NOT NULL',
                 'ngmMemberName' => 'varchar(250) NOT NULL DEFAULT \'\'',
@@ -609,7 +618,7 @@ return [
                 'ngmUser' => 'varchar(250) NOT NULL',
                 'ngmPass' => 'varchar(250) NOT NULL',
                 'ngmKey' => 'varchar(250) NOT NULL DEFAULT \'\'',
-                'ngmInterface' => 'varchar(25) NOT NULL DEFAULT \'enp58s0u2u4\'',
+                'ngmInterface' => 'varchar(25) NOT NULL DEFAULT \'\'',
                 'ngmGraphEnabled' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'ngmWebroot' => 'longtext NOT NULL DEFAULT \'\'',
             ],
@@ -946,7 +955,7 @@ return [
             ],
         ],
         'snapinTasks' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `snapinTasks` ( `stID` int(11) NOT NULL AUTO_INCREMENT, `stJobID` int(11) NOT NULL, `stState` int(11) NOT NULL DEFAULT 0, `stCheckinDate` timestamp NOT NULL DEFAULT current_timestamp(), `stCompleteDate` datetime DEFAULT NULL, `stSnapinID` int(11) NOT NULL, `stSequence` int(11) NOT NULL DEFAULT 0, `stReturnCode` int(11) NOT NULL DEFAULT 0, `stStatus` varchar(16) NOT NULL DEFAULT \'\', `stReturnDetails` text NOT NULL, PRIMARY KEY (`stID`), UNIQUE KEY `stJobID` (`stJobID`,`stSnapinID`), KEY `new_index` (`stJobID`), KEY `new_index1` (`stState`), KEY `new_index2` (`stSnapinID`), KEY `idx_stCheckinDate` (`stCheckinDate`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `snapinTasks` ( `stID` int(11) NOT NULL AUTO_INCREMENT, `stJobID` int(11) NOT NULL, `stState` int(11) NOT NULL DEFAULT 0, `stCheckinDate` timestamp NOT NULL DEFAULT current_timestamp(), `stCompleteDate` datetime DEFAULT NULL, `stSnapinID` int(11) NOT NULL, `stSequence` int(11) NOT NULL DEFAULT 0, `stReturnCode` int(11) NOT NULL DEFAULT 0, `stStatus` varchar(16) NOT NULL DEFAULT \'\', `stReturnDetails` text NOT NULL DEFAULT \'\', PRIMARY KEY (`stID`), UNIQUE KEY `stJobID` (`stJobID`,`stSnapinID`), KEY `new_index` (`stJobID`), KEY `new_index1` (`stState`), KEY `new_index2` (`stSnapinID`), KEY `idx_stCheckinDate` (`stCheckinDate`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'stID' => 'int(11) NOT NULL',
                 'stJobID' => 'int(11) NOT NULL',
@@ -957,7 +966,48 @@ return [
                 'stSequence' => 'int(11) NOT NULL DEFAULT 0',
                 'stReturnCode' => 'int(11) NOT NULL DEFAULT 0',
                 'stStatus' => 'varchar(16) NOT NULL DEFAULT \'\'',
-                'stReturnDetails' => 'text NOT NULL',
+                'stReturnDetails' => 'text NOT NULL DEFAULT \'\'',
+            ],
+        ],
+        'software' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `software` ( `swID` int(11) NOT NULL AUTO_INCREMENT, `swName` varchar(200) NOT NULL, `swDesc` longtext NOT NULL DEFAULT \'\', `swBackend` varchar(16) NOT NULL DEFAULT \'choco\', `swPackage` varchar(255) NOT NULL, `swVersion` varchar(64) NOT NULL DEFAULT \'\', `swState` varchar(8) NOT NULL DEFAULT \'present\', `swSource` varchar(255) NOT NULL DEFAULT \'\', `swArgs` varchar(255) NOT NULL DEFAULT \'\', `swTimeout` int(11) NOT NULL DEFAULT 900, `swReturnCodes` text DEFAULT NULL, `swEnabled` tinyint(1) NOT NULL DEFAULT 1, `swCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `swCreator` varchar(50) NOT NULL DEFAULT \'\', PRIMARY KEY (`swID`), UNIQUE KEY `swName` (`swName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'swID' => 'int(11) NOT NULL',
+                'swName' => 'varchar(200) NOT NULL',
+                'swDesc' => 'longtext NOT NULL DEFAULT \'\'',
+                'swBackend' => 'varchar(16) NOT NULL DEFAULT \'choco\'',
+                'swPackage' => 'varchar(255) NOT NULL',
+                'swVersion' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'swState' => 'varchar(8) NOT NULL DEFAULT \'present\'',
+                'swSource' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'swArgs' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'swTimeout' => 'int(11) NOT NULL DEFAULT 900',
+                'swReturnCodes' => 'text DEFAULT NULL',
+                'swEnabled' => 'tinyint(1) NOT NULL DEFAULT 1',
+                'swCreateDate' => 'timestamp NOT NULL DEFAULT current_timestamp()',
+                'swCreator' => 'varchar(50) NOT NULL DEFAULT \'\'',
+            ],
+        ],
+        'softwareAssoc' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `softwareAssoc` ( `swaID` int(11) NOT NULL AUTO_INCREMENT, `swaHostID` int(11) NOT NULL, `swaSoftwareID` int(11) NOT NULL, `swaSequence` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`swaID`), UNIQUE KEY `swaHostSoftware` (`swaHostID`,`swaSoftwareID`), KEY `swaSoftwareID` (`swaSoftwareID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'swaID' => 'int(11) NOT NULL',
+                'swaHostID' => 'int(11) NOT NULL',
+                'swaSoftwareID' => 'int(11) NOT NULL',
+                'swaSequence' => 'int(11) NOT NULL DEFAULT 0',
+            ],
+        ],
+        'softwareStatus' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `softwareStatus` ( `sstID` int(11) NOT NULL AUTO_INCREMENT, `sstHostID` int(11) NOT NULL, `sstSoftwareID` int(11) NOT NULL, `sstInstalledVersion` varchar(64) NOT NULL DEFAULT \'\', `sstStatus` varchar(16) NOT NULL DEFAULT \'\', `sstReturnCode` int(11) NOT NULL DEFAULT 0, `sstDetails` text NOT NULL DEFAULT \'\', `sstChecked` datetime DEFAULT NULL, PRIMARY KEY (`sstID`), UNIQUE KEY `sstHostSoftware` (`sstHostID`,`sstSoftwareID`), KEY `sstSoftwareID` (`sstSoftwareID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'sstID' => 'int(11) NOT NULL',
+                'sstHostID' => 'int(11) NOT NULL',
+                'sstSoftwareID' => 'int(11) NOT NULL',
+                'sstInstalledVersion' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'sstStatus' => 'varchar(16) NOT NULL DEFAULT \'\'',
+                'sstReturnCode' => 'int(11) NOT NULL DEFAULT 0',
+                'sstDetails' => 'text NOT NULL DEFAULT \'\'',
+                'sstChecked' => 'datetime DEFAULT NULL',
             ],
         ],
         'storageEpoch' => [

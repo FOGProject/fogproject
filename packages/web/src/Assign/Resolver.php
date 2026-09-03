@@ -158,6 +158,68 @@ class Resolver extends FOGBase
     }
 
     /**
+     * Resolves the ordered software set for each host: the same shape and
+     * rule as resolveSnapins (direct first, then groups in group order,
+     * deduplicated), over the software tables (design 0003).
+     *
+     * @param array $hostIDs the hosts to resolve for
+     *
+     * @return array hostID => [softwareID, ...]; every host id is a key
+     * @throws \RuntimeException on any query failure
+     */
+    public static function resolveSoftware(array $hostIDs)
+    {
+        $hostIDs = self::_ids($hostIDs);
+        if (count($hostIDs) < 1) {
+            return [];
+        }
+        $resolved = [];
+        $direct = [];
+        $rows = self::_rows(
+            'SELECT `swaHostID`, `swaSoftwareID` FROM `softwareAssoc` '
+            . 'WHERE `swaHostID` IN (' . implode(',', $hostIDs) . ') '
+            . 'ORDER BY `swaHostID`, `swaSequence`, `swaID`'
+        );
+        foreach ($rows as $row) {
+            $direct[(int)$row['swaHostID']][] = (int)$row['swaSoftwareID'];
+        }
+
+        list($groupsByHost, $groupIDs) = self::_membership($hostIDs);
+        $byGroup = [];
+        if (count($groupIDs) > 0) {
+            $rows = self::_rows(
+                'SELECT `gswaGroupID`, `gswaSoftwareID` FROM `groupSoftwareAssoc` '
+                . 'WHERE `gswaGroupID` IN (' . implode(',', $groupIDs) . ') '
+                . 'ORDER BY `gswaSequence`, `gswaID`'
+            );
+            foreach ($rows as $row) {
+                $byGroup[(int)$row['gswaGroupID']][] = (int)$row['gswaSoftwareID'];
+            }
+        }
+        $ordered = self::_orderedGroupIDs($groupIDs);
+
+        foreach ($hostIDs as $hostID) {
+            $out = $direct[$hostID] ?? [];
+            $seen = array_flip($out);
+            foreach ($ordered as $groupID) {
+                if (!isset($groupsByHost[$hostID][$groupID])) {
+                    continue;
+                }
+                foreach ($byGroup[$groupID] ?? [] as $softwareID) {
+                    if (isset($seen[$softwareID])) {
+                        continue;
+                    }
+                    $seen[$softwareID] = true;
+                    $out[] = $softwareID;
+                }
+            }
+            $resolved[$hostID] = $out;
+        }
+
+        return $resolved;
+    }
+
+    /**
      * Resolves the printer list and default printer for each host.
      *
      * @param array $hostIDs the hosts to resolve for

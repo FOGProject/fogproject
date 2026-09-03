@@ -255,8 +255,26 @@ class Snapins extends FOGBase
      */
     public static function returnCodes(Snapin $Snapin)
     {
+        return self::parseReturnCodes(
+            (string)$Snapin->get('returnCodes'),
+            self::DEFAULT_RETURN_CODES
+        );
+    }
+
+    /**
+     * Parses a `code=class` table, one per line (commas and semicolons
+     * separate too). Unknown classes are skipped; an empty table is the
+     * defaults given.
+     *
+     * @param string $text     the table as typed
+     * @param array  $defaults code => class when the text has none
+     *
+     * @return array code => class
+     */
+    public static function parseReturnCodes($text, array $defaults)
+    {
         $table = [];
-        foreach (preg_split('/[\r\n,;]+/', (string)$Snapin->get('returnCodes')) as $line) {
+        foreach (preg_split('/[\r\n,;]+/', (string)$text) as $line) {
             if (!preg_match('/^\s*(-?\d+)\s*=\s*([a-z_]+)\s*$/i', (string)$line, $m)) {
                 continue;
             }
@@ -265,7 +283,7 @@ class Snapins extends FOGBase
                 $table[(int)$m[1]] = $class;
             }
         }
-        return count($table) > 0 ? $table : self::DEFAULT_RETURN_CODES;
+        return count($table) > 0 ? $table : $defaults;
     }
 
     /**

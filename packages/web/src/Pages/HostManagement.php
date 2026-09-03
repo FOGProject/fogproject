@@ -15,8 +15,10 @@
 
 namespace FOG\Pages;
 
+use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
+use FOG\Base\FOGManagerController;
 use FOG\Base\FOGPage;
 use FOG\Boot\SecureBootState;
 use FOG\Items\Architecture;
@@ -3013,6 +3015,104 @@ class HostManagement extends FOGPage
         $this->assocPost('addSnapin', 'removeSnapin', 'setSnapinOrder');
     }
     /**
+     * Host software.
+     *
+     * Mirrors hostSnapins(): software is a package a host is held to
+     * (design 0003), not a one-shot run, but the assignment/order machinery
+     * is the same shape -- Host::addSoftware()/removeSoftware() stage the
+     * assignment, save() persists it via assocSetter(), and
+     * Host::appendSoftwareSequence()/setSoftwareOrder() manage the order the
+     * agent applies packages in.
+     *
+     * @return void
+     */
+    public function hostSoftware()
+    {
+        // Trailing 'software' opts this tab into the "Create New Software"
+        // button and modal (see renderAssocCreate), matching hostSnapins().
+        $this->renderAssocTab(
+            'host-software',
+            _('Host Software Assignment'),
+            _('Software Name'),
+            'software',
+            'btn btn-primary float-end',
+            '',
+            'software'
+        );
+
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'host-software',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $orderButton = self::makeButton(
+            'host-software-order-save',
+            _('Save order'),
+            'btn btn-primary float-end',
+            $props
+        );
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Software Order');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        echo '<p class="form-text">';
+        echo _(
+            'The order software is applied in when the agent reconciles '
+            . 'this host.'
+        );
+        echo '</p>';
+        echo '<ol id="host-software-order-list" class="list-group"></ol>';
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $orderButton;
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Returns the assigned software for this host in run order.
+     *
+     * @return void
+     */
+    public function getSoftwareOrderList()
+    {
+        $softwareIDs = (array)$this->obj->get('softwares');
+        $names = [];
+        if (count($softwareIDs) > 0) {
+            $Softwares = Route::getList('software', ['id' => $softwareIDs]);
+            foreach ($Softwares as $Software) {
+                $names[$Software->id] = $Software->name;
+            }
+        }
+        $data = [];
+        foreach ($softwareIDs as $softwareID) {
+            // Skip ids that don't resolve to a real software entry (a stale
+            // association left by a removed entry, or a 0/blank id).
+            // Mirrors setSoftwareOrder()'s "< 1" guard on the save path.
+            if (!isset($names[$softwareID])) {
+                continue;
+            }
+            $data[] = [
+                'id' => $softwareID,
+                'name' => $names[$softwareID]
+            ];
+        }
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
+    }
+    /**
+     * Host software post
+     *
+     * @return void
+     */
+    public function hostSoftwarePost()
+    {
+        $this->assocPost('addSoftware', 'removeSoftware', 'setSoftwareOrder', 'softwareorder');
+    }
+    /**
      * Display's the host service stuff
      *
      * @return void
@@ -4254,6 +4354,60 @@ class HostManagement extends FOGPage
         );
     }
     /**
+     * Display host software status.
+     *
+     * Read only: this reports what the agent last converged, it does not
+     * assign anything (that is the Software tab above). One alert replaces
+     * the table's usual silence when the host has software assigned but the
+     * package manager itself never ran -- reporting that failure once per
+     * host rather than once per row.
+     *
+     * @return void
+     */
+    public function hostSoftwareStatus()
+    {
+        $hostID = (int)$this->obj->get('id');
+        $resolved = Resolver::resolveSoftware([$hostID])[$hostID] ?? [];
+        if (count($resolved) > 0) {
+            $statuses = (array)Route::getIds(
+                'softwarestatus',
+                ['hostID' => $hostID],
+                'status'
+            );
+            // 'cannot_run' is the backend-missing status in
+            // FOG\Agent\SoftwareSet::STATUSES -- every row saying it means
+            // the agent never got as far as trying any package.
+            if (count($statuses) > 0
+                && count(array_diff($statuses, ['cannot_run'])) < 1
+            ) {
+                echo '<div class="alert alert-warning">';
+                echo _(
+                    'This host reported that its package manager is not '
+                    . 'installed. Chocolatey must be installed on the host '
+                    . 'before software can be managed.'
+                );
+                echo '</div>';
+            }
+        }
+        $this->renderHistoryTab(
+            [
+                _('Software'),
+                _('Package'),
+                _('Desired'),
+                _('Installed'),
+                _('Status'),
+                _('Exit Code'),
+                _('Checked'),
+                _('Details')
+            ],
+            [
+                [], [], [], [], [], [], [], []
+            ],
+            _('Host Software Status'),
+            'host-software-status-table'
+        );
+    }
+    /**
      * Edits an existing item.
      *
      * @return void
@@ -4343,6 +4497,13 @@ class HostManagement extends FOGPage
                         'id' => 'host-snapin',
                         'generator' => function () {
                             $this->hostSnapins();
+                        }
+                    ],
+                    [
+                        'name' => _('Software'),
+                        'id' => 'host-software',
+                        'generator' => function () {
+                            $this->hostSoftware();
                         }
                     ],
                 ]
@@ -4440,6 +4601,13 @@ class HostManagement extends FOGPage
                             $this->hostSnapinHistory();
                         }
                     ],
+                    [
+                        'name' => _('Software Status'),
+                        'id' => 'host-software-status',
+                        'generator' => function () {
+                            $this->hostSoftwareStatus();
+                        }
+                    ],
                 ])
             ]
         ];
@@ -4493,6 +4661,9 @@ class HostManagement extends FOGPage
                         break;
                     case 'host-snapin':
                         $this->hostSnapinPost();
+                        break;
+                    case 'host-software':
+                        $this->hostSoftwarePost();
                         break;
                     case 'host-module':
                         $this->hostModulePost();
@@ -5941,6 +6112,34 @@ class HostManagement extends FOGPage
         );
     }
     /**
+     * Presents the software list table.
+     *
+     * @return void
+     */
+    public function getSoftwareList()
+    {
+        // Not `return`: assocItemsList() is void (it echoes and exit()s), and
+        // HostManagement's phpstan baseline already budgets a fixed count of
+        // the "void result used" finding that returning it would trip.
+        // GroupManagement::getSoftwareList() calls it the same, unreturned,
+        // way.
+        $this->assocItemsList(
+            'software',
+            'softwareassociation',
+            'softwareAssoc',
+            '`software`.`swID`',
+            '`softwareAssoc`.`swaSoftwareID`',
+            '`softwareAssoc`.`swaHostID`',
+            [
+                [
+                    'db' => 'hostAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
      * Returns the module list as well as the associated
      * for the host being edited.
      *
@@ -7222,6 +7421,86 @@ class HostManagement extends FOGPage
     public function getSnapinHist()
     {
         $this->renderSnapinHistoryData($this->obj->get('id'));
+    }
+    /**
+     * Serves the host's software status grid.
+     *
+     * Joined to `software` for display (name/package/desired state), built
+     * directly against FOGManagerController::complex() rather than through
+     * Route::listem() -- listem()'s per-class column building (the
+     * `taskTypeName`/`snapinLink`-style extras) lives entirely in
+     * route.class.php, which this pass does not touch, so the join and the
+     * DataTables envelope are assembled here instead, with the same generic
+     * paging/search/order engine every other grid in FOG runs through.
+     *
+     * @return void
+     */
+    public function getSoftwareStatus()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $request
+        );
+        $hostID = (int)$this->obj->get('id');
+        $columns = [
+            ['db' => 'sstID', 'dt' => 'id'],
+            ['db' => 'swName', 'dt' => 'software'],
+            ['db' => 'swPackage', 'dt' => 'package'],
+            // swVersion carries no column of its own in the grid; the
+            // 'desired' formatter below reads it off the row, so it still
+            // has to be selected.
+            ['db' => 'swVersion', 'dt' => 'version'],
+            [
+                'db' => 'swState',
+                'dt' => 'desired',
+                'formatter' => function ($state, $row) {
+                    if ('absent' === $state) {
+                        return _('absent');
+                    }
+                    $version = trim((string)($row['swVersion'] ?? ''));
+                    return _('present') . ' '
+                        . ('' !== $version ? $version : _('latest'));
+                }
+            ],
+            ['db' => 'sstInstalledVersion', 'dt' => 'installed'],
+            ['db' => 'sstStatus', 'dt' => 'status'],
+            ['db' => 'sstReturnCode', 'dt' => 'returnCode'],
+            ['db' => 'sstChecked', 'dt' => 'checked'],
+            ['db' => 'sstDetails', 'dt' => 'details']
+        ];
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            LEFT OUTER JOIN `software`
+            ON `softwareStatus`.`sstSoftwareID` = `software`.`swID`
+            %s
+            %s
+            %s";
+        $fltrstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `software`
+            ON `softwareStatus`.`sstSoftwareID` = `software`.`swID`
+            %s";
+        $ttlstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `software`
+            ON `softwareStatus`.`sstSoftwareID` = `software`.`swID`";
+        $data = FOGManagerController::complex(
+            $request,
+            'softwareStatus',
+            'sstID',
+            $columns,
+            $sqlstr,
+            $fltrstr,
+            $ttlstr,
+            null,
+            sprintf('`softwareStatus`.`sstHostID` = %d', $hostID),
+            'checked'
+        );
+        $this->jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode($data, JSON_UNESCAPED_UNICODE)
+        );
     }
     /**
      * Get the hosts display man values

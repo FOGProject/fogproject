@@ -2759,6 +2759,49 @@ class OpenAPI extends FOGBase
                     ]
                 )
             ],
+            '/agent/v1/software/{id}/result' => [
+                'post' => self::_op(
+                    '',
+                    'agentsoftwareresult',
+                    _('FOG Agent software result'),
+                    _('What convergence did for one software entry: '
+                        . 'converged (nothing needed doing), installed, '
+                        . 'upgraded or removed with the package manager\'s '
+                        . 'exit code, or timeout / cannot_run when it never '
+                        . 'ran. The server reads the code against the entry\'s '
+                        . 'return-code table, refreshes the host\'s status row '
+                        . 'for the entry, and answers the outcome. Software is '
+                        . 'state, not a task: nothing closes.'),
+                    [
+                        '200' => [
+                            'description' => _('Recorded.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['ok']],
+                                    'outcome' => ['type' => 'string', 'enum' => ['success', 'reboot', 'retry', 'failed']]
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('Unknown status.')],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '404' => ['description' => _('Not an entry in this host\'s software set.')]
+                    ],
+                    [self::_idParameter()],
+                    [
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['status'],
+                            'properties' => [
+                                'status' => ['type' => 'string', 'enum' => ['converged', 'installed', 'upgraded', 'removed', 'timeout', 'cannot_run']],
+                                'installed_version' => ['type' => 'string', 'maxLength' => 64],
+                                'exit_code' => ['type' => 'integer', 'description' => _('The package manager\'s own exit code; meaningful for the action statuses.')],
+                                'details' => ['type' => 'string', 'maxLength' => 4096]
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
             '/agent/v1/renew' => [
                 'post' => self::_op(
                     '',

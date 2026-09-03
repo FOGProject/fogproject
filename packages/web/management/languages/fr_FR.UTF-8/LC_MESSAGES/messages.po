@@ -428,6 +428,9 @@ msgstr "Un nom de l'image est nécessaire!"
 msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
 msgstr ""
 
+msgid "A disabled entry stops being managed; it does not remove the package."
+msgstr ""
+
 #, fuzzy
 msgid "A dmi field must be set!"
 msgstr "Événement doit être une chaîne"
@@ -515,6 +518,9 @@ msgstr "Lister tous les %s"
 msgid "A permission name is required."
 msgstr "Un nom de l'image est nécessaire!"
 
+msgid "A pinned entry needs a version."
+msgstr ""
+
 msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
 msgstr ""
 
@@ -580,6 +586,10 @@ msgstr "Une image existe déjà avec ce nom!"
 
 msgid "A snapin granted here reaches every host in this group, including hosts added later. Granting a snapin does not run it; deploy it from the Tasks tab when you want it to run."
 msgstr ""
+
+#, fuzzy
+msgid "A software entry already exists with this name!"
+msgstr "Une image existe déjà avec ce nom!"
 
 #, fuzzy
 msgid "A storage group already exists with this name!"
@@ -714,6 +724,12 @@ msgstr ""
 
 #, php-format
 msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
+msgid "Absent"
+msgstr ""
+
+msgid "Absent removes the package if it is installed."
 msgstr ""
 
 msgid "Accepts the same optional filter as a list. Reports the true filtered total and ignores paging."
@@ -944,6 +960,10 @@ msgid "Add slack account failed!"
 msgstr "Ajouter SnapIn a échoué!"
 
 msgid "Add snapin failed!"
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
+msgid "Add software failed!"
 msgstr "Ajouter SnapIn a échoué!"
 
 #, fuzzy
@@ -1225,6 +1245,10 @@ msgstr ""
 msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
 msgstr ""
 
+#, fuzzy
+msgid "Any version"
+msgstr "Version"
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1416,6 +1440,9 @@ msgstr "Vendor BIOS"
 
 msgid "BIOS Version"
 msgstr "BIOS Version"
+
+msgid "Backend"
+msgstr ""
 
 #, fuzzy
 msgid "Bad request."
@@ -1864,6 +1891,9 @@ msgstr "Non FOGPage Classe trouvé pour ce noeud"
 msgid "Check this value against what the enrollment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
+msgid "Checked"
+msgstr ""
+
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
@@ -2046,6 +2076,9 @@ msgstr "Erreur: Impossible de télécharger le noyau"
 #, fuzzy
 msgid "Confirm you would like to download a new kernel"
 msgstr "Erreur: Impossible de télécharger le noyau"
+
+msgid "Converged"
+msgstr ""
 
 #, php-format
 msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
@@ -2314,6 +2347,9 @@ msgstr "Créer un nouveau site"
 
 msgid "Create New Snapin"
 msgstr "Créer un nouveau snapin"
+
+msgid "Create New Software"
+msgstr "Créer un nouveau logiciel"
 
 msgid "Create New Storage Group"
 msgstr "Créer un nouveau groupe de stockage"
@@ -2675,6 +2711,9 @@ msgstr ""
 
 msgid "Description"
 msgstr "La description"
+
+msgid "Desired"
+msgstr ""
 
 #, fuzzy
 msgid "Destroy failed"
@@ -3074,6 +3113,14 @@ msgstr "La clé privée a échoué"
 msgid "Exists item must be boolean"
 msgstr ""
 
+#, fuzzy
+msgid "Exit Code"
+msgstr "Export SnapIns"
+
+#, fuzzy
+msgid "Exit code"
+msgstr "code de retour"
+
 msgid "Expand - walk the chain (any directory)"
 msgstr ""
 
@@ -3153,6 +3200,10 @@ msgstr "date"
 msgid "External root CA"
 msgstr ""
 
+#, fuzzy
+msgid "Extra arguments"
+msgstr "Snapin Run With Argument"
+
 msgid "FOG"
 msgstr "BROUILLARD"
 
@@ -3180,6 +3231,10 @@ msgstr ""
 
 #, fuzzy
 msgid "FOG Agent snapin result"
+msgstr "Aucun fichier a été téléchargé"
+
+#, fuzzy
+msgid "FOG Agent software result"
 msgstr "Aucun fichier a été téléchargé"
 
 #, fuzzy
@@ -3884,6 +3939,10 @@ msgid "Group Snapin History"
 msgstr "snapin Histoire"
 
 #, fuzzy
+msgid "Group Software Assignment"
+msgstr "snapin Histoire"
+
+#, fuzzy
 msgid "Group Task History"
 msgstr "Histoire de l'image"
 
@@ -4214,6 +4273,13 @@ msgstr "Aucun noeud associé"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "snapin Histoire"
+
+#, fuzzy
+msgid "Host Software Assignment"
+msgstr "snapin Histoire"
+
+msgid "Host Software Status"
+msgstr ""
 
 #, fuzzy
 msgid "Host Task History"
@@ -5430,6 +5496,9 @@ msgstr ""
 msgid "Last imaged"
 msgstr "Images"
 
+msgid "Latest (upgrade at each check)"
+msgstr ""
+
 #, fuzzy
 msgid "Latest Alpha Version"
 msgstr "Dernière version"
@@ -5553,6 +5622,9 @@ msgstr "Lister tous les sites"
 
 msgid "List All Snapins"
 msgstr "Lister tous les snapins"
+
+msgid "List All Software"
+msgstr "Lister tous les logiciels"
 
 msgid "List All Storage Groups"
 msgstr "Lister tous les groupes de stockage"
@@ -6630,6 +6702,10 @@ msgstr ""
 msgid "Not allowed here"
 msgstr "Non autorisé ici"
 
+#, fuzzy
+msgid "Not an entry in this host's software set."
+msgstr "Aucune tâche active trouvée pour Host"
+
 msgid "Not offered here, on purpose"
 msgstr ""
 
@@ -6813,6 +6889,9 @@ msgstr ""
 msgid "One or more macs are associated with a host"
 msgstr "Erreur, est une image associée à cet hôte"
 
+msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again at the next check), failed. Empty uses the defaults shown; any code not listed is failed. The defaults are Windows codes: Linux and macOS keep only the low 8 bits of an exit status, so list the code the program can return."
+msgstr ""
+
 msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again next check-in), failed. Empty uses the defaults shown; any code not listed is failed. The defaults are Windows codes: Linux and macOS keep only the low 8 bits of an exit status, so list the code the program can return."
 msgstr ""
 
@@ -6899,6 +6978,9 @@ msgstr ""
 msgid "Operations on %s."
 msgstr "Opération pas définie: %s"
 
+msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+msgstr ""
+
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward. The Chocolatey entry expects the uploaded file to be a Chocolatey packages.config naming the packages to install."
 msgstr ""
 
@@ -6948,6 +7030,9 @@ msgid "Over the certificate being renewed: the same gate as poll binds the calle
 msgstr ""
 
 msgid "PLUGIN OPTIONS"
+msgstr ""
+
+msgid "Package"
 msgstr ""
 
 msgid "Page node is not registered as a permission node"
@@ -7123,6 +7208,9 @@ msgstr "statut"
 msgid "Ping cycle complete"
 msgstr "a été détruit"
 
+msgid "Pinned"
+msgstr ""
+
 msgid "Platform"
 msgstr ""
 
@@ -7171,7 +7259,15 @@ msgid "Please enter a name"
 msgstr "S'il vous plaît entrer un nom d'hôte valide"
 
 #, fuzzy
+msgid "Please enter a package id."
+msgstr "S'il vous plaît entrer un nom d'hôte valide"
+
+#, fuzzy
 msgid "Please enter a printer name."
+msgstr "S'il vous plaît entrer un nom d'hôte valide"
+
+#, fuzzy
+msgid "Please enter a software name."
 msgstr "S'il vous plaît entrer un nom d'hôte valide"
 
 #, fuzzy
@@ -7186,6 +7282,10 @@ msgstr ""
 
 msgid "Please physically associate"
 msgstr ""
+
+#, fuzzy
+msgid "Please select a valid backend."
+msgstr "Sélectionnez une image valide"
 
 #, fuzzy
 msgid "Please select a valid certificate verification level"
@@ -7205,6 +7305,10 @@ msgstr "Sélectionnez une image valide"
 
 #, fuzzy
 msgid "Please select a valid printer type."
+msgstr "Sélectionnez une image valide"
+
+#, fuzzy
+msgid "Please select a valid state."
 msgstr "Sélectionnez une image valide"
 
 #, fuzzy
@@ -7420,6 +7524,9 @@ msgid "Preferred over mapping straight to a role: the user group holds the roles
 msgstr ""
 
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the provider only decides who is in which bucket."
+msgstr ""
+
+msgid "Present"
 msgstr ""
 
 msgid "Present means enabled."
@@ -8977,6 +9084,64 @@ msgstr "SnapIns"
 msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
+#, fuzzy
+msgid "Software"
+msgstr "Lister tous les logiciels"
+
+#, fuzzy
+msgid "Software Create Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Software Create Success"
+msgstr "Imprimante existe déjà"
+
+#, fuzzy
+msgid "Software Host Associations"
+msgstr "Aucun noeud associé"
+
+#, fuzzy
+msgid "Software Management"
+msgstr "Gestion du stockage"
+
+#, fuzzy
+msgid "Software Name"
+msgstr "Nom de l'imprimante"
+
+msgid "Software Order"
+msgstr ""
+
+#, fuzzy
+msgid "Software Report"
+msgstr "ID d'hôte"
+
+#, fuzzy
+msgid "Software Status"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
+msgid "Software Update Fail"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Software Update Success"
+msgstr "Installation / Mise à jour réussie!"
+
+#, fuzzy
+msgid "Software added!"
+msgstr "Nom de l'imprimante"
+
+msgid "Software granted here applies to every host in this group, including hosts added later."
+msgstr ""
+
+#, fuzzy
+msgid "Software update failed!"
+msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+msgid "Software updated!"
+msgstr "Imprimante mis à jour!"
+
 msgid "Some nice description, should be short."
 msgstr ""
 
@@ -9905,6 +10070,9 @@ msgstr "Impossible de créer la tâche"
 msgid "The host this certificate is, and the capabilities this server offers."
 msgstr "Il n'y a pas de groupes sur ce serveur."
 
+msgid "The id the package manager knows, e.g. googlechrome."
+msgstr ""
+
 #, fuzzy
 msgid "The identity provider could not be reached"
 msgstr "Impossible de lire le fichier temporaire"
@@ -9994,7 +10162,16 @@ msgstr ""
 msgid "The older spelling of /unisearch?q=. An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
 msgstr ""
 
+msgid "The order software is applied in when the agent reconciles this host."
+msgstr ""
+
 msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
+msgstr ""
+
+msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order."
+msgstr ""
+
+msgid "The package manager's own exit code; meaningful for the action statuses."
 msgstr ""
 
 msgid "The path requested is already in use by another image!"
@@ -10123,7 +10300,6 @@ msgstr "Imprimante existe déjà"
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -10290,6 +10466,9 @@ msgid "This host last reported Secure Boot as ON. It does not trust this server'
 msgstr ""
 
 msgid "This host last reported UEFI firmware whose Secure Boot state could not be read, so FOS has nowhere to write the certificate."
+msgstr ""
+
+msgid "This host reported that its package manager is not installed. Chocolatey must be installed on the host before software can be managed."
 msgstr ""
 
 msgid "This identity is linked to a different FOG account"
@@ -10467,6 +10646,9 @@ msgstr ""
 #, fuzzy
 msgid "Timeout"
 msgstr "Temps"
+
+msgid "Timeout must be a whole number of seconds, zero or more."
+msgstr ""
 
 msgid "Title"
 msgstr ""
@@ -10883,6 +11065,9 @@ msgstr "Imprimante"
 msgid "Updated %1$d field(s) on %2$d host(s)."
 msgstr ""
 
+msgid "Upgraded"
+msgstr ""
+
 #, fuzzy
 msgid "Upload"
 msgstr "Télécharger Rapports"
@@ -11197,6 +11382,10 @@ msgid "Version information and paging bounds."
 msgstr "FOG Informations de version"
 
 #, fuzzy
+msgid "Version policy"
+msgstr "Version"
+
+#, fuzzy
 msgid "Versions"
 msgstr "Version"
 
@@ -11268,6 +11457,9 @@ msgid "What"
 msgstr ""
 
 msgid "What Setup Mode means (firmware usually calls it \"Custom\")"
+msgstr ""
+
+msgid "What convergence did for one software entry: converged (nothing needed doing), installed, upgraded or removed with the package manager's exit code, or timeout / cannot_run when it never ran. The server reads the code against the entry's return-code table, refreshes the host's status row for the entry, and answers the outcome. Software is state, not a task: nothing closes."
 msgstr ""
 
 #, fuzzy
@@ -11529,6 +11721,9 @@ msgstr ""
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
+msgid "absent"
+msgstr ""
+
 #, fuzzy
 msgid "access"
 msgstr "Accès"
@@ -11576,6 +11771,10 @@ msgstr ""
 
 msgid "answering 0 for a read that never ran"
 msgstr ""
+
+#, fuzzy
+msgid "any version"
+msgstr "Version"
 
 msgid "approve signs the CSR, binds the certificate to the host and takes the host out of pending; deny records the refusal. Either way the agent learns the outcome on its next poll. Audited as agent.enroll."
 msgstr ""
@@ -12017,6 +12216,10 @@ msgstr "DMI Key"
 
 msgid "keys"
 msgstr ""
+
+#, fuzzy
+msgid "latest"
+msgstr "Reproduire?"
 
 msgid "leave to keep the current one"
 msgstr ""
@@ -13395,7 +13598,3 @@ msgstr ""
 #, fuzzy
 #~ msgid "username"
 #~ msgstr "Nom d'utilisateur"
-
-#, fuzzy
-#~ msgid "version"
-#~ msgstr "Version"

@@ -10879,3 +10879,89 @@ $this->schema[] = [
     // reports the last 4 KB of output.
     "ALTER TABLE `snapinTasks` MODIFY COLUMN `stReturnDetails` text NOT NULL",
 ];
+// 418
+$this->schema[] = [
+    // fog-agent software management (design 0003). Software is desired
+    // state, not a task: a package id plus a version policy, held on the
+    // host by a package manager (Chocolatey first) and reported back with
+    // the version the host actually has. Snapins stay as they are.
+    "CREATE TABLE IF NOT EXISTS `software` ( "
+    . "`swID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`swName` varchar(200) NOT NULL, "
+    . "`swDesc` longtext NOT NULL DEFAULT '', "
+    // Which package manager knows the package: choco now, others later
+    // behind the same interface.
+    . "`swBackend` varchar(16) NOT NULL DEFAULT 'choco', "
+    . "`swPackage` varchar(255) NOT NULL, "
+    // '' any version, 'latest' tracks the source, else an exact pin.
+    . "`swVersion` varchar(64) NOT NULL DEFAULT '', "
+    . "`swState` varchar(8) NOT NULL DEFAULT 'present', "
+    . "`swSource` varchar(255) NOT NULL DEFAULT '', "
+    . "`swArgs` varchar(255) NOT NULL DEFAULT '', "
+    . "`swTimeout` int(11) NOT NULL DEFAULT 900, "
+    // The same code=class table snapins carry (schema 417).
+    . "`swReturnCodes` text NULL, "
+    . "`swEnabled` tinyint(1) NOT NULL DEFAULT 1, "
+    . "`swCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), "
+    . "`swCreator` varchar(50) NOT NULL DEFAULT '', "
+    . "PRIMARY KEY (`swID`), "
+    . "UNIQUE KEY `swName` (`swName`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Host-direct assignment, ordered like snapinAssoc.
+    "CREATE TABLE IF NOT EXISTS `softwareAssoc` ( "
+    . "`swaID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`swaHostID` int(11) NOT NULL, "
+    . "`swaSoftwareID` int(11) NOT NULL, "
+    . "`swaSequence` int(11) NOT NULL DEFAULT 0, "
+    . "PRIMARY KEY (`swaID`), "
+    . "UNIQUE KEY `swaHostSoftware` (`swaHostID`,`swaSoftwareID`), "
+    . "KEY `swaSoftwareID` (`swaSoftwareID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Group grant, the ADR 0038 shape: a fact about the group, resolved
+    // per host after its direct assignments and deduplicated.
+    "CREATE TABLE IF NOT EXISTS `groupSoftwareAssoc` ( "
+    . "`gswaID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`gswaGroupID` int(11) NOT NULL, "
+    . "`gswaSoftwareID` int(11) NOT NULL, "
+    . "`gswaSequence` int(11) NOT NULL DEFAULT 0, "
+    . "PRIMARY KEY (`gswaID`), "
+    . "UNIQUE KEY `gswaGroupSoftware` (`gswaGroupID`,`gswaSoftwareID`), "
+    . "KEY `gswaSoftwareID` (`gswaSoftwareID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // What each host last reported per entry: one row, refreshed in
+    // place, so the host's Software tab is a current picture rather than
+    // a history.
+    "CREATE TABLE IF NOT EXISTS `softwareStatus` ( "
+    . "`sstID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`sstHostID` int(11) NOT NULL, "
+    . "`sstSoftwareID` int(11) NOT NULL, "
+    . "`sstInstalledVersion` varchar(64) NOT NULL DEFAULT '', "
+    // converged, installed, upgraded, removed, failed, retry, reboot,
+    // timeout, cannot_run.
+    . "`sstStatus` varchar(16) NOT NULL DEFAULT '', "
+    . "`sstReturnCode` int(11) NOT NULL DEFAULT 0, "
+    . "`sstDetails` text NOT NULL DEFAULT '', "
+    . "`sstChecked` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`sstID`), "
+    . "UNIQUE KEY `sstHostSoftware` (`sstHostID`,`sstSoftwareID`), "
+    . "KEY `sstSoftwareID` (`sstSoftwareID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // The module row that lets an admin turn the capability off per host
+    // or group like every other one. Id 13 follows the seed in step 34.
+    // 417 widened stReturnDetails without a default, which a strict server
+    // refuses on an INSERT that omits it (the legacy client's does).
+    "ALTER TABLE `snapinTasks` MODIFY COLUMN `stReturnDetails` text NOT NULL DEFAULT ''",
+    "INSERT IGNORE INTO `modules` (`id`, `name`, `short_name`, `description`) "
+    . "VALUES (13,'Software','software','This setting will enable or disable "
+    . "the software management module on this specific host. If the module "
+    . "is globally disabled, this setting is ignored.')",
+    // How often a host re-checks its software set when nothing changed on
+    // the server. Six hours: often enough to catch a removed package the
+    // same working day, rare enough that choco is not a poll-loop cost.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_SOFTWARE_DRIFT_INTERVAL','Seconds between a host''s checks of "
+    . "its software set when the set has not changed. The check runs "
+    . "choco against every entry, so keep it hours, not minutes.',"
+    . "'21600','FOG Client')",
+];

@@ -119,6 +119,9 @@ class Authorization extends FOGBase
         // on snapin.view. Same reasoning as the two above (ADR 0030
         // decision 4).
         'snapin_report' => 'snapin',
+        // Software Report reads `softwareStatus`, which Software Management
+        // gates on software.view. Same reasoning.
+        'software_report' => 'software',
         // Fleet Report reads `hosts` and `inventory`, both gated on
         // host.view everywhere else. Same reasoning (ADR 0030 decision 4).
         'fleet_report' => 'host',
@@ -425,6 +428,10 @@ class Authorization extends FOGBase
         'snapingroupassociation' => 'snapin',
         'snapinjob' => 'task',
         'snapintask' => 'task',
+        'software' => 'software',
+        'softwareassociation' => 'software',
+        'groupsoftwareassociation' => 'software',
+        'softwarestatus' => 'software',
         'storagegroup' => 'storagegroup',
         'storagenode' => 'storagenode',
         'task' => 'task',
@@ -548,6 +555,7 @@ class Authorization extends FOGBase
             'group' => ['view', 'create', 'edit', 'delete', 'task'],
             'image' => ['view', 'create', 'edit', 'delete', 'task'],
             'snapin' => ['view', 'create', 'edit', 'delete'],
+            'software' => ['view', 'create', 'edit', 'delete'],
             'printer' => ['view', 'create', 'edit', 'delete'],
             'module' => ['view', 'create', 'edit', 'delete'],
             'user' => ['view', 'create', 'edit', 'delete'],

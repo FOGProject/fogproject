@@ -49,7 +49,8 @@ class State extends FOGBase
     const CAPABILITIES = [
         'hostname' => 'hostnamechanger',
         'taskreboot' => 'taskreboot',
-        'snapin' => 'snapinclient'
+        'snapin' => 'snapinclient',
+        'software' => 'software'
     ];
 
     /**
@@ -129,6 +130,12 @@ class State extends FOGBase
             // leave it as they complete, so the revision moves with the
             // queue and an empty list is the resting state.
             $state['snapins'] = Snapins::queue($Host);
+        }
+        if (in_array('software', $capabilities, true)) {
+            // The desired package set in run order with the drift
+            // interval (Agent\SoftwareSet). Status reports do not touch
+            // it, so a reporting host does not move its own revision.
+            $state['software'] = SoftwareSet::desired($Host);
         }
         if (count($capabilities) > 0) {
             // The policy every reboot obeys, whatever asked for it:

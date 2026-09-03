@@ -299,6 +299,15 @@ return [
     ['child' => 'groupSnapinAssoc', 'column' => 'gsaSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
     ['child' => 'groupPrinterAssoc', 'column' => 'gpaGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
     ['child' => 'groupPrinterAssoc', 'column' => 'gpaPrinterID', 'parent' => 'printers', 'pcolumn' => 'pID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
+    // Group 13 -- fog-agent software (design 0003, schema 418). An
+    // assignment or a status row is meaningless without both its host (or
+    // group) and its software entry.
+    ['child' => 'softwareAssoc', 'column' => 'swaHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'softwareAssoc', 'column' => 'swaSoftwareID', 'parent' => 'software', 'pcolumn' => 'swID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'groupSoftwareAssoc', 'column' => 'gswaGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'groupSoftwareAssoc', 'column' => 'gswaSoftwareID', 'parent' => 'software', 'pcolumn' => 'swID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'softwareStatus', 'column' => 'sstHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'softwareStatus', 'column' => 'sstSoftwareID', 'parent' => 'software', 'pcolumn' => 'swID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
     // ADR 0038 decision 3, revised. Group 10, created empty by step 407 so
     // there is nothing to sweep before the flip.
     //

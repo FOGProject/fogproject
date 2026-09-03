@@ -3,6 +3,7 @@ filedeletequeue	(nothing)
 group	groupassociation	groupID
 group	sitegroupmember	groupID
 groupassociation	(nothing)	
+groupsoftwareassociation	(nothing)	
 history	(nothing)	
 hookevent	(nothing)	
 host	groupassociation	hostID
@@ -64,6 +65,11 @@ snapinassociation	(nothing)
 snapingroupassociation	(nothing)	
 snapinjob	(nothing)	
 snapintask	(nothing)	
+software	groupsoftwareassociation	softwareID
+software	softwareassociation	softwareID
+software	softwarestatus	softwareID
+softwareassociation	(nothing)	
+softwarestatus	(nothing)	
 storagegroup	(nothing)	
 storagenode	(nothing)	
 task	(nothing)	

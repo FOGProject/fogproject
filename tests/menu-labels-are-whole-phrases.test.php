@@ -124,6 +124,7 @@ $nodes = [
     'group' => 'Group', 'host' => 'Host', 'image' => 'Image',
     'ipxe' => 'Ipxe Menu', 'module' => 'Module', 'printer' => 'Printer',
     'role' => 'Role', 'site' => 'Site', 'snapin' => 'Snapin',
+    'software' => 'Software',
     'storagegroup' => 'Storage Group', 'storagenode' => 'Storage Node',
     'user' => 'User', 'usergroup' => 'User Group',
 ];

@@ -634,6 +634,73 @@ class GroupManagement extends FOGPage
         $this->assocPost('addSnapin', 'removeSnapin', 'setSnapinOrder');
     }
     /**
+     * Group software.
+     *
+     * Mirrors groupSnapins(): association runs through
+     * Group::addSoftware()/removeSoftware(), which writes one row on the
+     * GROUP.
+     *
+     * @return void
+     */
+    public function groupSoftware()
+    {
+        $this->renderAssocTab(
+            'group-software',
+            _('Group Software Assignment'),
+            _('Software Name'),
+            'software',
+            'btn btn-primary float-end',
+            _(
+                'Software granted here applies to every host in this group, '
+                . 'including hosts added later.'
+            ),
+            'software'
+        );
+
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'group-software',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $orderButton = self::makeButton(
+            'group-software-order-save',
+            _('Save order'),
+            'btn btn-primary float-end',
+            $props
+        );
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Software Order');
+        echo '</h4>';
+        echo '<p class="form-text">';
+        echo _(
+            'The order this group\'s software is applied in. A host applies '
+            . 'its own software first, then the software granted here, in '
+            . 'this order.'
+        );
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        echo '<ol id="group-software-order-list" class="list-group"></ol>';
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $orderButton;
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Group software post
+     *
+     * @return void
+     */
+    public function groupSoftwarePost()
+    {
+        $this->assocPost('addSoftware', 'removeSoftware', 'setSoftwareOrder', 'softwareorder');
+    }
+    /**
      * Display's the group service stuff
      *
      * @return void
@@ -1742,6 +1809,13 @@ class GroupManagement extends FOGPage
                         'generator' => function () {
                             $this->groupSnapins();
                         }
+                    ],
+                    [
+                        'name' => _('Software'),
+                        'id' => 'group-software',
+                        'generator' => function () {
+                            $this->groupSoftware();
+                        }
                     ]
                 ]
             ]
@@ -1863,6 +1937,9 @@ class GroupManagement extends FOGPage
                         break;
                     case 'group-snapin':
                         $this->groupSnapinPost();
+                        break;
+                    case 'group-software':
+                        $this->groupSoftwarePost();
                         break;
                     case 'group-module':
                         $this->groupModulePost();
@@ -2155,6 +2232,29 @@ class GroupManagement extends FOGPage
         );
     }
     /**
+     * Presents the software list table.
+     *
+     * @return void
+     */
+    public function getSoftwareList()
+    {
+        $this->assocItemsList(
+            'software',
+            'groupsoftwareassociation',
+            'groupSoftwareAssoc',
+            '`software`.`swID`',
+            '`groupSoftwareAssoc`.`gswaSoftwareID`',
+            '`groupSoftwareAssoc`.`gswaGroupID`',
+            [
+                [
+                    'db' => 'groupAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
      * Returns the snapins this group grants, in run order.
      *
      * ADR 0038: the group owns the rows, so the order is read straight off
@@ -2187,6 +2287,46 @@ class GroupManagement extends FOGPage
             foreach ($snapinIDs as $sid) {
                 // Same contract as the host tab: only list ids that resolve
                 // to a real snapin (skip stale/0 associations).
+                if (!isset($names[$sid])) {
+                    continue;
+                }
+                $data[] = [
+                    'id' => $sid,
+                    'name' => $names[$sid]
+                ];
+            }
+        }
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
+    }
+    /**
+     * Returns the software this group grants, in run order.
+     *
+     * Mirrors getSnapinOrderList() above over groupSoftwareAssoc/gswaSequence.
+     *
+     * @return void
+     */
+    public function getSoftwareOrderList()
+    {
+        $data = [];
+        $grants = Route::getList(
+            'groupsoftwareassociation',
+            ['groupID' => $this->obj->get('id')],
+            'AND',
+            'sequence'
+        );
+        $softwareIDs = [];
+        foreach ($grants as $grant) {
+            $softwareIDs[] = (int)$grant->softwareID;
+        }
+        if (count($softwareIDs) > 0) {
+            $names = [];
+            $Softwares = Route::getList('software', ['id' => $softwareIDs]);
+            foreach ($Softwares as $Software) {
+                $names[(int)$Software->id] = $Software->name;
+            }
+            foreach ($softwareIDs as $sid) {
+                // Same contract as the host tab: only list ids that resolve
+                // to a real software entry (skip stale/0 associations).
                 if (!isset($names[$sid])) {
                     continue;
                 }

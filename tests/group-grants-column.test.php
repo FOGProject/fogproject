@@ -131,11 +131,11 @@ $t->check(
 );
 $t->check(
     'it asks only for the ids on the page',
-    4 === substr_count($sql, 'IN (1,2,3)')
+    5 === substr_count($sql, 'IN (1,2,3)')
 );
 $t->check(
     'each arm groups by the assoc row it counts',
-    4 === substr_count($sql, 'GROUP BY')
+    5 === substr_count($sql, 'GROUP BY')
 );
 
 // Invariant 3: fixed display order regardless of the row order above.
@@ -175,7 +175,7 @@ $t->check(
 );
 $t->check(
     'a non-numeric id is cast, not dropped',
-    4 === substr_count($sql, 'IN (4,7)')
+    5 === substr_count($sql, 'IN (4,7)')
 );
 $t->check(
     'ids that are not positive are dropped',

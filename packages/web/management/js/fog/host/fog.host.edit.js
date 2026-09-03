@@ -842,6 +842,163 @@
 
     loadSnapinOrder();
 
+    // ---------------------------------------------------------------
+    // SOFTWARE TAB
+    // Mirrors the snapin tab above. The software order panel (below)
+    // mirrors the assigned set, so refresh it after every add/remove
+    // commits via afterCommit.
+    var hostSoftwareTable = $.registerAssociationTab({
+        slug: 'host-software',
+        item: 'software',
+        sub: 'getSoftwareList',
+        afterCommit: loadSoftwareOrder
+    });
+    $.registerCreateAndAssociate('host-software', hostSoftwareTable);
+
+    // ---------------------------------------------------------------
+    // SOFTWARE ORDER
+    var hostSoftwareOrderList = $('#host-software-order-list'),
+        hostSoftwareOrderSaveBtn = $('#host-software-order-save');
+
+    function updateSoftwareOrderPositions() {
+        hostSoftwareOrderList.children('li').each(function(i) {
+            $(this).find('.software-order-pos').text((i + 1) + '. ');
+        });
+    }
+
+    function renderSoftwareOrder(items) {
+        hostSoftwareOrderList.empty();
+        if (!items || items.length === 0) {
+            hostSoftwareOrderList.append(
+                $('<li>', {'class': 'list-group-item text-muted'})
+                    .text('No software assigned.')
+            );
+            hostSoftwareOrderSaveBtn.prop('disabled', true);
+            return;
+        }
+        hostSoftwareOrderSaveBtn.prop('disabled', false);
+        $.each(items, function(i, item) {
+            var controls = $('<span>', {'class': 'float-end'})
+                .append(
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-sm btn-secondary software-order-up',
+                        'title': 'Move up'
+                    }).append($('<i>', {'class': 'fas fa-arrow-up'})),
+                    ' ',
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-sm btn-secondary software-order-down',
+                        'title': 'Move down'
+                    }).append($('<i>', {'class': 'fas fa-arrow-down'}))
+                );
+            hostSoftwareOrderList.append(
+                $('<li>', {
+                    'class': 'list-group-item',
+                    'data-id': item.id
+                }).append(
+                    $('<span>', {'class': 'software-order-pos'}),
+                    $('<span>', {'class': 'software-order-name'}).text(item.name),
+                    controls
+                )
+            );
+        });
+        updateSoftwareOrderPositions();
+    }
+
+    function loadSoftwareOrder() {
+        $.ajax({
+            url: '../management/index.php?node=' + Common.node
+                + '&sub=getSoftwareOrderList&id=' + Common.id,
+            dataType: 'json',
+            success: function(data) {
+                renderSoftwareOrder(data && data.data ? data.data : []);
+            }
+        });
+    }
+
+    hostSoftwareOrderList.on('click', '.software-order-up', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            prev = li.prev('li');
+        if (prev.length) {
+            li.insertBefore(prev);
+            updateSoftwareOrderPositions();
+        }
+    });
+
+    hostSoftwareOrderList.on('click', '.software-order-down', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            next = li.next('li');
+        if (next.length) {
+            li.insertAfter(next);
+            updateSoftwareOrderPositions();
+        }
+    });
+
+    hostSoftwareOrderSaveBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            order = [];
+        hostSoftwareOrderList.children('li').each(function() {
+            var id = $(this).attr('data-id');
+            if (id) {
+                order.push(id);
+            }
+        });
+        if (order.length === 0) {
+            return;
+        }
+        $.apiCall(method, action, {softwareorder: order});
+    });
+
+    loadSoftwareOrder();
+
+    // ---------------------------------------------------------------
+    // SOFTWARE STATUS TAB (read only)
+    var hostSoftwareStatusTable = $('#host-software-status-table').registerTable(null, {
+        columns: [
+            $.escapedColumn('software'),
+            $.escapedColumn('package'),
+            $.escapedColumn('desired'),
+            $.escapedColumn('installed'),
+            $.escapedColumn('status'),
+            $.escapedColumn('returnCode'),
+            $.escapedColumn('checked'),
+            {
+                data: 'details',
+                render: function(d, t) {
+                    var full = d === null ? '' : String(d),
+                        clipped = full.length > 200
+                            ? full.slice(0, 200) + '…'
+                            : full;
+                    if (t !== 'display') {
+                        return full;
+                    }
+                    return '<span title="' + $.escapeHtml(full) + '">'
+                        + $.escapeHtml(clipped)
+                        + '</span>';
+                }
+            }
+        ],
+        order: [
+            [6, 'desc']
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        select: false,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getSoftwareStatus&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
     // FOG CLIENT AREA
     // ---------------------------------------------------------------
     // CLIENT SETTINGS TAB
@@ -1355,6 +1512,7 @@
         hostGroupsTable.search(Common.search).draw();
         hostPrintersTable.search(Common.search).draw();
         hostSnapinsTable.search(Common.search).draw();
+        hostSoftwareTable.search(Common.search).draw();
         // FOG Client
         hostModulesTable.search(Common.search).draw();
         powermanagementTable.search(Common.search).draw();
@@ -1364,6 +1522,7 @@
         }
         hostHistoryImageTable.search(Common.search).draw();
         hostHistorySnapinTable.search(Common.search).draw();
+        hostSoftwareStatusTable.search(Common.search).draw();
     }
 
     // ---------------------------------------------------------------

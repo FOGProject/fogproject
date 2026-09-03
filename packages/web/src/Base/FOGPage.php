@@ -132,6 +132,7 @@ abstract class FOGPage extends FOGBase
         'storagenode',
         'storagegroup',
         'snapin',
+        'software',
         'plugin',
         'printer',
         'task',
@@ -539,6 +540,10 @@ abstract class FOGPage extends FOGBase
             'snapin' => [
                 self::$foglang['Snapins'],
                 'fas fa-cube'
+            ],
+            'software' => [
+                self::$foglang['Software'],
+                'fas fa-box-open'
             ],
             'storagegroup' => [
                 self::$foglang['Storagegroups'],
@@ -1078,6 +1083,9 @@ abstract class FOGPage extends FOGBase
             case 'snapin':
                 return ['list' => _('List All Snapins'),
                         'add' => _('Create New Snapin')];
+            case 'software':
+                return ['list' => _('List All Software'),
+                        'add' => _('Create New Software')];
             case 'storagegroup':
                 return ['list' => _('List All Storage Groups'),
                         'add' => _('Create New Storage Group')];

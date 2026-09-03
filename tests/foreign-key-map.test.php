@@ -346,6 +346,15 @@ $expected = [
     'groupSnapinAssoc.gsaSnapinID',
     'groupPrinterAssoc.gpaGroupID',
     'groupPrinterAssoc.gpaPrinterID',
+    // Group 13 -- fog-agent software, design 0003. Same CASCADE reasoning
+    // as group 9 for the two assignment tables; a status row is a fact
+    // about a host and an entry and goes with either.
+    'softwareAssoc.swaHostID',
+    'softwareAssoc.swaSoftwareID',
+    'groupSoftwareAssoc.gswaGroupID',
+    'groupSoftwareAssoc.gswaSoftwareID',
+    'softwareStatus.sstHostID',
+    'softwareStatus.sstSoftwareID',
     // Group 10 -- modules, the third declarative grant. Same CASCADE
     // reasoning as group 9.
     'groupModuleAssoc.gmaGroupID',

@@ -377,6 +377,7 @@ abstract class FOGBase
         // here. No error, just the wrong half of an if.
         'site',
         'snapin',
+        'software',
         'storagegroup',
         'storagenode',
         'task',

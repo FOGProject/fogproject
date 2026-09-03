@@ -210,6 +210,7 @@ const TABLE = [
     'Token' => 'Agent',
     'State' => 'Agent',
     'Snapins' => 'Agent',
+    'SoftwareSet' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',

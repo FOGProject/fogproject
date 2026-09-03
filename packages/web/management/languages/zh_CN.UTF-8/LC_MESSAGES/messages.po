@@ -427,6 +427,9 @@ msgstr "图像名是必需的！"
 msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
 msgstr ""
 
+msgid "A disabled entry stops being managed; it does not remove the package."
+msgstr ""
+
 #, fuzzy
 msgid "A dmi field must be set!"
 msgstr "事件必须是字符串"
@@ -514,6 +517,9 @@ msgstr "列表中的所有%s"
 msgid "A permission name is required."
 msgstr "图像名是必需的！"
 
+msgid "A pinned entry needs a version."
+msgstr ""
+
 msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
 msgstr ""
 
@@ -579,6 +585,10 @@ msgstr "图像已经存在具有此名称！"
 
 msgid "A snapin granted here reaches every host in this group, including hosts added later. Granting a snapin does not run it; deploy it from the Tasks tab when you want it to run."
 msgstr ""
+
+#, fuzzy
+msgid "A software entry already exists with this name!"
+msgstr "图像已经存在具有此名称！"
 
 #, fuzzy
 msgid "A storage group already exists with this name!"
@@ -713,6 +723,12 @@ msgstr ""
 
 #, php-format
 msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
+msgid "Absent"
+msgstr ""
+
+msgid "Absent removes the package if it is installed."
 msgstr ""
 
 msgid "Accepts the same optional filter as a list. Reports the true filtered total and ignores paging."
@@ -943,6 +959,10 @@ msgid "Add slack account failed!"
 msgstr "添加管理单元失败！"
 
 msgid "Add snapin failed!"
+msgstr "添加管理单元失败！"
+
+#, fuzzy
+msgid "Add software failed!"
 msgstr "添加管理单元失败！"
 
 #, fuzzy
@@ -1224,6 +1244,10 @@ msgstr ""
 msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
 msgstr ""
 
+#, fuzzy
+msgid "Any version"
+msgstr "版"
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1415,6 +1439,9 @@ msgstr "BIOS供应商"
 
 msgid "BIOS Version"
 msgstr "BIOS版本"
+
+msgid "Backend"
+msgstr ""
 
 #, fuzzy
 msgid "Bad request."
@@ -1863,6 +1890,9 @@ msgstr "没有FOGPage类中找到此节点"
 msgid "Check this value against what the enrollment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
+msgid "Checked"
+msgstr ""
+
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
@@ -2045,6 +2075,9 @@ msgstr "错误：无法下载内核"
 #, fuzzy
 msgid "Confirm you would like to download a new kernel"
 msgstr "错误：无法下载内核"
+
+msgid "Converged"
+msgstr ""
 
 #, php-format
 msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
@@ -2313,6 +2346,10 @@ msgstr "新建分钟"
 
 msgid "Create New Snapin"
 msgstr "新建管理单元"
+
+#, fuzzy
+msgid "Create New Software"
+msgstr "新建分钟"
 
 msgid "Create New Storage Group"
 msgstr "新建Storage Group"
@@ -2674,6 +2711,9 @@ msgstr ""
 
 msgid "Description"
 msgstr "描述"
+
+msgid "Desired"
+msgstr ""
 
 #, fuzzy
 msgid "Destroy failed"
@@ -3073,6 +3113,14 @@ msgstr "私钥失败"
 msgid "Exists item must be boolean"
 msgstr ""
 
+#, fuzzy
+msgid "Exit Code"
+msgstr "出口Snapins"
+
+#, fuzzy
+msgid "Exit code"
+msgstr "返回代码"
+
 msgid "Expand - walk the chain (any directory)"
 msgstr ""
 
@@ -3152,6 +3200,10 @@ msgstr "日期"
 msgid "External root CA"
 msgstr ""
 
+#, fuzzy
+msgid "Extra arguments"
+msgstr "管理单元运行带有参数"
+
 msgid "FOG"
 msgstr "雾"
 
@@ -3179,6 +3231,10 @@ msgstr ""
 
 #, fuzzy
 msgid "FOG Agent snapin result"
+msgstr "没有文件被上传"
+
+#, fuzzy
+msgid "FOG Agent software result"
 msgstr "没有文件被上传"
 
 #, fuzzy
@@ -3883,6 +3939,10 @@ msgid "Group Snapin History"
 msgstr "历史管理单元"
 
 #, fuzzy
+msgid "Group Software Assignment"
+msgstr "历史管理单元"
+
+#, fuzzy
 msgid "Group Task History"
 msgstr "历史形象"
 
@@ -4213,6 +4273,13 @@ msgstr "无关联的节点"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "历史管理单元"
+
+#, fuzzy
+msgid "Host Software Assignment"
+msgstr "历史管理单元"
+
+msgid "Host Software Status"
+msgstr ""
 
 #, fuzzy
 msgid "Host Task History"
@@ -5429,6 +5496,9 @@ msgstr ""
 msgid "Last imaged"
 msgstr "图片"
 
+msgid "Latest (upgrade at each check)"
+msgstr ""
+
 #, fuzzy
 msgid "Latest Alpha Version"
 msgstr "最新版本"
@@ -5552,6 +5622,10 @@ msgstr "列表中的所有分钟s"
 
 msgid "List All Snapins"
 msgstr "列表中的所有管理单元s"
+
+#, fuzzy
+msgid "List All Software"
+msgstr "列表中的所有分钟s"
 
 msgid "List All Storage Groups"
 msgstr "列表中的所有Storage Groups"
@@ -6630,6 +6704,10 @@ msgstr ""
 msgid "Not allowed here"
 msgstr "这里不允许"
 
+#, fuzzy
+msgid "Not an entry in this host's software set."
+msgstr "发现主机没有活动任务"
+
 msgid "Not offered here, on purpose"
 msgstr ""
 
@@ -6813,6 +6891,9 @@ msgstr ""
 msgid "One or more macs are associated with a host"
 msgstr "错误，与此主机关联的图像"
 
+msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again at the next check), failed. Empty uses the defaults shown; any code not listed is failed. The defaults are Windows codes: Linux and macOS keep only the low 8 bits of an exit status, so list the code the program can return."
+msgstr ""
+
 msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again next check-in), failed. Empty uses the defaults shown; any code not listed is failed. The defaults are Windows codes: Linux and macOS keep only the low 8 bits of an exit status, so list the code the program can return."
 msgstr ""
 
@@ -6899,6 +6980,9 @@ msgstr ""
 msgid "Operations on %s."
 msgstr "操作字段没有设置： %s"
 
+msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+msgstr ""
+
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward. The Chocolatey entry expects the uploaded file to be a Chocolatey packages.config naming the packages to install."
 msgstr ""
 
@@ -6948,6 +7032,9 @@ msgid "Over the certificate being renewed: the same gate as poll binds the calle
 msgstr ""
 
 msgid "PLUGIN OPTIONS"
+msgstr ""
+
+msgid "Package"
 msgstr ""
 
 msgid "Page node is not registered as a permission node"
@@ -7123,6 +7210,9 @@ msgstr "状态"
 msgid "Ping cycle complete"
 msgstr "已被破坏"
 
+msgid "Pinned"
+msgstr ""
+
 msgid "Platform"
 msgstr ""
 
@@ -7171,7 +7261,15 @@ msgid "Please enter a name"
 msgstr "请输入一个有效的主机名"
 
 #, fuzzy
+msgid "Please enter a package id."
+msgstr "请输入一个有效的主机名"
+
+#, fuzzy
 msgid "Please enter a printer name."
+msgstr "请输入一个有效的主机名"
+
+#, fuzzy
+msgid "Please enter a software name."
 msgstr "请输入一个有效的主机名"
 
 #, fuzzy
@@ -7186,6 +7284,10 @@ msgstr ""
 
 msgid "Please physically associate"
 msgstr ""
+
+#, fuzzy
+msgid "Please select a valid backend."
+msgstr "选择一个有效的图像"
 
 #, fuzzy
 msgid "Please select a valid certificate verification level"
@@ -7205,6 +7307,10 @@ msgstr "选择一个有效的图像"
 
 #, fuzzy
 msgid "Please select a valid printer type."
+msgstr "选择一个有效的图像"
+
+#, fuzzy
+msgid "Please select a valid state."
 msgstr "选择一个有效的图像"
 
 #, fuzzy
@@ -7420,6 +7526,9 @@ msgid "Preferred over mapping straight to a role: the user group holds the roles
 msgstr ""
 
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the provider only decides who is in which bucket."
+msgstr ""
+
+msgid "Present"
 msgstr ""
 
 msgid "Present means enabled."
@@ -8979,6 +9088,63 @@ msgstr "Snapins"
 msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
+msgid "Software"
+msgstr ""
+
+#, fuzzy
+msgid "Software Create Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Software Create Success"
+msgstr "打印机已经存在"
+
+#, fuzzy
+msgid "Software Host Associations"
+msgstr "无关联的节点"
+
+#, fuzzy
+msgid "Software Management"
+msgstr "存储管理"
+
+#, fuzzy
+msgid "Software Name"
+msgstr "打印机名称"
+
+msgid "Software Order"
+msgstr ""
+
+#, fuzzy
+msgid "Software Report"
+msgstr "主机ID"
+
+#, fuzzy
+msgid "Software Status"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Software Update Fail"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Software Update Success"
+msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Software added!"
+msgstr "打印机名称"
+
+msgid "Software granted here applies to every host in this group, including hosts added later."
+msgstr ""
+
+#, fuzzy
+msgid "Software update failed!"
+msgstr "打印机更新失败！"
+
+#, fuzzy
+msgid "Software updated!"
+msgstr "打印机更新！"
+
 msgid "Some nice description, should be short."
 msgstr ""
 
@@ -9907,6 +10073,9 @@ msgstr "无法创建任务"
 msgid "The host this certificate is, and the capabilities this server offers."
 msgstr "有此服务器上没有组。"
 
+msgid "The id the package manager knows, e.g. googlechrome."
+msgstr ""
+
 #, fuzzy
 msgid "The identity provider could not be reached"
 msgstr "无法读取临时文件"
@@ -9996,7 +10165,16 @@ msgstr ""
 msgid "The older spelling of /unisearch?q=. An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
 msgstr ""
 
+msgid "The order software is applied in when the agent reconciles this host."
+msgstr ""
+
 msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
+msgstr ""
+
+msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order."
+msgstr ""
+
+msgid "The package manager's own exit code; meaningful for the action statuses."
 msgstr ""
 
 msgid "The path requested is already in use by another image!"
@@ -10125,7 +10303,6 @@ msgstr "打印机已经存在"
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -10292,6 +10469,9 @@ msgid "This host last reported Secure Boot as ON. It does not trust this server'
 msgstr ""
 
 msgid "This host last reported UEFI firmware whose Secure Boot state could not be read, so FOS has nowhere to write the certificate."
+msgstr ""
+
+msgid "This host reported that its package manager is not installed. Chocolatey must be installed on the host before software can be managed."
 msgstr ""
 
 msgid "This identity is linked to a different FOG account"
@@ -10469,6 +10649,9 @@ msgstr ""
 #, fuzzy
 msgid "Timeout"
 msgstr "时间"
+
+msgid "Timeout must be a whole number of seconds, zero or more."
+msgstr ""
 
 msgid "Title"
 msgstr ""
@@ -10885,6 +11068,9 @@ msgstr "打印机"
 msgid "Updated %1$d field(s) on %2$d host(s)."
 msgstr ""
 
+msgid "Upgraded"
+msgstr ""
+
 #, fuzzy
 msgid "Upload"
 msgstr "上传报告"
@@ -11199,6 +11385,10 @@ msgid "Version information and paging bounds."
 msgstr "FOG版本信息"
 
 #, fuzzy
+msgid "Version policy"
+msgstr "版"
+
+#, fuzzy
 msgid "Versions"
 msgstr "版"
 
@@ -11270,6 +11460,9 @@ msgid "What"
 msgstr ""
 
 msgid "What Setup Mode means (firmware usually calls it \"Custom\")"
+msgstr ""
+
+msgid "What convergence did for one software entry: converged (nothing needed doing), installed, upgraded or removed with the package manager's exit code, or timeout / cannot_run when it never ran. The server reads the code against the entry's return-code table, refreshes the host's status row for the entry, and answers the outcome. Software is state, not a task: nothing closes."
 msgstr ""
 
 #, fuzzy
@@ -11531,6 +11724,9 @@ msgstr ""
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
+msgid "absent"
+msgstr ""
+
 #, fuzzy
 msgid "access"
 msgstr "访问"
@@ -11578,6 +11774,10 @@ msgstr ""
 
 msgid "answering 0 for a read that never ran"
 msgstr ""
+
+#, fuzzy
+msgid "any version"
+msgstr "版"
 
 msgid "approve signs the CSR, binds the certificate to the host and takes the host out of pending; deny records the refusal. Either way the agent learns the outcome on its next poll. Audited as agent.enroll."
 msgstr ""
@@ -12019,6 +12219,10 @@ msgstr "DMI关键"
 
 msgid "keys"
 msgstr ""
+
+#, fuzzy
+msgid "latest"
+msgstr "复制？"
 
 msgid "leave to keep the current one"
 msgstr ""
@@ -13397,7 +13601,3 @@ msgstr ""
 #, fuzzy
 #~ msgid "username"
 #~ msgstr "用户名"
-
-#, fuzzy
-#~ msgid "version"
-#~ msgstr "版"

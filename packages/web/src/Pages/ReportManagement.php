@@ -183,6 +183,7 @@ class ReportManagement extends FOGPage
             'run history' => _('Run History'),
             'snapin list' => _('Snapin List'),
             'snapin report' => _('Snapin Report'),
+            'software report' => _('Software Report'),
             'storage report' => _('Storage Report')
         ];
 
