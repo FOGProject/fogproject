@@ -1803,6 +1803,7 @@ abstract class FOGBase
             'powermanagement' => true,
             'printermanager' => true,
             'snapinclient' => 'snapin',
+            'software' => true,
             'taskreboot' => true,
             'usertracker' => true
         ];

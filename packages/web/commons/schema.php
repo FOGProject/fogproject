@@ -10946,15 +10946,9 @@ $this->schema[] = [
     . "UNIQUE KEY `sstHostSoftware` (`sstHostID`,`sstSoftwareID`), "
     . "KEY `sstSoftwareID` (`sstSoftwareID`) "
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
-    // The module row that lets an admin turn the capability off per host
-    // or group like every other one. Id 13 follows the seed in step 34.
     // 417 widened stReturnDetails without a default, which a strict server
     // refuses on an INSERT that omits it (the legacy client's does).
     "ALTER TABLE `snapinTasks` MODIFY COLUMN `stReturnDetails` text NOT NULL DEFAULT ''",
-    "INSERT IGNORE INTO `modules` (`id`, `name`, `short_name`, `description`) "
-    . "VALUES (13,'Software','software','This setting will enable or disable "
-    . "the software management module on this specific host. If the module "
-    . "is globally disabled, this setting is ignored.')",
     // How often a host re-checks its software set when nothing changed on
     // the server. Six hours: often enough to catch a removed package the
     // same working day, rare enough that choco is not a poll-loop cost.
@@ -10964,4 +10958,30 @@ $this->schema[] = [
     . "its software set when the set has not changed. The check runs "
     . "choco against every entry, so keep it hours, not minutes.',"
     . "'21600','FOG Client')",
+];
+// 419
+$this->schema[] = [
+    // 418 tried to seed the software module row at id 13, which step 223
+    // had already given to powermanagement, so INSERT IGNORE dropped it on
+    // every server that has that step. Seed by short name instead and let
+    // the id be whatever is free; nothing keys on the number.
+    "INSERT INTO `modules` (`name`, `short_name`, `description`) "
+    . "SELECT 'Software', 'software', 'This setting will enable or disable "
+    . "the software management module on this specific host. If the module "
+    . "is globally disabled, this setting is ignored.' "
+    . "FROM DUAL WHERE NOT EXISTS "
+    . "(SELECT 1 FROM `modules` WHERE `short_name` = 'software')",
+    // The global switch every module has (FOGBase::getGlobalModuleStatus).
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_CLIENT_SOFTWARE_ENABLED','This setting defines if the agent''s "
+    . "software management module should be enabled on client computers. "
+    . "It holds each host to its assigned software through the host''s "
+    . "package manager. (Valid values: 0 or 1).','1','FOG Client')",
+    // The two TEXT defaults 418 carries in its final form but not on a
+    // server that ran it before they were added: a strict server refuses
+    // an INSERT that omits a NOT NULL column with no default, and the
+    // legacy client's snapin close-out omits stReturnDetails.
+    "ALTER TABLE `snapinTasks` MODIFY COLUMN `stReturnDetails` text NOT NULL DEFAULT ''",
+    "ALTER TABLE `softwareStatus` MODIFY COLUMN `sstDetails` text NOT NULL DEFAULT ''",
 ];

@@ -141,7 +141,7 @@ class Software extends FOGController
     /**
      * Saves, writing the host assignments as rows.
      *
-     * @return object
+     * @return object|bool false when the row itself did not save
      */
     public function save()
     {
