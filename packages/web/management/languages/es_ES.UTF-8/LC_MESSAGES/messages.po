@@ -1680,10 +1680,6 @@ msgstr ""
 msgid "Cannot connect to database"
 msgstr ""
 
-#, fuzzy
-msgid "Cannot connect to ftp server"
-msgstr "Error: No se pudo descargar kernel"
-
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
 msgstr ""
@@ -2151,10 +2147,6 @@ msgstr "No se pudo leer el archivo tmp."
 #, fuzzy
 msgid "Could not read local file"
 msgstr "No se pudo leer el archivo temporal"
-
-#, fuzzy
-msgid "Could not read snapin file"
-msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 msgid "Could not read the database structure"
@@ -3213,6 +3205,13 @@ msgstr "se ha actualizado correctamente"
 
 msgid "FOG Agent poll"
 msgstr ""
+
+msgid "FOG Agent snapin payload"
+msgstr ""
+
+#, fuzzy
+msgid "FOG Agent snapin result"
+msgstr "Ningún archivo fue subido"
 
 #, fuzzy
 msgid "FOG Client"
@@ -5052,10 +5051,6 @@ msgid "Invalid Storage Group"
 msgstr "Grupo de almacenamiento"
 
 #, fuzzy
-msgid "Invalid Storage Node"
-msgstr "nodo de almacenamiento"
-
-#, fuzzy
 msgid "Invalid Tasking"
 msgstr "tarea no válido"
 
@@ -6610,6 +6605,10 @@ msgid "No snapins associated with this group as master"
 msgstr "No hay snapins asociados con este anfitrión"
 
 #, fuzzy
+msgid "No storage node can serve the file."
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
 msgid "No storage nodes assigned to this storage group"
 msgstr "Grupo de almacenamiento primaria"
 
@@ -6734,6 +6733,10 @@ msgstr "Registrado"
 
 msgid "Not a certificate request, or one for a key other than the one this certificate proved."
 msgstr ""
+
+#, fuzzy
+msgid "Not a live task of this host's job."
+msgstr "No se encontró Clase FOGPage para este nodo"
 
 msgid "Not a number"
 msgstr "No un número"
@@ -10025,7 +10028,13 @@ msgstr "No se pudo crear la tarea"
 msgid "The enrollment is no longer pending."
 msgstr ""
 
+msgid "The exit code and output tail of one task. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
+msgstr ""
+
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
+msgstr ""
+
+msgid "The file for one task of the host's own snapin job; fetching it marks the task in progress. Same gate as poll."
 msgstr ""
 
 msgid "The file itself."
@@ -10152,6 +10161,9 @@ msgstr ""
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
+msgid "The payload bytes."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin directory"
 msgstr "Directorio"
@@ -10262,10 +10274,13 @@ msgstr ""
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
 
+#, fuzzy
+msgid "The task was already closed."
+msgstr "Impresora ya existe"
+
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12801,12 +12816,20 @@ msgstr ""
 #~ msgstr "clave privada fracasó"
 
 #, fuzzy
+#~ msgid "Cannot connect to ftp server"
+#~ msgstr "Error: No se pudo descargar kernel"
+
+#, fuzzy
 #~ msgid "Check that database is running"
 #~ msgstr "Compruebe que la base de datos se está ejecutando"
 
 #, fuzzy
 #~ msgid "Client Module Settings"
 #~ msgstr "Configuración Tecla"
+
+#, fuzzy
+#~ msgid "Could not read snapin file"
+#~ msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 #~ msgid "Create New Accesscontrol"
@@ -13145,6 +13168,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Install"
 #~ msgstr "Instalador inteligente (recomendado)"
+
+#, fuzzy
+#~ msgid "Invalid Storage Node"
+#~ msgstr "nodo de almacenamiento"
 
 #, fuzzy
 #~ msgid "Invalid Type"

@@ -1659,10 +1659,6 @@ msgstr "kann keine Verbindung aufbauen"
 msgid "Cannot connect to database"
 msgstr "Kann keine Verbindung zur Datenbank herstellen"
 
-#, fuzzy
-msgid "Cannot connect to ftp server"
-msgstr "Verbindung zum FTP-Server nicht möglich"
-
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
 msgstr ""
@@ -2129,10 +2125,6 @@ msgstr "Tmp-Datei konnte nicht gelesen werden."
 #, fuzzy
 msgid "Could not read local file"
 msgstr "Temporäre Datei konnte nicht gelesen werden."
-
-#, fuzzy
-msgid "Could not read snapin file"
-msgstr "Snapin-Datei konnte nicht gelesen werden."
 
 #, fuzzy
 msgid "Could not read the database structure"
@@ -3175,6 +3167,13 @@ msgstr "wurde abgebrochen"
 
 msgid "FOG Agent poll"
 msgstr ""
+
+msgid "FOG Agent snapin payload"
+msgstr ""
+
+#, fuzzy
+msgid "FOG Agent snapin result"
+msgstr "Keine Datei wurde hochgeladen"
 
 #, fuzzy
 msgid "FOG Client"
@@ -4969,9 +4968,6 @@ msgstr "Ungültiges Snapin-Tasking-Objekt"
 msgid "Invalid Storage Group"
 msgstr "Ungültige Speichergruppe"
 
-msgid "Invalid Storage Node"
-msgstr "Ungültiger Speicherknoten"
-
 #, fuzzy
 msgid "Invalid Tasking"
 msgstr "Ungültiger Vorgang"
@@ -6490,6 +6486,10 @@ msgid "No snapins associated with this group as master"
 msgstr "Keine Snapins mit dieser Gruppe als Master verbunden"
 
 #, fuzzy
+msgid "No storage node can serve the file."
+msgstr "Hinzufügen eines Speicherknotens fehlgeschlagen!"
+
+#, fuzzy
 msgid "No storage nodes assigned to this storage group"
 msgstr "da innerhalb diese Speichergruppe einer aktiviert ist"
 
@@ -6611,6 +6611,10 @@ msgstr "Nicht registrierte Hosts"
 
 msgid "Not a certificate request, or one for a key other than the one this certificate proved."
 msgstr ""
+
+#, fuzzy
+msgid "Not a live task of this host's job."
+msgstr "Keinen aktiven Task gefunden für Host"
 
 msgid "Not a number"
 msgstr "Keine Zahl"
@@ -9857,7 +9861,13 @@ msgstr "Fehler beim Erstellen eines Tasks"
 msgid "The enrollment is no longer pending."
 msgstr "läuft nicht mehr"
 
+msgid "The exit code and output tail of one task. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
+msgstr ""
+
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
+msgstr ""
+
+msgid "The file for one task of the host's own snapin job; fetching it marks the task in progress. Same gate as poll."
 msgstr ""
 
 msgid "The file itself."
@@ -9983,6 +9993,9 @@ msgstr ""
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
+msgid "The payload bytes."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin directory"
 msgstr "Home-Verzeichnis speichern"
@@ -10093,10 +10106,13 @@ msgstr "Der einer/mehrere Speichergruppen zugeordnete Speicherknoten ist ungült
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
 
+#, fuzzy
+msgid "The task was already closed."
+msgstr "Dieser Host ist bereits vorhanden."
+
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12648,12 +12664,20 @@ msgstr ""
 #~ msgid "Can not redeclare route"
 #~ msgstr "Route kann nicht nochmal neu definiert werden"
 
+#, fuzzy
+#~ msgid "Cannot connect to ftp server"
+#~ msgstr "Verbindung zum FTP-Server nicht möglich"
+
 #~ msgid "Check that database is running"
 #~ msgstr "Überprüfen Sie, ob die Datenbank ausgeführt wird"
 
 #, fuzzy
 #~ msgid "Client Module Settings"
 #~ msgstr "Client Einstellungen"
+
+#, fuzzy
+#~ msgid "Could not read snapin file"
+#~ msgstr "Snapin-Datei konnte nicht gelesen werden."
 
 #, fuzzy
 #~ msgid "Create New Accesscontrol"
@@ -12988,6 +13012,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Install"
 #~ msgstr "Installierte Plugins"
+
+#~ msgid "Invalid Storage Node"
+#~ msgstr "Ungültiger Speicherknoten"
 
 #, fuzzy
 #~ msgid "Invalid Type"

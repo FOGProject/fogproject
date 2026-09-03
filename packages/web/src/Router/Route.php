@@ -1567,6 +1567,8 @@ class Route extends FOGBase
         self::_registerRoute($r, 'POST', '/agent/v1/renew', [__CLASS__, 'agentRenew'], 'agentrenew');
         self::_registerRoute($r, 'GET', '/agent/v1/state', [__CLASS__, 'agentState'], 'agentstate');
         self::_registerRoute($r, 'POST', '/agent/v1/result', [__CLASS__, 'agentResult'], 'agentresult');
+        self::_registerRoute($r, 'GET', '/agent/v1/snapin/[i:id]/file', [__CLASS__, 'agentSnapinFile'], 'agentsnapinfile');
+        self::_registerRoute($r, 'POST', '/agent/v1/snapin/[i:id]/result', [__CLASS__, 'agentSnapinResult'], 'agentsnapinresult');
         self::_registerRoute($r, 'GET', '/agent/enrollments', [__CLASS__, 'agentEnrollments'], 'agentenrollments');
         self::_registerRoute($r, 'POST', '/agent/enrollment/[i:id]/[*:action]', [__CLASS__, 'agentEnrollmentDecide'], 'agentenrollmentdecide');
         self::_registerRoute($r, 'GET', '/agent/tokens', [__CLASS__, 'agentTokens'], 'agenttokens');
@@ -2962,6 +2964,68 @@ class Route extends FOGBase
             HTTPResponseCodes::HTTP_OK,
             json_encode(['status' => 'ok'])
         );
+    }
+    /**
+     * fog-agent's snapin payload: the bytes of one task's file.
+     *
+     * The task must belong to the host's own job; the fetch is what marks
+     * the task in progress. Streams and exits (Agent\Snapins::stream).
+     *
+     * @param int $id the snapin task
+     *
+     * @return void
+     */
+    public static function agentSnapinFile($id)
+    {
+        try {
+            $SnapinTask = \FOG\Agent\Snapins::ownTask(self::$agentHost, (int)$id);
+            \FOG\Agent\Snapins::stream(self::$agentHost, $SnapinTask);
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(
+                self::_agentErrorCode($e),
+                json_encode(['status' => 'error', 'error' => $e->getMessage()])
+            );
+        }
+    }
+    /**
+     * fog-agent's result for one snapin task: exit_code and details.
+     *
+     * Closes the task the way the legacy client's check-in does, ends the
+     * job when it was the last, and audits it on the host.
+     *
+     * @param int $id the snapin task
+     *
+     * @return void
+     */
+    public static function agentSnapinResult($id)
+    {
+        $body = self::_jsonBody();
+        try {
+            \FOG\Agent\Snapins::report(self::$agentHost, (int)$id, (array)$body);
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(
+                self::_agentErrorCode($e),
+                json_encode(['status' => 'error', 'error' => $e->getMessage()])
+            );
+            return;
+        }
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_OK,
+            json_encode(['status' => 'ok'])
+        );
+    }
+    /**
+     * The HTTP status for an agent-side RuntimeException: its code when it
+     * is one of the statuses these routes answer with, else 400.
+     *
+     * @param \RuntimeException $e the exception
+     *
+     * @return int
+     */
+    private static function _agentErrorCode(\RuntimeException $e)
+    {
+        $code = (int)$e->getCode();
+        return in_array($code, [404, 409, 503], true) ? $code : HTTPResponseCodes::HTTP_BAD_REQUEST;
     }
     /**
      * fog-agent's certificate renewal, over the certificate being renewed.

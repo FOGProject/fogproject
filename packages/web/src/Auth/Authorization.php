@@ -343,6 +343,8 @@ class Authorization extends FOGBase
         'agentrenew' => null,                // fog-agent: same gate
         'agentstate' => null,                // fog-agent: same gate
         'agentresult' => null,               // fog-agent: same gate
+        'agentsnapinfile' => null,           // fog-agent: same gate
+        'agentsnapinresult' => null,         // fog-agent: same gate
         'agentenrollments' => 'host.view',
         'agentenrollmentdecide' => 'host.edit',
         // Tokens approve machines the admin has not seen, which creates

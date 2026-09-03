@@ -48,7 +48,8 @@ class State extends FOGBase
      */
     const CAPABILITIES = [
         'hostname' => 'hostnamechanger',
-        'taskreboot' => 'taskreboot'
+        'taskreboot' => 'taskreboot',
+        'snapin' => 'snapinclient'
     ];
 
     /**
@@ -122,6 +123,12 @@ class State extends FOGBase
                     'force' => (bool)self::getSetting('FOG_TASK_FORCE_REBOOT')
                 ];
             }
+        }
+        if (in_array('snapin', $capabilities, true)) {
+            // The host's snapin queue in run order (Agent\Snapins). Tasks
+            // leave it as they complete, so the revision moves with the
+            // queue and an empty list is the resting state.
+            $state['snapins'] = Snapins::queue($Host);
         }
         if (count($capabilities) > 0) {
             // The policy every reboot obeys, whatever asked for it:

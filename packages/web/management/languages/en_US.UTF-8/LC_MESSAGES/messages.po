@@ -1663,10 +1663,6 @@ msgstr "Cannot connect to node."
 msgid "Cannot connect to database"
 msgstr "Cannot connect to database"
 
-#, fuzzy
-msgid "Cannot connect to ftp server"
-msgstr "Cannot connect to database"
-
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
 msgstr ""
@@ -2131,10 +2127,6 @@ msgstr "Could not read tmp file."
 #, fuzzy
 msgid "Could not read local file"
 msgstr "Could not read temp file"
-
-#, fuzzy
-msgid "Could not read snapin file"
-msgstr "Could not read tmp file."
 
 #, fuzzy
 msgid "Could not read the database structure"
@@ -3177,6 +3169,13 @@ msgstr "has been successfully updated"
 
 msgid "FOG Agent poll"
 msgstr ""
+
+msgid "FOG Agent snapin payload"
+msgstr ""
+
+#, fuzzy
+msgid "FOG Agent snapin result"
+msgstr "No file was uploaded"
 
 #, fuzzy
 msgid "FOG Client"
@@ -4970,9 +4969,6 @@ msgstr "Invalid Snapin Tasking"
 msgid "Invalid Storage Group"
 msgstr "Invalid Storage Group"
 
-msgid "Invalid Storage Node"
-msgstr "Invalid Storage Node"
-
 #, fuzzy
 msgid "Invalid Tasking"
 msgstr "Invalid task"
@@ -6501,6 +6497,10 @@ msgid "No snapins associated with this group as master"
 msgstr "There are no snapins associated with this host"
 
 #, fuzzy
+msgid "No storage node can serve the file."
+msgstr "Add snapin failed!"
+
+#, fuzzy
 msgid "No storage nodes assigned to this storage group"
 msgstr "Could not find a Storage Node Is there one enabled within this Storage Group"
 
@@ -6622,6 +6622,10 @@ msgstr "Not Registered Hosts"
 
 msgid "Not a certificate request, or one for a key other than the one this certificate proved."
 msgstr ""
+
+#, fuzzy
+msgid "Not a live task of this host's job."
+msgstr "No Active Task found for Host"
 
 msgid "Not a number"
 msgstr "Not a number"
@@ -9865,7 +9869,13 @@ msgstr "Failed to create task"
 msgid "The enrollment is no longer pending."
 msgstr " no longer exists"
 
+msgid "The exit code and output tail of one task. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
+msgstr ""
+
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
+msgstr ""
+
+msgid "The file for one task of the host's own snapin job; fetching it marks the task in progress. Same gate as poll."
 msgstr ""
 
 msgid "The file itself."
@@ -9991,6 +10001,9 @@ msgstr ""
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
+msgid "The payload bytes."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin directory"
 msgstr "Directory"
@@ -10101,10 +10114,13 @@ msgstr "The storage groups associated storage node is not valid"
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
 
+#, fuzzy
+msgid "The task was already closed."
+msgstr "Printer already exists"
+
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12644,12 +12660,20 @@ msgstr ""
 #~ msgid "CA private key"
 #~ msgstr "Private key failed"
 
+#, fuzzy
+#~ msgid "Cannot connect to ftp server"
+#~ msgstr "Cannot connect to database"
+
 #~ msgid "Check that database is running"
 #~ msgstr "Check that database is running"
 
 #, fuzzy
 #~ msgid "Client Module Settings"
 #~ msgstr "Settings"
+
+#, fuzzy
+#~ msgid "Could not read snapin file"
+#~ msgstr "Could not read tmp file."
 
 #, fuzzy
 #~ msgid "Create New Accesscontrol"
@@ -12978,6 +13002,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Install"
 #~ msgstr "Installed Plugins"
+
+#~ msgid "Invalid Storage Node"
+#~ msgstr "Invalid Storage Node"
 
 #, fuzzy
 #~ msgid "Invalid Type"

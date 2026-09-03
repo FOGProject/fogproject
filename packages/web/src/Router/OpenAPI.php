@@ -2641,6 +2641,26 @@ class OpenAPI extends FOGBase
                                         'properties' => [
                                             'grace' => ['type' => 'integer']
                                         ]
+                                    ],
+                                    'snapins' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            'type' => 'object',
+                                            'properties' => [
+                                                'task' => ['type' => 'integer'],
+                                                'snapin' => ['type' => 'integer'],
+                                                'name' => ['type' => 'string'],
+                                                'file' => ['type' => 'string'],
+                                                'size' => ['type' => 'integer'],
+                                                'sha512' => ['type' => 'string'],
+                                                'args' => ['type' => 'string'],
+                                                'run_with' => ['type' => 'string'],
+                                                'run_with_args' => ['type' => 'string'],
+                                                'timeout' => ['type' => 'integer'],
+                                                'action' => ['type' => 'string', 'enum' => ['', 'reboot', 'shutdown']],
+                                                'abort_on_fail' => ['type' => 'boolean']
+                                            ]
+                                        ]
                                     ]
                                 ]
                             ]]]
@@ -2672,6 +2692,54 @@ class OpenAPI extends FOGBase
                                 'capability' => ['type' => 'string', 'enum' => ['hostname']],
                                 'status' => ['type' => 'string', 'enum' => ['applied', 'unchanged', 'pending_reboot', 'failed']],
                                 'detail' => ['type' => 'string']
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/v1/snapin/{id}/file' => [
+                'get' => self::_op(
+                    '',
+                    'agentsnapinfile',
+                    _('FOG Agent snapin payload'),
+                    _('The file for one task of the host\'s own snapin job; '
+                        . 'fetching it marks the task in progress. Same gate '
+                        . 'as poll.'),
+                    [
+                        '200' => [
+                            'description' => _('The payload bytes.'),
+                            'content' => ['application/octet-stream' => ['schema' => ['type' => 'string', 'format' => 'binary']]]
+                        ],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '404' => ['description' => _('Not a live task of this host\'s job.')],
+                        '503' => ['description' => _('No storage node can serve the file.')]
+                    ],
+                    [self::_idParameter()]
+                )
+            ],
+            '/agent/v1/snapin/{id}/result' => [
+                'post' => self::_op(
+                    '',
+                    'agentsnapinresult',
+                    _('FOG Agent snapin result'),
+                    _('The exit code and output tail of one task. Closes the '
+                        . 'task as the legacy check-in does, cancels the rest '
+                        . 'of a job that aborts on failure, ends the job after '
+                        . 'its last task, and records it on the host as '
+                        . 'agent.result.'),
+                    [
+                        '200' => ['description' => _('Recorded.')],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '404' => ['description' => _('Not a live task of this host\'s job.')]
+                    ] + self::_conflictResponse(_('The task was already closed.')),
+                    [self::_idParameter()],
+                    [
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['exit_code'],
+                            'properties' => [
+                                'exit_code' => ['type' => 'integer'],
+                                'details' => ['type' => 'string', 'maxLength' => 250]
                             ]
                         ]]]
                     ]

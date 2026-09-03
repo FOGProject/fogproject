@@ -209,6 +209,7 @@ const TABLE = [
     'Principal' => 'Agent',
     'Token' => 'Agent',
     'State' => 'Agent',
+    'Snapins' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',

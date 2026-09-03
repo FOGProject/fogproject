@@ -1622,9 +1622,6 @@ msgstr "Impossibile connettersi"
 msgid "Cannot connect to database"
 msgstr "Non è possibile connettersi al database"
 
-msgid "Cannot connect to ftp server"
-msgstr "Impossibile connettersi al server ftp"
-
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
 msgstr ""
@@ -2075,9 +2072,6 @@ msgstr "Impossibile leggere il file tmp."
 #, fuzzy
 msgid "Could not read local file"
 msgstr "Impossibile leggere il file temporaneo"
-
-msgid "Could not read snapin file"
-msgstr "Impossibile leggere il file snapin"
 
 #, fuzzy
 msgid "Could not read the database structure"
@@ -3104,6 +3098,13 @@ msgstr "è stato cancellato"
 
 msgid "FOG Agent poll"
 msgstr ""
+
+msgid "FOG Agent snapin payload"
+msgstr ""
+
+#, fuzzy
+msgid "FOG Agent snapin result"
+msgstr "Nessun file è stato caricato"
 
 #, fuzzy
 msgid "FOG Client"
@@ -4838,9 +4839,6 @@ msgstr "Oggetto Snapin Tasking non valido"
 msgid "Invalid Storage Group"
 msgstr "Gruppo di archiviazione non valido"
 
-msgid "Invalid Storage Node"
-msgstr "Non valido Storage Node"
-
 #, fuzzy
 msgid "Invalid Tasking"
 msgstr "Compito non valido!"
@@ -6308,6 +6306,10 @@ msgid "No snapins associated with this group as master"
 msgstr "Nessun snapins associato a questo gruppo come master"
 
 #, fuzzy
+msgid "No storage node can serve the file."
+msgstr "Aggiunta nodo di archiviazione fallita!"
+
+#, fuzzy
 msgid "No storage nodes assigned to this storage group"
 msgstr "c'è uno abilitato all'interno di questo gruppo di archiviazione"
 
@@ -6424,6 +6426,10 @@ msgstr "Host non registrati"
 
 msgid "Not a certificate request, or one for a key other than the one this certificate proved."
 msgstr ""
+
+#, fuzzy
+msgid "Not a live task of this host's job."
+msgstr "Nessun compito attivo trovato per Host"
 
 msgid "Not a number"
 msgstr "Non è un numero"
@@ -9571,7 +9577,13 @@ msgstr "Impossibile creare un'attività"
 msgid "The enrollment is no longer pending."
 msgstr "non è più in esecuzione"
 
+msgid "The exit code and output tail of one task. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
+msgstr ""
+
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
+msgstr ""
+
+msgid "The file for one task of the host's own snapin job; fetching it marks the task in progress. Same gate as poll."
 msgstr ""
 
 msgid "The file itself."
@@ -9696,6 +9708,9 @@ msgstr ""
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
+msgid "The payload bytes."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin directory"
 msgstr "directory"
@@ -9806,10 +9821,13 @@ msgstr "Il nodo di archiviazione gruppi di archiviazione associato non è valido
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
 
+#, fuzzy
+msgid "The task was already closed."
+msgstr "Questo host esiste già"
+
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12271,12 +12289,18 @@ msgstr ""
 #~ msgid "Can not redeclare route"
 #~ msgstr "Impossibile ridichiarare il percorso"
 
+#~ msgid "Cannot connect to ftp server"
+#~ msgstr "Impossibile connettersi al server ftp"
+
 #~ msgid "Check that database is running"
 #~ msgstr "Controllare che database è in esecuzione"
 
 #, fuzzy
 #~ msgid "Client Module Settings"
 #~ msgstr "Impostazioni Client"
+
+#~ msgid "Could not read snapin file"
+#~ msgstr "Impossibile leggere il file snapin"
 
 #, fuzzy
 #~ msgid "Create New Accesscontrol"
@@ -12606,6 +12630,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Install"
 #~ msgstr "plugin installati"
+
+#~ msgid "Invalid Storage Node"
+#~ msgstr "Non valido Storage Node"
 
 #~ msgid "Invalid Type"
 #~ msgstr "Tipo non valido"

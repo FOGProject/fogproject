@@ -1604,9 +1604,6 @@ msgstr "接続できません:"
 msgid "Cannot connect to database"
 msgstr "データベースに接続できません"
 
-msgid "Cannot connect to ftp server"
-msgstr "FTP サーバーに接続できません"
-
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
 msgstr ""
@@ -2058,9 +2055,6 @@ msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
 msgid "Could not read local file"
-msgstr "スナップインファイルを読み取れませんでした"
-
-msgid "Could not read snapin file"
 msgstr "スナップインファイルを読み取れませんでした"
 
 #, fuzzy
@@ -3089,6 +3083,13 @@ msgstr "強制終了されました"
 
 msgid "FOG Agent poll"
 msgstr ""
+
+msgid "FOG Agent snapin payload"
+msgstr ""
+
+#, fuzzy
+msgid "FOG Agent snapin result"
+msgstr "ファイルはアップロードされませんでした"
 
 msgid "FOG Client"
 msgstr "FOG クライアント"
@@ -4804,9 +4805,6 @@ msgstr "無効なスナップインタスクオブジェクト"
 msgid "Invalid Storage Group"
 msgstr "無効なストレージグループ"
 
-msgid "Invalid Storage Node"
-msgstr "無効なストレージノード"
-
 msgid "Invalid Tasking"
 msgstr "無効なタスク"
 
@@ -6274,6 +6272,10 @@ msgid "No snapins associated with this group as master"
 msgstr "このグループにマスターとして関連付けられたスナップインはありません"
 
 #, fuzzy
+msgid "No storage node can serve the file."
+msgstr "ストレージノードの更新に失敗しました！"
+
+#, fuzzy
 msgid "No storage nodes assigned to this storage group"
 msgstr "このストレージグループ内に有効なものがあるか"
 
@@ -6391,6 +6393,10 @@ msgstr "未登録ホスト"
 
 msgid "Not a certificate request, or one for a key other than the one this certificate proved."
 msgstr ""
+
+#, fuzzy
+msgid "Not a live task of this host's job."
+msgstr "このホストの実行中タスクは見つかりません"
 
 msgid "Not a number"
 msgstr "数値ではありません"
@@ -9517,7 +9523,13 @@ msgstr "タスクの作成に失敗しました"
 msgid "The enrollment is no longer pending."
 msgstr "選択したプリンターを追加"
 
+msgid "The exit code and output tail of one task. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
+msgstr ""
+
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
+msgstr ""
+
+msgid "The file for one task of the host's own snapin job; fetching it marks the task in progress. Same gate as poll."
 msgstr ""
 
 msgid "The file itself."
@@ -9644,6 +9656,9 @@ msgstr ""
 msgid "The path requested is already in use by another image!"
 msgstr "これは既に別のイメージで使用されています"
 
+msgid "The payload bytes."
+msgstr ""
+
 #, fuzzy
 msgid "The plugin directory"
 msgstr "ディレクトリ"
@@ -9755,10 +9770,13 @@ msgstr "ストレージグループに関連付けられたストレージノー
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
 
+#, fuzzy
+msgid "The task was already closed."
+msgstr "このホストは既に存在します"
+
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12333,6 +12351,9 @@ msgstr ""
 #~ msgid "Cannot cancel tasks this way"
 #~ msgstr "この方法ではタスクをキャンセルできません"
 
+#~ msgid "Cannot connect to ftp server"
+#~ msgstr "FTP サーバーに接続できません"
+
 #~ msgid "Cannot create tasking as image is not enabled"
 #~ msgstr "イメージが有効ではないためタスクを作成できません"
 
@@ -12404,6 +12425,9 @@ msgstr ""
 
 #~ msgid "Conflicting path/file"
 #~ msgstr "競合するパス/ファイル"
+
+#~ msgid "Could not read snapin file"
+#~ msgstr "スナップインファイルを読み取れませんでした"
 
 #~ msgid "Create New Access Control Role"
 #~ msgstr "新しいアクセス制御ロールを作成"
@@ -13126,6 +13150,9 @@ msgstr ""
 
 #~ msgid "Invalid Plugin Passed"
 #~ msgstr "無効なプラグインが渡されました"
+
+#~ msgid "Invalid Storage Node"
+#~ msgstr "無効なストレージノード"
 
 #~ msgid "Invalid Task Type"
 #~ msgstr "無効なタスクタイプ"
@@ -13955,9 +13982,6 @@ msgstr ""
 
 #~ msgid "Storage Node General"
 #~ msgstr "ストレージノード全般"
-
-#~ msgid "Storage Node update failed!"
-#~ msgstr "ストレージノードの更新に失敗しました！"
 
 #~ msgid "SubnetGroup General"
 #~ msgstr "サブネットグループ全般"
