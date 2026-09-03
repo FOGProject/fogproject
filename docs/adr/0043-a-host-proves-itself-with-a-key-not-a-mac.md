@@ -130,11 +130,21 @@ Verification is `sodium_crypto_sign_verify_detached()`, core PHP since 7.2.
 
 ## A documentation correction that falls out of this
 
-`docs/EXTERNAL_CA_AND_LETSENCRYPT.md` and the corresponding `fog-docs` page state
-that a Let's Encrypt certificate on the vhost breaks fog-client. **On this branch
-that is no longer true.** The client pins `srvpublic.crt` — the client zone's own
-leaf — while its TLS callback short-circuits on `SslPolicyErrors.None`, so an LE
-certificate is accepted like any other publicly-rooted one. The claim describes
-the layout from before the client-communication leaf got its own key, which is
-the coupling the zone split removed. The recommendation to run an internal ACME
-CA to work around it is advising work this repository already made unnecessary.
+`docs/EXTERNAL_CA_AND_LETSENCRYPT.md` is **internally inconsistent**, and worth
+fixing separately from this ADR.
+
+Its *How FOG uses certificates* section opens with a callout that already says
+the right thing — the zones are independent now, *"so the web certificate can be
+replaced without disturbing fog-client"*. But the body under that callout, and
+the TL;DR at the top of the file, still assert the opposite as live guidance:
+that you cannot drop a Let's Encrypt certificate on the vhost, that *"fog-client
+is the actual constraint"*, and that an internal ACME CA such as step-ca is the
+best fit for it.
+
+The callout is correct and the surrounding text is pre-zone-split. On this branch
+the client pins `srvpublic.crt` — the client zone's own leaf — while its TLS
+callback short-circuits on `SslPolicyErrors.None`, so an LE certificate on the
+vhost is accepted like any other publicly-rooted one. A reader following the
+TL;DR is being sent to stand up a CA to work around a problem this repository
+already removed. The same text exists in `fog-docs` as
+`docs/kb/integrations/external-ca-lets-encrypt.md` and has the same problem.
