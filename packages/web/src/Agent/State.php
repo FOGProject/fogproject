@@ -13,9 +13,11 @@
 
 namespace FOG\Agent;
 
+use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
 use FOG\Items\Host;
+use FOG\Items\PowerManagement;
 use FOG\Router\Route;
 
 /**
@@ -50,7 +52,8 @@ class State extends FOGBase
         'hostname' => 'hostnamechanger',
         'taskreboot' => 'taskreboot',
         'snapin' => 'snapinclient',
-        'software' => 'software'
+        'software' => 'software',
+        'power' => 'powermanagement'
     ];
 
     /**
@@ -137,6 +140,39 @@ class State extends FOGBase
             // it, so a reporting host does not move its own revision.
             $state['software'] = SoftwareSet::desired($Host);
         }
+        if (in_array('power', $capabilities, true)) {
+            // Design 0004. Schedules are what Client\PM hands the legacy
+            // client: the host's own rows and its groups' grants through
+            // the resolver, minus `wol`, which the server sends itself
+            // (TaskScheduler) since a sleeping machine cannot ask. The
+            // agent fires them with its own cron matcher. On-demand rows
+            // are the task half: present until the agent reports it
+            // accepted them (result(), below), so an admin's click moves
+            // the revision and the agent fetches it on its next poll.
+            $hostID = (int)$Host->get('id');
+            $resolved = Resolver::resolvePowerManagement([$hostID]);
+            $schedules = [];
+            foreach ($resolved[$hostID] ?? [] as $schedule) {
+                if ('wol' === $schedule['action']) {
+                    continue;
+                }
+                $schedules[] = [
+                    'cron' => (string)$schedule['cron'],
+                    'action' => (string)$schedule['action']
+                ];
+            }
+            $ondemand = [];
+            foreach (self::_ondemand($hostID) as $row) {
+                $ondemand[] = [
+                    'id' => (int)$row['pmID'],
+                    'action' => (string)$row['pmAction']
+                ];
+            }
+            $state['power'] = [
+                'schedules' => $schedules,
+                'ondemand' => $ondemand
+            ];
+        }
         if (count($capabilities) > 0) {
             // The policy every reboot obeys, whatever asked for it:
             // FOG_GRACE_TIMEOUT is the warning logged-in users get.
@@ -186,6 +222,12 @@ class State extends FOGBase
         }
         $revision = substr(preg_replace('/[^a-f0-9]/', '', (string)($body['revision'] ?? '')), 0, 16);
         $detail = substr(trim((string)($body['detail'] ?? '')), 0, Audit::MAX_DETAIL);
+        if ('power' === $capability && 'applied' === $status) {
+            // The agent accepted the host's on-demand actions: they are
+            // consumed, the way Client\PM consumes them on read for the
+            // legacy client, except here only once the agent has them.
+            self::_consumeOndemand((int)$Host->get('id'));
+        }
         Audit::record(
             [
                 'type' => 'agent.result',
@@ -201,6 +243,52 @@ class State extends FOGBase
                     '' === $detail ? '' : ': ' . $detail
                 ),
                 'authSource' => Principal::AUTH_SOURCE
+            ]
+        );
+    }
+
+    /**
+     * The host's pending on-demand power rows: an admin's "shutdown now"
+     * or "reboot now" from the host list, stored as powerManagement rows
+     * with pmOndemand = 1 and no cron fields.
+     *
+     * @param int $hostID the host
+     *
+     * @return array rows with pmID and pmAction
+     */
+    private static function _ondemand($hostID)
+    {
+        $out = [];
+        $find = [
+            'hostID' => (int)$hostID,
+            'onDemand' => 1,
+            'action' => ['shutdown', 'reboot']
+        ];
+        foreach (Route::getIds('powermanagement', $find, 'id') as $id) {
+            $PM = new PowerManagement((int)$id);
+            $out[] = [
+                'pmID' => (int)$PM->get('id'),
+                'pmAction' => (string)$PM->get('action')
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Deletes the host's on-demand power rows once the agent has them.
+     *
+     * @param int $hostID the host
+     *
+     * @return void
+     */
+    private static function _consumeOndemand($hostID)
+    {
+        Route::deletemass(
+            'powermanagement',
+            [
+                'onDemand' => [1],
+                'hostID' => (int)$hostID,
+                'action' => ['shutdown', 'reboot']
             ]
         );
     }
