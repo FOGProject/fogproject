@@ -543,7 +543,9 @@ class SnapinManagement extends FOGPage
                 'One per line, code=class. Classes: success, reboot '
                 . '(installed, reboot to finish), retry (try again next '
                 . 'check-in), failed. Empty uses the defaults shown; any '
-                . 'code not listed is failed.'
+                . 'code not listed is failed. The defaults are Windows '
+                . 'codes: Linux and macOS keep only the low 8 bits of an '
+                . 'exit status, so list the code the program can return.'
             )
             . '</p>',
             self::makeLabel(
@@ -1075,7 +1077,9 @@ class SnapinManagement extends FOGPage
                 'One per line, code=class. Classes: success, reboot '
                 . '(installed, reboot to finish), retry (try again next '
                 . 'check-in), failed. Empty uses the defaults shown; any '
-                . 'code not listed is failed.'
+                . 'code not listed is failed. The defaults are Windows '
+                . 'codes: Linux and macOS keep only the low 8 bits of an '
+                . 'exit status, so list the code the program can return.'
             )
             . '</p>',
             self::makeLabel(
