@@ -1592,6 +1592,10 @@ msgstr "キャンセルされたタスク"
 msgid "Canceled due to new tasking."
 msgstr "新しいタスクによりキャンセルされました。"
 
+#, fuzzy
+msgid "Cannot Run"
+msgstr "アイコンファイルが見つかりません"
+
 msgid "Cannot bind to the LDAP server"
 msgstr "LDAP サーバーにバインドできません"
 
@@ -3850,6 +3854,10 @@ msgstr "レポートを作成しますか？"
 
 msgid "Hash"
 msgstr "ハッシュ"
+
+#, fuzzy
+msgid "Hash Mismatch"
+msgstr "ファイルハッシュが一致しません"
 
 msgid "Have not locked the host for access"
 msgstr "ホストはアクセス用にロックされていません"
@@ -6589,6 +6597,9 @@ msgstr ""
 msgid "One or more macs are associated with a host"
 msgstr "1 つ以上の MAC アドレスがホストに関連付けられています"
 
+msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again next check-in), failed. Empty uses the defaults shown; any code not listed is failed."
+msgstr ""
+
 msgid "One preference."
 msgstr ""
 
@@ -7709,7 +7720,14 @@ msgstr ""
 msgid "Retention sweep failed"
 msgstr "削除に失敗しました"
 
+msgid "Retry"
+msgstr ""
+
 msgid "Return Code"
+msgstr "戻りコード"
+
+#, fuzzy
+msgid "Return Codes"
 msgstr "戻りコード"
 
 msgid "Return To Local Login"
@@ -9523,9 +9541,6 @@ msgstr "タスクの作成に失敗しました"
 msgid "The enrollment is no longer pending."
 msgstr "選択したプリンターを追加"
 
-msgid "The exit code and output tail of one task. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
-msgstr ""
-
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
@@ -9688,6 +9703,9 @@ msgstr ""
 
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
+
+msgid "The program's own exit code; meaningful only for status ran."
+msgstr ""
 
 #, php-format
 msgid "The provider published no https %s"
@@ -10109,6 +10127,9 @@ msgstr "この時刻は既に存在します"
 msgid "Time since last imaged"
 msgstr ""
 
+msgid "Timeout"
+msgstr "タイムアウト"
+
 msgid "Title"
 msgstr ""
 
@@ -10409,6 +10430,10 @@ msgstr "不明なデータベースエラー"
 
 #, fuzzy
 msgid "Unknown power action"
+msgstr "不明なデータベースエラー"
+
+#, fuzzy
+msgid "Unknown status."
 msgstr "不明なデータベースエラー"
 
 msgid "Unknown upload error occurred"
@@ -10920,6 +10945,9 @@ msgstr ""
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
+
+msgid "Whether the payload ran, its raw exit code when it did, and the output tail. The server reads the code against the snapin's return-code table and answers the outcome: success, reboot, retry (the task is queued again) or failed. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
+msgstr ""
 
 msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
 msgstr ""
@@ -14160,9 +14188,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "This will set the configuration level to all hosts in this group"
 #~ msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
-
-#~ msgid "Timeout"
-#~ msgstr "タイムアウト"
 
 #~ msgid "Title must be a string"
 #~ msgstr "タイトルは文字列で指定してください"

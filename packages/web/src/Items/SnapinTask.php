@@ -46,7 +46,8 @@ class SnapinTask extends FOGController
         'snapinID' => 'stSnapinID',
         'sequence' => 'stSequence',
         'return' => 'stReturnCode',
-        'details' => 'stReturnDetails'
+        'details' => 'stReturnDetails',
+        'status' => 'stStatus'
     ];
     /**
      * The grid list query, with the host joined in through the job.

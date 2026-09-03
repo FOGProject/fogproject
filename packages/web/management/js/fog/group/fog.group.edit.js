@@ -691,7 +691,8 @@
             {data: 'checkin'},
             {data: 'complete'},
             {data: 'diff'},
-            {data: 'return'}
+            {data: 'return'},
+            {data: 'status'}
         ],
         // Host first, because RowGroup only groups correctly when the
         // grouped column is the primary sort -- otherwise a host's rows

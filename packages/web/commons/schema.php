@@ -10861,3 +10861,21 @@ $this->schema[] = [
     . "deploy was the approval. 0 disables the shortcut and every "
     . "enrollment waits for a click or a token.','24','General Settings')",
 ];
+// 417
+$this->schema[] = [
+    // fog-agent snapins (design 0001 section 7, protocol-v1 "Snapins").
+    // A snapin's return-code table: one `code=class` per line, class one
+    // of success, reboot, retry, failed. Empty means the installer
+    // defaults (0 and 1707 success, 3010 and 1641 reboot, 1618 retry).
+    // The server reads a task's exit code against it for the agent and
+    // the legacy client alike, so an MSI that answers 3010 is a success
+    // that needs a reboot instead of a failed job.
+    "ALTER TABLE `snapins` ADD COLUMN IF NOT EXISTS `sReturnCodes` text NULL",
+    // What a run came to: success, reboot, retry, failed, or when the
+    // payload never ran, hash_mismatch, timeout, cannot_run. Beside the
+    // raw exit code, which stays the program's own.
+    "ALTER TABLE `snapinTasks` ADD COLUMN IF NOT EXISTS `stStatus` varchar(16) NOT NULL DEFAULT '' AFTER `stReturnCode`",
+    // Installers put the useful line well past 250 characters; the agent
+    // reports the last 4 KB of output.
+    "ALTER TABLE `snapinTasks` MODIFY COLUMN `stReturnDetails` text NOT NULL",
+];

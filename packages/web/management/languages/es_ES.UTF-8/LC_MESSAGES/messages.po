@@ -1668,6 +1668,10 @@ msgid "Canceled due to new tasking."
 msgstr "Cancelada debido a las nuevas tareas a la vez."
 
 #, fuzzy
+msgid "Cannot Run"
+msgstr "Registro no encontrado, error: %s"
+
+#, fuzzy
 msgid "Cannot bind to the LDAP server"
 msgstr "Error: No se pudo descargar kernel"
 
@@ -4018,6 +4022,9 @@ msgid "Hardware Report"
 msgstr "Información general"
 
 msgid "Hash"
+msgstr ""
+
+msgid "Hash Mismatch"
 msgstr ""
 
 msgid "Have not locked the host for access"
@@ -6928,6 +6935,9 @@ msgstr ""
 msgid "One or more macs are associated with a host"
 msgstr "Error, es una imagen asociada con este anfitrión"
 
+msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again next check-in), failed. Empty uses the defaults shown; any code not listed is failed."
+msgstr ""
+
 msgid "One preference."
 msgstr ""
 
@@ -8088,8 +8098,15 @@ msgstr ""
 msgid "Retention sweep failed"
 msgstr "Remoto"
 
+msgid "Retry"
+msgstr ""
+
 #, fuzzy
 msgid "Return Code"
+msgstr "Código de retorno"
+
+#, fuzzy
+msgid "Return Codes"
 msgstr "Código de retorno"
 
 msgid "Return To Local Login"
@@ -10028,9 +10045,6 @@ msgstr "No se pudo crear la tarea"
 msgid "The enrollment is no longer pending."
 msgstr ""
 
-msgid "The exit code and output tail of one task. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
-msgstr ""
-
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
@@ -10194,6 +10208,9 @@ msgstr ""
 #, fuzzy
 msgid "The primary mac associated is"
 msgstr "Error, es una imagen asociada con este anfitrión"
+
+msgid "The program's own exit code; meaningful only for status ran."
+msgstr ""
 
 #, php-format
 msgid "The provider published no https %s"
@@ -10621,6 +10638,10 @@ msgstr "nombre de usuario ya existe"
 msgid "Time since last imaged"
 msgstr ""
 
+#, fuzzy
+msgid "Timeout"
+msgstr "Hora"
+
 msgid "Title"
 msgstr ""
 
@@ -10929,6 +10950,10 @@ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
 #, fuzzy
 msgid "Unknown power action"
+msgstr "Se produjo un error de carga desconocida. Código de retorno: "
+
+#, fuzzy
+msgid "Unknown status."
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
 #, fuzzy
@@ -11457,6 +11482,9 @@ msgid "Where it lives"
 msgstr ""
 
 msgid "Where to get help and guides"
+msgstr ""
+
+msgid "Whether the payload ran, its raw exit code when it did, and the output tail. The server reads the code against the snapin's return-code table and answers the outcome: success, reboot, retry (the task is queued again) or failed. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
 msgstr ""
 
 msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."

@@ -4238,9 +4238,11 @@ class HostManagement extends FOGPage
                 _('Start Time'),
                 _('Complete'),
                 _('Duration'),
-                _('Return Code')
+                _('Return Code'),
+                _('Status')
             ],
             [
+                [],
                 [],
                 [],
                 [],

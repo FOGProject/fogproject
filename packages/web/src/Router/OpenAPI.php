@@ -2722,13 +2722,26 @@ class OpenAPI extends FOGBase
                     '',
                     'agentsnapinresult',
                     _('FOG Agent snapin result'),
-                    _('The exit code and output tail of one task. Closes the '
-                        . 'task as the legacy check-in does, cancels the rest '
-                        . 'of a job that aborts on failure, ends the job after '
-                        . 'its last task, and records it on the host as '
-                        . 'agent.result.'),
+                    _('Whether the payload ran, its raw exit code when it did, '
+                        . 'and the output tail. The server reads the code '
+                        . 'against the snapin\'s return-code table and answers '
+                        . 'the outcome: success, reboot, retry (the task is '
+                        . 'queued again) or failed. Closes the task as the '
+                        . 'legacy check-in does, cancels the rest of a job that '
+                        . 'aborts on failure, ends the job after its last task, '
+                        . 'and records it on the host as agent.result.'),
                     [
-                        '200' => ['description' => _('Recorded.')],
+                        '200' => [
+                            'description' => _('Recorded.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['ok']],
+                                    'outcome' => ['type' => 'string', 'enum' => ['success', 'reboot', 'retry', 'failed']]
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('Unknown status.')],
                         '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
                         '404' => ['description' => _('Not a live task of this host\'s job.')]
                     ] + self::_conflictResponse(_('The task was already closed.')),
@@ -2736,10 +2749,11 @@ class OpenAPI extends FOGBase
                     [
                         'content' => ['application/json' => ['schema' => [
                             'type' => 'object',
-                            'required' => ['exit_code'],
+                            'required' => ['status', 'exit_code'],
                             'properties' => [
-                                'exit_code' => ['type' => 'integer'],
-                                'details' => ['type' => 'string', 'maxLength' => 250]
+                                'status' => ['type' => 'string', 'enum' => ['ran', 'hash_mismatch', 'timeout', 'cannot_run']],
+                                'exit_code' => ['type' => 'integer', 'description' => _('The program\'s own exit code; meaningful only for status ran.')],
+                                'details' => ['type' => 'string', 'maxLength' => 4096]
                             ]
                         ]]]
                     ]

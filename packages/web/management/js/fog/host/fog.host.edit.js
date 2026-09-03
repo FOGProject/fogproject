@@ -1319,7 +1319,8 @@
             {data: 'checkin'},
             {data: 'complete'},
             {data: 'diff'},
-            {data: 'return'}
+            {data: 'return'},
+            {data: 'status'}
         ],
         columnDefs: [
             {

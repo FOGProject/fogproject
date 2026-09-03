@@ -1651,6 +1651,10 @@ msgid "Canceled due to new tasking."
 msgstr "Annulé en raison de nouvelles tâches."
 
 #, fuzzy
+msgid "Cannot Run"
+msgstr "Enregistrement non trouvé, Erreur: %s"
+
+#, fuzzy
 msgid "Cannot bind to the LDAP server"
 msgstr "Impossible de se connecter à la base de données"
 
@@ -3968,6 +3972,9 @@ msgid "Hardware Report"
 msgstr "Informations sur le matériel"
 
 msgid "Hash"
+msgstr ""
+
+msgid "Hash Mismatch"
 msgstr ""
 
 msgid "Have not locked the host for access"
@@ -6806,6 +6813,9 @@ msgstr ""
 msgid "One or more macs are associated with a host"
 msgstr "Erreur, est une image associée à cet hôte"
 
+msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again next check-in), failed. Empty uses the defaults shown; any code not listed is failed."
+msgstr ""
+
 msgid "One preference."
 msgstr ""
 
@@ -7950,7 +7960,14 @@ msgstr ""
 msgid "Retention sweep failed"
 msgstr "supprimé"
 
+msgid "Retry"
+msgstr ""
+
 msgid "Return Code"
+msgstr "code de retour"
+
+#, fuzzy
+msgid "Return Codes"
 msgstr "code de retour"
 
 msgid "Return To Local Login"
@@ -9854,9 +9871,6 @@ msgstr "Impossible de créer la tâche"
 msgid "The enrollment is no longer pending."
 msgstr " n'existe plus"
 
-msgid "The exit code and output tail of one task. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
-msgstr ""
-
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
@@ -10017,6 +10031,9 @@ msgid "The preference was stored."
 msgstr ""
 
 msgid "The primary mac associated is"
+msgstr ""
+
+msgid "The program's own exit code; meaningful only for status ran."
 msgstr ""
 
 #, php-format
@@ -10447,6 +10464,10 @@ msgstr "Temps existe déjà"
 msgid "Time since last imaged"
 msgstr ""
 
+#, fuzzy
+msgid "Timeout"
+msgstr "Temps"
+
 msgid "Title"
 msgstr ""
 
@@ -10757,6 +10778,10 @@ msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
 #, fuzzy
 msgid "Unknown power action"
+msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
+
+#, fuzzy
+msgid "Unknown status."
 msgstr "Erreur inconnue de téléchargement a eu lieu. Code de retour: "
 
 #, fuzzy
@@ -11281,6 +11306,9 @@ msgid "Where it lives"
 msgstr ""
 
 msgid "Where to get help and guides"
+msgstr ""
+
+msgid "Whether the payload ran, its raw exit code when it did, and the output tail. The server reads the code against the snapin's return-code table and answers the outcome: success, reboot, retry (the task is queued again) or failed. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
 msgstr ""
 
 msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."

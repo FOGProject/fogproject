@@ -143,6 +143,7 @@ class SnapinStats extends WindowedStats
                        `snapinJobs`.`sjHostID` AS `hostID`,
                        `st`.`stCompleteDate` AS `completed`,
                        `st`.`stReturnCode` AS `code`,
+                       `st`.`stStatus` AS `status`,
                        `st`.`stReturnDetails` AS `details`,
                        `st`.`stState` AS `stateID`
                   FROM `snapinTasks` AS `st`

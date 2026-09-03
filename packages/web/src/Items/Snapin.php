@@ -57,6 +57,7 @@ class Snapin extends FOGController
         'toReplicate' => 'sReplicate',
         'hide' => 'sHideLog',
         'timeout' => 'sTimeout',
+        'returnCodes' => 'sReturnCodes',
         'packtype' => 'sPackType',
         'hash' => 'sHash',
         'size' => 'sSize',
@@ -451,6 +452,7 @@ class Snapin extends FOGController
         $action = trim((string)($post['action'] ?? ''));
         $args = trim((string)($post['args'] ?? ''));
         $timeout = trim((string)($post['timeout'] ?? ''));
+        $returnCodes = trim((string)($post['returnCodes'] ?? ''));
 
         if (self::getClass('SnapinManager')->exists($snapin)) {
             throw new \InvalidArgumentException(
@@ -550,6 +552,7 @@ class Snapin extends FOGController
             ->set('toReplicate', $toReplicate)
             ->set('hide', $hide)
             ->set('timeout', $timeout)
+            ->set('returnCodes', $returnCodes)
             ->addGroup($storagegroup);
         if (!$Snapin->save()) {
             throw new SnapinSaveException(_('Add snapin failed!'));

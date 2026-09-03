@@ -3001,7 +3001,7 @@ class Route extends FOGBase
     {
         $body = self::_jsonBody();
         try {
-            \FOG\Agent\Snapins::report(self::$agentHost, (int)$id, (array)$body);
+            $outcome = \FOG\Agent\Snapins::report(self::$agentHost, (int)$id, (array)$body);
         } catch (\RuntimeException $e) {
             HTTPResponseCodes::breakHead(
                 self::_agentErrorCode($e),
@@ -3009,9 +3009,11 @@ class Route extends FOGBase
             );
             return;
         }
+        // The outcome is the server's reading of the exit code against
+        // the snapin's return-code table; the agent acts on it.
         HTTPResponseCodes::breakHead(
             HTTPResponseCodes::HTTP_OK,
-            json_encode(['status' => 'ok'])
+            json_encode(['status' => 'ok', 'outcome' => $outcome])
         );
     }
     /**

@@ -45,10 +45,41 @@ use FOG\Router\Route;
 class Snapins extends FOGBase
 {
     /**
-     * stReturnDetails is varchar(250); the agent sends the tail of the
-     * output and this is what survives.
+     * stReturnDetails is TEXT; the agent sends the last 4 KB of output and
+     * this is the server's own bound on what it keeps.
      */
-    const MAX_DETAILS = 250;
+    const MAX_DETAILS = 4096;
+
+    /**
+     * What a reported run says about itself: the payload ran and the exit
+     * code is its own, or it never ran and this names why.
+     */
+    const STATUS_RAN = 'ran';
+    const STATUSES = ['ran', 'hash_mismatch', 'timeout', 'cannot_run'];
+
+    /**
+     * What the server decides from the exit code and the snapin's
+     * return-code table, the way Intune and SCCM read installer codes.
+     */
+    const OUTCOME_SUCCESS = 'success';
+    const OUTCOME_REBOOT = 'reboot';
+    const OUTCOME_RETRY = 'retry';
+    const OUTCOME_FAILED = 'failed';
+    const OUTCOMES = ['success', 'reboot', 'retry', 'failed'];
+
+    /**
+     * The return-code table a snapin gets when its own is empty: Intune's
+     * defaults for installer exit codes. 3010 and 1641 are the two MSI
+     * "installed, reboot to finish" answers, 1618 is "another install is
+     * running". Anything not listed is failed.
+     */
+    const DEFAULT_RETURN_CODES = [
+        0 => 'success',
+        1707 => 'success',
+        3010 => 'reboot',
+        1641 => 'reboot',
+        1618 => 'retry'
+    ];
 
     /**
      * The tasks still to run for this host, in run order. Empty when the
@@ -214,19 +245,74 @@ class Snapins extends FOGBase
     }
 
     /**
+     * A snapin's return-code table: its own, one `code=class` per line,
+     * or the defaults when it has none. Lines that are not a code and a
+     * known class are ignored rather than failing the run.
+     *
+     * @param Snapin $Snapin the snapin
+     *
+     * @return array code => outcome
+     */
+    public static function returnCodes(Snapin $Snapin)
+    {
+        $table = [];
+        foreach (preg_split('/[\r\n,;]+/', (string)$Snapin->get('returnCodes')) as $line) {
+            if (!preg_match('/^\s*(-?\d+)\s*=\s*([a-z_]+)\s*$/i', (string)$line, $m)) {
+                continue;
+            }
+            $class = strtolower($m[2]);
+            if (in_array($class, self::OUTCOMES, true)) {
+                $table[(int)$m[1]] = $class;
+            }
+        }
+        return count($table) > 0 ? $table : self::DEFAULT_RETURN_CODES;
+    }
+
+    /**
+     * What one run came to. A payload that never ran failed, whatever
+     * the number beside it; one that ran is read against the table, and
+     * a code the table does not name is failed unless it is 0.
+     *
+     * @param Snapin $Snapin   the snapin
+     * @param string $status   one of STATUSES
+     * @param int    $exitcode the program's exit code
+     *
+     * @return string one of OUTCOMES
+     */
+    public static function outcome(Snapin $Snapin, $status, $exitcode)
+    {
+        if (self::STATUS_RAN !== $status) {
+            return self::OUTCOME_FAILED;
+        }
+        $table = self::returnCodes($Snapin);
+        $exitcode = (int)$exitcode;
+        if (isset($table[$exitcode])) {
+            return $table[$exitcode];
+        }
+        return 0 === $exitcode ? self::OUTCOME_SUCCESS : self::OUTCOME_FAILED;
+    }
+
+    /**
      * Records the result of one task and, when it was the last, ends the
      * job -- canceling the rest first when the job aborts on failure.
+     *
+     * The outcome comes from the snapin's return-code table. A retry puts
+     * the task back in the queue with its details kept; everything else
+     * completes it. The task row keeps the raw code, the status (the
+     * outcome, or why the payload never ran) and the output.
      *
      * @param Host       $Host       the principal
      * @param SnapinTask $SnapinTask a task ownTask() returned
      * @param int        $exitcode   the payload's exit code
      * @param string     $details    the output tail, or the agent's reason
+     * @param string     $status     one of STATUSES; the legacy client
+     *                               only ever reports a run
      *
      * @throws \RuntimeException 409 when the task is already closed
      *
-     * @return void
+     * @return string the outcome, one of OUTCOMES
      */
-    public static function close(Host $Host, SnapinTask $SnapinTask, $exitcode, $details)
+    public static function close(Host $Host, SnapinTask $SnapinTask, $exitcode, $details, $status = self::STATUS_RAN)
     {
         if (in_array(
             (int)$SnapinTask->get('stateID'),
@@ -241,13 +327,22 @@ class Snapins extends FOGBase
         }
         $exitcode = (int)$exitcode;
         $details = substr(trim((string)$details), 0, self::MAX_DETAILS);
+        $outcome = self::outcome($Snapin, $status, $exitcode);
         $date = self::niceDate()->format('Y-m-d H:i:s');
         $HostName = (string)$Host->get('name');
         $SnapinJob = $Host->get('snapinjob');
         $SnapinTask
-            ->set('stateID', self::getCompleteState())
             ->set('return', $exitcode)
             ->set('details', $details)
+            ->set('status', self::STATUS_RAN === $status ? $outcome : $status);
+        if (self::OUTCOME_RETRY === $outcome) {
+            // Back to the queue, not complete: the next check-in runs it
+            // again. The job stays open around it.
+            $SnapinTask->set('stateID', self::getQueuedState())->save();
+            return $outcome;
+        }
+        $SnapinTask
+            ->set('stateID', self::getCompleteState())
             ->set('complete', $date)
             ->save();
         self::$EventManager->notify(
@@ -267,7 +362,7 @@ class Snapins extends FOGBase
             )
         ];
         $abortedOnFailure = false;
-        if ($SnapinJob->get('abortOnFail') && 0 !== $exitcode) {
+        if ($SnapinJob->get('abortOnFail') && self::OUTCOME_FAILED === $outcome) {
             $abortedOnFailure = true;
             self::getClass('SnapinTaskManager')->update(
                 $live,
@@ -299,6 +394,7 @@ class Snapins extends FOGBase
                 ]
             );
         }
+        return $outcome;
     }
 
     /**
@@ -307,17 +403,26 @@ class Snapins extends FOGBase
      *
      * @param Host  $Host   the principal
      * @param int   $taskID the snapin task
-     * @param array $body   exit_code, details
+     * @param array $body   status, exit_code, details
      *
-     * @return void
+     * @throws \RuntimeException 400 on a status that is not one
+     *
+     * @return string the outcome, for the agent to act on
      */
     public static function report(Host $Host, $taskID, array $body)
     {
         $SnapinTask = self::ownTask($Host, $taskID);
         $name = (string)$SnapinTask->getSnapin()->get('name');
-        $exitcode = (int)($body['exit_code'] ?? 1);
+        $status = (string)($body['status'] ?? self::STATUS_RAN);
+        if (!in_array($status, self::STATUSES, true)) {
+            throw new \RuntimeException('unknown status', 400);
+        }
+        $exitcode = (int)($body['exit_code'] ?? 0);
         $details = (string)($body['details'] ?? '');
-        self::close($Host, $SnapinTask, $exitcode, $details);
+        $outcome = self::close($Host, $SnapinTask, $exitcode, $details, $status);
+        $summary = self::STATUS_RAN === $status
+            ? sprintf('exit %d, %s', $exitcode, $outcome)
+            : $status;
         Audit::record(
             [
                 'type' => 'agent.result',
@@ -327,10 +432,10 @@ class Snapins extends FOGBase
                 'renderable' => 1,
                 'text' => substr(
                     sprintf(
-                        'snapin "%s" (task %d) exit %d%s',
+                        'snapin "%s" (task %d) %s%s',
                         $name,
                         (int)$SnapinTask->get('id'),
-                        $exitcode,
+                        $summary,
                         '' === trim($details) ? '' : ': ' . trim($details)
                     ),
                     0,
@@ -339,6 +444,7 @@ class Snapins extends FOGBase
                 'authSource' => Principal::AUTH_SOURCE
             ]
         );
+        return $outcome;
     }
 
     /**

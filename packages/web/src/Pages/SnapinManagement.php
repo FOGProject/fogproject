@@ -273,6 +273,7 @@ class SnapinManagement extends FOGPage
         $rwa = filter_input(INPUT_POST, 'rwa');
         $args = filter_input(INPUT_POST, 'args');
         $timeout = filter_input(INPUT_POST, 'timeout');
+        $returnCodes = filter_input(INPUT_POST, 'returnCodes');
         if ($storagegroup > 0) {
             $sgID = $storagegroup;
         } else {
@@ -525,6 +526,28 @@ class SnapinManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
+                'returnCodes',
+                _('Return Codes')
+            ) => self::makeTextarea(
+                'form-control snapinreturncodes-input',
+                'returnCodes',
+                "0=success\n1707=success\n3010=reboot\n1641=reboot\n1618=retry",
+                'returnCodes',
+                $returnCodes,
+                false,
+                false,
+                'rows="5"'
+            )
+            . '<p class="form-text">'
+            . _(
+                'One per line, code=class. Classes: success, reboot '
+                . '(installed, reboot to finish), retry (try again next '
+                . 'check-in), failed. Empty uses the defaults shown; any '
+                . 'code not listed is failed.'
+            )
+            . '</p>',
+            self::makeLabel(
+                $labelClass,
                 'noaction',
                 _('No Action')
             ) => self::makeInput(
@@ -765,6 +788,10 @@ class SnapinManagement extends FOGPage
         $timeout = (
             filter_input(INPUT_POST, 'timeout') ?:
             $this->obj->get('timeout')
+        );
+        $returnCodes = (
+            filter_input(INPUT_POST, 'returnCodes') ?:
+            $this->obj->get('returnCodes')
         );
 
         self::$selected = $snapinfileexists;
@@ -1031,6 +1058,28 @@ class SnapinManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
+                'returnCodes',
+                _('Return Codes')
+            ) => self::makeTextarea(
+                'form-control snapinreturncodes-input',
+                'returnCodes',
+                "0=success\n1707=success\n3010=reboot\n1641=reboot\n1618=retry",
+                'returnCodes',
+                $returnCodes,
+                false,
+                false,
+                'rows="5"'
+            )
+            . '<p class="form-text">'
+            . _(
+                'One per line, code=class. Classes: success, reboot '
+                . '(installed, reboot to finish), retry (try again next '
+                . 'check-in), failed. Empty uses the defaults shown; any '
+                . 'code not listed is failed.'
+            )
+            . '</p>',
+            self::makeLabel(
+                $labelClass,
                 'noaction',
                 _('No Action')
             ) => self::makeInput(
@@ -1156,6 +1205,7 @@ class SnapinManagement extends FOGPage
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
         $timeout = trim((string)filter_input(INPUT_POST, 'timeout'));
+        $returnCodes = trim((string)filter_input(INPUT_POST, 'returnCodes'));
         $action = trim((string)filter_input(INPUT_POST, 'action'));
         $args = trim((string)filter_input(INPUT_POST, 'args'));
 
@@ -1314,7 +1364,8 @@ class SnapinManagement extends FOGPage
             ->set('isEnabled', $isEnabled)
             ->set('toReplicate', $toReplicate)
             ->set('hide', $hide)
-            ->set('timeout', $timeout);
+            ->set('timeout', $timeout)
+            ->set('returnCodes', $returnCodes);
     }
     /**
      * Display snapin storage groups.
