@@ -5,7 +5,7 @@ written when a decision is **hard to reverse**, **surprising without context**,
 and **the result of a real trade-off** — if any of the three is missing, the
 reasoning belongs in a comment beside the code instead.
 
-This index exists because forty-two records with no way in is forty-two records
+This index exists because forty-three records with no way in is forty-three records
 nobody reads. GH-1684 asked a question ADR 0040 had already answered and
 rejected by name; that is the failure mode a list of titles prevents.
 
@@ -60,3 +60,4 @@ Status is summarized here and stated in full in each file.
 | 0040 | [Certificates you bring live in /etc/fog/customizations/pki](0040-certificates-you-bring-live-in-a-customizations-tree.md) | accepted, implemented |
 | 0041 | [A boot file is what its bytes say, not what its name says](0041-a-boot-file-is-what-its-bytes-say-not-what-its-name-says.md) | accepted |
 | 0042 | [The filesystem is the inventory; the database records judgments about it](0042-the-filesystem-is-the-inventory-the-database-records-judgments.md) | accepted |
+| 0043 | [A host proves itself with a key, not a MAC and a shared token](0043-a-host-proves-itself-with-a-key-not-a-mac.md) | proposed |
