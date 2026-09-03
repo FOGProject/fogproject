@@ -93,6 +93,12 @@ class SoftwareSet extends FOGBase
         }
         return [
             'drift_interval' => (int)self::getSetting('FOG_SOFTWARE_DRIFT_INTERVAL'),
+            // Empty url = no bootstrap; the agent then reports cannot_run
+            // for a host without Chocolatey (design 0003 section 8).
+            'bootstrap' => [
+                'url' => trim((string)self::getSetting('FOG_SOFTWARE_CHOCO_BOOTSTRAP_URL')),
+                'nupkg_url' => trim((string)self::getSetting('FOG_SOFTWARE_CHOCO_NUPKG_URL'))
+            ],
             'entries' => $entries
         ];
     }

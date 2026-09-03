@@ -10985,3 +10985,22 @@ $this->schema[] = [
     "ALTER TABLE `snapinTasks` MODIFY COLUMN `stReturnDetails` text NOT NULL DEFAULT ''",
     "ALTER TABLE `softwareStatus` MODIFY COLUMN `sstDetails` text NOT NULL DEFAULT ''",
 ];
+// 420
+$this->schema[] = [
+    // Chocolatey bootstrap (fog-agent design 0003 section 8). Off by
+    // default: the agent runs the fetched script as SYSTEM, so an admin
+    // opts in by naming the script, the community one or a copy they host.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_SOFTWARE_CHOCO_BOOTSTRAP_URL','URL of Chocolatey''s install "
+    . "script for hosts that have software assigned but no Chocolatey. "
+    . "Empty leaves such hosts reporting cannot run. The public script is "
+    . "https://community.chocolatey.org/install.ps1; a copy on a server "
+    . "you control works too. The agent runs it as SYSTEM.','','FOG Client')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_SOFTWARE_CHOCO_NUPKG_URL','Optional URL of the chocolatey "
+    . ".nupkg the bootstrap script installs from (its chocolateyDownloadUrl), "
+    . "for hosts with no route to the community feed. Empty uses the "
+    . "script''s default.','','FOG Client')",
+];
