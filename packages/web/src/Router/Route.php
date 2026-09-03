@@ -1552,6 +1552,8 @@ class Route extends FOGBase
         self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
         self::_registerRoute($r, 'POST', '/agent/v1/poll', [__CLASS__, 'agentPoll'], 'agentpoll');
         self::_registerRoute($r, 'POST', '/agent/v1/renew', [__CLASS__, 'agentRenew'], 'agentrenew');
+        self::_registerRoute($r, 'GET', '/agent/v1/state', [__CLASS__, 'agentState'], 'agentstate');
+        self::_registerRoute($r, 'POST', '/agent/v1/result', [__CLASS__, 'agentResult'], 'agentresult');
         self::_registerRoute($r, 'GET', '/agent/enrollments', [__CLASS__, 'agentEnrollments'], 'agentenrollments');
         self::_registerRoute($r, 'POST', '/agent/enrollment/[i:id]/[*:action]', [__CLASS__, 'agentEnrollmentDecide'], 'agentenrollmentdecide');
         self::_registerRoute($r, 'GET', '/agent/tokens', [__CLASS__, 'agentTokens'], 'agenttokens');
@@ -2887,6 +2889,7 @@ class Route extends FOGBase
             '',
             $fields
         );
+        $desired = \FOG\Agent\State::desired($Host);
         HTTPResponseCodes::breakHead(
             HTTPResponseCodes::HTTP_OK,
             json_encode(
@@ -2897,13 +2900,54 @@ class Route extends FOGBase
                         'id' => (int)$Host->get('id'),
                         'name' => (string)$Host->get('name'),
                     ],
-                    // Grows as capabilities land server-side; an empty
-                    // list is a valid answer and the agent idles on it.
-                    'capabilities' => [],
+                    // What this server offers this host, and the revision
+                    // of its desired state: the agent fetches the state
+                    // only when this moves. An empty list is a valid
+                    // answer and the agent idles on it.
+                    'capabilities' => $desired['capabilities'],
+                    'state_revision' => $desired['revision'],
                     'poll_interval' => 300,
                     'server_time' => self::niceDate()->format('c'),
                 ]
             )
+        );
+    }
+    /**
+     * fog-agent's desired state: what this host should look like.
+     *
+     * Fetched when the poll's state_revision moved. Only the capabilities
+     * the poll listed appear, so a server that does not offer something
+     * simply never describes it.
+     *
+     * @return void
+     */
+    public static function agentState()
+    {
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_OK,
+            json_encode(\FOG\Agent\State::desired(self::$agentHost))
+        );
+    }
+    /**
+     * fog-agent's report of what it did with one capability.
+     *
+     * @return void
+     */
+    public static function agentResult()
+    {
+        $body = self::_jsonBody();
+        try {
+            \FOG\Agent\State::result(self::$agentHost, (array)$body);
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(['status' => 'error', 'error' => $e->getMessage()])
+            );
+            return;
+        }
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_OK,
+            json_encode(['status' => 'ok'])
         );
     }
     /**

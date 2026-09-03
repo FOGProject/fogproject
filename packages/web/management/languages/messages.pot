@@ -2728,7 +2728,13 @@ msgstr ""
 msgid "FOG"
 msgstr ""
 
+msgid "FOG Agent capability result"
+msgstr ""
+
 msgid "FOG Agent certificate renewal"
+msgstr ""
+
+msgid "FOG Agent desired state"
 msgstr ""
 
 msgid "FOG Agent enrollment"
@@ -6605,6 +6611,9 @@ msgstr ""
 msgid "Recorded in range"
 msgstr ""
 
+msgid "Recorded."
+msgstr ""
+
 msgid "Records"
 msgstr ""
 
@@ -8412,6 +8421,9 @@ msgstr ""
 msgid "The default printer for hosts in this group. A host that has its own default keeps it."
 msgstr ""
 
+msgid "The desired state."
+msgstr ""
+
 msgid "The enrollment is no longer pending."
 msgstr ""
 
@@ -8636,7 +8648,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -9199,6 +9210,9 @@ msgstr ""
 msgid "Unknown action"
 msgstr ""
 
+msgid "Unknown capability or status."
+msgstr ""
+
 #, php-format
 msgid "Unknown field for %s: %s"
 msgstr ""
@@ -9645,7 +9659,13 @@ msgstr ""
 msgid "What it does"
 msgstr ""
 
+msgid "What the agent did with one capability at one revision. Recorded on the host as agent.result. Same gate as poll."
+msgstr ""
+
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
+msgstr ""
+
+msgid "What this host should look like, for the capabilities the poll listed, with the revision the poll reported. Same gate as poll."
 msgstr ""
 
 msgid "What this server itself trusts: FOG's root, plus any root imported below."

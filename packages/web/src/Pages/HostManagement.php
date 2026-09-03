@@ -869,6 +869,28 @@ class HostManagement extends FOGPage
         echo '</form>';
     }
     /**
+     * The bare halves of the two ajax handlers below. FOGPageManager
+     * appends the Ajax suffix only after method_exists() passes for the
+     * bare name, so without these the posts fell through to index() and
+     * answered with the host list (found by the first browser run). A
+     * plain GET of either sub lands back on the tokens page.
+     *
+     * @return void
+     */
+    public function createAgentToken()
+    {
+        self::redirect('?node=host&sub=agentTokens');
+    }
+    /**
+     * See createAgentToken().
+     *
+     * @return void
+     */
+    public function deleteAgentTokens()
+    {
+        self::redirect('?node=host&sub=agentTokens');
+    }
+    /**
      * Mints a token from the modal. Named create* so the permission is
      * host.create: a token creates hosts.
      *

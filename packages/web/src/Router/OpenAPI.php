@@ -2585,6 +2585,7 @@ class OpenAPI extends FOGBase
                                         'type' => 'array',
                                         'items' => ['type' => 'string']
                                     ],
+                                    'state_revision' => ['type' => 'string'],
                                     'poll_interval' => ['type' => 'integer'],
                                     'server_time' => ['type' => 'string']
                                 ]
@@ -2598,6 +2599,64 @@ class OpenAPI extends FOGBase
                             'type' => 'object',
                             'properties' => [
                                 'agent_version' => ['type' => 'string']
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/v1/state' => [
+                'get' => self::_op(
+                    '',
+                    'agentstate',
+                    _('FOG Agent desired state'),
+                    _('What this host should look like, for the capabilities '
+                        . 'the poll listed, with the revision the poll '
+                        . 'reported. Same gate as poll.'),
+                    [
+                        '200' => [
+                            'description' => _('The desired state.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'revision' => ['type' => 'string'],
+                                    'capabilities' => ['type' => 'array', 'items' => ['type' => 'string']],
+                                    'hostname' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'name' => ['type' => 'string'],
+                                            'enforce' => ['type' => 'boolean']
+                                        ]
+                                    ]
+                                ]
+                            ]]]
+                        ],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')]
+                    ]
+                )
+            ],
+            '/agent/v1/result' => [
+                'post' => self::_op(
+                    '',
+                    'agentresult',
+                    _('FOG Agent capability result'),
+                    _('What the agent did with one capability at one '
+                        . 'revision. Recorded on the host as agent.result. '
+                        . 'Same gate as poll.'),
+                    [
+                        '200' => ['description' => _('Recorded.')],
+                        '400' => ['description' => _('Unknown capability or status.')],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')]
+                    ],
+                    [],
+                    [
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['revision', 'capability', 'status'],
+                            'properties' => [
+                                'revision' => ['type' => 'string'],
+                                'capability' => ['type' => 'string', 'enum' => ['hostname']],
+                                'status' => ['type' => 'string', 'enum' => ['applied', 'unchanged', 'pending_reboot', 'failed']],
+                                'detail' => ['type' => 'string']
                             ]
                         ]]]
                     ]

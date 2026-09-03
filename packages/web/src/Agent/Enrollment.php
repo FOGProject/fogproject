@@ -520,7 +520,7 @@ class Enrollment extends FOGBase
                     (string)$notAfter,
                     substr($fingerprint, 0, 16)
                 ),
-                'authSource' => Audit::SOURCE_ANONYMOUS
+                'authSource' => Principal::AUTH_SOURCE
             ]
         );
         return $leaf . $chain;

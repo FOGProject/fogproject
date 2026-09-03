@@ -3087,8 +3087,16 @@ msgid "FOG"
 msgstr "NEBBIA"
 
 #, fuzzy
+msgid "FOG Agent capability result"
+msgstr "Nessun file è stato caricato"
+
+#, fuzzy
 msgid "FOG Agent certificate renewal"
 msgstr "Nessun file è stato caricato"
+
+#, fuzzy
+msgid "FOG Agent desired state"
+msgstr "è stato cancellato"
 
 #, fuzzy
 msgid "FOG Agent enrollment"
@@ -7500,6 +7508,10 @@ msgid "Recorded in range"
 msgstr "Record non trovato"
 
 #, fuzzy
+msgid "Recorded."
+msgstr "Consigliato"
+
+#, fuzzy
 msgid "Records"
 msgstr "Current Records"
 
@@ -9552,6 +9564,10 @@ msgid "The default printer for hosts in this group. A host that has its own defa
 msgstr ""
 
 #, fuzzy
+msgid "The desired state."
+msgstr "Impossibile creare un'attività"
+
+#, fuzzy
 msgid "The enrollment is no longer pending."
 msgstr "non è più in esecuzione"
 
@@ -9793,7 +9809,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -10404,6 +10419,9 @@ msgstr "Si è verificato errore di caricamento sconosciuto"
 msgid "Unknown action"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
+msgid "Unknown capability or status."
+msgstr ""
+
 #, php-format
 msgid "Unknown field for %s: %s"
 msgstr ""
@@ -10903,7 +10921,13 @@ msgstr "è stato cancellato"
 msgid "What it does"
 msgstr "è stato cancellato"
 
+msgid "What the agent did with one capability at one revision. Recorded on the host as agent.result. Same gate as poll."
+msgstr ""
+
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
+msgstr ""
+
+msgid "What this host should look like, for the capabilities the poll listed, with the revision the poll reported. Same gate as poll."
 msgstr ""
 
 msgid "What this server itself trusts: FOG's root, plus any root imported below."
@@ -12692,10 +12716,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Product Keys"
 #~ msgstr "Host Product Key"
-
-#, fuzzy
-#~ msgid "Recorded"
-#~ msgstr "Consigliato"
 
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "Registro deve essere gestito da hook o eventi"

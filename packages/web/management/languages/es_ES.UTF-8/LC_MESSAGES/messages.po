@@ -3196,8 +3196,16 @@ msgid "FOG"
 msgstr "En "
 
 #, fuzzy
+msgid "FOG Agent capability result"
+msgstr "Ningún archivo fue subido"
+
+#, fuzzy
 msgid "FOG Agent certificate renewal"
 msgstr "Ningún archivo fue subido"
+
+#, fuzzy
+msgid "FOG Agent desired state"
+msgstr "se ha actualizado correctamente"
 
 #, fuzzy
 msgid "FOG Agent enrollment"
@@ -7844,6 +7852,10 @@ msgid "Recorded in range"
 msgstr "Registro no encontrado, error: %s"
 
 #, fuzzy
+msgid "Recorded."
+msgstr "Registros actuales"
+
+#, fuzzy
 msgid "Records"
 msgstr "Registros actuales"
 
@@ -10006,6 +10018,10 @@ msgstr ""
 msgid "The default printer for hosts in this group. A host that has its own default keeps it."
 msgstr ""
 
+#, fuzzy
+msgid "The desired state."
+msgstr "No se pudo crear la tarea"
+
 msgid "The enrollment is no longer pending."
 msgstr ""
 
@@ -10249,7 +10265,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -10873,6 +10888,9 @@ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 msgid "Unknown action"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
+msgid "Unknown capability or status."
+msgstr ""
+
 #, php-format
 msgid "Unknown field for %s: %s"
 msgstr ""
@@ -11394,7 +11412,13 @@ msgstr "se ha actualizado correctamente"
 msgid "What it does"
 msgstr "se ha actualizado correctamente"
 
+msgid "What the agent did with one capability at one revision. Recorded on the host as agent.result. Same gate as poll."
+msgstr ""
+
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
+msgstr ""
+
+msgid "What this host should look like, for the capabilities the poll listed, with the revision the poll reported. Same gate as poll."
 msgstr ""
 
 msgid "What this server itself trusts: FOG's root, plus any root imported below."

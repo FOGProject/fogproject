@@ -46,6 +46,12 @@ namespace FOG\Agent;
 class Principal
 {
     /**
+     * The audit authSource for a write the client certificate authorized.
+     * Not anonymous: the caller proved a key the server bound to a host.
+     */
+    const AUTH_SOURCE = 'agent';
+
+    /**
      * sha256 of a public key's SPKI, as enrollment stores it on the host.
      *
      * One definition, shared by the CSR side (Enrollment::fingerprint) and

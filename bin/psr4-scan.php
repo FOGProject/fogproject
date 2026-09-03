@@ -208,6 +208,7 @@ const TABLE = [
     'Enrollment' => 'Agent',
     'Principal' => 'Agent',
     'Token' => 'Agent',
+    'State' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',
