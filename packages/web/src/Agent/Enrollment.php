@@ -437,6 +437,12 @@ class Enrollment extends FOGBase
             ->set('description', _('Pending Registration created by FOG_AGENT'))
             ->set('imageID', null)
             ->set('pending', '1')
+            // The default modules, as Boot\Registration and the host add
+            // form attach them: Resolver::resolveModules() has no default
+            // tier, so a host created without these has every capability
+            // off until an admin visits its Modules tab. Found when the
+            // first agent-created host polled and got no capabilities.
+            ->set('modules', Route::getIds('module', ['isDefault' => 1]))
             ->addPriMAC(array_shift($macs));
         $Host->save();
         $hostID = (int)$Host->get('id');

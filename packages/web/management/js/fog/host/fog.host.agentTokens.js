@@ -71,6 +71,9 @@
     });
 
     mintBtn.on('click', function() {
+        // Each token is a fresh credential: start the form clean rather than
+        // carrying the previous token's name into the next mint.
+        $('#tokenName').val('');
         mintModal.modal('show');
     });
     confirmMint.on('click', function() {
