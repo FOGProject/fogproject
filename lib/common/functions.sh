@@ -1287,20 +1287,25 @@ recordNetbootWebHost() {
     # Fail-safe in the direction that matters: a value that cannot be read (no
     # globalSettings yet on a first install, a query that errors) is empty, so
     # this falls through and records the certificate name exactly as before.
-    currentwebhost=$(mysql $sqloptionsuser --password="${DB_password}" -N -B \
-        --execute="SELECT settingValue FROM globalSettings WHERE settingKey='FOG_WEB_HOST'" \
-        ${DB_name} 2>>$error_log)
-    currentwebhost="${currentwebhost#"${currentwebhost%%[![:space:]]*}"}"
-    currentwebhost="${currentwebhost%"${currentwebhost##*[![:space:]]}"}"
-    [[ $currentwebhost == NULL ]] && currentwebhost=""
-    if [[ -n $currentwebhost ]] && _servedCertServes "$currentwebhost"; then
+    #
+    # The keep-or-correct decision itself lives in _resolveNetbootHost, not
+    # here. It used to be here, and that reopened the defect ADR 0018 closed:
+    # configureDefaultiPXEfile had already taken the certificate's leading
+    # name for default.ipxe, then this function kept the row as the address the
+    # certificate also carried, and the two hops of a boot disagreed again --
+    # https://<name>/ for boot.php, https://<address>/ for everything after it.
+    # On a PXE segment with no DNS for that name, iPXE stopped at the first hop
+    # with "DNS name does not exist" while every URL after it would have worked.
+    # So the resolver asks the row first and both callers read its one answer.
+    currentwebhost=$(_currentWebHostRow)
+    _resolveNetbootHost || return 1
+    [[ -n $netboothost ]] || return 0
+    if [[ $netboothost == "$currentwebhost" ]]; then
         dots "Keeping FOG_WEB_HOST as $currentwebhost"
         errorStat 0
         echo "   The served certificate carries it, so netboot can prove it."
         return 0
     fi
-    _resolveNetbootHost || return 1
-    [[ -n $netboothost ]] || return 0
     dots "Pointing FOG_WEB_HOST at the netboot certificate name"
     mysql $sqloptionsuser --password="${DB_password}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_WEB_HOST', 'This setting defines the hostname or ip address of the web server used with fog. Under HTTPS netboot it must be a name or address the served certificate carries, because every boot URL iPXE fetches after boot.php is built from it. An edit the certificate vouches for is kept; one it does not is replaced by the certificate name on the next install.', \"$netboothost\", 'Web Server') ON DUPLICATE KEY UPDATE settingValue=\"$netboothost\", settingDesc=VALUES(settingDesc)" ${DB_name} >>$error_log 2>&1
     errorStat $?
@@ -6519,9 +6524,37 @@ _servedCertServes() {
 # cannot work on a publicly-issued one, which carries only the names its issuer
 # was asked for. publicWebCert is one of exactly two triggers for HTTPS netboot,
 # so the short-name case is not an edge case here; it is half the population.
+# The FOG_WEB_HOST row as stored, or empty when it is unset, NULL, or cannot be
+# read (no schema yet on a first install, a query that errors). Empty is the
+# fail-safe answer: every caller falls through to the certificate name on it.
+_currentWebHostRow() {
+    local value
+    value=$(mysql $sqloptionsuser --password="${DB_password}" -N -B \
+        --execute="SELECT settingValue FROM globalSettings WHERE settingKey='FOG_WEB_HOST'" \
+        ${DB_name} 2>>$error_log)
+    value="${value#"${value%%[![:space:]]*}"}"
+    value="${value%"${value##*[![:space:]]}"}"
+    [[ $value == NULL ]] && value=""
+    echo "$value"
+}
 _resolveNetbootHost() {
-    local cert match="" reason=""
+    local cert match="" reason="" currentwebhost=""
     [[ -n $netboothost ]] && return 0
+    # An existing FOG_WEB_HOST the served certificate already carries is THE
+    # netboot host, name or address, and the certificate's own name is only
+    # the fallback. The row is the server's canonical address -- an admin who
+    # set it to the IP did so on purpose, usually because the PXE segment has
+    # no DNS for the name -- and recordNetbootWebHost keeps such a value. If
+    # this resolver did not honor the same value, default.ipxe would chain to
+    # the certificate name while every URL after boot.php used the row, which
+    # is exactly the two-source split ADR 0018 exists to remove. On a storage
+    # node the row belongs to the master and the node's certificate will not
+    # carry it, so the check falls through to the node's own name.
+    currentwebhost=$(_currentWebHostRow)
+    if [[ -n $currentwebhost ]] && _servedCertServes "$currentwebhost"; then
+        netboothost="$currentwebhost"
+        return 0
+    fi
     netboothost=$(_servedCertName)
     cert=$(_vhostCertPath)
     [[ -n $cert && -f $cert ]] || cert="${PKI_web_vhost_cert}"

@@ -132,6 +132,29 @@ it puts a client-supplied header into generated boot URLs.
 **Warn instead of failing.** Leaves an install that completes cleanly and cannot
 boot — the precise failure mode the original IP guard was made fatal to prevent.
 
+## Amendments
+
+**2026-08-31 (`bd0cf3d37`): an address is allowed, and the row is no longer
+overwritten on every run.** iPXE verifies an IP literal against an `iPAddress`
+SAN exactly as it verifies a name, so decision point 2's "IP SANs are ignored
+throughout" was wrong as a statement about iPXE and `_certServesAddress()` now
+applies its rule. And because `FOG_WEB_HOST` is the server's canonical address
+for far more than netboot, `recordNetbootWebHost()` keeps an existing value the
+served certificate carries and only corrects one it cannot prove. "Overwritten
+on every install run" above is therefore no longer true; it is "corrected when
+the certificate cannot vouch for it".
+
+**2026-09-03: the kept value is the netboot host for BOTH hops.** The keep
+above lived only in the recorder, while `configureDefaultiPXEfile()` had
+already taken the certificate's leading name from `_resolveNetbootHost()`. That
+reopened the two-source split this ADR exists to remove: `default.ipxe` chained
+to `https://<name>/`, the row stayed `<address>`, and on a PXE segment with no
+DNS for the name iPXE stopped at hop 1 with "DNS name does not exist" while
+every URL after `boot.php` would have worked. Now `_resolveNetbootHost()` asks
+the row first and honors it when the served certificate carries it; the
+certificate's own name is the fallback, not the default. Both callers read one
+answer again. `tests/netboot-host-may-be-an-address.test.sh` section H pins it.
+
 ## References
 
 - ADR 0015 — the settings this builds on: `BOOT_url_proto`,
