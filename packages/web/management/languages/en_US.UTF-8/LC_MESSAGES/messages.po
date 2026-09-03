@@ -126,6 +126,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
+msgid "%d decided, %d not: %s"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -419,6 +423,9 @@ msgstr "An image already exists with this name!"
 #, fuzzy
 msgid "A client ID is required"
 msgstr "An image name is required!"
+
+msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
+msgstr ""
 
 #, fuzzy
 msgid "A dmi field must be set!"
@@ -1016,6 +1023,17 @@ msgstr "Advanced"
 msgid "Advanced Tasks"
 msgstr "Advanced"
 
+msgid "Agent"
+msgstr ""
+
+#, fuzzy
+msgid "Agent Approval Success"
+msgstr "Host Created"
+
+#, fuzzy
+msgid "Agent Denial Success"
+msgstr "Printer updated!"
+
 msgid "Ago must be boolean"
 msgstr ""
 
@@ -1031,6 +1049,10 @@ msgstr ""
 
 msgid "All Hosts"
 msgstr "All Hosts"
+
+#, fuzzy
+msgid "All Pending Agents"
+msgstr "Pending MACs"
 
 #, fuzzy
 msgid "All Pending Hosts"
@@ -1220,8 +1242,16 @@ msgid "Approve"
 msgstr "Host approved"
 
 #, fuzzy
+msgid "Approve Agent Fail"
+msgstr "Host approved"
+
+#, fuzzy
 msgid "Approve MAC Fail"
 msgstr "Host approved"
+
+#, fuzzy
+msgid "Approve Pending Agents"
+msgstr "Pending Hosts"
 
 #, fuzzy
 msgid "Approve Pending Hosts"
@@ -1236,6 +1266,10 @@ msgstr "Approve selected Hosts"
 
 msgid "Approved but the signer is unavailable; the agent retries."
 msgstr ""
+
+#, fuzzy
+msgid "Approved selected agents!"
+msgstr "Approve selected Hosts"
 
 #, fuzzy
 msgid "Approved selected hosts!"
@@ -2572,6 +2606,25 @@ msgstr "Menu create failed"
 msgid "Denied by an admin. The agent backs off to hourly."
 msgstr ""
 
+#, fuzzy
+msgid "Denied selected agents!"
+msgstr "Approve selected Hosts"
+
+msgid "Deny"
+msgstr ""
+
+#, fuzzy
+msgid "Deny Agent Fail"
+msgstr "Delete file data"
+
+#, fuzzy
+msgid "Deny Pending Agents"
+msgstr "Pending MACs"
+
+#, fuzzy
+msgid "Deny selected"
+msgstr "Delete Selected"
+
 msgid "Deploy"
 msgstr "Deploy"
 
@@ -2753,6 +2806,9 @@ msgid "Each client needs this certificate enrolled once, by someone physically a
 msgstr ""
 
 msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered; the SHA-256 is what to compare against a client's trust store when working out why one stopped authenticating. Private keys are deliberately absent -- nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
+
+msgid "Each selected agent is issued a certificate and collects it on its next check-in."
 msgstr ""
 
 msgid "Edit"
@@ -4251,6 +4307,10 @@ msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
 msgstr ""
+
+#, fuzzy
+msgid "Identity"
+msgstr "Server Shell"
 
 msgid "Identity Provider"
 msgstr ""
@@ -6900,6 +6960,10 @@ msgstr ""
 msgid "Pending"
 msgstr "Pending..."
 
+#, fuzzy
+msgid "Pending Agents"
+msgstr "Pending MACs"
+
 msgid "Pending Hosts"
 msgstr "Pending Hosts"
 
@@ -6925,8 +6989,16 @@ msgid "Pending Registration created by FOG_CLIENT"
 msgstr "Pending Registration created by FOG_CLIENT"
 
 #, fuzzy
+msgid "Pending agent"
+msgstr "Pending hosts"
+
+#, fuzzy
 msgid "Pending agent enrollments"
 msgstr "Pending Registered Hosts"
+
+#, fuzzy
+msgid "Pending agents"
+msgstr "Pending macs"
 
 msgid "Pending an admin decision. Poll again after retry_after seconds."
 msgstr ""
@@ -6979,6 +7051,9 @@ msgstr "Status"
 #, fuzzy
 msgid "Ping cycle complete"
 msgstr "has been destroyed"
+
+msgid "Platform"
+msgstr ""
 
 msgid "Please Select an option"
 msgstr "Please Select an option"
@@ -7551,6 +7626,9 @@ msgstr "Delete Selected"
 #, fuzzy
 msgid "Real Time"
 msgstr "Host Update Failed"
+
+msgid "Reason"
+msgstr ""
 
 msgid "Reboot"
 msgstr "Reboot"

@@ -200,6 +200,13 @@ const TABLE = [
     // and the task-completion report. Util is for things belonging to no
     // subsystem at all.
     'SecureBootState' => 'Boot',
+    // Agent, not Boot: fog-agent is the management client, not the netboot
+    // path. Both extend FOGBase directly -- Enrollment is the policy for who
+    // gets a client certificate, Principal is the pure verifier that turns a
+    // presented certificate back into a host -- so ancestry cannot place
+    // them, and they are one subsystem the way the Boot classes are.
+    'Enrollment' => 'Agent',
+    'Principal' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',

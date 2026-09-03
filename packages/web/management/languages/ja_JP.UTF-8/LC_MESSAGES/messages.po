@@ -117,6 +117,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
+msgid "%d decided, %d not: %s"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -407,6 +411,9 @@ msgstr "この名前のブロードキャストは既に存在します！"
 #, fuzzy
 msgid "A client ID is required"
 msgstr "名前は必須です！"
+
+msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
+msgstr ""
 
 #, fuzzy
 msgid "A dmi field must be set!"
@@ -971,6 +978,17 @@ msgstr "詳細"
 msgid "Advanced Tasks"
 msgstr "詳細"
 
+msgid "Agent"
+msgstr ""
+
+#, fuzzy
+msgid "Agent Approval Success"
+msgstr "承認に成功しました"
+
+#, fuzzy
+msgid "Agent Denial Success"
+msgstr "プラグインをインストールしました！"
+
 msgid "Ago must be boolean"
 msgstr "Ago はブール値である必要があります"
 
@@ -987,6 +1005,10 @@ msgstr "メニュー項目を削除"
 
 msgid "All Hosts"
 msgstr "すべてのホスト"
+
+#, fuzzy
+msgid "All Pending Agents"
+msgstr "保留中 MAC アドレス"
 
 #, fuzzy
 msgid "All Pending Hosts"
@@ -1174,8 +1196,16 @@ msgid "Approve"
 msgstr "承認"
 
 #, fuzzy
+msgid "Approve Agent Fail"
+msgstr "MAC アドレスを承認"
+
+#, fuzzy
 msgid "Approve MAC Fail"
 msgstr "MAC アドレスを承認"
+
+#, fuzzy
+msgid "Approve Pending Agents"
+msgstr "保留中ホスト"
 
 #, fuzzy
 msgid "Approve Pending Hosts"
@@ -1190,6 +1220,10 @@ msgstr "選択したホストを承認"
 
 msgid "Approved but the signer is unavailable; the agent retries."
 msgstr ""
+
+#, fuzzy
+msgid "Approved selected agents!"
+msgstr "選択したホストを承認"
 
 #, fuzzy
 msgid "Approved selected hosts!"
@@ -2492,6 +2526,25 @@ msgstr "リモートファイルを削除しています"
 msgid "Denied by an admin. The agent backs off to hourly."
 msgstr ""
 
+#, fuzzy
+msgid "Denied selected agents!"
+msgstr "選択したホストを承認"
+
+msgid "Deny"
+msgstr ""
+
+#, fuzzy
+msgid "Deny Agent Fail"
+msgstr "削除に失敗しました"
+
+#, fuzzy
+msgid "Deny Pending Agents"
+msgstr "保留中 MAC アドレス"
+
+#, fuzzy
+msgid "Deny selected"
+msgstr "選択項目を削除"
+
 msgid "Deploy"
 msgstr "展開"
 
@@ -2671,6 +2724,9 @@ msgid "Each client needs this certificate enrolled once, by someone physically a
 msgstr ""
 
 msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered; the SHA-256 is what to compare against a client's trust store when working out why one stopped authenticating. Private keys are deliberately absent -- nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
+
+msgid "Each selected agent is issued a certificate and collects it on its next check-in."
 msgstr ""
 
 msgid "Edit"
@@ -4117,6 +4173,10 @@ msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
 msgstr ""
+
+#, fuzzy
+msgid "Identity"
+msgstr "サーバーシェル"
 
 msgid "Identity Provider"
 msgstr ""
@@ -6664,6 +6724,10 @@ msgstr ""
 msgid "Pending"
 msgstr "保留中..."
 
+#, fuzzy
+msgid "Pending Agents"
+msgstr "保留中 MAC アドレス"
+
 msgid "Pending Hosts"
 msgstr "保留中ホスト"
 
@@ -6689,8 +6753,16 @@ msgid "Pending Registration created by FOG_CLIENT"
 msgstr "FOG_CLIENT により保留中の登録が作成されました"
 
 #, fuzzy
+msgid "Pending agent"
+msgstr "保留中ホスト"
+
+#, fuzzy
 msgid "Pending agent enrollments"
 msgstr "保留中の登録済みホスト"
+
+#, fuzzy
+msgid "Pending agents"
+msgstr "保留中 MAC アドレス"
 
 msgid "Pending an admin decision. Poll again after retry_after seconds."
 msgstr ""
@@ -6744,6 +6816,10 @@ msgstr "状態"
 #, fuzzy
 msgid "Ping cycle complete"
 msgstr "完了しました"
+
+#, fuzzy
+msgid "Platform"
+msgstr "クロスプラットフォーム"
 
 msgid "Please Select an option"
 msgstr "オプションを選択してください"
@@ -7303,6 +7379,9 @@ msgstr "関連付けを削除"
 #, fuzzy
 msgid "Real Time"
 msgstr "日時"
+
+msgid "Reason"
+msgstr ""
 
 msgid "Reboot"
 msgstr "再起動"
@@ -12174,9 +12253,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Create and associate"
 #~ msgstr "関連付けられたノードがありません"
-
-#~ msgid "Cross platform"
-#~ msgstr "クロスプラットフォーム"
 
 #~ msgid "Current Associations"
 #~ msgstr "現在の関連付け"

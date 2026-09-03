@@ -102,6 +102,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
+msgid "%d decided, %d not: %s"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -383,6 +387,9 @@ msgid "A broadcast already exists with this name!"
 msgstr ""
 
 msgid "A client ID is required"
+msgstr ""
+
+msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
 msgstr ""
 
 msgid "A dmi field must be set!"
@@ -880,6 +887,15 @@ msgstr ""
 msgid "Advanced Tasks"
 msgstr ""
 
+msgid "Agent"
+msgstr ""
+
+msgid "Agent Approval Success"
+msgstr ""
+
+msgid "Agent Denial Success"
+msgstr ""
+
 msgid "Ago must be boolean"
 msgstr ""
 
@@ -894,6 +910,9 @@ msgid "All Boot Menu Items"
 msgstr ""
 
 msgid "All Hosts"
+msgstr ""
+
+msgid "All Pending Agents"
 msgstr ""
 
 msgid "All Pending Hosts"
@@ -1064,7 +1083,13 @@ msgstr ""
 msgid "Approve"
 msgstr ""
 
+msgid "Approve Agent Fail"
+msgstr ""
+
 msgid "Approve MAC Fail"
+msgstr ""
+
+msgid "Approve Pending Agents"
 msgstr ""
 
 msgid "Approve Pending Hosts"
@@ -1077,6 +1102,9 @@ msgid "Approve selected"
 msgstr ""
 
 msgid "Approved but the signer is unavailable; the agent retries."
+msgstr ""
+
+msgid "Approved selected agents!"
 msgstr ""
 
 msgid "Approved selected hosts!"
@@ -2219,6 +2247,21 @@ msgstr ""
 msgid "Denied by an admin. The agent backs off to hourly."
 msgstr ""
 
+msgid "Denied selected agents!"
+msgstr ""
+
+msgid "Deny"
+msgstr ""
+
+msgid "Deny Agent Fail"
+msgstr ""
+
+msgid "Deny Pending Agents"
+msgstr ""
+
+msgid "Deny selected"
+msgstr ""
+
 msgid "Deploy"
 msgstr ""
 
@@ -2374,6 +2417,9 @@ msgid "Each client needs this certificate enrolled once, by someone physically a
 msgstr ""
 
 msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered; the SHA-256 is what to compare against a client's trust store when working out why one stopped authenticating. Private keys are deliberately absent -- nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
+
+msgid "Each selected agent is issued a certificate and collects it on its next check-in."
 msgstr ""
 
 msgid "Edit"
@@ -3656,6 +3702,9 @@ msgid "Id and name pairs for %s"
 msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
+msgstr ""
+
+msgid "Identity"
 msgstr ""
 
 msgid "Identity Provider"
@@ -5911,6 +5960,9 @@ msgstr ""
 msgid "Pending"
 msgstr ""
 
+msgid "Pending Agents"
+msgstr ""
+
 msgid "Pending Hosts"
 msgstr ""
 
@@ -5932,7 +5984,13 @@ msgstr ""
 msgid "Pending Registration created by FOG_CLIENT"
 msgstr ""
 
+msgid "Pending agent"
+msgstr ""
+
 msgid "Pending agent enrollments"
+msgstr ""
+
+msgid "Pending agents"
 msgstr ""
 
 msgid "Pending an admin decision. Poll again after retry_after seconds."
@@ -5978,6 +6036,9 @@ msgid "Ping Status"
 msgstr ""
 
 msgid "Ping cycle complete"
+msgstr ""
+
+msgid "Platform"
 msgstr ""
 
 msgid "Please Select an option"
@@ -6461,6 +6522,9 @@ msgid "Read one saved filter"
 msgstr ""
 
 msgid "Real Time"
+msgstr ""
+
+msgid "Reason"
 msgstr ""
 
 msgid "Reboot"

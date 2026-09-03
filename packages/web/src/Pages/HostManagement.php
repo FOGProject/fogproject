@@ -539,6 +539,187 @@ class HostManagement extends FOGPage
         $this->jsonSend($code, $msg);
     }
     /**
+     * The fog-agent installs waiting for an admin: Pending Agents.
+     *
+     * Sibling of Pending Hosts and Pending MACs, and the reason the
+     * enrollment flow pends anything at all -- an admin looks at who is
+     * asking before a machine gets a credential (fog-agent design decision:
+     * admins should know who is doing what). The grid shows the identity
+     * the machine reported and where the request came from; the CSR and
+     * the certificate never reach the page.
+     *
+     * @return void
+     */
+    public function pendingAgents()
+    {
+        if (false === self::$showhtml) {
+            return;
+        }
+        $this->title = _('All Pending Agents');
+
+        $this->headerData = [
+            _('Host'),
+            _('Reason'),
+            _('Platform'),
+            _('Agent'),
+            _('From'),
+            _('Identity'),
+            _('Requested')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+
+        $buttons = self::makeButton(
+            'approve',
+            _('Approve selected'),
+            'btn btn-primary float-end'
+        );
+        $buttons .= self::makeButton(
+            'deny',
+            _('Deny selected'),
+            'btn btn-danger float-start'
+        );
+
+        $modalApprovalBtns = self::makeButton(
+            'confirmApproveModal',
+            _('Approve'),
+            'btn btn-outline-secondary float-end'
+        );
+        $modalApprovalBtns .= self::makeButton(
+            'cancelApprovalModal',
+            _('Cancel'),
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
+        );
+        $approvalModal = self::makeModal(
+            'approveModal',
+            _('Approve Pending Agents'),
+            _('Each selected agent is issued a certificate and collects it on its next check-in.'),
+            $modalApprovalBtns,
+            '',
+            'success'
+        );
+
+        $modalDenyBtns = self::makeButton(
+            'confirmDenyModal',
+            _('Deny'),
+            'btn btn-outline-secondary float-end'
+        );
+        $modalDenyBtns .= self::makeButton(
+            'cancelDenyModal',
+            _('Cancel'),
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
+        );
+        $denyModal = self::makeModal(
+            'denyModal',
+            _('Deny Pending Agents'),
+            _('A denied agent keeps asking and keeps being refused until it is enrolled with a new key.'),
+            $modalDenyBtns,
+            '',
+            'danger'
+        );
+
+        echo self::makeFormTag(
+            '',
+            'agent-pending-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        $this->render(12, 'dataTable', $buttons);
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $approvalModal;
+        echo $denyModal;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Approves or denies the selected pending agents.
+     *
+     * One decision per row through FOG\Agent\Enrollment, the same code the
+     * JSON route agentEnrollmentDecide runs, so a row approved here and a
+     * row approved over the API are indistinguishable afterward. A row
+     * that can no longer be decided -- already decided from elsewhere,
+     * deleted, unbound -- is reported and the rest still go through.
+     *
+     * @return void
+     */
+    public function pendingAgentsAjax()
+    {
+        header('Content-type: application/json');
+
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+        $items = filter_input_array(
+            INPUT_POST,
+            ['pending' => $flags]
+        );
+        $pending = array_map('intval', (array)($items['pending'] ?? []));
+        $by = (string)self::$FOGUser->get('name');
+        $approve = isset($_POST['approvepending']);
+        $errt = $approve ? _('Approve Agent Fail') : _('Deny Agent Fail');
+        $failed = [];
+        $done = 0;
+        foreach ($pending as $id) {
+            try {
+                if ($approve) {
+                    \FOG\Agent\Enrollment::approve($id, $by);
+                } else {
+                    \FOG\Agent\Enrollment::deny($id, $by);
+                }
+                $done++;
+            } catch (\RuntimeException $e) {
+                $failed[] = sprintf('%d: %s', $id, $e->getMessage());
+            }
+        }
+        if (count($failed)) {
+            $msg = json_encode(
+                [
+                    'error' => sprintf(
+                        _('%d decided, %d not: %s'),
+                        $done,
+                        count($failed),
+                        implode('; ', $failed)
+                    ),
+                    'title' => $errt
+                ]
+            );
+            $code = $done > 0
+                ? HTTPResponseCodes::HTTP_ACCEPTED
+                : HTTPResponseCodes::HTTP_BAD_REQUEST;
+        } else {
+            $msg = json_encode(
+                [
+                    'msg' => $approve
+                        ? _('Approved selected agents!')
+                        : _('Denied selected agents!'),
+                    'title' => $approve
+                        ? _('Agent Approval Success')
+                        : _('Agent Denial Success')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+        }
+        $this->jsonSend($code, $msg);
+    }
+    /**
      * Builds the enforce checkbox together with its explanatory help text.
      *
      * The group page states what this setting actually does in the header of
@@ -5629,6 +5810,23 @@ class HostManagement extends FOGPage
             'macaddressassociation',
             ['pending' => 1]
         );
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * The pending agents grid's rows.
+     *
+     * Not Route::listem(): agentenrollment is deliberately not an API
+     * class -- every row carries a CSR and, once approved, a certificate --
+     * so the page takes the same whitelisted shape the admin JSON route
+     * serves and the table pages it client-side. The list is bounded by
+     * what an admin has not yet looked at, never by the fleet.
+     *
+     * @return void
+     */
+    public function getPendingAgentList()
+    {
+        Route::agentEnrollments();
         echo Route::getData();
         exit;
     }

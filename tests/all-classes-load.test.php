@@ -213,7 +213,12 @@ function _declaredClasses()
             return '' !== $f
                 && is_readable($f)
                 && 0 !== strpos($f, 'packages/web/vendor/')
-                && 0 !== strpos($f, 'tests/');
+                && 0 !== strpos($f, 'tests/')
+                // Analysis tooling, not product: build/ is loaded by the
+                // root composer autoload-dev and implements PHPStan
+                // interfaces that exist only under the root vendor/. FOG's
+                // own autoloader cannot declare it and is not meant to.
+                && 0 !== strpos($f, 'build/');
         }
     );
 

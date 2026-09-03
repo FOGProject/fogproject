@@ -124,6 +124,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
+msgid "%d decided, %d not: %s"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -417,6 +421,9 @@ msgstr "Una imagen ya existe con este nombre!"
 #, fuzzy
 msgid "A client ID is required"
 msgstr "Se requiere un nombre de imagen!"
+
+msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
+msgstr ""
 
 #, fuzzy
 msgid "A dmi field must be set!"
@@ -1028,6 +1035,17 @@ msgstr "Avanzado"
 msgid "Advanced Tasks"
 msgstr "Avanzado"
 
+msgid "Agent"
+msgstr ""
+
+#, fuzzy
+msgid "Agent Approval Success"
+msgstr "Creado"
+
+#, fuzzy
+msgid "Agent Denial Success"
+msgstr "Impresora actualiza!"
+
 msgid "Ago must be boolean"
 msgstr ""
 
@@ -1044,6 +1062,10 @@ msgstr ""
 #, fuzzy
 msgid "All Hosts"
 msgstr "Hospedadores"
+
+#, fuzzy
+msgid "All Pending Agents"
+msgstr "macs pendientes"
 
 #, fuzzy
 msgid "All Pending Hosts"
@@ -1234,8 +1256,16 @@ msgid "Approve"
 msgstr "Creado"
 
 #, fuzzy
+msgid "Approve Agent Fail"
+msgstr "Creado"
+
+#, fuzzy
 msgid "Approve MAC Fail"
 msgstr "Creado"
+
+#, fuzzy
+msgid "Approve Pending Agents"
+msgstr "anfitriones pendientes"
 
 #, fuzzy
 msgid "Approve Pending Hosts"
@@ -1250,6 +1280,10 @@ msgstr "retirar"
 
 msgid "Approved but the signer is unavailable; the agent retries."
 msgstr ""
+
+#, fuzzy
+msgid "Approved selected agents!"
+msgstr "retirar"
 
 #, fuzzy
 msgid "Approved selected hosts!"
@@ -2599,6 +2633,25 @@ msgid "Denied by an admin. The agent backs off to hourly."
 msgstr ""
 
 #, fuzzy
+msgid "Denied selected agents!"
+msgstr "retirar"
+
+msgid "Deny"
+msgstr ""
+
+#, fuzzy
+msgid "Deny Agent Fail"
+msgstr "Eliminar los datos del archivo"
+
+#, fuzzy
+msgid "Deny Pending Agents"
+msgstr "macs pendientes"
+
+#, fuzzy
+msgid "Deny selected"
+msgstr "Eliminar seleccionado"
+
+#, fuzzy
 msgid "Deploy"
 msgstr "última Desplegado"
 
@@ -2785,6 +2838,9 @@ msgid "Each client needs this certificate enrolled once, by someone physically a
 msgstr ""
 
 msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered; the SHA-256 is what to compare against a client's trust store when working out why one stopped authenticating. Private keys are deliberately absent -- nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
+
+msgid "Each selected agent is issued a certificate and collects it on its next check-in."
 msgstr ""
 
 msgid "Edit"
@@ -4319,6 +4375,10 @@ msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
 msgstr ""
+
+#, fuzzy
+msgid "Identity"
+msgstr "servidor TFTP"
 
 msgid "Identity Provider"
 msgstr ""
@@ -7013,6 +7073,10 @@ msgid "Pending"
 msgstr "macs pendientes"
 
 #, fuzzy
+msgid "Pending Agents"
+msgstr "macs pendientes"
+
+#, fuzzy
 msgid "Pending Hosts"
 msgstr "anfitriones pendientes"
 
@@ -7039,8 +7103,16 @@ msgid "Pending Registration created by FOG_CLIENT"
 msgstr ""
 
 #, fuzzy
+msgid "Pending agent"
+msgstr "anfitriones pendientes"
+
+#, fuzzy
 msgid "Pending agent enrollments"
 msgstr "anfitriones pendientes"
+
+#, fuzzy
+msgid "Pending agents"
+msgstr "macs pendientes"
 
 msgid "Pending an admin decision. Poll again after retry_after seconds."
 msgstr ""
@@ -7094,6 +7166,9 @@ msgstr "Estado"
 #, fuzzy
 msgid "Ping cycle complete"
 msgstr "Deben estar cifrados"
+
+msgid "Platform"
+msgstr ""
 
 msgid "Please Select an option"
 msgstr "Por favor seleccione una opción"
@@ -7673,6 +7748,9 @@ msgstr "Eliminar seleccionado"
 #, fuzzy
 msgid "Real Time"
 msgstr "Tiempo de actividad del sistema"
+
+msgid "Reason"
+msgstr ""
 
 msgid "Reboot"
 msgstr "Reiniciar"

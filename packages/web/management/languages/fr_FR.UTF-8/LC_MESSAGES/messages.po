@@ -127,6 +127,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
+msgid "%d decided, %d not: %s"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -420,6 +424,9 @@ msgstr "Une image existe déjà avec ce nom!"
 #, fuzzy
 msgid "A client ID is required"
 msgstr "Un nom de l'image est nécessaire!"
+
+msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
+msgstr ""
 
 #, fuzzy
 msgid "A dmi field must be set!"
@@ -1017,6 +1024,17 @@ msgstr "Avancée"
 msgid "Advanced Tasks"
 msgstr "Avancée"
 
+msgid "Agent"
+msgstr ""
+
+#, fuzzy
+msgid "Agent Approval Success"
+msgstr "hôte Créé"
+
+#, fuzzy
+msgid "Agent Denial Success"
+msgstr "Imprimante mis à jour!"
+
 msgid "Ago must be boolean"
 msgstr ""
 
@@ -1032,6 +1050,10 @@ msgstr ""
 
 msgid "All Hosts"
 msgstr "Tous les hôtes"
+
+#, fuzzy
+msgid "All Pending Agents"
+msgstr "en attente MACs"
 
 #, fuzzy
 msgid "All Pending Hosts"
@@ -1221,8 +1243,16 @@ msgid "Approve"
 msgstr "hôte approuvé"
 
 #, fuzzy
+msgid "Approve Agent Fail"
+msgstr "hôte approuvé"
+
+#, fuzzy
 msgid "Approve MAC Fail"
 msgstr "hôte approuvé"
+
+#, fuzzy
+msgid "Approve Pending Agents"
+msgstr "Les hôtes en attente"
 
 #, fuzzy
 msgid "Approve Pending Hosts"
@@ -1237,6 +1267,10 @@ msgstr "Approuver hôtes sélectionnés"
 
 msgid "Approved but the signer is unavailable; the agent retries."
 msgstr ""
+
+#, fuzzy
+msgid "Approved selected agents!"
+msgstr "Approuver hôtes sélectionnés"
 
 #, fuzzy
 msgid "Approved selected hosts!"
@@ -2573,6 +2607,25 @@ msgstr "Menu create a échoué"
 msgid "Denied by an admin. The agent backs off to hourly."
 msgstr ""
 
+#, fuzzy
+msgid "Denied selected agents!"
+msgstr "Approuver hôtes sélectionnés"
+
+msgid "Deny"
+msgstr ""
+
+#, fuzzy
+msgid "Deny Agent Fail"
+msgstr "Supprimer les données de fichiers"
+
+#, fuzzy
+msgid "Deny Pending Agents"
+msgstr "en attente MACs"
+
+#, fuzzy
+msgid "Deny selected"
+msgstr "Supprimer sélectionnée"
+
 msgid "Deploy"
 msgstr "Déployer"
 
@@ -2754,6 +2807,9 @@ msgid "Each client needs this certificate enrolled once, by someone physically a
 msgstr ""
 
 msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered; the SHA-256 is what to compare against a client's trust store when working out why one stopped authenticating. Private keys are deliberately absent -- nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
+
+msgid "Each selected agent is issued a certificate and collects it on its next check-in."
 msgstr ""
 
 msgid "Edit"
@@ -4252,6 +4308,10 @@ msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
 msgstr ""
+
+#, fuzzy
+msgid "Identity"
+msgstr "serveur Shell"
 
 msgid "Identity Provider"
 msgstr ""
@@ -6887,6 +6947,10 @@ msgstr ""
 msgid "Pending"
 msgstr "En attendant..."
 
+#, fuzzy
+msgid "Pending Agents"
+msgstr "en attente MACs"
+
 msgid "Pending Hosts"
 msgstr "Les hôtes en attente"
 
@@ -6912,8 +6976,16 @@ msgid "Pending Registration created by FOG_CLIENT"
 msgstr "Inscription en attente créée par FOG_CLIENT"
 
 #, fuzzy
+msgid "Pending agent"
+msgstr "hôtes en attente"
+
+#, fuzzy
 msgid "Pending agent enrollments"
 msgstr "Dans l'attente des hôtes enregistrés"
+
+#, fuzzy
+msgid "Pending agents"
+msgstr "macs en attente"
 
 msgid "Pending an admin decision. Poll again after retry_after seconds."
 msgstr ""
@@ -6966,6 +7038,9 @@ msgstr "statut"
 #, fuzzy
 msgid "Ping cycle complete"
 msgstr "a été détruit"
+
+msgid "Platform"
+msgstr ""
 
 msgid "Please Select an option"
 msgstr "Veuillez sélectionner une option"
@@ -7538,6 +7613,9 @@ msgstr "Supprimer sélectionnée"
 #, fuzzy
 msgid "Real Time"
 msgstr "Mise à jour de l'hôte a échoué"
+
+msgid "Reason"
+msgstr ""
 
 msgid "Reboot"
 msgstr "Réinitialiser"

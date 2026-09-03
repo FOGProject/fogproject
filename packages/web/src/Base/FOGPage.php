@@ -1267,6 +1267,12 @@ abstract class FOGPage extends FOGBase
                     'pendingMacs',
                     _('Pending MACs')
                 );
+                self::arrayInsertBefore(
+                    'export',
+                    $menu,
+                    'pendingAgents',
+                    _('Pending Agents')
+                );
                 break;
             case 'report':
                 // Two kinds of screen under one menu, labeled as two.

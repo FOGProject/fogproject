@@ -126,6 +126,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
+msgid "%d decided, %d not: %s"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -419,6 +423,9 @@ msgstr "图像已经存在具有此名称！"
 #, fuzzy
 msgid "A client ID is required"
 msgstr "图像名是必需的！"
+
+msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
+msgstr ""
 
 #, fuzzy
 msgid "A dmi field must be set!"
@@ -1016,6 +1023,17 @@ msgstr "高级"
 msgid "Advanced Tasks"
 msgstr "高级"
 
+msgid "Agent"
+msgstr ""
+
+#, fuzzy
+msgid "Agent Approval Success"
+msgstr "主机创建"
+
+#, fuzzy
+msgid "Agent Denial Success"
+msgstr "打印机更新！"
+
 msgid "Ago must be boolean"
 msgstr ""
 
@@ -1031,6 +1049,10 @@ msgstr ""
 
 msgid "All Hosts"
 msgstr "所有主机"
+
+#, fuzzy
+msgid "All Pending Agents"
+msgstr "待定的MAC"
 
 #, fuzzy
 msgid "All Pending Hosts"
@@ -1220,8 +1242,16 @@ msgid "Approve"
 msgstr "主机批准"
 
 #, fuzzy
+msgid "Approve Agent Fail"
+msgstr "主机批准"
+
+#, fuzzy
 msgid "Approve MAC Fail"
 msgstr "主机批准"
+
+#, fuzzy
+msgid "Approve Pending Agents"
+msgstr "待主机"
 
 #, fuzzy
 msgid "Approve Pending Hosts"
@@ -1236,6 +1266,10 @@ msgstr "批准选定主机"
 
 msgid "Approved but the signer is unavailable; the agent retries."
 msgstr ""
+
+#, fuzzy
+msgid "Approved selected agents!"
+msgstr "批准选定主机"
 
 #, fuzzy
 msgid "Approved selected hosts!"
@@ -2572,6 +2606,25 @@ msgstr "菜单创建失败"
 msgid "Denied by an admin. The agent backs off to hourly."
 msgstr ""
 
+#, fuzzy
+msgid "Denied selected agents!"
+msgstr "批准选定主机"
+
+msgid "Deny"
+msgstr ""
+
+#, fuzzy
+msgid "Deny Agent Fail"
+msgstr "删除的文件数据"
+
+#, fuzzy
+msgid "Deny Pending Agents"
+msgstr "待定的MAC"
+
+#, fuzzy
+msgid "Deny selected"
+msgstr "删除所选"
+
 msgid "Deploy"
 msgstr "部署"
 
@@ -2753,6 +2806,9 @@ msgid "Each client needs this certificate enrolled once, by someone physically a
 msgstr ""
 
 msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered; the SHA-256 is what to compare against a client's trust store when working out why one stopped authenticating. Private keys are deliberately absent -- nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
+
+msgid "Each selected agent is issued a certificate and collects it on its next check-in."
 msgstr ""
 
 msgid "Edit"
@@ -4251,6 +4307,10 @@ msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
 msgstr ""
+
+#, fuzzy
+msgid "Identity"
+msgstr "服务器外壳"
 
 msgid "Identity Provider"
 msgstr ""
@@ -6887,6 +6947,10 @@ msgstr ""
 msgid "Pending"
 msgstr "待..."
 
+#, fuzzy
+msgid "Pending Agents"
+msgstr "待定的MAC"
+
 msgid "Pending Hosts"
 msgstr "待主机"
 
@@ -6912,8 +6976,16 @@ msgid "Pending Registration created by FOG_CLIENT"
 msgstr "通过创建FOG_CLIENT登记待定"
 
 #, fuzzy
+msgid "Pending agent"
+msgstr "待主机"
+
+#, fuzzy
 msgid "Pending agent enrollments"
 msgstr "待注册主机"
+
+#, fuzzy
+msgid "Pending agents"
+msgstr "待淅淅沥沥"
 
 msgid "Pending an admin decision. Poll again after retry_after seconds."
 msgstr ""
@@ -6966,6 +7038,9 @@ msgstr "状态"
 #, fuzzy
 msgid "Ping cycle complete"
 msgstr "已被破坏"
+
+msgid "Platform"
+msgstr ""
 
 msgid "Please Select an option"
 msgstr "请选择一个选项"
@@ -7538,6 +7613,9 @@ msgstr "删除所选"
 #, fuzzy
 msgid "Real Time"
 msgstr "主机更新失败"
+
+msgid "Reason"
+msgstr ""
 
 msgid "Reboot"
 msgstr "重启"
