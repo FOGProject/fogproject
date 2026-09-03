@@ -207,6 +207,7 @@ const TABLE = [
     // them, and they are one subsystem the way the Boot classes are.
     'Enrollment' => 'Agent',
     'Principal' => 'Agent',
+    'Token' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',

@@ -472,6 +472,9 @@ msgstr "この名前のユーザーは既に存在します"
 msgid "A migration step failed. The plugin is left activated and not marked installed."
 msgstr ""
 
+msgid "A missing name, a bad use count, or an expiry that is not in the future."
+msgstr ""
+
 #, fuzzy
 msgid "A module already exists with this name!"
 msgstr "この名前のロールは既に存在します！"
@@ -512,6 +515,9 @@ msgstr "この名前のプリンターは既に存在します！"
 
 #, php-format
 msgid "A request is pending since %s for %s."
+msgstr ""
+
+msgid "A revoked token can never approve an enrollment again."
 msgstr ""
 
 msgid "A role already exists with this name!"
@@ -989,6 +995,18 @@ msgstr "承認に成功しました"
 msgid "Agent Denial Success"
 msgstr "プラグインをインストールしました！"
 
+#, fuzzy
+msgid "Agent Enrollment Tokens"
+msgstr "強制終了されました"
+
+#, fuzzy
+msgid "Agent Tokens"
+msgstr "ユーザー API トークン"
+
+#, fuzzy
+msgid "Agent enrollment tokens"
+msgstr "強制終了されました"
+
 msgid "Ago must be boolean"
 msgstr "Ago はブール値である必要があります"
 
@@ -1119,6 +1137,9 @@ msgstr ""
 #, fuzzy
 msgid "An entry already exists with this name!"
 msgstr "この名前のプリンターは既に存在します！"
+
+msgid "An expiry is required. The token approves enrollments until it is spent or expires; revoke it here at any time."
+msgstr ""
 
 msgid "An image already exists with this name!"
 msgstr "この名前のイメージは既に存在します！"
@@ -1961,8 +1982,14 @@ msgstr "エラー: カーネルのダウンロードに失敗しました"
 msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
 msgstr ""
 
+msgid "Copy"
+msgstr ""
+
 msgid "Copy from existing"
 msgstr "既存の項目からコピー"
+
+msgid "Copy it now. It is not stored and cannot be shown again."
+msgstr ""
 
 msgid "Copy this token now"
 msgstr ""
@@ -2131,6 +2158,9 @@ msgstr ""
 msgid "Create"
 msgstr "作成"
 
+msgid "Create Enrollment Token"
+msgstr ""
+
 msgid "Create Immediate Power task"
 msgstr ""
 
@@ -2287,6 +2317,10 @@ msgid "Create tasking succeeded"
 msgstr "タスク状態を作成"
 
 #, fuzzy
+msgid "Create token"
+msgstr "新しい %s を作成"
+
+#, fuzzy
 msgid "Created"
 msgstr "作成"
 
@@ -2296,6 +2330,10 @@ msgstr "作成者"
 #, fuzzy
 msgid "Created Time"
 msgstr "ジョブ作成時刻"
+
+#, fuzzy
+msgid "Created by"
+msgstr "作成者"
 
 msgid "Created by FOG Reg on"
 msgstr "FOG Reg により作成:"
@@ -2826,6 +2864,10 @@ msgstr ""
 msgid "Enrolled certificate must be a SHA-256 fingerprint (64 hex characters)"
 msgstr ""
 
+#, fuzzy
+msgid "Enrollment Token"
+msgstr "Pushbullet アカウント"
+
 msgid "Enrollment kit"
 msgstr ""
 
@@ -2929,6 +2971,9 @@ msgstr ""
 msgid "Every enrollment still waiting for a decision, without the CSR. What the Pending Agents page reads."
 msgstr ""
 
+msgid "Every enrollment token with its remaining uses and expiry, never the token itself. What the Agent Tokens page reads."
+msgstr ""
+
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "ファイルはアップロードされませんでした"
@@ -3025,6 +3070,10 @@ msgstr ""
 
 msgid "FOG"
 msgstr "FOG"
+
+#, fuzzy
+msgid "FOG Agent certificate renewal"
+msgstr "ファイルはアップロードされませんでした"
 
 #, fuzzy
 msgid "FOG Agent enrollment"
@@ -5696,6 +5745,10 @@ msgstr "午前 0 時"
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
+#, fuzzy
+msgid "Mint an agent enrollment token"
+msgstr "保留中の登録済みホスト"
+
 msgid "Minute value is not valid"
 msgstr "分の値が無効です"
 
@@ -6237,6 +6290,10 @@ msgstr "サイトがありません"
 msgid "No such object."
 msgstr ""
 
+#, fuzzy
+msgid "No such token."
+msgstr "サイトがありません"
+
 msgid "No such user."
 msgstr ""
 
@@ -6323,6 +6380,9 @@ msgstr "見つかりません"
 
 msgid "Not Registered Hosts"
 msgstr "未登録ホスト"
+
+msgid "Not a certificate request, or one for a key other than the one this certificate proved."
+msgstr ""
 
 msgid "Not a number"
 msgstr "数値ではありません"
@@ -6643,6 +6703,9 @@ msgid "Outcome"
 msgstr ""
 
 msgid "Over a year"
+msgstr ""
+
+msgid "Over the certificate being renewed: the same gate as poll binds the caller to its host, and the body carries a request for the same key. The answer is the enroll \"issued\" shape. A request for any other key is refused; a key change goes through enroll and an admin."
 msgstr ""
 
 msgid "PLUGIN OPTIONS"
@@ -7640,7 +7703,31 @@ msgstr "戻りコード"
 msgid "Returning value of key"
 msgstr "キーの値を返しています"
 
+msgid "Returns the token exactly once; only its hash is stored. An expiry is required. uses is how many enrollments it approves, or -1 for unlimited until it expires. Audited as agent.token."
+msgstr ""
+
 msgid "Reverse"
+msgstr ""
+
+msgid "Revoke"
+msgstr ""
+
+msgid "Revoke Enrollment Tokens"
+msgstr ""
+
+#, fuzzy
+msgid "Revoke an agent enrollment token"
+msgstr "保留中の登録済みホスト"
+
+#, fuzzy
+msgid "Revoke selected"
+msgstr "選択した項目を削除"
+
+#, fuzzy
+msgid "Revoked selected tokens."
+msgstr "選択したルールを削除"
+
+msgid "Revoked."
 msgstr ""
 
 #, fuzzy
@@ -9585,6 +9672,10 @@ msgstr ""
 msgid "The record could not be written."
 msgstr "強制終了できませんでした"
 
+#, fuzzy
+msgid "The renewed certificate, leaf then chain."
+msgstr "新しいロケーションを作成"
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -9592,6 +9683,9 @@ msgid "The root CA has been imported and this server now trusts it."
 msgstr ""
 
 msgid "The root CA has been imported, but this host's system trust store could not be updated -- so HTTPS calls made on this server will not accept it yet. Re-run the installer, and check the installation log."
+msgstr ""
+
+msgid "The row goes, so the token can never match again. Audited as agent.token."
 msgstr ""
 
 msgid "The same rules in prose, for a client reading this at runtime."
@@ -9628,6 +9722,10 @@ msgid "The signer is unavailable; nothing changed."
 msgstr ""
 
 #, fuzzy
+msgid "The signing helper is not available on this server."
+msgstr "このサーバーにはグループがありません"
+
+#, fuzzy
 msgid "The signing request could not be generated"
 msgstr "強制終了できませんでした"
 
@@ -9644,9 +9742,12 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
+
+#, fuzzy
+msgid "The token."
+msgstr "CPU 数"
 
 msgid "The trust anchor, published as ca.cert.der. Every fog-client pins this one."
 msgstr ""
@@ -9994,7 +10095,29 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "ナビゲーション切り替え"
 
+#, fuzzy
+msgid "Token Create Fail"
+msgstr "ロールの作成に失敗しました"
+
+#, fuzzy
+msgid "Token Create Success"
+msgstr "ロールを作成しました"
+
+#, fuzzy
+msgid "Token Revoke Fail"
+msgstr "FTP 接続に失敗しました"
+
+#, fuzzy
+msgid "Token Revoke Success"
+msgstr "ロールを作成しました"
+
+msgid "Token created. Copy it now."
+msgstr ""
+
 msgid "Token or user:pass (optional)"
+msgstr ""
+
+msgid "Token rows."
 msgstr ""
 
 msgid "Too many MACs"
@@ -10253,6 +10376,9 @@ msgid "Unknown upload error occurred"
 msgstr "不明なアップロードエラーが発生しました"
 
 msgid "Unless it was declined with"
+msgstr ""
+
+msgid "Unlimited"
 msgstr ""
 
 msgid "Unmark selected client ignore"
@@ -10619,6 +10745,12 @@ msgstr "ユーザー"
 msgid "Users, user groups and roles as id/name pairs. Each section is gated on that entity's own view permission -- user.view, usergroup.view, role.view -- and comes back EMPTY rather than 403 when the caller lacks it, so this route discloses nothing they could not already list. A caller holding none of the three can still save private filters; there is simply nobody they may name."
 msgstr ""
 
+msgid "Uses"
+msgstr ""
+
+msgid "Uses left"
+msgstr ""
+
 msgid "Using the group match function"
 msgstr "グループ照合機能を使用しています"
 
@@ -10725,6 +10857,9 @@ msgstr ""
 msgid "What this server itself trusts: FOG's root, plus any root imported below."
 msgstr ""
 
+msgid "What this token is for"
+msgstr ""
+
 msgid "What to do next"
 msgstr ""
 
@@ -10820,6 +10955,9 @@ msgid "Wipes"
 msgstr ""
 
 msgid "Within 30 days"
+msgstr ""
+
+msgid "Y-m-d H:i:s, server time."
 msgstr ""
 
 msgid "Yearly"
@@ -13571,9 +13709,6 @@ msgstr ""
 #~ msgid "Remove selected printers"
 #~ msgstr "選択したプリンターを削除"
 
-#~ msgid "Remove selected rules"
-#~ msgstr "選択したルールを削除"
-
 #~ msgid "Remove selected users"
 #~ msgstr "選択したユーザーを削除"
 
@@ -13855,10 +13990,6 @@ msgstr ""
 
 #~ msgid "The below items are only used for the old client."
 #~ msgstr "以下の項目は旧クライアントでのみ使用されます。"
-
-#, fuzzy
-#~ msgid "The certificate chain"
-#~ msgstr "新しいロケーションを作成"
 
 #~ msgid "The clients will checkin with the server from time"
 #~ msgstr "クライアントは一定時間ごとにサーバーへチェックインします"

@@ -340,8 +340,14 @@ class Authorization extends FOGBase
         // edits hosts, so it carries the host permissions.
         'agentenroll' => null,
         'agentpoll' => null,                 // fog-agent: gated by the client certificate in Route, not by a token
+        'agentrenew' => null,                // fog-agent: same gate
         'agentenrollments' => 'host.view',
         'agentenrollmentdecide' => 'host.edit',
+        // Tokens approve machines the admin has not seen, which creates
+        // hosts; minting one is host.create and pulling one is host.delete.
+        'agenttokens' => 'host.view',
+        'agenttokenmint' => 'host.create',
+        'agenttokenrevoke' => 'host.delete',
         'export' => 'system.export',
         'kernelUpdate' => 'settings.view',
         'initrdUpdate' => 'settings.view',

@@ -466,6 +466,67 @@ class Enrollment extends FOGBase
     }
 
     /**
+     * An enrolled agent renews its certificate over its own mTLS session.
+     *
+     * Same key only. The presented certificate proved the caller holds the
+     * key bound to this host, and the request is signed for that same key,
+     * so nothing an admin decided changes: the binding, the host, the
+     * subject. A different key is a new claim on the machine and goes
+     * through enroll, where it pends as a rebind for an admin. The old
+     * certificate is not revoked -- it binds to the same key and expires on
+     * its own -- and there is nothing to revoke it with; the binding is the
+     * only thing the server checks.
+     *
+     * @param Host   $Host   the principal the gate bound
+     * @param string $csrPEM the request, for the bound key
+     *
+     * @throws \RuntimeException with an HTTP code when refused
+     *
+     * @return string the leaf followed by the issuing chain, PEM
+     */
+    public static function renew(Host $Host, $csrPEM)
+    {
+        $fingerprint = self::fingerprint((string)$csrPEM);
+        if (null === $fingerprint) {
+            throw new \RuntimeException('csr_pem is not a certificate request', 400);
+        }
+        if (!hash_equals((string)$Host->get('agentFingerprint'), $fingerprint)) {
+            throw new \RuntimeException('the request is not for the key this certificate proved', 400);
+        }
+        list($leaf, $chain) = self::_sign((string)$csrPEM, (int)$Host->get('id'));
+        $parsed = openssl_x509_parse($leaf);
+        $notAfter = is_array($parsed) && isset($parsed['validTo_time_t'])
+            ? gmdate('Y-m-d H:i:s', (int)$parsed['validTo_time_t'])
+            : null;
+        // The manager rather than Host::save(), as agentPoll does: a save
+        // rewrites the MAC association, and renewal is a routine call.
+        self::getClass('HostManager')->update(
+            ['id' => (int)$Host->get('id')],
+            '',
+            [
+                'agentNotAfter' => $notAfter,
+                'agentCheckin' => self::niceDate()->format('Y-m-d H:i:s')
+            ]
+        );
+        Audit::record(
+            [
+                'type' => 'agent.enroll',
+                'subjectType' => 'host',
+                'subjectID' => (int)$Host->get('id'),
+                'subjectLabel' => (string)$Host->get('name'),
+                'renderable' => 1,
+                'text' => sprintf(
+                    'certificate renewed to %s, key %s',
+                    (string)$notAfter,
+                    substr($fingerprint, 0, 16)
+                ),
+                'authSource' => Audit::SOURCE_ANONYMOUS
+            ]
+        );
+        return $leaf . $chain;
+    }
+
+    /**
      * Issues on an automatic path and answers the agent in the same
      * request.
      *

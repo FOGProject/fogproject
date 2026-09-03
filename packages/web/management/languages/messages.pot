@@ -443,6 +443,9 @@ msgstr ""
 msgid "A migration step failed. The plugin is left activated and not marked installed."
 msgstr ""
 
+msgid "A missing name, a bad use count, or an expiry that is not in the future."
+msgstr ""
+
 msgid "A module already exists with this name!"
 msgstr ""
 
@@ -478,6 +481,9 @@ msgstr ""
 
 #, php-format
 msgid "A request is pending since %s for %s."
+msgstr ""
+
+msgid "A revoked token can never approve an enrollment again."
 msgstr ""
 
 msgid "A role already exists with this name!"
@@ -896,6 +902,15 @@ msgstr ""
 msgid "Agent Denial Success"
 msgstr ""
 
+msgid "Agent Enrollment Tokens"
+msgstr ""
+
+msgid "Agent Tokens"
+msgstr ""
+
+msgid "Agent enrollment tokens"
+msgstr ""
+
 msgid "Ago must be boolean"
 msgstr ""
 
@@ -1009,6 +1024,9 @@ msgid "An enrollment token, if the installer was given one."
 msgstr ""
 
 msgid "An entry already exists with this name!"
+msgstr ""
+
+msgid "An expiry is required. The token approves enrollments until it is spent or expires; revoke it here at any time."
 msgstr ""
 
 msgid "An image already exists with this name!"
@@ -1760,7 +1778,13 @@ msgstr ""
 msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
 msgstr ""
 
+msgid "Copy"
+msgstr ""
+
 msgid "Copy from existing"
+msgstr ""
+
+msgid "Copy it now. It is not stored and cannot be shown again."
 msgstr ""
 
 msgid "Copy this token now"
@@ -1904,6 +1928,9 @@ msgstr ""
 msgid "Create"
 msgstr ""
 
+msgid "Create Enrollment Token"
+msgstr ""
+
 msgid "Create Immediate Power task"
 msgstr ""
 
@@ -2035,6 +2062,9 @@ msgstr ""
 msgid "Create tasking succeeded"
 msgstr ""
 
+msgid "Create token"
+msgstr ""
+
 msgid "Created"
 msgstr ""
 
@@ -2042,6 +2072,9 @@ msgid "Created By"
 msgstr ""
 
 msgid "Created Time"
+msgstr ""
+
+msgid "Created by"
 msgstr ""
 
 msgid "Created by FOG Reg on"
@@ -2507,6 +2540,9 @@ msgstr ""
 msgid "Enrolled certificate must be a SHA-256 fingerprint (64 hex characters)"
 msgstr ""
 
+msgid "Enrollment Token"
+msgstr ""
+
 msgid "Enrollment kit"
 msgstr ""
 
@@ -2604,6 +2640,9 @@ msgstr ""
 msgid "Every enrollment still waiting for a decision, without the CSR. What the Pending Agents page reads."
 msgstr ""
 
+msgid "Every enrollment token with its remaining uses and expiry, never the token itself. What the Agent Tokens page reads."
+msgstr ""
+
 msgid "Every file was uploaded."
 msgstr ""
 
@@ -2687,6 +2726,9 @@ msgid "External root CA"
 msgstr ""
 
 msgid "FOG"
+msgstr ""
+
+msgid "FOG Agent certificate renewal"
 msgstr ""
 
 msgid "FOG Agent enrollment"
@@ -5045,6 +5087,9 @@ msgstr ""
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
+msgid "Mint an agent enrollment token"
+msgstr ""
+
 msgid "Minute value is not valid"
 msgstr ""
 
@@ -5523,6 +5568,9 @@ msgstr ""
 msgid "No such object."
 msgstr ""
 
+msgid "No such token."
+msgstr ""
+
 msgid "No such user."
 msgstr ""
 
@@ -5602,6 +5650,9 @@ msgid "Not Found"
 msgstr ""
 
 msgid "Not Registered Hosts"
+msgstr ""
+
+msgid "Not a certificate request, or one for a key other than the one this certificate proved."
 msgstr ""
 
 msgid "Not a number"
@@ -5886,6 +5937,9 @@ msgid "Outcome"
 msgstr ""
 
 msgid "Over a year"
+msgstr ""
+
+msgid "Over the certificate being renewed: the same gate as poll binds the caller to its host, and the body carries a request for the same key. The answer is the enroll \"issued\" shape. A request for any other key is refused; a key change goes through enroll and an admin."
 msgstr ""
 
 msgid "PLUGIN OPTIONS"
@@ -6764,7 +6818,28 @@ msgstr ""
 msgid "Returning value of key"
 msgstr ""
 
+msgid "Returns the token exactly once; only its hash is stored. An expiry is required. uses is how many enrollments it approves, or -1 for unlimited until it expires. Audited as agent.token."
+msgstr ""
+
 msgid "Reverse"
+msgstr ""
+
+msgid "Revoke"
+msgstr ""
+
+msgid "Revoke Enrollment Tokens"
+msgstr ""
+
+msgid "Revoke an agent enrollment token"
+msgstr ""
+
+msgid "Revoke selected"
+msgstr ""
+
+msgid "Revoked selected tokens."
+msgstr ""
+
+msgid "Revoked."
 msgstr ""
 
 msgid "Role"
@@ -8498,6 +8573,9 @@ msgstr ""
 msgid "The record could not be written."
 msgstr ""
 
+msgid "The renewed certificate, leaf then chain."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -8505,6 +8583,9 @@ msgid "The root CA has been imported and this server now trusts it."
 msgstr ""
 
 msgid "The root CA has been imported, but this host's system trust store could not be updated -- so HTTPS calls made on this server will not accept it yet. Re-run the installer, and check the installation log."
+msgstr ""
+
+msgid "The row goes, so the token can never match again. Audited as agent.token."
 msgstr ""
 
 msgid "The same rules in prose, for a client reading this at runtime."
@@ -8537,6 +8618,9 @@ msgstr ""
 msgid "The signer is unavailable; nothing changed."
 msgstr ""
 
+msgid "The signing helper is not available on this server."
+msgstr ""
+
 msgid "The signing request could not be generated"
 msgstr ""
 
@@ -8552,8 +8636,10 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
+msgstr ""
+
+msgid "The token."
 msgstr ""
 
 msgid "The trust anchor, published as ca.cert.der. Every fog-client pins this one."
@@ -8892,7 +8978,25 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr ""
 
+msgid "Token Create Fail"
+msgstr ""
+
+msgid "Token Create Success"
+msgstr ""
+
+msgid "Token Revoke Fail"
+msgstr ""
+
+msgid "Token Revoke Success"
+msgstr ""
+
+msgid "Token created. Copy it now."
+msgstr ""
+
 msgid "Token or user:pass (optional)"
+msgstr ""
+
+msgid "Token rows."
 msgstr ""
 
 msgid "Too many MACs"
@@ -9118,6 +9222,9 @@ msgid "Unknown upload error occurred"
 msgstr ""
 
 msgid "Unless it was declined with"
+msgstr ""
+
+msgid "Unlimited"
 msgstr ""
 
 msgid "Unmark selected client ignore"
@@ -9435,6 +9542,12 @@ msgstr ""
 msgid "Users, user groups and roles as id/name pairs. Each section is gated on that entity's own view permission -- user.view, usergroup.view, role.view -- and comes back EMPTY rather than 403 when the caller lacks it, so this route discloses nothing they could not already list. A caller holding none of the three can still save private filters; there is simply nobody they may name."
 msgstr ""
 
+msgid "Uses"
+msgstr ""
+
+msgid "Uses left"
+msgstr ""
+
 msgid "Using the group match function"
 msgstr ""
 
@@ -9537,6 +9650,9 @@ msgstr ""
 msgid "What this server itself trusts: FOG's root, plus any root imported below."
 msgstr ""
 
+msgid "What this token is for"
+msgstr ""
+
 msgid "What to do next"
 msgstr ""
 
@@ -9628,6 +9744,9 @@ msgid "Wipes"
 msgstr ""
 
 msgid "Within 30 days"
+msgstr ""
+
+msgid "Y-m-d H:i:s, server time."
 msgstr ""
 
 msgid "Yearly"

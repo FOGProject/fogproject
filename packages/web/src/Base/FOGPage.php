@@ -1273,6 +1273,12 @@ abstract class FOGPage extends FOGBase
                     'pendingAgents',
                     _('Pending Agents')
                 );
+                self::arrayInsertBefore(
+                    'export',
+                    $menu,
+                    'agentTokens',
+                    _('Agent Tokens')
+                );
                 break;
             case 'report':
                 // Two kinds of screen under one menu, labeled as two.

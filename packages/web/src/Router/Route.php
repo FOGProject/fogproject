@@ -1551,8 +1551,12 @@ class Route extends FOGBase
         // $unauthexact above; the other two are the admin's side of it.
         self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
         self::_registerRoute($r, 'POST', '/agent/v1/poll', [__CLASS__, 'agentPoll'], 'agentpoll');
+        self::_registerRoute($r, 'POST', '/agent/v1/renew', [__CLASS__, 'agentRenew'], 'agentrenew');
         self::_registerRoute($r, 'GET', '/agent/enrollments', [__CLASS__, 'agentEnrollments'], 'agentenrollments');
         self::_registerRoute($r, 'POST', '/agent/enrollment/[i:id]/[*:action]', [__CLASS__, 'agentEnrollmentDecide'], 'agentenrollmentdecide');
+        self::_registerRoute($r, 'GET', '/agent/tokens', [__CLASS__, 'agentTokens'], 'agenttokens');
+        self::_registerRoute($r, 'POST', '/agent/token', [__CLASS__, 'agentTokenMint'], 'agenttokenmint');
+        self::_registerRoute($r, 'DELETE', '/agent/token/[i:id]', [__CLASS__, 'agentTokenRevoke'], 'agenttokenrevoke');
         // Alias. swagger.json is the filename people and tooling reach
         // for first -- Swagger UI predates the OpenAPI rename and the
         // habit stuck. Same handler, same document, so neither name is
@@ -2903,6 +2907,45 @@ class Route extends FOGBase
         );
     }
     /**
+     * fog-agent's certificate renewal, over the certificate being renewed.
+     *
+     * The gate has already bound the caller to a host; the body carries a
+     * request for the same key and the answer is the enroll "issued" shape,
+     * so the agent stores it exactly as it stored the first one. Refusals
+     * are JSON with the reason: 400 for a request that is not for the bound
+     * key, 503 when the signing helper is not available.
+     *
+     * @return void
+     */
+    public static function agentRenew()
+    {
+        $Host = self::$agentHost;
+        $body = self::_jsonBody();
+        try {
+            $cert = \FOG\Agent\Enrollment::renew($Host, (string)($body['csr_pem'] ?? ''));
+        } catch (\RuntimeException $e) {
+            $code = (int)$e->getCode();
+            HTTPResponseCodes::breakHead(
+                $code >= 400 && $code <= 599 ? $code : HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode(['status' => 'error', 'error' => $e->getMessage()])
+            );
+            return;
+        }
+        // Re-read: renew() wrote the new expiry through the manager.
+        $Host = new Host((int)$Host->get('id'));
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_OK,
+            json_encode(
+                [
+                    'status' => 'issued',
+                    'host_id' => (int)$Host->get('id'),
+                    'certificate_pem' => $cert,
+                    'not_after' => (string)$Host->get('agentNotAfter')
+                ]
+            )
+        );
+    }
+    /**
      * The pending fog-agent enrollments, for the admin's list.
      *
      * The CSR is left out: it is large and the admin decides on the
@@ -2975,6 +3018,64 @@ class Route extends FOGBase
             'state' => (string)$Row->get('state'),
             'msg' => _('success')
         ];
+    }
+    /**
+     * The enrollment tokens, for the admin's list. Never the hash.
+     *
+     * @return void
+     */
+    public static function agentTokens()
+    {
+        self::$data = ['data' => \FOG\Agent\Token::rows(), 'msg' => _('success')];
+    }
+    /**
+     * Mints an enrollment token. The token is in this answer and nowhere
+     * else, ever: only its hash is stored.
+     *
+     * @return void
+     */
+    public static function agentTokenMint()
+    {
+        $body = self::_jsonBody();
+        try {
+            $minted = \FOG\Agent\Token::mint(
+                (string)($body['name'] ?? ''),
+                (int)($body['uses'] ?? 1),
+                (string)($body['expires'] ?? ''),
+                (string)self::$FOGUser->get('name')
+            );
+        } catch (\RuntimeException $e) {
+            $code = (int)$e->getCode();
+            self::sendResponse(
+                $code >= 400 && $code <= 599 ? $code : HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode(['error' => $e->getMessage()])
+            );
+            return;
+        }
+        self::$data = [
+            'id' => (int)$minted['row']->get('id'),
+            'name' => (string)$minted['row']->get('name'),
+            'token' => $minted['token'],
+            'expires' => (string)$minted['row']->get('expires'),
+            'msg' => _('success')
+        ];
+    }
+    /**
+     * Revokes an enrollment token.
+     *
+     * @param int $id the token row
+     *
+     * @return void
+     */
+    public static function agentTokenRevoke($id)
+    {
+        try {
+            \FOG\Agent\Token::revoke((int)$id, (string)self::$FOGUser->get('name'));
+        } catch (\RuntimeException $e) {
+            self::sendResponse(HTTPResponseCodes::HTTP_NOT_FOUND, json_encode(['error' => $e->getMessage()]));
+            return;
+        }
+        self::$data = ['id' => (int)$id, 'msg' => _('success')];
     }
     /**
      * Serves an OpenAPI description of this server's API.

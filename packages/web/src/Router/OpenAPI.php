@@ -2603,6 +2603,46 @@ class OpenAPI extends FOGBase
                     ]
                 )
             ],
+            '/agent/v1/renew' => [
+                'post' => self::_op(
+                    '',
+                    'agentrenew',
+                    _('FOG Agent certificate renewal'),
+                    _('Over the certificate being renewed: the same gate as '
+                        . 'poll binds the caller to its host, and the body '
+                        . 'carries a request for the same key. The answer is '
+                        . 'the enroll "issued" shape. A request for any other '
+                        . 'key is refused; a key change goes through enroll '
+                        . 'and an admin.'),
+                    [
+                        '200' => [
+                            'description' => _('The renewed certificate, leaf then chain.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['issued']],
+                                    'host_id' => ['type' => 'integer'],
+                                    'certificate_pem' => ['type' => 'string'],
+                                    'not_after' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('Not a certificate request, or one for a key other than the one this certificate proved.')],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '503' => ['description' => _('The signing helper is not available on this server.')]
+                    ],
+                    [],
+                    [
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['csr_pem'],
+                            'properties' => [
+                                'csr_pem' => ['type' => 'string']
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
             '/agent/enrollments' => [
                 'get' => self::_op(
                     '',
@@ -2620,6 +2660,79 @@ class OpenAPI extends FOGBase
                         ],
                         _('Pending enrollment rows.')
                     )
+                )
+            ],
+            '/agent/tokens' => [
+                'get' => self::_op(
+                    '',
+                    'agenttokens',
+                    _('Agent enrollment tokens'),
+                    _('Every enrollment token with its remaining uses and '
+                        . 'expiry, never the token itself. What the Agent '
+                        . 'Tokens page reads.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'data' => ['type' => 'array', 'items' => ['type' => 'object']],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('Token rows.')
+                    )
+                )
+            ],
+            '/agent/token' => [
+                'post' => self::_op(
+                    '',
+                    'agenttokenmint',
+                    _('Mint an agent enrollment token'),
+                    _('Returns the token exactly once; only its hash is '
+                        . 'stored. An expiry is required. uses is how many '
+                        . 'enrollments it approves, or -1 for unlimited '
+                        . 'until it expires. Audited as agent.token.'),
+                    [
+                        '200' => [
+                            'description' => _('The token.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'id' => ['type' => 'integer'],
+                                    'name' => ['type' => 'string'],
+                                    'token' => ['type' => 'string'],
+                                    'expires' => ['type' => 'string'],
+                                    'msg' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('A missing name, a bad use count, or an expiry that is not in the future.')]
+                    ],
+                    [],
+                    [
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['name', 'expires'],
+                            'properties' => [
+                                'name' => ['type' => 'string'],
+                                'uses' => ['type' => 'integer', 'default' => 1],
+                                'expires' => ['type' => 'string', 'description' => _('Y-m-d H:i:s, server time.')]
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/token/{id}' => [
+                'delete' => self::_op(
+                    '',
+                    'agenttokenrevoke',
+                    _('Revoke an agent enrollment token'),
+                    _('The row goes, so the token can never match again. '
+                        . 'Audited as agent.token.'),
+                    [
+                        '200' => ['description' => _('Revoked.')],
+                        '404' => ['description' => _('No such token.')]
+                    ],
+                    [self::_idParameter()]
                 )
             ],
             '/agent/enrollment/{id}/{action}' => [

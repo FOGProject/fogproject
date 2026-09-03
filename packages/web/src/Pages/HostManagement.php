@@ -720,6 +720,225 @@ class HostManagement extends FOGPage
         $this->jsonSend($code, $msg);
     }
     /**
+     * Agent enrollment tokens: mint, list, revoke.
+     *
+     * A token lets a machine enroll without an admin clicking (design 0001
+     * agent-based registration: the token goes onto the disk before first
+     * boot). It is shown exactly once, in the modal that answers the mint;
+     * the list only ever shows name, uses left and expiry.
+     *
+     * @return void
+     */
+    public function agentTokens()
+    {
+        if (false === self::$showhtml) {
+            return;
+        }
+        $this->title = _('Agent Enrollment Tokens');
+
+        $this->headerData = [
+            _('Name'),
+            _('State'),
+            _('Uses left'),
+            _('Expires'),
+            _('Created by'),
+            _('Created')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+
+        $buttons = self::makeButton(
+            'mint',
+            _('Create token'),
+            'btn btn-primary float-end'
+        );
+        $buttons .= self::makeButton(
+            'revoke',
+            _('Revoke selected'),
+            'btn btn-danger float-start'
+        );
+
+        $labelClass = 'col-sm-3 col-form-label';
+        $default = self::niceDate()->modify('+7 days')->format('Y-m-d\\TH:i');
+        $fields = [
+            self::makeLabel($labelClass, 'tokenName', _('Name'))
+            => self::makeInput('form-control', 'tokenName', _('What this token is for'), 'text', 'tokenName', '', true, false, -1, 191),
+            self::makeLabel($labelClass, 'tokenUses', _('Uses'))
+            => '<div class="input-group">'
+            . self::makeInput('form-control', 'tokenUses', '', 'number', 'tokenUses', '1', true, false, -1, -1, 'min="1"')
+            . '<div class="input-group-text">'
+            . self::makeInput('form-check-input mt-0', 'tokenUnlimited', '', 'checkbox', 'tokenUnlimited', '1')
+            . ' <label for="tokenUnlimited" class="ms-1">' . _('Unlimited') . '</label>'
+            . '</div></div>',
+            self::makeLabel($labelClass, 'tokenExpires', _('Expires'))
+            => self::makeInput('form-control', 'tokenExpires', '', 'datetime-local', 'tokenExpires', $default, true)
+        ];
+        $mintBody = '';
+        foreach ($fields as $label => $input) {
+            $mintBody .= '<div class="row mb-3">' . $label . '<div class="col-sm-9">' . $input . '</div></div>';
+        }
+        $mintBody .= '<p class="text-muted mb-0">'
+            . _('An expiry is required. The token approves enrollments until it is spent or expires; revoke it here at any time.')
+            . '</p>';
+        $modalMintBtns = self::makeButton(
+            'confirmMintModal',
+            _('Create'),
+            'btn btn-outline-secondary float-end'
+        );
+        $modalMintBtns .= self::makeButton(
+            'cancelMintModal',
+            _('Cancel'),
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
+        );
+        $mintModal = self::makeModal(
+            'mintModal',
+            _('Create Enrollment Token'),
+            $mintBody,
+            $modalMintBtns,
+            '',
+            'primary'
+        );
+
+        // The one time the token is on screen. Nothing on the server can
+        // show it again, and the modal says so.
+        $showBody = '<p>' . _('Copy it now. It is not stored and cannot be shown again.') . '</p>'
+            . '<div class="input-group">'
+            . self::makeInput('form-control font-monospace', 'mintedToken', '', 'text', 'mintedToken', '', false, false, -1, -1, 'readonly')
+            . self::makeButton('copyMintedToken', _('Copy'), 'btn btn-outline-secondary')
+            . '</div>'
+            . '<p class="mt-3 mb-0"><code>fog-agent enroll --server &lt;url&gt; --ca &lt;bundle&gt; --token &lt;token&gt;</code></p>';
+        $showModal = self::makeModal(
+            'showTokenModal',
+            _('Enrollment Token'),
+            $showBody,
+            self::makeButton('closeShowTokenModal', _('Done'), 'btn btn-outline-secondary float-end', 'data-bs-dismiss="modal"'),
+            '',
+            'success'
+        );
+
+        $modalRevokeBtns = self::makeButton(
+            'confirmRevokeModal',
+            _('Revoke'),
+            'btn btn-outline-secondary float-end'
+        );
+        $modalRevokeBtns .= self::makeButton(
+            'cancelRevokeModal',
+            _('Cancel'),
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
+        );
+        $revokeModal = self::makeModal(
+            'revokeModal',
+            _('Revoke Enrollment Tokens'),
+            _('A revoked token can never approve an enrollment again.'),
+            $modalRevokeBtns,
+            '',
+            'danger'
+        );
+
+        echo self::makeFormTag(
+            '',
+            'agent-token-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        $this->render(12, 'dataTable', $buttons);
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $mintModal;
+        echo $showModal;
+        echo $revokeModal;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Mints a token from the modal. Named create* so the permission is
+     * host.create: a token creates hosts.
+     *
+     * @return void
+     */
+    public function createAgentTokenAjax()
+    {
+        header('Content-type: application/json');
+        $uses = filter_input(INPUT_POST, 'tokenUnlimited')
+            ? \FOG\Agent\Token::UNLIMITED
+            : (int)filter_input(INPUT_POST, 'tokenUses');
+        // datetime-local sends 'Y-m-d\TH:i'; mint() wants a space.
+        $expires = str_replace('T', ' ', (string)filter_input(INPUT_POST, 'tokenExpires'));
+        try {
+            $minted = \FOG\Agent\Token::mint(
+                (string)filter_input(INPUT_POST, 'tokenName'),
+                $uses,
+                $expires,
+                (string)self::$FOGUser->get('name')
+            );
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $msg = json_encode(
+                [
+                    'msg' => _('Token created. Copy it now.'),
+                    'title' => _('Token Create Success'),
+                    'token' => $minted['token'],
+                    'name' => (string)$minted['row']->get('name')
+                ]
+            );
+        } catch (\RuntimeException $e) {
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Token Create Fail')
+                ]
+            );
+        }
+        $this->jsonSend($code, $msg);
+    }
+    /**
+     * Revokes the selected tokens. Named delete* so the permission is
+     * host.delete.
+     *
+     * @return void
+     */
+    public function deleteAgentTokensAjax()
+    {
+        header('Content-type: application/json');
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+        $items = filter_input_array(INPUT_POST, ['tokens' => $flags]);
+        $by = (string)self::$FOGUser->get('name');
+        $failed = [];
+        foreach (array_map('intval', (array)($items['tokens'] ?? [])) as $id) {
+            try {
+                \FOG\Agent\Token::revoke($id, $by);
+            } catch (\RuntimeException $e) {
+                $failed[] = sprintf('%d: %s', $id, $e->getMessage());
+            }
+        }
+        if (count($failed)) {
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $msg = json_encode(['error' => implode('; ', $failed), 'title' => _('Token Revoke Fail')]);
+        } else {
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $msg = json_encode(['msg' => _('Revoked selected tokens.'), 'title' => _('Token Revoke Success')]);
+        }
+        $this->jsonSend($code, $msg);
+    }
+    /**
      * Builds the enforce checkbox together with its explanatory help text.
      *
      * The group page states what this setting actually does in the header of
@@ -5827,6 +6046,18 @@ class HostManagement extends FOGPage
     public function getPendingAgentList()
     {
         Route::agentEnrollments();
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * The agent token grid's rows: the same whitelisted shape the admin
+     * JSON route serves, paged client-side.
+     *
+     * @return void
+     */
+    public function getAgentTokenList()
+    {
+        Route::agentTokens();
         echo Route::getData();
         exit;
     }

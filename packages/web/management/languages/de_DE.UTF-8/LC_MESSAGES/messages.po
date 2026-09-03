@@ -485,6 +485,9 @@ msgstr "Dieser Benutzername ist bereits vorhanden!"
 msgid "A migration step failed. The plugin is left activated and not marked installed."
 msgstr ""
 
+msgid "A missing name, a bad use count, or an expiry that is not in the future."
+msgstr ""
+
 #, fuzzy
 msgid "A module already exists with this name!"
 msgstr "Eine Rolle mit diesem Namen ist bereits vorhanden!"
@@ -526,6 +529,9 @@ msgstr "Ein Drucker mit diesem Namen ist bereits vorhanden!"
 
 #, php-format
 msgid "A request is pending since %s for %s."
+msgstr ""
+
+msgid "A revoked token can never approve an enrollment again."
 msgstr ""
 
 #, fuzzy
@@ -1030,6 +1036,18 @@ msgstr "Host erfolgreich erstellt"
 msgid "Agent Denial Success"
 msgstr "Drucker aktualisiert!"
 
+#, fuzzy
+msgid "Agent Enrollment Tokens"
+msgstr "wurde abgebrochen"
+
+#, fuzzy
+msgid "Agent Tokens"
+msgstr "API-Zugangstoken"
+
+#, fuzzy
+msgid "Agent enrollment tokens"
+msgstr "wurde abgebrochen"
+
 msgid "Ago must be boolean"
 msgstr "Ago muss boolean sein"
 
@@ -1159,6 +1177,9 @@ msgstr ""
 #, fuzzy
 msgid "An entry already exists with this name!"
 msgstr "Dieser Benutzername ist bereits vorhanden!"
+
+msgid "An expiry is required. The token approves enrollments until it is spent or expires; revoke it here at any time."
+msgstr ""
 
 msgid "An image already exists with this name!"
 msgstr "Ein Image mit diesem Namen ist bereits vorhanden!"
@@ -2026,9 +2047,15 @@ msgstr "Fehler: Herunterladen des Kernels fehlgeschlagen"
 msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
 msgstr ""
 
+msgid "Copy"
+msgstr ""
+
 #, fuzzy
 msgid "Copy from existing"
 msgstr "Kopie von bereits existierenden"
+
+msgid "Copy it now. It is not stored and cannot be shown again."
+msgstr ""
 
 msgid "Copy this token now"
 msgstr ""
@@ -2203,6 +2230,9 @@ msgstr ""
 msgid "Create"
 msgstr "Erstellen"
 
+msgid "Create Enrollment Token"
+msgstr ""
+
 msgid "Create Immediate Power task"
 msgstr ""
 
@@ -2359,6 +2389,10 @@ msgid "Create tasking succeeded"
 msgstr ""
 
 #, fuzzy
+msgid "Create token"
+msgstr "Neue %s erstellen"
+
+#, fuzzy
 msgid "Created"
 msgstr "Erstellen"
 
@@ -2367,6 +2401,10 @@ msgstr "Erstellt von"
 
 #, fuzzy
 msgid "Created Time"
+msgstr "Erstellt von"
+
+#, fuzzy
+msgid "Created by"
 msgstr "Erstellt von"
 
 msgid "Created by FOG Reg on"
@@ -2904,6 +2942,10 @@ msgstr ""
 msgid "Enrolled certificate must be a SHA-256 fingerprint (64 hex characters)"
 msgstr ""
 
+#, fuzzy
+msgid "Enrollment Token"
+msgstr "Pushbullet Accounts"
+
 msgid "Enrollment kit"
 msgstr ""
 
@@ -3010,6 +3052,9 @@ msgstr ""
 msgid "Every enrollment still waiting for a decision, without the CSR. What the Pending Agents page reads."
 msgstr ""
 
+msgid "Every enrollment token with its remaining uses and expiry, never the token itself. What the Agent Tokens page reads."
+msgstr ""
+
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "Keine Datei wurde hochgeladen"
@@ -3111,6 +3156,10 @@ msgstr ""
 
 msgid "FOG"
 msgstr "FOG"
+
+#, fuzzy
+msgid "FOG Agent certificate renewal"
+msgstr "Keine Datei wurde hochgeladen"
 
 #, fuzzy
 msgid "FOG Agent enrollment"
@@ -5898,6 +5947,10 @@ msgstr "Mitternacht"
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
+#, fuzzy
+msgid "Mint an agent enrollment token"
+msgstr "Ausstehende registrierte Hosts"
+
 msgid "Minute value is not valid"
 msgstr "Minutenwert ist nicht gültig"
 
@@ -6451,6 +6504,9 @@ msgstr ""
 msgid "No such object."
 msgstr ""
 
+msgid "No such token."
+msgstr ""
+
 msgid "No such user."
 msgstr ""
 
@@ -6543,6 +6599,9 @@ msgstr "Icon-Datei nicht gefunden"
 
 msgid "Not Registered Hosts"
 msgstr "Nicht registrierte Hosts"
+
+msgid "Not a certificate request, or one for a key other than the one this certificate proved."
+msgstr ""
 
 msgid "Not a number"
 msgstr "Keine Zahl"
@@ -6863,6 +6922,9 @@ msgid "Outcome"
 msgstr ""
 
 msgid "Over a year"
+msgstr ""
+
+msgid "Over the certificate being renewed: the same gate as poll binds the caller to its host, and the body carries a request for the same key. The answer is the enroll \"issued\" shape. A request for any other key is refused; a key change goes through enroll and an admin."
 msgstr ""
 
 msgid "PLUGIN OPTIONS"
@@ -7887,7 +7949,31 @@ msgstr "Rückgabewert"
 msgid "Returning value of key"
 msgstr "Wert des Schlüssels zurückgeben"
 
+msgid "Returns the token exactly once; only its hash is stored. An expiry is required. uses is how many enrollments it approves, or -1 for unlimited until it expires. Audited as agent.token."
+msgstr ""
+
 msgid "Reverse"
+msgstr ""
+
+msgid "Revoke"
+msgstr ""
+
+msgid "Revoke Enrollment Tokens"
+msgstr ""
+
+#, fuzzy
+msgid "Revoke an agent enrollment token"
+msgstr "Ausstehende registrierte Hosts"
+
+#, fuzzy
+msgid "Revoke selected"
+msgstr "Ausgewählte entfernen "
+
+#, fuzzy
+msgid "Revoked selected tokens."
+msgstr "Ausgewählten MAcs freigeben"
+
+msgid "Revoked."
 msgstr ""
 
 #, fuzzy
@@ -9924,6 +10010,10 @@ msgstr ""
 msgid "The record could not be written."
 msgstr "Temporäre Datei konnte nicht gelesen werden."
 
+#, fuzzy
+msgid "The renewed certificate, leaf then chain."
+msgstr "Neuen Standort erstellen"
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -9931,6 +10021,9 @@ msgid "The root CA has been imported and this server now trusts it."
 msgstr ""
 
 msgid "The root CA has been imported, but this host's system trust store could not be updated -- so HTTPS calls made on this server will not accept it yet. Re-run the installer, and check the installation log."
+msgstr ""
+
+msgid "The row goes, so the token can never match again. Audited as agent.token."
 msgstr ""
 
 msgid "The same rules in prose, for a client reading this at runtime."
@@ -9967,6 +10060,10 @@ msgid "The signer is unavailable; nothing changed."
 msgstr ""
 
 #, fuzzy
+msgid "The signing helper is not available on this server."
+msgstr "Es gibt keine Gruppen auf diesem Server."
+
+#, fuzzy
 msgid "The signing request could not be generated"
 msgstr "Temporäre Datei konnte nicht gelesen werden."
 
@@ -9982,9 +10079,12 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
+
+#, fuzzy
+msgid "The token."
+msgstr "CPU-Anzahl"
 
 msgid "The trust anchor, published as ca.cert.der. Every fog-client pins this one."
 msgstr ""
@@ -10341,7 +10441,29 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "Regel Zuordnung"
 
+#, fuzzy
+msgid "Token Create Fail"
+msgstr "Drucker erstellen fehlgeschlagen!"
+
+#, fuzzy
+msgid "Token Create Success"
+msgstr "Drucker hinzufügen erfolgreich."
+
+#, fuzzy
+msgid "Token Revoke Fail"
+msgstr "FTP-Verbindung fehlgeschlagen"
+
+#, fuzzy
+msgid "Token Revoke Success"
+msgstr "Drucker hinzufügen erfolgreich."
+
+msgid "Token created. Copy it now."
+msgstr ""
+
 msgid "Token or user:pass (optional)"
+msgstr ""
+
+msgid "Token rows."
 msgstr ""
 
 #, fuzzy
@@ -10611,6 +10733,9 @@ msgid "Unknown upload error occurred"
 msgstr "Ein unbekannter Upload-Fehler ist aufgetreten"
 
 msgid "Unless it was declined with"
+msgstr ""
+
+msgid "Unlimited"
 msgstr ""
 
 #, fuzzy
@@ -10984,6 +11109,12 @@ msgstr "Benutzer"
 msgid "Users, user groups and roles as id/name pairs. Each section is gated on that entity's own view permission -- user.view, usergroup.view, role.view -- and comes back EMPTY rather than 403 when the caller lacks it, so this route discloses nothing they could not already list. A caller holding none of the three can still save private filters; there is simply nobody they may name."
 msgstr ""
 
+msgid "Uses"
+msgstr ""
+
+msgid "Uses left"
+msgstr ""
+
 msgid "Using the group match function"
 msgstr "Verwenden der Gruppenübereinstimmungsfunktion,"
 
@@ -11097,6 +11228,9 @@ msgstr ""
 msgid "What this server itself trusts: FOG's root, plus any root imported below."
 msgstr ""
 
+msgid "What this token is for"
+msgstr ""
+
 msgid "What to do next"
 msgstr ""
 
@@ -11203,6 +11337,9 @@ msgid "Wipes"
 msgstr ""
 
 msgid "Within 30 days"
+msgstr ""
+
+msgid "Y-m-d H:i:s, server time."
 msgstr ""
 
 msgid "Yearly"
@@ -13062,10 +13199,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "Dieser Host ist bereits vorhanden."
-
-#, fuzzy
-#~ msgid "The certificate chain"
-#~ msgstr "Neuen Standort erstellen"
 
 #, fuzzy
 #~ msgid "There are no "
