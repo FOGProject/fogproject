@@ -47,8 +47,15 @@ class State extends FOGBase
      * Capability name => the legacy module short name that switches it.
      */
     const CAPABILITIES = [
-        'hostname' => 'hostnamechanger'
+        'hostname' => 'hostnamechanger',
+        'taskreboot' => 'taskreboot'
     ];
+
+    /**
+     * Results the agent reports that are not a capability of their own:
+     * the reboot coordinator's decisions (design 0001 section 6).
+     */
+    const RESULT_SOURCES = ['reboot'];
 
     /**
      * What the agent may report for one capability.
@@ -99,6 +106,30 @@ class State extends FOGBase
                 'enforce' => (bool)$Host->get('enforce')
             ];
         }
+        if (in_array('taskreboot', $capabilities, true)) {
+            // What Client\Jobs answers the old client: a task in a state
+            // that needs the machine to boot into FOS. Present only while
+            // one waits, so queueing or canceling a task moves the
+            // revision and the agent fetches the change on its next poll.
+            $Task = $Host->get('task');
+            $state['task'] = null;
+            if ($Task->isValid() && $Task->isInitNeededTasking()) {
+                $state['task'] = [
+                    'id' => (int)$Task->get('id'),
+                    'type' => (string)$Task->getTaskTypeText(),
+                    // FOG_TASK_FORCE_REBOOT: reboot for the task even
+                    // with users logged in.
+                    'force' => (bool)self::getSetting('FOG_TASK_FORCE_REBOOT')
+                ];
+            }
+        }
+        if (count($capabilities) > 0) {
+            // The policy every reboot obeys, whatever asked for it:
+            // FOG_GRACE_TIMEOUT is the warning logged-in users get.
+            $state['reboot'] = [
+                'grace' => (int)self::getSetting('FOG_GRACE_TIMEOUT')
+            ];
+        }
         $state['revision'] = self::revision($state);
         return $state;
     }
@@ -130,7 +161,9 @@ class State extends FOGBase
     public static function result(Host $Host, array $body)
     {
         $capability = (string)($body['capability'] ?? '');
-        if (!isset(self::CAPABILITIES[$capability])) {
+        if (!isset(self::CAPABILITIES[$capability])
+            && !in_array($capability, self::RESULT_SOURCES, true)
+        ) {
             throw new \RuntimeException('unknown capability', 400);
         }
         $status = (string)($body['status'] ?? '');

@@ -2626,6 +2626,21 @@ class OpenAPI extends FOGBase
                                             'name' => ['type' => 'string'],
                                             'enforce' => ['type' => 'boolean']
                                         ]
+                                    ],
+                                    'task' => [
+                                        'type' => 'object',
+                                        'nullable' => true,
+                                        'properties' => [
+                                            'id' => ['type' => 'integer'],
+                                            'type' => ['type' => 'string'],
+                                            'force' => ['type' => 'boolean']
+                                        ]
+                                    ],
+                                    'reboot' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'grace' => ['type' => 'integer']
+                                        ]
                                     ]
                                 ]
                             ]]]
