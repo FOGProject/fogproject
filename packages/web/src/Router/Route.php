@@ -943,6 +943,19 @@ class Route extends FOGBase
                     json_encode(['error' => 'client certificate required'])
                 );
             }
+            // A bound agent is a machine principal. The site boundary
+            // answers "which objects may THIS USER see", and this request
+            // has no user by design, so without the declaration every
+            // scoped read under the prefix -- the host's own task, its
+            // group grants -- answers empty on a server with sites
+            // configured (Authorization::_hasNoPrincipal). Declared here,
+            // AFTER the certificate bound a host, for the reason
+            // service/*.php declare it at the top of the file: it is a
+            // positive statement about the entry point, never an
+            // inference from a missing user, so a route that lost its 401
+            // still would not get it. Every handler under the prefix
+            // reads through self::$agentHost and nothing else.
+            define('FOG_MACHINE_REQUEST', true);
             // Authenticated by certificate: the token and session tests
             // below are for humans and API tokens and would only 401 it.
             $isunauth = true;
