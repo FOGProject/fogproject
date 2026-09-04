@@ -55,6 +55,12 @@ class State extends FOGBase
         'snapin' => 'snapinclient',
         'software' => 'software',
         'power' => 'powermanagement',
+        // Both halves of the hostnamechanger module, kept apart on the wire
+        // because they are different acts with different blast radii: a
+        // rename touches this machine, a domain join touches somebody's
+        // directory and carries a credential. An admin who has turned the
+        // module off has turned off both, which is what they meant.
+        'directory' => 'hostnamechanger',
         // Gated on the EXISTING printermanager module, not a new switch:
         // admins have been turning that one off for a decade and know
         // where it is, so a host's current choice carries over untouched
@@ -80,6 +86,13 @@ class State extends FOGBase
         'snapin' => Snapins::class,
         'software' => SoftwareSet::class,
         'printers' => PrinterSet::class,
+        // The row here is the host's own membership, and the agent
+        // addresses it by the only id it knows: its host id. Deliberately
+        // an ITEM report and not a shape of its own -- the outer `status`
+        // is the capability's applied/failed, and a join has its own
+        // vocabulary (joined, refused, unsupported) that needs somewhere to
+        // live that is not that field.
+        'directory' => DirectoryJoin::class,
     ];
 
     /**
@@ -206,6 +219,17 @@ class State extends FOGBase
             // different things about one host. Results do not touch it, so
             // a reporting host does not move its own revision.
             $state['printers'] = PrinterSet::desired($Host);
+        }
+        if (in_array('directory', $capabilities, true)) {
+            // Design 0009 section 6, and the only block that ever carries a
+            // credential. Null for nearly every host, and every reason for
+            // null is a reason not to put a join account on a machine --
+            // see DirectoryJoin::desired(). Omitted entirely when null so
+            // the wire says nothing rather than saying "no credential".
+            $directory = DirectoryJoin::desired($Host);
+            if (null !== $directory) {
+                $state['directory'] = $directory;
+            }
         }
         if (in_array('power', $capabilities, true)) {
             // Design 0004. Schedules are what Client\PM hands the legacy

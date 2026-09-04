@@ -283,7 +283,25 @@ class DirectoryPlacement extends FOGBase
      */
     private static function _bindPassword()
     {
-        $pass = trim((string)self::getSetting('FOG_DIRECTORY_BIND_PASSWORD'));
+        return self::decodeStored(
+            (string)self::getSetting('FOG_DIRECTORY_BIND_PASSWORD')
+        );
+    }
+
+    /**
+     * One of FOG's stored secrets, as it was typed.
+     *
+     * Public because DirectoryJoin reads the host's `hostADPass` with the
+     * same three shapes and the same trap; a third copy of the dance is how
+     * the buggy version in `Client\HostnameChanger` came to exist.
+     *
+     * @param string $stored what the column or setting holds
+     *
+     * @return string
+     */
+    public static function decodeStored($stored)
+    {
+        $pass = trim((string)$stored);
         if ('' === $pass) {
             return '';
         }

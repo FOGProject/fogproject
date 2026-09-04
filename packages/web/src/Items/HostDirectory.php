@@ -59,7 +59,9 @@ class HostDirectory extends FOGController
         'site' => 'hdSite',
         'observedAt' => 'hdObservedAt',
         'placementAt' => 'hdPlacementAt',
-        'placementError' => 'hdPlacementError'
+        'placementError' => 'hdPlacementError',
+        'joinAt' => 'hdJoinAt',
+        'joinError' => 'hdJoinError'
     ];
     /**
      * The required fields.

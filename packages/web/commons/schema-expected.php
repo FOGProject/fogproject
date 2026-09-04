@@ -391,7 +391,7 @@ return [
             ],
         ],
         'hostDirectory' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hostDirectory` ( `hdID` int(11) NOT NULL AUTO_INCREMENT, `hdHostID` int(11) NOT NULL, `hdJoined` tinyint(1) NOT NULL DEFAULT 0, `hdKind` varchar(32) NOT NULL DEFAULT \'\', `hdDomain` varchar(255) NOT NULL DEFAULT \'\', `hdNetbios` varchar(64) NOT NULL DEFAULT \'\', `hdComputerDN` varchar(1024) NOT NULL DEFAULT \'\', `hdMachineAccount` varchar(255) NOT NULL DEFAULT \'\', `hdSite` varchar(255) NOT NULL DEFAULT \'\', `hdObservedAt` datetime DEFAULT NULL, `hdPlacementAt` datetime DEFAULT NULL, `hdPlacementError` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`hdID`), UNIQUE KEY `hdHostID` (`hdHostID`), KEY `hdDomain` (`hdDomain`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostDirectory` ( `hdID` int(11) NOT NULL AUTO_INCREMENT, `hdHostID` int(11) NOT NULL, `hdJoined` tinyint(1) NOT NULL DEFAULT 0, `hdKind` varchar(32) NOT NULL DEFAULT \'\', `hdDomain` varchar(255) NOT NULL DEFAULT \'\', `hdNetbios` varchar(64) NOT NULL DEFAULT \'\', `hdComputerDN` varchar(1024) NOT NULL DEFAULT \'\', `hdMachineAccount` varchar(255) NOT NULL DEFAULT \'\', `hdSite` varchar(255) NOT NULL DEFAULT \'\', `hdObservedAt` datetime DEFAULT NULL, `hdPlacementAt` datetime DEFAULT NULL, `hdPlacementError` varchar(255) NOT NULL DEFAULT \'\', `hdJoinAt` datetime DEFAULT NULL, `hdJoinError` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`hdID`), UNIQUE KEY `hdHostID` (`hdHostID`), KEY `hdDomain` (`hdDomain`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hdID' => 'int(11) NOT NULL',
                 'hdHostID' => 'int(11) NOT NULL',
@@ -404,7 +404,9 @@ return [
                 'hdSite' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'hdObservedAt' => 'datetime DEFAULT NULL',
                 'hdPlacementAt' => 'datetime DEFAULT NULL',
-                'hdPlacementError' => 'varchar(255) NOT NULL DEFAULT \'\''
+                'hdPlacementError' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hdJoinAt' => 'datetime DEFAULT NULL',
+                'hdJoinError' => 'varchar(255) NOT NULL DEFAULT \'\''
             ],
         ],
         'hostFactState' => [

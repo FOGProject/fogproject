@@ -69,11 +69,12 @@ class Directory_Membership extends ReportManagement
             _('Observed OU'),
             _('Drift'),
             _('Placement'),
+            _('Join'),
             _('Reported'),
             _('Last check-in')
         ];
         $this->attributes = [
-            [], [], [], [], [], [], [], [], []
+            [], [], [], [], [], [], [], [], [], []
         ];
 
         $payload = $this->reportRows();
@@ -135,7 +136,9 @@ class Directory_Membership extends ReportManagement
                        `hdComputerDN`,
                        `hdObservedAt`,
                        `hdPlacementAt`,
-                       `hdPlacementError`
+                       `hdPlacementError`,
+                       `hdJoinAt`,
+                       `hdJoinError`
                   FROM `hosts`
                   LEFT OUTER JOIN `hostDirectory` ON `hdHostID` = `hostID`
                  WHERE `hostUseAD` = 1
@@ -177,6 +180,7 @@ class Directory_Membership extends ReportManagement
                     $reported
                 ),
                 'placement' => self::placement($row),
+                'join' => self::join($row),
                 'observedAt' => (string)($row['hdObservedAt'] ?? ''),
                 'checkin' => (string)($row['hostAgentCheckin'] ?? '')
             ];
@@ -233,6 +237,34 @@ class Directory_Membership extends ReportManagement
         if ('' === trim((string)($row['hdPlacementAt'] ?? ''))) {
             // Never consulted: placement is off, or this host has never
             // needed it. Neither is a problem to report.
+            return '';
+        }
+        return _('ok');
+    }
+    /**
+     * What the agent last did about joining this host.
+     *
+     * The counterpart to the Placement column and it exists for the same
+     * reason: a join that fails leaves a Drift value that never clears,
+     * which reads like the feature does not work rather than like a
+     * password needs correcting. FOG has never shown this at all -- the
+     * legacy client attempts a join on every check-in and reports nothing
+     * either way, so an admin's only evidence is the machine still not
+     * being in the domain a week later.
+     *
+     * @param array $row the joined row
+     *
+     * @return string
+     */
+    protected static function join(array $row)
+    {
+        $error = trim((string)($row['hdJoinError'] ?? ''));
+        if ('' !== $error) {
+            return $error;
+        }
+        if ('' === trim((string)($row['hdJoinAt'] ?? ''))) {
+            // Never attempted: the host is already joined, or it has never
+            // reported, or nothing has needed doing. Not a problem.
             return '';
         }
         return _('ok');

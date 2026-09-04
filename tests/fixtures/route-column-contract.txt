@@ -127,6 +127,8 @@ hostdirectory	10	hdSite	site	-	-
 hostdirectory	11	hdObservedAt	observedAt	-	-
 hostdirectory	12	hdPlacementAt	placementAt	-	-
 hostdirectory	13	hdPlacementError	placementError	-	-
+hostdirectory	14	hdJoinAt	joinAt	-	-
+hostdirectory	15	hdJoinError	joinError	-	-
 hostfactstate	0	hfsID	id	-	-
 hostfactstate	1	hfsID	DT_RowId	f	-
 hostfactstate	2	hfsHostID	hostID	-	-

@@ -11357,3 +11357,30 @@ $this->schema[] = [
     "ALTER TABLE `printers` "
     . "ADD COLUMN `pURI` varchar(1024) NOT NULL DEFAULT ''",
 ];
+
+// 428
+$this->schema[] = [
+    // Design 0009 section 6: the agent joins a machine to the domain the
+    // host record asks for, and what happened is recorded here.
+    //
+    // These two columns are the whole reason the join is safe to automate.
+    // A join that fails on a bad password is a FAILED AUTHENTICATION
+    // against somebody's domain controller, and without a stamp to hold a
+    // cooldown against it is one per host per poll -- which is how a
+    // service account with a lockout policy gets locked out, taking every
+    // other host's join with it. `hdJoinAt` is what
+    // Agent\DirectoryJoin::RETRY_AFTER reads.
+    //
+    // Named for the ATTEMPT, like hdPlacementAt beside it: this is stamped
+    // whenever the agent acted, so a name like hdJoinedAt would claim a
+    // join happened on every occasion one did not.
+    //
+    // Deliberately separate from hdPlacementAt/hdPlacementError rather than
+    // reusing them. They are different operations by different actors --
+    // the machine joins, the server moves -- and a report that showed one
+    // error against both would be a report that lies about which half is
+    // broken.
+    "ALTER TABLE `hostDirectory` "
+    . "ADD COLUMN `hdJoinAt` datetime DEFAULT NULL, "
+    . "ADD COLUMN `hdJoinError` varchar(255) NOT NULL DEFAULT ''",
+];

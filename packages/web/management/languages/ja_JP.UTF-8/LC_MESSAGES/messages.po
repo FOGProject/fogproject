@@ -5113,6 +5113,10 @@ msgid "It will operate based on the fields the area typcially requires."
 msgstr "通常その領域で必要とされるフィールドに基づいて動作します"
 
 #, fuzzy
+msgid "Join"
+msgstr "AD 参加"
+
+#, fuzzy
 msgid "Join Domain after image task"
 msgstr "展開後にドメイン参加"
 
@@ -12501,9 +12505,6 @@ msgstr ""
 
 #~ msgid "A subnetgroup already exists with this name!"
 #~ msgstr "この名前のサブネットグループは既に存在します！"
-
-#~ msgid "AD Join"
-#~ msgstr "AD 参加"
 
 #~ msgid "AD OU"
 #~ msgstr "AD OU"
