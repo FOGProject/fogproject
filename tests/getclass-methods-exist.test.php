@@ -19,6 +19,14 @@
  * Nothing here is FOG-specific beyond the seam: it is the check the language
  * would give us for free if the class name were not a string.
  *
+ * Which is why the seam is closing. ADR 0043 retired the literal getClass()
+ * across core and fog-plugins, so a name is spelled at the call site where
+ * the language checks it for free. What is left for this test is the bundled
+ * plugin artifacts under packages/web/lib/plugins on a real install, which
+ * lag a plugin release behind the source -- so it finds call sites there and
+ * none in packages/web/src, and finds none at all in CI, which does not
+ * fetch them. Retire it once no shipped plugin build predates that sweep.
+ *
  * Parsed with token_get_all rather than a regex, so an argument list that
  * contains parentheses -- getClass('Host', self::something($x)) -- is matched
  * to its real closing paren instead of the first one.
@@ -178,10 +186,24 @@ foreach ($unresolved as $u) {
     fwrite(STDERR, "    unresolved: $u\n");
 }
 
+/*
+ * Anchored on FILES rather than on call sites, and that is the whole point
+ * of ADR 0043: the literals this test inspects are being eliminated, so
+ * counting them would turn every success into a step toward a failure. A
+ * source checkout now has none in packages/web/src at all, and CI never runs
+ * bin/fetch-plugins.sh, so packages/web/lib/plugins -- where the remaining
+ * ones live, in bundled artifacts built before the sweep -- is absent there
+ * and $checked is legitimately 0.
+ *
+ * What still has to hold is that the scan READ something. A bad root, a
+ * broken tokenizer loop or a filter that matches nothing all show up here,
+ * and all of them would otherwise let the check above pass for the wrong
+ * reason.
+ */
 $t->check(
-    'and the check actually reached something -- a scan that resolves nothing'
+    'and the scan actually reached the tree -- a scan that reads nothing'
         . ' passes the check above for the wrong reason',
-    $checked > 50
+    count($files) > 50
 );
 
 $t->finish();
