@@ -13,6 +13,54 @@ parameters:
 			path: tests/activity-sources.test.php
 
 		-
+			message: '#^Offset ''directory'' on array\{inventory\: ''FOG\\\\Agent\\\\InventoryFacts'', software\: ''FOG\\\\Agent\\\\SoftwareFacts'', directory\: ''FOG\\\\Agent\\\\DirectoryFacts''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Offset ''directory_membership'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', software_report\: ''software'', fleet_report\: ''host'', hardware_report\: ''host'', installed_software\: ''host'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''FOG\\\\Agent\\\\DirectoryFacts'' and ''FOG\\\\Agent\\\\DirectoryFacts'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''host'' and ''host'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\{''ad'', ''entra'', ''workgroup'', ''none''\} and array\{''ad'', ''entra'', ''workgroup'', ''none''\} will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''inferred'', array\{''logout'', ''disconnect'', ''service_stop''\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/agent-user-sessions.test.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''FOG\\\\Agent\\\\State'' and ''sessions'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/agent-user-sessions.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''usertracker'' and ''usertracker'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-user-sessions.test.php
+
+		-
 			message: '#^Call to new Initiator\(\) on a separate line has no effect\.$#'
 			identifier: new.resultUnused
 			count: 1
