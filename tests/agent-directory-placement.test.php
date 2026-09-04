@@ -337,6 +337,36 @@ $t->check(
     '' === \FOG\Net\FOGLdap::parentDn('CN=WS-014')
 );
 
+// ------------------------------------------------------------- the lookup
+
+$m = new \ReflectionMethod(\FOG\Agent\DirectoryFacts::class, 'row');
+$m->setAccessible(true);
+$looked = null;
+$lookupError = '';
+try {
+    $looked = $m->invoke(null, 4242);
+} catch (\Throwable $e) {
+    $lookupError = get_class($e) . ': ' . $e->getMessage();
+}
+
+$t->check(
+    'the row lookup runs at all. It shipped calling'
+        . ' HostDirectoryManager::find(), which does not exist --'
+        . ' FOGManagerController is the read side of the route layer, not a'
+        . ' repository -- and because report() is reached only when a host'
+        . ' sends a directory block, and no agent had ever sent one, the'
+        . ' fatal sat there undetected through a full test suite, a deploy'
+        . ' and a review. Anything that CALLS it catches that'
+        . ('' === $lookupError ? '' : '; got ' . $lookupError),
+    $looked instanceof \FOG\Items\HostDirectory
+);
+
+$t->check(
+    'and an unknown host gets a new row carrying its id, not a null',
+    $looked instanceof \FOG\Items\HostDirectory
+        && 4242 === (int)$looked->get('hostID')
+);
+
 // ------------------------------------------------------- the bind password
 
 /**
@@ -349,7 +379,7 @@ $t->check(
 function bindPasswordFor($stored)
 {
     settings(['FOG_DIRECTORY_BIND_PASSWORD' => $stored]);
-    $m = new ReflectionMethod(
+    $m = new \ReflectionMethod(
         \FOG\Agent\DirectoryPlacement::class,
         '_bindPassword'
     );

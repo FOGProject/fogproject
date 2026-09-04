@@ -16,6 +16,7 @@ namespace FOG\Agent;
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
 use FOG\Items\Host;
+use FOG\Router\Route;
 
 /**
  * Writes a reported membership block onto the host's `hostDirectory` row
@@ -200,15 +201,22 @@ class DirectoryFacts extends FOGBase
      */
     protected static function row($hostID)
     {
-        $found = self::getClass('HostDirectoryManager')
-            ->find(['hostID' => (int)$hostID], '', '', '', '', '', 1);
-        $Directory = array_shift($found);
-        if ($Directory instanceof \FOG\Items\HostDirectory
-            && $Directory->isValid()
-        ) {
-            return $Directory;
+        // Route::getIds, the way State::_factStateID looks up its own row.
+        // FOGManagerController has no find(); a manager is the read side of
+        // the route layer, not a repository.
+        $ids = Route::getIds(
+            'hostdirectory',
+            ['hostID' => (int)$hostID],
+            'id'
+        );
+        $id = (int)(array_shift($ids) ?: 0);
+        if ($id > 0) {
+            $Directory = new \FOG\Items\HostDirectory($id);
+            if ($Directory->isValid()) {
+                return $Directory;
+            }
         }
-        return self::getClass('HostDirectory')->set('hostID', (int)$hostID);
+        return (new \FOG\Items\HostDirectory())->set('hostID', (int)$hostID);
     }
 
     /**
