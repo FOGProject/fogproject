@@ -339,11 +339,15 @@ $check(
  * holds rather than ints that happen to compare equal.
  *
  * host 10: three direct printers, one of them the default -> direct wins.
- *          The two that are NOT the default carry '0' and '' respectively,
- *          which are both spellings a 1.5-origin varchar(2) column really
- *          holds. A comparison loose enough to read either as truthy makes
- *          the FIRST printer the default, which is a wrong answer nothing
- *          would report.
+ *          The two that are NOT the default carry '0' and 0. It used to be
+ *          '0' and '', the two spellings a 1.5-origin varchar(2) really
+ *          held, but schema step 426 normalizes '' to '0' and then MODIFYs
+ *          the column to tinyint(1) -- so '' is no longer a value this
+ *          column can hold, and seeding it is refused outright by MariaDB
+ *          in strict mode rather than exercising anything. The check that
+ *          remains is the one that still can fail: a comparison loose
+ *          enough to read a quoted '0' as truthy makes the FIRST printer
+ *          the default, which is a wrong answer nothing would report.
  * host 11: no direct printers; group 4 (alpha, first) names no default,
  *          group 5 (beta) does -> beta's default, and only because alpha
  *          declined it.
@@ -351,7 +355,7 @@ $check(
  */
 $pdo->exec(
     "INSERT INTO `printerAssoc` (`paID`,`paHostID`,`paPrinterID`,`paIsDefault`) "
-    . "VALUES (1,10,900,'0'),(2,10,901,'1'),(3,10,902,'')"
+    . "VALUES (1,10,900,'0'),(2,10,901,'1'),(3,10,902,0)"
 );
 $pdo->exec(
     "INSERT INTO `groupPrinterAssoc` "
