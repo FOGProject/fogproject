@@ -22,7 +22,9 @@ host	snapinjob	hostID
 host	snapintask	jobID
 host	task	hostID
 hostautologout	(nothing)	
+hostfactstate	(nothing)	
 hostscreensetting	(nothing)	
+hostsoftware	(nothing)	
 image	imageassociation	imageID
 imageassociation	(nothing)	
 imagepartitiontype	(nothing)	

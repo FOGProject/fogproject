@@ -211,6 +211,12 @@ const TABLE = [
     'State' => 'Agent',
     'Snapins' => 'Agent',
     'SoftwareSet' => 'Agent',
+    // The two writers for what an agent reports about its own host
+    // (design 0006). Named *Facts rather than Inventory and Software
+    // because both of those already name an Items class -- these write
+    // those rows, they are not those rows.
+    'InventoryFacts' => 'Agent',
+    'SoftwareFacts' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',

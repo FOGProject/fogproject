@@ -2567,7 +2567,12 @@ class OpenAPI extends FOGBase
                         . 'current or it asked for it. The revision is '
                         . 'opaque: compared for equality, never parsed. A '
                         . 'certificate that no longer binds to a live host '
-                        . 'gets 401, which tells the agent to enroll again.'),
+                        . 'gets 401, which tells the agent to enroll again. '
+                        . 'The request may also carry facts about the host -- '
+                        . 'hardware inventory, the installed-program list -- '
+                        . 'sent only when their content hash moved or the '
+                        . 'answer asked; the same conditional as the state, '
+                        . 'run in the other direction.'),
                     [
                         '200' => [
                             'description' => _('The host this certificate is, '
@@ -2601,20 +2606,62 @@ class OpenAPI extends FOGBase
                                             ]
                                         ],
                                         'additionalProperties' => true
+                                    ],
+                                    'want_inventory' => [
+                                        'type' => 'boolean',
+                                        'description' => _('The server holds no hardware '
+                                            . 'inventory hash for this host and wants the '
+                                            . 'block on the next poll.')
+                                    ],
+                                    'want_software' => [
+                                        'type' => 'boolean',
+                                        'description' => _('The server holds no installed-'
+                                            . 'software hash for this host and wants the '
+                                            . 'list on the next poll.')
                                     ]
                                 ]
                             ]]]
                         ],
-                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')]
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '413' => ['description' => _('The reported software list is larger than the server accepts.')]
                     ],
                     [],
                     [
+                        'description' => _('May be sent with Content-Encoding: gzip; a '
+                            . 'host\'s software list is a few hundred KB of JSON and about '
+                            . 'a tenth of that compressed.'),
                         'content' => ['application/json' => ['schema' => [
                             'type' => 'object',
                             'properties' => [
                                 'agent_version' => ['type' => 'string'],
                                 'applied_revision' => ['type' => 'string'],
-                                'want_state' => ['type' => 'boolean']
+                                'want_state' => ['type' => 'boolean'],
+                                'inventory' => [
+                                    'type' => 'object',
+                                    'description' => _('Hardware facts, sent only when the '
+                                        . 'agent\'s own content hash for them moved or the '
+                                        . 'server asked. Absent means nothing new, never '
+                                        . 'nothing there.'),
+                                    'additionalProperties' => ['type' => 'string']
+                                ],
+                                'software' => [
+                                    'type' => 'array',
+                                    'description' => _('The host\'s complete installed-'
+                                        . 'program list, sent on the same terms as '
+                                        . 'inventory. Complete by contract: anything '
+                                        . 'installed and absent from it is marked removed.'),
+                                    'items' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'name' => ['type' => 'string'],
+                                            'version' => ['type' => 'string'],
+                                            'publisher' => ['type' => 'string'],
+                                            'source' => ['type' => 'string'],
+                                            'arch' => ['type' => 'string'],
+                                            'install_date' => ['type' => 'string']
+                                        ]
+                                    ]
+                                ]
                             ]
                         ]]]
                     ]

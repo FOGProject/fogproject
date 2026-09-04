@@ -345,6 +345,16 @@ return [
                 'haloTime' => 'varchar(10) NOT NULL',
             ],
         ],
+        'hostFactState' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostFactState` ( `hfsID` int(11) NOT NULL AUTO_INCREMENT, `hfsHostID` int(11) NOT NULL, `hfsKind` varchar(16) NOT NULL, `hfsHash` varchar(64) NOT NULL DEFAULT \'\', `hfsUpdated` datetime DEFAULT NULL, PRIMARY KEY (`hfsID`), UNIQUE KEY `hfsHostKind` (`hfsHostID`,`hfsKind`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'hfsID' => 'int(11) NOT NULL',
+                'hfsHostID' => 'int(11) NOT NULL',
+                'hfsKind' => 'varchar(16) NOT NULL',
+                'hfsHash' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'hfsUpdated' => 'datetime DEFAULT NULL',
+            ],
+        ],
         'hostMAC' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `hostMAC` ( `hmID` int(11) NOT NULL AUTO_INCREMENT, `hmHostID` int(11) NOT NULL, `hmMAC` varchar(59) NOT NULL, `hmDesc` longtext NOT NULL DEFAULT \'\', `hmPrimary` tinyint(1) NOT NULL DEFAULT 0, `hmPending` tinyint(1) NOT NULL DEFAULT 0, `hmIgnoreClient` tinyint(1) NOT NULL DEFAULT 0, `hmIgnoreImaging` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`hmID`), UNIQUE KEY `hmHostID` (`hmMAC`), UNIQUE KEY `hmMAC` (`hmMAC`), UNIQUE KEY `hmMAC_2` (`hmMAC`), KEY `idxHostID` (`hmHostID`), KEY `idxMac` (`hmMAC`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -419,6 +429,22 @@ return [
                 'hssOrientation' => 'int(11) NOT NULL DEFAULT 0',
                 'hssOther1' => 'int(11) NOT NULL DEFAULT 0',
                 'hssOther2' => 'int(11) NOT NULL DEFAULT 0',
+            ],
+        ],
+        'hostSoftware' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostSoftware` ( `hsID` int(11) NOT NULL AUTO_INCREMENT, `hsHostID` int(11) NOT NULL, `hsName` varchar(255) NOT NULL, `hsVersion` varchar(128) NOT NULL DEFAULT \'\', `hsPublisher` varchar(255) NOT NULL DEFAULT \'\', `hsSource` varchar(16) NOT NULL DEFAULT \'\', `hsArch` varchar(16) NOT NULL DEFAULT \'\', `hsInstallDate` date DEFAULT NULL, `hsFirstSeen` datetime DEFAULT NULL, `hsLastSeen` datetime DEFAULT NULL, `hsRemovedAt` datetime DEFAULT NULL, PRIMARY KEY (`hsID`), UNIQUE KEY `hsHostNameSrcVer` (`hsHostID`,`hsName`,`hsSource`,`hsVersion`), KEY `hsName` (`hsName`), KEY `hsHostRemoved` (`hsHostID`,`hsRemovedAt`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'hsID' => 'int(11) NOT NULL',
+                'hsHostID' => 'int(11) NOT NULL',
+                'hsName' => 'varchar(255) NOT NULL',
+                'hsVersion' => 'varchar(128) NOT NULL DEFAULT \'\'',
+                'hsPublisher' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hsSource' => 'varchar(16) NOT NULL DEFAULT \'\'',
+                'hsArch' => 'varchar(16) NOT NULL DEFAULT \'\'',
+                'hsInstallDate' => 'date DEFAULT NULL',
+                'hsFirstSeen' => 'datetime DEFAULT NULL',
+                'hsLastSeen' => 'datetime DEFAULT NULL',
+                'hsRemovedAt' => 'datetime DEFAULT NULL',
             ],
         ],
         'imageGroupAssoc' => [

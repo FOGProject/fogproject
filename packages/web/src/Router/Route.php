@@ -619,7 +619,9 @@ class Route extends FOGBase
         'hookevent',
         'host',
         'hostautologout',
+        'hostfactstate',
         'hostscreensetting',
+        'hostsoftware',
         'image',
         'imageassociation',
         'imagepartitiontype',
@@ -2691,9 +2693,52 @@ class Route extends FOGBase
      */
     private static function _jsonBody()
     {
-        $decoded = json_decode((string)file_get_contents('php://input'), true);
+        $raw = (string)file_get_contents('php://input');
+        if ('gzip' === strtolower((string)($_SERVER['HTTP_CONTENT_ENCODING'] ?? ''))
+            && '' !== $raw
+        ) {
+            $raw = self::_gunzip($raw);
+        }
+        $decoded = json_decode($raw, true);
 
         return is_array($decoded) ? $decoded : [];
+    }
+    /**
+     * The largest body accepted after decompression.
+     *
+     * A compressed body's expansion ratio is the caller's to choose, so
+     * the limit web servers put on the upload is no limit at all on what
+     * decoding it costs: a megabyte of zeroes gzips to about a kilobyte.
+     * 8 MB is roughly 60,000 reported programs, well past the ~2,800 a
+     * package-managed host actually sends.
+     */
+    const MAX_DECOMPRESSED_BODY = 8388608;
+    /**
+     * Decompresses a gzip request body, or returns nothing.
+     *
+     * Returning '' rather than a truncated body is the point: a body cut
+     * off at the limit could still parse as valid JSON describing a
+     * different, smaller request, and the caller would never know it had
+     * been trimmed. Empty decodes to no request at all, which every route
+     * here already handles.
+     *
+     * @param string $raw the compressed body
+     *
+     * @return string the decoded body, or '' if it could not be read
+     */
+    private static function _gunzip($raw)
+    {
+        if (!function_exists('gzdecode')) {
+            return '';
+        }
+        // One byte past the limit, so an oversized body is detectable
+        // rather than silently arriving at exactly the cap.
+        $out = @gzdecode($raw, self::MAX_DECOMPRESSED_BODY + 1);
+        if (false === $out || strlen($out) > self::MAX_DECOMPRESSED_BODY) {
+            return '';
+        }
+
+        return $out;
     }
     /**
      * Reads, writes or clears one preference of the calling user's.
@@ -2929,6 +2974,20 @@ class Route extends FOGBase
         $applied = (string)($body['applied_revision'] ?? '');
         if ($applied !== $desired['revision'] || !empty($body['want_state'])) {
             $answer['state'] = $desired;
+        }
+        // Facts travel the other way on the same route (design 0006): the
+        // request may carry what the host observed, and the answer says
+        // which kinds the server still has nothing for. A bad block fails
+        // this call and no other -- the agent retries, and meanwhile the
+        // host has still checked in above.
+        try {
+            $answer += \FOG\Agent\State::facts($Host, $body);
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(
+                self::_agentErrorCode($e),
+                json_encode(['status' => 'error', 'error' => $e->getMessage()])
+            );
+            return;
         }
         HTTPResponseCodes::breakHead(HTTPResponseCodes::HTTP_OK, json_encode($answer));
     }

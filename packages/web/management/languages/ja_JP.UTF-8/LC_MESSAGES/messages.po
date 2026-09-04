@@ -1352,7 +1352,7 @@ msgstr ""
 msgid "Authenticated but not permitted."
 msgstr ""
 
-msgid "Authenticated by the client certificate enrollment issued, verified by the web server and bound to the host by its key fingerprint before the route runs; no token or session applies. Records the check-in and answers with the revision of the host's desired state, plus the state itself when the applied revision the agent sent is not current or it asked for it. The revision is opaque: compared for equality, never parsed. A certificate that no longer binds to a live host gets 401, which tells the agent to enroll again."
+msgid "Authenticated by the client certificate enrollment issued, verified by the web server and bound to the host by its key fingerprint before the route runs; no token or session applies. Records the check-in and answers with the revision of the host's desired state, plus the state itself when the applied revision the agent sent is not current or it asked for it. The revision is opaque: compared for equality, never parsed. A certificate that no longer binds to a live host gets 401, which tells the agent to enroll again. The request may also carry facts about the host -- hardware inventory, the installed-program list -- sent only when their content hash moved or the answer asked; the same conditional as the state, run in the other direction."
 msgstr ""
 
 msgid "Authentication missing or invalid."
@@ -3902,6 +3902,9 @@ msgstr "ハードウェア情報"
 msgid "Hardware Report"
 msgstr "レポートを作成しますか？"
 
+msgid "Hardware facts, sent only when the agent's own content hash for them moved or the server asked. Absent means nothing new, never nothing there."
+msgstr ""
+
 msgid "Hash"
 msgstr "ハッシュ"
 
@@ -5740,6 +5743,9 @@ msgid "Max Size"
 msgstr "最大サイズ"
 
 msgid "Maximum rows per class; 0 or absent means no cap."
+msgstr ""
+
+msgid "May be sent with Content-Encoding: gzip; a host's software list is a few hundred KB of JSON and about a tenth of that compressed."
 msgstr ""
 
 #, fuzzy
@@ -9726,6 +9732,9 @@ msgstr "タスクの作成に失敗しました"
 msgid "The host this certificate is, the revision of its desired state, and the state when it is not what the agent applied."
 msgstr ""
 
+msgid "The host's complete installed-program list, sent on the same terms as inventory. Complete by contract: anything installed and absent from it is marked removed."
+msgstr ""
+
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr ""
 
@@ -9886,6 +9895,9 @@ msgstr "強制終了できませんでした"
 msgid "The renewed certificate, leaf then chain."
 msgstr "新しいロケーションを作成"
 
+msgid "The reported software list is larger than the server accepts."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -9908,6 +9920,12 @@ msgstr "サイトの更新に失敗しました！"
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr "選択したプリンターを追加"
+
+msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
+msgstr ""
+
+msgid "The server holds no installed-software hash for this host and wants the list on the next poll."
+msgstr ""
 
 msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
 msgstr ""

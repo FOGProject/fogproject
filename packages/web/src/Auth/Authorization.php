@@ -426,6 +426,11 @@ class Authorization extends FOGBase
         'snapingroupassociation' => 'snapin',
         'snapinjob' => 'task',
         'snapintask' => 'task',
+        // The agent's reported facts about one host, gated by the host node
+        // they belong to -- the same call as 'inventory' above, and for the
+        // same reason: they are host detail, not a feature of their own.
+        'hostsoftware' => 'host',
+        'hostfactstate' => 'host',
         'software' => 'software',
         'softwareassociation' => 'software',
         'groupsoftwareassociation' => 'software',

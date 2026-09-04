@@ -342,6 +342,14 @@ return [
     // waits for a fresh decision. A denied row going with its host is the
     // same outcome, and the decision itself is in auditLog.
     ['child' => 'agentEnrollment', 'column' => 'aeHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 12],
+    // The facts an agent reports about its own host (design 0006). Both are
+    // satellites in the same sense inventory is: the rows describe one host
+    // and mean nothing without it. CASCADE, so deleting a host takes its
+    // reported software history with it -- the same call FOG already makes
+    // for that host's inventory row, and the reason the fleet report reads
+    // "which hosts have X" rather than "which machines ever did".
+    ['child' => 'hostSoftware', 'column' => 'hsHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'hostFactState', 'column' => 'hfsHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];

@@ -17,6 +17,7 @@ use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
 use FOG\Items\Host;
+use FOG\Items\HostFactState;
 use FOG\Items\PowerManagement;
 use FOG\Router\Route;
 
@@ -89,6 +90,26 @@ class State extends FOGBase
      * What the agent may report for one capability.
      */
     const RESULT_STATUSES = ['applied', 'unchanged', 'pending_reboot', 'failed'];
+
+    /**
+     * Fact kinds an agent reports about its own host => the class that
+     * stores one (design 0006). Facts ride the poll request, not `result`:
+     * they are what the host observed, not what it did with a task.
+     *
+     * A third kind is an entry here and a block in the poll, never a new
+     * route -- the route rule (protocol-v1.md).
+     *
+     * @var array<string, class-string>
+     */
+    const FACT_REPORTS = [
+        'inventory' => InventoryFacts::class,
+        'software' => SoftwareFacts::class,
+    ];
+
+    /**
+     * The setting that gates fact collection for the whole install.
+     */
+    const FACTS_SETTING = 'FOG_AGENT_INVENTORY_ENABLED';
 
     /**
      * The capabilities this server offers this host.
@@ -284,6 +305,126 @@ class State extends FOGBase
             ]
         );
         return null;
+    }
+
+    /**
+     * Stores the fact blocks a poll carried, and answers what is still
+     * wanted from this host.
+     *
+     * The mirror image of desired(): there the server holds a revision and
+     * sends state when the agent's is stale; here the server holds a hash
+     * per fact kind and asks for a block when it has none. Either way the
+     * expensive thing crosses the wire only when it has moved.
+     *
+     * The hash is computed here rather than taken from the agent. Two
+     * reasons: the server must not trust a caller's claim that its content
+     * is unchanged, and a hash the server computes is one it can compare
+     * against a block it actually received -- which is what lets an
+     * identical resend skip the whole reconcile.
+     *
+     * @param Host  $Host the host the certificate bound
+     * @param array $body the poll request
+     *
+     * @return array want_<kind> => bool, for the poll answer
+     */
+    public static function facts(Host $Host, array $body)
+    {
+        $answer = [];
+        if (!self::factsEnabled()) {
+            // Gate off: never ask, and ignore a block that arrives anyway
+            // (an agent that was collecting before the setting changed).
+            return $answer;
+        }
+        $hostID = (int)$Host->get('id');
+        foreach (self::FACT_REPORTS as $kind => $class) {
+            $stored = self::_factHash($hostID, $kind);
+            $block = $body[$kind] ?? null;
+            if (is_array($block)) {
+                $hash = substr(
+                    hash('sha256', (string)json_encode($block)),
+                    0,
+                    16
+                );
+                if ($hash !== $stored) {
+                    $class::report($Host, $block);
+                    self::_setFactHash($hostID, $kind, $hash);
+                    $stored = $hash;
+                } else {
+                    // Same content, so nothing to write but something to
+                    // record: this is the host's last known good report.
+                    self::_setFactHash($hostID, $kind, $hash);
+                }
+            }
+            $answer['want_' . $kind] = '' === $stored;
+        }
+
+        return $answer;
+    }
+
+    /**
+     * Whether this install collects facts at all.
+     *
+     * @return bool
+     */
+    public static function factsEnabled()
+    {
+        return (bool)self::getSetting(self::FACTS_SETTING);
+    }
+
+    /**
+     * The hash the server holds for one host and fact kind.
+     *
+     * @param int    $hostID the host
+     * @param string $kind   the fact kind
+     *
+     * @return string the stored hash, '' when there is no row
+     */
+    private static function _factHash($hostID, $kind)
+    {
+        $id = self::_factStateID($hostID, $kind);
+        if (0 === $id) {
+            return '';
+        }
+
+        return (string)(new HostFactState($id))->get('hash');
+    }
+
+    /**
+     * The hostFactState row id for one host and fact kind, 0 for none.
+     *
+     * @param int    $hostID the host
+     * @param string $kind   the fact kind
+     *
+     * @return int
+     */
+    private static function _factStateID($hostID, $kind)
+    {
+        $ids = Route::getIds(
+            'hostfactstate',
+            ['hostID' => (int)$hostID, 'kind' => $kind],
+            'id'
+        );
+
+        return (int)(array_shift($ids) ?: 0);
+    }
+
+    /**
+     * Records the hash and the time for one host and fact kind.
+     *
+     * @param int    $hostID the host
+     * @param string $kind   the fact kind
+     * @param string $hash   the hash of the block just stored
+     *
+     * @return void
+     */
+    private static function _setFactHash($hostID, $kind, $hash)
+    {
+        (new HostFactState(self::_factStateID($hostID, $kind)))
+            ->set('hostID', (int)$hostID)
+            ->set('kind', $kind)
+            ->set('hash', $hash)
+            ->set('updated', self::niceDate()->format('Y-m-d H:i:s'))
+            ->save();
     }
 
     /**

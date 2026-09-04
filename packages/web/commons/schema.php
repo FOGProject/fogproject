@@ -11004,3 +11004,52 @@ $this->schema[] = [
     . "for hosts with no route to the community feed. Empty uses the "
     . "script''s default.','','FOG Client')",
 ];
+// 421
+$this->schema[] = [
+    // fog-agent inventory and installed-software reporting (design 0006).
+    // What the agent last reported per host, per fact kind: hsSource is
+    // part of identity because an OS package list enumerates the same
+    // name under more than one manager, and hsVersion because two
+    // versions can be installed at once and an upgrade is one version
+    // removed, another added -- the history a report wants. hsRemovedAt
+    // NULL is "installed now"; a row is never deleted, only closed out.
+    "CREATE TABLE IF NOT EXISTS `hostSoftware` ( "
+    . "`hsID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hsHostID` int(11) NOT NULL, "
+    . "`hsName` varchar(255) NOT NULL, "
+    . "`hsVersion` varchar(128) NOT NULL DEFAULT '', "
+    . "`hsPublisher` varchar(255) NOT NULL DEFAULT '', "
+    . "`hsSource` varchar(16) NOT NULL DEFAULT '', "
+    . "`hsArch` varchar(16) NOT NULL DEFAULT '', "
+    . "`hsInstallDate` date DEFAULT NULL, "
+    . "`hsFirstSeen` datetime DEFAULT NULL, "
+    . "`hsLastSeen` datetime DEFAULT NULL, "
+    . "`hsRemovedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hsID`), "
+    . "UNIQUE KEY `hsHostNameSrcVer` (`hsHostID`,`hsName`,`hsSource`,`hsVersion`), "
+    . "KEY `hsName` (`hsName`), "
+    . "KEY `hsHostRemoved` (`hsHostID`,`hsRemovedAt`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // What the server last heard from a host, per fact kind (inventory,
+    // software): the hash it holds and when. Doubles as "when did we last
+    // hear facts from this host". A missing row is the want_* signal --
+    // the agent has never successfully reported that kind.
+    "CREATE TABLE IF NOT EXISTS `hostFactState` ( "
+    . "`hfsID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hfsHostID` int(11) NOT NULL, "
+    . "`hfsKind` varchar(16) NOT NULL, "
+    . "`hfsHash` varchar(64) NOT NULL DEFAULT '', "
+    . "`hfsUpdated` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hfsID`), "
+    . "UNIQUE KEY `hfsHostKind` (`hfsHostID`,`hfsKind`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // The one gate for both: an installed-program list is mildly
+    // sensitive, so a site can turn collection off. Hardware inventory
+    // and software share it for v1 (design 0006 section 2, "Gate").
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_INVENTORY_ENABLED','This setting defines if the agent "
+    . "collects and reports hardware inventory and installed software for "
+    . "its host. When disabled, the server never requests a report and "
+    . "ignores one if it arrives. (Valid values: 0 or 1).','1','FOG Client')",
+];
