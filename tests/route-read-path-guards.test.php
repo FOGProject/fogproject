@@ -1173,7 +1173,11 @@ foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
 //     rules out. The whole dispatch block is anchored so a rewrite of either
 //     half is a visible failure here rather than a silent policy change.
 $routeSrc = (string)file_get_contents(__DIR__ . '/../packages/web/src/Router/Route.php');
-$agentBlockStart = strpos($routeSrc, "'agent/v1/')");
+// Anchored on the constant rather than the literal it holds: the prefix is
+// now Route::AGENT_ROUTE_SEGMENT, shared with DatabaseManager::init() so the
+// two places that recognize an agent route cannot drift. The closing paren
+// picks the dispatch site rather than the declaration above it.
+$agentBlockStart = strpos($routeSrc, 'self::AGENT_ROUTE_SEGMENT)');
 $agentBlockEnd = false === $agentBlockStart ? false : strpos($routeSrc, '$isunauth = true;', $agentBlockStart);
 $agentBlock = (
     false === $agentBlockStart || false === $agentBlockEnd ?

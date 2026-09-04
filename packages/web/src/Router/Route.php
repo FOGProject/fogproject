@@ -103,6 +103,19 @@ class Route extends FOGBase
      */
     private static $_webrootbase = '/fog/';
     /**
+     * The path segment every fog-agent API route lives under.
+     *
+     * A constant because TWO places have to agree on it and they cannot
+     * share the anchoring. This class anchors it to the configured webroot;
+     * DatabaseManager::init() runs before a webroot setting can be read (it
+     * is a globalSettings lookup, and the schema may be mid-upgrade), so it
+     * matches the segment anywhere in the path. Two anchorings, one
+     * definition -- the same drift the iPXE blocklist was fixed for.
+     *
+     * @var string
+     */
+    const AGENT_ROUTE_SEGMENT = 'agent/v1/';
+    /**
      * Where a plugin-contributed route must live.
      *
      * A reserved mount point rather than "anywhere core is not currently
@@ -958,7 +971,7 @@ class Route extends FOGBase
          * the one exception and it is in $unauthexact above.
          */
         if (!$isunauth
-            && 0 === strpos($requripath, $webrootbase . 'agent/v1/')
+            && 0 === strpos($requripath, $webrootbase . self::AGENT_ROUTE_SEGMENT)
         ) {
             self::$agentHost = self::_agentPrincipal();
             if (!self::$agentHost) {

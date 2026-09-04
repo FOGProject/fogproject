@@ -195,6 +195,50 @@ class DatabaseManager extends FOGCore
          * follows it comes straight back here unauthenticated.
          */
         $isLogout = (filter_input(INPUT_GET, 'node') === 'logout');
+        $requripath = strtok((string)($_SERVER['REQUEST_URI'] ?? ''), '?');
+        /**
+         * fog-agent's API must never be redirected. It speaks JSON over a
+         * client certificate and has no browser to land anywhere, so the
+         * redirect below reaches it as an answer it cannot use -- and the
+         * redirect is RELATIVE ('../management/index.php?node=schema'), so a
+         * client that follows redirects resolves it against
+         * <webroot>/agent/v1/ and requests <webroot>/agent/management/
+         * index.php, which does not exist. Observed in the lab on
+         * 2026-09-04: every agent in the estate logged
+         *
+         *     poll: HTTP 404, body is not JSON: File not found.
+         *
+         * once per poll interval for the whole upgrade window, and nothing
+         * in that sentence names a schema update.
+         *
+         * So say so instead. 503 with a reason the agent prints, and no
+         * Retry-After games: the agent already has a poll interval and will
+         * be back. Nothing is granted here -- this answers LESS than the
+         * redirect did, and it answers it before any route matches, so no
+         * handler and no table is reached.
+         *
+         * Matched on the segment rather than the configured webroot because
+         * FOG_WEB_ROOT is a globalSettings lookup and the schema is, by
+         * definition here, not current. Route::AGENT_ROUTE_SEGMENT is the
+         * one definition both places use.
+         */
+        $isAgentApi = false !== strpos(
+            $requripath,
+            '/' . \FOG\Router\Route::AGENT_ROUTE_SEGMENT
+        );
+        if ($isAgentApi) {
+            header('Content-type: application/json');
+            http_response_code(HTTPResponseCodes::HTTP_SERVICE_UNAVAILABLE);
+            die(
+                json_encode(
+                    [
+                        'status' => 'schema_update_pending',
+                        'error' => 'FOG is applying a database schema update;'
+                            . ' the agent API resumes when it finishes',
+                    ]
+                )
+            );
+        }
         if (!in_array($filename, $okayFiles) && !$isLoginPost && !$isLogout) {
             /**
              * If we are not already redirected to schema updater,
