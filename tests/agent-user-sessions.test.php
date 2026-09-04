@@ -159,6 +159,29 @@ $t->check(
     $expected === ($row['started_at'] ?? null)
 );
 
+/*
+ * The report reads the same column back and compares it against time(), so
+ * it needs the same clock a third time. strtotime() there read the stored
+ * UTC string in PHP's default zone, putting every open session in the future
+ * and silently blanking the Duration column -- a report that shows nothing
+ * looks like a report with nothing to show.
+ */
+$e = new \ReflectionMethod(\FOG\Reports\User_Sessions::class, 'elapsed');
+$e->setAccessible(true);
+$now = time();
+$anHourAgo = \FOG\Base\FOGBase::niceDate('@' . ($now - 3600))
+    ->format('Y-m-d H:i:s');
+$t->check(
+    'a session started an hour ago reports about an hour, not an empty cell'
+        . ': got ' . var_export($e->invoke(null, $anHourAgo, $now), true),
+    '1h 0m' === $e->invoke(null, $anHourAgo, $now)
+);
+$t->check(
+    'an unusable start is an empty cell, never "0m"',
+    '' === $e->invoke(null, '', $now)
+        && '' === $e->invoke(null, '0000-00-00 00:00:00', $now)
+);
+
 // --------------------------------------------------------------- truncation
 
 $long = cleanSessions(

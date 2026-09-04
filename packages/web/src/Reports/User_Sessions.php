@@ -184,8 +184,17 @@ class User_Sessions extends ReportManagement
      */
     protected static function elapsed($started, $now)
     {
-        $start = strtotime($started);
-        if (false === $start || $start > $now) {
+        // niceDate(), not strtotime(): the column is written on
+        // storageTimeZone() (UTC), and strtotime() would read that string in
+        // PHP's default zone. On this server that is UTC-5, which put every
+        // open session five hours in the future and blanked the column via
+        // the guard below -- the same two-clock mistake the reconcile made
+        // in husEndedAt.
+        if (!self::validDate($started)) {
+            return '';
+        }
+        $start = self::niceDate($started)->getTimestamp();
+        if ($start > $now) {
             return '';
         }
         $mins = (int)floor(($now - $start) / 60);
