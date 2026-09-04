@@ -87,7 +87,7 @@ class MyStorageHook extends Hook
         $StorageGroup = $arguments['StorageGroup'];
 
         // ...your selection logic, e.g. by subnet, weighting, etc...
-        $chosen = self::getClass('StorageNode', $someNodeId);
+        $chosen = new \FOG\Items\StorageNode($someNodeId);
 
         if ($chosen->isValid()) {
             $arguments['StorageNode'] = $chosen;   // override FOG's choice
