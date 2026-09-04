@@ -214,10 +214,10 @@ function _declaredClasses()
                 && is_readable($f)
                 && 0 !== strpos($f, 'packages/web/vendor/')
                 && 0 !== strpos($f, 'tests/')
-                // Analysis tooling, not product: build/ is loaded by the
-                // root composer autoload-dev and implements PHPStan
-                // interfaces that exist only under the root vendor/. FOG's
-                // own autoloader cannot declare it and is not meant to.
+                // Analysis tooling, not product. build/ now holds only
+                // constants.stub.php, which PHPStan loads as a bootstrap
+                // file and which declares no class at all -- FOG's own
+                // autoloader has nothing to find there and is not meant to.
                 && 0 !== strpos($f, 'build/');
         }
     );

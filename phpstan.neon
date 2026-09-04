@@ -120,14 +120,5 @@ parameters:
         # The constants FOG defines at runtime -- see the file's own header.
         - build/phpstan/constants.stub.php
 
-services:
-    # Resolves getClass('Name') to its FOG class so a method that does not
-    # exist on the result is a finding, not a fatal on a live server. See
-    # the extension's header for the failure it closes.
-    -
-        class: FOG\Build\PhpStan\GetClassReturnTypeExtension
-        tags:
-            - phpstan.broker.dynamicStaticMethodReturnTypeExtension
-
 includes:
     - phpstan-baseline.neon
