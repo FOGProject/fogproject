@@ -16,6 +16,9 @@ declare(strict_types=1);
 
 use FOG\Auth\Identity;
 use FOG\Base\FOGCore;
+use FOG\Base\FOGPageManager;
+use FOG\Base\Page;
+use FOG\Pages\ProcessLogin;
 use FOG\Router\HTTPResponseCodes;
 
 /*
@@ -30,15 +33,15 @@ define('FOG_WANTS_SESSION', true);
 require '../commons/base.inc.php';
 
 // Initialize required classes
-$FOGPageManager = FOGCore::getClass('FOGPageManager');
+$FOGPageManager = new FOGPageManager();
 
 // Capture login process output
 ob_start();
-FOGCore::getClass('ProcessLogin')->processMainLogin();
+(new ProcessLogin())->processMainLogin();
 $login = ob_get_clean();
 
 require '../commons/text.php';
-$Page = FOGCore::getClass('Page');
+$Page = new Page();
 
 // Define allowed nodes
 $nodes = [

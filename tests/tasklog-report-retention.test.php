@@ -39,6 +39,8 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\Host;
+use FOG\Items\TaskLog;
 
 require __DIR__ . '/lib/fog-test-harness.php';
 
@@ -60,7 +62,7 @@ $t->check(
     (function () {
         $p = new \ReflectionProperty('FOG\Items\TaskLog', 'databaseFields');
         $p->setAccessible(true);
-        $fields = $p->getValue(FOGCore::getClass('TaskLog'));
+        $fields = $p->getValue(new TaskLog());
         return isset($fields['hostID'], $fields['hostName'], $fields['taskTypeName'])
             && 'logHostID' === $fields['hostID']
             && 'logHostName' === $fields['hostName']
@@ -68,7 +70,7 @@ $t->check(
     })()
 );
 
-$host = FOGCore::getClass('Host')
+$host = (new Host())
     ->set('id', 42)
     ->set('name', 'lab-07');
 

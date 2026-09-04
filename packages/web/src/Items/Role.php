@@ -15,6 +15,7 @@ namespace FOG\Items;
 
 use FOG\Auth\Authorization;
 use FOG\Base\FOGController;
+use FOG\Managers\RolePermissionManager;
 use FOG\Router\Route;
 
 /**
@@ -312,7 +313,7 @@ class Role extends FOGController
                     $permission
                 ];
             }
-            self::getClass('RolePermissionManager')->insertBatch(
+            (new RolePermissionManager())->insertBatch(
                 ['roleID', 'name'],
                 $insert_values
             );

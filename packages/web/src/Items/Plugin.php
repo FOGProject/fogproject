@@ -1147,7 +1147,7 @@ class Plugin extends FOGController
                 // set -- state, installed, version, pSchema -- silently
                 // uninstalling every plugin. The load costs a query, which is
                 // why it is on this branch and not the common one.
-                $plugin = self::getClass('Plugin', $id);
+                $plugin = new Plugin($id);
                 foreach ($fields as $field => $value) {
                     $plugin->set($field, $value);
                 }
@@ -1156,7 +1156,7 @@ class Plugin extends FOGController
                 // Nothing to write, so skip the load entirely and hydrate
                 // from the row already in hand. Keeps steady-state discovery
                 // at the single listem() above.
-                $plugin = self::getClass('Plugin');
+                $plugin = new Plugin();
                 $plugin->set('id', $id);
                 foreach ($fields as $field => $value) {
                     $plugin->set($field, $value);

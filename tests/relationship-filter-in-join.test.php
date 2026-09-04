@@ -37,6 +37,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\Host;
 
 require __DIR__ . '/lib/fog-test-harness.php';
 
@@ -67,11 +68,11 @@ function relFilterBuild($class)
  *    and the test would be measuring nothing.
  */
 $relProp = new \ReflectionProperty(
-    get_class(FOGCore::getClass('Host')),
+    get_class(new Host()),
     'databaseFieldClassRelationships'
 );
 $relProp->setAccessible(true);
-$rels = $relProp->getValue(FOGCore::getClass('Host'));
+$rels = $relProp->getValue(new Host());
 $macRel = $rels['MACAddressAssociation'] ?? null;
 $t->check(
     'Host still declares a filtered relationship to MACAddressAssociation',

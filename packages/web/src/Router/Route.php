@@ -32,12 +32,21 @@ use FOG\Items\Host;
 use FOG\Items\Inventory;
 use FOG\Items\MACAddress;
 use FOG\Items\Plugin;
+use FOG\Items\Schema;
 use FOG\Items\Snapin;
 use FOG\Items\SnapinJob;
+use FOG\Items\StorageGroup;
 use FOG\Items\StorageNode;
 use FOG\Items\Task;
+use FOG\Items\TaskState;
+use FOG\Items\User;
 use FOG\Items\UserTracking;
+use FOG\Managers\HostManager;
 use FOG\Managers\PXEMenuOptionsManager;
+use FOG\Managers\SavedFilterManager;
+use FOG\Managers\SnapinJobManager;
+use FOG\Managers\TaskManager;
+use FOG\Managers\UserPrefManager;
 use FOG\Net\Ping;
 use FOG\Util\FOGCron;
 
@@ -2224,7 +2233,7 @@ class Route extends FOGBase
             (string)filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
         );
         $usertoken = trim($usertoken);
-        $pwtoken = self::getClass('User')
+        $pwtoken = (new User())
             ->set('token', $usertoken)
             ->load('token');
         if ($pwtoken->isValid() && $pwtoken->get('api')) {
@@ -2273,7 +2282,7 @@ class Route extends FOGBase
         // Reloading also gives the acting user a fully populated object,
         // matching what the token branch binds -- passwordValidate() only
         // fills in id, name and type on the object it was called against.
-        $apiUser = self::getClass('User', (int)self::$FOGUser->get('id'));
+        $apiUser = new User((int)self::$FOGUser->get('id'));
         if (!$apiUser->isValid() || !$apiUser->get('api')) {
             // A correct password for an account that may not use the API.
             // Distinct from a bad credential and worth telling apart: this
@@ -2470,7 +2479,7 @@ class Route extends FOGBase
     public static function userprefs()
     {
         self::$data = [
-            'prefs' => self::getClass('UserPrefManager')->fetchAll(
+            'prefs' => (new UserPrefManager())->fetchAll(
                 (int)self::$FOGUser->get('id')
             ),
             'msg' => _('success')
@@ -2512,7 +2521,7 @@ class Route extends FOGBase
 
             return;
         }
-        $manager = self::getClass('SavedFilterManager');
+        $manager = new SavedFilterManager();
         $method = strtoupper(self::$reqmethod ?: 'GET');
         if ('GET' === $method) {
             self::$data = [
@@ -2575,7 +2584,7 @@ class Route extends FOGBase
 
             return;
         }
-        $manager = self::getClass('SavedFilterManager');
+        $manager = new SavedFilterManager();
         $method = strtoupper(self::$reqmethod ?: 'GET');
         if ('GET' === $method) {
             $filter = $manager->fetch((int)$id, $userID);
@@ -2815,7 +2824,7 @@ class Route extends FOGBase
         if ($method === 'GET') {
             self::$data = [
                 'key' => $key,
-                'value' => self::getClass('UserPrefManager')
+                'value' => (new UserPrefManager())
                     ->fetch($userID, $key),
                 'msg' => _('success')
             ];
@@ -2855,7 +2864,7 @@ class Route extends FOGBase
                 return;
             }
         }
-        if (!self::getClass('UserPrefManager')->store($userID, $key, $value)) {
+        if (!(new UserPrefManager())->store($userID, $key, $value)) {
             self::sendResponse(
                 HTTPResponseCodes::HTTP_BAD_REQUEST,
                 json_encode(
@@ -2998,7 +3007,7 @@ class Route extends FOGBase
         if ('' !== $version) {
             $fields['agentVersion'] = $version;
         }
-        self::getClass('HostManager')->update(
+        (new HostManager())->update(
             ['id' => (int)$Host->get('id')],
             '',
             $fields
@@ -3330,7 +3339,7 @@ class Route extends FOGBase
             'fog_backup_%s.sql',
             self::formatTime('now', 'Ymd_His')
         );
-        self::getClass('Schema')->exportdb($backup_name);
+        (new Schema())->exportdb($backup_name);
         exit;
     }
     /**
@@ -4757,7 +4766,7 @@ class Route extends FOGBase
                     'formatter' => function ($d) use (&$taskStates) {
                         $id = (int)$d;
                         if (!isset($taskStates[$id])) {
-                            $taskStates[$id] = self::getClass('TaskState', $id)
+                            $taskStates[$id] = (new TaskState($id))
                                 ->get('name');
                         }
                         return $taskStates[$id] ?: self::EMPTY_CELL;
@@ -4794,10 +4803,7 @@ class Route extends FOGBase
                             ? (int)$row['taskStateID']
                             : 0;
                         if (!isset($taskStates[$stateId])) {
-                            $taskStates[$stateId] = self::getClass(
-                                'TaskState',
-                                $stateId
-                            )->get('name');
+                            $taskStates[$stateId] = (new TaskState($stateId))->get('name');
                         }
                         // An unresolvable state renders as a word, not as
                         // nothing. The `statename` column can afford an
@@ -4869,7 +4875,7 @@ class Route extends FOGBase
                 $groupFor = function ($id) use (&$storageGroups) {
                     $id = (int) $id;
                     if (!isset($storageGroups[$id])) {
-                        $storageGroups[$id] = self::getClass('StorageGroup')
+                        $storageGroups[$id] = (new StorageGroup())
                             ->set('id', $id)
                             ->load();
                     }
@@ -5959,7 +5965,7 @@ class Route extends FOGBase
                 // not start failing the day it becomes blocked.
                 if (isset($vars->state)
                     && (int)$vars->state === 1
-                    && !(int)self::getClass('Plugin', $id)->get('state')
+                    && !(int)(new Plugin($id))->get('state')
                 ) {
                     $blockers = Plugin::activationBlockers([(int)$id]);
                     if (count($blockers)) {
@@ -6360,7 +6366,7 @@ class Route extends FOGBase
     public static function uploadSnapinFiles($id)
     {
         try {
-            $StorageGroup = self::getClass('StorageGroup', (int)$id);
+            $StorageGroup = new StorageGroup((int)$id);
             if (!$StorageGroup->isValid()) {
                 self::sendResponse(
                     HTTPResponseCodes::HTTP_NOT_FOUND,
@@ -6469,7 +6475,7 @@ class Route extends FOGBase
     public static function pluginInstall($id)
     {
         try {
-            $Plugin = self::getClass('Plugin', (int)$id);
+            $Plugin = new Plugin((int)$id);
             if (!$Plugin->isValid()) {
                 // setErrorMessage(), not sendResponse(): every error this
                 // route can answer with is documented as the Error schema,
@@ -6628,7 +6634,7 @@ class Route extends FOGBase
                             _('No active tasks to cancel for this group')
                         );
                     }
-                    self::getClass('TaskManager')->cancel($taskIDs);
+                    (new TaskManager())->cancel($taskIDs);
                     break;
                 case 'host':
                     self::_requireFound($class);
@@ -6697,10 +6703,7 @@ class Route extends FOGBase
                         // Failed task came back from the API reporting success
                         // and stayed Failed.
                         if (!in_array($class->get('stateID'), $states)) {
-                            $stateName = self::getClass(
-                                'TaskState',
-                                $class->get('stateID')
-                            )->get('name');
+                            $stateName = (new TaskState($class->get('stateID')))->get('name');
                             self::_notCancellable(
                                 sprintf(
                                     '%s: %s',
@@ -9281,7 +9284,7 @@ class Route extends FOGBase
                 break;
             case 'image':
                 $findWhere = ['imageID' => $itemIDs];
-                self::getClass('HostManager')->update(
+                (new HostManager())->update(
                     $findWhere,
                     '',
                     // NULL, not 0 -- see schema step 386.
@@ -9321,7 +9324,7 @@ class Route extends FOGBase
                     ]
                 );
                 if (count($activeImageTaskIDs ?: [])) {
-                    self::getClass('TaskManager')
+                    (new TaskManager())
                         ->cancel($activeImageTaskIDs);
                 }
                 $removeItems = [
@@ -9406,7 +9409,7 @@ class Route extends FOGBase
                     unset($sjID);
                 }
                 if (count($sjIDs ?: [])) {
-                    self::getClass('SnapinJobManager')->cancel($sjIDs);
+                    (new SnapinJobManager())->cancel($sjIDs);
                 }
                 break;
             case 'user':
@@ -10717,7 +10720,7 @@ class Route extends FOGBase
      */
     public static function logfiles($id)
     {
-        self::$data = self::getClass('StorageNode', $id)->get('logfiles');
+        self::$data = (new StorageNode($id))->get('logfiles');
     }
     /**
      * Return node's image files.
@@ -10726,7 +10729,7 @@ class Route extends FOGBase
      */
     public static function imagefiles($id)
     {
-        self::$data = self::getClass('StorageNode', $id)->get('images');
+        self::$data = (new StorageNode($id))->get('images');
     }
     /**
      * Return node's snapin files.
@@ -10735,7 +10738,7 @@ class Route extends FOGBase
      */
     public static function snapinfiles($id)
     {
-        self::$data = self::getClass('StorageNode', $id)->get('snapinfiles');
+        self::$data = (new StorageNode($id))->get('snapinfiles');
     }
     /**
      * The five server facts this route publishes, in the order they are

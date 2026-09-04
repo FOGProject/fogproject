@@ -254,7 +254,7 @@ class User extends FOGController
         $typeIsValid = true;
         $ident = (int)$tmpUser->get('id');
         if (!$tmpUser->isValid()) {
-            $tmpUser = self::getClass('User')
+            $tmpUser = (new User())
                 ->set('name', $username)
                 ->load('name');
         }
@@ -358,7 +358,7 @@ class User extends FOGController
             // Build and create authorization/authentication system.
             $password_hash = UserAuth::generateHash($password);
             $selector_hash = UserAuth::generateHash($selector);
-            $auth = self::getClass('UserAuth')
+            $auth = (new UserAuth())
                 ->set('userID', $this->get('id'))
                 ->set('expire', $expire)
                 ->set('selector', $selector_hash)

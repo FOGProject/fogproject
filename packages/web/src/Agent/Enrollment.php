@@ -20,6 +20,7 @@ use FOG\Base\SmbiosIdentity;
 use FOG\Items\AgentEnrollment;
 use FOG\Items\AgentEnrollToken;
 use FOG\Items\Host;
+use FOG\Items\Inventory;
 use FOG\Managers\HostManager;
 use FOG\Router\Route;
 
@@ -156,7 +157,7 @@ class Enrollment extends FOGBase
         // First contact for this key. Resolve the host the way boot does.
         list($hostID, $reason) = self::_resolve($identity, $macs);
 
-        $Row = self::getClass('AgentEnrollment')
+        $Row = (new AgentEnrollment())
             ->set('fingerprint', $fingerprint)
             ->set('csr', $csr)
             ->set('identity', json_encode($identity))
@@ -304,7 +305,7 @@ class Enrollment extends FOGBase
         $macID = 0;
         if (!empty($macs)) {
             try {
-                self::getClass('HostManager')->getHostByMacAddresses($macs);
+                (new HostManager())->getHostByMacAddresses($macs);
                 if (self::$Host->isValid() && !self::$Host->get('pending')) {
                     $macID = (int)self::$Host->get('id');
                 }
@@ -421,18 +422,18 @@ class Enrollment extends FOGBase
     private static function _createPendingHost(AgentEnrollment $Row, array $identity, array $macs)
     {
         $name = (string)$Row->get('hostname');
-        $Probe = self::getClass('Host');
+        $Probe = new Host();
         if ('' === $name || !$Probe->isHostnameSafe($name)) {
             // Fifteen characters, the NetBIOS bound isHostnameSafe enforces.
             $name = 'agent-' . substr((string)$Row->get('fingerprint'), 0, 8);
         }
         $base = $name;
         $n = 1;
-        while (self::getClass('HostManager')->exists($name)) {
+        while ((new HostManager())->exists($name)) {
             $suffix = '-' . $n++;
             $name = substr($base, 0, 15 - strlen($suffix)) . $suffix;
         }
-        $Host = self::getClass('Host')
+        $Host = (new Host())
             ->set('name', $name)
             ->set('description', _('Pending Registration created by FOG_AGENT'))
             ->set('imageID', null)
@@ -462,7 +463,7 @@ class Enrollment extends FOGBase
         }
         $usable = SmbiosIdentity::usable($ids);
         if (!empty($usable)) {
-            $Inventory = self::getClass('Inventory')->set('hostID', $hostID);
+            $Inventory = (new Inventory())->set('hostID', $hostID);
             foreach ($usable as $field => $value) {
                 $Inventory->set($field, $value);
             }
@@ -506,7 +507,7 @@ class Enrollment extends FOGBase
             : null;
         // The manager rather than Host::save(), as agentPoll does: a save
         // rewrites the MAC association, and renewal is a routine call.
-        self::getClass('HostManager')->update(
+        (new HostManager())->update(
             ['id' => (int)$Host->get('id')],
             '',
             [

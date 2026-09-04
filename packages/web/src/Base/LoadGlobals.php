@@ -18,6 +18,7 @@ use FOG\Db\DatabaseManager;
 use FOG\Items\User;
 use FOG\Net\FOGFTP;
 use FOG\Net\FOGSSH;
+use FOG\Net\FOGURLRequests;
 
 /**
  * Loads our global values
@@ -54,9 +55,9 @@ class LoadGlobals extends FOGBase
         if (!$GLOBALS['DB']) {
             return;
         }
-        $GLOBALS['HookManager'] = FOGCore::getClass('HookManager');
-        $GLOBALS['EventManager'] = FOGCore::getClass('EventManager');
-        $GLOBALS['FOGURLRequests'] = FOGCore::getClass('FOGURLRequests');
+        $GLOBALS['HookManager'] = new HookManager();
+        $GLOBALS['EventManager'] = new EventManager();
+        $GLOBALS['FOGURLRequests'] = new FOGURLRequests();
         FOGCore::setEnv();
         $userID = 0;
         if (session_status() === PHP_SESSION_ACTIVE) {

@@ -24,6 +24,7 @@
 
 namespace FOG\Base;
 
+use FOG\Items\Site;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 use FOG\Util\FOGCron;
@@ -627,7 +628,7 @@ trait FOGPagePost
         // membership tables carry no foreign keys, and a stale row would
         // otherwise sit there granting scope for an id that could later be
         // reused by a different site.
-        $site = self::getClass('Site', $siteID);
+        $site = new Site($siteID);
         if (!$site->isValid()) {
             throw new \Exception(_('The selected site no longer exists'));
         }

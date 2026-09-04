@@ -15,6 +15,7 @@ namespace FOG\Audit;
 
 use FOG\Base\FOGBase;
 use FOG\Base\HookManager;
+use FOG\Items\Setting;
 
 /**
  * Ages rows out of the tables that record what happened.
@@ -264,7 +265,7 @@ class Retention extends FOGBase
     private static function _settingID($key)
     {
         try {
-            $setting = self::getClass('Setting')
+            $setting = (new Setting())
                 ->set('name', $key)
                 ->load('name');
 

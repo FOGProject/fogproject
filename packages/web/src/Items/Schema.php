@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Db\Mysqldump;
 
 /**
  * Handles the database insert/export
@@ -216,7 +217,7 @@ class Schema extends FOGController
                 self::formatTime('now', 'Ymd_His')
             );
         }
-        $dump = self::getClass('Mysqldump');
+        $dump = new Mysqldump();
         $dump->start($file);
         if (!file_exists($file) || !is_readable($file)) {
             throw new \Exception(_('Could not read tmp file.'));

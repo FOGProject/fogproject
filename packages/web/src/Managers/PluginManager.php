@@ -14,6 +14,7 @@
 namespace FOG\Managers;
 
 use FOG\Base\FOGManagerController;
+use FOG\Items\Plugin;
 use FOG\Router\Route;
 
 /**
@@ -45,7 +46,7 @@ class PluginManager extends FOGManagerController
         // damaged row, but it is the same mistake.
         $plugins = Route::getList('plugin', ['installed' => 1]);
         foreach ($plugins as $row) {
-            $plugin = self::getClass('Plugin', $row->id);
+            $plugin = new Plugin($row->id);
             if ($plugin->needsSchemaUpdate()) {
                 $needing[] = $plugin;
             }

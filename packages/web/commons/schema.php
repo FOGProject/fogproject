@@ -13,6 +13,8 @@
 
 use FOG\Audit\Audit;
 use FOG\Db\DatabaseManager;
+use FOG\Items\Image;
+use FOG\Items\OS;
 use FOG\Items\Schema;
 use FOG\Items\TaskLog;
 
@@ -25,7 +27,7 @@ use FOG\Items\TaskLog;
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-$tmpSchema = self::getClass('Schema');
+$tmpSchema = new Schema();
 self::$DB->query(Schema::useDatabaseQuery());
 /**
  * GH-529: FOG_WEB_ROOT used to be seeded with a literal '/fog/' regardless of
@@ -1143,11 +1145,11 @@ if (FOG_SCHEMA < $tmpSchema->get('value')) {
         $allImageID[$Host['hostImage']] = $Host['hostOS'];
     }
     foreach ((array)$allImageID as $imageID => $osID) {
-        $Image = self::getClass('Image', $imageID);
+        $Image = new Image($imageID);
         if (!$Image->isValid()) {
             continue;
         }
-        $OS = self::getClass('OS', $osID);
+        $OS = new OS($osID);
         if (!$OS->isValid()) {
             continue;
         }

@@ -16,6 +16,8 @@
 namespace FOG\Pages;
 
 use FOG\Base\FOGPage;
+use FOG\Items\Module;
+use FOG\Managers\ModuleManager;
 
 /**
  * Module management page
@@ -178,14 +180,14 @@ class ModuleManagement extends FOGPage
                     (string)filter_input(INPUT_POST, 'shortname')
                 );
                 $isDefault = (int)isset($_POST['isDefault']);
-                $exists = self::getClass('ModuleManager')
+                $exists = (new ModuleManager())
                     ->exists($module);
                 if ($exists) {
                     throw new \Exception(
                         _('A module already exists with this name!')
                     );
                 }
-                $Module = self::getClass('Module')
+                $Module = (new Module())
                     ->set('name', $module)
                     ->set('description', $description)
                     ->set('shortName', $shortname)

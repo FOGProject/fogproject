@@ -12,6 +12,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Db\Mysqldump;
 
 /**
  * Backs up the db for us
@@ -49,7 +50,7 @@ if (false === $tmpfile) {
 }
 chmod($tmpfile, 0600);
 $data = '';
-FOGCore::getClass('Mysqldump')->start($tmpfile);
+(new Mysqldump())->start($tmpfile);
 if (!file_exists($tmpfile) || !is_readable($tmpfile)) {
     throw new \Exception(_('Could not read file from tmp folder.'));
 }

@@ -16,6 +16,7 @@ namespace FOG\Agent;
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
 use FOG\Items\Host;
+use FOG\Items\Inventory;
 
 /**
  * Writes a reported hardware block into FOG's existing `inventory` row
@@ -85,7 +86,7 @@ class InventoryFacts extends FOGBase
         if (!$Inventory instanceof \FOG\Items\Inventory
             || !$Inventory->isValid()
         ) {
-            $Inventory = self::getClass('Inventory')->set('hostID', $hostID);
+            $Inventory = (new Inventory())->set('hostID', $hostID);
         }
         $changed = [];
         foreach (self::FIELDS as $field) {

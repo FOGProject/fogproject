@@ -13,7 +13,10 @@
 
 namespace FOG\Service;
 
+use FOG\Items\Image;
 use FOG\Items\MulticastSession;
+use FOG\Items\Task;
+use FOG\Managers\MulticastSessionManager;
 use FOG\Router\Route;
 
 /**
@@ -145,7 +148,7 @@ class MulticastTask extends FOGService
                 (int)$Task->sessclients
             );
             if ($count < 1) {
-                self::getClass('MulticastSessionManager')->update(
+                (new MulticastSessionManager())->update(
                     ['id' => $Task->id],
                     '',
                     [
@@ -174,7 +177,7 @@ class MulticastTask extends FOGService
             // unwinds the whole collection pass and takes every other queued
             // session with it. Testing validity here keeps the failure scoped
             // to the one session it belongs to. Refs #907, ADR 0011.
-            if (!self::getClass('Image', $Task->image)->isValid()) {
+            if (!(new Image($Task->image))->isValid()) {
                 self::outall(
                     sprintf(
                         ' | ' . _('Image %s for session %s is missing or invalid; skipping'),
@@ -432,10 +435,7 @@ class MulticastTask extends FOGService
      */
     public function getImageFormat()
     {
-        return (int)self::getClass(
-            'Image',
-            $this->_MultiSess->get('image')
-        )->get('format');
+        return (int)(new Image($this->_MultiSess->get('image')))->get('format');
     }
     /**
      * Returns the client count
@@ -500,10 +500,7 @@ class MulticastTask extends FOGService
      */
     public function getBitrate()
     {
-        return self::getClass(
-            'Image',
-            $this->_MultiSess->get('image')
-        )->getStorageGroup()
+        return (new Image($this->_MultiSess->get('image')))->getStorageGroup()
         ->getMasterStorageNode()
         ->get('bitrate');
     }
@@ -514,10 +511,7 @@ class MulticastTask extends FOGService
      */
     public function getHelloInterval()
     {
-        return self::getClass(
-            'Image',
-            $this->_MultiSess->get('image')
-        )->getStorageGroup()
+        return (new Image($this->_MultiSess->get('image')))->getStorageGroup()
         ->getMasterStorageNode()
         ->get('helloInterval');
     }
@@ -1258,7 +1252,7 @@ class MulticastTask extends FOGService
         ) {
             return false;
         }
-        self::getClass('MulticastSessionManager')->update(
+        (new MulticastSessionManager())->update(
             ['id' => $this->getID()],
             '',
             [
@@ -1284,7 +1278,7 @@ class MulticastTask extends FOGService
         );
         $TaskPercent = [];
         foreach ($MSAssocs as $TaskID) {
-            $TaskPercent[] = self::getClass('Task', $TaskID)->get('percent');
+            $TaskPercent[] = (new Task($TaskID))->get('percent');
         }
         $TaskPercent = array_unique($TaskPercent);
         // Write the one column this owns. updateStats() runs against the
@@ -1294,7 +1288,7 @@ class MulticastTask extends FOGService
         // first-seen snapshot back every tick. That silently undid the
         // clients counter TaskQueue::checkIn() increments as hosts arrive,
         // which is why a session's client count never climbed.
-        self::getClass('MulticastSessionManager')->update(
+        (new MulticastSessionManager())->update(
             ['id' => $this->_intID],
             '',
             ['percent' => self::maxId($TaskPercent)]

@@ -13,6 +13,7 @@
 
 use FOG\Audit\Audit;
 use FOG\Base\FOGCore;
+use FOG\Items\User;
 
 /**
  * Checks credentials for init based calls
@@ -136,7 +137,7 @@ try {
     if (false === $password) {
         throw new \Exception('#!il');
     }
-    $userTest = FOGCore::getClass('User')
+    $userTest = (new User())
         ->passwordValidate($username, $password);
     if (!$userTest) {
         $recordBadAttempt();

@@ -18,6 +18,10 @@ use FOG\Exception\SnapinSaveException;
 use FOG\Exception\UploadException;
 use FOG\Items\Snapin;
 use FOG\Items\StorageGroup;
+use FOG\Managers\FileDeleteQueueManager;
+use FOG\Managers\SnapinGroupAssociationManager;
+use FOG\Managers\SnapinManager;
+use FOG\Managers\StorageGroupManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -280,7 +284,7 @@ class SnapinManagement extends FOGPage
             $sgID = @min(Route::getIds('storagegroup', false));
         }
         $StorageGroup = new StorageGroup($sgID);
-        $StorageGroups = self::getClass('StorageGroupManager')
+        $StorageGroups = (new StorageGroupManager())
             ->buildSelectBox($sgID, '', 'id');
         self::$selected = '';
         self::$selected = $snapinfileexist;
@@ -1213,7 +1217,7 @@ class SnapinManagement extends FOGPage
         $action = trim((string)filter_input(INPUT_POST, 'action'));
         $args = trim((string)filter_input(INPUT_POST, 'args'));
 
-        $exists = self::getClass('SnapinManager')
+        $exists = (new SnapinManager())
             ->exists($snapin);
         if ($snapin != $this->obj->get('name')
             && $exists
@@ -1345,7 +1349,7 @@ class SnapinManagement extends FOGPage
                             $storagegroupID
                         ];
                     }
-                    self::getClass('FileDeleteQueueManager')->insertBatch(
+                    (new FileDeleteQueueManager())->insertBatch(
                         $insert_fields,
                         $insert_values
                     );
@@ -1460,7 +1464,7 @@ class SnapinManagement extends FOGPage
                 $this->obj->get('storagegroups'),
                 [$primary]
             );
-            self::getClass('SnapinGroupAssociationManager')->update(
+            (new SnapinGroupAssociationManager())->update(
                 [
                     'snapinID' => $this->obj->get('id'),
                     'storagegroupID' => $storagegroups,
@@ -1470,7 +1474,7 @@ class SnapinManagement extends FOGPage
                 ['primary' => '0']
             );
             if ($primary) {
-                self::getClass('SnapinGroupAssociationManager')->update(
+                (new SnapinGroupAssociationManager())->update(
                     [
                         'snapinID' => $this->obj->get('id'),
                         'storagegroupID' => $primary,

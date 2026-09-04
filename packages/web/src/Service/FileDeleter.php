@@ -13,6 +13,7 @@
 
 namespace FOG\Service;
 
+use FOG\Items\FileDeleteQueue;
 use FOG\Router\Route;
 
 /**
@@ -220,7 +221,7 @@ class FileDeleter extends FOGService
                         $filedelete->createdTime
                     )
                 );
-                $Task = self::getClass('FileDeleteQueue', $filedelete->id)
+                $Task = (new FileDeleteQueue($filedelete->id))
                     ->set('stateID', self::getProgressState())
                     ->save();
                 $StorageNodes = Route::getList(

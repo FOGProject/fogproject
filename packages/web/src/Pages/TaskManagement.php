@@ -17,6 +17,17 @@ use FOG\Base\FOGManagerController;
 use FOG\Base\FOGPage;
 use FOG\Items\TaskLog;
 use FOG\Items\TaskType;
+use FOG\Managers\FileDeleteQueueManager;
+use FOG\Managers\HostManager;
+use FOG\Managers\ImageManager;
+use FOG\Managers\MulticastSessionManager;
+use FOG\Managers\ScheduledTaskManager;
+use FOG\Managers\SnapinTaskManager;
+use FOG\Managers\StorageNodeManager;
+use FOG\Managers\TaskManager;
+use FOG\Managers\TaskStateManager;
+use FOG\Managers\TaskTypeManager;
+use FOG\Managers\UserManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -957,7 +968,7 @@ class TaskManagement extends FOGPage
     private function _taskJoinColumns()
     {
         $columns = [];
-        foreach (self::getClass('TaskManager')
+        foreach ((new TaskManager())
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -966,7 +977,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        foreach (self::getClass('HostManager')
+        foreach ((new HostManager())
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -975,7 +986,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        foreach (self::getClass('ImageManager')
+        foreach ((new ImageManager())
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -984,7 +995,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        foreach (self::getClass('TaskTypeManager')
+        foreach ((new TaskTypeManager())
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -993,7 +1004,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        foreach (self::getClass('TaskStateManager')
+        foreach ((new TaskStateManager())
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -1002,7 +1013,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        foreach (self::getClass('StorageNodeManager')
+        foreach ((new StorageNodeManager())
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -1011,7 +1022,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        foreach (self::getClass('UserManager')
+        foreach ((new UserManager())
             ->getColumns() as $common => &$real
         ) {
             if (in_array($common, ['id', 'name'])) {
@@ -1115,7 +1126,7 @@ class TaskManagement extends FOGPage
             LEFT OUTER JOIN `taskStates`
             ON `multicastSessions`.`msState` = `taskStates`.`tsID`
             WHERE $where";
-        foreach (self::getClass('MulticastSessionManager')
+        foreach ((new MulticastSessionManager())
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -1124,7 +1135,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        foreach (self::getClass('TaskTypeManager')
+        foreach ((new TaskTypeManager())
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -1133,7 +1144,7 @@ class TaskManagement extends FOGPage
             ];
             unset($real);
         }
-        foreach (self::getClass('TaskStateManager')
+        foreach ((new TaskStateManager())
             ->getColumns() as $common => &$real
         ) {
             $columns[] = [
@@ -1288,7 +1299,7 @@ class TaskManagement extends FOGPage
                     ]
                 );
                 $tasks = $tasks['tasks'];
-                self::getClass('TaskManager')->cancel($tasks);
+                (new TaskManager())->cancel($tasks);
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
@@ -1349,8 +1360,8 @@ class TaskManagement extends FOGPage
                     $find,
                     'taskID'
                 );
-                self::getClass('TaskManager')->cancel($tasks);
-                self::getClass('MulticastSessionManager')->cancel($mtasks);
+                (new TaskManager())->cancel($tasks);
+                (new MulticastSessionManager())->cancel($mtasks);
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
@@ -1404,7 +1415,7 @@ class TaskManagement extends FOGPage
                     ]
                 );
                 $tasks = $tasks['tasks'];
-                self::getClass('SnapinTaskManager')->cancel($tasks);
+                (new SnapinTaskManager())->cancel($tasks);
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
@@ -1458,7 +1469,7 @@ class TaskManagement extends FOGPage
                     ]
                 );
                 $tasks = $tasks['tasks'];
-                self::getClass('ScheduledTaskManager')->cancel($tasks);
+                (new ScheduledTaskManager())->cancel($tasks);
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'TASK_CANCEL_SUCCESS';
@@ -1512,7 +1523,7 @@ class TaskManagement extends FOGPage
                     ]
                 );
                 $tasks = $tasks['tasks'];
-                self::getClass('FileDeleteQueueManager')->cancel($tasks);
+                (new FileDeleteQueueManager())->cancel($tasks);
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $hook = 'QUEUED_DELETION_CANCEL_SUCCESS';

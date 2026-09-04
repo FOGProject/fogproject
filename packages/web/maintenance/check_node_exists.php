@@ -12,6 +12,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Managers\StorageNodeManager;
 
 /**
  * Check if the node exists and return it
@@ -52,7 +53,7 @@ if (!$ip) {
 }
 
 $val = '';
-$exists = FOGCore::getClass('StorageNodeManager')
+$exists = (new StorageNodeManager())
     ->exists($ip, '', 'ip');
 if ($exists) {
     $val = 'exists';

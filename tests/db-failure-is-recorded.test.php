@@ -55,7 +55,12 @@
 
 use FOG\Base\FOGBase;
 use FOG\Base\FOGCore;
+use FOG\Items\Host;
+use FOG\Items\Task;
 use FOG\Items\TaskLog;
+use FOG\Items\TaskType;
+use FOG\Items\User;
+use FOG\Managers\TaskLogManager;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
@@ -147,7 +152,7 @@ FogTestHarness::setStatic('DatabaseManager', 'DB', $db);
 
 // The condition every machine-facing request boots into: LoadGlobals builds
 // `new User(0)` because there is no session to read FOG_USER from.
-$anon = FOGCore::getClass('User');
+$anon = new User();
 $GLOBALS['currentUser'] = $anon;
 FogTestHarness::setStatic('FOGBase', 'FOGUser', $anon);
 if ($anon->isValid()) {
@@ -199,7 +204,7 @@ $failures = [];
 // ---------------------------------------------------------------------
 // 1. An existing row whose write was rejected must not report success.
 // ---------------------------------------------------------------------
-$existing = FOGCore::getClass('TaskLog');
+$existing = new TaskLog();
 $existing->set('id', 4242)
     ->set('taskID', 7)
     ->set('text', 'save-failure existing row');
@@ -216,7 +221,7 @@ if (false !== $result) {
 // 2. A failed write must leave a record with no user signed in.
 // ---------------------------------------------------------------------
 $before = fogLogContents();
-$newRow = FOGCore::getClass('TaskLog');
+$newRow = new TaskLog();
 $newRow->set('taskID', 9)->set('text', 'save-failure new row');
 $newRow->save();
 $after = fogLogContents();
@@ -230,15 +235,15 @@ if ($after === $before) {
 // 3. The sink itself: TaskError::_logRow() discards save()'s return, so
 //    only a fix inside the framework can cover it.
 // ---------------------------------------------------------------------
-$host = FOGCore::getClass('Host');
+$host = new Host();
 $host->set('id', 11);
 FogTestHarness::setStatic('FOGBase', 'Host', $host);
 
-$task = FOGCore::getClass('Task');
+$task = new Task();
 $task->set('id', 33)->set('stateID', 3);
 // getTaskTypeText() dereferences the loaded TaskType object; the fake
 // database answers lazy loads with marker strings, so it is seeded directly.
-$task->set('type', FOGCore::getClass('TaskType')->set('id', 1)->set('name', 'Deploy'));
+$task->set('type', (new TaskType())->set('id', 1)->set('name', 'Deploy'));
 
 $before = fogLogContents();
 $writesBefore = $db->writes;
@@ -274,7 +279,7 @@ if ($db->writes === $writesBefore) {
 // ---------------------------------------------------------------------
 $db->rejectReads = true;
 $before = fogLogContents();
-$reader = FOGCore::getClass('TaskLog');
+$reader = new TaskLog();
 $reader->set('id', 8080)->load('id');
 if (fogLogContents() === $before) {
     $failures[] = 'a rejected SELECT in load() left no record -- an object '
@@ -286,7 +291,7 @@ if (fogLogContents() === $before) {
 // rejected read returns an EMPTY set, which the caller reads as "none of
 // those ids exist" rather than "the question was not asked".
 $before = fogLogContents();
-FOGCore::getClass('TaskLog')->loadMany([1, 2, 3], 'id');
+(new TaskLog())->loadMany([1, 2, 3], 'id');
 if (fogLogContents() === $before) {
     $failures[] = 'a rejected SELECT in loadMany() left no record -- the '
         . 'caller cannot tell an empty result from an unasked question';
@@ -318,7 +323,7 @@ $db->rejectReads = true;
 $db->rejectReads = false;
 $db->rejectFetch = true;
 $before = fogLogContents();
-$fetchReader = FOGCore::getClass('TaskLog');
+$fetchReader = new TaskLog();
 $fetchReader->set('id', 9090)->load('id');
 if (fogLogContents() === $before) {
     $failures[] = 'a SELECT that ran but could not be FETCHED left no record '
@@ -329,7 +334,7 @@ if (fogLogContents() === $before) {
 // assertion -- driving load() alone leaves the bulk read's check position
 // unpinned.
 $before = fogLogContents();
-FOGCore::getClass('TaskLog')->loadMany([4, 5, 6], 'id');
+(new TaskLog())->loadMany([4, 5, 6], 'id');
 if (fogLogContents() === $before) {
     $failures[] = 'a bulk SELECT that ran but could not be FETCHED left no '
         . 'record -- the caller reads the empty set as "none of those ids '
@@ -379,7 +384,7 @@ if ('the original cause' !== $realDb->error) {
 //    catch that handles both.
 // ---------------------------------------------------------------------
 $before = fogLogContents();
-FOGCore::getClass('TaskLog')->load('id');
+(new TaskLog())->load('id');
 if (fogLogContents() !== $before) {
     $failures[] = 'loading an object with no id wrote a fault line -- that is '
         . "load()'s normal control flow, not a database failure, and at that "
@@ -393,7 +398,7 @@ $db->rejectReads = false;
 //    The API's bulk edit is its busiest caller.
 // ---------------------------------------------------------------------
 $before = fogLogContents();
-$mass = FOGCore::getClass('TaskLogManager')->update(
+$mass = (new TaskLogManager())->update(
     ['id' => 1],
     'AND',
     ['text' => 'save-failure mass update']
@@ -412,7 +417,7 @@ if (fogLogContents() === $before) {
 // whether to CREATE, so an unreadable database becomes a duplicate row
 // rather than an error.
 $db->rejectReads = true;
-$manager = FOGCore::getClass('TaskLogManager');
+$manager = new TaskLogManager();
 $before = fogLogContents();
 // idField is 'name' by default and taskLog has no such column; hostName is
 // a real one, so the probe fails on the DATABASE rather than on the model.

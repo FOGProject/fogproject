@@ -162,7 +162,7 @@ class FOGPageManager extends FOGBase
                 || empty($method)
             ) {
                 $method = 'index';
-                self::getClass('Page')
+                (new Page())
                     ->addJavascript("js/fog/{$node}/fog.{$node}.list.js");
             }
             // The schema deploy endpoint must run before any user/session or

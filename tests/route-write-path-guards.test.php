@@ -60,6 +60,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\User;
 use FOG\Router\Route;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
@@ -159,7 +160,7 @@ function runChild($case)
         return null;
     };
 
-    $admin = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+    $admin = (new User())->set('id', 1)->set('name', 'fog');
     foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
         FogTestHarness::setStatic($cls, 'FOGUser', $admin);
     }

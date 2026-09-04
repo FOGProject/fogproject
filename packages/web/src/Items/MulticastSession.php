@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Managers\TaskManager;
 use FOG\Router\Route;
 
 /**
@@ -348,7 +349,7 @@ class MulticastSession extends FOGController
             $find,
             'taskID'
         );
-        self::getClass('TaskManager')->update(
+        (new TaskManager())->update(
             ['id' => $taskIDs],
             '',
             [
@@ -404,7 +405,7 @@ class MulticastSession extends FOGController
                 array_diff($taskIDs, $neverStarted)
             );
             if (count($received)) {
-                self::getClass('TaskManager')->update(
+                (new TaskManager())->update(
                     ['id' => $received],
                     '',
                     [
@@ -414,7 +415,7 @@ class MulticastSession extends FOGController
                 );
             }
             if (count($neverStarted)) {
-                self::getClass('TaskManager')->update(
+                (new TaskManager())->update(
                     ['id' => $neverStarted],
                     '',
                     [

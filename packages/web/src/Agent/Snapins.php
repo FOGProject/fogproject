@@ -20,6 +20,7 @@ use FOG\Items\Snapin;
 use FOG\Items\SnapinTask;
 use FOG\Items\StorageGroup;
 use FOG\Items\StorageNode;
+use FOG\Managers\SnapinTaskManager;
 use FOG\Router\Route;
 
 /**
@@ -399,7 +400,7 @@ class Snapins extends FOGBase
         $abortedOnFailure = false;
         if ($SnapinJob->get('abortOnFail') && self::OUTCOME_FAILED === $outcome) {
             $abortedOnFailure = true;
-            self::getClass('SnapinTaskManager')->update(
+            (new SnapinTaskManager())->update(
                 $live,
                 '',
                 [

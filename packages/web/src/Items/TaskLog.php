@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Managers\TaskLogManager;
 
 /**
  * Task log class.
@@ -210,7 +211,7 @@ class TaskLog extends FOGController
             }
         }
 
-        return self::getClass('TaskLog')
+        return (new TaskLog())
             ->set('taskID', $Task->get('id'))
             ->set('taskStateID', $Task->get('stateID'))
             ->set('createdTime', self::niceDate()->format('Y-m-d H:i:s'))
@@ -297,7 +298,7 @@ class TaskLog extends FOGController
         // the image name on isImagingTask(), and two definitions of "imaging"
         // that can drift is exactly the kind of thing that makes one row
         // disagree with another.
-        $TaskType = self::getClass('TaskType');
+        $TaskType = new TaskType();
         $imagingTypes = self::fastmerge(
             (array)$TaskType->isDeploy(true),
             (array)$TaskType->isCapture(true)
@@ -358,7 +359,7 @@ class TaskLog extends FOGController
          * signed in gets written, exactly as save()'s own catch does with it.
          */
         try {
-            list($insertID, $affected) = self::getClass('TaskLogManager')
+            list($insertID, $affected) = (new TaskLogManager())
                 ->insertBatch($fields, $values);
             unset($insertID);
         } catch (\Exception $e) {

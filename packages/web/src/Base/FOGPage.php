@@ -15,11 +15,17 @@
 namespace FOG\Base;
 
 use FOG\Auth\Authorization;
+use FOG\Boot\WakeOnLan;
+use FOG\Client\RegisterClient;
+use FOG\Items\BootFile;
 use FOG\Items\Group;
 use FOG\Items\Host;
 use FOG\Items\Image;
 use FOG\Items\Site;
 use FOG\Items\Snapin;
+use FOG\Managers\FileDeleteQueueManager;
+use FOG\Managers\HostManager;
+use FOG\Managers\PowerManagementManager;
 use FOG\Pages\ReportManagement;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
@@ -2353,7 +2359,7 @@ abstract class FOGPage extends FOGBase
                         ];
                     }
                 }
-                self::getClass('FileDeleteQueueManager')
+                (new FileDeleteQueueManager())
                     ->insertBatch(
                         $insert_fields,
                         $insert_values
@@ -3657,7 +3663,7 @@ abstract class FOGPage extends FOGBase
         }
         // Handles adding additional system macs for us.
         ob_start();
-        self::getClass('RegisterClient')->json();
+        (new RegisterClient())->json();
         ob_end_clean();
         try {
             // The legacy client has no module for `software`: the agent
@@ -3794,10 +3800,10 @@ abstract class FOGPage extends FOGBase
         if ($groupid < 1) {
             $hosts = $id;
         } else {
-            $hosts = self::getClass('Group', $groupid)
+            $hosts = (new Group($groupid))
                 ->get('hosts');
         }
-        self::getClass('HostManager')
+        (new HostManager())
             ->update(
                 ['id' => $hosts],
                 '',
@@ -3833,7 +3839,7 @@ abstract class FOGPage extends FOGBase
         if ($groupid < 1) {
             return;
         }
-        $hosts = self::getClass('Group', $groupid)
+        $hosts = (new Group($groupid))
             ->get('hosts');
         if (count($hosts ?: [])) {
             Route::deletemass(
@@ -3980,7 +3986,7 @@ abstract class FOGPage extends FOGBase
         if (count($macs ?: []) < 1) {
             return;
         }
-        self::getClass('WakeOnLan', implode('|', $macs))->send();
+        (new WakeOnLan(implode('|', $macs)))->send();
     }
     /**
      * Presents the importer elements
@@ -5053,7 +5059,7 @@ abstract class FOGPage extends FOGBase
                     if ($isHost) {
                         $macs = self::parseMacList($rowVals['primac']);
                         self::$Host = $Item;
-                        self::getClass('HostManager')
+                        (new HostManager())
                             ->getHostByMacAddresses($macs);
                         if (self::$Host->isValid()) {
                             throw new \Exception(
@@ -5350,7 +5356,7 @@ abstract class FOGPage extends FOGBase
 
         $labelClass = 'col-sm-3 col-form-label';
 
-        $actionSelector = self::getClass('PowerManagementManager')->getActionSelect(
+        $actionSelector = (new PowerManagementManager())->getActionSelect(
             $action,
             false,
             'action'
@@ -6355,7 +6361,7 @@ abstract class FOGPage extends FOGBase
     private static function _bootFileStore($row, array $data)
     {
         try {
-            $obj = $row ?: self::getClass('BootFile');
+            $obj = $row ?: new BootFile();
             foreach ($data as $field => $value) {
                 $obj->set($field, $value);
             }
@@ -6423,7 +6429,7 @@ abstract class FOGPage extends FOGBase
             return false;
         }
         try {
-            $row = self::_bootFileRow($name) ?: self::getClass('BootFile');
+            $row = self::_bootFileRow($name) ?: new BootFile();
             $row->set('name', $name)
                 ->set('pinned', $keep ? 1 : 0);
             $row->save();

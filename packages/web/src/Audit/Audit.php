@@ -16,6 +16,7 @@ namespace FOG\Audit;
 use FOG\Auth\Identity;
 use FOG\Auth\Redaction;
 use FOG\Base\FOGBase;
+use FOG\Items\AuditChange;
 use FOG\Items\AuditLog;
 use FOG\Items\User;
 
@@ -179,7 +180,7 @@ class Audit extends FOGBase
     public static function record(array $row)
     {
         try {
-            $audit = self::getClass('AuditLog')
+            $audit = (new AuditLog())
                 ->set('correlationID', self::correlationID())
                 ->set('createdBy', $row['createdBy'] ?? self::_actor())
                 ->set('ip', (string)self::$remoteaddr)
@@ -407,7 +408,7 @@ class Audit extends FOGBase
                 $pair[1] ?? null
             );
             try {
-                $change = self::getClass('AuditChange')
+                $change = (new AuditChange())
                     ->set('auditID', (int)$audit->get('id'))
                     ->set('subjectType', $subjectType)
                     ->set('subjectID', (int)$subjectID)

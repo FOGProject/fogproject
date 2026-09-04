@@ -17,13 +17,16 @@ use FOG\Base\FOGBase;
 use FOG\Base\SmbiosIdentity;
 use FOG\Items\Architecture;
 use FOG\Items\Host;
-use FOG\Managers\HostManager;
 use FOG\Items\Image;
+use FOG\Items\Inventory;
+use FOG\Items\Ipxe;
+use FOG\Items\KeySequence;
 use FOG\Items\MulticastSession;
 use FOG\Items\MulticastSessionAssociation;
 use FOG\Items\PXEMenuOptions;
 use FOG\Items\StorageNode;
 use FOG\Items\TaskType;
+use FOG\Managers\HostManager;
 use FOG\Router\Route;
 
 /**
@@ -211,7 +214,7 @@ class IpxeBootMenu extends BootMenuBase
         if ($archID === (int)self::$Host->get('archID')) {
             return;
         }
-        self::getClass('HostManager')->update(
+        (new HostManager())->update(
             ['id' => self::$Host->get('id')],
             '',
             ['archID' => $archID]
@@ -269,7 +272,7 @@ class IpxeBootMenu extends BootMenuBase
             return;
         }
         $now = self::niceDate()->format('Y-m-d H:i:s');
-        self::getClass('HostManager')->update(
+        (new HostManager())->update(
             ['id' => self::$Host->get('id')],
             '',
             ['sbstate' => $state, 'sbstatetime' => $now]
@@ -929,7 +932,7 @@ class IpxeBootMenu extends BootMenuBase
         $this->_hiddenmenu = ($hiddenmenu && empty($_REQUEST['menuAccess']));
         $this->_bootexittype = self::$_exitTypes[$exit];
         $this->_loglevel = "loglevel=$loglevel";
-        $this->_KS = self::getClass('KeySequence', $keySequence);
+        $this->_KS = new KeySequence($keySequence);
         $this->_booturl = self::$httpproto
             . "://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
@@ -949,7 +952,7 @@ class IpxeBootMenu extends BootMenuBase
                 if ($hostname == $webserver
                     || $hostname == self::resolveHostname($webserver)
                 ) {
-                    $StorageNode = self::getClass('StorageNode', $StorageNode->id);
+                    $StorageNode = new StorageNode($StorageNode->id);
                     break;
                 }
                 $StorageNode = new StorageNode(0);
@@ -1235,7 +1238,7 @@ class IpxeBootMenu extends BootMenuBase
             $findWhere
         );
         $id = count($id ?: []) ? max($id) : 0;
-        self::getClass('Ipxe', $id)
+        (new Ipxe($id))
             ->set('product', $findWhere['product'])
             ->set('manufacturer', $findWhere['manufacturer'])
             ->set('mac', $findWhere['mac'])
@@ -2105,7 +2108,7 @@ class IpxeBootMenu extends BootMenuBase
             return;
         }
         if (!self::$Host->isValid()) {
-            $this->falseTasking('', self::getClass('Image', $imgID));
+            $this->falseTasking('', new Image($imgID));
             return;
         }
         if (self::$Host->getImage()->get('id') != $imgID) {
@@ -2798,7 +2801,7 @@ class IpxeBootMenu extends BootMenuBase
             if (empty($usable)) {
                 return;
             }
-            $New = self::getClass('Inventory')->set('hostID', $hostID);
+            $New = (new Inventory())->set('hostID', $hostID);
             foreach ($usable as $field => $value) {
                 if ($field === 'sysuuid' ? $uuidOk : $textOk($value)) {
                     $New->set($field, $value);

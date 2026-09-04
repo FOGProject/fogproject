@@ -16,8 +16,12 @@ namespace FOG\TaskHandling;
 use FOG\Audit\Audit;
 use FOG\Boot\UbootTftpSync;
 use FOG\Items\Image;
+use FOG\Items\MulticastSession;
+use FOG\Items\MulticastSessionAssociation;
 use FOG\Items\StorageNode;
+use FOG\Items\Task;
 use FOG\Items\TaskType;
+use FOG\Managers\HostManager;
 use FOG\Router\Route;
 
 /**
@@ -97,7 +101,7 @@ class TaskQueue extends TaskingElement
         if ($taskID < 1) {
             return;
         }
-        $Task = self::getClass('Task', $taskID);
+        $Task = new Task($taskID);
         if (!$Task->isValid()) {
             return;
         }
@@ -142,10 +146,7 @@ class TaskQueue extends TaskingElement
                     : 'getOptimalStorageNode';
                 if ($this->Task->isMulticast()) {
                     $msID = self::minId(Route::getIds('multicastsessionassociation', ['taskID' => $this->Task->get('id')], 'msID'));
-                    $MulticastSession = self::getClass(
-                        'MulticastSession',
-                        $msID
-                    );
+                    $MulticastSession = new MulticastSession($msID);
                     if (!$MulticastSession->isValid()) {
                         throw new \Exception(_('Invalid Multicast Session'));
                     }
@@ -190,10 +191,7 @@ class TaskQueue extends TaskingElement
                     }
                 } else {
                     $this->StorageNode = self::nodeFail(
-                        self::getClass(
-                            'StorageNode',
-                            $this->Task->get('storagenodeID')
-                        ),
+                        new StorageNode($this->Task->get('storagenodeID')),
                         self::$Host->get('id')
                     );
                     $nodeOk = $this->StorageNode instanceof StorageNode &&
@@ -628,7 +626,7 @@ class TaskQueue extends TaskingElement
                 'renderable' => 1
             ]);
             if ($this->Task->isMulticast()) {
-                $MCTask = self::getClass('MulticastSessionAssociation')
+                $MCTask = (new MulticastSessionAssociation())
                     ->set(
                         'taskID',
                         $this->Task->get('id')
@@ -697,7 +695,7 @@ class TaskQueue extends TaskingElement
                     _('Host is not valid; the task cannot be completed')
                 );
             }
-            $updatedHost = self::getClass('HostManager')->update(
+            $updatedHost = (new HostManager())->update(
                 ['id' => self::$Host->get('id')],
                 '',
                 $updateFields

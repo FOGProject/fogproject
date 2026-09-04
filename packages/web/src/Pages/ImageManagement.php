@@ -19,6 +19,15 @@ use FOG\Items\Architecture;
 use FOG\Items\Image;
 use FOG\Items\MulticastSession;
 use FOG\Items\StorageGroup;
+use FOG\Items\StorageNode;
+use FOG\Managers\ArchitectureManager;
+use FOG\Managers\ImageAssociationManager;
+use FOG\Managers\ImageManager;
+use FOG\Managers\ImagePartitionTypeManager;
+use FOG\Managers\ImageTypeManager;
+use FOG\Managers\MulticastSessionManager;
+use FOG\Managers\OSManager;
+use FOG\Managers\StorageGroupManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -111,7 +120,7 @@ class ImageManagement extends FOGPage
             if (count($masterIds) < 1) {
                 $masterIds = $ids;
             }
-            $StorageNode = self::getClass('StorageNode', array_shift($masterIds));
+            $StorageNode = new StorageNode(array_shift($masterIds));
             return $StorageNode->isValid() ? $StorageNode : null;
         }
     }
@@ -137,20 +146,20 @@ class ImageManagement extends FOGPage
             $sgID = @min(Route::getIds('storagegroup', false));
         }
         $StorageGroup = new StorageGroup($sgID);
-        $StorageGroups = self::getClass('StorageGroupManager')
+        $StorageGroups = (new StorageGroupManager())
             ->buildSelectBox(
                 $sgID,
                 '',
                 'id'
             );
         $StorageNode = $this->_displayStorageNode($StorageGroup);
-        $OSs = self::getClass('OSManager')
+        $OSs = (new OSManager())
             ->buildSelectBox($os);
         $itID = 1;
         if ($imagetype > 0) {
             $itID = $imagetype;
         }
-        $ImageTypes = self::getClass('ImageTypeManager')
+        $ImageTypes = (new ImageTypeManager())
             ->buildSelectBox(
                 $itID,
                 '',
@@ -162,7 +171,7 @@ class ImageManagement extends FOGPage
         } else {
             $iptID = 1;
         }
-        $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')
+        $ImagePartitionTypes = (new ImagePartitionTypeManager())
             ->buildSelectBox(
                 $iptID,
                 '',
@@ -457,7 +466,7 @@ class ImageManagement extends FOGPage
                 $imagemanage = (int)trim(
                     (string)filter_input(INPUT_POST, 'imagemanage')
                 );
-                $exists = self::getClass('ImageManager')
+                $exists = (new ImageManager())
                     ->exists($image);
                 if ($exists) {
                     throw new \Exception(
@@ -469,14 +478,14 @@ class ImageManagement extends FOGPage
                         _('Please choose a different filename/path as this is reserved')
                     );
                 }
-                $exists = self::getClass('ImageManager')
+                $exists = (new ImageManager())
                     ->exists($path, '', 'path');
                 if ($exists) {
                     throw new \Exception(
                         _('The path requested is already in use by another image!')
                     );
                 }
-                $Image = self::getClass('Image')
+                $Image = (new Image())
                     ->set('name', $image)
                     ->set('description', $description)
                     ->set('osID', $os)
@@ -521,7 +530,7 @@ class ImageManagement extends FOGPage
             filter_input(INPUT_POST, 'os') ?:
             ($this->obj->get('osID') ?: '')
         );
-        $OSs = self::getClass('OSManager')
+        $OSs = (new OSManager())
             ->buildSelectBox($osID, '', 'id');
         $path = (
             filter_input(INPUT_POST, 'path') ?:
@@ -531,13 +540,13 @@ class ImageManagement extends FOGPage
             filter_input(INPUT_POST, 'imagetype') ?:
             ($this->obj->get('imageTypeID') ?: '')
         );
-        $ImageTypes = self::getClass('ImageTypeManager')
+        $ImageTypes = (new ImageTypeManager())
             ->buildSelectBox($itID, '', 'id');
         $iptID = (int)(
             filter_input(INPUT_POST, 'imagepartitiontype') ?:
             ($this->obj->get('imagePartitionTypeID') ?: '')
         );
-        $ImagePartitionTypes = self::getClass('ImagePartitionTypeManager')
+        $ImagePartitionTypes = (new ImagePartitionTypeManager())
             ->buildSelectBox($iptID, '', 'id');
         // The architectures an admin may pick on an IMAGE, which is what
         // `architectures.archIsAccess` is for -- the same flag taskTypes uses
@@ -566,7 +575,7 @@ class ImageManagement extends FOGPage
         if (count($archIds) < 1) {
             $archIds = [0];
         }
-        $Architectures = self::getClass('ArchitectureManager')
+        $Architectures = (new ArchitectureManager())
             ->buildSelectBox($archID, 'archID', 'name', $archIds);
         $isprot = (
             isset($_POST['isProtected']) ? 'checked' :
@@ -874,7 +883,7 @@ class ImageManagement extends FOGPage
         $protected = (int)isset($_POST['isProtected']);
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
-        $exists = self::getClass('ImageManager')->exists($image);
+        $exists = (new ImageManager())->exists($image);
         $compress = (int)trim(
             (string)filter_input(INPUT_POST, 'compression')
         );
@@ -987,7 +996,7 @@ class ImageManagement extends FOGPage
                 $this->obj->get('storagegroups'),
                 [$primary]
             );
-            self::getClass('ImageAssociationManager')->update(
+            (new ImageAssociationManager())->update(
                 [
                     'imageID' => $this->obj->get('id'),
                     'storagegroupID' => $storagegroups,
@@ -997,7 +1006,7 @@ class ImageManagement extends FOGPage
                 ['primary' => '0']
             );
             if ($primary) {
-                self::getClass('ImageAssociationManager')->update(
+                (new ImageAssociationManager())->update(
                     [
                         'imageID' => $this->obj->get('id'),
                         'storagegroupID' => $primary,
@@ -1278,7 +1287,7 @@ class ImageManagement extends FOGPage
         );
         $image = filter_input(INPUT_POST, 'image');
 
-        $images = self::getClass('ImageManager')->buildSelectBox(
+        $images = (new ImageManager())->buildSelectBox(
             $image
         );
 
@@ -1710,7 +1719,7 @@ class ImageManagement extends FOGPage
             if ($id < 1 || !in_array($value, $valid, true)) {
                 continue;
             }
-            $Arch = self::getClass('Architecture', $id);
+            $Arch = new Architecture($id);
             if (!$Arch->isValid()) {
                 continue;
             }
@@ -1929,7 +1938,7 @@ class ImageManagement extends FOGPage
                 _('Please select a valid image')
             );
         }
-        if (self::getClass('MulticastSessionManager')->exists($sessionname)) {
+        if ((new MulticastSessionManager())->exists($sessionname)) {
             throw new \Exception(_('Session with that name already exists!'));
         }
         if ($sessioncount < 1) {
@@ -1941,7 +1950,7 @@ class ImageManagement extends FOGPage
         MulticastSession::assertCapacity();
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getMasterStorageNode();
-        return self::getClass('MulticastSession')
+        return (new MulticastSession())
             ->set('name', $sessionname)
             ->set('port', MulticastSession::allocatePort())
             ->set('image', $Image->get('id'))
@@ -1980,7 +1989,7 @@ class ImageManagement extends FOGPage
                 ]
             );
             $tasks = $tasks['tasks'];
-            self::getClass('MulticastSessionManager')->cancel(
+            (new MulticastSessionManager())->cancel(
                 $tasks
             );
         }

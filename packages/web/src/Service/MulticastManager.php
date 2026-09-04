@@ -13,6 +13,7 @@
 
 namespace FOG\Service;
 
+use FOG\Items\MulticastSession;
 use FOG\Router\Route;
 
 /**
@@ -207,10 +208,7 @@ class MulticastManager extends FOGService
      */
     private function _senderClaimIsFree($curTask)
     {
-        $owner = (int)self::getClass(
-            'MulticastSession',
-            $curTask->getID()
-        )->get('sendernode');
+        $owner = (int)(new MulticastSession($curTask->getID()))->get('sendernode');
 
         return $owner < 1
             || $owner === $curTask->getNodeID();
@@ -260,7 +258,7 @@ class MulticastManager extends FOGService
                         )
                     );
                 }
-                self::getClass('MulticastSession', $Session->id)
+                (new MulticastSession($Session->id))
                     ->set('senderpid', 0)
                     // senderpid is a process id and 0 is a real "no process".
                     // sendernode is a reference, so its "none" is NULL --

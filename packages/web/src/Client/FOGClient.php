@@ -15,6 +15,7 @@ namespace FOG\Client;
 
 use FOG\Base\FOGBase;
 use FOG\Items\Host;
+use FOG\Managers\HostManager;
 use FOG\Router\Route;
 
 /**
@@ -117,7 +118,7 @@ abstract class FOGClient extends FOGBase
                 if (false !== $peer) {
                     $update['ip'] = $peer;
                 }
-                self::getClass('HostManager')->update(
+                (new HostManager())->update(
                     ['id' => self::$Host->get('id')],
                     '',
                     $update

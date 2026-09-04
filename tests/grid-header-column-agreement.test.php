@@ -37,6 +37,8 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\User;
+use FOG\Pages\HostManagement;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
@@ -48,7 +50,7 @@ $db->pdo->countValue = 1;
 
 // Unrestricted, so the header set is captured whole rather than the subset
 // one permission set happens to reach.
-$admin = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+$admin = (new User())->set('id', 1)->set('name', 'fog');
 foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $admin);
 }
@@ -69,7 +71,7 @@ $t = new FogChecks();
 function hostHeaderRow($pingActive)
 {
     FogTestHarness::setStatic('FOGBase', 'fogpingactive', $pingActive);
-    $page = FOGCore::getClass('HostManagement');
+    $page = new HostManagement();
     $row = $page->buildHeaderRow();
     preg_match_all('/<th\b[^>]*>/', $row, $ths);
     preg_match_all('/data-col="([^"]+)"/', $row, $cols);

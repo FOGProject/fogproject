@@ -15,6 +15,7 @@ namespace FOG\Pages;
 
 use FOG\Base\FOGPage;
 use FOG\Items\Software;
+use FOG\Managers\SoftwareManager;
 use FOG\Router\Route;
 
 /**
@@ -465,14 +466,14 @@ class SoftwareManagement extends FOGPage
                     $state,
                     $backend
                 );
-                if (self::getClass('SoftwareManager')->exists($name)) {
+                if ((new SoftwareManager())->exists($name)) {
                     throw new \Exception(
                         _('A software entry already exists with this name!')
                     );
                 }
                 $version = $this->_resolveVersion($versionPolicy, $version);
 
-                $Software = self::getClass('Software')
+                $Software = (new Software())
                     ->set('name', $name)
                     ->set('description', $description)
                     ->set('backend', $backend)
@@ -615,7 +616,7 @@ class SoftwareManagement extends FOGPage
             $state,
             $backend
         );
-        $exists = self::getClass('SoftwareManager')->exists($name);
+        $exists = (new SoftwareManager())->exists($name);
         if ($name != $this->obj->get('name')
             && $exists
         ) {

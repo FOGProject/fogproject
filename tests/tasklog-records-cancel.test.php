@@ -34,6 +34,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\Host;
 
 require __DIR__ . '/lib/fog-test-harness.php';
 
@@ -68,7 +69,7 @@ class CancelTask extends \FOG\Items\Task
     }
 }
 
-$host = FOGCore::getClass('Host')
+$host = (new Host())
     ->set('id', 42)
     ->set('name', 'lab-07');
 

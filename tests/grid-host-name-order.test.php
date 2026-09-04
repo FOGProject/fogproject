@@ -41,6 +41,7 @@
 
 use FOG\Base\FOGCore;
 use FOG\Base\Hook;
+use FOG\Items\User;
 use FOG\Router\Route;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
@@ -53,7 +54,7 @@ $db->pdo->countValue = 1;
 
 // Unrestricted, so the column table is captured whole rather than the subset
 // one permission set happens to reach. Same reasoning as the column contract.
-$admin = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+$admin = (new User())->set('id', 1)->set('name', 'fog');
 foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $admin);
 }

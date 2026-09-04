@@ -19,6 +19,7 @@ use FOG\Base\FOGPage;
 use FOG\Db\DatabaseManager;
 use FOG\Items\StorageGroup;
 use FOG\Items\StorageNode;
+use FOG\Managers\PluginManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -226,7 +227,7 @@ class DashboardPage extends FOGPage
                 self::displayAlert($title, $agentPend, 'warning', true, true);
             }
         }
-        $pluginsNeedingUpdate = self::getClass('PluginManager')
+        $pluginsNeedingUpdate = (new PluginManager())
             ->getPluginsNeedingUpdate();
         $pluginUpdateCount = count($pluginsNeedingUpdate);
         if ($pluginUpdateCount > 0) {

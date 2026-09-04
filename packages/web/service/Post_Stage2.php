@@ -34,5 +34,5 @@ define('FOG_MACHINE_REQUEST', true);
 
 require '../commons/base.inc.php';
 TaskQueue::ackIfAlreadyComplete();
-FOGCore::getClass('TaskQueue')
+(new TaskQueue())
     ->checkout();

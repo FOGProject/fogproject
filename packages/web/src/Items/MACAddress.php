@@ -95,7 +95,7 @@ class MACAddress extends FOGBase
          * If the mac is already registered, sets our
          * MAC Variable to the instance of the db item.
          */
-        $this->_MAC = self::getClass('MACAddressAssociation')
+        $this->_MAC = (new MACAddressAssociation())
             ->set('mac', $this->__toString())
             ->load('mac');
     }
@@ -265,7 +265,7 @@ class MACAddress extends FOGBase
             return self::$_vendorCache[$prefix];
         }
         $name = '';
-        $oui = self::getClass('OUI')
+        $oui = (new OUI())
             ->set('prefix', $prefix)
             ->load('prefix');
         if ($oui instanceof OUI && $oui->isValid()) {
@@ -340,7 +340,7 @@ class MACAddress extends FOGBase
         }
         // Keyed by the prefix column value, the same shape primeRel() relies
         // on for its id-keyed relations.
-        $ouis = self::getClass('OUI')->loadMany(
+        $ouis = (new OUI())->loadMany(
             array_values($prefixes),
             'prefix'
         );

@@ -14,6 +14,8 @@
 namespace FOG\Pages;
 
 use FOG\Base\FOGPage;
+use FOG\Items\Site;
+use FOG\Managers\SiteManager;
 
 /**
  * Site management page.
@@ -153,14 +155,14 @@ class SiteManagement extends FOGPage
                 // INSERT ... ON DUPLICATE KEY UPDATE -- so without this
                 // check creating a site with an existing name silently
                 // OVERWRITES that site instead of failing.
-                $exists = self::getClass('SiteManager')
+                $exists = (new SiteManager())
                     ->exists($site);
                 if ($exists) {
                     throw new \Exception(
                         _('A site already exists with this name!')
                     );
                 }
-                $Site = self::getClass('Site')
+                $Site = (new Site())
                     ->set('name', $site)
                     ->set('description', $description);
                 if (!$Site->save()) {
@@ -310,7 +312,7 @@ class SiteManagement extends FOGPage
 
         // Same silent-overwrite guard as addPost(); a rename onto an
         // existing name would take that site's row with it.
-        $exists = self::getClass('SiteManager')
+        $exists = (new SiteManager())
             ->exists($site);
         if ($site != $this->obj->get('name')
             && $exists

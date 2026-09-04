@@ -14,6 +14,7 @@
 namespace FOG\Managers;
 
 use FOG\Base\FOGManagerController;
+use FOG\Items\SnapinJob;
 use FOG\Items\TaskType;
 use FOG\Router\Route;
 
@@ -80,7 +81,7 @@ class SnapinJobManager extends FOGManagerController
             ['jobID' => $snapinjobids]
         );
         if (count($snapintaskids ?: [])) {
-            self::getClass('SnapinTaskManager')
+            (new SnapinTaskManager())
                 ->cancel($snapintaskids);
         }
         // Only jobs still queued or running, so a job that already finished is
@@ -121,7 +122,7 @@ class SnapinJobManager extends FOGManagerController
             if ($left > 0) {
                 continue;
             }
-            $Host = self::getClass('SnapinJob', $jobID)->get('host');
+            $Host = (new SnapinJob($jobID))->get('host');
             if (!is_object($Host) || !$Host->isValid()) {
                 continue;
             }
@@ -134,7 +135,7 @@ class SnapinJobManager extends FOGManagerController
             }
         }
         if (count($hostTasks ?: [])) {
-            self::getClass('TaskManager')
+            (new TaskManager())
                 ->update(
                     ['id' => $hostTasks],
                     '',
