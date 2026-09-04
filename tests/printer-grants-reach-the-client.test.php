@@ -99,10 +99,6 @@ function printerRow($id)
         'pConfig' => 'Network',
         'pConfigFile' => '',
         'pIP' => '10.0.0.' . $id,
-        'pAnon2' => '',
-        'pAnon3' => '',
-        'pAnon4' => '',
-        'pAnon5' => '',
     ];
 }
 

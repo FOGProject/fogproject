@@ -224,6 +224,11 @@ const TABLE = [
     // hostUserSession rows, it is not either of those rows.
     'DirectoryFacts' => 'Agent',
     'DirectoryPlacement' => 'Agent',
+    // The writer for what an agent reports about its installed printers
+    // (design 0010). Same naming reason: Printer is already an Items
+    // class for the assignable printer -- this writes hostPrinter and
+    // hostSpooler rows, it is not that row.
+    'PrinterFacts' => 'Agent',
     'UserSessions' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',

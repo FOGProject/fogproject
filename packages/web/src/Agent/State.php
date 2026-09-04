@@ -105,6 +105,7 @@ class State extends FOGBase
         'inventory' => InventoryFacts::class,
         'software' => SoftwareFacts::class,
         'directory' => DirectoryFacts::class,
+        'printers' => PrinterFacts::class,
     ];
 
     /**

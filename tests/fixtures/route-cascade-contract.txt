@@ -24,8 +24,10 @@ host	task	hostID
 hostautologout	(nothing)	
 hostdirectory	(nothing)	
 hostfactstate	(nothing)	
+hostprinter	(nothing)	
 hostscreensetting	(nothing)	
 hostsoftware	(nothing)	
+hostspooler	(nothing)	
 hostusersession	(nothing)	
 image	imageassociation	imageID
 imageassociation	(nothing)	

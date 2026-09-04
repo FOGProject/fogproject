@@ -660,6 +660,8 @@ class Route extends FOGBase
         'hostscreensetting',
         'hostsoftware',
         'hostdirectory',
+        'hostprinter',
+        'hostspooler',
         'hostusersession',
         'image',
         'imageassociation',

@@ -73,6 +73,51 @@ return [
             'reason' => 'ADR 0022 decision 3 -- taskLog records an imaging run now, so the table was retired rather than ported',
         ],
         [
+            'table' => 'printerAssoc',
+            'column' => 'paAnon1',
+            'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
+        ],
+        [
+            'table' => 'printerAssoc',
+            'column' => 'paAnon2',
+            'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
+        ],
+        [
+            'table' => 'printerAssoc',
+            'column' => 'paAnon3',
+            'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
+        ],
+        [
+            'table' => 'printerAssoc',
+            'column' => 'paAnon4',
+            'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
+        ],
+        [
+            'table' => 'printerAssoc',
+            'column' => 'paAnon5',
+            'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
+        ],
+        [
+            'table' => 'printers',
+            'column' => 'pAnon2',
+            'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
+        ],
+        [
+            'table' => 'printers',
+            'column' => 'pAnon3',
+            'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
+        ],
+        [
+            'table' => 'printers',
+            'column' => 'pAnon4',
+            'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
+        ],
+        [
+            'table' => 'printers',
+            'column' => 'pAnon5',
+            'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
+        ],
+        [
             'table' => 'virus',
             'reason' => 'GH-328 -- the ClamAV scan is removed. 1.6 never carried service/av.php across from 1.5, so nothing on this branch has ever written the table and no model, manager, report or page reads it',
         ],
@@ -435,6 +480,19 @@ return [
                 'hostAgentCheckin' => 'datetime DEFAULT NULL',
             ],
         ],
+        'hostPrinter' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostPrinter` ( `hpID` int(11) NOT NULL AUTO_INCREMENT, `hpHostID` int(11) NOT NULL, `hpName` varchar(255) NOT NULL DEFAULT \'\', `hpURI` varchar(1024) NOT NULL DEFAULT \'\', `hpDriver` varchar(255) NOT NULL DEFAULT \'\', `hpDefault` tinyint(1) NOT NULL DEFAULT 0, `hpShared` tinyint(1) NOT NULL DEFAULT 0, `hpObservedAt` datetime DEFAULT NULL, PRIMARY KEY (`hpID`), UNIQUE KEY `hpHostName` (`hpHostID`,`hpName`), KEY `hpName` (`hpName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'hpID' => 'int(11) NOT NULL',
+                'hpHostID' => 'int(11) NOT NULL',
+                'hpName' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hpURI' => 'varchar(1024) NOT NULL DEFAULT \'\'',
+                'hpDriver' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hpDefault' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hpShared' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hpObservedAt' => 'datetime DEFAULT NULL',
+            ],
+        ],
         'hostScreenSettings' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `hostScreenSettings` ( `hssID` int(11) NOT NULL AUTO_INCREMENT, `hssHostID` int(11) NOT NULL, `hssWidth` int(11) NOT NULL DEFAULT 0, `hssHeight` int(11) NOT NULL DEFAULT 0, `hssRefresh` int(11) NOT NULL DEFAULT 0, `hssOrientation` int(11) NOT NULL DEFAULT 0, `hssOther1` int(11) NOT NULL DEFAULT 0, `hssOther2` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`hssID`), UNIQUE KEY `hssHostID` (`hssHostID`), KEY `new_index` (`hssHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -462,6 +520,15 @@ return [
                 'hsFirstSeen' => 'datetime DEFAULT NULL',
                 'hsLastSeen' => 'datetime DEFAULT NULL',
                 'hsRemovedAt' => 'datetime DEFAULT NULL',
+            ],
+        ],
+        'hostSpooler' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostSpooler` ( `hspID` int(11) NOT NULL AUTO_INCREMENT, `hspHostID` int(11) NOT NULL, `hspSubsystem` varchar(16) NOT NULL DEFAULT \'\', `hspObservedAt` datetime DEFAULT NULL, PRIMARY KEY (`hspID`), UNIQUE KEY `hspHostID` (`hspHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'hspID' => 'int(11) NOT NULL',
+                'hspHostID' => 'int(11) NOT NULL',
+                'hspSubsystem' => 'varchar(16) NOT NULL DEFAULT \'\'',
+                'hspObservedAt' => 'datetime DEFAULT NULL',
             ],
         ],
         'hostUserSession' => [
@@ -747,21 +814,18 @@ return [
             ],
         ],
         'printerAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `printerAssoc` ( `paID` int(11) NOT NULL AUTO_INCREMENT, `paHostID` int(11) NOT NULL, `paPrinterID` int(11) NOT NULL, `paIsDefault` varchar(2) NOT NULL DEFAULT \'\', `paAnon1` varchar(2) NOT NULL DEFAULT \'\', `paAnon2` varchar(2) NOT NULL DEFAULT \'\', `paAnon3` varchar(2) NOT NULL DEFAULT \'\', `paAnon4` varchar(2) NOT NULL DEFAULT \'\', `paAnon5` varchar(2) NOT NULL DEFAULT \'\', PRIMARY KEY (`paID`), UNIQUE KEY `paHostID` (`paHostID`,`paPrinterID`), KEY `new_index1` (`paHostID`), KEY `new_index2` (`paPrinterID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `printerAssoc` ( `paID` int(11) NOT NULL AUTO_INCREMENT, `paHostID` int(11) NOT NULL, `paPrinterID` int(11) NOT NULL, `paIsDefault` tinyint(1) NOT NULL DEFAULT 0, `paAppliedAt` datetime DEFAULT NULL, `paError` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`paID`), UNIQUE KEY `paHostID` (`paHostID`,`paPrinterID`), KEY `new_index1` (`paHostID`), KEY `new_index2` (`paPrinterID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'paID' => 'int(11) NOT NULL',
                 'paHostID' => 'int(11) NOT NULL',
                 'paPrinterID' => 'int(11) NOT NULL',
-                'paIsDefault' => 'varchar(2) NOT NULL DEFAULT \'\'',
-                'paAnon1' => 'varchar(2) NOT NULL DEFAULT \'\'',
-                'paAnon2' => 'varchar(2) NOT NULL DEFAULT \'\'',
-                'paAnon3' => 'varchar(2) NOT NULL DEFAULT \'\'',
-                'paAnon4' => 'varchar(2) NOT NULL DEFAULT \'\'',
-                'paAnon5' => 'varchar(2) NOT NULL DEFAULT \'\'',
+                'paIsDefault' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'paAppliedAt' => 'datetime DEFAULT NULL',
+                'paError' => 'varchar(255) NOT NULL DEFAULT \'\'',
             ],
         ],
         'printers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `printers` ( `pID` int(11) NOT NULL AUTO_INCREMENT, `pPort` longtext NOT NULL DEFAULT \'\', `pDefFile` longtext NOT NULL DEFAULT \'\', `pModel` varchar(250) NOT NULL DEFAULT \'\', `pAlias` varchar(250) NOT NULL, `pConfig` varchar(10) NOT NULL DEFAULT \'\', `pConfigFile` varchar(255) NOT NULL DEFAULT \'\', `pIP` varchar(255) NOT NULL DEFAULT \'\', `pAnon2` varchar(10) NOT NULL DEFAULT \'\', `pAnon3` varchar(10) NOT NULL DEFAULT \'\', `pAnon4` varchar(10) NOT NULL DEFAULT \'\', `pAnon5` varchar(10) NOT NULL DEFAULT \'\', `pDesc` longtext DEFAULT NULL, PRIMARY KEY (`pID`), UNIQUE KEY `pAlias` (`pAlias`), KEY `new_index1` (`pModel`), KEY `new_index2` (`pAlias`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `printers` ( `pID` int(11) NOT NULL AUTO_INCREMENT, `pPort` longtext NOT NULL DEFAULT \'\', `pDefFile` longtext NOT NULL DEFAULT \'\', `pModel` varchar(250) NOT NULL DEFAULT \'\', `pAlias` varchar(250) NOT NULL, `pConfig` varchar(10) NOT NULL DEFAULT \'\', `pConfigFile` varchar(255) NOT NULL DEFAULT \'\', `pIP` varchar(255) NOT NULL DEFAULT \'\', `pDesc` longtext DEFAULT NULL, PRIMARY KEY (`pID`), UNIQUE KEY `pAlias` (`pAlias`), KEY `new_index1` (`pModel`), KEY `new_index2` (`pAlias`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'pID' => 'int(11) NOT NULL',
                 'pPort' => 'longtext NOT NULL DEFAULT \'\'',
@@ -771,10 +835,6 @@ return [
                 'pConfig' => 'varchar(10) NOT NULL DEFAULT \'\'',
                 'pConfigFile' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'pIP' => 'varchar(255) NOT NULL DEFAULT \'\'',
-                'pAnon2' => 'varchar(10) NOT NULL DEFAULT \'\'',
-                'pAnon3' => 'varchar(10) NOT NULL DEFAULT \'\'',
-                'pAnon4' => 'varchar(10) NOT NULL DEFAULT \'\'',
-                'pAnon5' => 'varchar(10) NOT NULL DEFAULT \'\'',
                 'pDesc' => 'longtext DEFAULT NULL',
             ],
         ],

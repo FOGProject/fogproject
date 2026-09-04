@@ -437,6 +437,8 @@ class Authorization extends FOGBase
         // same reason: they are host detail, not a feature of their own.
         'hostsoftware' => 'host',
         'hostdirectory' => 'host',
+        'hostprinter' => 'host',
+        'hostspooler' => 'host',
         'hostusersession' => 'host',
         'hostfactstate' => 'host',
         'software' => 'software',

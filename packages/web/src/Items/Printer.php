@@ -48,11 +48,7 @@ class Printer extends FOGController
         'model' => 'pModel',
         'config' => 'pConfig',
         'configFile' => 'pConfigFile',
-        'ip' => 'pIP',
-        'pAnon2' => 'pAnon2',
-        'pAnon3' => 'pAnon3',
-        'pAnon4' => 'pAnon4',
-        'pAnon5' => 'pAnon5'
+        'ip' => 'pIP'
     ];
     /**
      * The required fields

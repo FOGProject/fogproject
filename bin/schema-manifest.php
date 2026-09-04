@@ -419,13 +419,27 @@ if ($cmd === 'diff') {
             $A[$t][$i] = $to;
         }
     }
-    // Tables the NEW side declares it dropped on purpose. Keyed lowercase so
-    // the lookup matches the comparison, which is case-insensitive because
-    // MySQL's own table-name casing depends on the server's filesystem.
+    // Tables and columns the NEW side declares it dropped on purpose. Keyed
+    // lowercase so the lookup matches the comparison, which is
+    // case-insensitive because MySQL's own table-name casing depends on the
+    // server's filesystem.
+    //
+    // An entry with a `column` retires that one column and leaves the table
+    // alone; without one it retires the whole table. Both exist because a
+    // rebuild drops both kinds, and the alternative to declaring a dropped
+    // column is a permanent difference in this output -- which trains
+    // whoever reads it to skim past differences, and the next real one goes
+    // with it.
     $retired = [];
+    $retiredCols = [];
     foreach ((array)($b['retired'] ?? []) as $r) {
         $t = strtolower($r['table'] ?? '');
         if (!$t) {
+            continue;
+        }
+        $c = strtolower((string)($r['column'] ?? ''));
+        if ('' !== $c) {
+            $retiredCols[$t . '.' . $c] = (string)($r['reason'] ?? '');
             continue;
         }
         $retired[$t] = (string)($r['reason'] ?? '');
@@ -451,7 +465,21 @@ if ($cmd === 'diff') {
         }
         $gone = array_diff($cols, $B[$table]);
         $added = array_diff($B[$table], $cols);
-        foreach ($gone as $c) {
+        foreach ($gone as $i => $c) {
+            if (isset($retiredCols[$table . '.' . $c])) {
+                // Reported, not silenced, exactly as for a retired table.
+                printf(
+                    "RETIRED COLUMN  %s.%s -- %s\n",
+                    $table,
+                    $c,
+                    $retiredCols[$table . '.' . $c] ?: 'no reason recorded'
+                );
+                // Dropped from $gone as well, so the rename heuristic below
+                // does not then read a deliberate drop plus an unrelated
+                // addition as one renamed column.
+                unset($gone[$i]);
+                continue;
+            }
             printf("MISSING COLUMN  %s.%s\n", $table, $c);
             $found++;
         }

@@ -11248,3 +11248,86 @@ $this->schema[] = [
     . "domain rights. (Valid values: a password).' "
     . "WHERE `settingKey` = 'FOG_DIRECTORY_BIND_PASSWORD'",
 ];
+
+// 426
+$this->schema[] = [
+    // Design 0010: FOG has never recorded what printers a machine actually
+    // has. Both legacy platform managers had a GetPrinters() and neither
+    // ever transmitted the result -- all three call sites are local
+    // decisions inside PrinterManager.cs -- so "did the printer I assigned
+    // actually install?" has had no answer since the feature shipped.
+    //
+    // Two tables rather than one. hostSpooler is the per-host anchor: which
+    // print subsystem the machine runs, and when it last said so. It exists
+    // separately from hostPrinter because a machine with CUPS and no queues
+    // has REPORTED, and a report that could only see hostPrinter rows would
+    // show that host as never having answered -- which is precisely the
+    // invisible-absence failure design 0010 section 6 is built to avoid.
+    //
+    // hostFactState already records the same "when did this host last
+    // report kind X", but that table is the poll's hash cache. A report
+    // built on it would couple an admin-facing page to the protocol's
+    // internal bookkeeping, and would break the next time the gate changes.
+    "CREATE TABLE IF NOT EXISTS `hostSpooler` ( "
+    . "`hspID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hspHostID` int(11) NOT NULL, "
+    . "`hspSubsystem` varchar(16) NOT NULL DEFAULT '', "
+    . "`hspObservedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hspID`), "
+    . "UNIQUE KEY `hspHostID` (`hspHostID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // One row per queue observed on a host.
+    //
+    // hpURI is the load-bearing column and the whole of design 0010 section
+    // 2: both spoolers already describe a printer as a device URI plus a
+    // driver, so recording the URI is what lets a Windows row and a CUPS row
+    // for the same physical device be recognized as the same device. FOG's
+    // pConfig could never do that -- it named a code path, not a printer.
+    //
+    // hpDriver empty is a real value meaning driverless (IPP Everywhere),
+    // which FOG's existing model has no way to express at all.
+    "CREATE TABLE IF NOT EXISTS `hostPrinter` ( "
+    . "`hpID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hpHostID` int(11) NOT NULL, "
+    . "`hpName` varchar(255) NOT NULL DEFAULT '', "
+    . "`hpURI` varchar(1024) NOT NULL DEFAULT '', "
+    . "`hpDriver` varchar(255) NOT NULL DEFAULT '', "
+    . "`hpDefault` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hpShared` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hpObservedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hpID`), "
+    . "UNIQUE KEY `hpHostName` (`hpHostID`,`hpName`), "
+    . "KEY `hpName` (`hpName`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Where a failed install gets to live. Today a printer that will not
+    // install produces nothing an admin can see: the client retries the same
+    // thing every poll, forever, silently. paAppliedAt is named for the
+    // ATTEMPT, not the success -- the hdPlacementAt lesson from step 424.
+    "ALTER TABLE `printerAssoc` "
+    . "ADD COLUMN `paAppliedAt` datetime DEFAULT NULL, "
+    . "ADD COLUMN `paError` varchar(255) NOT NULL DEFAULT ''",
+    // paIsDefault is a varchar(2) holding a boolean; groupPrinterAssoc's
+    // gpaIsDefault is a tinyint(1) holding the same idea. Same concept, two
+    // types, because they were added years apart.
+    //
+    // The UPDATE has to come first. The column holds '' on every row nobody
+    // ever set, and MariaDB in strict mode refuses to convert '' to an
+    // integer -- so a bare MODIFY fails the upgrade on essentially every
+    // existing install rather than on none of them.
+    "UPDATE `printerAssoc` SET `paIsDefault`='0' "
+    . "WHERE `paIsDefault` NOT IN ('0','1')",
+    "ALTER TABLE `printerAssoc` "
+    . "MODIFY COLUMN `paIsDefault` tinyint(1) NOT NULL DEFAULT 0",
+    // The pre-allocated spare columns. `plugins` had the same pAnon1-pAnon5
+    // and they were renamed into real columns (pIcon, pRunfile, pLocation)
+    // through schema-expected.php's `renames` block; the printer ones were
+    // never claimed by anything, in ten years. Verified across the whole
+    // tree before dropping: the only readers were the two Items field maps
+    // and four hidden DataTables export columns, all updated in this change.
+    "ALTER TABLE `printerAssoc` "
+    . "DROP COLUMN `paAnon1`, DROP COLUMN `paAnon2`, DROP COLUMN `paAnon3`, "
+    . "DROP COLUMN `paAnon4`, DROP COLUMN `paAnon5`",
+    "ALTER TABLE `printers` "
+    . "DROP COLUMN `pAnon2`, DROP COLUMN `pAnon3`, DROP COLUMN `pAnon4`, "
+    . "DROP COLUMN `pAnon5`",
+];
