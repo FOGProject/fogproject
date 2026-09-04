@@ -2353,7 +2353,7 @@ abstract class FOGManagerController extends FOGBase
      * @param mixed  $matchID     select the matching id
      * @param string $elementName the name for the select box
      * @param string $orderBy     how to order
-     * @param string $filter      should we filter existing
+     * @param array|string $filter        ids to restrict the list to
      * @param mixed  $template    should we include a template element
      * @param string $useKey      id for storage.
      *
@@ -2462,7 +2462,7 @@ abstract class FOGManagerController extends FOGBase
      * Checks if item already exists or not.
      *
      * @param string $val     the value to test
-     * @param string $id      an ID if already exists
+     * @param int|string $id  an ID if already exists
      * @param string $idField the id field to scan
      *
      * @return bool

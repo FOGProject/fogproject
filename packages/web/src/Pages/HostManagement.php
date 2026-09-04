@@ -493,6 +493,10 @@ class HostManagement extends FOGPage
         $remitems = $items['remitems'];
         $pending = $items['pending'];
         $serverFault = false;
+        // Set before the try: both branches assign it, but a throw from
+        // anywhere else reaches the catch with it undefined and puts null
+        // in the response title.
+        $errt = _('MAC Update Fail');
         try {
             if (isset($_POST['confirmdel'])) {
                 $errt = _('Delete MAC Fail');

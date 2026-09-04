@@ -230,7 +230,7 @@ $source = (string)file_get_contents($webroot . '/src/Pages/HostManagement.php');
 $check(
     'massEditPost() checks the update return rather than discarding it',
     1 === preg_match(
-        '/if\s*\(\s*!\s*self::getClass\(\s*.HostManager.\s*\)\s*'
+        '/if\s*\(\s*!\s*\(\s*new\s+HostManager\(\s*\)\s*\)\s*'
         . '->update\(\s*\[\s*.id.\s*=>\s*\$hosts\s*\]/s',
         $source
     )

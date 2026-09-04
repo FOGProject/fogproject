@@ -3765,7 +3765,7 @@ abstract class FOGBase
      *
      * @throws Exception
      *
-     * @return this
+     * @return bool true when the write reached the database
      */
     public static function setSetting($key, $value)
     {

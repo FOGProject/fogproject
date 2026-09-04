@@ -17,6 +17,7 @@ use FOG\Agent\Snapins;
 use FOG\Items\SnapinTask;
 use FOG\Items\StorageGroup;
 use FOG\Items\StorageNode;
+use FOG\Managers\SnapinTaskManager;
 use FOG\Router\Route;
 
 /**

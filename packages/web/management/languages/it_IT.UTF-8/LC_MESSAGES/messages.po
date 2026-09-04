@@ -5687,6 +5687,10 @@ msgid "MAC Format is invalid"
 msgstr "MAC Format non è valido"
 
 #, fuzzy
+msgid "MAC Update Fail"
+msgstr "Aggiornamento modulo non riuscito"
+
+#, fuzzy
 msgid "MAC address is already in use by another host"
 msgstr "L'indirizzo MAC è già in uso da un altro host"
 

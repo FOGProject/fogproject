@@ -5851,6 +5851,10 @@ msgid "MAC Format is invalid"
 msgstr "Formato MAC é inválido"
 
 #, fuzzy
+msgid "MAC Update Fail"
+msgstr "Grupo Criar falhou"
+
+#, fuzzy
 msgid "MAC address is already in use by another host"
 msgstr "O endereço MAC já está sendo usado por outro host"
 

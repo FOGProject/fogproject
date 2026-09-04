@@ -212,7 +212,8 @@ check(
 // share the deduplication and the cascade the Site page goes through.
 check(
     'applyHostSite writes through the Site entity',
-    false !== strpos($apply, "self::getClass('Site',")
+    // methodSource() drops whitespace, so `new Site(` arrives as `newSite(`.
+    false !== strpos($apply, 'newSite(')
 );
 check(
     'hostSiteNames returns an array, not a bare string',

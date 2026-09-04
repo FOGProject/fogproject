@@ -1296,7 +1296,7 @@ abstract class FOGController extends FOGBase
      *
      * @throws Exception
      *
-     * @return object
+     * @return bool|object false when the delete failed, $this otherwise
      */
     public function destroy($key = 'id')
     {

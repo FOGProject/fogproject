@@ -99,7 +99,8 @@ class HostManager extends FOGManagerController
     /**
      * Returns a single host object based on the passed MACs.
      *
-     * @param array $macs the macs to search for the host
+     * @param array|string $macs the macs to search for the host; a bare
+     *                            string or a stringable is wrapped
      *
      * @throws Exception
      *

@@ -5657,6 +5657,10 @@ msgstr "承認に成功しました"
 msgid "MAC Format is invalid"
 msgstr "MAC アドレス形式が無効です"
 
+#, fuzzy
+msgid "MAC Update Fail"
+msgstr "モジュールの更新に失敗しました"
+
 msgid "MAC address is already in use by another host"
 msgstr "MAC アドレスは別のホストで既に使用されています"
 

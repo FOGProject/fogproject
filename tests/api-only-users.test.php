@@ -146,7 +146,7 @@ $t->check(
 );
 // Same request, the other artifact: a userAuths row outlives the response
 // even if the cookie somehow did not reach the browser.
-$authRowAt = strpos($pwBody, "getClass('UserAuth')");
+$authRowAt = strpos($pwBody, 'new UserAuth(');
 $t->check(
     'the refusal also precedes the userAuths row',
     false !== $refusalAt && false !== $authRowAt && $refusalAt < $authRowAt

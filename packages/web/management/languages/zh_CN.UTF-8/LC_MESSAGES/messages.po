@@ -5851,6 +5851,10 @@ msgid "MAC Format is invalid"
 msgstr "MAC格式无效"
 
 #, fuzzy
+msgid "MAC Update Fail"
+msgstr "集团创建失败"
+
+#, fuzzy
 msgid "MAC address is already in use by another host"
 msgstr "MAC地址已被其他主机使用"
 

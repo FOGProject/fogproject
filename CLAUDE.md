@@ -483,10 +483,11 @@ reasoning and the rejected alternatives:
 - **PHPDoc**: present on classes and methods (`@category`, `@package`, `@author`, `@license`, `@link`)
 - **Static globals**: `FOGBase::$HookManager`, `FOGBase::$DB`, etc. — set once, shared everywhere
 - **Method chaining**: `Page` and `FOGPage` use fluent interface
-- **Class instantiation**: use `FOGBase::getClass('ClassName')` factory, not `new ClassName()` directly
+- **Class instantiation**: `new ClassName()` with a `use` import. `getClass()` is
+  only for a class named by a **variable** (see below)
 - **Translation**: `_('string')` for inline gettext; `$foglang['Key']` for pre-defined strings from `text.php`
 - **Newer files**: `declare(strict_types=1)` at top; older files do not have this — don't add it retroactively
-- **Avoid `new` directly**: use `FOGBase::getClass()` or `FOGBase::getManager()` as appropriate
+- **`getManager()`**: still the way to reach a model's manager, unchanged
 
 ### Button color and alignment
 
@@ -596,7 +597,7 @@ badly — `ou` and `windowskey` become "Ou" and "Windowskey" without it.
 ## What NOT to Do
 
 - Do not add `declare(strict_types=1)` to files that don't already have it
-- Do not instantiate classes with `new ClassName()` where `FOGBase::getClass()` is the established pattern
+- Do not call `getClass()` with a string literal -- write `new ClassName()`; `tests/getclass-literals.test.php` refuses it
 - Do not use raw `$_GET`/`$_POST` — use `filter_input()` or the already-sanitized values
 - Do not echo user data without `Initiator::e()`
 - Do not remove hooks, events, or plugin integration points without explicit confirmation
