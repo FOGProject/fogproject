@@ -354,6 +354,14 @@ return [
     ['child' => 'hostDirectory', 'column' => 'hdHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'hostPrinter', 'column' => 'hpHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'hostSpooler', 'column' => 'hspHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'hostNetwork', 'column' => 'hnHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    // Both ends of a wake relay are hosts, and BOTH cascade. A deleted
+    // target has nothing left to wake; a deleted sender cannot be asked.
+    // Leaving either behind would leave a row naming a host id that has
+    // since been reused, which is how an admin ends up reading that a
+    // machine relayed a wake it has never heard of.
+    ['child' => 'agentWake', 'column' => 'awTargetID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'agentWake', 'column' => 'awSenderID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];

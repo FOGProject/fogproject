@@ -648,6 +648,7 @@ class Route extends FOGBase
      * @var array
      */
     public static $validClasses = [
+        'agentwake',
         'architecture',
         'filedeletequeue',
         'group',
@@ -660,6 +661,7 @@ class Route extends FOGBase
         'hostscreensetting',
         'hostsoftware',
         'hostdirectory',
+        'hostnetwork',
         'hostprinter',
         'hostspooler',
         'hostusersession',

@@ -371,6 +371,9 @@ $expected = [
         'hostDirectory.hdHostID',
         'hostPrinter.hpHostID',
         'hostSpooler.hspHostID',
+    'hostNetwork.hnHostID',
+    'agentWake.awTargetID',
+    'agentWake.awSenderID',
     'hostFactState.hfsHostID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its

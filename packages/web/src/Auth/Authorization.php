@@ -440,7 +440,13 @@ class Authorization extends FOGBase
         'hostdirectory' => 'host',
         'hostprinter' => 'host',
         'hostspooler' => 'host',
+        'hostnetwork' => 'host',
         'hostusersession' => 'host',
+        // A wake relay names two hosts and belongs to neither more than
+        // the other. Gated on the host node all the same: seeing that a
+        // machine was asked to wake another is seeing host detail, and
+        // ordering the wake goes through the host's own page.
+        'agentwake' => 'host',
         'hostfactstate' => 'host',
         'software' => 'software',
         'softwareassociation' => 'software',

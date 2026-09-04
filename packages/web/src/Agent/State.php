@@ -65,7 +65,12 @@ class State extends FOGBase
         // admins have been turning that one off for a decade and know
         // where it is, so a host's current choice carries over untouched
         // (design 0010 section 5).
-        'printers' => 'printermanager'
+        'printers' => 'printermanager',
+        // Gated on the EXISTING powermanagement module, for the printers
+        // reason: that is the switch an admin already turns off to stop
+        // FOG touching a machine's power, and relaying a wake is FOG using
+        // this machine to touch another one's (design 0011 section 4).
+        'wake' => 'powermanagement'
     ];
 
     /**
@@ -93,6 +98,12 @@ class State extends FOGBase
         // vocabulary (joined, refused, unsupported) that needs somewhere to
         // live that is not that field.
         'directory' => DirectoryJoin::class,
+        // The row here is another host's pending wake, which is the only
+        // item report whose id is NOT the reporting host's own. What makes
+        // that safe is the pending row itself: a host may only report on a
+        // wake it was actually asked to send, so there is no id it can
+        // name that it was not already handed.
+        'wake' => WakeRelay::class,
     ];
 
     /**
@@ -125,6 +136,7 @@ class State extends FOGBase
         'software' => SoftwareFacts::class,
         'directory' => DirectoryFacts::class,
         'printers' => PrinterFacts::class,
+        'network' => NetworkFacts::class,
     ];
 
     /**
@@ -229,6 +241,18 @@ class State extends FOGBase
             $directory = DirectoryJoin::desired($Host);
             if (null !== $directory) {
                 $state['directory'] = $directory;
+            }
+        }
+        if (in_array('wake', $capabilities, true)) {
+            // Design 0011: FOG hosts on this machine's own links that are
+            // waiting to be woken. Null for essentially every host on
+            // essentially every poll -- a wake is rare and pending for
+            // minutes -- so the block is omitted entirely rather than
+            // sent empty. There is no destination in it: the agent
+            // broadcasts on its own interfaces, so it cannot be aimed.
+            $wake = WakeRelay::desired($Host);
+            if (null !== $wake) {
+                $state['wake'] = $wake;
             }
         }
         if (in_array('power', $capabilities, true)) {

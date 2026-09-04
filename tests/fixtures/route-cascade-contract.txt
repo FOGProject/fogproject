@@ -1,3 +1,4 @@
+agentwake	(nothing)	
 architecture	(nothing)	
 filedeletequeue	(nothing)	
 group	groupassociation	groupID
@@ -24,6 +25,7 @@ host	task	hostID
 hostautologout	(nothing)	
 hostdirectory	(nothing)	
 hostfactstate	(nothing)	
+hostnetwork	(nothing)	
 hostprinter	(nothing)	
 hostscreensetting	(nothing)	
 hostsoftware	(nothing)	

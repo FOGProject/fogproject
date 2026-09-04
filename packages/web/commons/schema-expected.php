@@ -158,6 +158,21 @@ return [
                 'atCreated' => 'datetime DEFAULT NULL',
             ],
         ],
+        'agentWake' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `agentWake` ( `awID` int(11) NOT NULL AUTO_INCREMENT, `awTargetID` int(11) NOT NULL, `awSenderID` int(11) NOT NULL, `awRequestedAt` datetime DEFAULT NULL, `awExpiresAt` datetime DEFAULT NULL, `awStatus` varchar(16) NOT NULL DEFAULT \'pending\', `awPackets` int(11) NOT NULL DEFAULT 0, `awDetail` varchar(255) NOT NULL DEFAULT \'\', `awReportedAt` datetime DEFAULT NULL, `awRequestedBy` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`awID`), KEY `awSenderStatus` (`awSenderID`,`awStatus`), KEY `awTargetID` (`awTargetID`), KEY `awExpiresAt` (`awExpiresAt`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'awID' => 'int(11) NOT NULL',
+                'awTargetID' => 'int(11) NOT NULL',
+                'awSenderID' => 'int(11) NOT NULL',
+                'awRequestedAt' => 'datetime DEFAULT NULL',
+                'awExpiresAt' => 'datetime DEFAULT NULL',
+                'awStatus' => 'varchar(16) NOT NULL DEFAULT \'pending\'',
+                'awPackets' => 'int(11) NOT NULL DEFAULT 0',
+                'awDetail' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'awReportedAt' => 'datetime DEFAULT NULL',
+                'awRequestedBy' => 'varchar(255) NOT NULL DEFAULT \'\'',
+            ],
+        ],
         'apiTokens' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `apiTokens` ( `atID` int(11) NOT NULL AUTO_INCREMENT, `atUserID` int(11) NOT NULL DEFAULT 0, `atName` varchar(255) NOT NULL DEFAULT \'\', `atHash` char(64) NOT NULL DEFAULT \'\', `atEnabled` tinyint(1) NOT NULL DEFAULT 1, `atCreatedTime` datetime NOT NULL DEFAULT current_timestamp(), `atCreatedBy` varchar(255) NOT NULL DEFAULT \'\', `atLastUsed` datetime DEFAULT NULL, PRIMARY KEY (`atID`), UNIQUE KEY `atHash` (`atHash`), KEY `atUserID` (`atUserID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -406,7 +421,7 @@ return [
                 'hdPlacementAt' => 'datetime DEFAULT NULL',
                 'hdPlacementError' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'hdJoinAt' => 'datetime DEFAULT NULL',
-                'hdJoinError' => 'varchar(255) NOT NULL DEFAULT \'\''
+                'hdJoinError' => 'varchar(255) NOT NULL DEFAULT \'\'',
             ],
         ],
         'hostFactState' => [
@@ -430,6 +445,35 @@ return [
                 'hmPending' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'hmIgnoreClient' => 'tinyint(1) NOT NULL DEFAULT 0',
                 'hmIgnoreImaging' => 'tinyint(1) NOT NULL DEFAULT 0',
+            ],
+        ],
+        'hostNetwork' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostNetwork` ( `hnID` int(11) NOT NULL AUTO_INCREMENT, `hnHostID` int(11) NOT NULL, `hnName` varchar(255) NOT NULL DEFAULT \'\', `hnMAC` varchar(17) NOT NULL DEFAULT \'\', `hnIPv4` varchar(15) NOT NULL DEFAULT \'\', `hnPrefix` tinyint(3) unsigned NOT NULL DEFAULT 0, `hnNetwork` varchar(15) NOT NULL DEFAULT \'\', `hnBroadcast` varchar(15) NOT NULL DEFAULT \'\', `hnUp` tinyint(1) NOT NULL DEFAULT 0, `hnWireless` tinyint(1) NOT NULL DEFAULT 0, `hnObservedAt` datetime DEFAULT NULL, PRIMARY KEY (`hnID`), UNIQUE KEY `hnHostAddress` (`hnHostID`,`hnName`,`hnIPv4`), KEY `hnLink` (`hnNetwork`,`hnPrefix`), KEY `hnMAC` (`hnMAC`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'hnID' => 'int(11) NOT NULL',
+                'hnHostID' => 'int(11) NOT NULL',
+                'hnName' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hnMAC' => 'varchar(17) NOT NULL DEFAULT \'\'',
+                'hnIPv4' => 'varchar(15) NOT NULL DEFAULT \'\'',
+                'hnPrefix' => 'tinyint(3) unsigned NOT NULL DEFAULT 0',
+                'hnNetwork' => 'varchar(15) NOT NULL DEFAULT \'\'',
+                'hnBroadcast' => 'varchar(15) NOT NULL DEFAULT \'\'',
+                'hnUp' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hnWireless' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hnObservedAt' => 'datetime DEFAULT NULL',
+            ],
+        ],
+        'hostPrinter' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostPrinter` ( `hpID` int(11) NOT NULL AUTO_INCREMENT, `hpHostID` int(11) NOT NULL, `hpName` varchar(255) NOT NULL DEFAULT \'\', `hpURI` varchar(1024) NOT NULL DEFAULT \'\', `hpDriver` varchar(255) NOT NULL DEFAULT \'\', `hpDefault` tinyint(1) NOT NULL DEFAULT 0, `hpShared` tinyint(1) NOT NULL DEFAULT 0, `hpObservedAt` datetime DEFAULT NULL, PRIMARY KEY (`hpID`), UNIQUE KEY `hpHostName` (`hpHostID`,`hpName`), KEY `hpName` (`hpName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'hpID' => 'int(11) NOT NULL',
+                'hpHostID' => 'int(11) NOT NULL',
+                'hpName' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hpURI' => 'varchar(1024) NOT NULL DEFAULT \'\'',
+                'hpDriver' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hpDefault' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hpShared' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hpObservedAt' => 'datetime DEFAULT NULL',
             ],
         ],
         'hosts' => [
@@ -480,19 +524,6 @@ return [
                 'hostAgentNotAfter' => 'datetime DEFAULT NULL',
                 'hostAgentVersion' => 'varchar(50) NOT NULL DEFAULT \'\'',
                 'hostAgentCheckin' => 'datetime DEFAULT NULL',
-            ],
-        ],
-        'hostPrinter' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hostPrinter` ( `hpID` int(11) NOT NULL AUTO_INCREMENT, `hpHostID` int(11) NOT NULL, `hpName` varchar(255) NOT NULL DEFAULT \'\', `hpURI` varchar(1024) NOT NULL DEFAULT \'\', `hpDriver` varchar(255) NOT NULL DEFAULT \'\', `hpDefault` tinyint(1) NOT NULL DEFAULT 0, `hpShared` tinyint(1) NOT NULL DEFAULT 0, `hpObservedAt` datetime DEFAULT NULL, PRIMARY KEY (`hpID`), UNIQUE KEY `hpHostName` (`hpHostID`,`hpName`), KEY `hpName` (`hpName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'hpID' => 'int(11) NOT NULL',
-                'hpHostID' => 'int(11) NOT NULL',
-                'hpName' => 'varchar(255) NOT NULL DEFAULT \'\'',
-                'hpURI' => 'varchar(1024) NOT NULL DEFAULT \'\'',
-                'hpDriver' => 'varchar(255) NOT NULL DEFAULT \'\'',
-                'hpDefault' => 'tinyint(1) NOT NULL DEFAULT 0',
-                'hpShared' => 'tinyint(1) NOT NULL DEFAULT 0',
-                'hpObservedAt' => 'datetime DEFAULT NULL',
             ],
         ],
         'hostScreenSettings' => [

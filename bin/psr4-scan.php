@@ -224,6 +224,15 @@ const TABLE = [
     // hostUserSession rows, it is not either of those rows.
     'DirectoryFacts' => 'Agent',
     'DirectoryPlacement' => 'Agent',
+    // The join half of directory membership (design 0009 section 6): the
+    // one class that decides whether a credential leaves this server.
+    'DirectoryJoin' => 'Agent',
+    // The writer for the links a host is on, and the class that asks an
+    // awake agent to broadcast a wake for a sleeping neighbor (design
+    // 0011). Network and Wake would both be far too general as Items
+    // names; these write hostNetwork and agentWake rows.
+    'NetworkFacts' => 'Agent',
+    'WakeRelay' => 'Agent',
     // The writer for what an agent reports about its installed printers
     // (design 0010). Same naming reason: Printer is already an Items
     // class for the assignable printer -- this writes hostPrinter and

@@ -13,6 +13,7 @@
 
 namespace FOG\Items;
 
+use FOG\Agent\WakeRelay;
 use FOG\Assign\Resolver;
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
@@ -1696,6 +1697,13 @@ class Host extends FOGController
     public function wakeOnLAN()
     {
         self::wakeUp($this->getMyMacs());
+        // Design 0011, and ADDITIONAL to the line above rather than a
+        // replacement for it. wakeUp() reaches every link FOG owns a
+        // machine on; this reaches the links it does not, by asking an
+        // agent already awake there. Off by default and a no-op when the
+        // host has no awake neighbor, which is why it needs no branch
+        // here.
+        WakeRelay::request($this, 'host wake');
         return $this;
     }
     /**

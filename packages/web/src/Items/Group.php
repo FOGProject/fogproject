@@ -13,6 +13,7 @@
 
 namespace FOG\Items;
 
+use FOG\Agent\WakeRelay;
 use FOG\Assign\Resolver;
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
@@ -1157,6 +1158,14 @@ class Group extends FOGController
                 $hostMACs
             );
             self::wakeUp($hostMACs);
+        }
+        // Design 0011, additional to the fan-out above. Per host rather
+        // than per MAC, because a relay request names the machine being
+        // woken so its result has a row to land on -- and because the
+        // neighbor that can reach one host on a link is not necessarily
+        // the one that can reach another.
+        foreach ((array)$this->get('hosts') as $hostID) {
+            WakeRelay::request(new Host($hostID), 'group wake');
         }
     }
     /**

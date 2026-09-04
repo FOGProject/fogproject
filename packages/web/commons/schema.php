@@ -11384,3 +11384,98 @@ $this->schema[] = [
     . "ADD COLUMN `hdJoinAt` datetime DEFAULT NULL, "
     . "ADD COLUMN `hdJoinError` varchar(255) NOT NULL DEFAULT ''",
 ];
+
+// 429
+$this->schema[] = [
+    // Design 0011 section 3: which links a host is actually on.
+    //
+    // FOG has never recorded a host's interfaces. `hosts.hostIP` is
+    // whatever the host last resolved to -- one address, no prefix, no
+    // notion of which of several interfaces it came from -- so "which
+    // machines share a link with host 41" has not been a question this
+    // server could answer, and that question is the entire basis of the
+    // wake relay: a magic packet is a link-layer broadcast, and FOG can
+    // only send one from a machine it owns.
+    //
+    // hnNetwork is the address masked to hnPrefix, stored rather than
+    // computed. Two hosts are on the same link when both columns match,
+    // which is an index lookup; the honest alternative,
+    // `INET_ATON(hnIPv4) & mask`, is a full scan on every wake.
+    //
+    // One row per host per interface ADDRESS, not per interface: an
+    // interface with two addresses is on two links and can broadcast on
+    // both. Replaced in place, not a history -- this is current state.
+    //
+    // hnObservedAt is when the interfaces were last REPORTED, not when
+    // they were last confirmed. The agent hash-gates the block, so an
+    // unchanged set is never sent; "is this still true" is answered by
+    // the host's own hostAgentCheckin, which is also what says whether
+    // the machine is awake enough to relay anything.
+    "CREATE TABLE IF NOT EXISTS `hostNetwork` ( "
+    . "`hnID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hnHostID` int(11) NOT NULL, "
+    . "`hnName` varchar(255) NOT NULL DEFAULT '', "
+    . "`hnMAC` varchar(17) NOT NULL DEFAULT '', "
+    . "`hnIPv4` varchar(15) NOT NULL DEFAULT '', "
+    . "`hnPrefix` tinyint(3) unsigned NOT NULL DEFAULT 0, "
+    . "`hnNetwork` varchar(15) NOT NULL DEFAULT '', "
+    . "`hnBroadcast` varchar(15) NOT NULL DEFAULT '', "
+    . "`hnUp` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hnWireless` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hnObservedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hnID`), "
+    . "UNIQUE KEY `hnHostAddress` (`hnHostID`,`hnName`,`hnIPv4`), "
+    . "KEY `hnLink` (`hnNetwork`,`hnPrefix`), "
+    . "KEY `hnMAC` (`hnMAC`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
+
+// 430
+$this->schema[] = [
+    // Design 0011: one row per (machine to wake, machine asked to send it).
+    //
+    // A wake ordered now cannot be relayed now -- the neighboring agent
+    // finds out when it next polls -- so the request has to be written
+    // down somewhere, and FOG has nowhere. That is what this table is.
+    //
+    // Fanning out to SEVERAL senders is deliberate: a magic packet is one
+    // UDP datagram, sending three costs nothing, and the alternative is a
+    // wake that silently does nothing because the single chosen sender
+    // went to sleep between the poll and the send.
+    //
+    // It is also the first time FOG can say anything at all about whether
+    // a wake happened. The existing path is fire and forget: a machine
+    // that stays asleep is indistinguishable from a packet that never
+    // left the building. Here "three machines were asked and all three
+    // said they sent it" is a row an admin can read.
+    //
+    // awExpiresAt is what keeps a wake from being a standing instruction.
+    // A machine that comes back a week later must not be told to broadcast
+    // for a wake somebody ordered last Tuesday.
+    "CREATE TABLE IF NOT EXISTS `agentWake` ( "
+    . "`awID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`awTargetID` int(11) NOT NULL, "
+    . "`awSenderID` int(11) NOT NULL, "
+    . "`awRequestedAt` datetime DEFAULT NULL, "
+    . "`awExpiresAt` datetime DEFAULT NULL, "
+    . "`awStatus` varchar(16) NOT NULL DEFAULT 'pending', "
+    . "`awPackets` int(11) NOT NULL DEFAULT 0, "
+    . "`awDetail` varchar(255) NOT NULL DEFAULT '', "
+    . "`awReportedAt` datetime DEFAULT NULL, "
+    . "`awRequestedBy` varchar(255) NOT NULL DEFAULT '', "
+    . "PRIMARY KEY (`awID`), "
+    . "KEY `awSenderStatus` (`awSenderID`,`awStatus`), "
+    . "KEY `awTargetID` (`awTargetID`), "
+    . "KEY `awExpiresAt` (`awExpiresAt`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Off by default. This asks one customer machine to put traffic on the
+    // network on behalf of another, which is a thing an estate owner opts
+    // into rather than discovers after an upgrade.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_WAKE_RELAY_ENABLED','This setting defines if FOG may ask "
+    . "an enrolled agent to send a Wake-on-LAN packet for another FOG host "
+    . "on the same subnet. This reaches subnets that have no FOG server or "
+    . "storage node on them, which cannot be woken otherwise. Off by "
+    . "default. (Valid values: 0 or 1).','0','FOG Agent')",
+];
