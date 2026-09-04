@@ -6218,6 +6218,9 @@ msgstr ""
 msgid "Pinned"
 msgstr ""
 
+msgid "Placement"
+msgstr ""
+
 msgid "Platform"
 msgstr ""
 

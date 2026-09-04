@@ -7244,6 +7244,10 @@ msgstr "已被破坏"
 msgid "Pinned"
 msgstr ""
 
+#, fuzzy
+msgid "Placement"
+msgstr "任务管理"
+
 msgid "Platform"
 msgstr ""
 

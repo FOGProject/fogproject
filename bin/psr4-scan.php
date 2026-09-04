@@ -175,6 +175,7 @@ const TABLE = [
     'WindowedStats' => 'Audit',
     'Retention' => 'Audit',
     'Blame' => 'Audit',
+    'FOGLdap' => 'Net',
     'FOGFTP' => 'Net',
     'FOGSSH' => 'Net',
     'FOGURLRequests' => 'Net',
@@ -222,6 +223,7 @@ const TABLE = [
     // is already an Items class for the legacy event table -- this writes
     // hostUserSession rows, it is not either of those rows.
     'DirectoryFacts' => 'Agent',
+    'DirectoryPlacement' => 'Agent',
     'UserSessions' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',

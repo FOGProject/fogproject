@@ -372,6 +372,18 @@ class State extends FOGBase
             $answer['want_' . $kind] = '' === $stored;
         }
 
+        // The acting half of directory membership (design 0009 section 5),
+        // and the one place in facts() that does something rather than
+        // record something. It runs on every poll rather than off the
+        // report above, because a report only happens when the MACHINE's
+        // membership moved, and the other source of drift is an admin
+        // editing the host's OU -- which no machine will ever report.
+        //
+        // Under the facts gate on purpose: placement decides what to do from
+        // what the host observed, so an install that collects nothing has
+        // nothing to decide from.
+        DirectoryFacts::place($Host);
+
         return $answer;
     }
 

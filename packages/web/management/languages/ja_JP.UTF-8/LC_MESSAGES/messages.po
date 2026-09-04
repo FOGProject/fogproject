@@ -7031,6 +7031,10 @@ msgid "Pinned"
 msgstr ""
 
 #, fuzzy
+msgid "Placement"
+msgstr "Slack 管理"
+
+#, fuzzy
 msgid "Platform"
 msgstr "クロスプラットフォーム"
 

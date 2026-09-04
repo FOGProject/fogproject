@@ -7369,6 +7369,10 @@ msgstr "Deben estar cifrados"
 msgid "Pinned"
 msgstr ""
 
+#, fuzzy
+msgid "Placement"
+msgstr "Gestión de usuarios"
+
 msgid "Platform"
 msgstr ""
 

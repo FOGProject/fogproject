@@ -68,11 +68,12 @@ class Directory_Membership extends ReportManagement
             _('Desired OU'),
             _('Observed OU'),
             _('Drift'),
+            _('Placement'),
             _('Reported'),
             _('Last check-in')
         ];
         $this->attributes = [
-            [], [], [], [], [], [], [], []
+            [], [], [], [], [], [], [], [], []
         ];
 
         $payload = $this->reportRows();
@@ -132,7 +133,9 @@ class Directory_Membership extends ReportManagement
                        `hdDomain`,
                        `hdNetbios`,
                        `hdComputerDN`,
-                       `hdObservedAt`
+                       `hdObservedAt`,
+                       `hdPlacementAt`,
+                       `hdPlacementError`
                   FROM `hosts`
                   LEFT OUTER JOIN `hostDirectory` ON `hdHostID` = `hostID`
                  WHERE `hostUseAD` = 1
@@ -173,6 +176,7 @@ class Directory_Membership extends ReportManagement
                     $desiredOU,
                     $reported
                 ),
+                'placement' => self::placement($row),
                 'observedAt' => (string)($row['hdObservedAt'] ?? ''),
                 'checkin' => (string)($row['hostAgentCheckin'] ?? '')
             ];
@@ -206,6 +210,32 @@ class Directory_Membership extends ReportManagement
                 : sprintf('%s (%s)', _('not joined'), $kind);
         }
         return (string)($row['hdDomain'] ?? '');
+    }
+    /**
+     * What placement last did about this host.
+     *
+     * The column exists because the alternative is a silent failure. FOG is
+     * writing to somebody's directory here, and an account that has lost its
+     * rights, or an OU that was renamed underneath it, would otherwise show
+     * up as a Drift value that simply never clears -- which reads like the
+     * feature does not work rather than like something needs fixing.
+     *
+     * @param array $row the joined row
+     *
+     * @return string
+     */
+    protected static function placement(array $row)
+    {
+        $error = trim((string)($row['hdPlacementError'] ?? ''));
+        if ('' !== $error) {
+            return $error;
+        }
+        if ('' === trim((string)($row['hdPlacementAt'] ?? ''))) {
+            // Never consulted: placement is off, or this host has never
+            // needed it. Neither is a problem to report.
+            return '';
+        }
+        return _('ok');
     }
     /**
      * The drift verdict for one host.

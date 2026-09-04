@@ -11153,3 +11153,74 @@ $this->schema[] = [
     . "KEY `hdDomain` (`hdDomain`) "
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
+
+// 424
+$this->schema[] = [
+    // Design 0009 section 5: FOG moves a computer object between OUs itself,
+    // with one LDAP Modify DN, instead of asking the machine to leave the
+    // domain and rejoin -- which is what an admin is reduced to today, and
+    // which costs the object its password and, if it is recreated, its SID.
+    //
+    // Proven against a real DC before these columns existed: a service
+    // account delegated create/delete-child of computer objects on ONE
+    // subtree moved an object between two OUs under it, and was refused
+    // ("Insufficient access") when it tried to move the same object out of
+    // that subtree. That refusal is the whole security argument for giving
+    // FOG an account of its own rather than a domain admin.
+    //
+    // Named for the ATTEMPT, not the move. This stamp is written whenever
+    // placement consults the directory about a host -- which is also how a
+    // host that cannot report its own DN is kept off an every-poll LDAP
+    // search -- so a name like hdMovedAt would say a move happened on every
+    // occasion nothing did.
+    "ALTER TABLE `hostDirectory` "
+    . "ADD COLUMN `hdPlacementAt` datetime DEFAULT NULL, "
+    . "ADD COLUMN `hdPlacementError` varchar(255) NOT NULL DEFAULT ''",
+    // Off until it is configured. Placement WRITES to the directory, so it
+    // must never begin working because someone upgraded.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_PLACEMENT_ENABLED','This setting defines if FOG moves "
+    . "a host\\'s computer object into the OU set on the host, using the "
+    . "directory account below. Off by default: this writes to your "
+    . "directory. (Valid values: 0 or 1).','0','FOG Directory')",
+    // ldaps:// or an ldap:// that will be promoted with StartTLS. A bind
+    // carries the credential, and Active Directory refuses a simple bind on
+    // a cleartext connection anyway ("Strong(er) authentication required").
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_LDAP_URI','This setting defines the directory server "
+    . "FOG connects to when placing computer objects, as a URI. Use "
+    . "ldaps://dc.example.com -- a host name, not an address, or the "
+    . "server\\'s certificate cannot be verified. (Valid values: an LDAP "
+    . "URI).','','FOG Directory')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_BIND_DN','This setting defines the account FOG binds "
+    . "as to move computer objects, as a userPrincipalName or a full DN. It "
+    . "needs create-child and delete-child of computer objects on the "
+    . "subtree holding them, and nothing else. (Valid values: a UPN or "
+    . "DN).','','FOG Directory')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_BIND_PASSWORD','This setting defines the password for "
+    . "the directory account above. Stored encrypted. (Valid values: a "
+    . "password).','','FOG Directory')",
+    // The search base for the fallback when a host could not report its own
+    // DN -- no Linux join tool exposes one, so the server looks the object
+    // up by its machine account name instead.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_BASE_DN','This setting defines where FOG searches for "
+    . "a computer object when the host could not report its own "
+    . "distinguished name, which is normal on Linux. (Valid values: a base "
+    . "DN such as DC=example,DC=com).','','FOG Directory')",
+    // A private CA is the norm for a directory, and refusing to verify the
+    // certificate would make the TLS above decorative.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_CA_CERT','This setting defines the path to the CA "
+    . "certificate that signed your directory server\\'s certificate. Leave "
+    . "empty to use the system trust store. (Valid values: a file "
+    . "path).','','FOG Directory')",
+];

@@ -57,7 +57,9 @@ class HostDirectory extends FOGController
         'computerDN' => 'hdComputerDN',
         'machineAccount' => 'hdMachineAccount',
         'site' => 'hdSite',
-        'observedAt' => 'hdObservedAt'
+        'observedAt' => 'hdObservedAt',
+        'placementAt' => 'hdPlacementAt',
+        'placementError' => 'hdPlacementError'
     ];
     /**
      * The required fields.

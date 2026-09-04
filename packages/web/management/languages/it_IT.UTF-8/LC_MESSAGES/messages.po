@@ -7052,6 +7052,10 @@ msgstr "è stato completato"
 msgid "Pinned"
 msgstr ""
 
+#, fuzzy
+msgid "Placement"
+msgstr "Gestione dei compiti"
+
 msgid "Platform"
 msgstr ""
 

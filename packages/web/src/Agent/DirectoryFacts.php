@@ -107,15 +107,7 @@ class DirectoryFacts extends FOGBase
     public static function report(Host $Host, array $block)
     {
         $hostID = (int)$Host->get('id');
-        $Directory = self::getClass('HostDirectoryManager')
-            ->find(['hostID' => $hostID], '', '', '', '', '', 1);
-        $Directory = array_shift($Directory);
-        if (!$Directory instanceof \FOG\Items\HostDirectory
-            || !$Directory->isValid()
-        ) {
-            $Directory = self::getClass('HostDirectory')
-                ->set('hostID', $hostID);
-        }
+        $Directory = self::row($hostID);
 
         $joined = !empty($block['joined']);
         $Directory->set('joined', $joined ? 1 : 0);
@@ -173,6 +165,50 @@ class DirectoryFacts extends FOGBase
                 'authSource' => Principal::AUTH_SOURCE
             ]
         );
+    }
+
+    /**
+     * Puts the host's computer object where the host record asks for it
+     * (design 0009 section 5).
+     *
+     * Called from the poll on EVERY check-in, not from report() -- which
+     * runs only when the machine's own report moved. The other thing that
+     * creates drift is an admin editing the host's OU, and that changes
+     * nothing a machine would ever report, so hanging placement off the
+     * report would mean an edited OU never took effect until the machine
+     * happened to change domains. Which is the bug design 0009 exists to
+     * fix, arrived at from the other direction.
+     *
+     * Cheap when there is nothing to do: a host with no row, no desired OU
+     * or no drift returns before any connection is made.
+     *
+     * @param Host $Host the host the certificate bound
+     *
+     * @return void
+     */
+    public static function place(Host $Host)
+    {
+        DirectoryPlacement::ensure($Host, self::row((int)$Host->get('id')));
+    }
+
+    /**
+     * The host's directory row, or a new unsaved one.
+     *
+     * @param int $hostID the host
+     *
+     * @return \FOG\Items\HostDirectory
+     */
+    protected static function row($hostID)
+    {
+        $found = self::getClass('HostDirectoryManager')
+            ->find(['hostID' => (int)$hostID], '', '', '', '', '', 1);
+        $Directory = array_shift($found);
+        if ($Directory instanceof \FOG\Items\HostDirectory
+            && $Directory->isValid()
+        ) {
+            return $Directory;
+        }
+        return self::getClass('HostDirectory')->set('hostID', (int)$hostID);
     }
 
     /**

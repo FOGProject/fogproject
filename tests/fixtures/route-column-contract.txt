@@ -125,6 +125,8 @@ hostdirectory	8	hdComputerDN	computerDN	-	-
 hostdirectory	9	hdMachineAccount	machineAccount	-	-
 hostdirectory	10	hdSite	site	-	-
 hostdirectory	11	hdObservedAt	observedAt	-	-
+hostdirectory	12	hdPlacementAt	placementAt	-	-
+hostdirectory	13	hdPlacementError	placementError	-	-
 hostfactstate	0	hfsID	id	-	-
 hostfactstate	1	hfsID	DT_RowId	f	-
 hostfactstate	2	hfsHostID	hostID	-	-

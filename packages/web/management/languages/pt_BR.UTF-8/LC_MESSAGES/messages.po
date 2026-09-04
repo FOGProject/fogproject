@@ -7244,6 +7244,10 @@ msgstr "foi destruído"
 msgid "Pinned"
 msgstr ""
 
+#, fuzzy
+msgid "Placement"
+msgstr "Gestão de tarefas"
+
 msgid "Platform"
 msgstr ""
 
