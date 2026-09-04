@@ -4,6 +4,17 @@
 
 accepted
 
+## Amended 2026-09-04 — the literals this record counts are gone
+
+[ADR 0043](0043-a-class-is-named-at-the-call-site-not-fetched-by-string.md)
+retired the literal `getClass('X')`, so the "~520 literals" and "~350
+literals" counted below are now `new` expressions and the roughly 150 inside
+`fog-plugins` are fully qualified. Nothing here is withdrawn: `qualify()`, its
+short-name map and the core-before-plugins order are unchanged and still
+load-bearing — they now serve names held in **variables**, which is what
+`Route`, `Authorization` and `OpenAPI` hand it, rather than names spelled out
+at the call site.
+
 ## Amended 2026-08-31 — plugins are namespaced too, and the alias advice is withdrawn
 
 > **Superseded the same day by [ADR 0035](0035-a-plugin-is-laid-out-like-core.md),

@@ -882,7 +882,7 @@ Once your callback has proven who somebody is, hand the identity to FOG and
 **say how you proved it**:
 
 ```php
-$user = self::getClass('User', $uid);
+$user = new \FOG\Items\User($uid);
 $user->establishSession('oidc');
 ```
 
