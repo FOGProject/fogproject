@@ -63,6 +63,19 @@ class State extends FOGBase
     const RESULT_SOURCES = ['reboot'];
 
     /**
+     * Capabilities whose reports can address one server-owned row: the
+     * class's report(Host, id, body) keeps the row, reads the exit code
+     * against its return-code table and answers the outcome the agent
+     * acts on.
+     *
+     * @var array<string, class-string>
+     */
+    const ITEM_REPORTS = [
+        'snapin' => Snapins::class,
+        'software' => SoftwareSet::class,
+    ];
+
+    /**
      * What the agent may report for one capability.
      */
     const RESULT_STATUSES = ['applied', 'unchanged', 'pending_reboot', 'failed'];
@@ -202,11 +215,14 @@ class State extends FOGBase
      * Records what the agent did with one capability.
      *
      * @param Host  $Host the principal
-     * @param array $body revision, capability, status, detail
+     * @param array $body revision, capability, status, detail, and
+     *                    optionally item (id plus what the capability's
+     *                    report class reads)
      *
-     * @throws \RuntimeException 400 on a body that is not a result
+     * @throws \RuntimeException 400 on a body that is not a result; an
+     *                           item report's own codes (404, 409, 503)
      *
-     * @return void
+     * @return string|null the outcome of an item report, else null
      */
     public static function result(Host $Host, array $body)
     {
@@ -219,6 +235,18 @@ class State extends FOGBase
         $status = (string)($body['status'] ?? '');
         if (!in_array($status, self::RESULT_STATUSES, true)) {
             throw new \RuntimeException('unknown status', 400);
+        }
+        // A report about one thing under the capability goes to that
+        // capability's report class, which keeps the row and answers the
+        // outcome. One route for every kind of report: a new artifact
+        // type is a new entry here, never a new path (protocol-v1.md).
+        $item = $body['item'] ?? null;
+        if (is_array($item)) {
+            $class = self::ITEM_REPORTS[$capability] ?? null;
+            if (null === $class) {
+                throw new \RuntimeException('capability has no item reports', 400);
+            }
+            return (string)$class::report($Host, (int)($item['id'] ?? 0), $item);
         }
         $revision = substr(preg_replace('/[^a-f0-9]/', '', (string)($body['revision'] ?? '')), 0, 16);
         $detail = substr(trim((string)($body['detail'] ?? '')), 0, Audit::MAX_DETAIL);
@@ -245,6 +273,7 @@ class State extends FOGBase
                 'authSource' => Principal::AUTH_SOURCE
             ]
         );
+        return null;
     }
 
     /**

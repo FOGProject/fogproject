@@ -3140,14 +3140,6 @@ msgstr ""
 msgid "FOG Agent snapin payload"
 msgstr ""
 
-#, fuzzy
-msgid "FOG Agent snapin result"
-msgstr "ファイルはアップロードされませんでした"
-
-#, fuzzy
-msgid "FOG Agent software result"
-msgstr "ファイルはアップロードされませんでした"
-
 msgid "FOG Client"
 msgstr "FOG クライアント"
 
@@ -6487,10 +6479,6 @@ msgstr ""
 msgid "Not allowed here"
 msgstr "ここでは許可されていません"
 
-#, fuzzy
-msgid "Not an entry in this host's software set."
-msgstr "このホストの実行中タスクは見つかりません"
-
 msgid "Not offered here, on purpose"
 msgstr ""
 
@@ -7604,9 +7592,8 @@ msgstr ""
 msgid "Recorded in range"
 msgstr "レコードが見つかりません"
 
-#, fuzzy
-msgid "Recorded."
-msgstr "保護されていません"
+msgid "Recorded; outcome present for an item report."
+msgstr ""
 
 #, fuzzy
 msgid "Records"
@@ -9794,6 +9781,10 @@ msgstr ""
 msgid "The issuer must be a full URL"
 msgstr ""
 
+#, fuzzy
+msgid "The item is not a live row of this host."
+msgstr "このホストの実行中タスクは見つかりません"
+
 msgid "The key will be assigned to registered hosts when a"
 msgstr "キーは、登録済みホストに次の場合割り当てられます"
 
@@ -9839,9 +9830,6 @@ msgstr ""
 msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order."
 msgstr ""
 
-msgid "The package manager's own exit code; meaningful for the action statuses."
-msgstr ""
-
 #, fuzzy
 msgid "The path requested is already in use by another image!"
 msgstr "これは既に別のイメージで使用されています"
@@ -9878,9 +9866,6 @@ msgstr ""
 
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
-
-msgid "The program's own exit code; meaningful only for status ran."
-msgstr ""
 
 #, php-format
 msgid "The provider published no https %s"
@@ -9962,10 +9947,6 @@ msgstr "ストレージグループに関連付けられたストレージノー
 
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
-
-#, fuzzy
-msgid "The task was already closed."
-msgstr "このホストは既に存在します"
 
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
@@ -10587,7 +10568,7 @@ msgstr "不明なデータベースエラー"
 msgid "Unknown action"
 msgstr "不明なデータベースエラー"
 
-msgid "Unknown capability or status."
+msgid "Unknown capability or status, or an item for a capability with no item reports."
 msgstr ""
 
 #, php-format
@@ -10610,10 +10591,6 @@ msgstr "不明なデータベースエラー"
 
 #, fuzzy
 msgid "Unknown power action"
-msgstr "不明なデータベースエラー"
-
-#, fuzzy
-msgid "Unknown status."
 msgstr "不明なデータベースエラー"
 
 msgid "Unknown upload error occurred"
@@ -11094,9 +11071,6 @@ msgstr ""
 msgid "What Setup Mode means (firmware usually calls it \"Custom\")"
 msgstr ""
 
-msgid "What convergence did for one software entry: converged (nothing needed doing), installed, upgraded or removed with the package manager's exit code, or timeout / cannot_run when it never ran. The server reads the code against the entry's return-code table, refreshes the host's status row for the entry, and answers the outcome. Software is state, not a task: nothing closes."
-msgstr ""
-
 #, fuzzy
 msgid "What gets enrolled"
 msgstr "強制終了されました"
@@ -11105,7 +11079,7 @@ msgstr "強制終了されました"
 msgid "What it does"
 msgstr "強制終了されました"
 
-msgid "What the agent did with one capability at one revision. Recorded on the host as agent.result. Same gate as poll."
+msgid "What the agent did with one capability at one revision, recorded on the host as agent.result; or, with item, what happened to one thing under the capability (a snapin task, a software entry), answered with the outcome the agent acts on. One route for every kind of report. Same gate as poll."
 msgstr ""
 
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
@@ -11132,9 +11106,6 @@ msgstr ""
 #, fuzzy
 msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
-
-msgid "Whether the payload ran, its raw exit code when it did, and the output tail. The server reads the code against the snapin's return-code table and answers the outcome: success, reboot, retry (the task is queued again) or failed. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
-msgstr ""
 
 msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
 msgstr ""
@@ -12889,6 +12860,14 @@ msgstr ""
 #~ msgid "FOG Agent desired state"
 #~ msgstr "強制終了されました"
 
+#, fuzzy
+#~ msgid "FOG Agent snapin result"
+#~ msgstr "ファイルはアップロードされませんでした"
+
+#, fuzzy
+#~ msgid "FOG Agent software result"
+#~ msgstr "ファイルはアップロードされませんでした"
+
 #~ msgid "FOG Client Service Updater"
 #~ msgstr "FOG クライアントサービス更新プログラム"
 
@@ -13739,6 +13718,10 @@ msgstr ""
 #~ msgid "Not all elements in filter or ports setting are integer"
 #~ msgstr "フィルターまたはポート設定のすべての要素が整数ではありません"
 
+#, fuzzy
+#~ msgid "Not an entry in this host's software set."
+#~ msgstr "このホストの実行中タスクは見つかりません"
+
 #~ msgid "Notes"
 #~ msgstr "メモ"
 
@@ -13945,6 +13928,10 @@ msgstr ""
 
 #~ msgid "Rebranding element has been successfully updated!"
 #~ msgstr "ブランド設定を更新しました！"
+
+#, fuzzy
+#~ msgid "Recorded."
+#~ msgstr "保護されていません"
 
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "登録はフックまたはイベントから管理する必要があります"
@@ -14291,6 +14278,10 @@ msgstr ""
 #~ msgid "The old client was distributed with FOG 1.2.0 and earlier."
 #~ msgstr "旧クライアントは FOG 1.2.0 以前で配布されていました。"
 
+#, fuzzy
+#~ msgid "The task was already closed."
+#~ msgstr "このホストは既に存在します"
+
 #~ msgid "There are currently"
 #~ msgstr "現在"
 
@@ -14417,6 +14408,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Unable to set user filter."
 #~ msgstr "サーバー情報を取得できません！"
+
+#, fuzzy
+#~ msgid "Unknown status."
+#~ msgstr "不明なデータベースエラー"
 
 #~ msgid "Update General?"
 #~ msgstr "全般設定を更新しますか？"

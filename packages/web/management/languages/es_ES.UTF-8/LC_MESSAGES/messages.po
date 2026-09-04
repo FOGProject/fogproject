@@ -3261,14 +3261,6 @@ msgid "FOG Agent snapin payload"
 msgstr ""
 
 #, fuzzy
-msgid "FOG Agent snapin result"
-msgstr "Ningún archivo fue subido"
-
-#, fuzzy
-msgid "FOG Agent software result"
-msgstr "Ningún archivo fue subido"
-
-#, fuzzy
 msgid "FOG Client"
 msgstr "FOG Wiki Cliente"
 
@@ -6822,10 +6814,6 @@ msgstr ""
 msgid "Not allowed here"
 msgstr ""
 
-#, fuzzy
-msgid "Not an entry in this host's software set."
-msgstr "No se encontró Clase FOGPage para este nodo"
-
 msgid "Not offered here, on purpose"
 msgstr ""
 
@@ -7967,9 +7955,8 @@ msgstr ""
 msgid "Recorded in range"
 msgstr "Registro no encontrado, error: %s"
 
-#, fuzzy
-msgid "Recorded."
-msgstr "Registros actuales"
+msgid "Recorded; outcome present for an item report."
+msgstr ""
 
 #, fuzzy
 msgid "Records"
@@ -10296,6 +10283,10 @@ msgstr ""
 msgid "The issuer must be a full URL"
 msgstr ""
 
+#, fuzzy
+msgid "The item is not a live row of this host."
+msgstr "No se encontró Clase FOGPage para este nodo"
+
 msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
@@ -10340,9 +10331,6 @@ msgstr ""
 msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order."
 msgstr ""
 
-msgid "The package manager's own exit code; meaningful for the action statuses."
-msgstr ""
-
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
@@ -10379,9 +10367,6 @@ msgstr ""
 #, fuzzy
 msgid "The primary mac associated is"
 msgstr "Error, es una imagen asociada con este anfitrión"
-
-msgid "The program's own exit code; meaningful only for status ran."
-msgstr ""
 
 #, php-format
 msgid "The provider published no https %s"
@@ -10461,10 +10446,6 @@ msgstr ""
 
 msgid "The task finishes on the client with nobody at the keyboard"
 msgstr ""
-
-#, fuzzy
-msgid "The task was already closed."
-msgstr "Impresora ya existe"
 
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
@@ -11102,7 +11083,7 @@ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 msgid "Unknown action"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
-msgid "Unknown capability or status."
+msgid "Unknown capability or status, or an item for a capability with no item reports."
 msgstr ""
 
 #, php-format
@@ -11126,10 +11107,6 @@ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
 #, fuzzy
 msgid "Unknown power action"
-msgstr "Se produjo un error de carga desconocida. Código de retorno: "
-
-#, fuzzy
-msgid "Unknown status."
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
 #, fuzzy
@@ -11629,9 +11606,6 @@ msgstr ""
 msgid "What Setup Mode means (firmware usually calls it \"Custom\")"
 msgstr ""
 
-msgid "What convergence did for one software entry: converged (nothing needed doing), installed, upgraded or removed with the package manager's exit code, or timeout / cannot_run when it never ran. The server reads the code against the entry's return-code table, refreshes the host's status row for the entry, and answers the outcome. Software is state, not a task: nothing closes."
-msgstr ""
-
 #, fuzzy
 msgid "What gets enrolled"
 msgstr "se ha actualizado correctamente"
@@ -11640,7 +11614,7 @@ msgstr "se ha actualizado correctamente"
 msgid "What it does"
 msgstr "se ha actualizado correctamente"
 
-msgid "What the agent did with one capability at one revision. Recorded on the host as agent.result. Same gate as poll."
+msgid "What the agent did with one capability at one revision, recorded on the host as agent.result; or, with item, what happened to one thing under the capability (a snapin task, a software entry), answered with the outcome the agent acts on. One route for every kind of report. Same gate as poll."
 msgstr ""
 
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
@@ -11665,9 +11639,6 @@ msgid "Where it lives"
 msgstr ""
 
 msgid "Where to get help and guides"
-msgstr ""
-
-msgid "Whether the payload ran, its raw exit code when it did, and the output tail. The server reads the code against the snapin's return-code table and answers the outcome: success, reboot, retry (the task is queued again) or failed. Closes the task as the legacy check-in does, cancels the rest of a job that aborts on failure, ends the job after its last task, and records it on the host as agent.result."
 msgstr ""
 
 msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
@@ -13159,6 +13130,14 @@ msgstr ""
 #~ msgstr "se ha actualizado correctamente"
 
 #, fuzzy
+#~ msgid "FOG Agent snapin result"
+#~ msgstr "Ningún archivo fue subido"
+
+#, fuzzy
+#~ msgid "FOG Agent software result"
+#~ msgstr "Ningún archivo fue subido"
+
+#, fuzzy
 #~ msgid "Failed to add/update snapin file"
 #~ msgstr "No se pudo crear Complemento de empleo"
 
@@ -13480,6 +13459,10 @@ msgstr ""
 #~ msgstr "Instalador inteligente (recomendado)"
 
 #, fuzzy
+#~ msgid "Not an entry in this host's software set."
+#~ msgstr "No se encontró Clase FOGPage para este nodo"
+
+#, fuzzy
 #~ msgid "Pause"
 #~ msgstr "Usuario"
 
@@ -13497,6 +13480,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Product Keys"
 #~ msgstr "Clave del producto Grupo"
+
+#, fuzzy
+#~ msgid "Recorded."
+#~ msgstr "Registros actuales"
 
 #, fuzzy
 #~ msgid "Release Version"
@@ -13610,6 +13597,10 @@ msgstr ""
 #~ msgstr "No hay grupos en este servidor."
 
 #, fuzzy
+#~ msgid "The task was already closed."
+#~ msgstr "Impresora ya existe"
+
+#, fuzzy
 #~ msgid "There are no "
 #~ msgstr "Existen"
 
@@ -13639,6 +13630,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Unable to set user filter."
 #~ msgstr "No se puede abrir archivo para lectura"
+
+#, fuzzy
+#~ msgid "Unknown status."
+#~ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
 #, fuzzy
 #~ msgid "Update Master Node"

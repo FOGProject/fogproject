@@ -2626,12 +2626,25 @@ class OpenAPI extends FOGBase
                     'agentresult',
                     _('FOG Agent capability result'),
                     _('What the agent did with one capability at one '
-                        . 'revision. Recorded on the host as agent.result. '
-                        . 'Same gate as poll.'),
+                        . 'revision, recorded on the host as agent.result; '
+                        . 'or, with item, what happened to one thing under '
+                        . 'the capability (a snapin task, a software entry), '
+                        . 'answered with the outcome the agent acts on. One '
+                        . 'route for every kind of report. Same gate as poll.'),
                     [
-                        '200' => ['description' => _('Recorded.')],
-                        '400' => ['description' => _('Unknown capability or status.')],
-                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')]
+                        '200' => [
+                            'description' => _('Recorded; outcome present for an item report.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string'],
+                                    'outcome' => ['type' => 'string', 'enum' => ['success', 'reboot', 'retry', 'failed']]
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('Unknown capability or status, or an item for a capability with no item reports.')],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '404' => ['description' => _('The item is not a live row of this host.')]
                     ],
                     [],
                     [
@@ -2640,9 +2653,20 @@ class OpenAPI extends FOGBase
                             'required' => ['revision', 'capability', 'status'],
                             'properties' => [
                                 'revision' => ['type' => 'string'],
-                                'capability' => ['type' => 'string', 'enum' => ['hostname']],
+                                'capability' => ['type' => 'string'],
                                 'status' => ['type' => 'string', 'enum' => ['applied', 'unchanged', 'pending_reboot', 'failed']],
-                                'detail' => ['type' => 'string']
+                                'detail' => ['type' => 'string'],
+                                'item' => [
+                                    'type' => 'object',
+                                    'required' => ['id', 'status'],
+                                    'properties' => [
+                                        'id' => ['type' => 'integer'],
+                                        'status' => ['type' => 'string'],
+                                        'exit_code' => ['type' => 'integer'],
+                                        'installed_version' => ['type' => 'string'],
+                                        'details' => ['type' => 'string']
+                                    ]
+                                ]
                             ]
                         ]]]
                     ]
@@ -2666,91 +2690,6 @@ class OpenAPI extends FOGBase
                         '503' => ['description' => _('No storage node can serve the file.')]
                     ],
                     [self::_idParameter()]
-                )
-            ],
-            '/agent/v1/snapin/{id}/result' => [
-                'post' => self::_op(
-                    '',
-                    'agentsnapinresult',
-                    _('FOG Agent snapin result'),
-                    _('Whether the payload ran, its raw exit code when it did, '
-                        . 'and the output tail. The server reads the code '
-                        . 'against the snapin\'s return-code table and answers '
-                        . 'the outcome: success, reboot, retry (the task is '
-                        . 'queued again) or failed. Closes the task as the '
-                        . 'legacy check-in does, cancels the rest of a job that '
-                        . 'aborts on failure, ends the job after its last task, '
-                        . 'and records it on the host as agent.result.'),
-                    [
-                        '200' => [
-                            'description' => _('Recorded.'),
-                            'content' => ['application/json' => ['schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'status' => ['type' => 'string', 'enum' => ['ok']],
-                                    'outcome' => ['type' => 'string', 'enum' => ['success', 'reboot', 'retry', 'failed']]
-                                ]
-                            ]]]
-                        ],
-                        '400' => ['description' => _('Unknown status.')],
-                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
-                        '404' => ['description' => _('Not a live task of this host\'s job.')]
-                    ] + self::_conflictResponse(_('The task was already closed.')),
-                    [self::_idParameter()],
-                    [
-                        'content' => ['application/json' => ['schema' => [
-                            'type' => 'object',
-                            'required' => ['status', 'exit_code'],
-                            'properties' => [
-                                'status' => ['type' => 'string', 'enum' => ['ran', 'hash_mismatch', 'timeout', 'cannot_run']],
-                                'exit_code' => ['type' => 'integer', 'description' => _('The program\'s own exit code; meaningful only for status ran.')],
-                                'details' => ['type' => 'string', 'maxLength' => 4096]
-                            ]
-                        ]]]
-                    ]
-                )
-            ],
-            '/agent/v1/software/{id}/result' => [
-                'post' => self::_op(
-                    '',
-                    'agentsoftwareresult',
-                    _('FOG Agent software result'),
-                    _('What convergence did for one software entry: '
-                        . 'converged (nothing needed doing), installed, '
-                        . 'upgraded or removed with the package manager\'s '
-                        . 'exit code, or timeout / cannot_run when it never '
-                        . 'ran. The server reads the code against the entry\'s '
-                        . 'return-code table, refreshes the host\'s status row '
-                        . 'for the entry, and answers the outcome. Software is '
-                        . 'state, not a task: nothing closes.'),
-                    [
-                        '200' => [
-                            'description' => _('Recorded.'),
-                            'content' => ['application/json' => ['schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'status' => ['type' => 'string', 'enum' => ['ok']],
-                                    'outcome' => ['type' => 'string', 'enum' => ['success', 'reboot', 'retry', 'failed']]
-                                ]
-                            ]]]
-                        ],
-                        '400' => ['description' => _('Unknown status.')],
-                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
-                        '404' => ['description' => _('Not an entry in this host\'s software set.')]
-                    ],
-                    [self::_idParameter()],
-                    [
-                        'content' => ['application/json' => ['schema' => [
-                            'type' => 'object',
-                            'required' => ['status'],
-                            'properties' => [
-                                'status' => ['type' => 'string', 'enum' => ['converged', 'installed', 'upgraded', 'removed', 'timeout', 'cannot_run']],
-                                'installed_version' => ['type' => 'string', 'maxLength' => 64],
-                                'exit_code' => ['type' => 'integer', 'description' => _('The package manager\'s own exit code; meaningful for the action statuses.')],
-                                'details' => ['type' => 'string', 'maxLength' => 4096]
-                            ]
-                        ]]]
-                    ]
                 )
             ],
             '/agent/v1/renew' => [
