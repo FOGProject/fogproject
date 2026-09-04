@@ -261,26 +261,40 @@ class DirectoryPlacement extends FOGBase
     }
 
     /**
-     * The bind password, decrypted.
+     * The bind password, as typed.
      *
-     * Stored encrypted and read through the same probe the LDAP plugin and
-     * HostnameChanger use, so a value written by any of them reads back.
+     * Three shapes have to read back, because FOG's own settings accept all
+     * three: what an admin types into the configuration page (raw), what a
+     * script may store (base64), and an aesdecrypt-able value written by an
+     * older tool. aesdecrypt() returns anything without a `|` unchanged, so
+     * it is safe to run over all of them.
+     *
+     * The base64 test is STRICT, deliberately, and this is where the LDAP
+     * plugin's version of this probe goes wrong. It asks
+     * `if ($x = base64_decode($test))`, and non-strict base64_decode does not
+     * fail on a non-base64 string -- it skips the characters outside the
+     * alphabet and decodes whatever is left. Feed it an ordinary password and
+     * it hands back a few bytes of garbage, which mb_detect_encoding will
+     * accept as UTF-8 often enough to matter, and FOG then binds with a
+     * string the admin never typed. Round-tripping the encode is the only
+     * check that actually distinguishes the two.
      *
      * @return string
      */
     private static function _bindPassword()
     {
-        $pass = (string)self::getSetting('FOG_DIRECTORY_BIND_PASSWORD');
+        $pass = trim((string)self::getSetting('FOG_DIRECTORY_BIND_PASSWORD'));
         if ('' === $pass) {
             return '';
         }
-        $test = self::aesdecrypt(trim($pass));
-        if ($decoded = base64_decode($test)) {
-            if (mb_detect_encoding($decoded, 'utf-8', true)) {
-                return $decoded;
-            }
-        } elseif (mb_detect_encoding($test, 'utf-8', true)) {
-            return $test;
+        $pass = (string)self::aesdecrypt($pass);
+        $decoded = base64_decode($pass, true);
+        if (false !== $decoded
+            && '' !== $decoded
+            && base64_encode($decoded) === $pass
+            && mb_detect_encoding($decoded, 'utf-8', true)
+        ) {
+            return $decoded;
         }
         return $pass;
     }

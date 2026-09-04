@@ -11224,3 +11224,25 @@ $this->schema[] = [
     . "empty to use the system trust store. (Valid values: a file "
     . "path).','','FOG Directory')",
 ];
+
+// 425
+$this->schema[] = [
+    // Step 424 described FOG_DIRECTORY_BIND_PASSWORD as "Stored encrypted".
+    // It is not, and saying so is worse than saying nothing: an admin who
+    // believes a secret is encrypted at rest will treat a database dump as
+    // safe to hand over.
+    //
+    // FOG has no key store. aesencrypt() takes a key and PUTS IT IN THE
+    // CIPHERTEXT (`iv|data|key`), and aesdecrypt() returns anything without a
+    // `|` unchanged -- which is why the LDAP plugin's bind password has always
+    // been stored exactly as typed. This setting behaves the same way, so the
+    // description now says what is true and points at the mitigation that is
+    // real: delegate the account narrowly, so what the row is worth to an
+    // attacker is bounded by what the account can do.
+    "UPDATE `globalSettings` SET `settingDesc` = 'This setting defines the "
+    . "password for the directory account above. Stored in the database as "
+    . "typed -- FOG has no key store, so treat a database dump as disclosing "
+    . "it, and delegate the account to one subtree rather than granting it "
+    . "domain rights. (Valid values: a password).' "
+    . "WHERE `settingKey` = 'FOG_DIRECTORY_BIND_PASSWORD'",
+];

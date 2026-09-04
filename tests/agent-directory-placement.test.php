@@ -337,6 +337,56 @@ $t->check(
     '' === \FOG\Net\FOGLdap::parentDn('CN=WS-014')
 );
 
+// ------------------------------------------------------- the bind password
+
+/**
+ * The bind password placement would actually use.
+ *
+ * @param string $stored what sits in globalSettings
+ *
+ * @return string
+ */
+function bindPasswordFor($stored)
+{
+    settings(['FOG_DIRECTORY_BIND_PASSWORD' => $stored]);
+    $m = new ReflectionMethod(
+        \FOG\Agent\DirectoryPlacement::class,
+        '_bindPassword'
+    );
+    $m->setAccessible(true);
+    return (string)$m->invoke(null);
+}
+
+$t->check(
+    'a password typed into the configuration page comes back as typed. This'
+        . ' is the one the LDAP plugin gets WRONG: its probe asks'
+        . ' `if ($x = base64_decode($test))`, and non-strict base64_decode'
+        . ' does not fail on a non-base64 string -- it drops the characters'
+        . ' outside the alphabet and decodes the rest. WkwdOXZuKFK is an'
+        . ' ordinary alphanumeric password, and that probe turns it into'
+        . ' eight bytes of binary and binds with those. Round-tripping the'
+        . ' encode is the only test that tells the two shapes apart',
+    'WkwdOXZuKFK' === bindPasswordFor('WkwdOXZuKFK')
+);
+
+$t->check(
+    'and a base64-stored one is decoded, because a script that writes the'
+        . ' setting has no page to type into',
+    'WkwdOXZuKFK' === bindPasswordFor(base64_encode('WkwdOXZuKFK'))
+);
+
+$t->check(
+    'an empty setting is an empty password, not a decode of nothing',
+    '' === bindPasswordFor('')
+);
+
+$t->check(
+    'a password that IS valid base64 by accident survives -- the round trip'
+        . ' would accept it as encoded, so the decoded value has to be the'
+        . ' one that reads as text',
+    'passwordZ' === bindPasswordFor('passwordZ')
+);
+
 // ------------------------------------------------------------ where it hangs
 
 $facts = file_get_contents(
