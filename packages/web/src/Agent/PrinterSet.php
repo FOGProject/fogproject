@@ -173,7 +173,12 @@ class PrinterSet extends FOGBase
         if (!in_array($status, self::STATUSES, true)) {
             throw new \RuntimeException('unknown status', 400);
         }
-        $error = self::errorFor($status, (string)($body['error'] ?? ''));
+        // `details` and not `error`: every item report on this route carries
+        // the provider's output in `details` (a snapin's tail, a package
+        // manager's log), and a printer's failure message is the same thing
+        // -- lpadmin's own words. One field name for one meaning across the
+        // protocol beats a per-capability spelling.
+        $error = self::errorFor($status, (string)($body['details'] ?? ''));
 
         $ids = Route::getIds(
             'printerassociation',
