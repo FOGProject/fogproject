@@ -25,6 +25,7 @@ hostautologout	(nothing)
 hostfactstate	(nothing)	
 hostscreensetting	(nothing)	
 hostsoftware	(nothing)	
+hostusersession	(nothing)	
 image	imageassociation	imageID
 imageassociation	(nothing)	
 imagepartitiontype	(nothing)	

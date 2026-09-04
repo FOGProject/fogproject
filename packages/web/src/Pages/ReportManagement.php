@@ -179,6 +179,7 @@ class ReportManagement extends FOGPage
             'hosts and users' => _('User Logins'),
             'imaging report' => _('Imaging Report'),
             'installed software' => _('Installed Software'),
+            'user sessions' => _('User Sessions'),
             'pending mac list' => _('Pending MAC Addresses'),
             'product keys' => _('Host Product Keys'),
             'run history' => _('Run History'),

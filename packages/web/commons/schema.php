@@ -11053,3 +11053,62 @@ $this->schema[] = [
     . "its host. When disabled, the server never requests a report and "
     . "ignores one if it arrives. (Valid values: 0 or 1).','1','FOG Client')",
 ];
+
+// 422
+$this->schema[] = [
+    // fog-agent user tracking as sessions (design 0008). One row per logon
+    // with two ends, replacing the login/logout EVENT pairs in
+    // `userTracking` -- which is not touched, and keeps working for 1.5
+    // clients and the Activity page.
+    //
+    // The event log cannot answer "who is logged in now": a logout needs a
+    // network round trip at the moment the machine is going away, so six of
+    // eleven sessions on the lab server have no logout at all. Here the open
+    // set is re-reported and whatever stops being reported is closed --
+    // marked `inferred`, dated to husLastSeen, because "we never found out"
+    // and "logged out at 11:54" are different facts.
+    //
+    // husSessionKey plus husStartedAt is identity: a second logon by the
+    // same user is a distinct session, not an ambiguous second event.
+    // husUserName and husDomain are separate and unmangled, unlike the
+    // legacy table, which lowercases and strips the domain and so merges
+    // CORP\jsmith with LAB\jsmith.
+    "CREATE TABLE IF NOT EXISTS `hostUserSession` ( "
+    . "`husID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`husHostID` int(11) NOT NULL, "
+    . "`husSessionKey` varchar(191) NOT NULL DEFAULT '', "
+    . "`husUserName` varchar(255) NOT NULL DEFAULT '', "
+    . "`husDomain` varchar(255) NOT NULL DEFAULT '', "
+    . "`husUserSID` varchar(191) NOT NULL DEFAULT '', "
+    . "`husType` varchar(32) NOT NULL DEFAULT '', "
+    . "`husState` varchar(32) NOT NULL DEFAULT '', "
+    . "`husRemoteHost` varchar(255) NOT NULL DEFAULT '', "
+    . "`husStartedAt` datetime NOT NULL, "
+    . "`husEndedAt` datetime DEFAULT NULL, "
+    . "`husEndReason` varchar(32) NOT NULL DEFAULT '', "
+    . "`husLastSeen` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`husID`), "
+    . "UNIQUE KEY `husHostKeyStart` (`husHostID`,`husSessionKey`,`husStartedAt`), "
+    . "KEY `husHostOpen` (`husHostID`,`husEndedAt`), "
+    . "KEY `husUserName` (`husUserName`), "
+    . "KEY `husStartedAt` (`husStartedAt`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Whether to keep feeding the legacy table as well. On by default so a
+    // fleet migrating to fog-agent sees no gap in the Activity page it
+    // already uses; off for an estate that has fully migrated and does not
+    // want the duplicate rows.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_USERTRACKING_COMPAT_WRITE','This setting defines if agent-reported "
+    . "user sessions are also written to the legacy user tracking table, so "
+    . "the Activity page keeps showing them while an estate migrates. Turn it "
+    . "off once every client is a fog-agent. (Valid values: 0 or 1).','1','FOG Client')",
+    // Sessions age out on their own clock: they are far coarser than the
+    // event rows (one per logon, not two), so an estate may want to keep
+    // them longer than the legacy table's.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_HOSTUSERSESSION_RETENTION_DAYS','This setting defines how many "
+    . "days of agent-reported user sessions to keep. Zero keeps them "
+    . "forever. (Valid values: a whole number of days).','365','FOG Audit')",
+];

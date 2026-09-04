@@ -367,6 +367,7 @@ $expected = [
     'groupPowerManagement.gpmGroupID',
     'agentEnrollment.aeHostID',
     'hostSoftware.hsHostID',
+        'hostUserSession.husHostID',
     'hostFactState.hfsHostID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its

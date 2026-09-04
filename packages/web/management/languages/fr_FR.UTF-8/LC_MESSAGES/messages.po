@@ -5768,6 +5768,9 @@ msgstr "Log Viewer"
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
+msgid "Logged on"
+msgstr ""
+
 msgid "Logging"
 msgstr ""
 
@@ -8626,6 +8629,9 @@ msgstr "Un nom d'hôte avec ce nom existe déjà."
 msgid "Sessions canceled!"
 msgstr "a été mis à jour avec succès"
 
+msgid "Sessions open right now, as last reported by each host's agent. A host that has not checked in recently may have logged its user off since."
+msgstr ""
+
 msgid "Set Printer as Default for Hosts"
 msgstr ""
 
@@ -10311,7 +10317,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11278,6 +11283,10 @@ msgstr "Nom d'utilisateur"
 
 msgid "User Password"
 msgstr "Mot de passe de l'utilisateur"
+
+#, fuzzy
+msgid "User Sessions"
+msgstr "Association Image"
 
 msgid "User Tracker"
 msgstr "Tracker utilisateur"

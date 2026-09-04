@@ -5575,6 +5575,10 @@ msgstr "ログビューアー"
 msgid "Log out and sign in as an administrator"
 msgstr ""
 
+#, fuzzy
+msgid "Logged on"
+msgstr "ログイン済み"
+
 msgid "Logging"
 msgstr ""
 
@@ -8372,6 +8376,9 @@ msgstr "その名前のセッションは既に存在します"
 msgid "Sessions canceled!"
 msgstr "キャンセルされました"
 
+msgid "Sessions open right now, as last reported by each host's agent. A host that has not checked in recently may have logged its user off since."
+msgstr ""
+
 msgid "Set Printer as Default for Hosts"
 msgstr ""
 
@@ -9987,7 +9994,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -10930,6 +10936,10 @@ msgstr "ユーザー名属性"
 
 msgid "User Password"
 msgstr "ユーザーパスワード"
+
+#, fuzzy
+msgid "User Sessions"
+msgstr "セッションを開始"
 
 msgid "User Tracker"
 msgstr "ユーザートラッカー"
@@ -14216,9 +14226,6 @@ msgstr ""
 #~ msgid "Start Date"
 #~ msgstr "開始日"
 
-#~ msgid "Start Session"
-#~ msgstr "セッションを開始"
-
 #~ msgid "Static"
 #~ msgstr "静的"
 
@@ -14773,9 +14780,6 @@ msgstr ""
 
 #~ msgid "it will enforce login to gain access to the advanced"
 #~ msgstr "詳細メニューへアクセスするにはログインが必要になります"
-
-#~ msgid "logged in"
-#~ msgstr "ログイン済み"
 
 #~ msgid "may see the issue and help and/or use the solutions"
 #~ msgstr "問題を確認し、支援したり解決策を利用したりできます"

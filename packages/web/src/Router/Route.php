@@ -637,6 +637,7 @@ class Route extends FOGBase
         'hostfactstate',
         'hostscreensetting',
         'hostsoftware',
+        'hostusersession',
         'image',
         'imageassociation',
         'imagepartitiontype',
@@ -3018,6 +3019,7 @@ class Route extends FOGBase
         // host has still checked in above.
         try {
             $answer += \FOG\Agent\State::facts($Host, $body);
+            $answer += \FOG\Agent\State::sessions($Host, $body);
         } catch (\RuntimeException $e) {
             HTTPResponseCodes::breakHead(
                 self::_agentErrorCode($e),

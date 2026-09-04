@@ -116,6 +116,15 @@ class Redaction extends FOGBase
         'host' => [
             'tokenlock',
         ],
+        // A session "key" is the operating system's own session identifier --
+        // a WTS session number like "2", or a logind id like "110" (design
+        // 0008). It is an opaque local handle that the machine hands out and
+        // that means nothing off the host: it authenticates nobody, and it is
+        // the column the reconcile matches on, so redacting it would make the
+        // session list unreadable while protecting nothing.
+        'hostusersession' => [
+            'sessionkey',
+        ],
         // A menu hotkey is a keyboard key, and keysequence is the Konami-code
         // style unlock sequence for a menu entry -- neither is a secret, and
         // the sequence is already rendered into the iPXE menu in clear.

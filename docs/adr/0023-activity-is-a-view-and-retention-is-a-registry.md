@@ -358,7 +358,12 @@ either companion ADR. 6 and 7 are gated, deliberately.
 - A `report.view` holder stops getting a movement log for named employees as a
   side effect. Signed off and shipped as item 1; a role holding `report.view`
   loses user tracking on deploy and is re-granted deliberately.
-- Retention is one mechanism for four tables rather than four mechanisms.
+- Retention is one mechanism for five tables rather than five mechanisms.
+  (Four when this was written. `hostUserSession` joined in schema 422 --
+  design 0008's agent-reported user sessions -- which is the registry
+  working as intended: a new table that accumulates rows per host declares
+  its own setting and date column rather than growing unbounded while
+  somebody notices later.)
 - Upgraded servers keep every existing `userTracking` row until an
   administrator decides otherwise, and are told that they hold them.
 - `history`'s existing prose rows render in the new viewer with empty subject

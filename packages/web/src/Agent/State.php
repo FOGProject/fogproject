@@ -112,6 +112,13 @@ class State extends FOGBase
     const FACTS_SETTING = 'FOG_AGENT_INVENTORY_ENABLED';
 
     /**
+     * FOG's existing module for user tracking (design 0008). Admins have
+     * been switching this off for a decade, so sessions honor it rather
+     * than inventing a second switch nobody knows to look at.
+     */
+    const SESSIONS_MODULE = 'usertracker';
+
+    /**
      * The capabilities this server offers this host.
      *
      * @param Host $Host the principal
@@ -365,6 +372,60 @@ class State extends FOGBase
         }
 
         return $answer;
+    }
+
+    /**
+     * Records the host's reported user sessions.
+     *
+     * Deliberately not a FACT_REPORTS entry. Facts are hash-gated by the
+     * server, and a session set must not be: the open set is also the
+     * evidence a session is still alive, so the agent decides when to send
+     * and there is no want_sessions. See design 0008 section 4.
+     *
+     * @param Host  $Host the host the certificate bound
+     * @param array $body the poll request
+     *
+     * @return array collect_sessions => bool, for the poll answer
+     */
+    public static function sessions(Host $Host, array $body)
+    {
+        // Always stated, never omitted, for the same reason collect_facts
+        // is: an agent cannot tell an absent JSON boolean from a false one.
+        $answer = ['collect_sessions' => self::sessionsEnabled($Host)];
+        if (!$answer['collect_sessions']) {
+            // Gate off: ignore a block that arrives anyway, from an agent
+            // that was collecting before the module was switched off.
+            return $answer;
+        }
+        $block = $body['sessions'] ?? null;
+        if (is_array($block)) {
+            UserSessions::report($Host, $block);
+        }
+        return $answer;
+    }
+
+    /**
+     * Whether this host reports user sessions.
+     *
+     * Both halves of FOG's module gate, the same way capabilities() reads
+     * it: the global switch and the host's resolved module list.
+     *
+     * @param Host $Host the principal
+     *
+     * @return bool
+     */
+    public static function sessionsEnabled(Host $Host)
+    {
+        $global = self::getGlobalModuleStatus();
+        if (empty($global[self::SESSIONS_MODULE])) {
+            return false;
+        }
+        $on = (array)Route::getIds(
+            'module',
+            ['id' => $Host->resolvedModules()],
+            'shortName'
+        );
+        return in_array(self::SESSIONS_MODULE, $on, true);
     }
 
     /**

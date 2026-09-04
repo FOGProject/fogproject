@@ -447,6 +447,24 @@ return [
                 'hsRemovedAt' => 'datetime DEFAULT NULL',
             ],
         ],
+        'hostUserSession' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostUserSession` ( `husID` int(11) NOT NULL AUTO_INCREMENT, `husHostID` int(11) NOT NULL, `husSessionKey` varchar(191) NOT NULL DEFAULT \'\', `husUserName` varchar(255) NOT NULL DEFAULT \'\', `husDomain` varchar(255) NOT NULL DEFAULT \'\', `husUserSID` varchar(191) NOT NULL DEFAULT \'\', `husType` varchar(32) NOT NULL DEFAULT \'\', `husState` varchar(32) NOT NULL DEFAULT \'\', `husRemoteHost` varchar(255) NOT NULL DEFAULT \'\', `husStartedAt` datetime NOT NULL, `husEndedAt` datetime DEFAULT NULL, `husEndReason` varchar(32) NOT NULL DEFAULT \'\', `husLastSeen` datetime DEFAULT NULL, PRIMARY KEY (`husID`), UNIQUE KEY `husHostKeyStart` (`husHostID`,`husSessionKey`,`husStartedAt`), KEY `husHostOpen` (`husHostID`,`husEndedAt`), KEY `husUserName` (`husUserName`), KEY `husStartedAt` (`husStartedAt`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'husID' => 'int(11) NOT NULL',
+                'husHostID' => 'int(11) NOT NULL',
+                'husSessionKey' => 'varchar(191) NOT NULL DEFAULT \'\'',
+                'husUserName' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'husDomain' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'husUserSID' => 'varchar(191) NOT NULL DEFAULT \'\'',
+                'husType' => 'varchar(32) NOT NULL DEFAULT \'\'',
+                'husState' => 'varchar(32) NOT NULL DEFAULT \'\'',
+                'husRemoteHost' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'husStartedAt' => 'datetime NOT NULL',
+                'husEndedAt' => 'datetime DEFAULT NULL',
+                'husEndReason' => 'varchar(32) NOT NULL DEFAULT \'\'',
+                'husLastSeen' => 'datetime DEFAULT NULL',
+            ],
+        ],
         'imageGroupAssoc' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `imageGroupAssoc` ( `igaID` mediumint(9) NOT NULL AUTO_INCREMENT, `igaImageID` int(11) NOT NULL, `igaStorageGroupID` int(11) NOT NULL, `igaPrimary` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`igaID`), UNIQUE KEY `igaImageID` (`igaImageID`,`igaStorageGroupID`), UNIQUE KEY `igaImageID_2` (`igaImageID`,`igaStorageGroupID`), KEY `fk_imageGroupAssoc_igaStorageGroupID` (`igaStorageGroupID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
