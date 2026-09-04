@@ -15,6 +15,7 @@
         {data: 'toReplicate', visible: false},
         {data: 'hide', visible: false},
         {data: 'timeout', visible: false},
+        {data: 'returnCodes', visible: false},
         {data: 'packtype', visible: false},
         {data: 'hash', visible: false},
         {data: 'size', visible: false},
