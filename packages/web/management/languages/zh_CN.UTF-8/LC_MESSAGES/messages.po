@@ -1399,7 +1399,7 @@ msgstr ""
 msgid "Authenticated but not permitted."
 msgstr ""
 
-msgid "Authenticated by the client certificate enrollment issued, verified by the web server and bound to the host by its key fingerprint before the route runs; no token or session applies. Records the check-in and answers with what this server can do. A certificate that no longer binds to a live host gets 401, which tells the agent to enroll again."
+msgid "Authenticated by the client certificate enrollment issued, verified by the web server and bound to the host by its key fingerprint before the route runs; no token or session applies. Records the check-in and answers with the revision of the host's desired state, plus the state itself when the applied revision the agent sent is not current or it asked for it. The revision is opaque: compared for equality, never parsed. A certificate that no longer binds to a live host gets 401, which tells the agent to enroll again."
 msgstr ""
 
 msgid "Authentication missing or invalid."
@@ -3214,10 +3214,6 @@ msgstr "没有文件被上传"
 #, fuzzy
 msgid "FOG Agent certificate renewal"
 msgstr "没有文件被上传"
-
-#, fuzzy
-msgid "FOG Agent desired state"
-msgstr "已成功更新"
 
 #, fuzzy
 msgid "FOG Agent enrollment"
@@ -10031,9 +10027,8 @@ msgstr ""
 msgid "The default printer for hosts in this group. A host that has its own default keeps it."
 msgstr ""
 
-#, fuzzy
-msgid "The desired state."
-msgstr "无法创建任务"
+msgid "The desired state: revision, capabilities, and one block per capability listed. Absent when the agent is current."
+msgstr ""
 
 #, fuzzy
 msgid "The enrollment is no longer pending."
@@ -10069,9 +10064,8 @@ msgstr ""
 msgid "The grid key."
 msgstr "无法创建任务"
 
-#, fuzzy
-msgid "The host this certificate is, and the capabilities this server offers."
-msgstr "有此服务器上没有组。"
+msgid "The host this certificate is, the revision of its desired state, and the state when it is not what the agent applied."
+msgstr ""
 
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr ""
@@ -10303,7 +10297,6 @@ msgstr "打印机已经存在"
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11478,9 +11471,6 @@ msgid "What the agent did with one capability at one revision. Recorded on the h
 msgstr ""
 
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
-msgstr ""
-
-msgid "What this host should look like, for the capabilities the poll listed, with the revision the poll reported. Same gate as poll."
 msgstr ""
 
 msgid "What this server itself trusts: FOG's root, plus any root imported below."
@@ -12991,6 +12981,10 @@ msgstr ""
 #~ msgid "Export Users"
 #~ msgstr "导出用户"
 
+#, fuzzy
+#~ msgid "FOG Agent desired state"
+#~ msgstr "已成功更新"
+
 #~ msgid "Failed to add/update snapin file"
 #~ msgstr "无法添加/更新管理单元文件"
 
@@ -13441,6 +13435,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "打印机已经存在"
+
+#, fuzzy
+#~ msgid "The desired state."
+#~ msgstr "无法创建任务"
+
+#, fuzzy
+#~ msgid "The host this certificate is, and the capabilities this server offers."
+#~ msgstr "有此服务器上没有组。"
 
 #, fuzzy
 #~ msgid "There are no "

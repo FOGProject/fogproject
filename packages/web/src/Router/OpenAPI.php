@@ -2561,14 +2561,18 @@ class OpenAPI extends FOGBase
                         . 'issued, verified by the web server and bound to '
                         . 'the host by its key fingerprint before the route '
                         . 'runs; no token or session applies. Records the '
-                        . 'check-in and answers with what this server can '
-                        . 'do. A certificate that no longer binds to a live '
-                        . 'host gets 401, which tells the agent to enroll '
-                        . 'again.'),
+                        . 'check-in and answers with the revision of the '
+                        . 'host\'s desired state, plus the state itself when '
+                        . 'the applied revision the agent sent is not '
+                        . 'current or it asked for it. The revision is '
+                        . 'opaque: compared for equality, never parsed. A '
+                        . 'certificate that no longer binds to a live host '
+                        . 'gets 401, which tells the agent to enroll again.'),
                     [
                         '200' => [
                             'description' => _('The host this certificate is, '
-                                . 'and the capabilities this server offers.'),
+                                . 'the revision of its desired state, and the '
+                                . 'state when it is not what the agent applied.'),
                             'content' => ['application/json' => ['schema' => [
                                 'type' => 'object',
                                 'properties' => [
@@ -2581,13 +2585,23 @@ class OpenAPI extends FOGBase
                                             'name' => ['type' => 'string']
                                         ]
                                     ],
-                                    'capabilities' => [
-                                        'type' => 'array',
-                                        'items' => ['type' => 'string']
-                                    ],
-                                    'state_revision' => ['type' => 'string'],
+                                    'revision' => ['type' => 'string'],
                                     'poll_interval' => ['type' => 'integer'],
-                                    'server_time' => ['type' => 'string']
+                                    'server_time' => ['type' => 'string'],
+                                    'state' => [
+                                        'type' => 'object',
+                                        'description' => _('The desired state: revision, '
+                                            . 'capabilities, and one block per capability '
+                                            . 'listed. Absent when the agent is current.'),
+                                        'properties' => [
+                                            'revision' => ['type' => 'string'],
+                                            'capabilities' => [
+                                                'type' => 'array',
+                                                'items' => ['type' => 'string']
+                                            ]
+                                        ],
+                                        'additionalProperties' => true
+                                    ]
                                 ]
                             ]]]
                         ],
@@ -2598,74 +2612,11 @@ class OpenAPI extends FOGBase
                         'content' => ['application/json' => ['schema' => [
                             'type' => 'object',
                             'properties' => [
-                                'agent_version' => ['type' => 'string']
+                                'agent_version' => ['type' => 'string'],
+                                'applied_revision' => ['type' => 'string'],
+                                'want_state' => ['type' => 'boolean']
                             ]
                         ]]]
-                    ]
-                )
-            ],
-            '/agent/v1/state' => [
-                'get' => self::_op(
-                    '',
-                    'agentstate',
-                    _('FOG Agent desired state'),
-                    _('What this host should look like, for the capabilities '
-                        . 'the poll listed, with the revision the poll '
-                        . 'reported. Same gate as poll.'),
-                    [
-                        '200' => [
-                            'description' => _('The desired state.'),
-                            'content' => ['application/json' => ['schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'revision' => ['type' => 'string'],
-                                    'capabilities' => ['type' => 'array', 'items' => ['type' => 'string']],
-                                    'hostname' => [
-                                        'type' => 'object',
-                                        'properties' => [
-                                            'name' => ['type' => 'string'],
-                                            'enforce' => ['type' => 'boolean']
-                                        ]
-                                    ],
-                                    'task' => [
-                                        'type' => 'object',
-                                        'nullable' => true,
-                                        'properties' => [
-                                            'id' => ['type' => 'integer'],
-                                            'type' => ['type' => 'string'],
-                                            'force' => ['type' => 'boolean']
-                                        ]
-                                    ],
-                                    'reboot' => [
-                                        'type' => 'object',
-                                        'properties' => [
-                                            'grace' => ['type' => 'integer']
-                                        ]
-                                    ],
-                                    'snapins' => [
-                                        'type' => 'array',
-                                        'items' => [
-                                            'type' => 'object',
-                                            'properties' => [
-                                                'task' => ['type' => 'integer'],
-                                                'snapin' => ['type' => 'integer'],
-                                                'name' => ['type' => 'string'],
-                                                'file' => ['type' => 'string'],
-                                                'size' => ['type' => 'integer'],
-                                                'sha512' => ['type' => 'string'],
-                                                'args' => ['type' => 'string'],
-                                                'run_with' => ['type' => 'string'],
-                                                'run_with_args' => ['type' => 'string'],
-                                                'timeout' => ['type' => 'integer'],
-                                                'action' => ['type' => 'string', 'enum' => ['', 'reboot', 'shutdown']],
-                                                'abort_on_fail' => ['type' => 'boolean']
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]]]
-                        ],
-                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')]
                     ]
                 )
             ],
