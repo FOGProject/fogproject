@@ -1298,6 +1298,9 @@ msgstr "Approvare MAC selezionati"
 msgid "Approving the selected pending hosts."
 msgstr "Approvare MAC selezionati"
 
+msgid "Arch"
+msgstr ""
+
 msgid "Architecture"
 msgstr ""
 
@@ -3504,6 +3507,9 @@ msgstr "Attività iniziata"
 msgid "First Check In"
 msgstr ""
 
+msgid "First Seen"
+msgstr ""
+
 msgid "First row is a header"
 msgstr ""
 
@@ -4825,6 +4831,10 @@ msgstr "plugin installati"
 msgid "Installed Plugins"
 msgstr "plugin installati"
 
+#, fuzzy
+msgid "Installed Software"
+msgstr "plugin installati"
+
 msgid "Intel 32 Bit"
 msgstr ""
 
@@ -5318,6 +5328,10 @@ msgstr "Ultima Distribuita"
 
 msgid "Last Ping"
 msgstr ""
+
+#, fuzzy
+msgid "Last Seen"
+msgstr "Ultima cattura"
 
 #, fuzzy
 msgid "Last Successful Ping"
@@ -7518,6 +7532,9 @@ msgid "Provider updated!"
 msgstr "aggiornato stampante!"
 
 msgid "Providers"
+msgstr ""
+
+msgid "Publisher"
 msgstr ""
 
 msgid "Pushbullet Accounts"
@@ -10241,6 +10258,9 @@ msgid "This is the only time it will be shown. Hand it to the person or service 
 msgstr ""
 
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
+
+msgid "This is what hosts report as installed (agent-reported), not the software FOG is configured to install."
 msgstr ""
 
 #, fuzzy, php-format

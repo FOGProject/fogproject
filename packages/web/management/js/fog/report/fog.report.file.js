@@ -407,6 +407,36 @@
           }
         });
       break;
+      // Installed Software
+      //
+      // Not serverSide, same reasoning as software report above: reportRows()
+      // hands back a plain array with its own MAX_ROWS cap and no DataTables
+      // paging protocol, so there is no server-side page to ask for. No
+      // window either -- "currently installed" is a state, not a range -- but
+      // windowedUrl() is harmless with none of its params present and every
+      // other non-serverSide report here uses it, so this does too rather
+      // than being the one case with a hand-built URL.
+    case 'installed software':
+      var installedSoftwareTable = $('#installedsoftwarereport-table'),
+        table = installedSoftwareTable.registerTable(null, {
+          order: [
+            [2, 'desc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'name', render: $.fn.dataTable.render.text()},
+            {data: 'version', render: $.fn.dataTable.render.text()},
+            {data: 'hostCount', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
       // Fleet Report
       //
       // Ordered by the Days column DESCENDING, which is the report: the

@@ -129,6 +129,10 @@ class Authorization extends FOGBase
         // the `inventory` node onto `host`. Same reasoning (ADR 0030
         // decision 4).
         'hardware_report' => 'host',
+        // Installed Software reads `hostSoftware` (design 0006), which is
+        // host data -- the same table the host's own Installed Software tab
+        // reads, gated on host.view. Same reasoning.
+        'installed_software' => 'host',
         // Storage Report reads `images`, `imageGroupAssoc`, `nfsGroups` and
         // `nfsGroupMembers`. Group and node names are the part not already
         // reachable from a narrower screen, so it lands on storagenode.

@@ -1328,6 +1328,9 @@ msgstr "批准选定主机"
 msgid "Approving the selected pending hosts."
 msgstr "批准选定主机"
 
+msgid "Arch"
+msgstr ""
+
 msgid "Architecture"
 msgstr ""
 
@@ -3584,6 +3587,9 @@ msgstr "任务开始"
 msgid "First Check In"
 msgstr ""
 
+msgid "First Seen"
+msgstr ""
+
 msgid "First row is a header"
 msgstr ""
 
@@ -4949,6 +4955,10 @@ msgstr "已安装的插件"
 msgid "Installed Plugins"
 msgstr "已安装的插件"
 
+#, fuzzy
+msgid "Installed Software"
+msgstr "已安装的插件"
+
 msgid "Intel 32 Bit"
 msgstr ""
 
@@ -5465,6 +5475,10 @@ msgstr "最后部署"
 
 msgid "Last Ping"
 msgstr ""
+
+#, fuzzy
+msgid "Last Seen"
+msgstr "主机创建"
 
 #, fuzzy
 msgid "Last Successful Ping"
@@ -7723,6 +7737,9 @@ msgid "Provider updated!"
 msgstr "打印机更新！"
 
 msgid "Providers"
+msgstr ""
+
+msgid "Publisher"
 msgstr ""
 
 msgid "Pushbullet Accounts"
@@ -10526,6 +10543,9 @@ msgid "This is the only time it will be shown. Hand it to the person or service 
 msgstr ""
 
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
+
+msgid "This is what hosts report as installed (agent-reported), not the software FOG is configured to install."
 msgstr ""
 
 #, fuzzy, php-format

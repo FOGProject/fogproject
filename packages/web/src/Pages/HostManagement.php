@@ -4408,6 +4408,36 @@ class HostManagement extends FOGPage
         );
     }
     /**
+     * Display the software the agent currently reports as installed.
+     *
+     * Read only, and unlike Software Status above, not tied to anything an
+     * admin assigned (design 0006): every hostSoftware row currently open
+     * (hsRemovedAt IS NULL) for this host, whether or not FOG ever asked for
+     * it.
+     *
+     * @return void
+     */
+    public function hostInstalledSoftware()
+    {
+        $this->renderHistoryTab(
+            [
+                _('Name'),
+                _('Version'),
+                _('Publisher'),
+                _('Source'),
+                _('Arch'),
+                _('Installed'),
+                _('First Seen'),
+                _('Last Seen')
+            ],
+            [
+                [], [], [], [], [], [], [], []
+            ],
+            _('Installed Software'),
+            'host-installed-software-table'
+        );
+    }
+    /**
      * Edits an existing item.
      *
      * @return void
@@ -4606,6 +4636,13 @@ class HostManagement extends FOGPage
                         'id' => 'host-software-status',
                         'generator' => function () {
                             $this->hostSoftwareStatus();
+                        }
+                    ],
+                    [
+                        'name' => _('Installed Software'),
+                        'id' => 'host-installed-software',
+                        'generator' => function () {
+                            $this->hostInstalledSoftware();
                         }
                     ],
                 ])
@@ -7496,6 +7533,69 @@ class HostManagement extends FOGPage
             null,
             sprintf('`softwareStatus`.`sstHostID` = %d', $hostID),
             'checked'
+        );
+        $this->jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode($data, JSON_UNESCAPED_UNICODE)
+        );
+    }
+    /**
+     * Serves the host's installed-software grid.
+     *
+     * No join: unlike getSoftwareStatus() above, hostSoftware carries
+     * nothing that needs a lookup table, so this is built directly against
+     * FOGManagerController::complex() the same way, just simpler.
+     *
+     * @return void
+     */
+    public function getInstalledSoftware()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $request
+        );
+        $hostID = (int)$this->obj->get('id');
+        $columns = [
+            ['db' => 'hsID', 'dt' => 'id'],
+            ['db' => 'hsName', 'dt' => 'name'],
+            ['db' => 'hsVersion', 'dt' => 'version'],
+            ['db' => 'hsPublisher', 'dt' => 'publisher'],
+            ['db' => 'hsSource', 'dt' => 'source'],
+            ['db' => 'hsArch', 'dt' => 'arch'],
+            ['db' => 'hsInstallDate', 'dt' => 'installed'],
+            ['db' => 'hsFirstSeen', 'dt' => 'firstSeen'],
+            ['db' => 'hsLastSeen', 'dt' => 'lastSeen']
+        ];
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            %s
+            %s
+            %s";
+        $fltrstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            %s";
+        $ttlstr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+        $data = FOGManagerController::complex(
+            $request,
+            'hostSoftware',
+            'hsID',
+            $columns,
+            $sqlstr,
+            $fltrstr,
+            $ttlstr,
+            null,
+            // hostSoftware rows are CLOSED (hsRemovedAt set), not deleted,
+            // once the agent stops reporting a package -- so this IS NULL
+            // clause is what makes the tab "what is installed now" rather
+            // than "everything ever seen".
+            sprintf(
+                '`hostSoftware`.`hsHostID` = %d '
+                . 'AND `hostSoftware`.`hsRemovedAt` IS NULL',
+                $hostID
+            ),
+            'name'
         );
         $this->jsonSend(
             HTTPResponseCodes::HTTP_SUCCESS,

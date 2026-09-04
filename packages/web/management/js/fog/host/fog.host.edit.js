@@ -999,6 +999,39 @@
         }
     });
 
+    // ---------------------------------------------------------------
+    // INSTALLED SOFTWARE TAB (read only)
+    //
+    // hsInstallDate/hsFirstSeen/hsLastSeen are nullable and hsPublisher/
+    // hsArch can be '' -- $.escapedColumn already turns a null into '',
+    // same as every other column here, so no per-column handling is needed.
+    var hostInstalledSoftwareTable = $('#host-installed-software-table').registerTable(null, {
+        columns: [
+            $.escapedColumn('name'),
+            $.escapedColumn('version'),
+            $.escapedColumn('publisher'),
+            $.escapedColumn('source'),
+            $.escapedColumn('arch'),
+            $.escapedColumn('installed'),
+            $.escapedColumn('firstSeen'),
+            $.escapedColumn('lastSeen')
+        ],
+        order: [
+            [0, 'asc']
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        select: false,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getInstalledSoftware&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
     // FOG CLIENT AREA
     // ---------------------------------------------------------------
     // CLIENT SETTINGS TAB
