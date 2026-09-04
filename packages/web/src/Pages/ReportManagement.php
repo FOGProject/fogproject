@@ -180,6 +180,7 @@ class ReportManagement extends FOGPage
             'imaging report' => _('Imaging Report'),
             'installed software' => _('Installed Software'),
             'directory membership' => _('Directory Membership'),
+            'printer deployment' => _('Printer Deployment'),
             'user sessions' => _('User Sessions'),
             'pending mac list' => _('Pending MAC Addresses'),
             'product keys' => _('Host Product Keys'),

@@ -1295,6 +1295,10 @@ msgid "Area"
 msgstr ""
 
 #, fuzzy
+msgid "Assigned"
+msgstr "関連付けられたホスト"
+
+#, fuzzy
 msgid "Assigned Group"
 msgstr "管理者グループ"
 
@@ -4262,6 +4266,9 @@ msgstr ""
 msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
+msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
+msgstr ""
+
 #, fuzzy
 msgid "Hosts:"
 msgstr "ホスト"
@@ -5334,6 +5341,10 @@ msgstr "タスクチェックイン日"
 msgid "Last deployed"
 msgstr "最終展開"
 
+#, fuzzy
+msgid "Last error"
+msgstr "エラー"
+
 msgid "Last flush"
 msgstr ""
 
@@ -5879,6 +5890,9 @@ msgstr "分の値が無効です"
 #, fuzzy
 msgid "Minutes field is invalid"
 msgstr "分の値が無効です"
+
+msgid "Missing"
+msgstr ""
 
 msgid "Missing a temporary folder"
 msgstr "一時フォルダーがありません"
@@ -7393,6 +7407,10 @@ msgstr "プリンターの作成に失敗しました"
 
 msgid "Printer Create Success"
 msgstr "プリンターの作成に成功しました"
+
+#, fuzzy
+msgid "Printer Deployment"
+msgstr "プリンター管理"
 
 msgid "Printer Description"
 msgstr "プリンターの説明"
@@ -8920,6 +8938,9 @@ msgstr "Space 変数はブール値である必要があります"
 msgid "Specified download URL not allowed!"
 msgstr "指定されたダウンロード URL は許可されていません！"
 
+msgid "Spooler"
+msgstr ""
+
 msgid "Stale"
 msgstr ""
 
@@ -10030,7 +10051,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11476,6 +11496,10 @@ msgstr "FOG がインターネットへ接続を試みるため"
 msgid "as its primary group"
 msgstr "プライマリグループとして"
 
+#, fuzzy
+msgid "assigned"
+msgstr "関連付けられたホスト"
+
 msgid "attr could not be run -- SELinux may be denying it"
 msgstr ""
 
@@ -11594,9 +11618,19 @@ msgstr "エラー"
 msgid "every column on this table will be treated as untyped"
 msgstr ""
 
+msgid "exclusive"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; canceling task"
 msgstr ""
+
+msgid "extra"
+msgstr ""
+
+#, fuzzy
+msgid "failed"
+msgstr "失敗しました"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -11923,6 +11957,10 @@ msgstr "分"
 msgid "mismatched"
 msgstr ""
 
+#, fuzzy
+msgid "missing"
+msgstr "バージョン"
+
 msgid "moments from now"
 msgstr ""
 
@@ -12023,6 +12061,10 @@ msgstr ""
 
 msgid "of how much disk space the image is using."
 msgstr ""
+
+#, fuzzy
+msgid "off"
+msgstr "の"
 
 #, fuzzy
 msgid "off means an account must already exist"
@@ -14854,9 +14896,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "not found on disk"
 #~ msgstr "このノード上に見つかりません"
-
-#~ msgid "of"
-#~ msgstr "の"
 
 #~ msgid "on the following pages of this document"
 #~ msgstr "このドキュメントの次のページ"

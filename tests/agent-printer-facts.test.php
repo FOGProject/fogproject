@@ -299,4 +299,92 @@ $t->check(
     === \FOG\Agent\PrinterFacts::class
 );
 
+// ---------------------------------------------------- the report's verdicts
+
+/**
+ * Call a protected static on the report.
+ *
+ * @param string $name the method
+ * @param array  $args the arguments
+ *
+ * @return mixed
+ */
+function pd($name, array $args)
+{
+    $m = new \ReflectionMethod(\FOG\Reports\Printer_Deployment::class, $name);
+    $m->setAccessible(true);
+
+    return $m->invokeArgs(null, $args);
+}
+
+// "never reported" is FOG not knowing, and it has to outrank everything: a
+// host that has said nothing has no missing printers and no extra ones, and
+// letting it fall through to 'ok' would report agreement with a machine
+// nobody has heard from.
+$t->check(
+    'a host that never reported says so, whatever else is true of it',
+    _('never reported') === pd('state', [false, ['A'], ['B'], 'boom'])
+);
+// Ordered by what to act on first. An error says WHY; a missing printer is
+// something somebody asked for and did not get; an extra one in mode 1 is
+// just somebody's own printer.
+$t->check(
+    'a recorded error outranks a missing printer',
+    _('failed') === pd('state', [true, ['A'], [], 'boom'])
+);
+$t->check(
+    'a missing printer outranks an extra one',
+    _('missing') === pd('state', [true, ['A'], ['B'], ''])
+);
+$t->check(
+    'an extra printer alone is reported as extra',
+    _('extra') === pd('state', [true, [], ['B'], ''])
+);
+$t->check(
+    'and a host with neither is ok',
+    _('ok') === pd('state', [true, [], [], ''])
+);
+$t->check(
+    'whitespace is not an error',
+    _('ok') === pd('state', [true, [], [], '   '])
+);
+
+// The join hangs off hostSpooler, and nothing above can see it: these
+// checks run against a fake connection, so the SQL is never executed. It is
+// checked as source because getting it wrong is silent and expensive -- a
+// join to hostPrinter loses every host that answered "nothing installed",
+// which is the failure the second table exists to prevent. Proven on the lab
+// database too (background_scripts/prove_printer_facts_end_to_end.php, where
+// this same mutation fails nine checks); this is the half that runs in CI.
+$reportSrc = (string)file_get_contents(
+    dirname(__DIR__) . '/packages/web/src/Reports/Printer_Deployment.php'
+);
+$t->check(
+    'the report LEFT JOINs hostSpooler -- joining hostPrinter instead would'
+        . ' silently drop every host that reported no queues, which is the'
+        . ' one this report most needs to show',
+    false !== strpos(
+        $reportSrc,
+        'LEFT OUTER JOIN `hostSpooler` ON `hspHostID` = `hostID`'
+    )
+);
+$t->check(
+    'and it is a LEFT join, so a host that never reported is a row rather'
+        . ' than an absence',
+    false === strpos($reportSrc, 'INNER JOIN `hostSpooler`')
+);
+
+// hostPrinterLevel stores 0/1/2 and the wire has always sent 0/a/ar -- two
+// vocabularies for one setting, neither written down where an admin can see
+// it (design 0010 section 1.3). This is the third and the only one meant for
+// a person, so it has to cover every stored value including the empty string
+// a 1.5-origin row carries.
+foreach ([0 => 'off', 1 => 'assigned', 2 => 'exclusive', '' => 'off',
+    '9' => 'off'] as $level => $want) {
+    $t->check(
+        "printer level '" . $level . "' reads as " . $want,
+        _($want) === pd('mode', [$level])
+    );
+}
+
 $t->finish();

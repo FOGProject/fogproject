@@ -134,6 +134,7 @@ class Authorization extends FOGBase
         // reads, gated on host.view. Same reasoning.
         'installed_software' => 'host',
         'directory_membership' => 'host',
+        'printer_deployment' => 'host',
         'user_sessions' => 'host',
         // Storage Report reads `images`, `imageGroupAssoc`, `nfsGroups` and
         // `nfsGroupMembers`. Group and node names are the part not already

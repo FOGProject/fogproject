@@ -248,12 +248,12 @@ class Resolver extends FOGBase
             $hostID = (int)$row['paHostID'];
             $printerID = (int)$row['paPrinterID'];
             $direct[$hostID][] = $printerID;
-            // paIsDefault is varchar(2) on a 1.5-origin database and carries
-            // '1', '0' and '' -- it predates booleans-are-tinyint. Compare it
-            // as the string the writers actually store rather than casting,
-            // which would make the empty string a 0 and read the same either
-            // way, but only by luck.
-            if ('1' === (string)$row['paIsDefault']
+            // Schema 426 made paIsDefault a tinyint(1), so it now carries
+            // 0 or 1 like gpaIsDefault below and is read the same way. It
+            // was a varchar(2) carrying '1', '0' and '' -- a 1.5-origin
+            // column that predated booleans-are-tinyint -- and the upgrade
+            // normalizes the empty string to 0 before retyping.
+            if ((int)$row['paIsDefault'] > 0
                 && !isset($directDefault[$hostID])
             ) {
                 $directDefault[$hostID] = $printerID;

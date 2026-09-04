@@ -1167,6 +1167,9 @@ msgstr ""
 msgid "Area"
 msgstr ""
 
+msgid "Assigned"
+msgstr ""
+
 msgid "Assigned Group"
 msgstr ""
 
@@ -3772,6 +3775,9 @@ msgstr ""
 msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
+msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
+msgstr ""
+
 msgid "Hosts:"
 msgstr ""
 
@@ -4716,6 +4722,9 @@ msgstr ""
 msgid "Last deployed"
 msgstr ""
 
+msgid "Last error"
+msgstr ""
+
 msgid "Last flush"
 msgstr ""
 
@@ -5196,6 +5205,9 @@ msgid "Minute value is not valid"
 msgstr ""
 
 msgid "Minutes field is invalid"
+msgstr ""
+
+msgid "Missing"
 msgstr ""
 
 msgid "Missing a temporary folder"
@@ -6527,6 +6539,9 @@ msgid "Printer Create Fail"
 msgstr ""
 
 msgid "Printer Create Success"
+msgstr ""
+
+msgid "Printer Deployment"
 msgstr ""
 
 msgid "Printer Description"
@@ -7887,6 +7902,9 @@ msgstr ""
 msgid "Specified download URL not allowed!"
 msgstr ""
 
+msgid "Spooler"
+msgstr ""
+
 msgid "Stale"
 msgstr ""
 
@@ -8879,7 +8897,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -10200,6 +10217,9 @@ msgstr ""
 msgid "as its primary group"
 msgstr ""
 
+msgid "assigned"
+msgstr ""
+
 msgid "attr could not be run -- SELinux may be denying it"
 msgstr ""
 
@@ -10311,8 +10331,17 @@ msgstr ""
 msgid "every column on this table will be treated as untyped"
 msgstr ""
 
+msgid "exclusive"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; canceling task"
+msgstr ""
+
+msgid "extra"
+msgstr ""
+
+msgid "failed"
 msgstr ""
 
 msgid "failed to execute, image file"
@@ -10606,6 +10635,9 @@ msgstr ""
 msgid "mismatched"
 msgstr ""
 
+msgid "missing"
+msgstr ""
+
 msgid "moments from now"
 msgstr ""
 
@@ -10699,6 +10731,9 @@ msgid "of how big a disk the image will need."
 msgstr ""
 
 msgid "of how much disk space the image is using."
+msgstr ""
+
+msgid "off"
 msgstr ""
 
 msgid "off means an account must already exist"

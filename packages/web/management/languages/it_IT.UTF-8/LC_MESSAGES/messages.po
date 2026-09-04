@@ -1311,6 +1311,10 @@ msgid "Area"
 msgstr ""
 
 #, fuzzy
+msgid "Assigned"
+msgstr "Host associato"
+
+#, fuzzy
 msgid "Assigned Group"
 msgstr "Nome gruppo di archiviazione"
 
@@ -4286,6 +4290,9 @@ msgstr ""
 msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
+msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
+msgstr ""
+
 #, fuzzy
 msgid "Hosts:"
 msgstr "host"
@@ -5364,6 +5371,10 @@ msgstr ""
 msgid "Last deployed"
 msgstr "Ultima Distribuita"
 
+#, fuzzy
+msgid "Last error"
+msgstr "Errore"
+
 msgid "Last flush"
 msgstr ""
 
@@ -5908,6 +5919,9 @@ msgstr "valore dei minuti non è valido"
 #, fuzzy
 msgid "Minutes field is invalid"
 msgstr "valore dei minuti non è valido"
+
+msgid "Missing"
+msgstr ""
 
 msgid "Missing a temporary folder"
 msgstr "Manca una cartella temporanea"
@@ -7414,6 +7428,10 @@ msgstr "Creazione stampante fallita"
 
 msgid "Printer Create Success"
 msgstr "Creazione stampante riuscita"
+
+#, fuzzy
+msgid "Printer Deployment"
+msgstr "Printer Management"
 
 msgid "Printer Description"
 msgstr "Descrizione della stampante"
@@ -8958,6 +8976,9 @@ msgstr "La variabile spazio deve essere boolean"
 msgid "Specified download URL not allowed!"
 msgstr ""
 
+msgid "Spooler"
+msgstr ""
+
 msgid "Stale"
 msgstr ""
 
@@ -10075,7 +10096,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11522,6 +11542,10 @@ msgstr "come FOG proverà ad andare in internet"
 msgid "as its primary group"
 msgstr "come il suo gruppo primario"
 
+#, fuzzy
+msgid "assigned"
+msgstr "Host associato"
+
 msgid "attr could not be run -- SELinux may be denying it"
 msgstr ""
 
@@ -11643,9 +11667,19 @@ msgstr "Errore"
 msgid "every column on this table will be treated as untyped"
 msgstr ""
 
+msgid "exclusive"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; canceling task"
 msgstr ""
+
+msgid "extra"
+msgstr ""
+
+#, fuzzy
+msgid "failed"
+msgstr "Fallito"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -11967,6 +12001,10 @@ msgstr "minuti"
 msgid "mismatched"
 msgstr ""
 
+#, fuzzy
+msgid "missing"
+msgstr "Versione"
+
 msgid "moments from now"
 msgstr ""
 
@@ -12066,6 +12104,9 @@ msgid "of how big a disk the image will need."
 msgstr ""
 
 msgid "of how much disk space the image is using."
+msgstr ""
+
+msgid "off"
 msgstr ""
 
 #, fuzzy

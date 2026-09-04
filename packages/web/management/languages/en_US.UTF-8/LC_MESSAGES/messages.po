@@ -1341,6 +1341,10 @@ msgid "Area"
 msgstr ""
 
 #, fuzzy
+msgid "Assigned"
+msgstr "No node associated"
+
+#, fuzzy
 msgid "Assigned Group"
 msgstr "Storage Group Name"
 
@@ -4388,6 +4392,9 @@ msgstr ""
 msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
+msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
+msgstr ""
+
 #, fuzzy
 msgid "Hosts:"
 msgstr "Hosts"
@@ -5511,6 +5518,10 @@ msgstr ""
 msgid "Last deployed"
 msgstr "Last Deployed"
 
+#, fuzzy
+msgid "Last error"
+msgstr "Error"
+
 msgid "Last flush"
 msgstr ""
 
@@ -6086,6 +6097,9 @@ msgstr "Minute value is not valid"
 #, fuzzy
 msgid "Minutes field is invalid"
 msgstr "Minute value is not valid"
+
+msgid "Missing"
+msgstr ""
 
 msgid "Missing a temporary folder"
 msgstr "Missing a temporary folder"
@@ -7628,6 +7642,10 @@ msgstr "Printer update failed!"
 #, fuzzy
 msgid "Printer Create Success"
 msgstr "Printer already exists"
+
+#, fuzzy
+msgid "Printer Deployment"
+msgstr "Printer Management"
 
 msgid "Printer Description"
 msgstr "Printer Description"
@@ -9218,6 +9236,9 @@ msgstr ""
 msgid "Specified download URL not allowed!"
 msgstr ""
 
+msgid "Spooler"
+msgstr ""
+
 msgid "Stale"
 msgstr ""
 
@@ -10368,7 +10389,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11855,6 +11875,10 @@ msgstr ""
 msgid "as its primary group"
 msgstr "Update Primary Group"
 
+#, fuzzy
+msgid "assigned"
+msgstr "No node associated"
+
 msgid "attr could not be run -- SELinux may be denying it"
 msgstr ""
 
@@ -11980,9 +12004,19 @@ msgstr "Error"
 msgid "every column on this table will be treated as untyped"
 msgstr ""
 
+msgid "exclusive"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; canceling task"
 msgstr ""
+
+msgid "extra"
+msgstr ""
+
+#, fuzzy
+msgid "failed"
+msgstr "Failed"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -12322,6 +12356,10 @@ msgstr "minutes"
 msgid "mismatched"
 msgstr ""
 
+#, fuzzy
+msgid "missing"
+msgstr "Version"
+
 msgid "moments from now"
 msgstr ""
 
@@ -12426,6 +12464,9 @@ msgid "of how big a disk the image will need."
 msgstr ""
 
 msgid "of how much disk space the image is using."
+msgstr ""
+
+msgid "off"
 msgstr ""
 
 #, fuzzy

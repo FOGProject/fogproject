@@ -831,16 +831,19 @@ class PrinterManagement extends FOGPage
                         'isDefault' => 1
                     ],
                     '',
-                    ['isDefault' => '0']
+                    ['isDefault' => 0]
                 );
                 (new PrinterAssociationManager())->update(
                     [
                         'printerID' => $this->obj->get('id'),
+                        // Schema 426 made paIsDefault a tinyint(1); the
+                        // empty string this also matched was the 1.5-origin
+                        // varchar's "never set", normalized to 0 on upgrade.
                         'hostID' => $hosts,
-                        'isDefault' => ['0', '']
+                        'isDefault' => 0
                     ],
                     '',
-                    ['isDefault' => '1']
+                    ['isDefault' => 1]
                 );
             }
         }
@@ -862,7 +865,7 @@ class PrinterManagement extends FOGPage
                         'isDefault' => 1,
                     ],
                     '',
-                    ['isDefault' => '0']
+                    ['isDefault' => 0]
                 );
             }
         }

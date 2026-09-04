@@ -514,7 +514,7 @@ class Host extends FOGController
                 [
                     'printerID' => $printers,
                     'hostID' => $this->get('id'),
-                    'isDefault' => '1'
+                    'isDefault' => 1
                 ],
                 '',
                 ['isDefault' => 0]
@@ -524,8 +524,12 @@ class Host extends FOGController
                 ->update(
                     [
                         'printerID' => $printerid,
+                        // Schema 426 made paIsDefault a tinyint(1). The
+                        // empty string this used to also match was the
+                        // 1.5-origin varchar's "never set", and the upgrade
+                        // normalizes it to 0.
                         'hostID' => $this->get('id'),
-                        'isDefault' => ['0', '']
+                        'isDefault' => 0
                     ],
                     '',
                     ['isDefault' => 1]
