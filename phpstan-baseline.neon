@@ -126,10 +126,18 @@ parameters:
 			count: 1
 			path: packages/web/commons/schema.php
 
+		# No count. commons/schema.php is one long list of `$this->schema[] =`
+		# steps at file scope, so it gains an occurrence of this every time a
+		# schema step is added -- and a counted entry then has to be edited on
+		# the same line by every branch that adds one, which makes two such
+		# branches conflict there. That is the shape FOG_VERSION had before it
+		# became a generated file. A count buys nothing here: nobody is
+		# defending a budget of $this uses in this file, and PHPStan is only
+		# right that they are undefined because the file is included into a
+		# method rather than being one.
 		-
 			message: '#^Variable \$this might not be defined\.$#'
 			identifier: variable.undefined
-			count: 397
 			path: packages/web/commons/schema.php
 
 		-
