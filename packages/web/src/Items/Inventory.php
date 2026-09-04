@@ -131,7 +131,7 @@ class Inventory extends FOGController
     /**
      * Cleanly represent the memory.
      *
-     * @return float
+     * @return string
      */
     public function getMem($val = '')
     {
@@ -143,7 +143,12 @@ class Inventory extends FOGController
     /**
      * Cleanly represent the memory.
      *
-     * @return float
+     * Float only for the empty case, which predates the formatter and is
+     * left alone deliberately: 0.00 echoes as "0" and '0.00' would echo as
+     * "0.00", so narrowing it here would change what the Inventory tab
+     * prints for a host that reported no memory.
+     *
+     * @return string|float
      */
     public static function getMemory($val)
     {

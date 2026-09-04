@@ -1770,7 +1770,7 @@ abstract class FOGBase
      *
      * @param int|float $size the size to convert
      *
-     * @return float
+     * @return string
      */
     protected static function formatByteSize($size)
     {

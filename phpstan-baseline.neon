@@ -517,12 +517,6 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:formatByteSize\(\) should return float but returns string\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
 			message: '#^Method FOG\\Base\\FOGBase\:\:getHostItem\(\) should return array\|object but empty return statement found\.$#'
 			identifier: return.empty
 			count: 1
