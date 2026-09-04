@@ -220,7 +220,7 @@ if (preg_match(
 if ('' !== $post) {
     $check(
         'a scheduled save creates a GroupPowerManagement row',
-        false !== strpos($post, "getClass('GroupPowerManagement')")
+        false !== strpos($post, 'new GroupPowerManagement(')
         && false !== strpos($post, "->set('groupID', \$groupID)")
     );
     // THE FAN-OUT MUST BE REACHABLE ONLY FROM THE ON-DEMAND BRANCH. The old
@@ -255,13 +255,13 @@ if ('' !== $post) {
     $check(
         'the per-host fan-out is INSIDE the on-demand branch',
         '' !== $branch
-        && false !== strpos($branch, "getClass('PowerManagementManager')")
+        && false !== strpos($branch, 'new PowerManagementManager(')
     );
     $check(
         'the grant is created OUTSIDE the on-demand branch',
         '' !== $branch
-        && false === strpos($branch, "getClass('GroupPowerManagement')")
-        && false !== strpos($post, "getClass('GroupPowerManagement')")
+        && false === strpos($branch, 'new GroupPowerManagement(')
+        && false !== strpos($post, 'new GroupPowerManagement(')
     );
     // And the branch must not fall through: without the return, an immediate
     // action would fan out AND leave a standing grant behind it.

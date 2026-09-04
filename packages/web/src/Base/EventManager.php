@@ -14,6 +14,7 @@
 
 namespace FOG\Base;
 
+use FOG\Items\NotifyEvent;
 use FOG\Router\Route;
 
 /**
@@ -145,7 +146,7 @@ class EventManager extends FOGBase
         // inside save() could never recurse into saving the same name again.
         // Matches HookManager::processEvent().
         self::$knownNotifyEvents[$event] = true;
-        self::getClass('NotifyEvent')
+        (new NotifyEvent())
             ->set('name', $event)
             ->save();
     }

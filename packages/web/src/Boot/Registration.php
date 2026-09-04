@@ -17,8 +17,11 @@ use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
 use FOG\Base\SmbiosIdentity;
 use FOG\Items\Host;
-use FOG\Managers\HostManager;
+use FOG\Items\Image;
+use FOG\Items\Inventory;
 use FOG\Items\TaskType;
+use FOG\Items\User;
+use FOG\Managers\HostManager;
 use FOG\Router\Route;
 
 /**
@@ -147,9 +150,9 @@ class Registration extends FOGBase
             $smbiosID = (int)HostManager::resolveHostBySmbios($smbios);
         }
         try {
-            self::getClass('HostManager')->getHostByMacAddresses($this->PriMAC);
+            (new HostManager())->getHostByMacAddresses($this->PriMAC);
             if (!self::$Host->isValid()) {
-                self::getClass('HostManager')->getHostByMacAddresses($this->MACs);
+                (new HostManager())->getHostByMacAddresses($this->MACs);
             }
             if (self::$Host->isValid()) {
                 $this->_smbiosOutcome(
@@ -286,7 +289,7 @@ class Registration extends FOGBase
                 throw new \Exception(_('Invalid product key supplied'));
             }
             $host = filter_var($stripped['host'] ?? '');
-            $hostnameSafe = self::getClass('Host')->isHostnameSafe($host);
+            $hostnameSafe = (new Host())->isHostnameSafe($host);
             if (!$hostnameSafe) {
                 throw new \Exception(
                     sprintf(
@@ -295,7 +298,7 @@ class Registration extends FOGBase
                     )
                 );
             }
-            $hostnameExists = self::getClass('HostManager')->exists($host);
+            $hostnameExists = (new HostManager())->exists($host);
             if ($hostnameExists) {
                 throw new \Exception(
                     _(
@@ -305,7 +308,7 @@ class Registration extends FOGBase
             }
             $imageid = filter_var($stripped['imageid'] ?? '');
             $imageid = (
-                self::getClass('Image', $imageid)->isValid() ?
+                (new Image($imageid))->isValid() ?
                 $imageid :
                 0
             );
@@ -359,7 +362,7 @@ class Registration extends FOGBase
             $groupsToJoin = explode(',', $gID);
             $sID = filter_var($stripped['snapinid'] ?? '');
             $snapinsToJoin = explode(',', $sID);
-            self::$Host = self::getClass('Host')
+            self::$Host = (new Host())
                 ->set('name', $host)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
@@ -409,7 +412,7 @@ class Registration extends FOGBase
             } catch (\Exception $e) {
                 echo $e->getMessage();
             }
-            self::getClass('Inventory')
+            (new Inventory())
                 ->set('hostID', self::$Host->get('id'))
                 ->set('primaryUser', $primaryuser)
                 ->set('other1', $other1)
@@ -448,7 +451,7 @@ class Registration extends FOGBase
         $password = self::decodeCredential($readCred('password'));
         $username = (false === $username) ? '' : $username;
         $password = (false === $password) ? '' : $password;
-        $userTest = self::getClass('User')->passwordValidate($username, $password);
+        $userTest = (new User())->passwordValidate($username, $password);
         if (!$userTest && !$quickReg) {
             throw new \Exception(
                 _('Done, without imaging: Invalid Login.')
@@ -544,7 +547,7 @@ class Registration extends FOGBase
                 $hostname = str_replace('{SYSSERIAL}', $sysserial, $hostname);
             }
             $hostname = trim($hostname);
-            if (!self::getClass('Host')->isHostnameSafe($hostname)) {
+            if (!(new Host())->isHostnameSafe($hostname)) {
                 $hostname = $this->macsimple;
             }
             $paddingLen = substr_count(
@@ -571,7 +574,7 @@ class Registration extends FOGBase
                         $paddedInsert,
                         $autoRegSysName
                     );
-                    while (self::getClass('HostManager')->exists($hostname)) {
+                    while ((new HostManager())->exists($hostname)) {
                         $paddingString = str_repeat(
                             '*',
                             $paddingLen
@@ -596,10 +599,10 @@ class Registration extends FOGBase
                     self::setSetting('FOG_QUICKREG_SYS_NUMBER', ++$autoRegSysNumber);
                 }
             }
-            if (!self::getClass('Host')->isHostnameSafe($hostname)) {
+            if (!(new Host())->isHostnameSafe($hostname)) {
                 $hostname = $this->macsimple;
             }
-            self::$Host = self::getClass('Host')
+            self::$Host = (new Host())
                 ->set('name', $hostname)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
@@ -657,7 +660,7 @@ class Registration extends FOGBase
         try {
             $stripped = self::stripAndDecode($_POST);
             $prodkeyget = self::getSetting('FOG_QUICKREG_PROD_KEY_BIOS');
-            self::$Host = self::getClass('Host')
+            self::$Host = (new Host())
                 ->set('name', $this->macsimple)
                 ->set('description', $this->description)
                 ->set('modules', $this->modulesToJoin)

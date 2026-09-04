@@ -48,6 +48,7 @@
 
 use FOG\Auth\Authorization;
 use FOG\Base\FOGCore;
+use FOG\Items\Group;
 use FOG\Pages\HostManagement;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
@@ -228,7 +229,7 @@ $t->check(
 $db = FogTestHarness::fakeDb();
 $mark = count($db->log);
 
-$Selection = FOGCore::getClass('Group');
+$Selection = new Group();
 $Selection->set('name', '3 selected hosts');
 $Selection->set('hosts', [4, 9, 17]);
 $hosts = $Selection->get('hosts');
@@ -263,7 +264,7 @@ $db->responder = static function ($sql) use ($db) {
 
     return null;
 };
-$Real = FOGCore::getClass('Group');
+$Real = new Group();
 $Real->set('id', 3);
 $t->check(
     'a saved group still loads its members',

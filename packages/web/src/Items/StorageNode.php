@@ -140,7 +140,7 @@ class StorageNode extends FOGController
      *
      * @param mixed $key the key to get
      *
-     * @return object
+     * @return mixed the field value; the path keys return trimmed strings
      */
     public function get($key = '')
     {

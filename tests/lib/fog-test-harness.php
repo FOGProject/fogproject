@@ -37,6 +37,7 @@
 use FOG\Base\EventManager;
 use FOG\Base\FOGCore;
 use FOG\Base\HookManager;
+use FOG\Items\User;
 
 /**
  * One prepared statement's worth of canned rows.
@@ -387,7 +388,7 @@ class FogTestHarness
         // has to exist before the first hook is built, even an anonymous one.
         // It falls back to $GLOBALS['currentUser'] when that user is invalid,
         // so both are seeded.
-        $anon = FOGCore::getClass('User');
+        $anon = new User();
         $GLOBALS['currentUser'] = $anon;
         self::setStatic('FOGBase', 'FOGUser', $anon);
 

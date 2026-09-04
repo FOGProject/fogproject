@@ -294,7 +294,7 @@ class TaskError extends FOGBase
     private static function _markFailed($Task)
     {
         $failed = TaskState::getFailedState();
-        if (!self::getClass('TaskState', $failed)->isValid()) {
+        if (!(new TaskState($failed))->isValid()) {
             return;
         }
         $Task->set('stateID', $failed)->save();
@@ -308,7 +308,7 @@ class TaskError extends FOGBase
         // the time the join fails the host row is gone too, which makes this
         // the last moment the name can be recorded at all. See TaskLog's
         // $databaseFields and schema step 341.
-        self::getClass('TaskLog')
+        (new TaskLog())
             ->set('taskID', $Task->get('id'))
             ->set('stateID', $Task->get('stateID'))
             ->set('createdBy', 'fos')

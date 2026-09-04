@@ -16,6 +16,7 @@ namespace FOG\Pages;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
 use FOG\Items\Plugin;
+use FOG\Managers\PluginManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -88,7 +89,7 @@ class PluginManagement extends FOGPage
             Route::listem('plugin');
             $data = json_decode(Route::getData());
             foreach ((array)$data->data as &$row) {
-                $plugin = self::getClass('Plugin', $row->id);
+                $plugin = new Plugin($row->id);
                 $row->needsupdate = $plugin->needsSchemaUpdate() ? 1 : 0;
                 // Why a plugin can't be turned on, rendered on the row rather
                 // than only raised when the activate button is pressed. The
@@ -551,7 +552,7 @@ class PluginManagement extends FOGPage
             $this->_refuseBlocked($plugins);
             $ids = ['id' => $plugins];
             $state = ['state' => 1];
-            $PluginManager = self::getClass('PluginManager');
+            $PluginManager = new PluginManager();
             if (!$PluginManager->update($ids, '', $state)) {
                 $serverFault = true;
                 throw new \Exception(_('Activate plugins failed!'));
@@ -627,7 +628,7 @@ class PluginManagement extends FOGPage
             $ids = ['id' => $plugins];
             $state = ['state' => 1];
             $install = ['installed' => 1];
-            $PluginManager = self::getClass('PluginManager');
+            $PluginManager = new PluginManager();
             if (!$PluginManager->update($ids, '', $state)) {
                 $serverFault = true;
                 throw new \Exception(_('Activate plugins failed!'));
@@ -640,7 +641,7 @@ class PluginManagement extends FOGPage
                 ]
             );
             foreach ($Plugins as &$Plugin) {
-                $pluginObj = self::getClass('Plugin', $Plugin->id);
+                $pluginObj = new Plugin($Plugin->id);
                 if (!$pluginObj->installdb()) {
                     throw new \Exception(
                         _('Failed to install ')
@@ -736,7 +737,7 @@ class PluginManagement extends FOGPage
                 ]
             );
             foreach ($Plugins as &$Plugin) {
-                $pluginObj = self::getClass('Plugin', $Plugin->id);
+                $pluginObj = new Plugin($Plugin->id);
                 if (!$pluginObj->installdb()) {
                     throw new \Exception(
                         _('Failed to update ')
@@ -814,7 +815,7 @@ class PluginManagement extends FOGPage
         try {
             $ids = ['id' => $plugins];
             $state = ['state' => 0];
-            $PluginManager = self::getClass('PluginManager');
+            $PluginManager = new PluginManager();
             if (!$PluginManager->update($ids, '', $state)) {
                 $serverFault = true;
                 throw new \Exception(_('Deactivate plugins failed!'));
@@ -893,7 +894,7 @@ class PluginManagement extends FOGPage
             // with no tables and every query against it threw
             // "Base table or view not found".
             $install = ['installed' => 0, 'schema' => 0];
-            $PluginManager = self::getClass('PluginManager');
+            $PluginManager = new PluginManager();
             if (!$PluginManager->update($ids, '', $state)) {
                 $serverFault = true;
                 throw new \Exception(_('Deactivate plugins failed!'));
@@ -1035,7 +1036,7 @@ class PluginManagement extends FOGPage
                 );
             }
             foreach ($forget as $id => $name) {
-                $plugin = self::getClass('Plugin', $id);
+                $plugin = new Plugin($id);
                 if (!$plugin->destroy()) {
                     $serverFault = true;
                     throw new \Exception(_('Failed to forget ') . $name);

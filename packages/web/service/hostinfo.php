@@ -13,6 +13,7 @@
 
 use FOG\Base\FOGCore;
 use FOG\Items\Image;
+use FOG\Items\MulticastSession;
 use FOG\Router\Route;
 
 /**
@@ -70,10 +71,7 @@ try {
                 $msIDs[] = $id->msID;
             }
 
-            $MulticastSession = FOGCore::getClass(
-                'MulticastSession',
-                FOGCore::maxId($msIDs)
-            );
+            $MulticastSession = new MulticastSession(FOGCore::maxId($msIDs));
             if (!$MulticastSession->isValid()) {
                 throw new \Exception(_('Invalid Multicast Session'));
             }

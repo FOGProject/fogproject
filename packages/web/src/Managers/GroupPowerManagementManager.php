@@ -14,6 +14,7 @@
 namespace FOG\Managers;
 
 use FOG\Base\FOGManagerController;
+use FOG\Items\GroupPowerManagement;
 
 /**
  * The group power-management grant manager class.
@@ -66,7 +67,7 @@ class GroupPowerManagementManager extends FOGManagerController
         $rows = (array)$res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $grants = [];
         foreach ($rows as $row) {
-            $grants[] = self::getClass('GroupPowerManagement', $row['gpmID']);
+            $grants[] = new GroupPowerManagement($row['gpmID']);
         }
 
         return $grants;

@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Managers\PrinterAssociationManager;
 use FOG\Router\Route;
 
 /**
@@ -144,14 +145,14 @@ class Printer extends FOGController
             'printerassociation',
             $find
         );
-        self::getClass('PrinterAssociationManager')
+        (new PrinterAssociationManager())
             ->update(
                 [
                     'id' => $AllHostsPrinter,
                     'isDefault' => 0
                 ]
             );
-        self::getClass('PrinterAssociationManager')
+        (new PrinterAssociationManager())
             ->update(
                 [
                     'hostID' => $onoff,

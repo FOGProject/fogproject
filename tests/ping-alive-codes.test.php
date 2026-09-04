@@ -33,6 +33,7 @@
 
 use FOG\Base\FOGCore;
 use FOG\Base\Hook;
+use FOG\Items\User;
 use FOG\Net\Ping;
 use FOG\Router\Route;
 
@@ -128,7 +129,7 @@ $db = FogTestHarness::fakeDb();
 $db->pdo->rowCount = 1;
 $db->pdo->countValue = 1;
 
-$admin = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+$admin = (new User())->set('id', 1)->set('name', 'fog');
 foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $admin);
 }

@@ -17,6 +17,12 @@ use FOG\Assign\Resolver;
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
 use FOG\Boot\UbootTftpSync;
+use FOG\Managers\MACAddressAssociationManager;
+use FOG\Managers\PrinterAssociationManager;
+use FOG\Managers\SnapinAssociationManager;
+use FOG\Managers\SnapinJobManager;
+use FOG\Managers\SnapinTaskManager;
+use FOG\Managers\TaskManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -305,7 +311,7 @@ class Host extends FOGController
             return false;
         }
         if (array_key_exists('mac', $this->data)) {
-            self::getClass('MACAddressAssociation')
+            (new MACAddressAssociation())
                 ->set('mac', $this->get('mac'))
                 ->set('primary', '1')
                 ->set('hostID', $this->get('id'))
@@ -413,7 +419,7 @@ class Host extends FOGController
                     'mac'
                 );
                 if (count((array)$approvedMacs) > 0) {
-                    self::getClass('MACAddressAssociationManager')
+                    (new MACAddressAssociationManager())
                         ->update(
                             [
                                 'hostID' => $hostID,
@@ -482,7 +488,7 @@ class Host extends FOGController
             $this->get('printers'),
             [$printerid]
         );
-        self::getClass('PrinterAssociationManager')
+        (new PrinterAssociationManager())
             ->update(
                 [
                     'printerID' => $printers,
@@ -493,7 +499,7 @@ class Host extends FOGController
                 ['isDefault' => 0]
             );
         if ($printerid) {
-            self::getClass('PrinterAssociationManager')
+            (new PrinterAssociationManager())
                 ->update(
                     [
                         'printerID' => $printerid,
@@ -918,7 +924,7 @@ class Host extends FOGController
         $wol = false,
         $bypassbitlocker = false
     ) {
-        $Task = self::getClass('Task')
+        $Task = (new Task())
             ->set('name', $taskName)
             ->set('createdBy', $username)
             ->set('hostID', $this->get('id'))
@@ -968,7 +974,7 @@ class Host extends FOGController
             'snapinjob',
             $find
         );
-        self::getClass('SnapinTaskManager')
+        (new SnapinTaskManager())
             ->update(
                 [
                     'jobID' => $SnapinJobs,
@@ -984,7 +990,7 @@ class Host extends FOGController
                     'stateID' => self::getCancelledState()
                 ]
             );
-        self::getClass('SnapinJobManager')
+        (new SnapinJobManager())
             ->update(
                 ['id' => $SnapinJobs],
                 '',
@@ -995,7 +1001,7 @@ class Host extends FOGController
             $find
         );
         $MyTask = $this->get('task')->get('id');
-        self::getClass('TaskManager')
+        (new TaskManager())
             ->update(
                 [
                     'id' => array_diff(
@@ -1114,7 +1120,7 @@ class Host extends FOGController
                 unset($snapinID);
             }
             if (count($insert_values) > 0) {
-                self::getClass('SnapinTaskManager')
+                (new SnapinTaskManager())
                     ->insertBatch(
                         $insert_fields,
                         $insert_values
@@ -1183,7 +1189,7 @@ class Host extends FOGController
                 && !$Task->getTaskType()->isImagingTask()
             ) {
                 $Task->cancel();
-                $Task = self::getClass('Task');
+                $Task = new Task();
             }
             // Block only if the host is already in an imaging task.
             if ($Task->isValid() && $TaskType->isImagingTask) {
@@ -1549,7 +1555,7 @@ class Host extends FOGController
                     $assoc = true;
                 } else {
                     MulticastSession::assertCapacity();
-                    $MulticastSession = self::getClass('MulticastSession')
+                    $MulticastSession = (new MulticastSession())
                         ->set('name', $taskName)
                         ->set('port', MulticastSession::allocatePort())
                         ->set('logpath', $this->getImage()->get('path'))
@@ -1583,7 +1589,7 @@ class Host extends FOGController
                     $assoc = true;
                 }
                 if ($assoc) {
-                    $stat = self::getClass('MulticastSessionAssociation')
+                    $stat = (new MulticastSessionAssociation())
                         ->set('msID', $MulticastSession->get('id'))
                         ->set('taskID', $Task->get('id'))
                         ->save();
@@ -1689,7 +1695,7 @@ class Host extends FOGController
             unset($mac);
         }
         if (count($insert_values) > 0) {
-            self::getClass('MACAddressAssociationManager')
+            (new MACAddressAssociationManager())
                 ->insertBatch(
                     $insert_fields,
                     $insert_values
@@ -1767,7 +1773,7 @@ class Host extends FOGController
             unset($m);
         }
         if (count($insert_values) > 0) {
-            self::getClass('MACAddressAssociationManager')
+            (new MACAddressAssociationManager())
                 ->insertBatch(
                     $insert_fields,
                     $insert_values
@@ -1902,7 +1908,7 @@ class Host extends FOGController
             }
         }
         foreach ($unsequenced as $snapinID) {
-            self::getClass('SnapinAssociationManager')
+            (new SnapinAssociationManager())
                 ->update(
                     [
                         'hostID' => $hostID,
@@ -1930,7 +1936,7 @@ class Host extends FOGController
                 continue;
             }
             ++$sequence;
-            self::getClass('SnapinAssociationManager')
+            (new SnapinAssociationManager())
                 ->update(
                     [
                         'hostID' => $this->get('id'),
@@ -2020,7 +2026,7 @@ class Host extends FOGController
         // turning ON to OFF is the same statement as stating it for the
         // first time, and no read is needed to tell the two apart.
         foreach ($ids as $id) {
-            self::getClass('ModuleAssociation')
+            (new ModuleAssociation())
                 ->set('hostID', $hostID)
                 ->set('moduleID', $id)
                 ->set('state', $state)
@@ -2134,7 +2140,7 @@ class Host extends FOGController
         $myMACs = array_unique($myMACs);
         $igMACs = array_unique($igMACs);
         $cgMACs = array_unique($cgMACs);
-        self::getClass('MACAddressAssociationManager')
+        (new MACAddressAssociationManager())
             ->update(
                 [
                     'mac' => array_diff(
@@ -2146,7 +2152,7 @@ class Host extends FOGController
                 '',
                 ['imageIgnore' => 0]
             );
-        self::getClass('MACAddressAssociationManager')
+        (new MACAddressAssociationManager())
             ->update(
                 [
                     'mac' => array_diff(
@@ -2159,7 +2165,7 @@ class Host extends FOGController
                 ['clientIgnore' => 0]
             );
         if (count($igMACs) > 0) {
-            self::getClass('MACAddressAssociationManager')
+            (new MACAddressAssociationManager())
                 ->update(
                     [
                         'mac' => $igMACs,
@@ -2170,7 +2176,7 @@ class Host extends FOGController
                 );
         }
         if (count($cgMACs) > 0) {
-            self::getClass('MACAddressAssociationManager')
+            (new MACAddressAssociationManager())
                 ->update(
                     [
                         'mac' => $cgMACs,

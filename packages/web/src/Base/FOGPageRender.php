@@ -26,7 +26,10 @@ namespace FOG\Base;
 
 use FOG\Auth\Authorization;
 use FOG\Auth\SiteScope;
+use FOG\Items\Site;
 use FOG\Items\TaskType;
+use FOG\Managers\SiteManager;
+use FOG\Managers\SnapinManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -1038,7 +1041,7 @@ trait FOGPageRender
      */
     protected function taskingOptionFields($type, $labelClass)
     {
-        $TaskType = self::getClass('TaskType', $type);
+        $TaskType = new TaskType($type);
         $issnapintask = $TaskType->isSnapinTasking();
         $isinitneeded = $TaskType->isInitNeededTasking();
         $iscapturetask = $TaskType->isCapture();
@@ -1055,7 +1058,7 @@ trait FOGPageRender
                     'snapin',
                     _('Select Snapin to run')
                 )
-            ] = self::getClass('SnapinManager')
+            ] = (new SnapinManager())
                 ->buildSelectBox('', 'snapin');
         } elseif (TaskType::PASSWORD_RESET == $type) {
             $fields[
@@ -1427,7 +1430,7 @@ trait FOGPageRender
                 $labelClass,
                 'site',
                 _('Site')
-            ) => self::getClass('SiteManager')->buildSelectBox($siteID, 'site')
+            ) => (new SiteManager())->buildSelectBox($siteID, 'site')
         ];
     }
     /**
@@ -1465,7 +1468,7 @@ trait FOGPageRender
                 'col-sm-3 col-form-label',
                 'site',
                 _('Site')
-            ) => self::getClass('SiteManager')->buildSelectBox($siteID, 'site')
+            ) => (new SiteManager())->buildSelectBox($siteID, 'site')
         ];
 
         $buttons = self::makeButton(
@@ -1512,7 +1515,7 @@ trait FOGPageRender
         if (count($current) > 1) {
             $names = [];
             foreach ($current as $sid) {
-                $site = self::getClass('Site', $sid);
+                $site = new Site($sid);
                 if ($site->isValid()) {
                     $names[] = $site->get('name');
                 }

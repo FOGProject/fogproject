@@ -45,6 +45,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\History;
 
 require __DIR__ . '/lib/fog-test-harness.php';
 
@@ -146,7 +147,7 @@ $t->check(
     && false !== strpos($helper, "'%s ID: %s'")
     && false !== strpos($helper, "' Name: %s'")
 );
-$history = FOGCore::getClass('History');
+$history = new History();
 $req = new \ReflectionProperty(get_class($history), 'databaseFieldsRequired');
 $req->setAccessible(true);
 $t->check(

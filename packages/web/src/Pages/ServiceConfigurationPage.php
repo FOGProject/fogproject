@@ -15,6 +15,8 @@
 namespace FOG\Pages;
 
 use FOG\Base\FOGPage;
+use FOG\Items\Module;
+use FOG\Items\Setting;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -262,11 +264,8 @@ class ServiceConfigurationPage extends FOGPage
             }
             unset($module);
         }
-        $Module = self::getClass(
-            'Module',
-            $Module->id
-        );
-        $Service = self::getClass('Setting')
+        $Module = new Module($Module->id);
+        $Service = (new Setting())
             ->set('name', self::$_modNames[$key])
             ->load('name');
         if (isset($_POST['update'])) {

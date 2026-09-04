@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Db\Mysqldump;
 
 /**
  * Handles the database insert/export
@@ -88,11 +89,17 @@ class Schema extends FOGController
      * Recreates the database passed and removes
      * duplicate data
      *
+     * $table is a positional tuple, not a name: [0] the table, [1] the
+     * column or columns the uniqueness is over, and optionally [2] an index
+     * to drop afterward. The queries are RETURNED for the caller to fold
+     * into its own upgrade step -- commons/schema.php fastmerge()s them --
+     * and are not executed here.
+     *
      * @param string $dbname      the database name
-     * @param string $table       the table name
+     * @param array  $table       [tablename, indexes, dropIndex]
      * @param bool   $indexNeeded index is needed
      *
-     * @return void
+     * @return array the queries to run, empty when there is nothing to do
      */
     public function dropDuplicateData(
         $dbname,
@@ -100,10 +107,10 @@ class Schema extends FOGController
         $indexNeeded = false
     ) {
         if (empty($dbname)) {
-            return;
+            return [];
         }
         if (count($table) < 1) {
-            return;
+            return [];
         }
         $queries = [];
         $tablename = $table[0];
@@ -114,7 +121,7 @@ class Schema extends FOGController
         }
         if ($indexNeeded) {
             if (count($indexes) < 1) {
-                return;
+                return [];
             } elseif (count($indexes) === 1) {
                 $ending = sprintf(
                     'INDEX (`%s`)',
@@ -216,7 +223,7 @@ class Schema extends FOGController
                 self::formatTime('now', 'Ymd_His')
             );
         }
-        $dump = self::getClass('Mysqldump');
+        $dump = new Mysqldump();
         $dump->start($file);
         if (!file_exists($file) || !is_readable($file)) {
             throw new \Exception(_('Could not read tmp file.'));

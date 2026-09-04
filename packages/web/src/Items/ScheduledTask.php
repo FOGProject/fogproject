@@ -124,7 +124,7 @@ class ScheduledTask extends FOGController
      */
     public function isMulticast()
     {
-        return (bool)self::getClass('TaskType', $this->get('taskTypeID'))
+        return (bool)(new TaskType($this->get('taskTypeID')))
             ->isMulticast();
     }
     /**

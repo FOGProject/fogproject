@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Managers\HostManager;
 use FOG\Router\Route;
 
 /**
@@ -247,7 +248,7 @@ class Image extends FOGController
             }
             $RemIDs = array_filter($RemIDs ?? []);
             if (count($RemIDs) > 0) {
-                self::getClass('HostManager')->update(
+                (new HostManager())->update(
                     [
                         'imageID' => $this->get('id'),
                         'id' => $RemIDs
@@ -262,7 +263,7 @@ class Image extends FOGController
             if (count($this->get('hosts')) < 1) {
                 return $this;
             }
-            self::getClass('HostManager')
+            (new HostManager())
                 ->update(
                     ['id' => $this->get('hosts')],
                     '',
@@ -296,7 +297,7 @@ class Image extends FOGController
             throw new \Exception(self::$foglang['ProtectedImage']);
         }
         foreach ($this->get('storagegroups') as $storagegroupID) {
-            self::getClass('FileDeleteQueue')
+            (new FileDeleteQueue())
                 ->set('path', $this->get('path'))
                 ->set('pathtype', 'Image')
                 ->set('createdTime', self::storageNow())
@@ -524,7 +525,7 @@ class Image extends FOGController
         );
         $assocID = self::minId($assocID);
 
-        return self::getClass('ImageAssociation', $assocID)->isPrimary();
+        return (new ImageAssociation($assocID))->isPrimary();
     }
     /**
      * Gets the primary storage group.

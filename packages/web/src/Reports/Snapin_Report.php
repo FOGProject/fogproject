@@ -15,6 +15,7 @@ namespace FOG\Reports;
 
 use FOG\Audit\ReportWindow;
 use FOG\Audit\SnapinStats;
+use FOG\Items\TaskState;
 use FOG\Pages\ReportManagement;
 
 /**
@@ -212,7 +213,7 @@ class Snapin_Report extends ReportManagement
         foreach ($rows as $row) {
             $stateID = (int)($row['stateID'] ?? 0);
             if ($stateID > 0 && !isset($states[$stateID])) {
-                $states[$stateID] = (string)self::getClass('TaskState', $stateID)
+                $states[$stateID] = (string)(new TaskState($stateID))
                     ->get('name');
             }
             $code = (int)($row['code'] ?? 0);

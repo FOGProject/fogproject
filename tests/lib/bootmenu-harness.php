@@ -70,11 +70,17 @@ class StubModel
     /**
      * Instantiates the record.
      *
-     * @param array $data the field data
+     * Deliberately untyped. FOGController accepts either an id or a field
+     * array, and callers now reach these stubs through a plain `new` rather
+     * than through the harness's getClass() switch, which used to do the
+     * `(array)` cast on the way past. Doing it here keeps what the switch
+     * produced rather than making every call site match the stub.
+     *
+     * @param mixed $data the field data, or the id
      */
-    public function __construct(array $data = [])
+    public function __construct($data = [])
     {
-        $this->data = $data;
+        $this->data = (array)$data;
     }
     /**
      * A record is valid when it carries a non-zero id.
@@ -319,6 +325,48 @@ class Image extends StubModel
  * calls is the behavior under test, and the golden shows it through the
  * storage= argument rather than through the node's identity.
  */
+/**
+ * The unlock key sequence a menu offers.
+ *
+ * Carried the harness's getClass() switch until IpxeBootMenu stopped going
+ * through it; the field values are that arm's, unchanged, because the golden
+ * file records the ascii code this emits.
+ */
+class KeySequence extends StubModel
+{
+    /**
+     * Instantiates the sequence.
+     *
+     * @param string $seq the configured sequence name
+     */
+    public function __construct($seq = '')
+    {
+        $seq = trim((string)$seq);
+        parent::__construct(
+            '' === $seq
+                ? []
+                : ['id' => 1, 'ascii' => '0x1b', 'name' => $seq]
+        );
+    }
+}
+/**
+ * A custom iPXE record, looked up by id.
+ *
+ * Same provenance as KeySequence above: this is the getClass() switch's arm
+ * as a class, so stub-buckets.php can alias it to FOG\Items\Ipxe.
+ */
+class Ipxe extends StubModel
+{
+    /**
+     * Instantiates the record.
+     *
+     * @param int $id the record id
+     */
+    public function __construct($id = 0)
+    {
+        parent::__construct(['id' => (int)$id]);
+    }
+}
 class StorageGroup extends StubModel
 {
     /**

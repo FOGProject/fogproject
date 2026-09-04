@@ -16,6 +16,7 @@ namespace FOG\Client;
 use FOG\Items\SnapinTask;
 use FOG\Items\StorageGroup;
 use FOG\Items\StorageNode;
+use FOG\Managers\SnapinTaskManager;
 use FOG\Router\Route;
 
 /**
@@ -335,7 +336,7 @@ class SnapinClient extends FOGClient
         $abortedOnFailure = false;
         if ($SnapinJob->get('abortOnFail') && $exitcode !== 0) {
             $abortedOnFailure = true;
-            self::getClass('SnapinTaskManager')
+            (new SnapinTaskManager())
                 ->update(
                     [
                         'jobID' => $SnapinJob->get('id'),

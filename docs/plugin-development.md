@@ -621,11 +621,15 @@ A page is a page because it is in `src/Pages/`; core lists that directory —
 buckets. Anything else you ship is simply autoloaded when something names it.
 
 Bare spellings still work wherever **core** does the resolving:
-`getClass('HelloWorld')`, `FOGController::getManager()`, `FOGPage::$childClass`,
-`Route::_newEntity()` and `Authorization`'s object-scope lookup all take a
-short name. Core builds that map from the file *paths* now rather than by
-reading every plugin file, so you never spell the namespace out anywhere except
-the `namespace` declaration itself.
+`FOGController::getManager()`, `FOGPage::$childClass`, `Route::_newEntity()`,
+`Authorization`'s object-scope lookup and a variable handed to `getClass()` all
+take a short name. Core builds that map from the file *paths* now rather than
+by reading every plugin file, so you never spell the namespace out anywhere
+except the `namespace` declaration itself.
+
+That is about names core is *given*. Names **you** write are a different
+question: spell those fully qualified rather than routing them through
+`getClass()`, per ADR 0043 and the section below.
 
 **`class_alias()` is not needed and should not be used.** It was the workaround
 for a gap that no longer exists — discovery once derived a bare class name from
@@ -659,17 +663,36 @@ friends. Core wins it: a plugin class whose short name matches a core class is
 reachable only by its FQCN. Pick a distinctive name and the question never
 arises.
 
+### Name the class, do not fetch it by string
+
+**Write `new \FOG\Plugins\LDAP\Managers\LDAPGroupManager()`, not
+`self::getClass('LDAPGroupManager')`** (ADR 0043). The factory erased the
+type — it is declared `@return object|mixed` — so nothing could check what you
+then did with the result, and it was never a substitution seam: `qualify()`
+consults core's map before the plugins', so a bare name can only ever resolve
+to one class. Core was converted in the same sweep, and
+`tests/getclass-literals.test.php` there refuses a literal `getClass()`.
+
+Fully qualified rather than imported, because this repository's
+`tests/core-references-are-qualified.test.php` refuses a bare core name
+outright — a plugin tree is fetched on its own and cannot assume core's
+class list is anywhere nearby.
+
+`getClass()` itself has not gone and still resolves a bare name through
+`FOGBase::qualify()`. Reach for it when the class is named by a **variable**,
+which is the one thing `new` cannot express, and for
+`getClass('X', '', true)`, which returns the default properties rather than an
+instance.
+
 ### The one place a bare name still bites
 
-Core resolves a bare name wherever *it* does the resolving: `getClass()`,
-`getManager()`, discovery, `$childClass`, `Route::_newEntity()`,
+Core resolves a bare name wherever *it* does the resolving: `getClass()` with a
+variable, `getManager()`, discovery, `$childClass`, `Route::_newEntity()`,
 `Authorization`. A class name **your own code** holds in a plain string is
-resolved exactly as written, with no such mapping behind it. So
-`self::getClass('LDAPGroupManager')` inside a plugin is fine — core resolves
-it — but a raw `new $someString` or `is_subclass_of($x, 'SomeClass')` naming
-a bare plugin class in your own code is not. Spell those fully qualified
-(`\FOG\Plugins\LDAP\Managers\LDAPGroupManager`) or route them through
-`self::getClass()` instead.
+resolved exactly as written, with no such mapping behind it — so a raw
+`new $someString` or `is_subclass_of($x, 'SomeClass')` naming a bare plugin
+class is not. Spell those fully qualified
+(`\FOG\Plugins\LDAP\Managers\LDAPGroupManager`).
 
 ### What the failure looks like
 
@@ -929,8 +952,8 @@ just-provisioned account has no id before then.
   superglobals) — never raw `$_POST`/`$_GET`.
 - **CSRF/auth:** call `self::checkAuthAndCSRF()` at the top of every state‑
   changing POST handler.
-- **Instantiation:** prefer `self::getClass('HelloWorld')` /
-  `self::getClass('HelloWorldManager')` over `new`.
+- **Instantiation:** `new \FOG\Plugins\HelloWorld\Items\HelloWorld()`, fully
+  qualified. Not `self::getClass('HelloWorld')` — see ADR 0043.
 - **Translation:** wrap UI strings in `_('…')`.
 - **Secrets in your table:** if a column holds a credential — an API token, a
   webhook URL, a bind password — declare it through `API_SENSITIVE_FIELDS` or

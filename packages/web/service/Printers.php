@@ -12,6 +12,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Client\PrinterClient;
 
 /**
  * Printer client script
@@ -32,4 +33,4 @@ use FOG\Base\FOGCore;
 define('FOG_MACHINE_REQUEST', true);
 
 require '../commons/base.inc.php';
-FOGCore::getClass('PrinterClient');
+new PrinterClient();

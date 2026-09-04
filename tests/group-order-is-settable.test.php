@@ -38,6 +38,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\Group;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
@@ -105,7 +106,7 @@ $t->check(
 function saveGroupWithOrder($db)
 {
     $db->log = [];
-    FOGCore::getClass('Group')
+    (new Group())
         ->set('name', 'Lab')
         ->set('order', 7)
         ->save();
@@ -121,7 +122,7 @@ foreach (saveGroupWithOrder($db) as $sql) {
 }
 $t->check('saving a group writes the groupOrder column', $wrote);
 
-$loaded = FOGCore::getClass('Group')->set('order', 0);
+$loaded = (new Group())->set('order', 0);
 $t->check(
     'an order of 0 reads back as 0 rather than as unset',
     $loaded->get('order') === 0 || $loaded->get('order') === '0'

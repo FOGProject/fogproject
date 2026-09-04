@@ -14,7 +14,12 @@
 namespace FOG\Pages;
 
 use FOG\Base\FOGPage;
+use FOG\Items\StorageGroup;
 use FOG\Items\StorageNode;
+use FOG\Managers\ImageAssociationManager;
+use FOG\Managers\SnapinGroupAssociationManager;
+use FOG\Managers\StorageGroupManager;
+use FOG\Managers\StorageNodeManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -157,14 +162,14 @@ class StorageGroupManagement extends FOGPage
 
         $serverFault = false;
         try {
-            $exists = self::getClass('StorageGroupManager')
+            $exists = (new StorageGroupManager())
                 ->exists($storagegroup);
             if ($exists) {
                 throw new \Exception(
                     _('A storage group exists with this name!')
                 );
             }
-            $StorageGroup = self::getClass('StorageGroup')
+            $StorageGroup = (new StorageGroup())
                 ->set('name', $storagegroup)
                 ->set('description', $description)
                 ->set('trustedcidrs', $trustedcidrs);
@@ -313,7 +318,7 @@ class StorageGroupManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'trustedcidrs')
         );
 
-        $exists = self::getClass('StorageGroupManager')
+        $exists = (new StorageGroupManager())
             ->exists($storagegroup);
         if ($storagegroup != $this->obj->get('name')
             && $exists
@@ -453,7 +458,7 @@ class StorageGroupManagement extends FOGPage
                 $this->obj->addImage($imagesToAssoc)->save();
             }
             if (count($images ?: []) > 0) {
-                self::getClass('ImageAssociationManager')->update(
+                (new ImageAssociationManager())->update(
                     [
                         'imageID' => $images,
                         'primary' => 1
@@ -461,7 +466,7 @@ class StorageGroupManagement extends FOGPage
                     '',
                     ['primary' => '0']
                 );
-                self::getClass('ImageAssociationManager')->update(
+                (new ImageAssociationManager())->update(
                     [
                         'storagegroupID' => $this->obj->get('id'),
                         'imageID' => $images,
@@ -483,7 +488,7 @@ class StorageGroupManagement extends FOGPage
             );
             $images = $images['remitems'];
             if (count($images ?: []) > 0) {
-                self::getClass('ImageAssociationManager')->update(
+                (new ImageAssociationManager())->update(
                     [
                         'storagegroupID' => $this->obj->get('id'),
                         'imageID' => $images,
@@ -620,7 +625,7 @@ class StorageGroupManagement extends FOGPage
                 $this->obj->addSnapin($snapinsToAssoc)->save();
             }
             if (count($snapins ?: []) > 0) {
-                self::getClass('SnapinGroupAssociationManager')->update(
+                (new SnapinGroupAssociationManager())->update(
                     [
                         'snapinID' => $snapins,
                         'primary' => 1
@@ -628,7 +633,7 @@ class StorageGroupManagement extends FOGPage
                     '',
                     ['primary' => '0']
                 );
-                self::getClass('SnapinGroupAssociationManager')->update(
+                (new SnapinGroupAssociationManager())->update(
                     [
                         'storagegroupID' => $this->obj->get('id'),
                         'snapinID' => $snapins,
@@ -650,7 +655,7 @@ class StorageGroupManagement extends FOGPage
             );
             $snapins = $snapins['remitems'];
             if (count($snapins ?: []) > 0) {
-                self::getClass('SnapinGroupAssociationManager')->update(
+                (new SnapinGroupAssociationManager())->update(
                     [
                         'storagegroupID' => $this->obj->get('id'),
                         'snapinID' => $snapins,
@@ -767,7 +772,7 @@ class StorageGroupManagement extends FOGPage
                 $this->obj->get('allnodes'),
                 [$master]
             );
-            self::getClass('StorageNodeManager')->update(
+            (new StorageNodeManager())->update(
                 [
                     'storagegroupID' => $this->obj->get('id'),
                     'id' => $storagenodes,
@@ -777,7 +782,7 @@ class StorageGroupManagement extends FOGPage
                 ['isMaster' => '0']
             );
             if ($master) {
-                self::getClass('StorageNodeManager')->update(
+                (new StorageNodeManager())->update(
                     [
                         'storagegroupID' => $this->obj->get('id'),
                         'id' => $master,

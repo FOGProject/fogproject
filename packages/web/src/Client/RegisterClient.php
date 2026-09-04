@@ -15,6 +15,7 @@
 
 namespace FOG\Client;
 
+use FOG\Items\Host;
 use FOG\Router\Route;
 
 /**
@@ -69,12 +70,9 @@ class RegisterClient extends FOGClient
         ];
         $pendingMACcount = count(Route::getIds('macaddressassociation', $find, 'mac') ?: []);
         if (!self::$Host->isValid()) {
-            self::$Host = self::getClass(
-                'Host',
-                ['name' => $hostname]
-            )->load('name');
+            self::$Host = (new Host(['name' => $hostname]))->load('name');
             if (!(self::$Host->isValid() && !self::$Host->get('pending'))) {
-                if (!self::getClass('Host')->isHostnameSafe($hostname)) {
+                if (!(new Host())->isHostnameSafe($hostname)) {
                     if (!self::$json) {
                         echo '#!ih';
                         exit;
@@ -87,7 +85,7 @@ class RegisterClient extends FOGClient
                     'module',
                     $find
                 );
-                self::$Host = self::getClass('Host')
+                self::$Host = (new Host())
                     ->set('name', $hostname)
                     ->set(
                         'description',

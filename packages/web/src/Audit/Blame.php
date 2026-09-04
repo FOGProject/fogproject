@@ -14,6 +14,7 @@
 
 namespace FOG\Audit;
 
+use FOG\Items\NodeFailure;
 use FOG\TaskHandling\TaskingElement;
 
 /**
@@ -46,7 +47,7 @@ class Blame extends TaskingElement
                 self::getAllBlamedNodes(self::$Host)
             )
         ) {
-            self::getClass('NodeFailure')
+            (new NodeFailure())
                 ->set('storagegroupID', $taskStorageGroupID)
                 ->set('storagenodeID', $taskStorageNodeID)
                 ->set('failureTime', $failtime)

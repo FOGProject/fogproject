@@ -14,6 +14,7 @@
 namespace FOG\Managers;
 
 use FOG\Base\FOGManagerController;
+use FOG\Items\SnapinJob;
 use FOG\Items\TaskType;
 use FOG\Router\Route;
 
@@ -96,7 +97,7 @@ class SnapinTaskManager extends FOGManagerController
                 unset($snapinJobIDs[$i]);
                 continue;
             }
-            $Host = self::getClass('SnapinJob', $jobID)
+            $Host = (new SnapinJob($jobID))
                 ->get('host');
             $Task = $Host->get('task');
             if (in_array($Task->get('typeID'), TaskType::SNAPINTASKS)) {
@@ -108,7 +109,7 @@ class SnapinTaskManager extends FOGManagerController
          * Only remove snapin jobs if we have any to remove
          */
         if (count($snapinJobIDs ?: []) > 0) {
-            self::getClass('SnapinJobManager')
+            (new SnapinJobManager())
                 ->update(
                     ['id' => (array)$snapinJobIDs],
                     '',
@@ -119,7 +120,7 @@ class SnapinTaskManager extends FOGManagerController
          * Cancel tasks if they are snapin only tasks
          */
         if (count($hostTasksToCancel ?: []) > 0) {
-            self::getClass('TaskManager')
+            (new TaskManager())
                 ->update(
                     ['id' => (array)$hostTasksToCancel],
                     '',

@@ -18,6 +18,7 @@ use FOG\Auth\Authorization;
 use FOG\Auth\CSRF;
 use FOG\Base\FOGPage;
 use FOG\Base\Page;
+use FOG\Items\Setting;
 
 // Not an entry point: this is the page shell, included by Page::render()
 // with the application already booted, which is what makes the self::
@@ -458,7 +459,7 @@ if ($isLoggedIn && \FOG\Auth\Identity::canStart()) : ?>
             $pageLength = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
 if (in_array(strtolower($pageLength), ['search', 'list'])) {
     $pageLength = 10;
-    $Setting = self::getClass('Setting')
+    $Setting = (new Setting())
         ->set('name', 'FOG_VIEW_DEFAULT_SCREEN')
         ->load('name')
         ->set(

@@ -193,7 +193,7 @@ class Architecture extends FOGController
             return '';
         }
         if (!array_key_exists($id, self::$_names)) {
-            $Arch = self::getClass('Architecture', $id);
+            $Arch = new Architecture($id);
             self::$_names[$id] = $Arch->isValid()
                 ? (string)$Arch->get('name')
                 : '';

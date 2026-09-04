@@ -234,7 +234,7 @@ $t->check(
 $t->check(
     'resolve() refuses a token whose owner is gone',
     (bool)preg_match(
-        '/\$user\s*=\s*self::getClass\(\s*\'User\'.*?if\s*\(!\$user->isValid\(\)\)\s*\{(.*?)return null;/s',
+        '/\$user\s*=\s*new User\(.*?if\s*\(!\$user->isValid\(\)\)\s*\{(.*?)return null;/s',
         $modelSrc
     )
 );
@@ -448,7 +448,7 @@ $t->check(
         '/private function _resolve\(.*?\$token = \$this->visibleToken\(/s',
         $mgrSrc
     )
-    && !preg_match('/getClass\(.APIToken.,\s*\$tokenID/', $configSrc)
+    && !preg_match('/new APIToken\(\s*\$tokenID/', $configSrc)
 );
 
 // ---------------------------------------------------------------------------

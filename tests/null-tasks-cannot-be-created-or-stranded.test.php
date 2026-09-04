@@ -231,7 +231,7 @@ check(
  */
 check(
     'it goes through TaskManager::cancel, not a bare state update',
-    false !== strpos($imageCase, "getClass('TaskManager')"),
+    false !== strpos($imageCase, 'new TaskManager('),
     $failures,
     $checks
 );

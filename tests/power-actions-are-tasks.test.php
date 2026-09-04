@@ -52,6 +52,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Items\Host;
 use FOG\Pages\HostManagement;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
@@ -231,7 +232,7 @@ if (preg_match(
 // 4. The host's Power Management tab is schedules only.
 // -------------------------------------------------------------------------
 $host = new HostManagement();
-$obj = \FOG\Base\FOGCore::getClass('Host');
+$obj = new Host();
 $obj->set('id', 5);
 $objProp = new \ReflectionProperty(get_class($host), 'obj');
 $objProp->setAccessible(true);

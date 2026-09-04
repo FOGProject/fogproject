@@ -14,6 +14,8 @@
 namespace FOG\Items;
 
 use FOG\Boot\UbootTftpSync;
+use FOG\Managers\MulticastSessionManager;
+use FOG\Managers\SnapinTaskManager;
 use FOG\Router\Route;
 
 /**
@@ -253,7 +255,7 @@ class Task extends TaskType
 
             // Liveness: if expired, it's getting re-queued to the back. Don't count
             if (self::isExpired($Task->checkInTime ?? '')) {
-                self::getClass('Task', $tid)->expireTaskCheckin();
+                (new Task($tid))->expireTaskCheckin();
                 continue;
             }
 
@@ -285,7 +287,7 @@ class Task extends TaskType
         if ($SnapinJob instanceof SnapinJob
             && $SnapinJob->isValid()
         ) {
-            self::getClass('SnapinTaskManager')->update(
+            (new SnapinTaskManager())->update(
                 ['jobID' => $SnapinJob->get('id')],
                 '',
                 [
@@ -305,7 +307,7 @@ class Task extends TaskType
                 $find,
                 'msID'
             );
-            self::getClass('MulticastSessionManager')
+            (new MulticastSessionManager())
                 ->update(
                     ['id' => $msIDs],
                     '',

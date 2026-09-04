@@ -16,6 +16,8 @@ namespace FOG\Items;
 use FOG\Base\FOGController;
 use FOG\Exception\SnapinSaveException;
 use FOG\Exception\UploadException;
+use FOG\Managers\SnapinJobManager;
+use FOG\Managers\SnapinManager;
 use FOG\Router\Route;
 
 /**
@@ -124,7 +126,7 @@ class Snapin extends FOGController
             $sjIDs[] = $sjID;
         }
         if (count($sjIDs ?: [])) {
-            self::getClass('SnapinJobManager')->cancel($sjIDs);
+            (new SnapinJobManager())->cancel($sjIDs);
         }
         Route::deletemass(
             'snapingroupassociation',
@@ -179,7 +181,7 @@ class Snapin extends FOGController
             throw new \Exception(self::$foglang['ProtectedSnapin']);
         }
         foreach ($this->get('storagegroups') as $storagegroupID) {
-            self::getClass('FileDeleteQueue')
+            (new FileDeleteQueue())
                 ->set('path', $this->get('file'))
                 ->set('pathtype', 'Snapin')
                 ->set('createdTime', self::storageNow())
@@ -357,7 +359,7 @@ class Snapin extends FOGController
         );
         $assocID = self::minId($assocID);
 
-        return self::getClass('SnapinGroupAssociation', $assocID)->isPrimary();
+        return (new SnapinGroupAssociation($assocID))->isPrimary();
     }
     /**
      * Sets the primary group for the snapin.
@@ -452,7 +454,7 @@ class Snapin extends FOGController
         $args = trim((string)($post['args'] ?? ''));
         $timeout = trim((string)($post['timeout'] ?? ''));
 
-        if (self::getClass('SnapinManager')->exists($snapin)) {
+        if ((new SnapinManager())->exists($snapin)) {
             throw new \InvalidArgumentException(
                 _('A snapin already exists with this name!')
             );
@@ -534,7 +536,7 @@ class Snapin extends FOGController
             self::$FOGSSH->put($src, $dest);
             self::$FOGSSH->disconnect();
         }
-        $Snapin = self::getClass('Snapin')
+        $Snapin = (new Snapin())
             ->set('name', $snapin)
             ->set('description', $description)
             ->set('packtype', $packtype)

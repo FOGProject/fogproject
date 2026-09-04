@@ -15,6 +15,7 @@ use FOG\Base\FOGBase;
 use FOG\Base\FOGCore;
 use FOG\Boot\SecureBootState;
 use FOG\Items\TaskType;
+use FOG\Managers\HostManager;
 use FOG\Router\Route;
 
 /**
@@ -139,7 +140,7 @@ if ('' === $cert) {
     $done('badcert');
 }
 
-FOGCore::getClass('HostManager')->update(
+(new HostManager())->update(
     ['id' => $Host->get('id')],
     '',
     [
@@ -159,7 +160,7 @@ $state = strtolower(trim((string)filter_input(INPUT_POST, 'sbstate')));
 if (SecureBootState::isKnown($state)
     && SecureBootState::UNKNOWN !== $state
 ) {
-    FOGCore::getClass('HostManager')->update(
+    (new HostManager())->update(
         ['id' => $Host->get('id')],
         '',
         [

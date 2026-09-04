@@ -95,7 +95,7 @@ check(
 check(
     'it refuses to run until the Failed state row exists',
     1 === preg_match(
-        "/getClass\('TaskState',\s*\\\$failed\)->isValid\(\)/",
+        "/\\(new TaskState\\(\\\$failed\\)\\)->isValid\\(\\)/",
         $reap
     ),
     $failures,

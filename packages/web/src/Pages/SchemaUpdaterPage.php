@@ -332,7 +332,7 @@ class SchemaUpdaterPage extends FOGPage
                     true
                 )
                 : [];
-            $newSchema = self::getClass('Schema', 1);
+            $newSchema = new Schema(1);
             foreach ((array)$items as $version => &$updates) {
                 foreach ((array)$updates as &$update) {
                     if (!$update) {

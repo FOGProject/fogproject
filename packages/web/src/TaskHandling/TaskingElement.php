@@ -135,10 +135,7 @@ abstract class TaskingElement extends FOGBase
                     ['id' => $this->StorageGroup->get($getter)]
                 );
                 foreach ($StorageNodes as &$StorageNode) {
-                    $this->StorageNodes[] = self::getClass(
-                        'StorageNode',
-                        $StorageNode->id
-                    );
+                    $this->StorageNodes[] = new StorageNode($StorageNode->id);
                     unset($StorageNode);
                 }
                 if ($this->Task->isCapture()

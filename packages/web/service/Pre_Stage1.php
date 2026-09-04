@@ -12,6 +12,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\TaskHandling\TaskQueue;
 
 /**
  * Check in tasks.
@@ -32,5 +33,5 @@ use FOG\Base\FOGCore;
 define('FOG_MACHINE_REQUEST', true);
 
 require '../commons/base.inc.php';
-FOGCore::getClass('TaskQueue')
+(new TaskQueue())
     ->checkIn();

@@ -12,6 +12,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Managers\HostManager;
 
 /**
  * Hostgetkey returns the host token for hostinfo getting
@@ -57,7 +58,7 @@ try {
         throw new \Exception(_('Host token is currently in use'));
     }
     if (!FOGCore::$Host->get('token')) {
-        FOGCore::getClass('HostManager')->update(
+        (new HostManager())->update(
             ['id' => FOGCore::$Host->get('id')],
             '',
             [
@@ -68,7 +69,7 @@ try {
         throw new \Exception(FOGCore::$Host->get('token'));
     }
     if (FOGCore::$Host->isValid() && !FOGCore::$Host->get('tokenlock')) {
-        FOGCore::getClass('HostManager')->update(
+        (new HostManager())->update(
             ['id' => FOGCore::$Host->get('id')],
             '',
             ['tokenlock' => true]

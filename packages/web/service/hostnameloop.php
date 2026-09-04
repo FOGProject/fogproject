@@ -13,6 +13,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\Host;
 
 /**
  * Hostname loop simply checks the host doesn't
@@ -39,7 +40,7 @@ try {
     $host = trim($host);
     $host = base64_decode($host);
     $host = trim($host);
-    $Host = FOGCore::getClass('Host')
+    $Host = (new Host())
         ->set('name', $host)
         ->load('name');
     if ($Host->isValid()) {

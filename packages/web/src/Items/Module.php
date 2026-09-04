@@ -134,7 +134,7 @@ class Module extends FOGController
     /**
      * Saves the group elements.
      *
-     * @return object
+     * @return bool|object false when the save failed, $this otherwise
      */
     public function save()
     {

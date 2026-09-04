@@ -16,6 +16,9 @@ namespace FOG\Pages;
 use FOG\Auth\Authorization;
 use FOG\Auth\SiteScope;
 use FOG\Base\FOGPage;
+use FOG\Items\Role;
+use FOG\Items\UserGroup;
+use FOG\Managers\RoleManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -189,14 +192,14 @@ class RoleManagement extends FOGPage
                 $description = trim(
                     (string)filter_input(INPUT_POST, 'description')
                 );
-                $exists = self::getClass('RoleManager')
+                $exists = (new RoleManager())
                     ->exists($role);
                 if ($exists) {
                     throw new \Exception(
                         _('A role already exists with this name!')
                     );
                 }
-                $Role = self::getClass('Role')
+                $Role = (new Role())
                     ->set('name', $role)
                     ->set('description', $description);
                 if (!$Role->save()) {
@@ -292,7 +295,7 @@ class RoleManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'description')
         );
 
-        $exists = self::getClass('RoleManager')
+        $exists = (new RoleManager())
             ->exists($role);
         if ($role != $this->obj->get('name')
             && $exists
@@ -569,7 +572,7 @@ class RoleManagement extends FOGPage
         foreach ($attached as $groupID) {
             $roles = array_map(
                 'intval',
-                (array)self::getClass('UserGroup', $groupID)->get('roles')
+                (array)(new UserGroup($groupID))->get('roles')
             );
             $roles[] = $roleID;
             $groupRoles[$groupID] = array_values(array_unique($roles));
@@ -580,7 +583,7 @@ class RoleManagement extends FOGPage
         foreach (array_diff($current, $attached) as $groupID) {
             $roles = array_map(
                 'intval',
-                (array)self::getClass('UserGroup', $groupID)->get('roles')
+                (array)(new UserGroup($groupID))->get('roles')
             );
             $groupRoles[$groupID] = array_values(
                 array_diff($roles, [$roleID])

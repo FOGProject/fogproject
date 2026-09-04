@@ -14,6 +14,9 @@
 namespace FOG\Pages;
 
 use FOG\Base\FOGPage;
+use FOG\Items\Printer;
+use FOG\Managers\PrinterAssociationManager;
+use FOG\Managers\PrinterManager;
 use FOG\Router\HTTPResponseCodes;
 
 /**
@@ -132,7 +135,7 @@ class PrinterManagement extends FOGPage
             $config,
             true
         );
-        $printercopySelector = self::getClass('PrinterManager')
+        $printercopySelector = (new PrinterManager())
             ->buildSelectBox('', 'printercopy');
 
         // Common block: copy-from, type, name and description are shared by
@@ -530,7 +533,7 @@ class PrinterManagement extends FOGPage
                         _('Please enter a printer name.')
                     );
                 }
-                $exists = self::getClass('PrinterManager')
+                $exists = (new PrinterManager())
                     ->exists($printer);
                 if ($exists) {
                     throw new \Exception(
@@ -544,7 +547,7 @@ class PrinterManagement extends FOGPage
                         _('A TCP/IP port printer requires an IP address or hostname.')
                     );
                 }
-                $Printer = self::getClass('Printer')
+                $Printer = (new Printer())
                     ->set('name', $printer)
                     ->set('description', $description)
                     ->set('config', $printertype)
@@ -699,7 +702,7 @@ class PrinterManagement extends FOGPage
                 _('Please enter a printer name.')
             );
         }
-        $exists = self::getClass('PrinterManager')
+        $exists = (new PrinterManager())
             ->exists($printer);
         if ($printer != $this->obj->get('name')
             && $exists
@@ -822,7 +825,7 @@ class PrinterManagement extends FOGPage
                 $this->obj->addHost($hostsToAssoc)->save();
             }
             if (count($hosts ?: []) > 0) {
-                self::getClass('PrinterAssociationManager')->update(
+                (new PrinterAssociationManager())->update(
                     [
                         'hostID' => $hosts,
                         'isDefault' => 1
@@ -830,7 +833,7 @@ class PrinterManagement extends FOGPage
                     '',
                     ['isDefault' => '0']
                 );
-                self::getClass('PrinterAssociationManager')->update(
+                (new PrinterAssociationManager())->update(
                     [
                         'printerID' => $this->obj->get('id'),
                         'hostID' => $hosts,
@@ -852,7 +855,7 @@ class PrinterManagement extends FOGPage
             );
             $hosts = $hosts['remitems'];
             if (count($hosts ?: []) > 0) {
-                self::getClass('PrinterAssociationManager')->update(
+                (new PrinterAssociationManager())->update(
                     [
                         'printerID' => $this->obj->get('id'),
                         'hostID' => $hosts,

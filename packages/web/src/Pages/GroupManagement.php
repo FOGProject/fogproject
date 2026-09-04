@@ -17,8 +17,13 @@ namespace FOG\Pages;
 
 use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
+use FOG\Items\Group;
+use FOG\Items\GroupPowerManagement;
+use FOG\Items\ScheduledTask;
 use FOG\Items\Setting;
 use FOG\Items\TaskType;
+use FOG\Managers\GroupManager;
+use FOG\Managers\PowerManagementManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 use FOG\Util\FOGCron;
@@ -252,14 +257,14 @@ class GroupManagement extends FOGPage
                     0,
                     (int)filter_input(INPUT_POST, 'order')
                 );
-                $exists = self::getClass('GroupManager')
+                $exists = (new GroupManager())
                     ->exists($group);
                 if ($exists) {
                     throw new \Exception(
                         _('A group already exists with this name!')
                     );
                 }
-                $Group = self::getClass('Group')
+                $Group = (new Group())
                     ->set('name', $group)
                     ->set('description', $description)
                     ->set('order', $order)
@@ -907,7 +912,7 @@ class GroupManagement extends FOGPage
                     ];
                 }
                 if (count($items) > 0) {
-                    self::getClass('PowerManagementManager')
+                    (new PowerManagementManager())
                         ->insertBatch(
                             [
                                 'hostID',
@@ -925,7 +930,7 @@ class GroupManagement extends FOGPage
                 return;
             }
             // ONE ROW, ABOUT THE GROUP. Not one per member.
-            self::getClass('GroupPowerManagement')
+            (new GroupPowerManagement())
                 ->set('groupID', $groupID)
                 ->set('min', FOGCron::_sanitizeCronField($min))
                 ->set('hour', FOGCron::_sanitizeCronField($hour))
@@ -2259,7 +2264,7 @@ class GroupManagement extends FOGPage
                 $type = 1;
             }
 
-            $TaskType = self::getClass('TaskType', $type);
+            $TaskType = new TaskType($type);
 
             $this->title = $TaskType->get('name')
                 . ' '
@@ -2400,7 +2405,7 @@ class GroupManagement extends FOGPage
             }
 
             // Task Type setup
-            $TaskType = self::getClass('TaskType', $type);
+            $TaskType = new TaskType($type);
             if (!$TaskType->isValid()) {
                 throw new \Exception(_('Task Type is invalid'));
             }
@@ -2496,7 +2501,7 @@ class GroupManagement extends FOGPage
                     $snapinAbortOnFailure
                 );
             } else {
-                $ScheduledTask = self::getClass('ScheduledTask')
+                $ScheduledTask = (new ScheduledTask())
                     ->set('taskTypeID', $type)
                     ->set('name', $taskName)
                     ->set('hostID', $this->obj->get('id'))

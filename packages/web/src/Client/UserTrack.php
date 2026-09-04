@@ -93,7 +93,7 @@ class UserTrack extends FOGClient
         if ($user == null) {
             return ['error' => 'us'];
         }
-        self::getClass('UserTracking')
+        (new UserTracking())
             ->set('hostID', self::$Host->get('id'))
             ->set('username', $user)
             ->set('action', $this->actions[$action])

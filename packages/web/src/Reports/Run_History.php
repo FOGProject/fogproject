@@ -15,6 +15,7 @@ namespace FOG\Reports;
 
 use FOG\Audit\ActivityWindow;
 use FOG\Audit\ReportWindow;
+use FOG\Items\TaskState;
 use FOG\Pages\ReportManagement;
 
 /**
@@ -222,7 +223,7 @@ class Run_History extends ReportManagement
         foreach ($rows as $row) {
             $id = (int)($row['state'] ?? 0);
             if ($id > 0 && !isset($states[$id])) {
-                $states[$id] = (string)self::getClass('TaskState', $id)
+                $states[$id] = (string)(new TaskState($id))
                     ->get('name');
             }
         }

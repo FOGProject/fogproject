@@ -67,7 +67,7 @@ try {
     if (!$Inventory instanceof Inventory
         || !$Inventory->isValid()
     ) {
-        $Inventory = FOGCore::getClass('Inventory')
+        $Inventory = (new Inventory())
             ->set('hostID', FOGCore::$Host->get('id'));
     }
     // Explicit allowlist of fields a client is permitted to write. Server
