@@ -210,7 +210,7 @@ abstract class FOGItemScanner extends FOGService
         try {
             // Re-read every pass: a daemon must notice the setting being
             // turned off without needing a restart.
-            self::$_scanOn = self::getSetting(
+            self::$_scanOn = (int) self::getSetting(
                 $this->d('prefix') . 'GLOBALENABLED'
             );
             if (self::$_scanOn < 1) {

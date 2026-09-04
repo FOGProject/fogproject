@@ -162,7 +162,7 @@ class FileDeleter extends FOGService
     private function _commonOutput()
     {
         try {
-            self::$_schedOn = self::getSetting('FILEDELETEQUEUEGLOBALENABLED');
+            self::$_schedOn = (int) self::getSetting('FILEDELETEQUEUEGLOBALENABLED');
             if (self::$_schedOn < 1) {
                 throw new \Exception(_(' * File delete queue is globally disabled'));
             }

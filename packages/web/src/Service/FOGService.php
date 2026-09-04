@@ -436,7 +436,7 @@ abstract class FOGService extends FOGBase
     public function serviceRun()
     {
         $this->waitDbReady();
-        $tmpTime = self::getSetting(static::$sleeptime);
+        $tmpTime = (int) self::getSetting(static::$sleeptime);
         if (static::$zzz != $tmpTime) {
             static::$zzz = $tmpTime;
             self::outall(

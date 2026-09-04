@@ -244,7 +244,7 @@ class RetentionRunner extends FOGService
         // THREW is a fault and must not be throttled away behind an
         // unchanged-reason check.
         try {
-            self::$_runnerOn = self::getSetting('RETENTIONGLOBALENABLED');
+            self::$_runnerOn = (int) self::getSetting('RETENTIONGLOBALENABLED');
             if (self::$_runnerOn < 1) {
                 throw new \Exception(
                     _('Retention is globally disabled')

@@ -201,7 +201,7 @@ abstract class FOGReplicator extends FOGService
         try {
             // Re-read every pass: a daemon must notice the setting being
             // turned off without needing a restart.
-            self::$_repOn = self::getSetting(
+            self::$_repOn = (int) self::getSetting(
                 $this->_d('prefix') . 'GLOBALENABLED'
             );
             if (self::$_repOn < 1) {

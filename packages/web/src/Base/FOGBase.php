@@ -3666,7 +3666,9 @@ abstract class FOGBase
      *
      * @throws Exception
      *
-     * @return string|array
+     * @return string|array|null the value, null when the key has no row; the
+     *                           array form holds one entry per requested key,
+     *                           null in the slots that are missing
      */
     public static function getSetting($key)
     {

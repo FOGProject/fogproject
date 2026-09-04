@@ -58,7 +58,12 @@ class FOGLdap
     /**
      * The connection, once bound.
      *
-     * @var resource|\LDAP\Connection|null
+     * ldap_connect() hands back a resource on PHP 7.4 and an LDAP\Connection
+     * object from 8.1 on. The analyzed range starts at 7.4, where that class
+     * does not exist, so it cannot be named here -- phpstan.neon pins
+     * phpVersion.min at 70400 and reports it as an unknown class.
+     *
+     * @var resource|null
      */
     private $_ld = null;
 
