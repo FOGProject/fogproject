@@ -2,6 +2,7 @@
     $('#group-export-table').registerExportTable([
         {data: 'name'},
         {data: 'description', visible: false},
+        {data: 'order', visible: false},
         {data: 'createdBy', visible: false},
         {data: 'createdTime', visible: false},
         {data: 'building', visible: false},
