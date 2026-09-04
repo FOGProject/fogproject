@@ -8,6 +8,7 @@
         {data: 'config'},
         {data: 'configFile', visible: false},
         {data: 'ip', visible: false},
+        {data: 'uri', visible: false},
         {data: 'associations', visible: false}
     ]);
 })(jQuery);

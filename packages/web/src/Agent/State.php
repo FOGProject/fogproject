@@ -54,7 +54,12 @@ class State extends FOGBase
         'taskreboot' => 'taskreboot',
         'snapin' => 'snapinclient',
         'software' => 'software',
-        'power' => 'powermanagement'
+        'power' => 'powermanagement',
+        // Gated on the EXISTING printermanager module, not a new switch:
+        // admins have been turning that one off for a decade and know
+        // where it is, so a host's current choice carries over untouched
+        // (design 0010 section 5).
+        'printers' => 'printermanager'
     ];
 
     /**
@@ -74,6 +79,7 @@ class State extends FOGBase
     const ITEM_REPORTS = [
         'snapin' => Snapins::class,
         'software' => SoftwareSet::class,
+        'printers' => PrinterSet::class,
     ];
 
     /**
@@ -192,6 +198,14 @@ class State extends FOGBase
             // interval (Agent\SoftwareSet). Status reports do not touch
             // it, so a reporting host does not move its own revision.
             $state['software'] = SoftwareSet::desired($Host);
+        }
+        if (in_array('printers', $capabilities, true)) {
+            // The resolved printer set and the mode, in words (design 0010
+            // section 5). Resolved through the same call PrinterClient
+            // makes, so the agent and the legacy client cannot be told
+            // different things about one host. Results do not touch it, so
+            // a reporting host does not move its own revision.
+            $state['printers'] = PrinterSet::desired($Host);
         }
         if (in_array('power', $capabilities, true)) {
             // Design 0004. Schedules are what Client\PM hands the legacy

@@ -2736,6 +2736,9 @@ msgstr "Destroy a échoué: %s"
 msgid "Details"
 msgstr "Snapin Retour Détail"
 
+msgid "Device URI"
+msgstr ""
+
 #, fuzzy
 msgid "Device must be a string"
 msgstr "Événement doit être une chaîne"
@@ -7030,6 +7033,9 @@ msgstr "Opération pas définie: %s"
 msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
 msgstr ""
 
+msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
+msgstr ""
+
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward. The Chocolatey entry expects the uploaded file to be a Chocolatey packages.config naming the packages to install."
 msgstr ""
 
@@ -10373,7 +10379,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 

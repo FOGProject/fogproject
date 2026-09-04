@@ -396,6 +396,7 @@ printer	7	pModel	model	-	-
 printer	8	pConfig	config	-	-
 printer	9	pConfigFile	configFile	-	-
 printer	10	pIP	ip	-	-
+printer	11	pURI	uri	-	-
 printerassociation	0	paID	id	-	-
 printerassociation	1	paID	DT_RowId	f	-
 printerassociation	2	paHostID	hostID	-	-

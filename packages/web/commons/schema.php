@@ -11331,3 +11331,29 @@ $this->schema[] = [
     . "DROP COLUMN `pAnon2`, DROP COLUMN `pAnon3`, DROP COLUMN `pAnon4`, "
     . "DROP COLUMN `pAnon5`",
 ];
+
+// 427
+$this->schema[] = [
+    // Design 0010 section 2: a printer is a device URI and a driver, which
+    // is how both spoolers already describe one. This is the column that
+    // makes a printer row portable -- the same physical device is a TCP/IP
+    // port on Windows and a socket:// device URI on CUPS, and until they are
+    // written the same way nothing can tell they are the same printer.
+    //
+    // It is also the only way to express a DRIVERLESS printer (IPP
+    // Everywhere), where the device describes its own capabilities and no
+    // driver file exists. FOG's model has pDefFile and pModel and no way to
+    // say "neither", which for a lot of estates is now the common case.
+    //
+    // DELIBERATELY NOT BACKFILLED, and this is a change from what design
+    // 0010 section 7 first proposed. Deriving pConfig/pIP/pPort into a
+    // stored URI once, on upgrade, bakes the derivation in: pPort is a
+    // longtext that has held whatever an admin typed for a decade, so some
+    // rows will derive wrong, and a stored wrong answer has to be found and
+    // corrected by hand on every install. Items\Printer::uri() derives on
+    // read instead, so this column holds only what an admin explicitly set,
+    // an empty one keeps following the type-specific fields, and fixing the
+    // derivation fixes every printer at once.
+    "ALTER TABLE `printers` "
+    . "ADD COLUMN `pURI` varchar(1024) NOT NULL DEFAULT ''",
+];

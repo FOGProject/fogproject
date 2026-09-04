@@ -387,4 +387,159 @@ foreach ([0 => 'off', 1 => 'assigned', 2 => 'exclusive', '' => 'off',
     );
 }
 
+// ------------------------------------------- the desired set (design 0010 §5)
+
+// Every printer created before schema 427 has an empty pURI, and every one
+// created after it may still. Deriving on READ rather than backfilling once
+// on upgrade is the decision this exercises: pPort is a longtext that has
+// held whatever an admin typed for a decade, so some derivations WILL be
+// wrong -- and a wrong answer stored in a column has to be corrected by hand
+// on every install, where a wrong answer computed here is fixed for
+// everybody by fixing the method.
+/**
+ * A printer built in memory.
+ *
+ * @param array $fields property => value
+ *
+ * @return \FOG\Items\Printer
+ */
+function pfPrinter(array $fields)
+{
+    $Printer = new \FOG\Items\Printer();
+    foreach ($fields as $k => $v) {
+        $Printer->set($k, $v);
+    }
+
+    return $Printer;
+}
+
+$cases = [
+    'a TCP/IP port printer becomes socket:// on the RAW default port' => [
+        ['config' => 'Local', 'ip' => '10.0.4.20'],
+        'socket://10.0.4.20:9100',
+    ],
+    'a network printer\'s UNC path becomes smb://' => [
+        ['config' => 'Network', 'port' => '\\\\srv\\HP4550'],
+        'smb://srv/HP4550',
+    ],
+    'a CUPS printer keeps the lpd:// the legacy client built' => [
+        ['config' => 'Cups', 'ip' => '10.0.4.20', 'name' => 'Accounts'],
+        'lpd://10.0.4.20/Accounts',
+    ],
+    'iPrint gets a scheme of its own rather than being forced into another' => [
+        ['config' => 'iPrint', 'port' => 'ipp://novell/ipp/x'],
+        'iprint://ipp://novell/ipp/x',
+    ],
+    'an explicit URI overrides the derivation and is never second-guessed' => [
+        ['config' => 'Local', 'ip' => '10.0.4.20',
+            'uri' => 'ipps://printer.corp/ipp/print'],
+        'ipps://printer.corp/ipp/print',
+    ],
+    'a Local printer with no address has no URI, and none is invented' => [
+        ['config' => 'Local', 'ip' => ''],
+        '',
+    ],
+    'an unrecognized type derives nothing rather than guessing' => [
+        ['config' => 'Something', 'ip' => '10.0.4.20'],
+        '',
+    ],
+];
+foreach ($cases as $what => list($fields, $want)) {
+    $got = pfPrinter($fields)->uri();
+    $t->check($what . ' [' . $got . ']', $want === $got);
+}
+
+$t->check(
+    'the driver is the model when there is one',
+    'HP UPD PCL 6' === pfPrinter(
+        ['model' => 'HP UPD PCL 6', 'file' => 'C:\\d\\x.inf']
+    )->driver()
+);
+$t->check(
+    'and falls back to the driver file',
+    'C:\\d\\x.inf' === pfPrinter(['file' => 'C:\\d\\x.inf'])->driver()
+);
+$t->check(
+    'an empty driver is a VALUE -- driverless IPP Everywhere, which FOG\'s'
+        . ' four printer types cannot express at all',
+    '' === pfPrinter(['config' => 'Local'])->driver()
+);
+
+// The mode the agent is sent says what it means. hostPrinterLevel stores
+// 0/1/2 and the legacy wire sends 0/a/ar; neither is written down where an
+// admin can see it.
+$t->check(
+    'the desired mode vocabulary is words, and covers every stored level',
+    [0 => 'off', 1 => 'assigned', 2 => 'exclusive'] === \FOG\Agent\PrinterSet::MODES
+);
+$t->check(
+    'a level outside 0-2 falls back to off rather than to a mode that acts',
+    !isset(\FOG\Agent\PrinterSet::MODES[3])
+);
+
+// The capability is gated on FOG's EXISTING printermanager module, not a new
+// switch: admins have been turning that one off for a decade and know where
+// it is, so a host's current choice carries over untouched.
+$t->check(
+    "the printers capability is gated on the existing printermanager module",
+    'printermanager' === (\FOG\Agent\State::CAPABILITIES['printers'] ?? null)
+);
+$t->check(
+    "State::ITEM_REPORTS routes a printer result to PrinterSet",
+    (\FOG\Agent\State::ITEM_REPORTS['printers'] ?? null)
+    === \FOG\Agent\PrinterSet::class
+);
+
+// A success has to CLEAR the previous failure, or the report shows an error
+// against a printer that is now installed -- an admin chasing a stale message
+// is worse off than one chasing none. Exercised through the decision itself
+// rather than by reading the source for it.
+/**
+ * Call a protected static on PrinterSet.
+ *
+ * @param string $name the method
+ * @param array  $args the arguments
+ *
+ * @return mixed
+ */
+function ps($name, array $args)
+{
+    $m = new \ReflectionMethod(\FOG\Agent\PrinterSet::class, $name);
+    $m->setAccessible(true);
+
+    return $m->invokeArgs(null, $args);
+}
+
+foreach (\FOG\Agent\PrinterSet::STATUSES as $status) {
+    $settled = in_array(
+        $status,
+        \FOG\Agent\PrinterSet::SETTLED_STATUSES,
+        true
+    );
+    $got = ps('errorFor', [$status, 'lpadmin: bad device-uri']);
+    $t->check(
+        "'" . $status . "' " . ($settled ? 'clears' : 'keeps')
+            . ' the error [' . $got . ']',
+        $settled ? '' === $got : 'lpadmin: bad device-uri' === $got
+    );
+}
+$t->check(
+    'failed and unsupported are NOT settled, or an error could never be'
+        . ' recorded at all',
+    !in_array('failed', \FOG\Agent\PrinterSet::SETTLED_STATUSES, true)
+        && !in_array('unsupported', \FOG\Agent\PrinterSet::SETTLED_STATUSES, true)
+);
+$t->check(
+    'every settled status is a status the agent may actually report',
+    [] === array_diff(
+        \FOG\Agent\PrinterSet::SETTLED_STATUSES,
+        \FOG\Agent\PrinterSet::STATUSES
+    )
+);
+$t->check(
+    'a provider that wrote a novel keeps a line, not a log',
+    \FOG\Agent\PrinterSet::MAX_ERROR
+    === strlen(ps('errorFor', ['failed', str_repeat('x', 4000)]))
+);
+
 $t->finish();

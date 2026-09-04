@@ -229,6 +229,7 @@ const TABLE = [
     // class for the assignable printer -- this writes hostPrinter and
     // hostSpooler rows, it is not that row.
     'PrinterFacts' => 'Agent',
+    'PrinterSet' => 'Agent',
     'UserSessions' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',

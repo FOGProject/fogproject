@@ -825,7 +825,7 @@ return [
             ],
         ],
         'printers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `printers` ( `pID` int(11) NOT NULL AUTO_INCREMENT, `pPort` longtext NOT NULL DEFAULT \'\', `pDefFile` longtext NOT NULL DEFAULT \'\', `pModel` varchar(250) NOT NULL DEFAULT \'\', `pAlias` varchar(250) NOT NULL, `pConfig` varchar(10) NOT NULL DEFAULT \'\', `pConfigFile` varchar(255) NOT NULL DEFAULT \'\', `pIP` varchar(255) NOT NULL DEFAULT \'\', `pDesc` longtext DEFAULT NULL, PRIMARY KEY (`pID`), UNIQUE KEY `pAlias` (`pAlias`), KEY `new_index1` (`pModel`), KEY `new_index2` (`pAlias`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `printers` ( `pID` int(11) NOT NULL AUTO_INCREMENT, `pPort` longtext NOT NULL DEFAULT \'\', `pDefFile` longtext NOT NULL DEFAULT \'\', `pModel` varchar(250) NOT NULL DEFAULT \'\', `pAlias` varchar(250) NOT NULL, `pConfig` varchar(10) NOT NULL DEFAULT \'\', `pConfigFile` varchar(255) NOT NULL DEFAULT \'\', `pIP` varchar(255) NOT NULL DEFAULT \'\', `pDesc` longtext DEFAULT NULL, `pURI` varchar(1024) NOT NULL DEFAULT \'\', PRIMARY KEY (`pID`), UNIQUE KEY `pAlias` (`pAlias`), KEY `new_index1` (`pModel`), KEY `new_index2` (`pAlias`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'pID' => 'int(11) NOT NULL',
                 'pPort' => 'longtext NOT NULL DEFAULT \'\'',
@@ -836,6 +836,7 @@ return [
                 'pConfigFile' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'pIP' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'pDesc' => 'longtext DEFAULT NULL',
+                'pURI' => 'varchar(1024) NOT NULL DEFAULT \'\'',
             ],
         ],
         'pxeMenu' => [
