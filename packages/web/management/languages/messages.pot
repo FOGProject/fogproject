@@ -4792,6 +4792,9 @@ msgstr ""
 msgid "MAC Format is invalid"
 msgstr ""
 
+msgid "MAC Update Fail"
+msgstr ""
+
 msgid "MAC address is already in use by another host"
 msgstr ""
 

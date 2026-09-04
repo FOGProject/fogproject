@@ -99,7 +99,8 @@ class HostManager extends FOGManagerController
     /**
      * Returns a single host object based on the passed MACs.
      *
-     * @param array $macs the macs to search for the host
+     * @param array|string $macs the macs to search for the host; a bare
+     *                            string or a stringable is wrapped
      *
      * @throws Exception
      *
@@ -170,7 +171,7 @@ class HostManager extends FOGManagerController
                             _('Host ID'),
                             $hostID,
                             _('Hostname'),
-                            self::getClass('Host', $hostID)->get('name')
+                            (new Host($hostID))->get('name')
                         );
                         // Print it in the error log.
                         error_log($err);
@@ -201,7 +202,7 @@ class HostManager extends FOGManagerController
                         _('Found the most used ID'),
                         $mostFrequentHostIDs[0],
                         _('Hostname'),
-                        self::getClass('Host', $mostFrequentHostIDs[0])->get('name'),
+                        (new Host($mostFrequentHostIDs[0]))->get('name'),
                         _('Assuming this is the intended host to resolve the MAC conflict'),
                         _('List of MACs'),
                         implode(', ', $macs)

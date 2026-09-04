@@ -16,6 +16,7 @@ namespace FOG\Managers;
 use FOG\Base\FOGManagerController;
 use FOG\Boot\UbootTftpSync;
 use FOG\Items\TaskLog;
+use FOG\Items\TaskState;
 use FOG\Items\TaskType;
 use FOG\Router\Route;
 
@@ -61,7 +62,7 @@ class TaskManager extends FOGManagerController
             ];
         }
         // Reset token and lock on hosts from task cancel
-        self::getClass('HostManager')->update(
+        (new HostManager())->update(
             ['id' => $hostIDs],
             '',
             $updateFields
@@ -140,13 +141,13 @@ class TaskManager extends FOGManagerController
             ['msID' => $MulticastSessionIDs]
         );
         if (count($SnapinTaskIDs ?: [])) {
-            self::getClass('SnapinTaskManager')->cancel($SnapinTaskIDs);
+            (new SnapinTaskManager())->cancel($SnapinTaskIDs);
         }
         if (count($SnapinJobIDs ?: [])) {
-            self::getClass('SnapinJobManager')->cancel($SnapinJobIDs);
+            (new SnapinJobManager())->cancel($SnapinJobIDs);
         }
         if ($StillLeft < 1 && count($MulticastSessionIDs ?: [])) {
-            self::getClass('MulticastSessionManager')->cancel($MulticastSessionIDs);
+            (new MulticastSessionManager())->cancel($MulticastSessionIDs);
         }
     }
     /**
@@ -208,7 +209,7 @@ class TaskManager extends FOGManagerController
          * leaving it where it was for a few minutes.
          */
         $failed = (int)self::getFailedState();
-        if (!self::getClass('TaskState', $failed)->isValid()) {
+        if (!(new TaskState($failed))->isValid()) {
             return [];
         }
         $active = self::fastmerge(
@@ -352,7 +353,7 @@ class TaskManager extends FOGManagerController
          * moved -- the same call recordStates() makes for the same reason.
          */
         try {
-            self::getClass('TaskLogManager')->insertBatch(
+            (new TaskLogManager())->insertBatch(
                 [
                     'taskID',
                     'stateID',

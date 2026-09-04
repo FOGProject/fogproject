@@ -29,6 +29,8 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\Host;
+use FOG\Items\Image;
 
 require __DIR__ . '/lib/fog-test-harness.php';
 
@@ -71,12 +73,12 @@ class TransitionTask extends \FOG\Items\Task
     }
 }
 
-$host = FOGCore::getClass('Host')
+$host = (new Host())
     ->set('id', 42)
     ->set('name', 'lab-07');
 // Image declares name/path/imageTypeID/osID required, and recordState() only
 // takes the name off an image that isValid() -- so all four are set here.
-$image = FOGCore::getClass('Image')
+$image = (new Image())
     ->set('id', 9)
     ->set('name', 'win11-base')
     ->set('path', 'win11-base')

@@ -12,6 +12,8 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\StorageNode;
+use FOG\Managers\StorageNodeManager;
 use FOG\Router\Route;
 
 /**
@@ -89,7 +91,7 @@ function nodeRegistrationName($posted, $ip)
     ) {
         return $ip;
     }
-    if (FOGCore::getClass('StorageNodeManager')->exists($posted, 0, 'name')) {
+    if ((new StorageNodeManager())->exists($posted, 0, 'name')) {
         return $ip;
     }
     return $posted;
@@ -108,12 +110,12 @@ if (isset($_POST['newNode'])) {
     $interface  = $stripped['interface'] ?? '';
     $bandwidth  = $stripped['bandwidth'] ?? 1;
     $webroot    = $stripped['webroot'] ?? '/';
-    $exists = FOGCore::getClass('StorageNodeManager')
+    $exists = (new StorageNodeManager())
         ->exists($ip, '', 'ip');
     if ($exists) {
         return;
     }
-    FOGCore::getClass('StorageNode')
+    (new StorageNode())
         ->set('name', $name)
         ->set('path', $path)
         ->set('ftppath', $ftppath)
@@ -141,7 +143,7 @@ if (isset($_POST['newNode'])) {
         ) {
             continue;
         }
-        FOGCore::getClass('StorageNode', $StorageNode->id)
+        (new StorageNode($StorageNode->id))
             ->set('user', $user)
             ->set('pass', $pass)
             ->save();

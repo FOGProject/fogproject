@@ -14,6 +14,11 @@
 namespace FOG\Service;
 
 use FOG\Boot\UbootTftpSync;
+use FOG\Items\PowerManagement;
+use FOG\Items\ScheduledTask;
+use FOG\Items\Task;
+use FOG\Managers\GroupPowerManagementManager;
+use FOG\Managers\TaskManager;
 use FOG\Router\Route;
 
 /**
@@ -156,7 +161,7 @@ class TaskScheduler extends FOGService
                 ' * '
                 . _('Checking for tasks that can never run...')
             );
-            $reaped = self::getClass('TaskManager')->reapUnrunnable();
+            $reaped = (new TaskManager())->reapUnrunnable();
             foreach ($reaped as $taskID => $why) {
                 self::outall(
                     sprintf(
@@ -182,7 +187,7 @@ class TaskScheduler extends FOGService
             ];
             $Tasks = Route::getList('task', $find);
             foreach ($Tasks as $Task) {
-                if(self::getClass('Task', $Task->id)->expireTaskCheckin()) {
+                if((new Task($Task->id))->expireTaskCheckin()) {
                     self::outall(
                         ' * '
                         . _('Found an expired task, resetting to queued for task of id')
@@ -216,7 +221,7 @@ class TaskScheduler extends FOGService
             // whose only wake schedule is a group grant has no host rows at
             // all, and the daemon would have thrown before ever reaching the
             // grant loop -- a schedule that silently never fires.
-            $GroupPMGrants = self::getClass('GroupPowerManagementManager')
+            $GroupPMGrants = (new GroupPowerManagementManager())
                 ->wakeGrants();
             $gtaskcount = count($GroupPMGrants);
 
@@ -238,7 +243,7 @@ class TaskScheduler extends FOGService
             unset($taskCount);
             // Scheduled Tasks
             foreach ($ScheduledTasks->data as $Task) {
-                $Task = self::getClass('ScheduledTask', $Task->id);
+                $Task = new ScheduledTask($Task->id);
                 $Timer = $Task->getTimer();
                 self::outall(
                     ' * '
@@ -336,7 +341,7 @@ class TaskScheduler extends FOGService
             }
             // Power Management Tasks.
             foreach ($PMTasks->data as $Task) {
-                $Task = self::getClass('PowerManagement', $Task->id);
+                $Task = new PowerManagement($Task->id);
                 $Timer = $Task->getTimer();
                 self::outall(
                     ' * '

@@ -14,6 +14,9 @@
 namespace FOG\Pages;
 
 use FOG\Base\FOGPage;
+use FOG\Items\StorageNode;
+use FOG\Managers\StorageGroupManager;
+use FOG\Managers\StorageNodeManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -129,7 +132,7 @@ class StorageNodeManagement extends FOGPage
                 $labelClass,
                 'storagegroupID',
                 _('Storage Group')
-            ) => self::getClass('StorageGroupManager')
+            ) => (new StorageGroupManager())
             ->buildSelectBox(
                 $storagegroupID,
                 'storagegroupID'
@@ -503,7 +506,7 @@ class StorageNodeManagement extends FOGPage
                 self::$FOGSSH->host = $ip;
                 $warning = !self::$FOGSSH->connect();
             }
-            $exists = self::getClass('StorageNodeManager')
+            $exists = (new StorageNodeManager())
                 ->exists($storagenode);
             if ($exists) {
                 throw new \Exception(
@@ -519,7 +522,7 @@ class StorageNodeManagement extends FOGPage
             } else {
                 $bandwidth = '';
             }
-            $StorageNode = self::getClass('StorageNode')
+            $StorageNode = (new StorageNode())
                 ->set('name', $storagenode)
                 ->set('description', $description)
                 ->set('ip', $ip)
@@ -553,7 +556,7 @@ class StorageNodeManagement extends FOGPage
                     'storagenode',
                     $find
                 );
-                self::getClass('StorageNodeManager')
+                (new StorageNodeManager())
                     ->update(
                         [
                             'id' => array_diff(
@@ -757,7 +760,7 @@ class StorageNodeManagement extends FOGPage
                 $labelClass,
                 'storagegroupID',
                 _('Storage Group')
-            ) => self::getClass('StorageGroupManager')
+            ) => (new StorageGroupManager())
             ->buildSelectBox(
                 $storagegroupID,
                 'storagegroupID'
@@ -1202,7 +1205,7 @@ class StorageNodeManagement extends FOGPage
         if (!$storagenode) {
             throw new \Exception(self::$foglang['StorageNameRequired']);
         }
-        $exists = self::getClass('StorageNodeManager')
+        $exists = (new StorageNodeManager())
             ->exists($storagenode, $this->obj->get('id'));
         if ($storagenode != $this->obj->get('name')
             && $exists
@@ -1251,7 +1254,7 @@ class StorageNodeManagement extends FOGPage
                 'storagenode',
                 $find
             );
-            self::getClass('StorageNodeManager')
+            (new StorageNodeManager())
                 ->update(
                     [
                         'id' => array_diff(
@@ -1353,7 +1356,7 @@ class StorageNodeManagement extends FOGPage
             'name' => _('Information'),
             'id' => 'storagenode-info',
             'generator' => function () {
-                self::getClass('ServerInfo')->index();
+                (new ServerInfo())->index();
             }
         ];
 

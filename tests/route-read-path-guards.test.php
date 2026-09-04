@@ -56,6 +56,7 @@ use FOG\Auth\Authorization;
 use FOG\Auth\SiteScope;
 use FOG\Base\FOGCore;
 use FOG\Base\Hook;
+use FOG\Items\User;
 use FOG\Router\Route;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
@@ -171,7 +172,7 @@ function runChild($case)
     // The parent asserts the CLI arm, this asserts the request arm, and
     // between them they pin the gate rather than just one side of it.
     if ('scope-sql' === $case) {
-        $scoped = FOGCore::getClass('User')->set('id', 7)->set('name', 'scoped');
+        $scoped = (new User())->set('id', 7)->set('name', 'scoped');
         foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
             FogTestHarness::setStatic($cls, 'FOGUser', $scoped);
         }
@@ -884,7 +885,7 @@ $t->check('an ordinary setting keeps its value', 'bzImage' === ($plainSetting['v
  *    user with no site, silently. Each case below is asserted by identity.
  * ===========================================================================
  */
-$scopedUser = FOGCore::getClass('User')->set('id', 7)->set('name', 'scoped');
+$scopedUser = (new User())->set('id', 7)->set('name', 'scoped');
 foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $scopedUser);
 }
@@ -1317,7 +1318,7 @@ Route::$data = [];
  * ===========================================================================
  */
 $savedFogUser = FogTestHarness::getStatic('Authorization', 'FOGUser');
-$scopedUser2 = FOGCore::getClass('User')->set('id', 7)->set('name', 'scoped');
+$scopedUser2 = (new User())->set('id', 7)->set('name', 'scoped');
 foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $scopedUser2);
 }

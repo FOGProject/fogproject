@@ -17,6 +17,8 @@ use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
 use FOG\Items\APIToken;
 use FOG\Items\User;
+use FOG\Managers\APITokenManager;
+use FOG\Managers\UserManager;
 use FOG\Router\HTTPResponseCodes;
 
 /**
@@ -341,14 +343,14 @@ class UserManagement extends FOGPage
             if (!preg_match($userPat, $user)) {
                 throw new \Exception($userErr);
             }
-            $exists = self::getClass('UserManager')
+            $exists = (new UserManager())
                 ->exists($user);
             if ($exists) {
                 throw new \Exception(
                     _('A username already exists with this name!')
                 );
             }
-            $User = self::getClass('User')
+            $User = (new User())
                 ->set('name', $user)
                 ->set('password', $password)
                 ->set('display', $friendly)
@@ -627,7 +629,7 @@ class UserManagement extends FOGPage
         if (!preg_match($userPat, $user)) {
             throw new \Exception($userErr);
         }
-        $exists = self::getClass('UserManager')
+        $exists = (new UserManager())
             ->exists($user);
         if ($user != $this->obj->get('name')
             && $exists
@@ -1177,7 +1179,7 @@ class UserManagement extends FOGPage
         // either: scope decides what this administrator may see at all, and
         // the id decides which of that belongs on this page.
         foreach (
-            self::getClass('APITokenManager')
+            (new APITokenManager())
                 ->visibleTo((int)self::$FOGUser->get('id')) as $token
         ) {
             if ($token['userID'] !== $uid) {
@@ -1243,7 +1245,7 @@ class UserManagement extends FOGPage
         // The owner id is passed, so this card can only ever act on the
         // account it is displayed under. Without it anyone who may edit one
         // user could revoke any token on the server by posting its number.
-        $revoked = self::getClass('APITokenManager')->revokeMany(
+        $revoked = (new APITokenManager())->revokeMany(
             array_map('intval', (array)($_POST['remitems'] ?? [])),
             (int)self::$FOGUser->get('id'),
             (int)$this->obj->get('id')
@@ -1290,7 +1292,7 @@ class UserManagement extends FOGPage
         }
 
         $enabled = (int)filter_input(INPUT_POST, 'enabled') === 1;
-        $changed = self::getClass('APITokenManager')->setEnabledMany(
+        $changed = (new APITokenManager())->setEnabledMany(
             array_map('intval', (array)($_POST['remitems'] ?? [])),
             $enabled,
             (int)self::$FOGUser->get('id'),

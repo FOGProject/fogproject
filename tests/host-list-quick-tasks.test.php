@@ -58,6 +58,7 @@
 
 use FOG\Base\FOGCore;
 use FOG\Items\TaskType;
+use FOG\Items\User;
 use FOG\Pages\HostManagement;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
@@ -137,7 +138,7 @@ $page = new HostManagement();
  * @return string the emitted markup
  */
 $emit = static function (array $perms) use ($page, $items) {
-    $user = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+    $user = (new User())->set('id', 1)->set('name', 'fog');
     foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
         FogTestHarness::setStatic($cls, 'FOGUser', $user);
     }

@@ -35,6 +35,8 @@
 
 use FOG\Base\FOGCore;
 use FOG\Base\Hook;
+use FOG\Items\Host;
+use FOG\Items\User;
 use FOG\Router\Route;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
@@ -45,7 +47,7 @@ $db = FogTestHarness::fakeDb();
 $db->pdo->rowCount = 1;
 $db->pdo->countValue = 1;
 
-$admin = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+$admin = (new User())->set('id', 1)->set('name', 'fog');
 foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $admin);
 }
@@ -230,7 +232,7 @@ foreach ($cases as $classname => $cols) {
     FogTestHarness::setStatic(
         'Route',
         'relCache',
-        ['host:41' => FOGCore::getClass('Host')->set('id', 41)->set('name', 'renamed')]
+        ['host:41' => (new Host())->set('id', 41)->set('name', 'renamed')]
     );
     $out = $link(41, $row);
     $t->check(

@@ -231,7 +231,7 @@ class Imaging_Report extends ReportManagement
         foreach ($rows as $row) {
             $stateID = (int)($row['stateID'] ?? 0);
             if ($stateID > 0 && !isset($states[$stateID])) {
-                $states[$stateID] = (string)self::getClass('TaskState', $stateID)
+                $states[$stateID] = (string)(new TaskState($stateID))
                     ->get('name');
             }
             $data[] = [

@@ -24,8 +24,17 @@ use FOG\Items\Group;
 use FOG\Items\Host;
 use FOG\Items\HostAutoLogout;
 use FOG\Items\MACAddress;
+use FOG\Items\PowerManagement;
+use FOG\Items\ScheduledTask;
 use FOG\Items\Setting;
 use FOG\Items\TaskType;
+use FOG\Managers\ArchitectureManager;
+use FOG\Managers\HostAutoLogoutManager;
+use FOG\Managers\HostManager;
+use FOG\Managers\HostScreenSettingManager;
+use FOG\Managers\ImageManager;
+use FOG\Managers\MACAddressAssociationManager;
+use FOG\Managers\PowerManagementManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 use FOG\Util\FOGCron;
@@ -77,7 +86,7 @@ class HostManagement extends FOGPage
                     && !$this->obj->get('task')->isValid()
                 )
             ) {
-                self::getClass('HostManager')->update(
+                (new HostManager())->update(
                     ['id' => $this->obj->get('id')],
                     '',
                     [
@@ -327,7 +336,7 @@ class HostManagement extends FOGPage
             );
         }
         if (isset($_POST['approvepending'])) {
-            self::getClass('HostManager')->update(
+            (new HostManager())->update(
                 [
                     'id' => $pending,
                     'pending' => 1
@@ -482,6 +491,10 @@ class HostManagement extends FOGPage
         $remitems = $items['remitems'];
         $pending = $items['pending'];
         $serverFault = false;
+        // Set before the try: both branches assign it, but a throw from
+        // anywhere else reaches the catch with it undefined and puts null
+        // in the response title.
+        $errt = _('MAC Update Fail');
         try {
             if (isset($_POST['confirmdel'])) {
                 $errt = _('Delete MAC Fail');
@@ -507,7 +520,7 @@ class HostManagement extends FOGPage
             }
             if (isset($_POST['approvepending'])) {
                 $errt = _('Approve MAC Fail');
-                self::getClass('MACAddressAssociationManager')->update(
+                (new MACAddressAssociationManager())->update(
                     [
                         'id' => $pending,
                         'pending' => 1
@@ -609,7 +622,7 @@ class HostManagement extends FOGPage
         $enforce = isset($_POST['enforce']) ?: self::getSetting(
             'FOG_ENFORCE_HOST_CHANGES'
         );
-        $imageSelector = self::getClass('ImageManager')
+        $imageSelector = (new ImageManager())
             ->buildSelectBox($image, '', 'id');
 
         $labelClass = 'col-sm-3 col-form-label';
@@ -757,7 +770,7 @@ class HostManagement extends FOGPage
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
-                'Host' => self::getClass('Host')
+                'Host' => new Host()
             ]
         );
         $rendered = self::formFields($fields);
@@ -777,7 +790,7 @@ class HostManagement extends FOGPage
             'HOST_ADD_AD_FIELDS',
             [
                 'fields' => &$fieldads,
-                'Host' => self::getClass('Host')
+                'Host' => new Host()
             ]
         );
         $renderedad = self::formFields($fieldads);
@@ -825,7 +838,7 @@ class HostManagement extends FOGPage
                     'HOST_ADD_AD_FIELDS',
                     [
                         'fields' => &$fieldads,
-                        'Host' => self::getClass('Host')
+                        'Host' => new Host()
                     ]
                 );
                 $renderedad = self::formFields($fieldads);
@@ -859,7 +872,7 @@ class HostManagement extends FOGPage
         $enforce = isset($_POST['enforce']) ?: self::getSetting(
             'FOG_ENFORCE_HOST_CHANGES'
         );
-        $imageSelector = self::getClass('ImageManager')
+        $imageSelector = (new ImageManager())
             ->buildSelectBox($image, '', 'id');
 
         $labelClass = 'col-sm-3 col-form-label';
@@ -1058,7 +1071,7 @@ class HostManagement extends FOGPage
                     (string)filter_input(INPUT_POST, 'efiBootTypeExit')
                 );
 
-                $exists = self::getClass('HostManager')
+                $exists = (new HostManager())
                     ->exists($host);
                 if ($exists) {
                     throw new \Exception(
@@ -1069,7 +1082,7 @@ class HostManagement extends FOGPage
                 if (!$MAC->isValid()) {
                     throw new \Exception(_('MAC Format is invalid'));
                 }
-                self::getClass('HostManager')->getHostByMacAddresses(
+                (new HostManager())->getHostByMacAddresses(
                     $MAC->__toString()
                 );
                 if (self::$Host->isValid()) {
@@ -1128,7 +1141,7 @@ class HostManagement extends FOGPage
             filter_input(INPUT_POST, 'image') ?:
             ($this->obj->get('imageID') ?: '')
         );
-        $imageSelector = self::getClass('ImageManager')
+        $imageSelector = (new ImageManager())
             ->buildSelectBox($image);
         // The architectures an admin may pick on a HOST, which is what
         // `architectures.archIsAccess` is for -- the same flag taskTypes uses
@@ -1146,7 +1159,7 @@ class HostManagement extends FOGPage
         if (count($archIds) < 1) {
             $archIds = [0];
         }
-        $archSelector = self::getClass('ArchitectureManager')
+        $archSelector = (new ArchitectureManager())
             ->buildSelectBox($archID, 'archID', 'name', $archIds);
         // Either use the passed in or get the objects info.
         $host = (
@@ -2004,7 +2017,7 @@ class HostManagement extends FOGPage
             if (!$mact->isValid()) {
                 throw new \Exception(_('MAC Address is invalid!'));
             }
-            $mace = self::getClass('MACAddressAssociationManager')
+            $mace = (new MACAddressAssociationManager())
                 ->exists($mac, '', 'mac');
             if ($mace) {
                 throw new \Exception(
@@ -2018,14 +2031,14 @@ class HostManagement extends FOGPage
                 INPUT_POST,
                 'primary'
             );
-            self::getClass('MACAddressAssociationManager')
+            (new MACAddressAssociationManager())
                 ->update(
                     ['hostID' => $this->obj->get('id')],
                     '',
                     ['primary' => 0]
                 );
             if ($primary) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $primary,
@@ -2049,7 +2062,7 @@ class HostManagement extends FOGPage
             $imageIgnore = $items['imageIgnore'];
             $clientIgnore = $items['clientIgnore'];
             $pending = $items['pending'];
-            self::getClass('MACAddressAssociationManager')
+            (new MACAddressAssociationManager())
                 ->update(
                     ['hostID' => $this->obj->get('id')],
                     '',
@@ -2060,7 +2073,7 @@ class HostManagement extends FOGPage
                     ]
                 );
             if (count($imageIgnore ?: []) > 0) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $imageIgnore,
@@ -2071,7 +2084,7 @@ class HostManagement extends FOGPage
                     );
             }
             if (count($clientIgnore ?: []) > 0) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $clientIgnore,
@@ -2082,7 +2095,7 @@ class HostManagement extends FOGPage
                     );
             }
             if (count($pending ?: []) > 0) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $pending,
@@ -2151,7 +2164,7 @@ class HostManagement extends FOGPage
             );
             $imageIgnore = $items['imageIgnore'];
             if (count($imageIgnore ?: []) > 0) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $imageIgnore,
@@ -2169,7 +2182,7 @@ class HostManagement extends FOGPage
             );
             $imageIgnore = $items['imageIgnore'];
             if (count($imageIgnore ?: []) > 0) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $imageIgnore,
@@ -2187,7 +2200,7 @@ class HostManagement extends FOGPage
             );
             $clientIgnore = $items['clientIgnore'];
             if (count($clientIgnore ?: []) > 0) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $clientIgnore,
@@ -2205,7 +2218,7 @@ class HostManagement extends FOGPage
             );
             $clientIgnore = $items['clientIgnore'];
             if (count($clientIgnore ?: []) > 0) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $clientIgnore,
@@ -2223,7 +2236,7 @@ class HostManagement extends FOGPage
             );
             $pending = $items['pending'];
             if (count($pending ?: []) > 0) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $pending,
@@ -2241,7 +2254,7 @@ class HostManagement extends FOGPage
             );
             $pending = $items['pending'];
             if (count($pending ?: []) > 0) {
-                self::getClass('MACAddressAssociationManager')
+                (new MACAddressAssociationManager())
                     ->update(
                         [
                             'id' => $pending,
@@ -3031,7 +3044,7 @@ class HostManagement extends FOGPage
             $dom = FOGCron::_sanitizeCronField($dom);
             $month = FOGCron::_sanitizeCronField($month);
             $dow = FOGCron::_sanitizeCronField($dow);
-            self::getClass('PowerManagement')
+            (new PowerManagement())
                 ->set('hostID', $this->obj->get('id'))
                 ->set('min', $min)
                 ->set('hour', $hour)
@@ -4383,7 +4396,7 @@ class HostManagement extends FOGPage
                 foreach ($hostIDs as $hostID) {
                     $rows[] = [$hostID, $minutes];
                 }
-                self::getClass('HostAutoLogoutManager')
+                (new HostAutoLogoutManager())
                     ->insertBatch(['hostID', 'time'], $rows);
             }
             $wrote = count($hostIDs);
@@ -4400,7 +4413,7 @@ class HostManagement extends FOGPage
                 foreach ($hostIDs as $hostID) {
                     $rows[] = [$hostID, $x, $y, $r];
                 }
-                self::getClass('HostScreenSettingManager')
+                (new HostScreenSettingManager())
                     ->insertBatch(
                         ['hostID', 'width', 'height', 'refresh'],
                         $rows
@@ -4533,7 +4546,7 @@ class HostManagement extends FOGPage
      */
     private function massEditColumnMap(array $spec)
     {
-        $map = self::getClass('HostManager')->getColumns();
+        $map = (new HostManager())->getColumns();
         $columns = [];
         foreach ($spec as $key => $entry) {
             $field = $entry['field'] ?? '';
@@ -4607,7 +4620,7 @@ class HostManagement extends FOGPage
         $kind = $spec['kind'] ?? 'text';
         switch ($kind) {
             case 'image':
-                return self::getClass('ImageManager')
+                return (new ImageManager())
                     ->buildSelectBox('', $name, 'name', '', false, 'id', $id);
                 /**
                  * The same picker the single-host form uses. Mass edit was left on
@@ -5136,7 +5149,7 @@ class HostManagement extends FOGPage
                 // it reported "Updated 1 field(s) on 86 host(s)" for a write
                 // the database had refused -- which is how a clear that
                 // never landed reads as a clear that did.
-                if (!self::getClass('HostManager')
+                if (!(new HostManager())
                     ->update(['id' => $hosts], '', $updates)
                 ) {
                     throw new \Exception(
@@ -5390,7 +5403,7 @@ class HostManagement extends FOGPage
                 // success while inserting nothing -- see the resolution above
                 // for the case that made it, and tests/save-propagates-
                 // failure.test.php for why this tree treats it as a rule.
-                $New = self::getClass('Group')
+                $New = (new Group())
                     ->set('name', $group)
                     ->addHost($hosts);
                 if (!$New->save()) {
@@ -5966,7 +5979,7 @@ class HostManagement extends FOGPage
 
             if ('wol' === $action) {
                 foreach (Route::getList('host', ['id' => $hosts]) as $Host) {
-                    self::getClass('Host', $Host->id)->wakeOnLAN();
+                    (new Host($Host->id))->wakeOnLAN();
                 }
             } else {
                 // insertBatch UPSERTS against `powerManagement`.`cron`, so
@@ -5977,7 +5990,7 @@ class HostManagement extends FOGPage
                 foreach ($hosts as $hostID) {
                     $items[] = [$hostID, '', '', '', '', '', 1, $action];
                 }
-                self::getClass('PowerManagementManager')
+                (new PowerManagementManager())
                     ->insertBatch(
                         [
                             'hostID',
@@ -6053,7 +6066,7 @@ class HostManagement extends FOGPage
         $items = '';
         $types = [TaskType::DEPLOY, TaskType::CAPTURE, TaskType::MULTICAST];
         foreach ($types as $typeId) {
-            $TaskType = self::getClass('TaskType', $typeId);
+            $TaskType = new TaskType($typeId);
             // A server whose taskTypes row was deleted simply loses that
             // button, the same way the accordion loses the entry.
             if (!$TaskType->isValid()) {
@@ -6111,7 +6124,7 @@ class HostManagement extends FOGPage
                 throw new \Exception(_('No hosts are selected'));
             }
 
-            $TaskType = self::getClass('TaskType', $type);
+            $TaskType = new TaskType($type);
             if (!$TaskType->isValid()) {
                 throw new \Exception(
                     sprintf(
@@ -6256,7 +6269,7 @@ class HostManagement extends FOGPage
             // bounded.
             Authorization::requirePageObjectScopeMass('host', $hosts);
 
-            $TaskType = self::getClass('TaskType', $type);
+            $TaskType = new TaskType($type);
             if (!$TaskType->isValid()) {
                 throw new \Exception(
                     sprintf(
@@ -6336,7 +6349,7 @@ class HostManagement extends FOGPage
             // back and a groups row would outlive the tasking it exists for.
             // Group::loadHosts() short circuits on an unsaved group, so the
             // ids set here are the ids used.
-            $Selection = self::getClass('Group')
+            $Selection = (new Group())
                 ->set(
                     'name',
                     sprintf(
@@ -6673,7 +6686,7 @@ class HostManagement extends FOGPage
                     $snapinAbortOnFailure
                 );
             } else {
-                $ScheduledTask = self::getClass('ScheduledTask')
+                $ScheduledTask = (new ScheduledTask())
                     ->set('taskTypeID', $TaskType->id)
                     ->set('name', $taskName)
                     ->set('hostID', $this->obj->get('id'))

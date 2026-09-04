@@ -5707,6 +5707,10 @@ msgid "MAC Format is invalid"
 msgstr "Dirección MAC de lista de origen: "
 
 #, fuzzy
+msgid "MAC Update Fail"
+msgstr "Grupo Error de creación"
+
+#, fuzzy
 msgid "MAC address is already in use by another host"
 msgstr "La dirección MAC ya está en uso por otro host"
 

@@ -16,6 +16,8 @@ namespace FOG\Pages;
 use FOG\Auth\Authorization;
 use FOG\Auth\SiteScope;
 use FOG\Base\FOGPage;
+use FOG\Items\UserGroup;
+use FOG\Managers\UserGroupManager;
 use FOG\Router\HTTPResponseCodes;
 
 /**
@@ -143,14 +145,14 @@ class UserGroupManagement extends FOGPage
                 $description = trim(
                     (string)filter_input(INPUT_POST, 'description')
                 );
-                $exists = self::getClass('UserGroupManager')
+                $exists = (new UserGroupManager())
                     ->exists($usergroup);
                 if ($exists) {
                     throw new \Exception(
                         _('A user group already exists with this name!')
                     );
                 }
-                $UserGroup = self::getClass('UserGroup')
+                $UserGroup = (new UserGroup())
                     ->set('name', $usergroup)
                     ->set('description', $description);
                 if (!$UserGroup->save()) {
@@ -247,7 +249,7 @@ class UserGroupManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'description')
         );
 
-        $exists = self::getClass('UserGroupManager')
+        $exists = (new UserGroupManager())
             ->exists($usergroup);
         if ($usergroup != $this->obj->get('name')
             && $exists

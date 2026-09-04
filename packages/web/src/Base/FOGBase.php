@@ -22,8 +22,13 @@ use FOG\Db\SchemaReconciler;
 use FOG\Items\History;
 use FOG\Items\Host;
 use FOG\Items\MACAddress;
+use FOG\Items\Plugin;
+use FOG\Items\Setting;
 use FOG\Items\TaskState;
 use FOG\Items\User;
+use FOG\Managers\HostManager;
+use FOG\Managers\SettingManager;
+use FOG\Managers\UserPrefManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -810,7 +815,7 @@ abstract class FOGBase
             unset($mac);
         }
         // Get the host element based on the mac address
-        self::getClass('HostManager')->getHostByMacAddresses($macs);
+        (new HostManager())->getHostByMacAddresses($macs);
         // If no macs are returned and the host is not required,
         // throw message that it's an invalid mac.
         if (count($macs ?: []) < 1 && $hostnotrequired === false) {
@@ -910,7 +915,7 @@ abstract class FOGBase
         if (!self::getSetting('FOG_PLUGINSYS_ENABLED')) {
             return [];
         }
-        self::getClass('Plugin')->getPlugins();
+        (new Plugin())->getPlugins();
         $find = [
             'installed' => 1,
             'state' => 1,
@@ -1941,7 +1946,7 @@ abstract class FOGBase
         }
         self::$_displayTimeZone = $storage;
         try {
-            $pref = self::getClass('UserPrefManager')
+            $pref = (new UserPrefManager())
                 ->fetch((int)$user->get('id'), self::TIMEZONE_PREF);
         } catch (\Exception $e) {
             // A preference store that cannot be read is not a reason to stop
@@ -2155,7 +2160,7 @@ abstract class FOGBase
             return self::$_displayTheme;
         }
         try {
-            $pref = self::getClass('UserPrefManager')
+            $pref = (new UserPrefManager())
                 ->fetch((int)$user->get('id'), self::THEME_PREF);
         } catch (\Exception $e) {
             // A preference store that cannot be read is not a reason to fail
@@ -3163,7 +3168,7 @@ abstract class FOGBase
         // Validate remaining MACs
         $validMACs = [];
         foreach ($MACs as $MAC) {
-            $MACObject = self::getClass('MACAddress', $MAC);
+            $MACObject = new MACAddress($MAC);
             if ($MACObject->isValid()) {
                 $validMACs[] = $MACObject;
             }
@@ -3377,7 +3382,7 @@ abstract class FOGBase
             return;
         }
         if (self::$DB) {
-            $History = self::getClass('History')
+            $History = (new History())
                 ->set('info', $string)
                 ->set('ip', self::$remoteaddr);
             foreach (['type', 'subjectType', 'subjectID', 'subjectLabel'] as $k) {
@@ -3740,11 +3745,11 @@ abstract class FOGBase
      *
      * @throws Exception
      *
-     * @return this
+     * @return bool true when the write reached the database
      */
     public static function setSetting($key, $value)
     {
-        $result = self::getClass('SettingManager')->update(
+        $result = (new SettingManager())->update(
             ['name' => $key],
             '',
             ['value' => trim($value)]
@@ -4343,7 +4348,7 @@ abstract class FOGBase
         $secret = self::getSetting('FOG_NODE_SECRET');
         if (empty($secret)) {
             $secret = bin2hex(random_bytes(32));
-            self::getClass('Setting')
+            (new Setting())
                 ->set('name', 'FOG_NODE_SECRET')
                 ->set('description', 'Auto-generated shared secret used to authenticate inter-node requests (e.g. the Wake-on-LAN relay). Do not edit.')
                 ->set('value', $secret)
@@ -4481,7 +4486,7 @@ abstract class FOGBase
         $password,
         $remember = false
     ) {
-        return self::getClass('User')
+        return (new User())
             ->validatePw($username, $password, $remember);
     }
     /**
@@ -4502,7 +4507,7 @@ abstract class FOGBase
      */
     public static function authenticateOnly($username, $password)
     {
-        return self::getClass('User')
+        return (new User())
             ->authenticate($username, $password);
     }
     /**
@@ -4761,7 +4766,7 @@ abstract class FOGBase
             // present; it is not a second authorization step. Whether this
             // deletion is allowed was already decided by the node's delete
             // permission before we got here.
-            $validate = self::getClass('User')
+            $validate = (new User())
                 ->passwordValidate(
                     $user,
                     $pass

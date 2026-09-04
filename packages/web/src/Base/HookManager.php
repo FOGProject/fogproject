@@ -14,6 +14,7 @@
 
 namespace FOG\Base;
 
+use FOG\Items\HookEvent;
 use FOG\Router\Route;
 
 /**
@@ -175,7 +176,7 @@ class HookManager extends EventManager
             // inside save() could never recurse into saving the same name
             // again. Matches the dev-branch port (e827fd1bd).
             self::$knownEvents[$event] = true;
-            self::getClass('HookEvent')
+            (new HookEvent())
                 ->set('name', $event)
                 ->save();
         }

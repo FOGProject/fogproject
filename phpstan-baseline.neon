@@ -4650,6 +4650,19 @@ parameters:
 			count: 1
 			path: packages/web/src/Router/Route.php
 
+		# StorageGroup::getMasterStorageNode() THROWS when it cannot produce a
+		# valid node, so `!$StorageNode` at the call site can never be true and
+		# PHPStan can see that now the node arrives as a concrete type rather
+		# than getClass()'s object|mixed. The guard is left in place: it is
+		# pre-existing defensive code, and deleting it would make a future
+		# change to that method's contract fatal at this call site instead of
+		# caught here.
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: packages/web/src/Router/Route.php
+
 		-
 			message: '#^Access to an undefined static property static\(FOG\\Service\\FOGItemScanner\)\:\:\$sleeptime\.$#'
 			identifier: staticProperty.notFound

@@ -14,6 +14,8 @@
 namespace FOG\Pages;
 
 use FOG\Base\FOGPage;
+use FOG\Items\PXEMenuOptions;
+use FOG\Managers\PXEMenuOptionsManager;
 
 /**
  * The Bootmenu Management Page
@@ -130,7 +132,7 @@ class IpxeManagement extends FOGPage
                 $labelClass,
                 'regmenu',
                 _('Show with')
-            ) => self::getClass('PXEMenuOptionsManager')->regSelect(
+            ) => (new PXEMenuOptionsManager())->regSelect(
                 $regmenu,
                 'regmenu'
             ),
@@ -202,7 +204,7 @@ class IpxeManagement extends FOGPage
             [
                 'fields' => &$fields,
                 'buttons' => &$buttons,
-                'Ipxe' => self::getClass('PXEMenuOptions')
+                'Ipxe' => new PXEMenuOptions()
             ]
         );
         $rendered = self::formFields($fields);
@@ -262,14 +264,14 @@ class IpxeManagement extends FOGPage
                 $keysequence = trim(
                     (string)filter_input(INPUT_POST, 'keysequence')
                 );
-                $exists = self::getClass('PXEMenuOptionsManager')
+                $exists = (new PXEMenuOptionsManager())
                     ->exists($ipxe);
                 if ($exists) {
                     throw new \Exception(
                         _('A menu entry already exists with this name!')
                     );
                 }
-                $iPXE = self::getClass('PXEMenuOptions')
+                $iPXE = (new PXEMenuOptions())
                     ->set('name', $ipxe)
                     ->set('description', $description)
                     ->set('params', $params)
@@ -387,7 +389,7 @@ class IpxeManagement extends FOGPage
                 $labelClass,
                 'regmenu',
                 _('Show with')
-            ) => self::getClass('PXEMenuOptionsManager')->regSelect(
+            ) => (new PXEMenuOptionsManager())->regSelect(
                 $regmenu,
                 'regmenu'
             ),
@@ -491,7 +493,7 @@ class IpxeManagement extends FOGPage
         $keysequence = trim(
             (string)filter_input(INPUT_POST, 'keysequence')
         );
-        $exists = self::getClass('PXEMenuOptionsManager')
+        $exists = (new PXEMenuOptionsManager())
             ->exists($ipxe);
         if ($this->obj->get('name') != $ipxe && $exists) {
             throw new \Exception(

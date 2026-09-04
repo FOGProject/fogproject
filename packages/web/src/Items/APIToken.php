@@ -193,7 +193,7 @@ class APIToken extends FOGController
         // 512 bits, the same generator users.uAPIToken uses. The prefix is
         // part of the token and therefore part of what gets hashed.
         $token = self::PREFIX . bin2hex(random_bytes(64));
-        $row = self::getClass('APIToken')
+        $row = (new APIToken())
             ->set('userID', $userID)
             ->set('name', $name)
             ->set('hash', self::hashToken($token))
@@ -322,7 +322,7 @@ class APIToken extends FOGController
     public function audit($type, $permission)
     {
         $ownerID = (int)$this->get('userID');
-        $owner = self::getClass('User', $ownerID);
+        $owner = new User($ownerID);
         Audit::record(
             [
                 'type' => $type,
@@ -357,7 +357,7 @@ class APIToken extends FOGController
         if ('' === $token) {
             return null;
         }
-        $row = self::getClass('APIToken')
+        $row = (new APIToken())
             ->set('hash', self::hashToken($token))
             ->load('hash');
         if (!$row->isValid()) {
@@ -368,7 +368,7 @@ class APIToken extends FOGController
         if ('1' !== (string)$row->get('enabled')) {
             return null;
         }
-        $user = self::getClass('User', (int)$row->get('userID'));
+        $user = new User((int)$row->get('userID'));
         if (!$user->isValid()) {
             // The owner is gone but the token is not. Destroying a user is
             // supposed to destroy its tokens; refuse rather than authenticate

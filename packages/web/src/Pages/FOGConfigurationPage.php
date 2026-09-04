@@ -20,11 +20,18 @@ use FOG\Base\FOGBase;
 use FOG\Base\FOGManagerController;
 use FOG\Base\FOGPage;
 use FOG\Boot\SecureBootState;
+use FOG\Db\Mysqldump;
 use FOG\Exception\UploadException;
 use FOG\Items\APIToken;
 use FOG\Items\Image;
+use FOG\Items\Schema;
 use FOG\Items\Setting;
+use FOG\Items\User;
+use FOG\Managers\APITokenManager;
+use FOG\Managers\KeySequenceManager;
+use FOG\Managers\OUIManager;
 use FOG\Managers\SettingManager;
+use FOG\Managers\UserManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -3383,7 +3390,7 @@ class FOGConfigurationPage extends FOGPage
         $where = "`settingKey` IN ('"
             . implode("','", $ServicesToSee)
             . "')";
-        $settingMan = self::getClass('SettingManager');
+        $settingMan = new SettingManager();
         $table = $settingMan->getTable();
         $dbcolumns = $settingMan->getColumns();
         $sqlStr = $settingMan->getQueryStr();
@@ -3410,7 +3417,7 @@ class FOGConfigurationPage extends FOGPage
                 ) {
                     switch ($row['settingKey']) {
                         case 'FOG_KEY_SEQUENCE':
-                            $input = self::getClass('KeySequenceManager')
+                            $input = (new KeySequenceManager())
                                 ->buildSelectBox(
                                     $row['settingValue'],
                                     $row['settingID']
@@ -3788,7 +3795,7 @@ class FOGConfigurationPage extends FOGPage
                 _('User')
             );
             $issueBody .= '<div class="col-sm-9">'
-                . self::getClass('UserManager')
+                . (new UserManager())
                     ->buildSelectBox('', 'issuefor', 'name')
                 . '</div>';
             $issueBody .= '</div>';
@@ -3979,7 +3986,7 @@ class FOGConfigurationPage extends FOGPage
         $uid = (int)self::$FOGUser->get('id');
         $rows = [];
         foreach (
-            self::getClass('APITokenManager')->visibleTo($uid) as $token
+            (new APITokenManager())->visibleTo($uid) as $token
         ) {
             $rows[] = [
                 'id' => $token['id'],
@@ -4043,7 +4050,7 @@ class FOGConfigurationPage extends FOGPage
 
         // null owner: spanning users is this pane's whole job. The
         // per-user tab passes its own id here instead.
-        $deleted = self::getClass('APITokenManager')->revokeMany(
+        $deleted = (new APITokenManager())->revokeMany(
             array_map('intval', (array)($_POST['remitems'] ?? [])),
             (int)self::$FOGUser->get('id')
         );
@@ -4086,7 +4093,7 @@ class FOGConfigurationPage extends FOGPage
         }
 
         $enabled = (int)filter_input(INPUT_POST, 'enabled') === 1;
-        $changed = self::getClass('APITokenManager')->setEnabledMany(
+        $changed = (new APITokenManager())->setEnabledMany(
             array_map('intval', (array)($_POST['remitems'] ?? [])),
             $enabled,
             (int)self::$FOGUser->get('id')
@@ -4154,8 +4161,8 @@ class FOGConfigurationPage extends FOGPage
         // could mint a working credential for an account they are not
         // allowed to see, which is a privilege escalation dressed up as a
         // convenience feature.
-        $user = self::getClass('User', $forUserID);
-        $inScope = self::getClass('APITokenManager')
+        $user = new User($forUserID);
+        $inScope = (new APITokenManager())
             ->userInScope($forUserID, (int)self::$FOGUser->get('id'));
 
         if (!$user->isValid() || !$inScope) {
@@ -4338,7 +4345,7 @@ class FOGConfigurationPage extends FOGPage
                 list(
                     $first_id,
                     $affected_rows
-                ) = self::getClass('OUIManager')
+                ) = (new OUIManager())
                 ->insertBatch(
                     [
                         'prefix',
@@ -4378,10 +4385,7 @@ class FOGConfigurationPage extends FOGPage
     public function getOSID()
     {
         $imageid = (int)filter_input(INPUT_POST, 'image_id');
-        $osname = self::getClass(
-            'Image',
-            $imageid
-        )->getOS()->get('name');
+        $osname = (new Image($imageid))->getOS()->get('name');
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($osname ? $osname : _('No Image specified')));
     }
     /**
@@ -4847,7 +4851,7 @@ class FOGConfigurationPage extends FOGPage
                     . $row['settingKey']
                     . '">';
                 foreach ((array)$tzIDs as $i => &$tz) {
-                    $current_tz = self::getClass('DateTimeZone', $tz);
+                    $current_tz = new \DateTimeZone($tz);
                     $offset = $current_tz->getOffset($dt);
                     $transition = $current_tz->getTransitions(
                         $dt->getTimestamp(),
@@ -5350,7 +5354,7 @@ class FOGConfigurationPage extends FOGPage
                 unset($Setting);
             }
             if (count($items) > 0) {
-                $SettingMan = self::getClass('SettingManager');
+                $SettingMan = new SettingManager();
                 /*
                  * settingDesc and settingCategory are named even though this
                  * saver never changes them, and the values are the ones just
@@ -5595,7 +5599,7 @@ class FOGConfigurationPage extends FOGPage
             . 'A hard refresh (Ctrl+F5, or Cmd+Shift+R) may be required.'
         );
 
-        $table = self::getClass('SettingManager')->getTable();
+        $table = (new SettingManager())->getTable();
         $sql = 'SELECT `settingID`, `settingKey`, `settingDesc`, '
             . '`settingValue`, `settingCategory` FROM `' . $table . '` '
             . 'ORDER BY `settingCategory` ASC, `settingKey` ASC';
@@ -5850,7 +5854,7 @@ class FOGConfigurationPage extends FOGPage
         self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('IMPORT_POST');
-        $Schema = self::getClass('Schema');
+        $Schema = new Schema();
         $serverFault = false;
         try {
             if (isset($_POST['toExport'])) {
@@ -5884,7 +5888,7 @@ class FOGConfigurationPage extends FOGPage
                 }
                 chmod($tmpfile, 0600);
                 $data = '';
-                self::getClass('Mysqldump')->start($tmpfile);
+                (new Mysqldump())->start($tmpfile);
                 if (!file_exists($tmpfile) || !is_readable($tmpfile)) {
                     throw new \Exception(_('Could not read file from tmp folder.'));
                 }
@@ -5934,7 +5938,7 @@ class FOGConfigurationPage extends FOGPage
 
                 // Now import
                 try {
-                    $result = self::getClass('Schema')->importdb($dest);
+                    $result = (new Schema())->importdb($dest);
                 } finally {
                     @unlink($dest); // cleanup regardless
                 }
@@ -5983,7 +5987,7 @@ class FOGConfigurationPage extends FOGPage
         $meta = $this->_settingsMeta();
         $needstobecheckbox = $meta['checkbox'];
         $needstobenumeric = $meta['numeric'];
-        $settingMan = self::getClass('SettingManager');
+        $settingMan = new SettingManager();
         $table = $settingMan->getTable();
         $dbcolumns = $settingMan->getColumns();
         $sqlStr = $settingMan->getQueryStr();

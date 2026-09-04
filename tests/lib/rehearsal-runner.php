@@ -127,7 +127,7 @@ class RehearsalRunner extends \FOG\Base\FOGBase
             $ran++;
         }
         if ($stamp) {
-            $schema = self::getClass('Schema', 1);
+            $schema = new \FOG\Items\Schema(1);
             $schema->set('version', $landed)->save();
         }
 

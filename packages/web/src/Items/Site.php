@@ -514,7 +514,7 @@ class Site extends FOGController
     {
         $names = [];
         foreach (self::hostSiteIDs($host->get('id')) as $siteID) {
-            $site = self::getClass('Site', $siteID);
+            $site = new Site($siteID);
             if ($site->isValid()) {
                 $names[] = $site->get('name');
             }
@@ -550,9 +550,9 @@ class Site extends FOGController
             if ($current === $wanted) {
                 return;
             }
-            self::getClass('Site', $current)->removeHost([$hostID])->save();
+            (new Site($current))->removeHost([$hostID])->save();
         }
-        $site = self::getClass('Site', $wanted);
+        $site = new Site($wanted);
         if ($site->isValid()) {
             $site->addHost([$hostID])->save();
         }

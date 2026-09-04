@@ -40,6 +40,8 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\Group;
+use FOG\Items\User;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
@@ -49,7 +51,7 @@ $t = new FogChecks();
 $db = FogTestHarness::fakeDb();
 $root = dirname(__DIR__) . '/packages/web';
 
-$admin = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+$admin = (new User())->set('id', 1)->set('name', 'fog');
 foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $admin);
 }
@@ -70,7 +72,7 @@ function runGroup($db, $method, $arg, $groupID = 3, $respond = null)
 {
     $db->log = [];
     $db->responder = $respond;
-    FOGCore::getClass('Group')
+    (new Group())
         ->set('id', $groupID)
         ->{$method}($arg);
     $db->responder = null;

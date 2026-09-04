@@ -15,6 +15,7 @@ namespace FOG\Managers;
 
 use FOG\Auth\Authorization;
 use FOG\Base\FOGManagerController;
+use FOG\Items\APIToken;
 
 /**
  * API token manager.
@@ -70,7 +71,7 @@ class APITokenManager extends FOGManagerController
 
         $tokens = [];
         foreach ((array)$rows as $row) {
-            $token = self::getClass('APIToken', (int)$row['atID']);
+            $token = new APIToken((int)$row['atID']);
             // A row that will not load is skipped rather than returned
             // half-built: every caller reads get('enabled') off these and an
             // invalid object answers '' to everything, which would render as
@@ -188,7 +189,7 @@ class APITokenManager extends FOGManagerController
         if ($tokenID < 1) {
             return null;
         }
-        $token = self::getClass('APIToken', $tokenID);
+        $token = new APIToken($tokenID);
         if (!$token->isValid()) {
             return null;
         }

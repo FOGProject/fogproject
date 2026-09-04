@@ -19,6 +19,7 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\Group;
 use FOG\Router\Route;
 
 require __DIR__ . '/lib/fog-test-harness.php';
@@ -219,7 +220,7 @@ function taskSelection(array $hosts, $tasktype)
     global $inserts;
     $inserts = [];
     $error = '';
-    $Group = FOGCore::getClass('Group')
+    $Group = (new Group())
         ->set('name', 'selection')
         ->set('hosts', $hosts);
     try {

@@ -13,6 +13,7 @@
 
 use FOG\Base\FOGCore;
 use FOG\Db\DatabaseManager;
+use FOG\Items\Schema;
 use FOG\Router\HTTPResponseCodes;
 
 /**
@@ -31,7 +32,7 @@ set_time_limit(0);
 $link = DatabaseManager::getLink();
 $redirect = false;
 if ($link) {
-    $redirect = FOGCore::getClass('Schema', 1)
+    $redirect = (new Schema(1))
         ->get('version') == FOG_SCHEMA;
 }
 $ret = [

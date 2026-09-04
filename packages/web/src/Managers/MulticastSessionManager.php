@@ -55,7 +55,7 @@ class MulticastSessionManager extends FOGManagerController
         /**
          * Set tasks to canceled as the main session was canceled.
          */
-        self::getClass('TaskManager')
+        (new TaskManager())
             ->update(
                 ['id' => $taskIDs],
                 '',

@@ -44,6 +44,8 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Items\Host;
+use FOG\Items\User;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
@@ -53,7 +55,7 @@ $t = new FogChecks();
 $db = FogTestHarness::fakeDb();
 $root = dirname(__DIR__) . '/packages/web';
 
-$admin = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+$admin = (new User())->set('id', 1)->set('name', 'fog');
 foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $admin);
 }
@@ -85,7 +87,7 @@ function writeState($db, array $existing, $ids, $state, $hostID = 5)
         }
         return null;
     };
-    FOGCore::getClass('Host')
+    (new Host())
         ->set('id', $hostID)
         ->setModuleState($ids, $state);
     $db->responder = null;

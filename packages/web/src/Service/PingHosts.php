@@ -14,6 +14,7 @@
 
 namespace FOG\Service;
 
+use FOG\Managers\HostManager;
 use FOG\Net\Ping;
 use FOG\Router\Route;
 
@@ -479,7 +480,7 @@ class PingHosts extends FOGService
                     // deleted mid-cycle. Do NOT use insertBatch here -- its
                     // INSERT ... ON DUPLICATE KEY UPDATE would resurrect a
                     // deleted host as a blank, nameless row.
-                    self::getClass('HostManager')
+                    (new HostManager())
                         ->update(
                             ['id' => $chunk],
                             '',
@@ -622,7 +623,7 @@ class PingHosts extends FOGService
             // Cleared in one statement. The address is not merely stale, it
             // is known to belong to something else, so leaving it would have
             // every future cycle re-derive the same wrong answer.
-            self::getClass('HostManager')->update(
+            (new HostManager())->update(
                 ['id' => array_keys($recycled)],
                 '',
                 ['ip' => '']

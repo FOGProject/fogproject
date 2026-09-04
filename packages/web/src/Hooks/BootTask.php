@@ -14,6 +14,7 @@
 namespace FOG\Hooks;
 
 use FOG\Base\Hook;
+use FOG\Items\TaskType;
 
 /**
  * Alters the boot task to make a custom entry.
@@ -71,7 +72,7 @@ class BootTask extends Hook
         if (!isset($arguments['ipxe']['task'])) {
             return;
         }
-        $TaskType = self::getClass('TaskType')
+        $TaskType = (new TaskType())
             ->set('name', 'trusty-install')
             ->load('name');
         if (!$TaskType->isValid()) {

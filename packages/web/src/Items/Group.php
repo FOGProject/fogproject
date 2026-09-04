@@ -17,6 +17,16 @@ use FOG\Assign\Resolver;
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
 use FOG\Boot\UbootTftpSync;
+use FOG\Managers\GroupModuleAssociationManager;
+use FOG\Managers\GroupPrinterAssociationManager;
+use FOG\Managers\GroupSnapinAssociationManager;
+use FOG\Managers\HostAutoLogoutManager;
+use FOG\Managers\HostManager;
+use FOG\Managers\HostScreenSettingManager;
+use FOG\Managers\MulticastSessionAssociationManager;
+use FOG\Managers\SnapinJobManager;
+use FOG\Managers\SnapinTaskManager;
+use FOG\Managers\TaskManager;
 use FOG\Router\Route;
 
 /**
@@ -165,7 +175,7 @@ class Group extends FOGController
         // upserts on the (gpaGroupID, gpaPrinterID) unique key and sets every
         // column it is given, so naming it would reset a default the admin
         // had already chosen every time the printer was re-sent.
-        self::getClass('GroupPrinterAssociationManager')
+        (new GroupPrinterAssociationManager())
             ->insertBatch(
                 ['groupID', 'printerID'],
                 $insert_values
@@ -212,14 +222,14 @@ class Group extends FOGController
         $printerid = (int)$printerid;
         // Clear first, unconditionally: passing 0 is how the page says "no
         // default", and that has to be expressible.
-        self::getClass('GroupPrinterAssociationManager')
+        (new GroupPrinterAssociationManager())
             ->update(
                 ['groupID' => $groupID],
                 '',
                 ['isDefault' => 0]
             );
         if ($printerid > 0) {
-            self::getClass('GroupPrinterAssociationManager')
+            (new GroupPrinterAssociationManager())
                 ->update(
                     [
                         'groupID' => $groupID,
@@ -259,7 +269,7 @@ class Group extends FOGController
         // unique key and would overwrite the run order the admin set on the
         // Snapin Run Order card. New rows therefore land at the column
         // default of 0, and the sweep below numbers them.
-        self::getClass('GroupSnapinAssociationManager')
+        (new GroupSnapinAssociationManager())
             ->insertBatch(
                 ['groupID', 'snapinID'],
                 $insert_values
@@ -320,7 +330,7 @@ class Group extends FOGController
             }
         }
         foreach ($unsequenced as $snapinID) {
-            self::getClass('GroupSnapinAssociationManager')
+            (new GroupSnapinAssociationManager())
                 ->update(
                     [
                         'groupID' => $groupID,
@@ -357,7 +367,7 @@ class Group extends FOGController
                 continue;
             }
             ++$sequence;
-            self::getClass('GroupSnapinAssociationManager')
+            (new GroupSnapinAssociationManager())
                 ->update(
                     [
                         'groupID' => $groupID,
@@ -393,7 +403,7 @@ class Group extends FOGController
         foreach ($addArray as $moduleID) {
             $insert_values[] = [$groupID, $moduleID];
         }
-        self::getClass('GroupModuleAssociationManager')
+        (new GroupModuleAssociationManager())
             ->insertBatch(
                 ['groupID', 'moduleID'],
                 $insert_values
@@ -453,7 +463,7 @@ class Group extends FOGController
             $insert_items[] = [$hostID, $x, $y, $r];
             unset($hostID);
         }
-        self::getClass('HostScreenSettingManager')
+        (new HostScreenSettingManager())
             ->insertBatch(
                 $insert_fields,
                 $insert_items
@@ -486,7 +496,7 @@ class Group extends FOGController
             ];
             unset($hostID);
         }
-        self::getClass('HostAutoLogoutManager')
+        (new HostAutoLogoutManager())
             ->insertBatch(
                 $insert_fields,
                 $insert_items
@@ -553,7 +563,7 @@ class Group extends FOGController
         if ($TaskCount > 0) {
             throw new \Exception(_('There is a host in a tasking'));
         }
-        self::getClass('HostManager')
+        (new HostManager())
             ->update(
                 ['id' => $this->get('hosts')],
                 '',
@@ -650,7 +660,7 @@ class Group extends FOGController
             }
             if ($TaskType->isMulticast) {
                 MulticastSession::assertCapacity();
-                $MulticastSession = self::getClass('MulticastSession')
+                $MulticastSession = (new MulticastSession())
                     ->set('name', $taskName)
                     ->set('port', MulticastSession::allocatePort())
                     ->set('logpath', $Image->get('path'))
@@ -716,7 +726,7 @@ class Group extends FOGController
                     list(
                         $first_id,
                         $affected_rows
-                    ) = self::getClass('TaskManager')
+                    ) = (new TaskManager())
                     ->insertBatch(
                         $batchFields,
                         $batchTask
@@ -731,7 +741,7 @@ class Group extends FOGController
                         unset($val);
                     }
                     if (count($multicastsessionassocs ?: []) > 0) {
-                        self::getClass('MulticastSessionAssociationManager')
+                        (new MulticastSessionAssociationManager())
                             ->insertBatch(
                                 [
                                     'msID',
@@ -822,7 +832,7 @@ class Group extends FOGController
                     ];
                 }
                 if (count($batchTask ?: []) > 0) {
-                    $stat = self::getClass('TaskManager')
+                    $stat = (new TaskManager())
                         ->insertBatch(
                             $batchFields,
                             $batchTask
@@ -873,7 +883,7 @@ class Group extends FOGController
                 ];
             }
             if (count($batchTask ?: []) > 0) {
-                $stat = self::getClass('TaskManager')
+                $stat = (new TaskManager())
                     ->insertBatch($batchFields, $batchTask);
             }
         } else {
@@ -956,7 +966,7 @@ class Group extends FOGController
                     ];
                 }
                 if (count($batchTask ?: []) > 0) {
-                    $stat = self::getClass('TaskManager')
+                    $stat = (new TaskManager())
                         ->insertBatch($batchFields, $batchTask);
                 }
             }
@@ -1084,7 +1094,7 @@ class Group extends FOGController
             list(
                 $first_id,
                 $affected_rows
-            ) = self::getClass('SnapinJobManager')
+            ) = (new SnapinJobManager())
             ->insertBatch(
                 [
                     'hostID',
@@ -1133,7 +1143,7 @@ class Group extends FOGController
                 }
             }
             if (count($snapinTasks ?: []) > 0) {
-                self::getClass('SnapinTaskManager')
+                (new SnapinTaskManager())
                     ->insertBatch(
                         [
                             'jobID',
@@ -1186,7 +1196,7 @@ class Group extends FOGController
             $update['ADPass'] = $pass;
         }
         if (count($update) > 0) {
-            self::getClass('HostManager')
+            (new HostManager())
                 ->update(
                     ['id' => $this->get('hosts')],
                     '',
@@ -1203,7 +1213,7 @@ class Group extends FOGController
      */
     public function doMembersHaveUniformImages()
     {
-        $test = self::getClass('HostManager')
+        $test = (new HostManager())
             ->distinct(
                 'imageID',
                 ['id' => $this->get('hosts')]

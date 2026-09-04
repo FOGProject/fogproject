@@ -298,7 +298,7 @@ if (false === strpos($page, 'value="failed"')) {
 // 4. Guarded on the row existing. The web tree can be updated before the
 //    schema step runs, and writing a stateID with no taskStates row behind it
 //    is worse than leaving the task alone.
-if (!preg_match('#getClass\(\s*\'TaskState\'.*?isValid\(\)#s', $src)) {
+if (!preg_match('#new TaskState\(.*?isValid\(\)#s', $src)) {
     $fails[] = 'the endpoint writes the Failed state without checking the row'
         . ' exists, so a server updated ahead of its schema gets tasks'
         . ' pointing at a state that is not there';

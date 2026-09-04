@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Managers\StorageNodeManager;
 use FOG\Router\Route;
 
 /**
@@ -457,7 +458,7 @@ class StorageGroup extends FOGController
      */
     public function addNode($addArray)
     {
-        self::getClass('StorageNodeManager')
+        (new StorageNodeManager())
             ->update(
                 ['id' => $addArray],
                 '',

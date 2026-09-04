@@ -53,6 +53,8 @@
 
 use FOG\Base\FOGCore;
 use FOG\Client\PrinterClient;
+use FOG\Items\Host;
+use FOG\Items\User;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 
@@ -61,7 +63,7 @@ FogTestHarness::boot('printer-grants-reach-the-client');
 $t = new FogChecks();
 $db = FogTestHarness::fakeDb();
 
-$admin = FOGCore::getClass('User')->set('id', 1)->set('name', 'fog');
+$admin = (new User())->set('id', 1)->set('name', 'fog');
 foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $admin);
 }
@@ -230,7 +232,7 @@ function askServer(
     FogTestHarness::setStatic(
         'FOGBase',
         'Host',
-        FOGCore::getClass('Host')->set('id', $hostID)->set('printerLevel', $level)
+        (new Host())->set('id', $hostID)->set('printerLevel', $level)
     );
     // newInstanceWithoutConstructor(), and this is the whole reason the
     // endpoint looked untestable. FOGClient's constructor resolves the host
