@@ -274,7 +274,15 @@ class UserSessions extends FOGBase
         } catch (\Exception $e) {
             return null;
         }
-        $d->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+        // storageTimeZone(), NOT the PHP default: it is the clock niceDate()
+        // writes husLastSeen and every other date column on, and an inferred
+        // close copies husLastSeen into husEndedAt. Converting to the PHP
+        // default here put two clocks in one table -- on the lab server a
+        // one-second session read as five hours, a start in local time and an
+        // end in UTC. A duration that wrong is the exact failure this whole
+        // design exists to stop, so the conversion is pinned by
+        // tests/agent-user-sessions.test.php.
+        $d->setTimezone(self::storageTimeZone());
         return $d->format('Y-m-d H:i:s');
     }
 

@@ -135,6 +135,30 @@ $t->check(
     'logout' === ($row['end_reason'] ?? null)
 );
 
+// ------------------------------------------------------------- one clock
+
+/*
+ * A start and an end have to be written on the same clock, or a duration is
+ * nonsense. The server copies husLastSeen -- written by niceDate(), on
+ * storageTimeZone() -- into husEndedAt when it infers a close, so a reported
+ * start converted to any other zone makes the two incomparable. On the lab
+ * server this showed up as a one-second session reading as five hours: a
+ * start in local time against an end in UTC.
+ */
+$sameInstant = cleanSessions(
+    [array_merge($good, ['started_at' => '2026-09-04T16:37:52Z'])],
+    false
+);
+$row = reset($sameInstant);
+$expected = \FOG\Base\FOGBase::niceDate('2026-09-04T16:37:52Z')
+    ->format('Y-m-d H:i:s');
+$t->check(
+    'a reported start lands on the same clock niceDate() writes'
+        . ': got ' . var_export($row['started_at'] ?? null, true)
+        . ', niceDate says ' . $expected,
+    $expected === ($row['started_at'] ?? null)
+);
+
 // --------------------------------------------------------------- truncation
 
 $long = cleanSessions(

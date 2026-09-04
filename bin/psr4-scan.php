@@ -217,6 +217,11 @@ const TABLE = [
     // those rows, they are not those rows.
     'InventoryFacts' => 'Agent',
     'SoftwareFacts' => 'Agent',
+    // The writer for what an agent reports about who is logged on (design
+    // 0008). Named UserSessions rather than UserTracking because that name
+    // is already an Items class for the legacy event table -- this writes
+    // hostUserSession rows, it is not either of those rows.
+    'UserSessions' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',
