@@ -6,6 +6,7 @@
         {data: 'type', visible: false},
         {data: 'display'},
         {data: 'api', visible: false},
-        {data: 'authsource', visible: false}
+        {data: 'authsource', visible: false},
+        {data: 'apionly', visible: false}
     ]);
 })(jQuery);

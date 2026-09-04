@@ -18,6 +18,8 @@
         {data: 'isEnabled', visible: false},
         {data: 'toReplicate', visible: false},
         {data: 'srvsize', visible: false},
+        {data: 'archID', visible: false},
+        {data: 'sectorsize', visible: false},
         {data: 'associations', visible: false}
     ]);
 })(jQuery);
