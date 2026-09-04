@@ -114,7 +114,7 @@ foreach ($roots as $dir) {
     if (!is_dir($dir)) {
         continue;
     }
-    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
+    $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
     foreach ($it as $f) {
         if ($f->isFile() && 'php' === strtolower($f->getExtension())) {
             $files[] = $f->getPathname();
