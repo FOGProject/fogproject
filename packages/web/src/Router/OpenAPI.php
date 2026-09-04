@@ -2618,6 +2618,16 @@ class OpenAPI extends FOGBase
                                         'description' => _('The server holds no installed-'
                                             . 'software hash for this host and wants the '
                                             . 'list on the next poll.')
+                                    ],
+                                    'collect_facts' => [
+                                        'type' => 'boolean',
+                                        'description' => _('Whether this install collects '
+                                            . 'facts at all (FOG_AGENT_INVENTORY_ENABLED). '
+                                            . 'Always present: an agent cannot tell an '
+                                            . 'absent boolean from a false one, and absent '
+                                            . 'has to mean a server that predates the '
+                                            . 'field rather than one that turned collection '
+                                            . 'off. False stops the agent gathering.')
                                     ]
                                 ]
                             ]]]

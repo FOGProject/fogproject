@@ -11493,6 +11493,9 @@ msgstr ""
 msgid "Where to get help and guides"
 msgstr "Wo bekomme ich Hilfe?"
 
+msgid "Whether this install collects facts at all (FOG_AGENT_INVENTORY_ENABLED). Always present: an agent cannot tell an absent boolean from a false one, and absent has to mean a server that predates the field rather than one that turned collection off. False stops the agent gathering."
+msgstr ""
+
 msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
 msgstr ""
 

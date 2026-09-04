@@ -329,10 +329,16 @@ class State extends FOGBase
      */
     public static function facts(Host $Host, array $body)
     {
-        $answer = [];
-        if (!self::factsEnabled()) {
+        // Always stated, never omitted: an agent cannot tell an absent
+        // JSON boolean from a false one, and "this server does not want
+        // facts" has to reach a host whose admin just turned the setting
+        // off. An agent too old to read it keeps sending, which the
+        // ignore below handles.
+        $answer = ['collect_facts' => self::factsEnabled()];
+        if (!$answer['collect_facts']) {
             // Gate off: never ask, and ignore a block that arrives anyway
-            // (an agent that was collecting before the setting changed).
+            // (an agent that was collecting before the setting changed, or
+            // one still on its way to hearing about it).
             return $answer;
         }
         $hostID = (int)$Host->get('id');
