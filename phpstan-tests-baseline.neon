@@ -13,7 +13,7 @@ parameters:
 			path: tests/activity-sources.test.php
 
 		-
-			message: '#^Offset ''directory'' on array\{inventory\: ''FOG\\\\Agent\\\\InventoryFacts'', software\: ''FOG\\\\Agent\\\\SoftwareFacts'', directory\: ''FOG\\\\Agent\\\\DirectoryFacts''\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''directory'' on array\{inventory\: ''FOG\\\\Agent\\\\InventoryFacts'', software\: ''FOG\\\\Agent\\\\SoftwareFacts'', directory\: ''FOG\\\\Agent\\\\DirectoryFacts'', printers\: ''FOG\\\\Agent\\\\PrinterFacts''\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: tests/agent-directory.test.php
@@ -41,6 +41,18 @@ parameters:
 			identifier: identical.alwaysTrue
 			count: 1
 			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Offset ''printers'' on array\{inventory\: ''FOG\\\\Agent\\\\InventoryFacts'', software\: ''FOG\\\\Agent\\\\SoftwareFacts'', directory\: ''FOG\\\\Agent\\\\DirectoryFacts'', printers\: ''FOG\\\\Agent\\\\PrinterFacts''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''FOG\\\\Agent\\\\PrinterFacts'' and ''FOG\\\\Agent\\\\PrinterFacts'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-printer-facts.test.php
 
 		-
 			message: '#^Call to function in_array\(\) with arguments ''inferred'', array\{''logout'', ''disconnect'', ''service_stop''\} and true will always evaluate to false\.$#'
