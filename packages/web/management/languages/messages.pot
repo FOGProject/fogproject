@@ -2346,6 +2346,12 @@ msgstr ""
 msgid "Desired"
 msgstr ""
 
+msgid "Desired OU"
+msgstr ""
+
+msgid "Desired domain"
+msgstr ""
+
 msgid "Destroy failed"
 msgstr ""
 
@@ -2371,6 +2377,9 @@ msgid "Directory Group"
 msgstr ""
 
 msgid "Directory Group Name"
+msgstr ""
+
+msgid "Directory Membership"
 msgstr ""
 
 msgid "Disable on all hosts"
@@ -2467,6 +2476,9 @@ msgid "Download the request"
 msgstr ""
 
 msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
+msgid "Drift"
 msgstr ""
 
 #, php-format
@@ -3755,6 +3767,9 @@ msgid "Hosts only"
 msgstr ""
 
 msgid "Hosts registered per day"
+msgstr ""
+
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
 msgid "Hosts:"
@@ -5862,6 +5877,12 @@ msgstr ""
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+msgid "Observed domain"
+msgstr ""
+
 msgid "Off"
 msgstr ""
 
@@ -6872,6 +6893,9 @@ msgid "Report"
 msgstr ""
 
 msgid "Report Management"
+msgstr ""
+
+msgid "Reported"
 msgstr ""
 
 msgid "Reports"
@@ -10263,6 +10287,9 @@ msgstr ""
 msgid "does not exist and cannot be created"
 msgstr ""
 
+msgid "domain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -10608,6 +10635,9 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+msgid "never reported"
+msgstr ""
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -10638,6 +10668,9 @@ msgstr ""
 msgid "not found on this node"
 msgstr ""
 
+msgid "not joined"
+msgstr ""
+
 msgid "not reachable"
 msgstr ""
 
@@ -10663,6 +10696,9 @@ msgid "of how much disk space the image is using."
 msgstr ""
 
 msgid "off means an account must already exist"
+msgstr ""
+
+msgid "ok"
 msgstr ""
 
 msgid "old"

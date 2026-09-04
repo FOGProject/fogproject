@@ -221,6 +221,7 @@ const TABLE = [
     // 0008). Named UserSessions rather than UserTracking because that name
     // is already an Items class for the legacy event table -- this writes
     // hostUserSession rows, it is not either of those rows.
+    'DirectoryFacts' => 'Agent',
     'UserSessions' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',

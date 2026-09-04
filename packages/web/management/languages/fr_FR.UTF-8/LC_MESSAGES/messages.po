@@ -2718,6 +2718,12 @@ msgstr "La description"
 msgid "Desired"
 msgstr ""
 
+msgid "Desired OU"
+msgstr ""
+
+msgid "Desired domain"
+msgstr ""
+
 #, fuzzy
 msgid "Destroy failed"
 msgstr "Destroy a échoué: %s"
@@ -2749,6 +2755,10 @@ msgstr "Annuaire"
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "Annuaire"
+
+#, fuzzy
+msgid "Directory Membership"
+msgstr "Adhésion"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2864,6 +2874,9 @@ msgid "Download the request"
 msgstr "Échec du téléchargement"
 
 msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
+msgid "Drift"
 msgstr ""
 
 #, php-format
@@ -4370,6 +4383,9 @@ msgid "Hosts only"
 msgstr "Liste des hôtes"
 
 msgid "Hosts registered per day"
+msgstr ""
+
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
 #, fuzzy
@@ -6841,6 +6857,13 @@ msgstr "mis à jour l'utilisateur"
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+#, fuzzy
+msgid "Observed domain"
+msgstr "Informations générales"
+
 msgid "Off"
 msgstr ""
 
@@ -8011,6 +8034,10 @@ msgstr "rapport"
 
 msgid "Report Management"
 msgstr "Rapport de gestion"
+
+#, fuzzy
+msgid "Reported"
+msgstr "rapport"
 
 msgid "Reports"
 msgstr "Rapports"
@@ -11911,6 +11938,9 @@ msgstr "Activée"
 msgid "does not exist and cannot be created"
 msgstr "L'image est protégée et ne peut être supprimé"
 
+msgid "domain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -12306,6 +12336,10 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "never reported"
+msgstr "Inventaire"
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -12337,6 +12371,9 @@ msgstr ""
 #, fuzzy
 msgid "not found on this node"
 msgstr "Image not found sur le noeud"
+
+msgid "not joined"
+msgstr ""
 
 #, fuzzy
 msgid "not reachable"
@@ -12371,6 +12408,9 @@ msgstr ""
 #, fuzzy
 msgid "off means an account must already exist"
 msgstr "Imprimante existe déjà"
+
+msgid "ok"
+msgstr ""
 
 msgid "old"
 msgstr ""

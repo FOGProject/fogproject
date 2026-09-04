@@ -2746,6 +2746,12 @@ msgstr "Descripción:"
 msgid "Desired"
 msgstr ""
 
+msgid "Desired OU"
+msgstr ""
+
+msgid "Desired domain"
+msgstr ""
+
 #, fuzzy
 msgid "Destroy failed"
 msgstr "Destruir fallado: %s"
@@ -2779,6 +2785,10 @@ msgstr "Directorio"
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "Directorio"
+
+#, fuzzy
+msgid "Directory Membership"
+msgstr "miembros"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2894,6 +2904,9 @@ msgid "Download the request"
 msgstr "Descarga fracasó"
 
 msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
+msgid "Drift"
 msgstr ""
 
 #, php-format
@@ -4435,6 +4448,9 @@ msgid "Hosts only"
 msgstr "ID de host"
 
 msgid "Hosts registered per day"
+msgstr ""
+
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
 #, fuzzy
@@ -6965,6 +6981,13 @@ msgstr "el usuario actualiza"
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+#, fuzzy
+msgid "Observed domain"
+msgstr "Información general"
+
 msgid "Off"
 msgstr ""
 
@@ -8149,6 +8172,10 @@ msgstr "Reiniciar"
 #, fuzzy
 msgid "Report Management"
 msgstr "Gestión de usuarios"
+
+#, fuzzy
+msgid "Reported"
+msgstr "Reiniciar"
 
 #, fuzzy
 msgid "Reports"
@@ -12087,6 +12114,9 @@ msgstr "habilitado"
 msgid "does not exist and cannot be created"
 msgstr "está protegido, no se permite la eliminación"
 
+msgid "domain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -12482,6 +12512,10 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "never reported"
+msgstr "ID de inventario"
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -12513,6 +12547,9 @@ msgstr ""
 #, fuzzy
 msgid "not found on this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
+
+msgid "not joined"
+msgstr ""
 
 #, fuzzy
 msgid "not reachable"
@@ -12546,6 +12583,9 @@ msgstr ""
 #, fuzzy
 msgid "off means an account must already exist"
 msgstr "Impresora ya existe"
+
+msgid "ok"
+msgstr ""
 
 msgid "old"
 msgstr ""

@@ -2655,6 +2655,12 @@ msgstr "Descrizione"
 msgid "Desired"
 msgstr ""
 
+msgid "Desired OU"
+msgstr ""
+
+msgid "Desired domain"
+msgstr ""
+
 msgid "Destroy failed"
 msgstr "Deistruzione fallita"
 
@@ -2684,6 +2690,10 @@ msgstr "elenco"
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "elenco"
+
+#, fuzzy
+msgid "Directory Membership"
+msgstr "membri"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2799,6 +2809,9 @@ msgid "Download the request"
 msgstr "Scaricamento fallito"
 
 msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
+msgid "Drift"
 msgstr ""
 
 #, php-format
@@ -4268,6 +4281,9 @@ msgid "Hosts only"
 msgstr "Host Init"
 
 msgid "Hosts registered per day"
+msgstr ""
+
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
 #, fuzzy
@@ -6660,6 +6676,13 @@ msgstr "Utente aggiornato"
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+#, fuzzy
+msgid "Observed domain"
+msgstr "Informazione generale"
+
 msgid "Off"
 msgstr ""
 
@@ -7803,6 +7826,10 @@ msgstr "rapporto"
 
 msgid "Report Management"
 msgstr "Relazione sulla gestione"
+
+#, fuzzy
+msgid "Reported"
+msgstr "rapporto"
 
 msgid "Reports"
 msgstr "Rapporti"
@@ -11589,6 +11616,9 @@ msgstr "Disabilitato"
 msgid "does not exist and cannot be created"
 msgstr "L'immagine è protetta e non può essere cancellato"
 
+msgid "domain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -11964,6 +11994,10 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "never reported"
+msgstr "Inventario"
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -11993,6 +12027,9 @@ msgstr ""
 
 msgid "not found on this node"
 msgstr "Non trovato su questo nodo"
+
+msgid "not joined"
+msgstr ""
 
 #, fuzzy
 msgid "not reachable"
@@ -12026,6 +12063,9 @@ msgstr ""
 #, fuzzy
 msgid "off means an account must already exist"
 msgstr "Questo host esiste già"
+
+msgid "ok"
+msgstr ""
 
 msgid "old"
 msgstr ""

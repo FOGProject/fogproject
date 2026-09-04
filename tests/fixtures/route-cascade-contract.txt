@@ -22,6 +22,7 @@ host	snapinjob	hostID
 host	snapintask	jobID
 host	task	hostID
 hostautologout	(nothing)	
+hostdirectory	(nothing)	
 hostfactstate	(nothing)	
 hostscreensetting	(nothing)	
 hostsoftware	(nothing)	

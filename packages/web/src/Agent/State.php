@@ -104,6 +104,7 @@ class State extends FOGBase
     const FACT_REPORTS = [
         'inventory' => InventoryFacts::class,
         'software' => SoftwareFacts::class,
+        'directory' => DirectoryFacts::class,
     ];
 
     /**

@@ -637,6 +637,7 @@ class Route extends FOGBase
         'hostfactstate',
         'hostscreensetting',
         'hostsoftware',
+        'hostdirectory',
         'hostusersession',
         'image',
         'imageassociation',

@@ -133,6 +133,7 @@ class Authorization extends FOGBase
         // host data -- the same table the host's own Installed Software tab
         // reads, gated on host.view. Same reasoning.
         'installed_software' => 'host',
+        'directory_membership' => 'host',
         'user_sessions' => 'host',
         // Storage Report reads `images`, `imageGroupAssoc`, `nfsGroups` and
         // `nfsGroupMembers`. Group and node names are the part not already
@@ -435,6 +436,7 @@ class Authorization extends FOGBase
         // they belong to -- the same call as 'inventory' above, and for the
         // same reason: they are host detail, not a feature of their own.
         'hostsoftware' => 'host',
+        'hostdirectory' => 'host',
         'hostusersession' => 'host',
         'hostfactstate' => 'host',
         'software' => 'software',

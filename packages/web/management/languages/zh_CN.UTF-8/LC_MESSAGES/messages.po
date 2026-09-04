@@ -2718,6 +2718,12 @@ msgstr "描述"
 msgid "Desired"
 msgstr ""
 
+msgid "Desired OU"
+msgstr ""
+
+msgid "Desired domain"
+msgstr ""
+
 #, fuzzy
 msgid "Destroy failed"
 msgstr "摧毁失败： %s"
@@ -2749,6 +2755,10 @@ msgstr "目录"
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "目录"
+
+#, fuzzy
+msgid "Directory Membership"
+msgstr "籍"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2864,6 +2874,9 @@ msgid "Download the request"
 msgstr "下载失败"
 
 msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
+msgid "Drift"
 msgstr ""
 
 #, php-format
@@ -4370,6 +4383,9 @@ msgid "Hosts only"
 msgstr "主机列表"
 
 msgid "Hosts registered per day"
+msgstr ""
+
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
 #, fuzzy
@@ -6843,6 +6859,13 @@ msgstr "用户更新"
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+#, fuzzy
+msgid "Observed domain"
+msgstr "一般信息"
+
 msgid "Off"
 msgstr ""
 
@@ -8013,6 +8036,10 @@ msgstr "报告"
 
 msgid "Report Management"
 msgstr "报告管理"
+
+#, fuzzy
+msgid "Reported"
+msgstr "报告"
 
 msgid "Reports"
 msgstr "报告"
@@ -11914,6 +11941,9 @@ msgstr "启用"
 msgid "does not exist and cannot be created"
 msgstr "图像被保护，不能被删除"
 
+msgid "domain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -12309,6 +12339,10 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "never reported"
+msgstr "库存"
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -12340,6 +12374,9 @@ msgstr ""
 #, fuzzy
 msgid "not found on this node"
 msgstr "图片没有节点发现"
+
+msgid "not joined"
+msgstr ""
 
 #, fuzzy
 msgid "not reachable"
@@ -12374,6 +12411,9 @@ msgstr ""
 #, fuzzy
 msgid "off means an account must already exist"
 msgstr "打印机已经存在"
+
+msgid "ok"
+msgstr ""
 
 msgid "old"
 msgstr ""

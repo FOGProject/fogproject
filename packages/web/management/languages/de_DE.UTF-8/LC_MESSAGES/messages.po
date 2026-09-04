@@ -2715,6 +2715,12 @@ msgstr "Beschreibung"
 msgid "Desired"
 msgstr ""
 
+msgid "Desired OU"
+msgstr ""
+
+msgid "Desired domain"
+msgstr ""
+
 #, fuzzy
 msgid "Destroy failed"
 msgstr "Zerstörung fehlgeschlagen: %s"
@@ -2746,6 +2752,10 @@ msgstr "Verzeichnis"
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "Verzeichnis"
+
+#, fuzzy
+msgid "Directory Membership"
+msgstr "Mitgliedschaft"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2861,6 +2871,9 @@ msgid "Download the request"
 msgstr "Download fehlgeschlagen"
 
 msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
+msgid "Drift"
 msgstr ""
 
 #, php-format
@@ -4368,6 +4381,9 @@ msgid "Hosts only"
 msgstr "Host Init"
 
 msgid "Hosts registered per day"
+msgstr ""
+
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
 #, fuzzy
@@ -6845,6 +6861,13 @@ msgstr "Benutzer aktualisiert"
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+#, fuzzy
+msgid "Observed domain"
+msgstr "Allgemeine Informationen"
+
 msgid "Off"
 msgstr ""
 
@@ -8015,6 +8038,10 @@ msgstr "Bericht"
 
 msgid "Report Management"
 msgstr "Berichteverwaltung"
+
+#, fuzzy
+msgid "Reported"
+msgstr "Bericht"
 
 msgid "Reports"
 msgstr "Berichte"
@@ -11920,6 +11947,9 @@ msgstr "Deaktiviert"
 msgid "does not exist and cannot be created"
 msgstr "Image ist geschützt und kann nicht gelöscht werden"
 
+msgid "domain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -12316,6 +12346,10 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "never reported"
+msgstr "Inventar"
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -12347,6 +12381,9 @@ msgstr ""
 #, fuzzy
 msgid "not found on this node"
 msgstr "auf diesem Knoten nicht gefunden"
+
+msgid "not joined"
+msgstr ""
 
 #, fuzzy
 msgid "not reachable"
@@ -12381,6 +12418,9 @@ msgstr ""
 #, fuzzy
 msgid "off means an account must already exist"
 msgstr "Dieser Host ist bereits vorhanden."
+
+msgid "ok"
+msgstr ""
 
 msgid "old"
 msgstr ""

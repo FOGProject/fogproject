@@ -2641,6 +2641,13 @@ msgstr "説明"
 msgid "Desired"
 msgstr ""
 
+msgid "Desired OU"
+msgstr ""
+
+#, fuzzy
+msgid "Desired domain"
+msgstr "AD ドメイン"
+
 msgid "Destroy failed"
 msgstr "解除に失敗しました"
 
@@ -2670,6 +2677,10 @@ msgstr "ディレクトリ"
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "ディレクトリ"
+
+#, fuzzy
+msgid "Directory Membership"
+msgstr "ホストメンバーシップ"
 
 msgid "Disable on all hosts"
 msgstr ""
@@ -2785,6 +2796,9 @@ msgid "Download the request"
 msgstr "ダウンロードに失敗しました"
 
 msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
+msgid "Drift"
 msgstr ""
 
 #, php-format
@@ -4243,6 +4257,9 @@ msgid "Hosts only"
 msgstr "ホスト Init"
 
 msgid "Hosts registered per day"
+msgstr ""
+
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
 #, fuzzy
@@ -6632,6 +6649,13 @@ msgstr "ユーザーを更新しました！"
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+#, fuzzy
+msgid "Observed domain"
+msgstr "サーバー情報"
+
 msgid "Off"
 msgstr ""
 
@@ -7778,6 +7802,10 @@ msgstr "レポート"
 
 msgid "Report Management"
 msgstr "レポート管理"
+
+#, fuzzy
+msgid "Reported"
+msgstr "レポート"
 
 msgid "Reports"
 msgstr "レポート"
@@ -11538,6 +11566,10 @@ msgstr "無効"
 msgid "does not exist and cannot be created"
 msgstr "イメージは保護されているため削除できません"
 
+#, fuzzy
+msgid "domain"
+msgstr "AD ドメイン"
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -11918,6 +11950,10 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "never reported"
+msgstr "さらにサポートが必要な場合"
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -11947,6 +11983,9 @@ msgstr ""
 
 msgid "not found on this node"
 msgstr "このノード上に見つかりません"
+
+msgid "not joined"
+msgstr ""
 
 #, fuzzy
 msgid "not reachable"
@@ -11980,6 +12019,9 @@ msgstr ""
 #, fuzzy
 msgid "off means an account must already exist"
 msgstr "このホストは既に存在します"
+
+msgid "ok"
+msgstr ""
 
 msgid "old"
 msgstr ""
@@ -12401,9 +12443,6 @@ msgstr ""
 
 #~ msgid "A subnetgroup already exists with this name!"
 #~ msgstr "この名前のサブネットグループは既に存在します！"
-
-#~ msgid "AD Domain"
-#~ msgstr "AD ドメイン"
 
 #~ msgid "AD Join"
 #~ msgstr "AD 参加"

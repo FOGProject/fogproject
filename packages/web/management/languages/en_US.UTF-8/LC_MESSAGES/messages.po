@@ -2718,6 +2718,12 @@ msgstr "Description"
 msgid "Desired"
 msgstr ""
 
+msgid "Desired OU"
+msgstr ""
+
+msgid "Desired domain"
+msgstr ""
+
 #, fuzzy
 msgid "Destroy failed"
 msgstr "Destroy failed: %s"
@@ -2749,6 +2755,10 @@ msgstr "Directory"
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "Directory"
+
+#, fuzzy
+msgid "Directory Membership"
+msgstr "Membership"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2864,6 +2874,9 @@ msgid "Download the request"
 msgstr "Download Failed"
 
 msgid "Downloaded file is not a bootable kernel image"
+msgstr ""
+
+msgid "Drift"
 msgstr ""
 
 #, php-format
@@ -4370,6 +4383,9 @@ msgid "Hosts only"
 msgstr "Host List"
 
 msgid "Hosts registered per day"
+msgstr ""
+
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
 #, fuzzy
@@ -6856,6 +6872,13 @@ msgstr "User updated"
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+#, fuzzy
+msgid "Observed domain"
+msgstr "General Information"
+
 msgid "Off"
 msgstr ""
 
@@ -8026,6 +8049,10 @@ msgstr "Report"
 
 msgid "Report Management"
 msgstr "Report Management"
+
+#, fuzzy
+msgid "Reported"
+msgstr "Report"
 
 msgid "Reports"
 msgstr "Reports"
@@ -11926,6 +11953,9 @@ msgstr "Enabled"
 msgid "does not exist and cannot be created"
 msgstr "Image is protected and cannot be deleted"
 
+msgid "domain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -12321,6 +12351,10 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "never reported"
+msgstr "Inventory"
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -12352,6 +12386,9 @@ msgstr ""
 #, fuzzy
 msgid "not found on this node"
 msgstr "Image not found on node"
+
+msgid "not joined"
+msgstr ""
 
 #, fuzzy
 msgid "not reachable"
@@ -12386,6 +12423,9 @@ msgstr ""
 #, fuzzy
 msgid "off means an account must already exist"
 msgstr "Printer already exists"
+
+msgid "ok"
+msgstr ""
 
 msgid "old"
 msgstr ""

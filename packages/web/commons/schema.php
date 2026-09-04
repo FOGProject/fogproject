@@ -11112,3 +11112,44 @@ $this->schema[] = [
     . "days of agent-reported user sessions to keep. Zero keeps them "
     . "forever. (Valid values: a whole number of days).','365','FOG Audit')",
 ];
+
+// 423
+$this->schema[] = [
+    // What directory each host is ACTUALLY a member of, and
+    // where its computer object ACTUALLY sits (design 0009).
+    //
+    // The hosts table's hostADDomain and hostADOU are intent -- what an
+    // admin typed into a form -- and nothing anywhere has ever recorded the
+    // other half. So FOG cannot answer "which of my machines are not where
+    // I think they are", and the legacy client made that worse by never
+    // comparing the OU at all: it short-circuits on "already joined to the
+    // target domain" and reads the OU only as lpAccountOU at the initial
+    // join, so editing a host's OU does nothing, forever, silently.
+    //
+    // One row per host, not a history: this is current state, so it is
+    // replaced in place and needs no retention entry. hdComputerDN is the
+    // load-bearing column -- a server-side LDAP Modify DN needs the exact
+    // object, and having the machine report its own DN means the server
+    // never has to search by name and guess between duplicates.
+    //
+    // hdObservedAt is when this membership was last REPORTED, not when it
+    // was last confirmed true. The agent hash-gates the block, so an
+    // unchanged membership is never sent and this column would otherwise
+    // claim a freshness nobody checked. "Is this still true" is answered by
+    // the host's own hostAgentCheckin, which the report shows beside it.
+    "CREATE TABLE IF NOT EXISTS `hostDirectory` ( "
+    . "`hdID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hdHostID` int(11) NOT NULL, "
+    . "`hdJoined` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hdKind` varchar(32) NOT NULL DEFAULT '', "
+    . "`hdDomain` varchar(255) NOT NULL DEFAULT '', "
+    . "`hdNetbios` varchar(64) NOT NULL DEFAULT '', "
+    . "`hdComputerDN` varchar(1024) NOT NULL DEFAULT '', "
+    . "`hdMachineAccount` varchar(255) NOT NULL DEFAULT '', "
+    . "`hdSite` varchar(255) NOT NULL DEFAULT '', "
+    . "`hdObservedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hdID`), "
+    . "UNIQUE KEY `hdHostID` (`hdHostID`), "
+    . "KEY `hdDomain` (`hdDomain`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];

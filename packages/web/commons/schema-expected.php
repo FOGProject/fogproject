@@ -345,6 +345,21 @@ return [
                 'haloTime' => 'varchar(10) NOT NULL',
             ],
         ],
+        'hostDirectory' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostDirectory` ( `hdID` int(11) NOT NULL AUTO_INCREMENT, `hdHostID` int(11) NOT NULL, `hdJoined` tinyint(1) NOT NULL DEFAULT 0, `hdKind` varchar(32) NOT NULL DEFAULT \'\', `hdDomain` varchar(255) NOT NULL DEFAULT \'\', `hdNetbios` varchar(64) NOT NULL DEFAULT \'\', `hdComputerDN` varchar(1024) NOT NULL DEFAULT \'\', `hdMachineAccount` varchar(255) NOT NULL DEFAULT \'\', `hdSite` varchar(255) NOT NULL DEFAULT \'\', `hdObservedAt` datetime DEFAULT NULL, PRIMARY KEY (`hdID`), UNIQUE KEY `hdHostID` (`hdHostID`), KEY `hdDomain` (`hdDomain`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'hdID' => 'int(11) NOT NULL',
+                'hdHostID' => 'int(11) NOT NULL',
+                'hdJoined' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hdKind' => 'varchar(32) NOT NULL DEFAULT \'\'',
+                'hdDomain' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hdNetbios' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'hdComputerDN' => 'varchar(1024) NOT NULL DEFAULT \'\'',
+                'hdMachineAccount' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hdSite' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hdObservedAt' => 'datetime DEFAULT NULL'
+            ],
+        ],
         'hostFactState' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `hostFactState` ( `hfsID` int(11) NOT NULL AUTO_INCREMENT, `hfsHostID` int(11) NOT NULL, `hfsKind` varchar(16) NOT NULL, `hfsHash` varchar(64) NOT NULL DEFAULT \'\', `hfsUpdated` datetime DEFAULT NULL, PRIMARY KEY (`hfsID`), UNIQUE KEY `hfsHostKind` (`hfsHostID`,`hfsKind`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
