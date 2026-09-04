@@ -201,6 +201,21 @@ class Route extends FOGBase
      */
     public static $agentHost = null;
     /**
+     * Why _agentPrincipal() refused, carried into the 401 body.
+     *
+     * The agent drops its certificate and re-enrolls on exactly one of
+     * these -- `unknown_certificate` -- and re-enrolling needs an admin to
+     * approve the host again. Every other reason here is a condition on
+     * the SERVER: no certificate reached PHP, the database was unreachable,
+     * or two hosts carry one fingerprint. Answering all of them the same
+     * way made a rolled-back webroot enough to make every agent in a fleet
+     * discard its identity at once (lab, 2026-09-04: the agent logged
+     * "body is not JSON" and dropped the certificate anyway).
+     *
+     * @var string
+     */
+    public static $agentAuthReason = 'unknown_certificate';
+    /**
      * Requested relation-expansion tokens (lowercased) from ?expand=a,b,c.
      *
      * @var array
@@ -947,7 +962,13 @@ class Route extends FOGBase
             if (!self::$agentHost) {
                 HTTPResponseCodes::breakHead(
                     HTTPResponseCodes::HTTP_UNAUTHORIZED,
-                    json_encode(['error' => 'client certificate required'])
+                    json_encode([
+                        'status' => 'unauthorized',
+                        'reason' => self::$agentAuthReason,
+                        // Kept so an agent built before the reason existed
+                        // reads the same message it always did.
+                        'error' => 'client certificate required',
+                    ])
                 );
             }
             // A bound agent is a machine principal. The site boundary
@@ -2890,6 +2911,10 @@ class Route extends FOGBase
             BASEPATH . 'management/other/agent-ca-bundle.pem'
         );
         if (null === $verified) {
+            // No client certificate reached PHP at all, or it does not
+            // chain to the agent CA. That is a TLS or proxy condition, not
+            // a statement about this agent's binding.
+            self::$agentAuthReason = 'no_client_certificate';
             return null;
         }
         // A direct statement, NOT getIds('host'): that lookup puts the
@@ -2910,14 +2935,25 @@ class Route extends FOGBase
             ['fp' => $verified['fingerprint']]
         );
         if (false !== $res->error) {
+            // The database is the thing that is broken. Telling agents to
+            // re-enroll would turn one outage into a fleet-wide
+            // re-approval.
+            self::$agentAuthReason = 'server_error';
             return null;
         }
         $rows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         if (!is_array($rows) || 1 !== count($rows)) {
+            // Zero rows is a certificate bound to no live host, which IS
+            // this agent's problem to fix. Two is an ambiguous binding,
+            // which re-enrolling cannot resolve and would only add to.
+            self::$agentAuthReason = (is_array($rows) && count($rows) > 1)
+                ? 'ambiguous_certificate'
+                : 'unknown_certificate';
             return null;
         }
         $Host = new \FOG\Items\Host((int)$rows[0]['hostID']);
         if (!$Host->isValid()) {
+            self::$agentAuthReason = 'unknown_certificate';
             return null;
         }
         return $Host;

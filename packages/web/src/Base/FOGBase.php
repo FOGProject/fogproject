@@ -1775,7 +1775,25 @@ abstract class FOGBase
     protected static function formatByteSize($size)
     {
         $units = ['iB', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
-        $factor = floor((strlen($size) - 1) / 3);
+        $size = (float)$size;
+        if ($size <= 0) {
+            return sprintf('%3.2f %s', 0, $units[0]);
+        }
+        // log(1024), not the DECIMAL digit count. The original picked the
+        // unit with floor((strlen($size) - 1) / 3) -- three digits per
+        // step, which is a step of 1000 -- and then divided by a power of
+        // 1024. The two disagree for every value between 10^(3n) and
+        // 1024^n, which reads as a fraction of the unit above: an agent
+        // host with 968 MB of RAM (1,015,021,568 bytes, ten digits, so the
+        // old code chose GiB) rendered "0.95 GiB" instead of "968.00 MiB",
+        // and a 1 GB image showed "0.93 GiB". Found on the Inventory tab,
+        // 2026-09-04.
+        //
+        // Clamped because the array ends at YiB: beyond that, keep the
+        // largest unit and let the number grow rather than index past the
+        // end.
+        $factor = (int)floor(log($size, 1024));
+        $factor = max(0, min($factor, count($units) - 1));
 
         return sprintf('%3.2f %s', $size / pow(1024, $factor), $units[$factor]);
     }

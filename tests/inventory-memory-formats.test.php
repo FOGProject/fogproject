@@ -33,12 +33,19 @@ $t->check(
 );
 
 // fog-agent format: a bare decimal string, MB, per internal/inventory.go.
-// 968 MB (host 239's actual reported value) is just under 1 GiB and must
-// not read as zero -- that was the live bug: the pre-fix parser found no
-// second whitespace token and silently returned 0.
+// 968 MB (host 239's actual reported value) must not read as zero -- that
+// was the live bug: the pre-fix parser found no second whitespace token and
+// silently returned 0.
+//
+// It renders in MiB rather than as a fraction of a GiB because
+// formatByteSize now picks the unit with a binary logarithm. This
+// assertion read '0.95 GiB' when it was written, which was the digit-count
+// unit picker showing through (tests/format-byte-size.test.php); the
+// parsing this file guards is unchanged either way, and 968 is the number
+// that has to survive.
 $t->check(
-    '968 MB from fog-agent reads as ~0.95 GiB, not zero',
-    \FOG\Items\Inventory::getMemory('968') === '0.95 GiB'
+    '968 MB from fog-agent reads as 968.00 MiB, not zero',
+    \FOG\Items\Inventory::getMemory('968') === '968.00 MiB'
 );
 $t->check(
     '4096 MB from fog-agent reads as 4.00 GiB',
