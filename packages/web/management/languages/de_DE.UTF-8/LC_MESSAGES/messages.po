@@ -5602,6 +5602,10 @@ msgid "MAC Format is invalid"
 msgstr "MAC-Format ist ungültig"
 
 #, fuzzy
+msgid "MAC Update Fail"
+msgstr "Modulupdate fehlgeschlagen"
+
+#, fuzzy
 msgid "MAC address is already in use by another host"
 msgstr "Die MAC-Adresse wird bereits von einem andern Host verwendet"
 

@@ -5614,6 +5614,10 @@ msgid "MAC Format is invalid"
 msgstr "MAC Format is invalid"
 
 #, fuzzy
+msgid "MAC Update Fail"
+msgstr "Group create failed"
+
+#, fuzzy
 msgid "MAC address is already in use by another host"
 msgstr "MAC address is already in use by another host"
 
