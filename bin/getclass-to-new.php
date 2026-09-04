@@ -387,9 +387,19 @@ foreach ($files as $file) {
             $skipped[] = [$where, 'ReflectionClass special case'];
             continue;
         }
-        if (count($args) > 2) {
-            $skipped[] = [$where, 'props/3-arg form'];
-            continue;
+        // getClass()'s THIRD named parameter is $props, so `('X', '', true)`
+        // asks for the default properties and has no `new` equivalent. Any
+        // other arity is an ordinary constructor call, however many arguments
+        // it carries -- NtfyHandler takes three.
+        if (count($args) >= 3) {
+            $third = '';
+            foreach ($args[2][2] as $t) {
+                $third .= is_array($t) ? $t[1] : $t;
+            }
+            if ('true' === strtolower(trim($third))) {
+                $skipped[] = [$where, 'props form'];
+                continue;
+            }
         }
 
         $lower = strtolower($name);
@@ -406,7 +416,11 @@ foreach ($files as $file) {
                 $offsets[$close] + 1,
                 'new \\' . $name . '('
                 . (count($args) > 1
-                    ? substr($src, $args[1][0], $args[1][1] - $args[1][0])
+                    ? substr(
+                        $src,
+                        $args[1][0],
+                        $args[count($args) - 1][1] - $args[1][0]
+                    )
                     : '')
                 . ')',
             ];
@@ -437,7 +451,8 @@ foreach ($files as $file) {
 
         $inner = '';
         if (count($args) > 1) {
-            $inner = substr($src, $args[1][0], $args[1][1] - $args[1][0]);
+            $last = $args[count($args) - 1];
+            $inner = substr($src, $args[1][0], $last[1] - $args[1][0]);
         }
         $expr = 'new ' . $ref . '(' . $inner . ')';
 
