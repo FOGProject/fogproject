@@ -3134,10 +3134,11 @@ msgstr "ファイルはアップロードされませんでした"
 msgid "FOG Agent enrollment"
 msgstr "強制終了されました"
 
-msgid "FOG Agent poll"
-msgstr ""
+#, fuzzy
+msgid "FOG Agent payload"
+msgstr "ファイルはアップロードされませんでした"
 
-msgid "FOG Agent snapin payload"
+msgid "FOG Agent poll"
 msgstr ""
 
 msgid "FOG Client"
@@ -6292,6 +6293,10 @@ msgid "No password is needed. Issue this account a token from its API tab, or fr
 msgstr ""
 
 #, fuzzy
+msgid "No payloads for the capability, or not a live row of this host."
+msgstr "このホストの実行中タスクは見つかりません"
+
+#, fuzzy
 msgid "No plugin tasks to run"
 msgstr "有効なタスクが見つかりません"
 
@@ -6465,10 +6470,6 @@ msgstr "未登録ホスト"
 
 msgid "Not a certificate request, or one for a key other than the one this certificate proved."
 msgstr ""
-
-#, fuzzy
-msgid "Not a live task of this host's job."
-msgstr "このホストの実行中タスクは見つかりません"
 
 msgid "Not a number"
 msgstr "数値ではありません"
@@ -9646,6 +9647,9 @@ msgstr "ファイルまたはパスに到達できません"
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
+msgid "The bytes behind one thing under a capability. For snapin, the file for one task of the host's own job; fetching it marks the task in progress. One route for every kind of payload. Same gate as poll."
+msgstr ""
+
 msgid "The calling user's preferences."
 msgstr ""
 
@@ -9693,9 +9697,6 @@ msgid "The enrollment is no longer pending."
 msgstr "選択したプリンターを追加"
 
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
-msgstr ""
-
-msgid "The file for one task of the host's own snapin job; fetching it marks the task in progress. Same gate as poll."
 msgstr ""
 
 msgid "The file itself."
@@ -13711,6 +13712,10 @@ msgstr ""
 
 #~ msgid "Not Valid"
 #~ msgstr "無効"
+
+#, fuzzy
+#~ msgid "Not a live task of this host's job."
+#~ msgstr "このホストの実行中タスクは見つかりません"
 
 #~ msgid "Not able to add"
 #~ msgstr "追加できません"

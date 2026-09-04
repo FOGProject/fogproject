@@ -1571,7 +1571,7 @@ class Route extends FOGBase
         self::_registerRoute($r, 'POST', '/agent/v1/poll', [__CLASS__, 'agentPoll'], 'agentpoll');
         self::_registerRoute($r, 'POST', '/agent/v1/renew', [__CLASS__, 'agentRenew'], 'agentrenew');
         self::_registerRoute($r, 'POST', '/agent/v1/result', [__CLASS__, 'agentResult'], 'agentresult');
-        self::_registerRoute($r, 'GET', '/agent/v1/snapin/[i:id]/file', [__CLASS__, 'agentSnapinFile'], 'agentsnapinfile');
+        self::_registerRoute($r, 'GET', '/agent/v1/payload/[a:capability]/[i:id]', [__CLASS__, 'agentPayload'], 'agentpayload');
         self::_registerRoute($r, 'GET', '/agent/enrollments', [__CLASS__, 'agentEnrollments'], 'agentenrollments');
         self::_registerRoute($r, 'POST', '/agent/enrollment/[i:id]/[*:action]', [__CLASS__, 'agentEnrollmentDecide'], 'agentenrollmentdecide');
         self::_registerRoute($r, 'GET', '/agent/tokens', [__CLASS__, 'agentTokens'], 'agenttokens');
@@ -2958,20 +2958,24 @@ class Route extends FOGBase
         HTTPResponseCodes::breakHead(HTTPResponseCodes::HTTP_OK, json_encode($answer));
     }
     /**
-     * fog-agent's snapin payload: the bytes of one task's file.
+     * fog-agent's payload: the bytes behind one thing under a capability,
+     * today a snapin task's file. One route for every kind of payload:
+     * the capability picks the class (Agent\State::PAYLOADS), which checks
+     * the row is the host's own and streams (protocol-v1.md rule).
      *
-     * The task must belong to the host's own job; the fetch is what marks
-     * the task in progress. Streams and exits (Agent\Snapins::stream).
-     *
-     * @param int $id the snapin task
+     * @param string $capability the capability
+     * @param int    $id         the row under it
      *
      * @return void
      */
-    public static function agentSnapinFile($id)
+    public static function agentPayload($capability, $id)
     {
         try {
-            $SnapinTask = \FOG\Agent\Snapins::ownTask(self::$agentHost, (int)$id);
-            \FOG\Agent\Snapins::stream(self::$agentHost, $SnapinTask);
+            $class = \FOG\Agent\State::PAYLOADS[(string)$capability] ?? null;
+            if (null === $class) {
+                throw new \RuntimeException('capability has no payloads', 404);
+            }
+            $class::payload(self::$agentHost, (int)$id);
         } catch (\RuntimeException $e) {
             HTTPResponseCodes::breakHead(
                 self::_agentErrorCode($e),

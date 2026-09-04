@@ -3219,10 +3219,11 @@ msgstr "没有文件被上传"
 msgid "FOG Agent enrollment"
 msgstr "已成功更新"
 
-msgid "FOG Agent poll"
-msgstr ""
+#, fuzzy
+msgid "FOG Agent payload"
+msgstr "没有文件被上传"
 
-msgid "FOG Agent snapin payload"
+msgid "FOG Agent poll"
 msgstr ""
 
 #, fuzzy
@@ -6499,6 +6500,10 @@ msgid "No password is needed. Issue this account a token from its API tab, or fr
 msgstr ""
 
 #, fuzzy
+msgid "No payloads for the capability, or not a live row of this host."
+msgstr "发现主机没有活动任务"
+
+#, fuzzy
 msgid "No plugin tasks to run"
 msgstr "发送无有效类"
 
@@ -6678,10 +6683,6 @@ msgstr "未注册主机"
 
 msgid "Not a certificate request, or one for a key other than the one this certificate proved."
 msgstr ""
-
-#, fuzzy
-msgid "Not a live task of this host's job."
-msgstr "发现主机没有活动任务"
 
 msgid "Not a number"
 msgstr "不是一个数字"
@@ -9974,6 +9975,9 @@ msgstr "|文件或无法达成通道"
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
+msgid "The bytes behind one thing under a capability. For snapin, the file for one task of the host's own job; fetching it marks the task in progress. One route for every kind of payload. Same gate as poll."
+msgstr ""
+
 msgid "The calling user's preferences."
 msgstr ""
 
@@ -10022,9 +10026,6 @@ msgid "The enrollment is no longer pending."
 msgstr "不复存在"
 
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
-msgstr ""
-
-msgid "The file for one task of the host's own snapin job; fetching it marks the task in progress. Same gate as poll."
 msgstr ""
 
 msgid "The file itself."
@@ -13281,6 +13282,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Not Installed"
 #~ msgstr "已安装的插件"
+
+#, fuzzy
+#~ msgid "Not a live task of this host's job."
+#~ msgstr "发现主机没有活动任务"
 
 #, fuzzy
 #~ msgid "Not an entry in this host's software set."

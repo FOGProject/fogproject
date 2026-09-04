@@ -345,7 +345,7 @@ class Authorization extends FOGBase
         'agentpoll' => null,                 // fog-agent: gated by the client certificate in Route, not by a token
         'agentrenew' => null,                // fog-agent: same gate
         'agentresult' => null,               // fog-agent: same gate
-        'agentsnapinfile' => null,           // fog-agent: same gate
+        'agentpayload' => null,              // fog-agent: same gate
         'agentenrollments' => 'host.view',
         'agentenrollmentdecide' => 'host.edit',
         // Tokens approve machines the admin has not seen, which creates

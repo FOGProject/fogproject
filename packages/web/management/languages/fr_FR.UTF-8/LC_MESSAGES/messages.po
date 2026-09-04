@@ -3219,10 +3219,11 @@ msgstr "Aucun fichier a été téléchargé"
 msgid "FOG Agent enrollment"
 msgstr "a été mis à jour avec succès"
 
-msgid "FOG Agent poll"
-msgstr ""
+#, fuzzy
+msgid "FOG Agent payload"
+msgstr "Aucun fichier a été téléchargé"
 
-msgid "FOG Agent snapin payload"
+msgid "FOG Agent poll"
 msgstr ""
 
 #, fuzzy
@@ -6497,6 +6498,10 @@ msgid "No password is needed. Issue this account a token from its API tab, or fr
 msgstr ""
 
 #, fuzzy
+msgid "No payloads for the capability, or not a live row of this host."
+msgstr "Aucune tâche active trouvée pour Host"
+
+#, fuzzy
 msgid "No plugin tasks to run"
 msgstr "Aucune classe valide envoyé"
 
@@ -6676,10 +6681,6 @@ msgstr "Hosts Pas encore inscrit"
 
 msgid "Not a certificate request, or one for a key other than the one this certificate proved."
 msgstr ""
-
-#, fuzzy
-msgid "Not a live task of this host's job."
-msgstr "Aucune tâche active trouvée pour Host"
 
 msgid "Not a number"
 msgstr "Pas un certain nombre"
@@ -9971,6 +9972,9 @@ msgstr " | Fichier ou chemin ne peut pas être atteint"
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
+msgid "The bytes behind one thing under a capability. For snapin, the file for one task of the host's own job; fetching it marks the task in progress. One route for every kind of payload. Same gate as poll."
+msgstr ""
+
 msgid "The calling user's preferences."
 msgstr ""
 
@@ -10019,9 +10023,6 @@ msgid "The enrollment is no longer pending."
 msgstr " n'existe plus"
 
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
-msgstr ""
-
-msgid "The file for one task of the host's own snapin job; fetching it marks the task in progress. Same gate as poll."
 msgstr ""
 
 msgid "The file itself."
@@ -13278,6 +13279,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Not Installed"
 #~ msgstr "Plugins installés"
+
+#, fuzzy
+#~ msgid "Not a live task of this host's job."
+#~ msgstr "Aucune tâche active trouvée pour Host"
 
 #, fuzzy
 #~ msgid "Not an entry in this host's software set."

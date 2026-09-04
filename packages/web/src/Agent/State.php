@@ -76,6 +76,16 @@ class State extends FOGBase
     ];
 
     /**
+     * Capabilities with bytes to fetch for one row: the class's
+     * payload(Host, id) checks the row is the host's own and streams it.
+     *
+     * @var array<string, class-string>
+     */
+    const PAYLOADS = [
+        'snapin' => Snapins::class,
+    ];
+
+    /**
      * What the agent may report for one capability.
      */
     const RESULT_STATUSES = ['applied', 'unchanged', 'pending_reboot', 'failed'];

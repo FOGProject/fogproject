@@ -2672,24 +2672,33 @@ class OpenAPI extends FOGBase
                     ]
                 )
             ],
-            '/agent/v1/snapin/{id}/file' => [
+            '/agent/v1/payload/{capability}/{id}' => [
                 'get' => self::_op(
                     '',
-                    'agentsnapinfile',
-                    _('FOG Agent snapin payload'),
-                    _('The file for one task of the host\'s own snapin job; '
-                        . 'fetching it marks the task in progress. Same gate '
-                        . 'as poll.'),
+                    'agentpayload',
+                    _('FOG Agent payload'),
+                    _('The bytes behind one thing under a capability. For '
+                        . 'snapin, the file for one task of the host\'s own '
+                        . 'job; fetching it marks the task in progress. One '
+                        . 'route for every kind of payload. Same gate as poll.'),
                     [
                         '200' => [
                             'description' => _('The payload bytes.'),
                             'content' => ['application/octet-stream' => ['schema' => ['type' => 'string', 'format' => 'binary']]]
                         ],
                         '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
-                        '404' => ['description' => _('Not a live task of this host\'s job.')],
+                        '404' => ['description' => _('No payloads for the capability, or not a live row of this host.')],
                         '503' => ['description' => _('No storage node can serve the file.')]
                     ],
-                    [self::_idParameter()]
+                    [
+                        [
+                            'name' => 'capability',
+                            'in' => 'path',
+                            'required' => true,
+                            'schema' => ['type' => 'string', 'enum' => ['snapin']]
+                        ],
+                        self::_idParameter()
+                    ]
                 )
             ],
             '/agent/v1/renew' => [

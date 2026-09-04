@@ -170,6 +170,23 @@ class Snapins extends FOGBase
     }
 
     /**
+     * The payload of one task, for GET /agent/v1/payload/snapin/{id}: the
+     * task must be the host's own, and fetching is what marks it in
+     * progress. Streams and exits.
+     *
+     * @param Host $Host   the agent's host
+     * @param int  $taskID the snapin task
+     *
+     * @throws \RuntimeException 404, 503 (see ownTask, stream)
+     *
+     * @return void
+     */
+    public static function payload(Host $Host, $taskID)
+    {
+        self::stream($Host, self::ownTask($Host, (int)$taskID));
+    }
+
+    /**
      * Streams the task's payload to the caller and marks the task, job and
      * host task in progress. Does not return.
      *
