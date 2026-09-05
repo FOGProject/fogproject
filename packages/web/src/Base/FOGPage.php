@@ -100,6 +100,18 @@ abstract class FOGPage extends FOGBase
      */
     public $noteSources = [];
     /**
+     * Pre-rendered action buttons for the info card, or ''.
+     *
+     * Sits to the right of the notes in the same card. Built by a page's
+     * edit() -- renderQuickTaskActions() is the only builder today -- and
+     * echoed by renderInfoCard(). A string rather than a spec array because
+     * the only thing the renderer does with it is echo it, and the pages
+     * that set it are already building markup with makeButton().
+     *
+     * @var string
+     */
+    public $noteActions = '';
+    /**
      * Table header data
      *
      * @var array

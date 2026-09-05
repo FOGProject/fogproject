@@ -1757,9 +1757,12 @@ class GroupManagement extends FOGPage
      */
     public function edit()
     {
+        // Read once: the note below and the quick-task confirmation both
+        // want it, and getHostCount() is a query.
+        $hostCount = (int)$this->obj->getHostCount();
         $this->notes = [
             _('Group') => $this->obj->get('name'),
-            _('Members') => (string)$this->obj->getHostCount()
+            _('Members') => (string)$hostCount
         ];
         // Info-card notes that mirror a General-tab control, so the card
         // tracks the form instead of going stale until the next page
@@ -1769,6 +1772,29 @@ class GroupManagement extends FOGPage
         $this->noteSources = [
             _('Group') => '#group'
         ];
+        // Deploy and Multi-Cast, one click, from whichever tab is open.
+        // Multi-Cast rather than Capture: capturing is a thing you do to
+        // one machine, and a group is by definition more than one. Not a
+        // style call -- deployPost() below throws "Groups cannot create
+        // capture tasks" outright, so a Capture button here could only ever
+        // produce a toast saying no. The list grid draws the same line on
+        // ttIsAccess ('host' vs 'group').
+        //
+        // The member count goes in the confirmation, not just the name. A
+        // group's size is the fact that decides whether you meant to press
+        // this, and it is the one thing the button itself cannot show.
+        if ($hostCount > 0) {
+            $this->noteActions = self::renderQuickTaskActions(
+                'group',
+                (int)$this->obj->get('id'),
+                [TaskType::DEPLOY, TaskType::MULTICAST],
+                sprintf(
+                    _('all %1$d hosts in group "%2$s"'),
+                    $hostCount,
+                    $this->obj->get('name')
+                )
+            );
+        }
         $tabData = [];
 
         // General

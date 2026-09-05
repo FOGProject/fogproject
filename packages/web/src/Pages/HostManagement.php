@@ -4473,9 +4473,18 @@ class HostManagement extends FOGPage
     public function edit()
     {
         // Identity plus the facts you cannot see from the other twenty
-        // tabs: which image is assigned, when it was last imaged, and which
-        // group it belongs to.
-        $primaryGroup = new Group(self::minId($this->obj->get('groups')));
+        // tabs: which image is assigned and when it was last imaged.
+        //
+        // No group line. It used to say "Primary Group", meaning
+        // minId($this->obj->get('groups')) -- the lowest-id group the host
+        // happened to be in. There is no primary group: a group GRANTS, and
+        // what a host ends up with is resolved from every group it belongs
+        // to at task time, ordered by groupOrder (ADR 0038, and see
+        // FOG\Assign\Resolver). So the label named a rank that does not
+        // exist and the value picked one membership arbitrarily. Listing
+        // them all instead was considered and dropped: a host in eight
+        // groups blows the card out, and the Group Associations tab already
+        // shows them properly.
         // Whichever of the two clients last spoke, named so the card is not
         // ambiguous about which one it is reporting.
         //
@@ -4518,11 +4527,6 @@ class HostManagement extends FOGPage
                 $this->obj->get('deployed'),
                 'hosts',
                 'hostLastDeploy'
-            ),
-            _('Primary Group') => (
-                $primaryGroup->isValid() ?
-                $primaryGroup->get('name') :
-                _('None')
             )
         ];
         // Info-card notes that mirror a General-tab control, so the card
@@ -4534,6 +4538,18 @@ class HostManagement extends FOGPage
             _('Host') => '#host',
             _('Assigned Image') => '#image'
         ];
+        // Deploy and Capture, one click, from whichever tab is open. Gated
+        // on pending for the same reason the Tasks tab below is: a pending
+        // host cannot be tasked, and deployPost() refuses it anyway, so
+        // offering the button only produces a toast saying no.
+        if (!$this->obj->get('pending')) {
+            $this->noteActions = self::renderQuickTaskActions(
+                'host',
+                (int)$this->obj->get('id'),
+                [TaskType::DEPLOY, TaskType::CAPTURE],
+                sprintf(_('host "%s"'), $this->obj->get('name'))
+            );
+        }
         $tabData = [];
 
         // General
