@@ -618,6 +618,16 @@ class ServiceConfigurationPage extends FOGPage
                 'id' => 'service-' . $Module->shortName,
                 'generator' => function () use ($Module) {
                     $func = 'service' . ucfirst($Module->shortName);
+                    // A module row whose tab has not been written must not
+                    // take the whole page down with it. `software` is one
+                    // today. The moment the method exists this renders it.
+                    if (!method_exists($this, $func)) {
+                        printf(
+                            '<p>%s</p>',
+                            _('This module has no settings to configure.')
+                        );
+                        return;
+                    }
                     $this->{$func}();
                 }
             ];
