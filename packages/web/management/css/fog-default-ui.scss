@@ -1474,6 +1474,26 @@ div.fog-colsearch {
   .select2-container--default .select2-results__option--highlighted[aria-selected] {
     background-color: var(--fog-primary);
   }
+  // The chips in a multiple select (Group Membership, snapin and printer
+  // assignment). Select2's own sheet paints `.select2-selection__choice`
+  // #e4e4e4 and sets no `color`, so the label inherits the dark theme's
+  // light --fog-text and lands white-on-near-white. Only the "x" stays
+  // visible, because Select2 does give that a color of its own -- which is
+  // exactly what the bug looks like: a readable x beside an invisible name.
+  // The Bootstrap 5 theme would have supplied `color: #212529` here, but
+  // none of our selects pass `theme: 'bootstrap-5'`, so they render as
+  // `--default` and that rule never matches.
+  .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    background-color: var(--fog-surface-2);
+    border-color: var(--fog-border);
+    color: var(--fog-text);
+  }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+    color: var(--fog-text-muted);
+  }
+  .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+    color: var(--fog-text);
+  }
 
   // -- date/time picker popup (bootstrap-datetimepicker) --
   // The widget popup carries the Bootstrap `.dropdown-menu` class, so it inherits

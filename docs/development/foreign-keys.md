@@ -284,7 +284,7 @@ where.**
 `deletemass('image')` does this today:
 
 ```php
-self::getClass('HostManager')->update($findWhere, '', ['imageID' => 0]);
+(new HostManager())->update($findWhere, '', ['imageID' => null]);
 ```
 
 An image assigned to hosts *can* be deleted; the hosts are unassigned. That
