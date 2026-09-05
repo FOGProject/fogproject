@@ -4510,6 +4510,8 @@ class FOGConfigurationPage extends FOGPage
             'FOG_CLIENT_AUTOLOGOFF_WARN' => true,
             // FOG Service - Host Register
             'FOG_QUICKREG_MAX_PENDING_MACS' => true,
+            // FOG Service - Software
+            'FOG_SOFTWARE_DRIFT_INTERVAL' => true,
             // FOG View Settings
             'FOG_VIEW_DEFAULT_SCREEN' => ['set' => $viewvals],
             'FOG_DATA_RETURNED' => true,

@@ -8,6 +8,7 @@
     var services = [
         {btn: '#autologout-update', form: '#autologoutupdate-form'},
         {btn: '#snapinclient-update', form: '#snapinclientupdate-form'},
+        {btn: '#software-update', form: '#softwareupdate-form'},
         {btn: '#hostregister-update', form: '#hostregisterupdate-form'},
         {btn: '#hostnamechanger-update', form: '#hostnamechangerupdate-form'},
         {btn: '#printermanager-update', form: '#printermanagerupdate-form'},

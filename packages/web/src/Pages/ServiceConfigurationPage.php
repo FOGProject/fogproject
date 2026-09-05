@@ -375,6 +375,119 @@ class ServiceConfigurationPage extends FOGPage
         );
     }
     /**
+     * Presents the software management page.
+     *
+     * @return void
+     */
+    public function serviceSoftware()
+    {
+        $labelClass = 'col-sm-3 col-form-label';
+
+        list(
+            $drift,
+            $bootstrap,
+            $nupkg
+        ) = self::getSetting(
+            [
+                'FOG_SOFTWARE_DRIFT_INTERVAL',
+                'FOG_SOFTWARE_CHOCO_BOOTSTRAP_URL',
+                'FOG_SOFTWARE_CHOCO_NUPKG_URL'
+            ]
+        );
+
+        $this->_renderModuleTab(
+            'software',
+            'software',
+            'sw',
+            'MODULE_SOFTWARE_FIELDS',
+            [
+                self::makeLabel(
+                    $labelClass,
+                    'updatedrift',
+                    _('Re-check Interval')
+                    . '<br/>('
+                    . _('in seconds')
+                    . ')<br/>('
+                    . _('0 checks only when the assigned set changes')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'drift',
+                    '21600',
+                    'number',
+                    'updatedrift',
+                    $drift
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'updatebootstrap',
+                    _('Chocolatey Install Script')
+                    . '<br/>('
+                    . _('empty means never install Chocolatey')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'bootstrap',
+                    'https://community.chocolatey.org/install.ps1',
+                    'url',
+                    'updatebootstrap',
+                    $bootstrap
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'updatenupkg',
+                    _('Chocolatey Package Source')
+                    . '<br/>('
+                    . _('optional; for an air-gapped or mirrored install')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'nupkg',
+                    '',
+                    'url',
+                    'updatenupkg',
+                    $nupkg
+                )
+            ]
+        );
+    }
+    /**
+     * Updates the software management elements.
+     *
+     * @return void
+     */
+    public function serviceSoftwarePost()
+    {
+        $this->_saveModuleTab(
+            'software',
+            'software',
+            'MODULE_SOFTWARE_POST',
+            function () {
+                // Clamped, not refused, and never negative: the agent reads
+                // <= 0 as "only re-check when the assigned set changes", so
+                // a negative number would silently mean the same thing as 0
+                // while showing the admin something else.
+                $drift = (int)filter_input(INPUT_POST, 'drift');
+                if ($drift < 0) {
+                    $drift = 0;
+                }
+                self::setSetting('FOG_SOFTWARE_DRIFT_INTERVAL', $drift);
+                // Both URLs are trimmed on the way out in
+                // Agent\SoftwareSet, so trim them on the way in too and an
+                // admin who pastes a trailing space does not see the value
+                // change under them.
+                self::setSetting(
+                    'FOG_SOFTWARE_CHOCO_BOOTSTRAP_URL',
+                    trim((string)filter_input(INPUT_POST, 'bootstrap'))
+                );
+                self::setSetting(
+                    'FOG_SOFTWARE_CHOCO_NUPKG_URL',
+                    trim((string)filter_input(INPUT_POST, 'nupkg'))
+                );
+            }
+        );
+    }
+    /**
      * Presents the snapin client page.
      *
      * @return void
@@ -546,7 +659,12 @@ class ServiceConfigurationPage extends FOGPage
         $this->_renderModuleTab(
             'powermanagement',
             'power management',
-            'pm',
+            // Not 'pm': printer manager already has it, and every tab is
+            // rendered into one document, so both were emitting an element
+            // with id="ispmEnabled". A <label for> binds to the first match
+            // in the document, which made Power Management's "Module
+            // Enabled" label toggle Printer Manager's checkbox.
+            'pwm',
             'MODULE_POWERMANAGEMENT_FIELDS'
         );
     }
@@ -618,9 +736,11 @@ class ServiceConfigurationPage extends FOGPage
                 'id' => 'service-' . $Module->shortName,
                 'generator' => function () use ($Module) {
                     $func = 'service' . ucfirst($Module->shortName);
-                    // A module row whose tab has not been written must not
-                    // take the whole page down with it. `software` is one
-                    // today. The moment the method exists this renders it.
+                    // A module row whose tab is missing must not take the
+                    // whole page down with it. Schema 419 seeded `software`
+                    // before this page had a serviceSoftware(), and the
+                    // result was a 500 on the page that configures every
+                    // other module. A plugin seeding a row can do the same.
                     if (!method_exists($this, $func)) {
                         printf(
                             '<p>%s</p>',
@@ -668,6 +788,9 @@ class ServiceConfigurationPage extends FOGPage
                     break;
                 case 'service-snapinclient':
                     $this->serviceSnapinclientPost();
+                    break;
+                case 'service-software':
+                    $this->serviceSoftwarePost();
                     break;
                 case 'service-taskreboot':
                     $this->serviceTaskrebootPost();

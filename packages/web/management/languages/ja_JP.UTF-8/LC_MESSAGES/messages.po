@@ -313,6 +313,9 @@ msgstr ""
 msgid ", Arguments = %s"
 msgstr "カーネル引数"
 
+msgid "0 checks only when the assigned set changes"
+msgstr ""
+
 msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
 msgstr ""
 
@@ -1863,6 +1866,12 @@ msgid "Checking if I am the group manager"
 msgstr "自身がグループマネージャーか確認しています"
 
 msgid "Chocolatey (offline source)"
+msgstr ""
+
+msgid "Chocolatey Install Script"
+msgstr ""
+
+msgid "Chocolatey Package Source"
 msgstr ""
 
 msgid "Choose a user"
@@ -7642,6 +7651,10 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr "Hello 送信間隔"
 
+#, fuzzy
+msgid "Re-check Interval"
+msgstr "Hello 再送信間隔"
+
 msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
 msgstr ""
 
@@ -10057,7 +10070,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11629,6 +11641,9 @@ msgstr "既に選択済み、またはアップロード済み"
 msgid "either because you have updated"
 msgstr "更新したため、または"
 
+msgid "empty means never install Chocolatey"
+msgstr ""
+
 #, fuzzy
 msgid "error"
 msgstr "エラー"
@@ -12101,6 +12116,9 @@ msgstr ""
 #, fuzzy
 msgid "optional"
 msgstr "ロケーション"
+
+msgid "optional; for an air-gapped or mirrored install"
+msgstr ""
 
 msgid "or"
 msgstr "または"
@@ -14185,9 +14203,6 @@ msgstr ""
 
 #~ msgid "Reverse the file: (newest on top)"
 #~ msgstr "ファイルを逆順に表示（新しいものを上に）"
-
-#~ msgid "Rexmit Hello Interval"
-#~ msgstr "Hello 再送信間隔"
 
 #~ msgid "Routes should be an array or an instance of Traversable"
 #~ msgstr "ルートは配列または Traversable のインスタンスである必要があります"

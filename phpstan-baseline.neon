@@ -3863,7 +3863,7 @@ parameters:
 		-
 			message: '#^Parameter \#2 \$value of static method FOG\\Base\\FOGBase\:\:setSetting\(\) expects string, int\<0, max\> given\.$#'
 			identifier: argument.type
-			count: 1
+			count: 2
 			path: packages/web/src/Pages/ServiceConfigurationPage.php
 
 		-

@@ -316,6 +316,9 @@ msgstr ""
 msgid ", Arguments = %s"
 msgstr "Kernel-Argumente"
 
+msgid "0 checks only when the assigned set changes"
+msgstr ""
+
 msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
 msgstr ""
 
@@ -1918,6 +1921,12 @@ msgid "Checking if I am the group manager"
 msgstr "Prüfe, ob ich der Gruppenmanager bin"
 
 msgid "Chocolatey (offline source)"
+msgstr ""
+
+msgid "Chocolatey Install Script"
+msgstr ""
+
+msgid "Chocolatey Package Source"
 msgstr ""
 
 msgid "Choose a user"
@@ -7867,6 +7876,9 @@ msgstr "RX"
 msgid "Re-Transmit Hello Interval"
 msgstr ""
 
+msgid "Re-check Interval"
+msgstr ""
+
 msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
 msgstr ""
 
@@ -10384,7 +10396,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12006,6 +12017,9 @@ msgstr "ob bereits ausgewählt oder hochgeladen"
 msgid "either because you have updated"
 msgstr "entweder weil Sie aktualisiert haben"
 
+msgid "empty means never install Chocolatey"
+msgstr ""
+
 #, fuzzy
 msgid "error"
 msgstr "Fehler"
@@ -12496,6 +12510,9 @@ msgstr ""
 #, fuzzy
 msgid "optional"
 msgstr "Ort"
+
+msgid "optional; for an air-gapped or mirrored install"
+msgstr ""
 
 msgid "or"
 msgstr "oder"
