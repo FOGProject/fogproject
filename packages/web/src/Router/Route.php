@@ -665,7 +665,6 @@ class Route extends FOGBase
         'host',
         'hostautologout',
         'hostfactstate',
-        'hostscreensetting',
         'hostsoftware',
         'hostdirectory',
         'hostnetwork',
@@ -3689,7 +3688,7 @@ class Route extends FOGBase
             // Inline ONLY the requested relations onto the flat grid
             // row. Merging the full getter() output here would drag in
             // every relation the entity's base serialization embeds
-            // (for Host: inventory/image/hostscreen/hostalo/macs),
+            // (for Host: inventory/image/hostalo/macs),
             // which defeats the selective contract of ?expand=token.
             $exp = self::expandRelations($classname, $robj, $row);
             $exp = self::enrichPluginItems($classname, $robj, $exp);
@@ -7216,11 +7215,6 @@ class Route extends FOGBase
                     $serialExtras = [
                         'ADPass' => $pass,
                         'productKey' => $productKey,
-                        'hostscreen' => self::embed(
-                            $classname,
-                            'hostscreen',
-                            $class->get('hostscreen')
-                        ),
                         'hostalo' => self::embed(
                             $classname,
                             'hostalo',
@@ -9277,7 +9271,6 @@ class Route extends FOGBase
                     'task' => $findWhere,
                     'scheduledtask' => $findWhere,
                     'hostautologout' => $findWhere,
-                    'hostscreensetting' => $findWhere,
                     'groupassociation' => $findWhere,
                     'snapinassociation' => $findWhere,
                     'printerassociation' => $findWhere,

@@ -172,16 +172,6 @@ hostprinter	7	hpDriver	driver	-	-
 hostprinter	8	hpDefault	isDefault	-	-
 hostprinter	9	hpShared	shared	-	-
 hostprinter	10	hpObservedAt	observedAt	-	-
-hostscreensetting	0	hssID	id	-	-
-hostscreensetting	1	hssID	DT_RowId	f	-
-hostscreensetting	2	hssHostID	hostID	-	-
-hostscreensetting	3	hssHostID	hostLink	f:classname	host
-hostscreensetting	4	hssWidth	width	-	-
-hostscreensetting	5	hssHeight	height	-	-
-hostscreensetting	6	hssRefresh	refresh	-	-
-hostscreensetting	7	hssOrientation	orientation	-	-
-hostscreensetting	8	hssOther1	other1	-	-
-hostscreensetting	9	hssOther2	other2	-	-
 hostsoftware	0	hsID	id	-	-
 hostsoftware	1	hsID	DT_RowId	f	-
 hostsoftware	2	hsHostID	hostID	-	-

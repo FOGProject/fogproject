@@ -1127,49 +1127,6 @@
         }
     });
 
-    // Display manager area
-    var hostModuleDisplaymanBtn = $('#host-displayman-send'),
-        hostModuleDisplayForm = $('#host-displayman-form');
-
-    function disableModuleDisplayButtons(disable) {
-        hostModuleDisplaymanBtn.prop('disabled', disable);
-    }
-
-    hostModuleDisplayForm.on('submit', function(e) {
-        e.preventDefault();
-    });
-
-    hostModuleDisplaymanBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            opts = {
-                confirmdisplaysend: 1,
-                x: $('#x').val(),
-                y: $('#y').val(),
-                r: $('#r').val()
-            };
-        disableModuleDisplayButtons(true);
-        $.apiCall(method,action,opts,function(err) {
-            disableModuleDisplayButtons(false);
-            if (err) {
-                return;
-            }
-            var url = '../management/index.php?node='
-                + Common.node
-                + '&sub=getHostDisplayManVals'
-                + '&id='
-                + Common.id;
-            Pace.ignore(function() {
-                $.get(url, function(data) {
-                    $('#x').val(data.x);
-                    $('#y').val(data.y);
-                    $('#r').val(data.r);
-                }, 'json');
-            });
-        });
-    });
-
     // Auto log out area
     var hostModuleAloBtn = $('#host-alo-send'),
         hostModuleAloForm = $('#host-alo-form');

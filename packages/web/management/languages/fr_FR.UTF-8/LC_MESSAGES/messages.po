@@ -325,6 +325,9 @@ msgstr "Arguments du noyau"
 msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
 msgstr ""
 
+msgid "0 logs the user out with no warning"
+msgstr ""
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 heure"
@@ -2604,15 +2607,6 @@ msgstr "Défaut"
 msgid "Default Choice"
 msgstr "Point par défaut:"
 
-msgid "Default Height"
-msgstr "Hauteur par défaut"
-
-msgid "Default Refresh Rate"
-msgstr "Par défaut Taux de rafraîchissement"
-
-msgid "Default Width"
-msgstr "Par défaut Largeur"
-
 #, fuzzy
 msgid "Default init, ARM64"
 msgstr "Par défaut Largeur"
@@ -4081,10 +4075,6 @@ msgstr ""
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
 
-#, fuzzy
-msgid "Height"
-msgstr "Minuit"
-
 msgid "Height must be 120 pixels."
 msgstr ""
 
@@ -4195,10 +4185,6 @@ msgstr "Point par défaut:"
 msgid "Host Description"
 msgstr "hôte description de"
 
-#, fuzzy
-msgid "Host Display Manager Settings"
-msgstr "Paramètres"
-
 msgid "Host EFI Exit Type"
 msgstr "Hôte EFI Type de sortie"
 
@@ -4301,10 +4287,6 @@ msgid "Host Product Keys"
 msgstr "Hôte clé de produit"
 
 msgid "Host Registration"
-msgstr "Enregistrement de l'hôte"
-
-#, fuzzy
-msgid "Host Screen Resolution"
 msgstr "Enregistrement de l'hôte"
 
 #, fuzzy
@@ -7949,10 +7931,6 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
-msgid "Refresh"
-msgstr "Par défaut Taux de rafraîchissement"
-
-#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "État du service"
 
@@ -8471,16 +8449,6 @@ msgid "Schema updated successfully!"
 msgstr "Installation / Mise à jour réussie!"
 
 msgid "Scopes"
-msgstr ""
-
-msgid "Screen Height"
-msgstr ""
-
-#, fuzzy
-msgid "Screen Refresh Rate"
-msgstr "Par défaut Taux de rafraîchissement"
-
-msgid "Screen Width"
 msgstr ""
 
 msgid "Search"
@@ -10409,7 +10377,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11527,6 +11494,9 @@ msgstr "Wake on lan?"
 msgid "Wake Up"
 msgstr ""
 
+msgid "Warning Before Log Out"
+msgstr ""
+
 msgid "Warnings"
 msgstr ""
 
@@ -11626,9 +11596,6 @@ msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflic
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
-msgstr ""
-
-msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -12265,18 +12232,12 @@ msgstr ""
 msgid "in"
 msgstr "minutes"
 
-msgid "in Hz"
-msgstr ""
-
 msgid "in batch row"
 msgstr ""
 
 #, fuzzy
 msgid "in minutes"
 msgstr "minutes"
-
-msgid "in pixels"
-msgstr ""
 
 msgid "in seconds"
 msgstr ""
@@ -13069,6 +13030,15 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pas de hachage disponible"
 
+#~ msgid "Default Height"
+#~ msgstr "Hauteur par défaut"
+
+#~ msgid "Default Refresh Rate"
+#~ msgstr "Par défaut Taux de rafraîchissement"
+
+#~ msgid "Default Width"
+#~ msgstr "Par défaut Largeur"
+
 #, fuzzy
 #~ msgid "Delete All"
 #~ msgstr "Supprimer les données de fichiers"
@@ -13263,8 +13233,16 @@ msgstr ""
 #~ msgstr "hôte description de"
 
 #, fuzzy
+#~ msgid "Height"
+#~ msgstr "Minuit"
+
+#, fuzzy
 #~ msgid "History Report"
 #~ msgstr "ID d'hôte"
+
+#, fuzzy
+#~ msgid "Host Display Manager Settings"
+#~ msgstr "Paramètres"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -13281,6 +13259,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Ext Variable"
 #~ msgstr "mise à jour de l'utilisateur a échoué"
+
+#, fuzzy
+#~ msgid "Host Screen Resolution"
+#~ msgstr "Enregistrement de l'hôte"
 
 #, fuzzy
 #~ msgid "Host Site"
@@ -13517,6 +13499,10 @@ msgstr ""
 #~ msgstr "Enregistrements courants"
 
 #, fuzzy
+#~ msgid "Refresh"
+#~ msgstr "Par défaut Taux de rafraîchissement"
+
+#, fuzzy
 #~ msgid "Release Version"
 #~ msgstr "Dernière version"
 
@@ -13581,6 +13567,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "mise à jour de l'imprimante a échoué!"
+
+#, fuzzy
+#~ msgid "Screen Refresh Rate"
+#~ msgstr "Par défaut Taux de rafraîchissement"
 
 #, fuzzy
 #~ msgid "Serial"

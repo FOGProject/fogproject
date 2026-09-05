@@ -319,6 +319,9 @@ msgstr "Kernel-Argumente"
 msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
 msgstr ""
 
+msgid "0 logs the user out with no warning"
+msgstr ""
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 Stunde"
@@ -2601,15 +2604,6 @@ msgstr "Standard"
 msgid "Default Choice"
 msgstr "Standard-Eintrag:"
 
-msgid "Default Height"
-msgstr "Standardhöhe"
-
-msgid "Default Refresh Rate"
-msgstr "Standard-Bildwiederholrate"
-
-msgid "Default Width"
-msgstr "Standardbreite"
-
 #, fuzzy
 msgid "Default init, ARM64"
 msgstr "Standardbreite"
@@ -4079,10 +4073,6 @@ msgstr ""
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
 
-#, fuzzy
-msgid "Height"
-msgstr "Mitternacht"
-
 msgid "Height must be 120 pixels."
 msgstr "Höhe muss 120 Pixel betragen"
 
@@ -4193,10 +4183,6 @@ msgstr "Standard-Eintrag:"
 msgid "Host Description"
 msgstr "Host-Beschreibung"
 
-#, fuzzy
-msgid "Host Display Manager Settings"
-msgstr "iPXE Menüeinstellungen"
-
 msgid "Host EFI Exit Type"
 msgstr "Host-EFI-Exit-Typ"
 
@@ -4299,10 +4285,6 @@ msgid "Host Product Keys"
 msgstr "Host-Produkt-Schlüssel"
 
 msgid "Host Registration"
-msgstr "Host-Registrierung"
-
-#, fuzzy
-msgid "Host Screen Resolution"
 msgstr "Host-Registrierung"
 
 #, fuzzy
@@ -7954,10 +7936,6 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
-msgid "Refresh"
-msgstr "Standard-Bildwiederholrate"
-
-#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "Service-Status"
 
@@ -8477,16 +8455,6 @@ msgid "Schema updated successfully!"
 msgstr "iPXE-Einstellungen erfolgreich aktualisiert!"
 
 msgid "Scopes"
-msgstr ""
-
-msgid "Screen Height"
-msgstr ""
-
-#, fuzzy
-msgid "Screen Refresh Rate"
-msgstr "Standard-Bildwiederholrate"
-
-msgid "Screen Width"
 msgstr ""
 
 msgid "Search"
@@ -10417,7 +10385,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11535,6 +11502,9 @@ msgstr "Wake On Lan"
 msgid "Wake Up"
 msgstr ""
 
+msgid "Warning Before Log Out"
+msgstr ""
+
 msgid "Warnings"
 msgstr ""
 
@@ -11635,9 +11605,6 @@ msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflic
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
-msgstr ""
-
-msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -12275,18 +12242,12 @@ msgstr ""
 msgid "in"
 msgstr "Minuten"
 
-msgid "in Hz"
-msgstr ""
-
 msgid "in batch row"
 msgstr ""
 
 #, fuzzy
 msgid "in minutes"
 msgstr "Minuten"
-
-msgid "in pixels"
-msgstr ""
 
 msgid "in seconds"
 msgstr "in Sekunden"
@@ -13088,6 +13049,15 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Pfad ist nicht verfügbar"
 
+#~ msgid "Default Height"
+#~ msgstr "Standardhöhe"
+
+#~ msgid "Default Refresh Rate"
+#~ msgstr "Standard-Bildwiederholrate"
+
+#~ msgid "Default Width"
+#~ msgstr "Standardbreite"
+
 #, fuzzy
 #~ msgid "Delete All"
 #~ msgstr "Löschen fehlgeschlagen"
@@ -13288,8 +13258,16 @@ msgstr ""
 #~ msgstr "Gruppeneinstellungen Module"
 
 #, fuzzy
+#~ msgid "Height"
+#~ msgstr "Mitternacht"
+
+#, fuzzy
 #~ msgid "History Report"
 #~ msgstr "Verlaufs-ID"
+
+#, fuzzy
+#~ msgid "Host Display Manager Settings"
+#~ msgstr "iPXE Menüeinstellungen"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -13306,6 +13284,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Ext Variable"
 #~ msgstr "Aktualisierung der Rolle fehlgeschlagen"
+
+#, fuzzy
+#~ msgid "Host Screen Resolution"
+#~ msgstr "Host-Registrierung"
 
 #, fuzzy
 #~ msgid "Host Site"
@@ -13548,6 +13530,10 @@ msgstr ""
 #~ msgid "Recorded."
 #~ msgstr "(empfohlen)"
 
+#, fuzzy
+#~ msgid "Refresh"
+#~ msgstr "Standard-Bildwiederholrate"
+
 #~ msgid "Register must be managed from hooks or events"
 #~ msgstr "Register muss von Haken oder Ereignissen gemanagt werden"
 
@@ -13622,6 +13608,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "Drucker-Update fehlgeschlagen!"
+
+#, fuzzy
+#~ msgid "Screen Refresh Rate"
+#~ msgstr "Standard-Bildwiederholrate"
 
 #, fuzzy
 #~ msgid "Serial"

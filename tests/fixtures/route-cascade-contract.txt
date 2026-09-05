@@ -9,7 +9,6 @@ history	(nothing)
 hookevent	(nothing)	
 host	groupassociation	hostID
 host	hostautologout	hostID
-host	hostscreensetting	hostID
 host	inventory	hostID
 host	macaddressassociation	hostID
 host	moduleassociation	hostID
@@ -27,7 +26,6 @@ hostdirectory	(nothing)
 hostfactstate	(nothing)	
 hostnetwork	(nothing)	
 hostprinter	(nothing)	
-hostscreensetting	(nothing)	
 hostsoftware	(nothing)	
 hostspooler	(nothing)	
 hostusersession	(nothing)	

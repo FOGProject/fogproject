@@ -275,35 +275,22 @@ $check(
 
 // --- The row-backed half --------------------------------------------------
 //
-// Auto-logout and screen resolution are not `hosts` columns; they are one row
-// per host in their own tables, written delete-then-insert. Two properties
-// have to hold and neither is visible from a passing request: the row fields
-// must be resolved SEPARATELY from the column fields (so a row key can never
-// reach columnUpdates()), and the composite one must go through
-// resolveComposite() rather than resolve(), whose safety rule is that an
-// array is never a value.
+// Auto-logout is not a `hosts` column; it is one row per host in its own
+// table, written delete-then-insert. The row fields must be resolved
+// SEPARATELY from the column fields, so a row key can never reach
+// columnUpdates().
 $rows = $methodBody($source, 'private function massEditRowFields()');
 $check('massEditRowFields() is still findable', null !== $rows);
 $rows = (string)$rows;
 $check(
-    'the row-backed fields are auto-logout and resolution',
+    'the row-backed fields include auto-logout',
     false !== strpos($rows, "'autologout' => [")
-        && false !== strpos($rows, "'resolution' => [")
-);
-$check(
-    'the resolution is declared composite',
-    1 === preg_match(
-        "/'resolution' => \[[^\]]*'composite' => true/s",
-        $rows
-    )
 );
 
 $rowKeys = strpos($body, 'massEditRowFields()');
 $colUpdates = strpos($body, 'columnUpdates(');
-$composite = strpos($body, 'resolveComposite(');
 $applyRows = strpos($body, 'massEditApplyRows(');
 $check('the endpoint asks for the row-backed fields', false !== $rowKeys);
-$check('the endpoint resolves the composite one', false !== $composite);
 $check('the endpoint applies the row-backed half', false !== $applyRows);
 
 // The load-bearing one: columnUpdates() is handed $coreFields, and the row
@@ -327,7 +314,7 @@ $check(
 );
 
 // A row-backed-only submission must still count as work. Without this the
-// "nothing was set to change" refusal fires on a resolution-only edit and
+// "nothing was set to change" refusal fires on a row-backed-only edit and
 // the operator is told their submission was empty when it was not.
 $check(
     'the touched list includes the row-backed instructions',
@@ -344,24 +331,23 @@ $apply = (string)$apply;
 
 // CLEAR is the delete with no insert -- no row IS the absence of an override.
 // The tell that this is wrong is an insert that runs unconditionally, which
-// would turn CLEAR into "set to zero" for auto-logout and "set to 0x0" for
-// the resolution.
+// would turn CLEAR into "set to zero" for auto-logout.
 $check(
-    'the row arms insert only on SET',
-    2 === substr_count($apply, 'MassEdit::SET === ')
-        && 2 === substr_count($apply, 'insertBatch(')
+    'the row arm inserts only on SET',
+    1 === substr_count($apply, 'MassEdit::SET === ')
+        && 1 === substr_count($apply, 'insertBatch(')
 );
 $check(
-    'the row arms delete on both SET and CLEAR',
-    2 === substr_count($apply, 'Route::deletemass(')
-        && 2 === substr_count($apply, 'MassEdit::LEAVE !== ')
+    'the row arm deletes on both SET and CLEAR',
+    1 === substr_count($apply, 'Route::deletemass(')
+        && 1 === substr_count($apply, 'MassEdit::LEAVE !== ')
 );
 
 // One statement per field regardless of selection size, same reason the
 // column half is one UPDATE. A per-host loop here is the shape ADR 0038
 // decision 4 is about.
 $check(
-    'the row arms do not write one host at a time',
+    'the row arm does not write one host at a time',
     false === strpos($apply, '->save()')
         && false === strpos($apply, 'foreach ($resolved')
 );

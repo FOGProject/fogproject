@@ -324,6 +324,9 @@ msgstr "内核参数"
 msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
 msgstr ""
 
+msgid "0 logs the user out with no warning"
+msgstr ""
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1小时"
@@ -2604,15 +2607,6 @@ msgstr "默认"
 msgid "Default Choice"
 msgstr "默认项："
 
-msgid "Default Height"
-msgstr "默认高度"
-
-msgid "Default Refresh Rate"
-msgstr "默认刷新频率"
-
-msgid "Default Width"
-msgstr "默认宽度"
-
 #, fuzzy
 msgid "Default init, ARM64"
 msgstr "默认宽度"
@@ -4081,10 +4075,6 @@ msgstr ""
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
 
-#, fuzzy
-msgid "Height"
-msgstr "午夜"
-
 msgid "Height must be 120 pixels."
 msgstr ""
 
@@ -4195,10 +4185,6 @@ msgstr "默认项："
 msgid "Host Description"
 msgstr "主机描述"
 
-#, fuzzy
-msgid "Host Display Manager Settings"
-msgstr "设置"
-
 msgid "Host EFI Exit Type"
 msgstr "主持人EFI退出类型"
 
@@ -4301,10 +4287,6 @@ msgid "Host Product Keys"
 msgstr "主机产品密钥"
 
 msgid "Host Registration"
-msgstr "主机注册"
-
-#, fuzzy
-msgid "Host Screen Resolution"
 msgstr "主机注册"
 
 #, fuzzy
@@ -7951,10 +7933,6 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
-msgid "Refresh"
-msgstr "默认刷新频率"
-
-#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "服务状态"
 
@@ -8474,16 +8452,6 @@ msgid "Schema updated successfully!"
 msgstr "安装/升级成功！"
 
 msgid "Scopes"
-msgstr ""
-
-msgid "Screen Height"
-msgstr ""
-
-#, fuzzy
-msgid "Screen Refresh Rate"
-msgstr "默认刷新频率"
-
-msgid "Screen Width"
 msgstr ""
 
 msgid "Search"
@@ -10412,7 +10380,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11530,6 +11497,9 @@ msgstr "网络唤醒？"
 msgid "Wake Up"
 msgstr ""
 
+msgid "Warning Before Log Out"
+msgstr ""
+
 msgid "Warnings"
 msgstr ""
 
@@ -11629,9 +11599,6 @@ msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflic
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
-msgstr ""
-
-msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -12268,18 +12235,12 @@ msgstr ""
 msgid "in"
 msgstr "分钟"
 
-msgid "in Hz"
-msgstr ""
-
 msgid "in batch row"
 msgstr ""
 
 #, fuzzy
 msgid "in minutes"
 msgstr "分钟"
-
-msgid "in pixels"
-msgstr ""
 
 msgid "in seconds"
 msgstr ""
@@ -13072,6 +13033,15 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "没有可用的散列"
 
+#~ msgid "Default Height"
+#~ msgstr "默认高度"
+
+#~ msgid "Default Refresh Rate"
+#~ msgstr "默认刷新频率"
+
+#~ msgid "Default Width"
+#~ msgstr "默认宽度"
+
 #, fuzzy
 #~ msgid "Delete All"
 #~ msgstr "删除的文件数据"
@@ -13266,8 +13236,16 @@ msgstr ""
 #~ msgstr "主机描述"
 
 #, fuzzy
+#~ msgid "Height"
+#~ msgstr "午夜"
+
+#, fuzzy
 #~ msgid "History Report"
 #~ msgstr "主机ID"
+
+#, fuzzy
+#~ msgid "Host Display Manager Settings"
+#~ msgstr "设置"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -13284,6 +13262,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Ext Variable"
 #~ msgstr "用户更新失败"
+
+#, fuzzy
+#~ msgid "Host Screen Resolution"
+#~ msgstr "主机注册"
 
 #, fuzzy
 #~ msgid "Host Site"
@@ -13520,6 +13502,10 @@ msgstr ""
 #~ msgstr "当前记录"
 
 #, fuzzy
+#~ msgid "Refresh"
+#~ msgstr "默认刷新频率"
+
+#, fuzzy
 #~ msgid "Release Version"
 #~ msgstr "最新版本"
 
@@ -13584,6 +13570,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "打印机更新失败！"
+
+#, fuzzy
+#~ msgid "Screen Refresh Rate"
+#~ msgstr "默认刷新频率"
 
 #, fuzzy
 #~ msgid "Serial"

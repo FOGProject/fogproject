@@ -1820,7 +1820,6 @@ abstract class FOGBase
         //     FOG_CLIENT_<name>_ENABLED in lowercase.
         $services = [
             'autologout' => 'autologoff',
-            'displaymanager' => true,
             'hostnamechanger' => true,
             'hostregister' => true,
             'powermanagement' => true,

@@ -324,6 +324,9 @@ msgstr "Argumentos de kernel"
 msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
 msgstr ""
 
+msgid "0 logs the user out with no warning"
+msgstr ""
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 hora"
@@ -2604,15 +2607,6 @@ msgstr "Padrão"
 msgid "Default Choice"
 msgstr "Item padrão:"
 
-msgid "Default Height"
-msgstr "padrão Altura"
-
-msgid "Default Refresh Rate"
-msgstr "Padrão Refresh Rate"
-
-msgid "Default Width"
-msgstr "Largura padrão"
-
 #, fuzzy
 msgid "Default init, ARM64"
 msgstr "Largura padrão"
@@ -4081,10 +4075,6 @@ msgstr ""
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
 
-#, fuzzy
-msgid "Height"
-msgstr "meia-noite"
-
 msgid "Height must be 120 pixels."
 msgstr ""
 
@@ -4195,10 +4185,6 @@ msgstr "Item padrão:"
 msgid "Host Description"
 msgstr "anfitrião Descrição"
 
-#, fuzzy
-msgid "Host Display Manager Settings"
-msgstr "Configurações"
-
 msgid "Host EFI Exit Type"
 msgstr "Hospedar EFI Tipo Exit"
 
@@ -4301,10 +4287,6 @@ msgid "Host Product Keys"
 msgstr "Hospedar de Chave de Produto"
 
 msgid "Host Registration"
-msgstr "Registro de acolhimento"
-
-#, fuzzy
-msgid "Host Screen Resolution"
 msgstr "Registro de acolhimento"
 
 #, fuzzy
@@ -7951,10 +7933,6 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
-msgid "Refresh"
-msgstr "Padrão Refresh Rate"
-
-#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "status do serviço"
 
@@ -8474,16 +8452,6 @@ msgid "Schema updated successfully!"
 msgstr "Instalar / Atualizar sucesso!"
 
 msgid "Scopes"
-msgstr ""
-
-msgid "Screen Height"
-msgstr ""
-
-#, fuzzy
-msgid "Screen Refresh Rate"
-msgstr "Padrão Refresh Rate"
-
-msgid "Screen Width"
 msgstr ""
 
 msgid "Search"
@@ -10412,7 +10380,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11530,6 +11497,9 @@ msgstr "Wake on LAN?"
 msgid "Wake Up"
 msgstr ""
 
+msgid "Warning Before Log Out"
+msgstr ""
+
 msgid "Warnings"
 msgstr ""
 
@@ -11629,9 +11599,6 @@ msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflic
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
-msgstr ""
-
-msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -12268,18 +12235,12 @@ msgstr ""
 msgid "in"
 msgstr "minutos"
 
-msgid "in Hz"
-msgstr ""
-
 msgid "in batch row"
 msgstr ""
 
 #, fuzzy
 msgid "in minutes"
 msgstr "minutos"
-
-msgid "in pixels"
-msgstr ""
 
 msgid "in seconds"
 msgstr ""
@@ -13072,6 +13033,15 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "Nenhum de hash disponíveis"
 
+#~ msgid "Default Height"
+#~ msgstr "padrão Altura"
+
+#~ msgid "Default Refresh Rate"
+#~ msgstr "Padrão Refresh Rate"
+
+#~ msgid "Default Width"
+#~ msgstr "Largura padrão"
+
 #, fuzzy
 #~ msgid "Delete All"
 #~ msgstr "Apagar dados de arquivo"
@@ -13266,8 +13236,16 @@ msgstr ""
 #~ msgstr "anfitrião Descrição"
 
 #, fuzzy
+#~ msgid "Height"
+#~ msgstr "meia-noite"
+
+#, fuzzy
 #~ msgid "History Report"
 #~ msgstr "ID de acolhimento"
+
+#, fuzzy
+#~ msgid "Host Display Manager Settings"
+#~ msgstr "Configurações"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -13284,6 +13262,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Ext Variable"
 #~ msgstr "atualização do utilizador falhou"
+
+#, fuzzy
+#~ msgid "Host Screen Resolution"
+#~ msgstr "Registro de acolhimento"
 
 #, fuzzy
 #~ msgid "Host Site"
@@ -13520,6 +13502,10 @@ msgstr ""
 #~ msgstr "Registros atuais"
 
 #, fuzzy
+#~ msgid "Refresh"
+#~ msgstr "Padrão Refresh Rate"
+
+#, fuzzy
 #~ msgid "Release Version"
 #~ msgstr "Última versão"
 
@@ -13584,6 +13570,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "atualização da impressora falhou!"
+
+#, fuzzy
+#~ msgid "Screen Refresh Rate"
+#~ msgstr "Padrão Refresh Rate"
 
 #, fuzzy
 #~ msgid "Serial"

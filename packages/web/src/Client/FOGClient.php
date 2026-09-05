@@ -208,7 +208,6 @@ abstract class FOGClient extends FOGBase
             $this->{$method}();
             $nonJsonEncode = [
                 'autologout',
-                'displaymanager',
                 'printerclient',
                 'servicemodule',
             ];

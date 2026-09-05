@@ -4415,7 +4415,6 @@ class FOGConfigurationPage extends FOGPage
             'FOG_CLIENT_AUTOLOGOFF_ENABLED' => true,
             'FOG_CLIENT_CLIENTUPDATER_ENABLED' => true,
             'FOG_CLIENT_DIRECTORYCLEANER_ENABLED' => true,
-            'FOG_CLIENT_DISPLAYMANAGER_ENABLED' => true,
             'FOG_CLIENT_HOSTREGISTER_ENABLED' => true,
             'FOG_CLIENT_HOSTNAMECHANGER_ENABLED' => true,
             'FOG_CLIENT_POWERMANAGEMENT_ENABLED' => true,
@@ -4508,10 +4507,7 @@ class FOGConfigurationPage extends FOGPage
             'FOG_GRACE_TIMEOUT' => true,
             // FOG Service - Auto Log Off
             'FOG_CLIENT_AUTOLOGOFF_MIN' => true,
-            // FOG Service - Display manager
-            'FOG_CLIENT_DISPLAYMANAGER_X' => true,
-            'FOG_CLIENT_DISPLAYMANAGER_Y' => true,
-            'FOG_CLIENT_DISPLAYMANAGER_R' => true,
+            'FOG_CLIENT_AUTOLOGOFF_WARN' => true,
             // FOG Service - Host Register
             'FOG_QUICKREG_MAX_PENDING_MACS' => true,
             // FOG View Settings

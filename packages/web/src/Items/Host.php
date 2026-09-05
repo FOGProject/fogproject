@@ -160,7 +160,6 @@ class Host extends FOGController
         'primac',
         'imagename',
         'groups',
-        'hostscreen',
         'hostalo',
         'optimalStorageNode',
         'printers',
@@ -195,11 +194,6 @@ class Host extends FOGController
             'id',
             'imageID',
             'imagename'
-        ],
-        'HostScreenSetting' => [
-            'hostID',
-            'id',
-            'hostscreen'
         ],
         'HostAutoLogout' => [
             'hostID',
@@ -244,7 +238,6 @@ class Host extends FOGController
      *
      * @var array
      */
-    private static $_hostscreen = [];
     /**
      * ALO time val
      *
@@ -536,78 +529,6 @@ class Host extends FOGController
                     ['isDefault' => 1]
                 );
         }
-        return $this;
-    }
-    /**
-     * Sets display vals for the host
-     *
-     * @return void
-     */
-    private function _setDispVals()
-    {
-        if (count(self::$_hostscreen)) {
-            return;
-        }
-        $keys = [
-            'FOG_CLIENT_DISPLAYMANAGER_R',
-            'FOG_CLIENT_DISPLAYMANAGER_X',
-            'FOG_CLIENT_DISPLAYMANAGER_y'
-        ];
-        list(
-            $refresh,
-            $width,
-            $height
-        ) = self::getSetting($keys);
-        $refresh = (
-            $this->get('hostscreen')->get('refresh') ?:
-            $refresh
-        );
-        $width = (
-            $this->get('hostscreen')->get('width') ?:
-            $width
-        );
-        $height = (
-            $this->get('hostscreen')->get('height') ?:
-            $height
-        );
-        self::$_hostscreen = [
-            'refresh' => $refresh,
-            'width' => $width,
-            'height' => $height
-        ];
-    }
-    /**
-     * Gets the display values
-     *
-     * @param string $key the key to get
-     *
-     * @return mixed
-     */
-    public function getDispVals($key = '')
-    {
-        $this->_setDispVals();
-        return self::$_hostscreen[$key];
-    }
-    /**
-     * Sets the display values
-     *
-     * @param mixed $x the width
-     * @param mixed $y the height
-     * @param mixed $r the refresh
-     *
-     * @return object
-     */
-    public function setDisp($x, $y, $r)
-    {
-        if (!$this->get('hostscreen')->isValid()) {
-            $this->get('hostscreen')
-                ->set('hostID', $this->get('id'));
-        }
-        $this->get('hostscreen')
-            ->set('width', $x)
-            ->set('height', $y)
-            ->set('refresh', $r)
-            ->save();
         return $this;
     }
     /**

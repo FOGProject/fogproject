@@ -103,7 +103,6 @@ return [
 
     // ---- satellite: rows wholly owned by one parent ----------------------
     ['child' => 'inventory', 'column' => 'iHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
-    ['child' => 'hostScreenSettings', 'column' => 'hssHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'hostAutoLogOut', 'column' => 'haloHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'powerManagement', 'column' => 'pmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'greenFog', 'column' => 'gfHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],

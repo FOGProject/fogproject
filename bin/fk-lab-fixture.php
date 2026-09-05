@@ -260,7 +260,6 @@ foreach ([
     'snapinJobs' => 'sjHostID',
     'tasks' => 'taskHostID',
     'hostAutoLogOut' => 'haloHostID',
-    'hostScreenSettings' => 'hssHostID',
     'groupMembers' => 'gmHostID',
     'snapinAssoc' => 'saHostID',
     'printerAssoc' => 'paHostID',

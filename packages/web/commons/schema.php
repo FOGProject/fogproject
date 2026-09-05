@@ -11479,3 +11479,87 @@ $this->schema[] = [
     . "storage node on them, which cannot be woken otherwise. Off by "
     . "default. (Valid values: 0 or 1).','0','FOG Agent')",
 ];
+
+// 431
+$this->schema[] = [
+    // Display Manager goes, and its table with it.
+    //
+    // The module reset a client's screen resolution to a fixed size at
+    // logoff and at startup. That was a reasonable thing for a lab in 2010
+    // and it is the wrong layer now: Windows has honored the per-monitor
+    // EDID-preferred mode by itself for a decade, a fixed resolution pushed
+    // over the top of it is wrong on every machine whose panel is not the
+    // size the setting names, and a laptop that docks changes its answer
+    // twice a day. Nothing in the rebuilt agent implements it and nothing
+    // will; the answer to "my screens are wrong" is not a FOG setting.
+    //
+    // This is the greenfog removal (step 375) repeated with one difference:
+    // Display Manager owns a table, and the table goes too.
+    //
+    // That is a deliberate, irreversible loss of the per-host `hssWidth`,
+    // `hssHeight` and `hssRefresh` an admin configured. Keeping the rows
+    // was considered and rejected. Every consumer is removed in this same
+    // commit -- the client endpoint, the host card, the mass-edit field,
+    // Host::getDispVals()/setDisp(), Group::setDisp() -- so keeping the
+    // table would mean keeping `HostScreenSetting`, its manager, its
+    // `hostscreensetting` REST route, its Authorization mapping and its
+    // foreign key alive to serve data that nothing writes and nothing
+    // honors. Step 375 named that failure exactly: a setting that lies is
+    // worse than no setting, and an API route reporting a resolution the
+    // fleet does not apply is a setting that lies.
+    //
+    // Ordered so nothing ever references something already gone: the
+    // per-host module answers first, then the module row, then the four
+    // globalSettings rows, then the table. msModuleID is a VARCHAR and step
+    // 34 seeded these with the short name before a later step rewrote them
+    // to the numeric id, so a server upgraded across that boundary can hold
+    // either spelling and both are matched -- the same care step 375 took.
+    //
+    // The seed steps that created all of this are deliberately NOT edited.
+    // schema.php is a replay log; step 326 set that precedent and step 375
+    // followed it. A fresh install creates these and removes them one step
+    // later, which costs nothing and keeps the history readable.
+    "DELETE FROM `moduleStatusByHost` "
+    . "WHERE `msModuleID` IN ('3', 'displaymanager')",
+    "DELETE FROM `modules` WHERE `short_name` = 'displaymanager'",
+    "DELETE FROM `globalSettings` WHERE `settingKey` IN ("
+    . "'FOG_CLIENT_DISPLAYMANAGER_ENABLED',"
+    . "'FOG_CLIENT_DISPLAYMANAGER_X',"
+    . "'FOG_CLIENT_DISPLAYMANAGER_Y',"
+    . "'FOG_CLIENT_DISPLAYMANAGER_R')",
+    Schema::dropTable('hostScreenSettings'),
+];
+
+// 432
+$this->schema[] = [
+    // Auto Log Out gets a configurable warning, and loses a setting that
+    // has never done anything.
+    //
+    // FOG_CLIENT_AUTOLOGOFF_WARN is how long the user is told before they
+    // are logged off. The legacy .NET client baked that countdown in; the
+    // rebuilt agent (design 0014) takes it from here, and 0 means log the
+    // user off with no warning at all -- legal, and what a kiosk wants.
+    // Sixty seconds is the default because it is long enough to notice and
+    // short enough that the machine is actually freed.
+    //
+    // FOG_CLIENT_AUTOLOGOFF_BGIMAGE goes. It named the 300x300 background
+    // of the .NET client's countdown window, and there is no countdown
+    // window any more: the agent is a service in session 0, which has had
+    // no visible desktop since Vista, so it warns through WTSSendMessage --
+    // rendered by winlogon inside the user's own session, and not something
+    // an image can be attached to. Nothing has read this setting since the
+    // legacy client stopped shipping, and the FOG Configuration page never
+    // rendered it, so it is a row that promises a thing FOG cannot do. That
+    // is the same defect step 375 removed FOG_CLIENT_GREENFOG_ENABLED for
+    // and step 326 removed FOG_PLUGINSYS_DIR for: a setting that lies is
+    // worse than no setting.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_CLIENT_AUTOLOGOFF_WARN','This setting defines how many seconds "
+    . "before an automatic log out the user is warned. 0 logs the user out "
+    . "with no warning. The warning is a message box shown in the users own "
+    . "session; moving the mouse or pressing a key cancels the log out.',"
+    . "'60','FOG Client - Auto Log Off')",
+    "DELETE FROM `globalSettings` "
+    . "WHERE `settingKey` = 'FOG_CLIENT_AUTOLOGOFF_BGIMAGE'",
+];

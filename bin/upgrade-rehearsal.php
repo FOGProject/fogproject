@@ -1068,7 +1068,7 @@ switch ($cmd) {
             'moduleStatusByHost', 'inventory', 'tasks', 'scheduledTasks', 'images',
             'nfsGroups', 'nfsGroupMembers', 'users', 'snapinJobs', 'snapinTasks',
             'multicastSessions', 'multicastSessionsAssoc', 'greenFog',
-            'hostScreenSettings', 'hostAutoLogOut', 'powerManagement', 'taskLog',
+            'hostAutoLogOut', 'powerManagement', 'taskLog',
             'sites', 'siteHostMembers', 'siteUserMembers', 'siteGroupMembers'];
         printf("census  %s (schema %d)\n", $db, $runner->version());
         foreach ($tables as $t) {

@@ -73,6 +73,10 @@ return [
             'reason' => 'ADR 0022 decision 3 -- taskLog records an imaging run now, so the table was retired rather than ported',
         ],
         [
+            'table' => 'hostScreenSettings',
+            'reason' => 'design 0014 -- Display Manager is removed, so the per-host width, height and refresh have nothing that reads or applies them. Schema step 431 drops the table with the module',
+        ],
+        [
             'table' => 'printerAssoc',
             'column' => 'paAnon1',
             'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
@@ -524,19 +528,6 @@ return [
                 'hostAgentNotAfter' => 'datetime DEFAULT NULL',
                 'hostAgentVersion' => 'varchar(50) NOT NULL DEFAULT \'\'',
                 'hostAgentCheckin' => 'datetime DEFAULT NULL',
-            ],
-        ],
-        'hostScreenSettings' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hostScreenSettings` ( `hssID` int(11) NOT NULL AUTO_INCREMENT, `hssHostID` int(11) NOT NULL, `hssWidth` int(11) NOT NULL DEFAULT 0, `hssHeight` int(11) NOT NULL DEFAULT 0, `hssRefresh` int(11) NOT NULL DEFAULT 0, `hssOrientation` int(11) NOT NULL DEFAULT 0, `hssOther1` int(11) NOT NULL DEFAULT 0, `hssOther2` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`hssID`), UNIQUE KEY `hssHostID` (`hssHostID`), KEY `new_index` (`hssHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'hssID' => 'int(11) NOT NULL',
-                'hssHostID' => 'int(11) NOT NULL',
-                'hssWidth' => 'int(11) NOT NULL DEFAULT 0',
-                'hssHeight' => 'int(11) NOT NULL DEFAULT 0',
-                'hssRefresh' => 'int(11) NOT NULL DEFAULT 0',
-                'hssOrientation' => 'int(11) NOT NULL DEFAULT 0',
-                'hssOther1' => 'int(11) NOT NULL DEFAULT 0',
-                'hssOther2' => 'int(11) NOT NULL DEFAULT 0',
             ],
         ],
         'hostSoftware' => [

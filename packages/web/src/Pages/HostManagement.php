@@ -33,7 +33,6 @@ use FOG\Items\TaskType;
 use FOG\Managers\ArchitectureManager;
 use FOG\Managers\HostAutoLogoutManager;
 use FOG\Managers\HostManager;
-use FOG\Managers\HostScreenSettingManager;
 use FOG\Managers\ImageManager;
 use FOG\Managers\MACAddressAssociationManager;
 use FOG\Managers\PowerManagementManager;
@@ -3177,123 +3176,6 @@ class HostManagement extends FOGPage
             . '" ';
 
         $labelClass = 'col-sm-3 col-form-label';
-        // Display Manager area
-        $dispEnabled = self::getSetting('FOG_CLIENT_DISPLAYMANAGER_ENABLED');
-        if ($dispEnabled) {
-            $buttons = self::makeButton(
-                'host-displayman-send',
-                _('Update'),
-                'btn btn-primary float-end',
-                $props
-            );
-            // If the x, y, and/or r inputs are set.
-            $ix = filter_input(INPUT_POST, 'x');
-            $iy = filter_input(INPUT_POST, 'y');
-            $ir = filter_input(INPUT_POST, 'r');
-            if (!$ix) {
-                // If x not set check hosts setting
-                $ix = $this->obj->getDispVals('width');
-            }
-            if (!$iy) {
-                // If y not set check hosts setting
-                $iy = $this->obj->getDispVals('height');
-            }
-            if (!$ir) {
-                // If r not set check hosts setting
-                $ir = $this->obj->getDispVals('refresh');
-            }
-            $x = $ix;
-            $y = $iy;
-            $r = $ir;
-            $names = [
-                'x' => [
-                    'width',
-                    _('Screen Width')
-                    . '<br/>('
-                    . _('in pixels')
-                    . ')'
-                ],
-                'y' => [
-                    'height',
-                    _('Screen Height')
-                    . '<br/>('
-                    . _('in pixels')
-                    . ')'
-                ],
-                'r' => [
-                    'refresh',
-                    _('Screen Refresh Rate')
-                    . '<br/>('
-                    . _('in Hz')
-                    . ')'
-                ]
-            ];
-            foreach ($names as $name => &$get) {
-                switch ($name) {
-                    case 'r':
-                        $val = $r;
-                        break;
-                    case 'x':
-                        $val = $x;
-                        break;
-                    case 'y':
-                        $val = $y;
-                }
-                $fields[
-                    self::makeLabel(
-                        $labelClass,
-                        $name,
-                        $get[1]
-                    )
-                ] = self::makeInput(
-                    'form-control',
-                    $name,
-                    '',
-                    'number',
-                    $name,
-                    $val
-                );
-                unset($get);
-            }
-
-            self::$HookManager->processEvent(
-                'HOST_DISPLAYMAN_FIELDS',
-                [
-                    'fields' => &$fields,
-                    'buttons' => &$buttons,
-                    'Host' => &$this->obj
-                ]
-            );
-
-            $rendered = self::formFields($fields);
-            unset($fields);
-            echo '<div class="card card-primary card-outline">';
-            echo '<div class="card-header">';
-            echo '<h4 class="card-title">';
-            echo _('Host Display Manager Settings');
-            echo '</h4>';
-            echo '</div>';
-            echo '<div class="card-body">';
-            echo self::makeFormTag(
-                '',
-                'host-displayman-form',
-                self::makeTabUpdateURL(
-                    'host-module',
-                    $this->obj->get('id')
-                ),
-                'post',
-                'application/x-www-form-urlencoded',
-                true
-            );
-            echo $rendered;
-            echo '</form>';
-            echo '</div>';
-            echo '<div class="card-footer">';
-            echo $buttons;
-            echo '</div>';
-            echo '</div>';
-        }
-
         // Auto Log Out
         $aloEnabled = self::getSetting('FOG_CLIENT_AUTOLOGOFF_ENABLED');
         if ($aloEnabled) {
@@ -3417,12 +3299,6 @@ class HostManagement extends FOGPage
                 throw new \Exception(_('Unknown module state'));
             }
             $this->obj->setModuleState([$moduleID], $states[(string)$state]);
-        }
-        if (isset($_POST['confirmdisplaysend'])) {
-            $x = (int)filter_input(INPUT_POST, 'x');
-            $y = (int)filter_input(INPUT_POST, 'y');
-            $r = (int)filter_input(INPUT_POST, 'r');
-            $this->obj->setDisp($x, $y, $r);
         }
         if (isset($_POST['confirmalosend'])) {
             $tme = (int)filter_input(INPUT_POST, 'tme');
@@ -4992,7 +4868,7 @@ class HostManagement extends FOGPage
                 // association is not a value a mass edit sets. What is left
                 // when you take the list away is a statement about how hard
                 // the client works on printers at check-in, which is what the
-                // rest of this tab is: resolution, auto-logout, this.
+                // rest of this tab is: auto-logout, this.
                 'tab' => 'client'
             ],
             // The two booleans. A boolean has no meaningful "clear", so the
@@ -5056,25 +4932,17 @@ class HostManagement extends FOGPage
     /**
      * The host settings a mass edit may change that are NOT `hosts` columns.
      *
-     * Auto-logout and screen resolution live one row per host in their own
-     * tables, and the group page writes each by deleting every member's row
-     * and inserting a fresh one (`Group::setAlo()`, `Group::setDisp()`). That
-     * shape maps onto the three states exactly: SET is delete-then-insert,
-     * CLEAR is the delete on its own -- no row IS the absence of an override
-     * -- and LEAVE touches nothing.
-     *
-     * `composite` marks the one field whose value is more than one number.
-     * A resolution is width, height and refresh written as a single row, so
-     * "set the width and leave the height" has no meaning at the storage
-     * layer; it is one instruction carrying three parts, resolved through
-     * MassEdit::resolveComposite(). See that method for why it is not a
-     * `1024x768@60` string.
+     * Auto-logout lives one row per host in its own table, and the group
+     * page writes it by deleting every member's row and inserting a fresh
+     * one (`Group::setAlo()`). That shape maps onto the three states
+     * exactly: SET is delete-then-insert, CLEAR is the delete on its own --
+     * no row IS the absence of an override -- and LEAVE touches nothing.
      *
      * Deliberately separate from massEditCoreFields(): nothing here can ever
      * be a column update, and keeping the two lists apart is what stops one
      * from being handed to columnUpdates() by accident.
      *
-     * @return array key => ['label', 'kind', 'composite', 'tab']
+     * @return array key => ['label', 'kind', 'tab']
      */
     private function massEditRowFields()
     {
@@ -5082,12 +4950,6 @@ class HostManagement extends FOGPage
             'autologout' => [
                 'label' => _('Auto Log Out Time (in minutes)'),
                 'kind' => 'number',
-                'tab' => 'client'
-            ],
-            'resolution' => [
-                'label' => _('Host Screen Resolution'),
-                'kind' => 'resolution',
-                'composite' => true,
                 'tab' => 'client'
             ],
         ];
@@ -5126,26 +4988,6 @@ class HostManagement extends FOGPage
                 }
                 (new HostAutoLogoutManager())
                     ->insertBatch(['hostID', 'time'], $rows);
-            }
-            $wrote = count($hostIDs);
-        }
-
-        $res = $resolved['resolution'] ?? null;
-        if (null !== $res && MassEdit::LEAVE !== $res['action']) {
-            Route::deletemass('hostscreensetting', ['hostID' => $hostIDs]);
-            if (MassEdit::SET === $res['action']) {
-                $x = (int)($res['value']['x'] ?? 0);
-                $y = (int)($res['value']['y'] ?? 0);
-                $r = (int)($res['value']['r'] ?? 0);
-                $rows = [];
-                foreach ($hostIDs as $hostID) {
-                    $rows[] = [$hostID, $x, $y, $r];
-                }
-                (new HostScreenSettingManager())
-                    ->insertBatch(
-                        ['hostID', 'width', 'height', 'refresh'],
-                        $rows
-                    );
             }
             $wrote = count($hostIDs);
         }
@@ -5424,33 +5266,6 @@ class HostManagement extends FOGPage
                     -1,
                     'min="0"'
                 );
-            case 'resolution':
-                // One instruction, three parts. The names are the array HTTP
-                // already gives -- value[resolution][x] and friends -- so
-                // MassEdit::resolveComposite() reads them without parsing
-                // anything. See that method for why this is not one string.
-                $part = function ($sub, $placeholder) use ($name, $id) {
-                    return '<div class="col-4">'
-                        . self::makeInput(
-                            'form-control',
-                            $name . '[' . $sub . ']',
-                            $placeholder,
-                            'number',
-                            $id . '-' . $sub,
-                            '',
-                            false,
-                            false,
-                            -1,
-                            -1,
-                            'min="0"'
-                        )
-                        . '</div>';
-                };
-                return '<div class="row g-1">'
-                    . $part('x', _('Width'))
-                    . $part('y', _('Height'))
-                    . $part('r', _('Refresh'))
-                    . '</div>';
         }
 
         return self::makeInput('form-control', $name, '', 'text', $id);
@@ -5536,34 +5351,6 @@ class HostManagement extends FOGPage
             ['autologout' => 'haloTime']
         );
         $hints['autologout'] = SharedHostValues::hint($alo['autologout']);
-
-        // Three columns, one answer. The resolution is uniform only when
-        // every part agrees AND every selected host has a row -- which is
-        // what forHostRows() means by uniform -- so the parts are combined
-        // rather than reported one by one. Three hints reading "(all)",
-        // "(varies)", "(all)" would describe a resolution nobody has.
-        $disp = SharedHostValues::forHostRows(
-            $hostIDs,
-            'hostScreenSettings',
-            'hssHostID',
-            ['x' => 'hssWidth', 'y' => 'hssHeight', 'r' => 'hssRefresh']
-        );
-        $uniform = !empty($disp['x']['uniform'])
-            && !empty($disp['y']['uniform'])
-            && !empty($disp['r']['uniform']);
-        $hints['resolution'] = SharedHostValues::hint(
-            [
-                'uniform' => $uniform,
-                'value' => $uniform
-                    ? sprintf(
-                        '%sx%s@%s',
-                        $disp['x']['value'],
-                        $disp['y']['value'],
-                        $disp['r']['value']
-                    )
-                    : ''
-            ]
-        );
 
         return $hints;
     }
@@ -5819,18 +5606,10 @@ class HostManagement extends FOGPage
                     )
                 )
             );
-            // The row-backed fields are resolved separately by shape, not
-            // merged into $keys: the composite one has an array value, and
-            // resolve()'s safety property is that an array is never a value.
-            $scalarRows = [];
-            $compositeRows = [];
-            foreach ($rowFields as $key => $rowSpec) {
-                if (!empty($rowSpec['composite'])) {
-                    $compositeRows[] = $key;
-                } else {
-                    $scalarRows[] = $key;
-                }
-            }
+            // The row-backed fields are resolved separately, not merged
+            // into $keys: they are written one row per host rather than as
+            // columns and must never reach columnUpdates().
+            $scalarRows = array_keys($rowFields);
 
             $flags = ['flags' => FILTER_REQUIRE_ARRAY];
             $posted = filter_input_array(
@@ -5842,17 +5621,10 @@ class HostManagement extends FOGPage
                 $posted['action'] ?? null,
                 $posted['value'] ?? null
             );
-            $resolvedRows = array_merge(
-                MassEdit::resolve(
-                    $scalarRows,
-                    $posted['action'] ?? null,
-                    $posted['value'] ?? null
-                ),
-                MassEdit::resolveComposite(
-                    $compositeRows,
-                    $posted['action'] ?? null,
-                    $posted['value'] ?? null
-                )
+            $resolvedRows = MassEdit::resolve(
+                $scalarRows,
+                $posted['action'] ?? null,
+                $posted['value'] ?? null
             );
             $touched = array_merge(
                 MassEdit::touched($resolved),
@@ -7738,26 +7510,6 @@ class HostManagement extends FOGPage
             HTTPResponseCodes::HTTP_SUCCESS,
             json_encode($data, JSON_UNESCAPED_UNICODE)
         );
-    }
-    /**
-     * Get the hosts display man values
-     *
-     * @return void
-     */
-    public function getHostDisplayManVals()
-    {
-        header('Content-type: application/json');
-        parse_str(
-            file_get_contents('php://input'),
-            $pass_vars
-        );
-        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
-            [
-                'x' => $this->obj->getDispVals('width'),
-                'y' => $this->obj->getDispVals('height'),
-                'r' => $this->obj->getDispVals('refresh')
-            ]
-        ));
     }
     /**
      * Get the hosts display man values

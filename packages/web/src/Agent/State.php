@@ -55,6 +55,10 @@ class State extends FOGBase
         'snapin' => 'snapinclient',
         'software' => 'software',
         'power' => 'powermanagement',
+        // The one legacy client module the rebuild keeps rather than
+        // drops (design 0014). Same switch, same per-host time, same
+        // five-minute floor an admin already knows.
+        'autologout' => 'autologout',
         // Both halves of the hostnamechanger module, kept apart on the wire
         // because they are different acts with different blast radii: a
         // rename touches this machine, a domain join touches somebody's
@@ -293,6 +297,30 @@ class State extends FOGBase
                 'schedules' => $schedules,
                 'ondemand' => $ondemand
             ];
+        }
+        if (in_array('autologout', $capabilities, true)) {
+            // Design 0014. getAlo() is the legacy accessor unchanged: the
+            // host's own hostAutoLogOut row falling back to the global
+            // FOG_CLIENT_AUTOLOGOFF_MIN, where 0 disables.
+            //
+            // The five-minute floor is applied here AND on the agent. That
+            // is not belt and braces for its own sake: a two-minute idle
+            // timer logs people off while they are reading the screen, and
+            // the client that used to enforce this refused it in
+            // FOG\Client\Autologout::json(). Sending nothing at all below
+            // the floor is what makes the agent forget a policy it had.
+            $minutes = (int)$Host->getAlo();
+            if ($minutes >= 5) {
+                $state['autologout'] = [
+                    'minutes' => $minutes,
+                    'warn_seconds' => (int)self::getSetting(
+                        'FOG_CLIENT_AUTOLOGOFF_WARN'
+                    )
+                ];
+            }
+            // No 'message': the agent carries a sensible default, and a
+            // string set here would be one the server cannot translate into
+            // the language of whoever is sitting at the machine.
         }
         if (count($capabilities) > 0) {
             // The policy every reboot obeys, whatever asked for it:

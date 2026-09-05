@@ -603,7 +603,7 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Parameter \#1 \$array \(array\{''autologout'', ''displaymanager'', ''hostnamechanger'', ''hostregister'', ''powermanagement'', ''printermanager'', ''snapinclient'', ''software'', \.\.\.\}\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
+			message: '#^Parameter \#1 \$array \(array\{''autologout'', ''hostnamechanger'', ''hostregister'', ''powermanagement'', ''printermanager'', ''snapinclient'', ''software'', ''taskreboot'', \.\.\.\}\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
 			identifier: arrayFilter.same
 			count: 1
 			path: packages/web/src/Base/FOGBase.php
@@ -3858,6 +3858,12 @@ parameters:
 			message: '#^Parameter \#2 \$value of static method FOG\\Base\\FOGBase\:\:setSetting\(\) expects string, int given\.$#'
 			identifier: argument.type
 			count: 4
+			path: packages/web/src/Pages/ServiceConfigurationPage.php
+
+		-
+			message: '#^Parameter \#2 \$value of static method FOG\\Base\\FOGBase\:\:setSetting\(\) expects string, int\<0, max\> given\.$#'
+			identifier: argument.type
+			count: 1
 			path: packages/web/src/Pages/ServiceConfigurationPage.php
 
 		-

@@ -46,7 +46,6 @@ grep -n 'function ' packages/web/src/Items/Group.php
 | `removeSnapin()` | 293 | `deletemass` | over membership |
 | `setSnapinOrder()` | 316 | `saSequence` | `new Host()` per member |
 | `addModule()` | 346 | `moduleStatusByHost` | one per host × module |
-| `setDisp()` | 401 | delete-all + insert | one per host |
 | `setAlo()` | 436 | delete-all + insert | one per host |
 | `addImage()` | 501 | `hosts.hostImage` | one `UPDATE ... IN` |
 | `setAD()` | 1100 | five `hosts` columns | one `UPDATE ... IN` |

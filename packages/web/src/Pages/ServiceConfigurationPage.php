@@ -283,108 +283,6 @@ class ServiceConfigurationPage extends FOGPage
         }
     }
     /**
-     * Presents the displaymanager page.
-     *
-     * @return void
-     */
-    public function serviceDisplaymanager()
-    {
-        list(
-            $r,
-            $x,
-            $y
-        ) = self::getSetting(
-            [
-                'FOG_CLIENT_DISPLAYMANAGER_R',
-                'FOG_CLIENT_DISPLAYMANAGER_X',
-                'FOG_CLIENT_DISPLAYMANAGER_Y'
-            ]
-        );
-
-        $labelClass = 'col-sm-3 col-form-label';
-
-        $this->_renderModuleTab(
-            'displaymanager',
-            'display manager',
-            'dm',
-            'MODULE_DISPLAYMANAGER_FIELDS',
-            [
-                self::makeLabel(
-                    $labelClass,
-                    'width',
-                    _('Default Width')
-                    . '<br/>('
-                    . _('in pixels')
-                    . ')'
-                ) => self::makeInput(
-                    'form-control',
-                    'width',
-                    '1024',
-                    'number',
-                    'width',
-                    $x
-                ),
-                self::makeLabel(
-                    $labelClass,
-                    'height',
-                    _('Default Height')
-                    . '<br/>('
-                    . _('in pixels')
-                    . ')'
-                ) => self::makeInput(
-                    'form-control',
-                    'height',
-                    '768',
-                    'number',
-                    'height',
-                    $y
-                ),
-                self::makeLabel(
-                    $labelClass,
-                    'refresh',
-                    _('Default Refresh Rate')
-                    . '<br/>('
-                    . _('in Hz')
-                    . ')'
-                ) => self::makeInput(
-                    'form-control',
-                    'refresh',
-                    '60',
-                    'number',
-                    'refresh',
-                    $r
-                )
-            ]
-        );
-    }
-    /**
-     * Updates the display manager elements.
-     *
-     * @return void
-     */
-    public function serviceDisplaymanagerPost()
-    {
-        $this->_saveModuleTab(
-            'displaymanager',
-            'display manager',
-            'MODULE_DISPLAYMANAGER_POST',
-            function () {
-                self::setSetting(
-                    'FOG_CLIENT_DISPLAYMANAGER_R',
-                    (int)filter_input(INPUT_POST, 'refresh')
-                );
-                self::setSetting(
-                    'FOG_CLIENT_DISPLAYMANAGER_X',
-                    (int)filter_input(INPUT_POST, 'width')
-                );
-                self::setSetting(
-                    'FOG_CLIENT_DISPLAYMANAGER_Y',
-                    (int)filter_input(INPUT_POST, 'height')
-                );
-            }
-        );
-    }
-    /**
      * Presents the autologout page.
      *
      * @return void
@@ -393,7 +291,15 @@ class ServiceConfigurationPage extends FOGPage
     {
         $labelClass = 'col-sm-3 col-form-label';
 
-        $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
+        list(
+            $tme,
+            $warn
+        ) = self::getSetting(
+            [
+                'FOG_CLIENT_AUTOLOGOFF_MIN',
+                'FOG_CLIENT_AUTOLOGOFF_WARN'
+            ]
+        );
 
         $this->_renderModuleTab(
             'autologout',
@@ -417,6 +323,23 @@ class ServiceConfigurationPage extends FOGPage
                     'number',
                     'updatetme',
                     $tme
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'updatewarn',
+                    _('Warning Before Log Out')
+                    . '<br/>('
+                    . _('in seconds')
+                    . ')<br/>('
+                    . _('0 logs the user out with no warning')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'warn',
+                    '60',
+                    'number',
+                    'updatewarn',
+                    $warn
                 )
             ]
         );
@@ -438,6 +361,16 @@ class ServiceConfigurationPage extends FOGPage
                     $tme = 0;
                 }
                 self::setSetting('FOG_CLIENT_AUTOLOGOFF_MIN', $tme);
+                // Clamped rather than refused, and never negative. A warning
+                // longer than the timeout is clamped again on the agent, to
+                // half the timeout -- the point of doing it in both places
+                // is that a policy which arrived wrong must not be able to
+                // log a fleet off the moment anybody stops typing.
+                $warn = (int)filter_input(INPUT_POST, 'warn');
+                if ($warn < 0) {
+                    $warn = 0;
+                }
+                self::setSetting('FOG_CLIENT_AUTOLOGOFF_WARN', $warn);
             }
         );
     }
@@ -710,9 +643,6 @@ class ServiceConfigurationPage extends FOGPage
             switch ($tab) {
                 case 'service-autologout':
                     $this->serviceAutologoutPost();
-                    break;
-                case 'service-displaymanager':
-                    $this->serviceDisplaymanagerPost();
                     break;
                 case 'service-hostnamechanger':
                     $this->serviceHostnamechangerPost();

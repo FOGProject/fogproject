@@ -316,6 +316,9 @@ msgstr "カーネル引数"
 msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
 msgstr ""
 
+msgid "0 logs the user out with no warning"
+msgstr ""
+
 msgid "1 Hour"
 msgstr "1時間"
 
@@ -2532,15 +2535,6 @@ msgstr "既定"
 msgid "Default Choice"
 msgstr "既定の項目"
 
-msgid "Default Height"
-msgstr "既定の高さ"
-
-msgid "Default Refresh Rate"
-msgstr "既定の更新レート"
-
-msgid "Default Width"
-msgstr "既定の幅"
-
 #, fuzzy
 msgid "Default init, ARM64"
 msgstr "既定の幅"
@@ -3967,10 +3961,6 @@ msgstr "ホストはアクセス用にロックされていません"
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
 
-#, fuzzy
-msgid "Height"
-msgstr "午前 0 時"
-
 msgid "Height must be 120 pixels."
 msgstr "高さは 120 ピクセルである必要があります。"
 
@@ -4079,10 +4069,6 @@ msgstr "既定のプリンターを更新"
 msgid "Host Description"
 msgstr "ホストの説明"
 
-#, fuzzy
-msgid "Host Display Manager Settings"
-msgstr "ホストモジュール設定"
-
 msgid "Host EFI Exit Type"
 msgstr "ホスト EFI 終了方法"
 
@@ -4182,9 +4168,6 @@ msgstr "ホスト プロダクトキー"
 
 msgid "Host Registration"
 msgstr "ホスト登録"
-
-msgid "Host Screen Resolution"
-msgstr "ホスト画面解像度"
 
 #, fuzzy
 msgid "Host Snapin Associations"
@@ -7724,9 +7707,6 @@ msgstr ""
 msgid "Redirect URI"
 msgstr ""
 
-msgid "Refresh"
-msgstr ""
-
 msgid "Refresh Settings Cache"
 msgstr ""
 
@@ -8228,18 +8208,6 @@ msgstr "iPXE 設定を更新しました！"
 
 msgid "Scopes"
 msgstr ""
-
-#, fuzzy
-msgid "Screen Height"
-msgstr "画面の高さ（ピクセル）"
-
-#, fuzzy
-msgid "Screen Refresh Rate"
-msgstr "画面のリフレッシュレート（Hz）"
-
-#, fuzzy
-msgid "Screen Width"
-msgstr "画面の幅（ピクセル）"
 
 msgid "Search"
 msgstr "検索"
@@ -10089,7 +10057,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11175,6 +11142,9 @@ msgstr "Wake on LAN"
 msgid "Wake Up"
 msgstr ""
 
+msgid "Warning Before Log Out"
+msgstr ""
+
 msgid "Warnings"
 msgstr ""
 
@@ -11272,9 +11242,6 @@ msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflic
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
-msgstr ""
-
-msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -11887,18 +11854,12 @@ msgstr ""
 msgid "in"
 msgstr "分"
 
-msgid "in Hz"
-msgstr ""
-
 msgid "in batch row"
 msgstr ""
 
 #, fuzzy
 msgid "in minutes"
 msgstr "分"
-
-msgid "in pixels"
-msgstr ""
 
 msgid "in seconds"
 msgstr "秒単位"
@@ -12867,6 +12828,15 @@ msgstr ""
 #~ msgid "Date of checkout"
 #~ msgstr "貸出日"
 
+#~ msgid "Default Height"
+#~ msgstr "既定の高さ"
+
+#~ msgid "Default Refresh Rate"
+#~ msgstr "既定の更新レート"
+
+#~ msgid "Default Width"
+#~ msgstr "既定の幅"
+
 #~ msgid "Delayed Start"
 #~ msgstr "遅延開始"
 
@@ -13304,6 +13274,10 @@ msgstr ""
 #~ msgid "HD Serial"
 #~ msgstr "HD シリアル"
 
+#, fuzzy
+#~ msgid "Height"
+#~ msgstr "午前 0 時"
+
 #~ msgid "Hide Menu"
 #~ msgstr "メニューを非表示"
 
@@ -13346,6 +13320,10 @@ msgstr ""
 #~ msgid "Host Desc"
 #~ msgstr "ホスト説明"
 
+#, fuzzy
+#~ msgid "Host Display Manager Settings"
+#~ msgstr "ホストモジュール設定"
+
 #~ msgid "Host FOG Client Module configuration"
 #~ msgstr "ホスト FOG クライアントモジュール設定"
 
@@ -13366,6 +13344,9 @@ msgstr ""
 
 #~ msgid "Host Printers"
 #~ msgstr "ホスト プリンター"
+
+#~ msgid "Host Screen Resolution"
+#~ msgstr "ホスト画面解像度"
 
 #~ msgid "Host Site"
 #~ msgstr "ホスト サイト"
@@ -14247,6 +14228,18 @@ msgstr ""
 
 #~ msgid "Schedule with shutdown"
 #~ msgstr "シャットダウンを含めてスケジュール"
+
+#, fuzzy
+#~ msgid "Screen Height"
+#~ msgstr "画面の高さ（ピクセル）"
+
+#, fuzzy
+#~ msgid "Screen Refresh Rate"
+#~ msgstr "画面のリフレッシュレート（Hz）"
+
+#, fuzzy
+#~ msgid "Screen Width"
+#~ msgstr "画面の幅（ピクセル）"
 
 #~ msgid "Search pattern"
 #~ msgstr "検索パターン"

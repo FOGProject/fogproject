@@ -262,7 +262,6 @@ $expected = [
     'moduleStatusByHost.msHostID',
     'moduleStatusByHost.msModuleID',
     'inventory.iHostID',
-    'hostScreenSettings.hssHostID',
     'hostAutoLogOut.haloHostID',
     'powerManagement.pmHostID',
     'greenFog.gfHostID',

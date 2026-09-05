@@ -324,6 +324,9 @@ msgstr "Kernel Arguments"
 msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
 msgstr ""
 
+msgid "0 logs the user out with no warning"
+msgstr ""
+
 #, fuzzy
 msgid "1 Hour"
 msgstr "1 hour"
@@ -2604,15 +2607,6 @@ msgstr "Default"
 msgid "Default Choice"
 msgstr "Default Item:"
 
-msgid "Default Height"
-msgstr "Default Height"
-
-msgid "Default Refresh Rate"
-msgstr "Default Refresh Rate"
-
-msgid "Default Width"
-msgstr "Default Width"
-
 #, fuzzy
 msgid "Default init, ARM64"
 msgstr "Default Width"
@@ -4081,10 +4075,6 @@ msgstr ""
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
 
-#, fuzzy
-msgid "Height"
-msgstr "Midnight"
-
 msgid "Height must be 120 pixels."
 msgstr ""
 
@@ -4195,10 +4185,6 @@ msgstr "Default Item:"
 msgid "Host Description"
 msgstr "Host Description"
 
-#, fuzzy
-msgid "Host Display Manager Settings"
-msgstr "Settings"
-
 msgid "Host EFI Exit Type"
 msgstr "Host EFI Exit Type"
 
@@ -4301,10 +4287,6 @@ msgid "Host Product Keys"
 msgstr "Host Product Key"
 
 msgid "Host Registration"
-msgstr "Host Registration"
-
-#, fuzzy
-msgid "Host Screen Resolution"
 msgstr "Host Registration"
 
 #, fuzzy
@@ -7964,10 +7946,6 @@ msgid "Redirect URI"
 msgstr ""
 
 #, fuzzy
-msgid "Refresh"
-msgstr "Default Refresh Rate"
-
-#, fuzzy
 msgid "Refresh Settings Cache"
 msgstr "Service Status"
 
@@ -8487,16 +8465,6 @@ msgid "Schema updated successfully!"
 msgstr "Install / Update Successful!"
 
 msgid "Scopes"
-msgstr ""
-
-msgid "Screen Height"
-msgstr ""
-
-#, fuzzy
-msgid "Screen Refresh Rate"
-msgstr "Default Refresh Rate"
-
-msgid "Screen Width"
 msgstr ""
 
 msgid "Search"
@@ -10425,7 +10393,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11542,6 +11509,9 @@ msgstr "Wake on lan?"
 msgid "Wake Up"
 msgstr ""
 
+msgid "Warning Before Log Out"
+msgstr ""
+
 msgid "Warnings"
 msgstr ""
 
@@ -11641,9 +11611,6 @@ msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflic
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
-msgstr ""
-
-msgid "Width"
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -12280,18 +12247,12 @@ msgstr ""
 msgid "in"
 msgstr "minutes"
 
-msgid "in Hz"
-msgstr ""
-
 msgid "in batch row"
 msgstr ""
 
 #, fuzzy
 msgid "in minutes"
 msgstr "minutes"
-
-msgid "in pixels"
-msgstr ""
 
 msgid "in seconds"
 msgstr ""
@@ -13084,6 +13045,15 @@ msgstr ""
 #~ msgid "Database connection unavailable"
 #~ msgstr "No hash available"
 
+#~ msgid "Default Height"
+#~ msgstr "Default Height"
+
+#~ msgid "Default Refresh Rate"
+#~ msgstr "Default Refresh Rate"
+
+#~ msgid "Default Width"
+#~ msgstr "Default Width"
+
 #, fuzzy
 #~ msgid "Delete All"
 #~ msgstr "Delete file data"
@@ -13278,8 +13248,16 @@ msgstr ""
 #~ msgstr "Update Settings"
 
 #, fuzzy
+#~ msgid "Height"
+#~ msgstr "Midnight"
+
+#, fuzzy
 #~ msgid "History Report"
 #~ msgstr "Host ID"
+
+#, fuzzy
+#~ msgid "Host Display Manager Settings"
+#~ msgstr "Settings"
 
 #, fuzzy
 #~ msgid "Host Ext"
@@ -13296,6 +13274,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Host Ext Variable"
 #~ msgstr "User update failed"
+
+#, fuzzy
+#~ msgid "Host Screen Resolution"
+#~ msgstr "Host Registration"
 
 #, fuzzy
 #~ msgid "Host Site"
@@ -13528,6 +13510,10 @@ msgstr ""
 #~ msgstr "Current Records"
 
 #, fuzzy
+#~ msgid "Refresh"
+#~ msgstr "Default Refresh Rate"
+
+#, fuzzy
 #~ msgid "Release Version"
 #~ msgstr "Latest Version"
 
@@ -13592,6 +13578,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Rule update failed!"
 #~ msgstr "Printer update failed!"
+
+#, fuzzy
+#~ msgid "Screen Refresh Rate"
+#~ msgstr "Default Refresh Rate"
 
 #, fuzzy
 #~ msgid "Serial"

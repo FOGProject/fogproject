@@ -24,7 +24,6 @@ use FOG\Managers\GroupSnapinAssociationManager;
 use FOG\Managers\GroupSoftwareAssociationManager;
 use FOG\Managers\HostAutoLogoutManager;
 use FOG\Managers\HostManager;
-use FOG\Managers\HostScreenSettingManager;
 use FOG\Managers\MulticastSessionAssociationManager;
 use FOG\Managers\SnapinJobManager;
 use FOG\Managers\SnapinTaskManager;
@@ -564,43 +563,6 @@ class Group extends FOGController
                 'groupID' => $this->get('id')
             ]
         );
-
-        return $this;
-    }
-    /**
-     * Set's the display for all hosts in group.
-     *
-     * @param mixed $x the width to set
-     * @param mixed $y the height to set
-     * @param mixed $r the refresh rate to set
-     *
-     * @return object
-     */
-    public function setDisp(
-        $x,
-        $y,
-        $r
-    ) {
-        Route::deletemass(
-            'hostscreensetting',
-            ['hostID' => $this->get('hosts')]
-        );
-        $insert_fields = [
-            'hostID',
-            'width',
-            'height',
-            'refresh',
-        ];
-        $insert_items = [];
-        foreach ((array) $this->get('hosts') as &$hostID) {
-            $insert_items[] = [$hostID, $x, $y, $r];
-            unset($hostID);
-        }
-        (new HostScreenSettingManager())
-            ->insertBatch(
-                $insert_fields,
-                $insert_items
-            );
 
         return $this;
     }

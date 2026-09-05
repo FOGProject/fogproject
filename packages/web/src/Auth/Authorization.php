@@ -400,7 +400,6 @@ class Authorization extends FOGBase
         'hookevent' => 'settings',
         'host' => 'host',
         'hostautologout' => 'host',
-        'hostscreensetting' => 'host',
         'image' => 'image',
         'imageassociation' => 'image',
         'imagepartitiontype' => 'image',
