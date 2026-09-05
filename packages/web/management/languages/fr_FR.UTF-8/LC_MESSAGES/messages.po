@@ -2406,6 +2406,10 @@ msgid "Create Users On First Login"
 msgstr ""
 
 #, fuzzy, php-format
+msgid "Create a %1$s task for %2$s?"
+msgstr "utilisateur créé"
+
+#, fuzzy, php-format
 msgid "Create a %s"
 msgstr "Créer un nouveau %s"
 
@@ -7842,6 +7846,10 @@ msgstr ""
 msgid "Queued deletion is not active and cannot be canceled"
 msgstr "Snapin est protégé et ne peut être supprimé"
 
+#, fuzzy
+msgid "Quick tasks"
+msgstr "Tâches Multicast actifs"
+
 msgid "RESOURCES"
 msgstr ""
 
@@ -10382,7 +10390,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11822,6 +11829,10 @@ msgstr ""
 msgid "ago"
 msgstr " depuis"
 
+#, php-format
+msgid "all %1$d hosts in group \"%2$s\""
+msgstr ""
+
 #, fuzzy
 msgid "all current storage nodes"
 msgstr "nœud de stockage non valide"
@@ -12113,6 +12124,10 @@ msgid "hit rate"
 msgstr ""
 
 msgid "host"
+msgstr "hôte"
+
+#, fuzzy, php-format
+msgid "host \"%s\""
 msgstr "hôte"
 
 #, fuzzy
@@ -13735,10 +13750,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "min (all)"
 #~ msgstr "Activée"
-
-#, fuzzy
-#~ msgid "multicast tasks!"
-#~ msgstr "Tâches Multicast actifs"
 
 #, fuzzy
 #~ msgid "no database to"

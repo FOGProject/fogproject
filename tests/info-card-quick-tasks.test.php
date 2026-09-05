@@ -236,7 +236,8 @@ $field = static function (array $buttons, $type, $field) {
     return (string)($button[$field] ?? '');
 };
 
-$hostButtons = $parse($emit(['*'], 'host', $hostTypes));
+$markup = $emit(['*'], 'host', $hostTypes);
+$hostButtons = $parse($markup);
 $groupButtons = $parse(
     $emit(['*'], 'group', $groupTypes, 'all 12 hosts in group "Lab"')
 );
@@ -296,6 +297,16 @@ $t->check(
     'the names are the task types own, not placeholders',
     'Deploy' === trim($field($hostButtons, TaskType::DEPLOY, 'name'))
     && 'Capture' === trim($field($hostButtons, TaskType::CAPTURE, 'name'))
+);
+// Not taste: btn-outline-secondary keeps #6c757d as the TEXT color, which
+// against the dark card (#212529) is 3.29:1 -- under the 4.5:1 AA floor for
+// body-sized text. Filled puts white on #6c757d and holds 4.69:1 in both
+// themes. Measured in a browser against the shipped stylesheets; pinned here
+// as the class, because the class is the part a future edit would change.
+$t->check(
+    'the buttons are filled btn-secondary, not outline',
+    false !== strpos($markup, 'class="btn btn-secondary fog-quicktask"')
+    && false === strpos($markup, 'btn-outline-secondary')
 );
 $t->check(
     'a task type this server has deleted simply loses its button',

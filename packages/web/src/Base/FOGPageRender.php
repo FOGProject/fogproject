@@ -562,11 +562,19 @@ trait FOGPageRender
      * reason: those are the types that need no options, which is the whole
      * reason they can be one click.
      *
-     * Neutral outline buttons rather than a type color. Nothing here is the
-     * card's commit action -- the General tab's Update is -- and these are
-     * shortcuts sitting in a header strip, not a decision cluster in a form
-     * footer. The weight that a red button would carry is carried instead
-     * by the confirmation, which names the target and cannot be skipped.
+     * btn-secondary, and neither of them primary. Nothing here is the card's
+     * commit action -- the General tab's Update is -- so these are two
+     * shortcuts in a header strip, not a decision cluster in a form footer,
+     * and the weight a red button would carry is carried by the
+     * confirmation instead. It is also what the list grid's own quick
+     * buttons are, since DataTables draws its button bar that way.
+     *
+     * Filled, NOT btn-outline-secondary, and that is a contrast decision
+     * rather than a taste one. Outline keeps #6c757d as the TEXT color, and
+     * against the dark card (#212529) that is 3.29:1 -- under the 4.5:1 AA
+     * floor for body-sized text. Filled puts white on #6c757d instead and
+     * holds 4.69:1 in both themes. Measured against the shipped
+     * adminlte4.min.css + fog-default-ui.min.css, not assumed.
      *
      * @param string $node    Page node, e.g. 'host' or 'group'. Also decides
      *                        the permission: ?node=X&sub=deploy resolves to
@@ -616,7 +624,7 @@ trait FOGPageRender
                 'quicktask-' . \Initiator::e($node) . '-' . (int)$TaskType->get('id'),
                 '<i class="fas fa-' . \Initiator::e((string)$TaskType->get('icon'))
                 . '"></i> ' . \Initiator::e($name),
-                'btn btn-outline-secondary fog-quicktask',
+                'btn btn-secondary fog-quicktask',
                 'type="button"'
                 . ' data-node="' . \Initiator::e($node) . '"'
                 . ' data-id="' . (int)$id . '"'
