@@ -243,6 +243,33 @@
       startRender: groupHeader
     },
     processing: true,
+    // NO PAGING, and that is the whole reason this page reads correctly.
+    //
+    // Paging counts ROWS; this page's unit is HOSTS. Expanding one host with
+    // 83 events at 25 rows a page filled pages one to three with that host
+    // and pushed every other host onto page four -- and RowGroup redraws a
+    // group's header on each page the group spans, so the same host appeared
+    // four times, expanded, which is what it looked like to the person
+    // reading it. Neither is a bug in RowGroup: both are what paging by row
+    // means when the thing being grouped is bigger than a page.
+    //
+    // There is no page length that fixes it, because the number of rows an
+    // expansion adds is a property of the host, not of the setting. Turning
+    // paging off removes the unit mismatch instead of tuning it: collapsed,
+    // the grid is one row per host; expanded, it gets longer and you scroll.
+    // The seed is bounded by the fleet (MAX_HOSTS) and each expansion by
+    // ROWS_PER_HOST, so "no paging" is not "no limit".
+    //
+    // Scroller is not the alternative -- registerTable() excludes any
+    // rowGroup table from it, because its virtual row-height math cannot
+    // reconcile injected header rows.
+    paging: false,
+    // ...and with it the "entries per page" control, which paging is the
+    // only thing that gives a value. Left in, it renders as an empty box
+    // beside its own label in both themes -- not a contrast problem, a
+    // control with nothing to say. dom keeps `l` for every other grid, so
+    // this is the switch that removes it here.
+    lengthChange: false,
     // Client side: the seed is one row per host, which is bounded by the
     // fleet, and rowGroup cannot group a server-side grid beyond one page.
     serverSide: false,
@@ -267,6 +294,23 @@
   // list of hosts and what each last did, and you go looking from there.
   // Nothing to do to arrange it -- `expanded` starts empty and the filter
   // above keeps every non-anchor row out until a header is clicked.
+
+  // Every reload starts over, because a reload throws the rows away.
+  //
+  // The toolbar's Refresh is `dt.clear().draw(); dt.ajax.reload();` -- it
+  // empties the table and re-fetches the seed. Without this the maps below
+  // survived that: a host still marked `loaded` was never re-fetched, so its
+  // rows were gone and clicking its header did nothing at all. It read as
+  // the expander breaking permanently after one press of Refresh.
+  //
+  // xhr.dt fires when the new seed lands, including the first load, where
+  // resetting empty maps costs nothing.
+  $table.on('xhr.dt', function() {
+    expanded = {};
+    loaded = {};
+    loading = {};
+    truncated = {};
+  });
 
   function loadHost(name, hostID, done) {
     if (loading[name]) {
