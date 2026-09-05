@@ -3165,6 +3165,12 @@ parameters:
 			path: packages/web/src/Pages/ActivityManagement.php
 
 		-
+			message: '#^Constructor of class FOG\\Pages\\AgentActivityManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/AgentActivityManagement.php
+
+		-
 			message: '#^Constructor of class FOG\\Pages\\ApiDocumentation has an unused parameter \$name\.$#'
 			identifier: constructor.unusedParameter
 			count: 1

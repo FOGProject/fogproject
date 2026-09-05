@@ -2414,6 +2414,10 @@ msgid "Create Users On First Login"
 msgstr ""
 
 #, fuzzy, php-format
+msgid "Create a %1$s task for %2$s?"
+msgstr "用户创建"
+
+#, fuzzy, php-format
 msgid "Create a %s"
 msgstr "新建%s"
 
@@ -7867,6 +7871,10 @@ msgstr ""
 msgid "Queued deletion is not active and cannot be canceled"
 msgstr "管理单元被保护，不能被删除"
 
+#, fuzzy
+msgid "Quick tasks"
+msgstr "活动组播任务"
+
 msgid "RESOURCES"
 msgstr ""
 
@@ -10408,7 +10416,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11848,6 +11855,10 @@ msgstr ""
 msgid "ago"
 msgstr "前"
 
+#, php-format
+msgid "all %1$d hosts in group \"%2$s\""
+msgstr ""
+
 #, fuzzy
 msgid "all current storage nodes"
 msgstr "无效的存储节点"
@@ -12139,6 +12150,10 @@ msgid "hit rate"
 msgstr ""
 
 msgid "host"
+msgstr "主办"
+
+#, fuzzy, php-format
+msgid "host \"%s\""
 msgstr "主办"
 
 #, fuzzy
@@ -13761,10 +13776,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "min (all)"
 #~ msgstr "启用"
-
-#, fuzzy
-#~ msgid "multicast tasks!"
-#~ msgstr "活动组播任务"
 
 #, fuzzy
 #~ msgid "no database to"

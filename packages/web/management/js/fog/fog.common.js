@@ -5328,6 +5328,7 @@ function reinitialize() {
   setupPasswordReveal();
   setupUniversalSearch();
   setupInfoCard();
+  setupInfoCardActions();
 };
 
 /**
@@ -5393,6 +5394,73 @@ function setupInfoCard() {
         note.text(value);
       });
   });
+}
+
+
+/**
+ * The info card's one-click task buttons.
+ *
+ * Straight to the create endpoint. The options form at
+ * ?node={node}&sub=deploy is skipped deliberately -- Deploy, Capture and
+ * Multi-Cast need nothing off it, and fetching it only to post it back
+ * unchanged is the click this exists to remove. Everything that form's POST
+ * is checked for -- a pending host, an assigned and enabled image, a
+ * protected image on a capture, one image across a multicast -- is checked
+ * in deployPost(), not in the form, so nothing is skipped but the rendering.
+ *
+ * scheduleType is the one field that must be sent: validateScheduleType()
+ * throws on an absent value rather than defaulting, so an empty body would
+ * come back "Invalid scheduling type".
+ *
+ * Every button confirms first. The list grid's equivalents do not, but there
+ * you have ticked a row to get them; here you arrive on this page just by
+ * clicking a host name, and one stray click would deploy over a running
+ * machine -- or, from a group, over all of them. The text is built server
+ * side (FOGPageRender::renderQuickTaskActions) because it is translated.
+ */
+function setupInfoCardActions() {
+  // Guards the window between the click and the server's answer. Per button
+  // rather than one flag for the card: Deploy and Capture are different
+  // taskings and there is no reason firing one should block the other. The
+  // button stays enabled underneath so nothing has to re-enable it on a
+  // refusal; this is only about the impatient double-click, which would
+  // otherwise be two identical taskings.
+  var running = {};
+
+  // Delegated and namespaced: the card is torn down and rebuilt with the
+  // page on every AJAX nav, so a direct binding would be lost on the first
+  // one and doPageLoad() would stack a new one per visit.
+  $(document)
+    .off('click.fogQuickTask')
+    .on('click.fogQuickTask', '.fog-quicktask', function(e) {
+      e.preventDefault();
+      var btn = $(this),
+        node = btn.data('node'),
+        id = btn.data('id'),
+        type = btn.data('type'),
+        key = node + ':' + id + ':' + type;
+      if (running[key]) {
+        return;
+      }
+      if (!window.confirm(btn.data('confirm'))) {
+        return;
+      }
+      running[key] = true;
+      $.apiCall(
+          'post',
+          '../management/index.php?node=' + encodeURIComponent(node)
+            + '&sub=deploy&id=' + encodeURIComponent(id)
+            + '&type=' + encodeURIComponent(type),
+          {scheduleType: 'instant'},
+          function() {
+            // Both outcomes land here and both only need the lock released.
+            // apiCall has already drawn the toast, and there is nothing on
+            // this page to repaint: the card's Last Deployed is the date the
+            // last task FINISHED, which a task just queued has not.
+            running[key] = false;
+          }
+      );
+    });
 }
 
 // Select2 builds its search inputs with neither id/name nor a label, tripping

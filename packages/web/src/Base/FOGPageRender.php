@@ -546,23 +546,128 @@ trait FOGPageRender
         return $attrs;
     }
 
+    /**
+     * The info card's one-click task buttons.
+     *
+     * The host and group LIST grids have carried these since
+     * HostManagement::_quickTaskItems(): the two or three task types that
+     * take no options, fired straight at the create endpoint instead of
+     * fetching an options form only to post it back untouched. This is the
+     * same affordance on the edit pages, so an admin already looking at a
+     * host or a group does not have to go back to the grid, find the row
+     * again and tick it to do the obvious thing to it.
+     *
+     * Deploy and Capture for a host, Deploy and Multi-Cast for a group --
+     * the same pairing _quickTaskItems() documents, and for the same
+     * reason: those are the types that need no options, which is the whole
+     * reason they can be one click.
+     *
+     * btn-secondary, and neither of them primary. Nothing here is the card's
+     * commit action -- the General tab's Update is -- so these are two
+     * shortcuts in a header strip, not a decision cluster in a form footer,
+     * and the weight a red button would carry is carried by the
+     * confirmation instead. It is also what the list grid's own quick
+     * buttons are, since DataTables draws its button bar that way.
+     *
+     * Filled, NOT btn-outline-secondary, and that is a contrast decision
+     * rather than a taste one. Outline keeps #6c757d as the TEXT color, and
+     * against the dark card (#212529) that is 3.29:1 -- under the 4.5:1 AA
+     * floor for body-sized text. Filled puts white on #6c757d instead and
+     * holds 4.69:1 in both themes. Measured against the shipped
+     * adminlte4.min.css + fog-default-ui.min.css, not assumed.
+     *
+     * @param string $node    Page node, e.g. 'host' or 'group'. Also decides
+     *                        the permission: ?node=X&sub=deploy resolves to
+     *                        X.task via Authorization::_subToAction(), so
+     *                        the gate here and the gate the POST hits are
+     *                        the same string by construction.
+     * @param int    $id      The entity being edited.
+     * @param array  $typeIds TaskType ids, in the order they should appear.
+     * @param string $target  Already-translated description of what the task
+     *                        lands on, e.g. 'host "foo"'. Interpolated into
+     *                        the confirmation. Built by the caller because
+     *                        only the caller knows whether it is one machine
+     *                        or a group of them.
+     *
+     * @return string The button group markup, or '' if none may be shown.
+     */
+    public static function renderQuickTaskActions(
+        $node,
+        $id,
+        array $typeIds,
+        $target
+    ) {
+        // Same refusal _quickTaskItems() makes: a user without the
+        // permission would be shown buttons whose POST can only be denied.
+        if (!Authorization::can($node . '.task')) {
+            return '';
+        }
+
+        $buttons = '';
+        foreach ($typeIds as $typeId) {
+            $TaskType = new TaskType($typeId);
+            // A server whose taskTypes row was deleted simply loses that
+            // button, the same way the accordion and the grid lose theirs.
+            if (!$TaskType->isValid()) {
+                continue;
+            }
+            $name = (string)$TaskType->get('name');
+            // Built here, not in the script. gettext runs server side, so a
+            // sentence assembled in JS would never reach the .pot -- the
+            // same reason noteSourceAttrs() builds its on/off labels here.
+            $confirm = sprintf(
+                _('Create a %1$s task for %2$s?'),
+                $name,
+                $target
+            );
+            $buttons .= self::makeButton(
+                'quicktask-' . \Initiator::e($node) . '-' . (int)$TaskType->get('id'),
+                '<i class="fas fa-' . \Initiator::e((string)$TaskType->get('icon'))
+                . '"></i> ' . \Initiator::e($name),
+                'btn btn-secondary fog-quicktask',
+                'type="button"'
+                . ' data-node="' . \Initiator::e($node) . '"'
+                . ' data-id="' . (int)$id . '"'
+                . ' data-type="' . (int)$TaskType->get('id') . '"'
+                . ' data-confirm="' . \Initiator::e($confirm) . '"'
+            );
+        }
+        if ('' === $buttons) {
+            return '';
+        }
+
+        return '<div class="btn-group" role="group" aria-label="'
+            . \Initiator::e(_('Quick tasks'))
+            . '">' . $buttons . '</div>';
+    }
+
     protected function renderInfoCard()
     {
         $notes = (array)$this->notes;
         $sources = (array)$this->noteSources;
+        $actions = (string)$this->noteActions;
         // Mirrors PLUGINS_INJECT_TABDATA in tabFields(): a plugin that adds
         // a tab to a core page can add its line here too. 1.5's equivalent
         // rode SUB_MENULINK_DATA, which 1.6 repurposed for the sidebar node
         // menu, so there is no back-compat name to keep.
+        //
+        // 'actions' rides the same event rather than getting one of its own:
+        // a plugin adding a button to this card is doing the same thing as a
+        // plugin adding a line to it, and a second event would mean two
+        // registrations for one card.
         self::$HookManager->processEvent(
             'EDIT_INFO_DATA',
             [
                 'notes' => &$notes,
                 'noteSources' => &$sources,
+                'noteActions' => &$actions,
                 'obj' => &$this->obj
             ]
         );
-        if (!count($notes)) {
+        // Either half is enough to be worth drawing. A page with buttons and
+        // no notes is unusual but not wrong, and returning early on the note
+        // count alone would silently drop the buttons.
+        if (!count($notes) && '' === trim($actions)) {
             return;
         }
         echo '<div class="card mb-3" id="edit-info-card">';
@@ -591,6 +696,16 @@ trait FOGPageRender
                 '<span class="text-muted">&mdash;</span>' :
                 \Initiator::e($value);
             echo '</div>';
+            echo '</div>';
+        }
+        // Last in the row and pushed to the far edge with ms-auto, so the
+        // buttons sit clear of the notes however many notes there are. A
+        // flex auto margin, not a float: the row is display:flex and a float
+        // would do nothing here.
+        if ('' !== trim($actions)) {
+            echo '<div class="col ms-auto d-flex align-items-center"'
+                . ' id="edit-info-actions">';
+            echo $actions;
             echo '</div>';
         }
         echo '</div>';
