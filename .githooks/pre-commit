@@ -59,10 +59,42 @@ psrfix() {
 }
 
 updateLanguage() {
+    # Only when this commit touches a PHP file under packages/web. That is the
+    # only thing update-language.sh extracts from -- xgettext --language=PHP
+    # over a find for *.php under packages/web -- so nothing else in a commit
+    # can make the catalogues go stale. Same reasoning as schemaCheck below.
+    #
+    # Without this gate the step regenerated on every commit and staged the
+    # whole languages directory, so a CSS-only change carried ten .po files
+    # and messages.pot into working-1.6 (b6be8033f, 2026-09-04). CI runs the
+    # identical regeneration and commits the result when the tree comes back
+    # dirty, so a run skipped here is caught there rather than lost.
+    if ! git diff --cached --name-only --diff-filter=ACMR \
+        | grep -q '^packages/web/.*\.php$'; then
+        return
+    fi
+
     require_tools "translation template regeneration" xgettext msgcat msgmerge || return
+
+    # Whatever was already dirty before we ran belongs to somebody else -- a
+    # second session in this checkout, or an edit the author deliberately left
+    # unstaged. psrfix() above refuses to touch a partially staged file for
+    # the same reason; this is that caution applied to the catalogues.
+    langdir="packages/web/management/languages"
+    before=$(git diff --name-only -- "$project_dir/$langdir")
+
     # The regeneration itself lives in lib/ so CI runs the identical commands.
     sh "$project_dir/.githooks/lib/update-language.sh" "$project_dir"
-    git add "$project_dir/packages/web/management/languages/"
+
+    # Stage only what the regeneration changed and nobody else was holding.
+    git diff --name-only -- "$project_dir/$langdir" | while read -r f; do
+        if printf '%s\n' "$before" | grep -Fxq -- "$f"; then
+            printf 'pre-commit: %s was already modified, leaving it unstaged\n' \
+                "$f" >&2
+        else
+            git add "$project_dir/$f"
+        fi
+    done
 }
 
 schemaCheck() {
