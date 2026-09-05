@@ -1,5 +1,5 @@
-  constraints declared and applicable here: 98
-  constraints actually present:             96
+  constraints declared and applicable here: 97
+  constraints actually present:             95
   MISSING:                                  2
     fk_hostMAC_hmHostID                      CASCADE     orphan rows: 0
     fk_nfsGroupMembers_ngmGroupID            RESTRICT    orphan rows: 1
