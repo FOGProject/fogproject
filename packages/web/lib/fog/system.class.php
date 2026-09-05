@@ -53,7 +53,7 @@ class System
     public function __construct()
     {
         self::_versionCompare();
-        define('FOG_VERSION', 'fog2.0-feature.176');
+        define('FOG_VERSION', 'fog2.0-feature.178');
         define('FOG_SCHEMA', 263);
         define('FOG_BCACHE_VER', 131);
         define('FOG_SVN_REVISION', 6080);
