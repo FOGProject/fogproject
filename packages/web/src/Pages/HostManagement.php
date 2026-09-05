@@ -4476,10 +4476,44 @@ class HostManagement extends FOGPage
         // tabs: which image is assigned, when it was last imaged, and which
         // group it belongs to.
         $primaryGroup = new Group(self::minId($this->obj->get('groups')));
+        // Whichever of the two clients last spoke, named so the card is not
+        // ambiguous about which one it is reporting.
+        //
+        // The agent WINS when both are set, and not by date: a host that has
+        // enrolled an agent is a host whose legacy check-in has stopped
+        // moving, so the newer client is the live signal even on the day
+        // the agent is installed. Falling back keeps the card useful for the
+        // hosts that have not migrated yet, which during a migration is most
+        // of them.
+        // Two literal calls rather than one with a computed column: the
+        // column each date came out of decides whether it can predate the
+        // UTC boundary, so it is named where a reader -- and
+        // tests/utc-storage-boundary.test.php -- can see it.
+        $agentRaw = (string)$this->obj->get('agentCheckin');
+        if ('' !== $agentRaw && self::validDate($agentRaw)) {
+            $checkinWho = _('agent');
+            $lastSpoke = self::dateOrNever(
+                $this->obj->get('agentCheckin'),
+                'hosts',
+                'hostAgentCheckin'
+            );
+        } else {
+            $checkinWho = _('client');
+            $lastSpoke = self::dateOrNever(
+                $this->obj->get('lastcheckin'),
+                'hosts',
+                'hostLastCheckin'
+            );
+        }
+        if (_('Never') !== $lastSpoke) {
+            $lastSpoke = sprintf('%s (%s)', $lastSpoke, $checkinWho);
+        }
+
         $this->notes = [
             _('Host') => $this->obj->get('name'),
             _('Primary MAC') => (string)$this->obj->get('mac'),
             _('Assigned Image') => $this->obj->getImageName(),
+            _('Last Check-In') => $lastSpoke,
             _('Last Deployed') => self::dateOrNever(
                 $this->obj->get('deployed'),
                 'hosts',
