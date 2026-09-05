@@ -16,7 +16,11 @@
  *
  * The summary is CLIENT side -- one row per host is a bounded set, and
  * sorting a fleet by "last seen" has to sort the fleet, not the page. Each
- * expanded host's rows are server side, because that set is not bounded.
+ * expanded host's rows are server side, because that set is not bounded --
+ * and they go through registerTable() like every other grid, so they carry
+ * the same infinite scroll. Collapsed grouping and infinite scroll were
+ * never actually in tension: the tension is between rowGroup and Scroller,
+ * and grouping in SQL means there is no rowGroup to have it with.
  */
 (function($) {
   var $table = $('#agentactivity-table');
@@ -105,8 +109,19 @@
       + '</tr></thead></table></div>';
   }
 
+  // registerTable(), not a bare .DataTable(). The first version of this file
+  // hand-rolled the child and so opted out of every convention the helper
+  // applies -- including its `dom`, which is where the pager lives. The
+  // result showed the first ten of a host's events with no way to reach the
+  // rest, on a host with seventy-nine of them.
+  //
+  // Going through the helper also means the child gets the SAME infinite
+  // scroll as every other grid: registerTable() turns Scroller on unless the
+  // table uses rowGroup or opts out. So the collapsed-by-host view and
+  // continuous scrolling are not in tension after all -- the tension was
+  // between rowGroup and Scroller, and this design has no rowGroup.
   function buildChild(hostID) {
-    $('#agentactivity-child-' + hostID).DataTable({
+    var dt = $('#agentactivity-child-' + hostID).registerTable(null, {
       order: [
         [0, 'desc']
       ],
@@ -127,17 +142,38 @@
           }
         }
       ],
+      rowId: 'id',
       processing: true,
       serverSide: true,
-      searching: false,
-      lengthChange: false,
-      pageLength: 10,
+      // Nothing here is selectable: auditlog has no write route at all
+      // (ADR 0021 Decision 8), so a selection could not act on anything.
+      select: false,
+      // The helper's default viewport is 55vh, which is most of the screen --
+      // right for a page that IS the table, wrong for one nested inside a row
+      // of another. This is tall enough to scroll and short enough that the
+      // host rows below stay reachable.
+      scrollY: '18rem',
       ajax: {
         url: '../management/index.php?node=agentactivity'
           + '&sub=getHostActivity&id=' + encodeURIComponent(hostID),
         type: 'post'
       }
     });
+
+    // A child row is inserted AFTER the page has laid out, which is the same
+    // situation as a table built inside a hidden tab: Scroller measures a
+    // table that has no height and no width yet, and the header/body split
+    // stays misaligned until something re-measures. fogBindTableAutosize()
+    // does this on shown.bs.tab; there is no such event here, so the sizing
+    // pass runs once the row is actually in the document.
+    setTimeout(function() {
+      try {
+        fogSizeScroller(dt);
+        dt.columns.adjust();
+      } catch (e) {}
+    }, 0);
+
+    return dt;
   }
 
   $table.on('click', '.agentactivity-expand', function() {

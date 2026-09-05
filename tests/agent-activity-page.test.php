@@ -209,4 +209,37 @@ $t->check(
     false !== strpos($html, 'agentactivity-table')
 );
 
+// The bug this pins: the child table was first written as a bare
+// .DataTable(), which opted out of every convention registerTable() applies
+// -- including its `dom`, which is where the pager lives, and its Scroller
+// setup. An expanded host showed the first ten of its events with no way to
+// reach the rest. Reported against a host with seventy-nine of them.
+$t->check(
+    'the expanded host table goes through registerTable, not a bare DataTable',
+    1 === preg_match(
+        '~agentactivity-child-\x27 \+ hostID\)\.registerTable\(~',
+        $jsSrc
+    )
+);
+$t->check(
+    'no bare .DataTable( construction builds the child grid',
+    0 === preg_match('~child-\x27 \+ hostID\)\.DataTable\(\{~', $jsSrc)
+);
+
+// registerTable() sizes a Scroller table on a setTimeout(0) after init. A
+// grid built into a node still being attached -- a child row is exactly that
+// -- reaches fogSizeScroller() before its wrapper is in the document, and an
+// unguarded container() threw an uncaught TypeError out of that timeout.
+$commonSrc = (string)file_get_contents(
+    __DIR__ . '/../packages/web/management/js/fog/fog.common.js'
+);
+$t->check(
+    'fogSizeScroller skips a table whose container is not in the document yet',
+    1 === preg_match(
+        '#var container = dt\.table\(\)\.container\(\);\s*'
+        . 'if \(!container\) \{\s*return;#s',
+        $commonSrc
+    )
+);
+
 $t->finish();
