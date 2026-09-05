@@ -1,26 +1,35 @@
 /**
- * Agent activity, one row per host, expanded on demand.
+ * Agent activity: one grid, grouped by host, expanded in place.
  *
  * Read only by construction, not by omission: `auditlog` has no create,
  * update or delete route anywhere in FOG (ADR 0021 Decision 8), so there is
- * nothing here to wire a row action to.
+ * nothing here to wire a row action to. The page declares that once, in
+ * AgentActivityManagement::$selectable, and the toolbar follows.
  *
- * NO rowGroup, and not for the reason fog.audit.list.js gives. Grouping by
- * host is the whole point of this page, but rowGroup groups only within the
- * current PAGE, and the audit grid is serverSide -- so one hostname would
- * head a dozen separate pages. The summary this table renders is grouped in
- * SQL instead, which is exact across the whole table, and it is bounded by
- * the size of the fleet where a flat list of agent rows is not. The scroller
- * survives as a side effect: registerTable() auto-pages any table using
- * rowGroup, and this one does not use it.
+ * WHY NOT A CHILD ROW. The first version of this file opened a nested
+ * DataTable per host through `row.child()`. A DataTables row has ONE child
+ * slot; registerTable() turns Responsive on for every grid, and Responsive
+ * owns that slot. So the nested table was never built -- clicking expand
+ * rendered Responsive's hidden-column list instead, on a live install, at a
+ * width where nothing was hidden to begin with. Adding rows to the grid
+ * itself has no such conflict, and it is what makes an expanded host look
+ * like the rest of FOG instead of a grid inside a grid with its own
+ * scrollbar and pager.
  *
- * The summary is CLIENT side -- one row per host is a bounded set, and
- * sorting a fleet by "last seen" has to sort the fleet, not the page. Each
- * expanded host's rows are server side, because that set is not bounded --
- * and they go through registerTable() like every other grid, so they carry
- * the same infinite scroll. Collapsed grouping and infinite scroll were
- * never actually in tension: the tension is between rowGroup and Scroller,
- * and grouping in SQL means there is no rowGroup to have it with.
+ * WHY EVERY GROUP KEEPS ONE ROW. Collapse is a search filter over the event
+ * rows, and RowGroup draws its headers from the rows that SURVIVE the
+ * filter: a group left with none renders no header, and the host vanishes
+ * from the page. So each host's newest event is seeded into the table and
+ * is never filtered. It anchors the header, and it is the row worth reading
+ * when everything is collapsed -- what each agent last did.
+ *
+ * WHY THE SEED IS SEPARATE FROM THE EXPANSION. An agent writes a row per
+ * changed fact per host and FOG_AUDIT_RETENTION_DAYS defaults to 0 (keep
+ * forever), so the flat event set is unbounded -- it cannot be loaded
+ * client side, which is equally why rowGroup over a `serverSide` grid is
+ * not an option (it would group within one page). The seed is bounded by
+ * the fleet, each expansion by ROWS_PER_HOST. Nothing here loads a set
+ * bounded by neither.
  */
 (function($) {
   var $table = $('#agentactivity-table');
@@ -28,6 +37,34 @@
   if (!$table.length) {
     return;
   }
+
+  // How many rows one expansion pulls. A host that has been enrolled for a
+  // year has thousands, and putting all of them into the browser to answer
+  // "what has this machine been doing" is the cost the summary exists to
+  // avoid. Past this the header says so and offers the host's own page.
+  var ROWS_PER_HOST = 500;
+
+  // hostName -> true while that host's events are showing. Keyed by name
+  // because that is what RowGroup groups on and what startRender is handed;
+  // the id travels on the row data for the fetch.
+  var expanded = {};
+  // hostName -> true once its rows are in the table, so a collapse and a
+  // second expand do not re-fetch what is already loaded.
+  var loaded = {};
+  // hostName -> true while a fetch is in flight, so a double click on a
+  // header cannot start two.
+  var loading = {};
+  // hostName -> total the server reported, when it is more than we asked
+  // for. Read by the header to say what is not being shown.
+  var truncated = {};
+
+  var outcomeClass = {
+    allowed: 'text-bg-success',
+    denied: 'text-bg-danger',
+    failed: 'text-bg-warning',
+    partial: 'text-bg-warning',
+    unknown: 'text-bg-secondary'
+  };
 
   // Every column escapes. An audit row carries subject labels and detail
   // text that came from a machine on the network, so its contents are
@@ -44,154 +81,286 @@
     };
   }
 
-  var outcomeClass = {
-    allowed: 'text-bg-success',
-    denied: 'text-bg-danger',
-    failed: 'text-bg-warning',
-    partial: 'text-bg-warning',
-    unknown: 'text-bg-secondary'
-  };
-
-  // The expand control. A button and not a styled cell: it is operated by
-  // keyboard as well as by mouse, and a div with a click handler is not.
-  function toggleColumn() {
+  function outcomeColumn() {
     return {
-      data: null,
-      orderable: false,
-      searchable: false,
-      className: 'agentactivity-toggle',
-      render: function() {
-        return '<button type="button" class="btn btn-sm btn-link p-0'
-          + ' agentactivity-expand" aria-expanded="false"'
-          + ' title="' + $.escapeHtml('Show this host\'s agent activity')
-          + '"><i class="fas fa-chevron-right"></i></button>';
+      data: 'outcome',
+      render: function(d, t) {
+        var v = d === null ? '' : String(d);
+        if (t !== 'display') {
+          return v;
+        }
+        if ('' === v) {
+          return '';
+        }
+        return '<span class="badge ' + (outcomeClass[v] || outcomeClass.unknown)
+          + '">' + $.escapeHtml(v) + '</span>';
       }
     };
   }
 
+  // The seed rows and the fetched rows are the same shape by the time they
+  // reach the table, so one column set serves both and an expanded group is
+  // continuous with its anchor rather than a differently-shaped insert.
+  function seedRow(host) {
+    return {
+      hostID: host.hostID,
+      hostName: host.hostName,
+      events: host.events,
+      createdTime: host.lastTime,
+      type: host.lastType,
+      text: host.lastText,
+      outcome: host.lastOutcome,
+      // What the hidden host column SORTS by -- see groupSortColumn().
+      groupSort: String(host.lastTime) + '|' + String(host.hostID),
+      // Marks the row that must never be filtered out. Without it a
+      // collapsed group loses every row, and with them its header.
+      anchor: true
+    };
+  }
+
+  // `seed` is a row this file already built, NOT the raw summary object --
+  // so the sort key is COPIED from it rather than recomputed. Recomputing it
+  // from seed.lastTime read undefined (a seed row carries createdTime), every
+  // event of a host sorted under "undefined|<id>" instead of beside its
+  // anchor, and the group split in two with its header drawn twice.
+  function eventRow(seed, row) {
+    return {
+      hostID: seed.hostID,
+      hostName: seed.hostName,
+      events: seed.events,
+      createdTime: row.createdTime,
+      type: row.type,
+      text: row.text,
+      outcome: row.outcome,
+      // Identical for every row of one host, which is what keeps the group
+      // contiguous once the table is ordered by it.
+      groupSort: seed.groupSort,
+      anchor: false
+    };
+  }
+
+  // The hidden Host column: displayed as the host name if it were ever
+  // shown, but SORTED by the group's own recency.
+  //
+  // RowGroup starts a new group -- and draws another header -- every time
+  // its dataSrc changes down the ordered rows, so a group is only whole if
+  // the table is ordered by it. Ordering by time alone is not enough: one
+  // host's older events fall past the next host's newest one and its header
+  // is drawn twice. That was measured, not predicted.
+  //
+  // Sorting alphabetically by name would fix contiguity and lose the order
+  // that matters, which is "which agents have done something lately". So
+  // every row of a host sorts on that host's LAST activity plus its id --
+  // one value per group, so groups stay whole, ordered by recency, with the
+  // id breaking a tie between two hosts last seen in the same second.
+  function groupSortColumn() {
+    return {
+      data: 'hostName',
+      visible: false,
+      className: 'noVis',
+      render: function(d, t, row) {
+        if (t === 'sort' || t === 'type') {
+          return row.groupSort;
+        }
+        return t === 'display'
+          ? $.escapeHtml(d === null ? '' : String(d))
+          : d;
+      }
+    };
+  }
+
+  // Collapse hides a group's event rows and leaves its anchor. Registered
+  // once and scoped to this table by node identity -- ext.search is global,
+  // so an unscoped filter would silently apply to every grid on the page.
+  var tableNode = $table.get(0);
+
+  $.fn.dataTable.ext.search.push(function(settings, data, dataIndex, row) {
+    if (settings.nTable !== tableNode) {
+      return true;
+    }
+    return row.anchor === true || expanded[row.hostName] === true;
+  });
+
+  // The group header. It carries what used to be four columns of a summary
+  // grid -- the host, its event count, and now the expand control -- which
+  // is what frees the columns below to be the events themselves.
+  function groupHeader(rows, name) {
+    var d = rows.data()[0] || {},
+      open = expanded[name] === true,
+      count = parseInt(d.events, 10) || 0,
+      note = '';
+
+    if (truncated[name]) {
+      // Said on the header rather than in a row: it is a fact about the
+      // group, and a row saying it would sort and filter like an event.
+      note = ' <span class="text-body-secondary small">'
+        + $.escapeHtml('showing the newest ' + ROWS_PER_HOST) + '</span>';
+    }
+
+    return $('<tr/>')
+      .addClass('agentactivity-group')
+      .attr('data-host', name)
+      .append(
+        $('<td/>')
+          .attr('colspan', 5)
+          .html(
+            '<button type="button" class="btn btn-sm btn-link p-0 me-2'
+            + ' agentactivity-toggle" aria-expanded="' + (open ? 'true' : 'false')
+            + '"><i class="fas '
+            // Whole names, not 'fa-chevron-' plus a half: the icon audit
+            // reads the emitted string and a concatenated name resolves to
+            // nothing it can check.
+            + (open ? 'fa-chevron-down' : 'fa-chevron-right')
+            + '"></i></button>'
+            + '<span class="fw-semibold">' + $.escapeHtml(name) + '</span>'
+            + ' <span class="badge text-bg-secondary">'
+            + $.escapeHtml(String(count)) + '</span>'
+            + note
+          )
+      );
+  }
+
   var table = $table.registerTable(null, {
-    // Newest activity first: the question this page answers is "what have
-    // the agents been doing", and a host silent for a month is not it.
+    // Newest activity first. Ordering by the time column also keeps each
+    // host's rows in the order its agent wrote them, since RowGroup orders
+    // groups by the first ordering column it is grouped on and rows within
+    // a group by whatever follows.
+    // Groups first, then time within a group. Both descending: the most
+    // recently active host heads the page, and its newest event heads it.
     order: [
-      [3, 'desc']
+      [4, 'desc'],
+      [0, 'desc']
     ],
     columns: [
-      toggleColumn(),
-      escaped('hostName'),
-      escaped('events'),
-      escaped('lastTime'),
-      escaped('lastType')
+      escaped('createdTime'),
+      escaped('type'),
+      escaped('text'),
+      outcomeColumn(),
+      groupSortColumn()
     ],
-    rowId: 'hostID',
+    rowGroup: {
+      dataSrc: 'hostName',
+      startRender: groupHeader
+    },
     processing: true,
-    // Client side on purpose -- see the file docblock.
+    // Client side: the seed is one row per host, which is bounded by the
+    // fleet, and rowGroup cannot group a server-side grid beyond one page.
     serverSide: false,
+    // Nothing here is selectable -- auditlog has no write route at all (ADR
+    // 0021 Decision 8) -- and registerTable() drops Select All / Deselect
+    // All when it sees this.
     select: false,
     ajax: {
       url: '../management/index.php?node=agentactivity&sub=getList',
-      type: 'post'
+      type: 'post',
+      dataSrc: function(json) {
+        var out = [];
+        $.each(json.data || [], function(i, host) {
+          out.push(seedRow(host));
+        });
+        return out;
+      }
     }
   });
 
-  // One child table per expanded host, each its own DataTable against the
-  // scoped endpoint. Destroyed on collapse rather than hidden: leaving them
-  // alive means every host a user has ever opened keeps redrawing behind a
-  // closed row.
-  function childTable(hostID) {
-    var id = 'agentactivity-child-' + hostID;
+  // Groups start collapsed, which is the whole point: the page opens as a
+  // list of hosts and what each last did, and you go looking from there.
+  // Nothing to do to arrange it -- `expanded` starts empty and the filter
+  // above keeps every non-anchor row out until a header is clicked.
 
-    return '<div class="p-2"><table id="' + id
-      + '" class="table table-sm w-100"><thead><tr>'
-      + '<th>' + $.escapeHtml('When') + '</th>'
-      + '<th>' + $.escapeHtml('Event') + '</th>'
-      + '<th>' + $.escapeHtml('Detail') + '</th>'
-      + '<th>' + $.escapeHtml('Outcome') + '</th>'
-      + '</tr></thead></table></div>';
-  }
+  function loadHost(name, hostID, done) {
+    if (loading[name]) {
+      return;
+    }
+    loading[name] = true;
 
-  // registerTable(), not a bare .DataTable(). The first version of this file
-  // hand-rolled the child and so opted out of every convention the helper
-  // applies -- including its `dom`, which is where the pager lives. The
-  // result showed the first ten of a host's events with no way to reach the
-  // rest, on a host with seventy-nine of them.
-  //
-  // Going through the helper also means the child gets the SAME infinite
-  // scroll as every other grid: registerTable() turns Scroller on unless the
-  // table uses rowGroup or opts out. So the collapsed-by-host view and
-  // continuous scrolling are not in tension after all -- the tension was
-  // between rowGroup and Scroller, and this design has no rowGroup.
-  function buildChild(hostID) {
-    var dt = $('#agentactivity-child-' + hostID).registerTable(null, {
-      order: [
-        [0, 'desc']
-      ],
-      columns: [
-        escaped('createdTime'),
-        escaped('type'),
-        escaped('text'),
-        {
-          data: 'outcome',
-          render: function(d, t) {
-            var v = d === null ? '' : String(d);
-            if (t !== 'display') {
-              return v;
-            }
-            return '<span class="badge '
-              + (outcomeClass[v] || outcomeClass.unknown) + '">'
-              + $.escapeHtml(v) + '</span>';
-          }
+    $.ajax({
+      url: '../management/index.php?node=agentactivity&sub=getHostActivity&id='
+        + encodeURIComponent(hostID),
+      type: 'post',
+      dataType: 'json',
+      // Route::listem() reads DataTables' own paging parameters, so the cap
+      // is expressed the way that endpoint already understands rather than
+      // by teaching it a second one.
+      data: {start: 0, length: ROWS_PER_HOST},
+      success: function(json) {
+        var rows = (json && json.data) || [],
+          // recordsFiltered, NOT recordsTotal. listem()'s recordsTotal is
+          // every row in auditLog -- 1435 on the lab install -- so testing
+          // against it declared a 134-event host truncated at 500.
+          total = (json && json.recordsFiltered) || rows.length,
+          seed = table.rows().data().toArray().filter(function(r) {
+            return r.hostName === name && r.anchor;
+          })[0],
+          add = [];
+
+        if (total > rows.length) {
+          truncated[name] = true;
         }
-      ],
-      rowId: 'id',
-      processing: true,
-      serverSide: true,
-      // Nothing here is selectable: auditlog has no write route at all
-      // (ADR 0021 Decision 8), so a selection could not act on anything.
-      select: false,
-      // The helper's default viewport is 55vh, which is most of the screen --
-      // right for a page that IS the table, wrong for one nested inside a row
-      // of another. This is tall enough to scroll and short enough that the
-      // host rows below stay reachable.
-      scrollY: '18rem',
-      ajax: {
-        url: '../management/index.php?node=agentactivity'
-          + '&sub=getHostActivity&id=' + encodeURIComponent(hostID),
-        type: 'post'
+
+        $.each(rows, function(i, row) {
+          // The newest row is already on screen as the anchor. Adding it
+          // again would show one event twice under its own header.
+          if (seed && String(row.createdTime) === String(seed.createdTime)
+            && String(row.type) === String(seed.type)) {
+            return;
+          }
+          // A host with no anchor cannot be reached from the UI (there is
+          // no header to click), but the key still has to be per-host so a
+          // programmatic load cannot merge two hosts into one group.
+          add.push(eventRow(
+            seed || {
+              hostID: hostID,
+              hostName: name,
+              events: rows.length,
+              groupSort: String(row.createdTime) + '|' + String(hostID)
+            },
+            row
+          ));
+        });
+
+        if (add.length) {
+          table.rows.add(add);
+        }
+        loaded[name] = true;
+      },
+      complete: function() {
+        loading[name] = false;
+        done();
       }
     });
-
-    // A child row is inserted AFTER the page has laid out, which is the same
-    // situation as a table built inside a hidden tab: Scroller measures a
-    // table that has no height and no width yet, and the header/body split
-    // stays misaligned until something re-measures. fogBindTableAutosize()
-    // does this on shown.bs.tab; there is no such event here, so the sizing
-    // pass runs once the row is actually in the document.
-    setTimeout(function() {
-      try {
-        fogSizeScroller(dt);
-        dt.columns.adjust();
-      } catch (e) {}
-    }, 0);
-
-    return dt;
   }
 
-  $table.on('click', '.agentactivity-expand', function() {
-    var $btn = $(this),
-      row = table.row($btn.closest('tr')),
-      hostID = row.id();
+  // Delegated to the table: RowGroup redraws its headers on every draw, so
+  // a handler bound to the header elements themselves would be lost the
+  // first time anything sorted, searched or added a row.
+  $table.on('click', '.agentactivity-group', function(e) {
+    var name = $(this).attr('data-host'),
+      row = table.rows().data().toArray().filter(function(r) {
+        return r.hostName === name && r.anchor;
+      })[0];
 
-    if (row.child.isShown()) {
-      $('#agentactivity-child-' + hostID).DataTable().destroy();
-      row.child.hide();
-      $btn.attr('aria-expanded', 'false')
-        .find('i').removeClass('fa-chevron-down').addClass('fa-chevron-right');
+    e.preventDefault();
+
+    if (expanded[name]) {
+      expanded[name] = false;
+      table.draw(false);
       return;
     }
 
-    row.child(childTable(hostID)).show();
-    buildChild(hostID);
-    $btn.attr('aria-expanded', 'true')
-      .find('i').removeClass('fa-chevron-right').addClass('fa-chevron-down');
+    expanded[name] = true;
+
+    if (loaded[name] || !row) {
+      table.draw(false);
+      return;
+    }
+
+    // Drawn before the fetch as well as after: the chevron turns over
+    // immediately, so a slow endpoint reads as loading rather than as a
+    // click that did nothing.
+    table.draw(false);
+    loadHost(name, row.hostID, function() {
+      table.draw(false);
+    });
   });
 })(jQuery);
