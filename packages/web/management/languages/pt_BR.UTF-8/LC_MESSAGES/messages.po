@@ -2775,9 +2775,6 @@ msgstr "Diretório"
 msgid "Directory Already Exists"
 msgstr "Diretório já existe"
 
-msgid "Directory Cleaner"
-msgstr "Cleaner diretório"
-
 #, fuzzy
 msgid "Directory Group"
 msgstr "Diretório"
@@ -10392,7 +10389,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11274,9 +11270,6 @@ msgstr "Usuário já existe"
 #, fuzzy
 msgid "User Association"
 msgstr "Associação imagem"
-
-msgid "User Cleanup"
-msgstr "Limpeza de usuário"
 
 #, fuzzy
 msgid "User Count"
@@ -13072,6 +13065,9 @@ msgstr ""
 #~ msgid "Deprecated."
 #~ msgstr "Crio"
 
+#~ msgid "Directory Cleaner"
+#~ msgstr "Cleaner diretório"
+
 #, fuzzy
 #~ msgid "Domain joining"
 #~ msgstr "Nome do domínio"
@@ -13707,6 +13703,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Update/Remove printers"
 #~ msgstr "Remover impressoras selecionadas"
+
+#~ msgid "User Cleanup"
+#~ msgstr "Limpeza de usuário"
 
 #, fuzzy
 #~ msgid "User Group Site"

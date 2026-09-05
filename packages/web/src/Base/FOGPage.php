@@ -3718,9 +3718,6 @@ abstract class FOGPage extends FOGBase
             // the default branch below resolves the key to Items\Software,
             // which has no json(), and every legacy check-in fatals.
             $igMods = [
-                'dircleanup',
-                'usercleanup',
-                'clientupdater',
                 'hostregister',
                 'software',
             ];

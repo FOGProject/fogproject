@@ -6072,16 +6072,7 @@ class HostManagement extends FOGPage
                 $keys[] = $short_name;
             }
         }
-        $notWhere = [
-            'clientupdater',
-            'dircleanup',
-            'usercleanup'
-        ];
-
-        $where = "`modules`.`short_name` "
-            . "NOT IN ('"
-            . implode("','", $notWhere)
-            . "') AND `modules`.`short_name` IN ('"
+        $where = "`modules`.`short_name` IN ('"
             . implode("','", $keys)
             . "')";
 

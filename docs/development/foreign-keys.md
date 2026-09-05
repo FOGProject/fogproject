@@ -603,7 +603,7 @@ half-converted column.
 ## Phase D — plugins, and the direction rule
 
 18 plugin tables ship in `FOGProject/fog-plugins`. All 18 clone cleanly into
-the survey and 25 of the map's 138 relationships live in them.
+the survey and 25 of the map's 137 relationships live in them.
 
 ### Direction is the whole rule
 
@@ -879,7 +879,6 @@ moduleStatusByHost  msHostID -> hosts    msModuleID -> modules
 inventory           iHostID -> hosts
 hostAutoLogOut      haloHostID -> hosts
 powerManagement     pmHostID -> hosts
-greenFog            gfHostID -> hosts
 ```
 
 All CASCADE, and **nothing an admin can see changes**: `deletemass()`

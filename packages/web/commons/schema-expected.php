@@ -77,6 +77,22 @@ return [
             'reason' => 'design 0014 -- Display Manager is removed, so the per-host width, height and refresh have nothing that reads or applies them. Schema step 431 drops the table with the module',
         ],
         [
+            'table' => 'dirCleaner',
+            'reason' => 'the Directory Cleaner module is removed -- the rebuilt agent does not delete paths a list names, and a snapin already ships a script with an exit code and captured output. Schema step 433 drops the table with the module',
+        ],
+        [
+            'table' => 'userCleanup',
+            'reason' => 'the User Cleanup module is removed -- nothing reads the profile names it held. Its six rows were FOG\'s own install seed (admin, guest, administrator, HelpAssistant, ASPNET, SUPPORT_), never operator data. Schema step 433 drops the table with the module',
+        ],
+        [
+            'table' => 'clientUpdates',
+            'reason' => 'the Client Updater module is removed -- it served .NET client binaries, and the rebuild updates through the MSI at a stable URL plus a snapin filtered on the reported agentVersion, deliberately not a self-replacing updater. Schema step 433 drops the table with the module',
+        ],
+        [
+            'table' => 'greenFog',
+            'reason' => 'Green FOG was superseded by Power Management (design 0004). Schema step 375 removed the module, its settings and its per-host rows but left the table behind; step 433 finishes that removal',
+        ],
+        [
             'table' => 'printerAssoc',
             'column' => 'paAnon1',
             'reason' => 'design 0010 -- a spare column 1.5 pre-allocated and nothing has ever written; `plugins` claimed three of its own the same way through the `renames` block above, these were never claimed. Schema step 426 has the audit that preceded the drop',
@@ -250,23 +266,6 @@ return [
                 'bfPinned' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
-        'clientUpdates' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `clientUpdates` ( `cuID` int(11) NOT NULL AUTO_INCREMENT, `cuName` varchar(200) NOT NULL DEFAULT \'\', `cuMD5` varchar(100) NOT NULL DEFAULT \'\', `cuType` varchar(30) NOT NULL DEFAULT \'\', `cuFile` longblob NOT NULL DEFAULT \'\', PRIMARY KEY (`cuID`), KEY `new_index` (`cuName`), KEY `new_index1` (`cuType`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'cuID' => 'int(11) NOT NULL',
-                'cuName' => 'varchar(200) NOT NULL DEFAULT \'\'',
-                'cuMD5' => 'varchar(100) NOT NULL DEFAULT \'\'',
-                'cuType' => 'varchar(30) NOT NULL DEFAULT \'\'',
-                'cuFile' => 'longblob NOT NULL DEFAULT \'\'',
-            ],
-        ],
-        'dirCleaner' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `dirCleaner` ( `dcID` int(11) NOT NULL AUTO_INCREMENT, `dcPath` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`dcID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'dcID' => 'int(11) NOT NULL',
-                'dcPath' => 'longtext NOT NULL DEFAULT \'\'',
-            ],
-        ],
         'dmidecodeKeys' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `dmidecodeKeys` ( `dkID` int(11) NOT NULL AUTO_INCREMENT, `dkName` varchar(255) NOT NULL, PRIMARY KEY (`dkID`), UNIQUE KEY `name` (`dkName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -295,17 +294,6 @@ return [
                 'settingDesc' => 'longtext NOT NULL DEFAULT \'\'',
                 'settingValue' => 'longtext NOT NULL DEFAULT \'\'',
                 'settingCategory' => 'longtext NOT NULL DEFAULT \'\'',
-            ],
-        ],
-        'greenFog' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `greenFog` ( `gfID` int(11) NOT NULL AUTO_INCREMENT, `gfHostID` int(11) NOT NULL, `gfHour` int(11) NOT NULL DEFAULT 0, `gfMin` int(11) NOT NULL DEFAULT 0, `gfAction` varchar(2) NOT NULL DEFAULT \'\', `gfDays` varchar(25) NOT NULL DEFAULT \'\', PRIMARY KEY (`gfID`), KEY `new_index` (`gfHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'gfID' => 'int(11) NOT NULL',
-                'gfHostID' => 'int(11) NOT NULL',
-                'gfHour' => 'int(11) NOT NULL DEFAULT 0',
-                'gfMin' => 'int(11) NOT NULL DEFAULT 0',
-                'gfAction' => 'varchar(2) NOT NULL DEFAULT \'\'',
-                'gfDays' => 'varchar(25) NOT NULL DEFAULT \'\'',
             ],
         ],
         'groupMembers' => [
@@ -1258,13 +1246,6 @@ return [
                 'uaIsExpired' => 'int(11) NOT NULL DEFAULT 0',
                 'uaSelectorHash' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'uaPasswordHash' => 'varchar(255) NOT NULL DEFAULT \'\'',
-            ],
-        ],
-        'userCleanup' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `userCleanup` ( `ucID` int(11) NOT NULL AUTO_INCREMENT, `ucName` varchar(254) NOT NULL DEFAULT \'\', PRIMARY KEY (`ucID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-            'columns' => [
-                'ucID' => 'int(11) NOT NULL',
-                'ucName' => 'varchar(254) NOT NULL DEFAULT \'\'',
             ],
         ],
         'userGroupMembers' => [

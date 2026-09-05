@@ -2698,9 +2698,6 @@ msgstr "ディレクトリ"
 msgid "Directory Already Exists"
 msgstr "ディレクトリは既に存在します"
 
-msgid "Directory Cleaner"
-msgstr "ディレクトリクリーナー"
-
 #, fuzzy
 msgid "Directory Group"
 msgstr "ディレクトリ"
@@ -10070,7 +10067,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -10933,9 +10929,6 @@ msgstr "ユーザーは既に存在します"
 #, fuzzy
 msgid "User Association"
 msgstr "ルールの関連付け"
-
-msgid "User Cleanup"
-msgstr "ユーザークリーンアップ"
 
 #, fuzzy
 msgid "User Count"
@@ -12903,6 +12896,9 @@ msgstr ""
 #~ msgid "Directories"
 #~ msgstr "ディレクトリ"
 
+#~ msgid "Directory Cleaner"
+#~ msgstr "ディレクトリクリーナー"
+
 #~ msgid "Domain Password Legacy"
 #~ msgstr "従来のドメインパスワード"
 
@@ -14681,6 +14677,9 @@ msgstr ""
 
 #~ msgid "User Change Password"
 #~ msgstr "ユーザーパスワードを変更"
+
+#~ msgid "User Cleanup"
+#~ msgstr "ユーザークリーンアップ"
 
 #~ msgid "User General"
 #~ msgstr "ユーザー全般"

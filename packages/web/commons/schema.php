@@ -11563,3 +11563,63 @@ $this->schema[] = [
     "DELETE FROM `globalSettings` "
     . "WHERE `settingKey` = 'FOG_CLIENT_AUTOLOGOFF_BGIMAGE'",
 ];
+
+// 433
+$this->schema[] = [
+    // The last four legacy client modules go, and their tables with them.
+    //
+    // Directory Cleaner deleted the contents of paths a `dirCleaner` row
+    // named. User Cleanup deleted the Windows profiles a `userCleanup` row
+    // named. Client Updater served .NET client binaries out of
+    // `clientUpdates` so the old service could replace itself. Green FOG
+    // ran scheduled power actions; step 375 removed its module, settings
+    // and per-host rows but left `greenFog` standing.
+    //
+    // None of the four is reimplemented and none will be. Power Management
+    // (design 0004) already does what Green FOG did. The rebuilt agent
+    // updates through the MSI at a stable URL plus a snapin filtered on the
+    // agentVersion it already reports -- a deliberate decision against a
+    // self-replacing updater, so Client Updater is not a gap but a closed
+    // question. Deleting paths and profiles across a fleet is what snapins
+    // are for: a snapin ships a script and returns an exit code and its
+    // output, where these modules returned nothing an admin could read.
+    //
+    // They were already inert. getGlobalModuleStatus() has not listed any
+    // of them for some time, so ServiceModule::send() answered `#!um` to a
+    // legacy client that asked, no service/ endpoint serves them, and the
+    // three surviving FOG_CLIENT_*_ENABLED settings were rendered as
+    // checkboxes nothing read. What survived was rows: a `modules` row
+    // apiece and 86 per-host answers each on the lab, which is a fleet's
+    // worth of stored opinion about modules that cannot run. That is the
+    // FOG_PLUGINSYS_DIR and greenfog defect (steps 326 and 375) a third
+    // time.
+    //
+    // NOTHING RECOVERABLE IS LOST. `dirCleaner`, `clientUpdates` and
+    // `greenFog` are empty on a server that ever ran the modules, because
+    // 1.6 removed every page that wrote them. `userCleanup` holds rows, but
+    // they are the seed step 9 inserts on every install -- admin, guest,
+    // administrator, HelpAssistant, ASPNET, SUPPORT_ -- and not operator
+    // data. An install that added its own names loses those names, which is
+    // the same trade Display Manager took in step 431.
+    //
+    // Ordered so nothing references something already gone: per-host
+    // answers, then the module rows, then the settings, then the tables.
+    // msModuleID is a VARCHAR that held the short name before a later step
+    // rewrote it to the numeric id, so both spellings are matched -- the
+    // care steps 375 and 431 took.
+    //
+    // The seed steps are deliberately NOT edited. schema.php is a replay
+    // log; step 326 set that precedent, 375 and 431 followed it.
+    "DELETE FROM `moduleStatusByHost` WHERE `msModuleID` IN ("
+    . "'1', '2', '7', 'dircleanup', 'usercleanup', 'clientupdater')",
+    "DELETE FROM `modules` WHERE `short_name` IN ("
+    . "'dircleanup', 'usercleanup', 'clientupdater')",
+    "DELETE FROM `globalSettings` WHERE `settingKey` IN ("
+    . "'FOG_CLIENT_DIRECTORYCLEANER_ENABLED',"
+    . "'FOG_CLIENT_USERCLEANUP_ENABLED',"
+    . "'FOG_CLIENT_CLIENTUPDATER_ENABLED')",
+    Schema::dropTable('dirCleaner'),
+    Schema::dropTable('userCleanup'),
+    Schema::dropTable('clientUpdates'),
+    Schema::dropTable('greenFog'),
+];

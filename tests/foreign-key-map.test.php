@@ -264,7 +264,6 @@ $expected = [
     'inventory.iHostID',
     'hostAutoLogOut.haloHostID',
     'powerManagement.pmHostID',
-    'greenFog.gfHostID',
     // Group 2
     'siteHostMembers.shmSiteID',
     'siteHostMembers.shmHostID',

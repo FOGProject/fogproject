@@ -70,20 +70,9 @@ class ServiceConfigurationPage extends FOGPage
         self::$_moduleName = self::getGlobalModuleStatus();
         self::$_modNames = self::getGlobalModuleStatus(true);
         // Loop the client module options
-        $notWhere = [
-            'clientupdater',
-            'dircleanup',
-            'usercleanup'
-        ];
-        $modkeys = array_keys(self::getGlobalModuleStatus());
-        $where = array_diff(
-            $modkeys,
-            $notWhere
-        );
-
         self::$_modules = Route::getList(
             'module',
-            ['shortName' => $where]
+            ['shortName' => array_keys(self::getGlobalModuleStatus())]
         );
     }
     /**

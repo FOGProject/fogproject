@@ -2384,12 +2384,6 @@ class GroupManagement extends FOGPage
                 $keys[] = $short_name;
             }
         }
-        $notWhere = [
-            'clientupdater',
-            'dircleanup',
-            'usercleanup'
-        ];
-        $keys = array_diff($keys, $notWhere);
         $where = "`modules`.`short_name` IN ('"
             . implode("','", $keys)
             . "')";
