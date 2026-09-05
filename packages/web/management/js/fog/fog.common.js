@@ -5417,6 +5417,12 @@ function setupInfoCard() {
  * clicking a host name, and one stray click would deploy over a running
  * machine -- or, from a group, over all of them. The text is built server
  * side (FOGPageRender::renderQuickTaskActions) because it is translated.
+ *
+ * The confirmation is the page's own modal rather than window.confirm(): the
+ * browser dialog cannot be styled, ignores the dark theme, and prefixes the
+ * page URL, so it reads as something outside the application. Every button
+ * shares the one modal, which carries the clicked button's data-confirm as
+ * its body and remembers which button opened it.
  */
 function setupInfoCardActions() {
   // Guards the window between the click and the server's answer. Per button
@@ -5427,39 +5433,59 @@ function setupInfoCardActions() {
   // otherwise be two identical taskings.
   var running = {};
 
-  // Delegated and namespaced: the card is torn down and rebuilt with the
-  // page on every AJAX nav, so a direct binding would be lost on the first
-  // one and doPageLoad() would stack a new one per visit.
+  // Which button opened the modal. Cleared on every open so a dismissed
+  // confirmation cannot be committed by the next one.
+  var pending = null;
+
+  function fire(btn) {
+    var node = btn.data('node'),
+      id = btn.data('id'),
+      type = btn.data('type'),
+      key = node + ':' + id + ':' + type;
+    if (running[key]) {
+      return;
+    }
+    running[key] = true;
+    $.apiCall(
+        'post',
+        '../management/index.php?node=' + encodeURIComponent(node)
+          + '&sub=deploy&id=' + encodeURIComponent(id)
+          + '&type=' + encodeURIComponent(type),
+        {scheduleType: 'instant'},
+        function() {
+          // Both outcomes land here and both only need the lock released.
+          // apiCall has already drawn the toast, and there is nothing on
+          // this page to repaint: the card's Last Deployed is the date the
+          // last task FINISHED, which a task just queued has not.
+          running[key] = false;
+        }
+    );
+  }
+
+  // Delegated and namespaced: the card and its modal are torn down and
+  // rebuilt with the page on every AJAX nav, so a direct binding would be
+  // lost on the first one and doPageLoad() would stack a new one per visit.
+  // Both handlers share the one namespace so the .off() clears the pair.
   $(document)
     .off('click.fogQuickTask')
     .on('click.fogQuickTask', '.fog-quicktask', function(e) {
       e.preventDefault();
-      var btn = $(this),
-        node = btn.data('node'),
-        id = btn.data('id'),
-        type = btn.data('type'),
-        key = node + ':' + id + ':' + type;
-      if (running[key]) {
-        return;
+      pending = $(this);
+      // .text(), never .html(): data-confirm carries a host or group name,
+      // which is admin-supplied.
+      $('#quicktask-confirm-text').text(pending.data('confirm'));
+      $('#quicktask-confirm-modal').modal('show');
+    })
+    .on('click.fogQuickTask', '#quicktask-confirm-go', function(e) {
+      e.preventDefault();
+      var btn = pending;
+      // Taken before the request so a second click during the hide
+      // animation has nothing left to commit.
+      pending = null;
+      $('#quicktask-confirm-modal').modal('hide');
+      if (btn) {
+        fire(btn);
       }
-      if (!window.confirm(btn.data('confirm'))) {
-        return;
-      }
-      running[key] = true;
-      $.apiCall(
-          'post',
-          '../management/index.php?node=' + encodeURIComponent(node)
-            + '&sub=deploy&id=' + encodeURIComponent(id)
-            + '&type=' + encodeURIComponent(type),
-          {scheduleType: 'instant'},
-          function() {
-            // Both outcomes land here and both only need the lock released.
-            // apiCall has already drawn the toast, and there is nothing on
-            // this page to repaint: the card's Last Deployed is the date the
-            // last task FINISHED, which a task just queued has not.
-            running[key] = false;
-          }
-      );
     });
 }
 
