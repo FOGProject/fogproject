@@ -239,6 +239,11 @@ const TABLE = [
     // hostSpooler rows, it is not that row.
     'PrinterFacts' => 'Agent',
     'PrinterSet' => 'Agent',
+    // The second writer for hosts.hostSbState (design 0012). Named
+    // SecureBootFacts and not SecureBootState because THAT name is the Boot
+    // class holding the six state names -- this reports observations into
+    // that vocabulary, it does not define it.
+    'SecureBootFacts' => 'Agent',
     'UserSessions' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',

@@ -545,6 +545,13 @@ class Route extends FOGBase
             // is how they drift.
             'lastping',
             'lastcheckin',
+            // The fog-agent's poll heartbeat, written by agentPoll() only
+            // after a certificate authenticated the caller. It belongs here
+            // for the same reason lastcheckin does, and for one more:
+            // WakeRelay picks which hosts are fresh enough to relay a wake
+            // by this column, so a host that could write it could nominate
+            // itself as a relay for a subnet it is not on.
+            'agentCheckin',
             // The observed half of the Secure Boot ledger (schema step 376).
             // This is the field the HARD constraint in ADR 0029 is about: it
             // is a REPORT of what a machine said, so a caller asserting it

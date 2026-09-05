@@ -1649,10 +1649,22 @@ class HostManagement extends FOGPage
                 strtoupper($pingMethod)
             );
         }
-        $lastCheckin = self::dateOrNever(
-            $this->obj->get('lastcheckin'),
+        // The fog-agent's poll heartbeat, written by Route::agentPoll() on
+        // every poll.
+        //
+        // This REPLACED "Last Client Check-In" (hostLastCheckin), which the
+        // legacy FOG Client wrote and which this form showed instead. On a
+        // host running the agent that field read "Never" -- or, worse, a
+        // real date from months ago -- for a machine that had checked in a
+        // minute earlier, because the two clients write different columns
+        // and the page only ever rendered the old one. The agent replaces
+        // the legacy client, so the form shows the agent's clock.
+        // hostLastCheckin itself is untouched: the legacy client still
+        // writes it, and the host list still has a column for it.
+        $agentCheckin = self::dateOrNever(
+            $this->obj->get('agentCheckin'),
             'hosts',
-            'hostLastCheckin'
+            'hostAgentCheckin'
         );
         // The Secure Boot ledger's two halves, prepared very differently on
         // purpose (schema steps 376 and 377).
@@ -1884,17 +1896,20 @@ class HostManagement extends FOGPage
                 true,
                 true
             ),
+            // OBSERVED, and disabled for the same reason as the rest of this
+            // group: it is a record of when a machine spoke, not a claim
+            // anyone may make on its behalf.
             self::makeLabel(
                 $labelClass,
-                'lastcheckin',
-                _('Last Client Check-In')
+                'agentcheckin',
+                _('Last Agent Check-In')
             ) => self::makeInput(
-                'form-control hostlastcheckin-input',
-                'lastcheckin',
+                'form-control hostagentcheckin-input',
+                'agentcheckin',
                 '',
                 'text',
-                'lastcheckin',
-                $lastCheckin,
+                'agentcheckin',
+                $agentCheckin,
                 false,
                 false,
                 -1,
