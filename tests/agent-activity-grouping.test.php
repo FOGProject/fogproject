@@ -179,6 +179,42 @@ $t->check(
         && 1 === preg_match("/_\('Outcome'\),\s*_\('Host'\)/", $page)
 );
 
+// 5. Paging is OFF, and that is load bearing rather than cosmetic.
+//
+// Paging counts rows; this page's unit is hosts. With 25 rows a page, one
+// expanded host with 83 events filled pages one to three and pushed every
+// other host onto page four -- and rowGroup redraws a group's header on each
+// page the group spans, so that host appeared four times, expanded. No page
+// length fixes it: the row count an expansion adds belongs to the host, not
+// to the setting.
+$t->check(
+    'the grid does not page',
+    1 === preg_match('/paging:\s*false/', $js)
+);
+// The length control has no value once paging is off, so it renders as an
+// empty box next to its own label -- reported in both themes as unreadable,
+// which it was, because there was nothing in it to read.
+$t->check(
+    'the entries-per-page control is removed with it',
+    1 === preg_match('/lengthChange:\s*false/', $js)
+);
+
+// 6. A reload starts over. Refresh is dt.clear().draw() + ajax.reload(), so
+// the rows go away; a host still marked loaded was never re-fetched and its
+// header stopped responding entirely. That read as the expander breaking
+// permanently after one press of Refresh.
+$t->check(
+    'every per-host map is reset when new data arrives',
+    1 === preg_match(
+        '/on\(\x27xhr\.dt\x27[^)]*\)?[^{]*\{\s*'
+        . 'expanded\s*=\s*\{\};\s*'
+        . 'loaded\s*=\s*\{\};\s*'
+        . 'loading\s*=\s*\{\};\s*'
+        . 'truncated\s*=\s*\{\};/s',
+        $js
+    )
+);
+
 // 4. The cap is judged against this host's count, not the whole audit log.
 $t->check(
     'truncation reads recordsFiltered, not recordsTotal',
