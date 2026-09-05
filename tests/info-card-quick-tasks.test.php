@@ -303,10 +303,48 @@ $t->check(
 // body-sized text. Filled puts white on #6c757d and holds 4.69:1 in both
 // themes. Measured in a browser against the shipped stylesheets; pinned here
 // as the class, because the class is the part a future edit would change.
+//
+// Scoped to the BUTTON GROUP, not the whole markup: the confirmation modal
+// that ships alongside it is deliberately outline-secondary, because that is
+// what every other confirm modal in the app uses and a modal's footer is not
+// a header strip. Asserting over the whole string conflated the two.
+preg_match('#<div class="btn-group".*?</div>#s', $markup, $groupOnly);
+$actionGroup = $groupOnly[0] ?? '';
 $t->check(
-    'the buttons are filled btn-secondary, not outline',
-    false !== strpos($markup, 'class="btn btn-secondary fog-quicktask"')
-    && false === strpos($markup, 'btn-outline-secondary')
+    'the card buttons are filled btn-secondary, not outline',
+    false !== strpos($actionGroup, 'class="btn btn-secondary fog-quicktask"')
+    && false === strpos($actionGroup, 'btn-outline-secondary')
+);
+
+// -------------------------------------------------------------------------
+// 2b. The confirmation modal.
+// -------------------------------------------------------------------------
+// The buttons carry data-confirm, but that attribute only matters if
+// something reads it. window.confirm() used to; now it is this modal, and a
+// modal that failed to render would leave the script showing nothing and
+// firing nothing -- a dead button, not an unguarded one, but still broken.
+$t->check(
+    'a confirmation modal ships with the buttons',
+    false !== strpos($markup, 'id="quicktask-confirm-modal"')
+);
+$t->check(
+    'it has the body the script writes the confirmation into',
+    false !== strpos($markup, 'id="quicktask-confirm-text"')
+);
+$t->check(
+    'it can be dismissed without tasking anything',
+    false !== strpos($markup, 'id="quicktask-confirm-cancel"')
+    && false !== strpos($markup, 'data-bs-dismiss="modal"')
+);
+$t->check(
+    'and it has the commit button the script fires on',
+    false !== strpos($markup, 'id="quicktask-confirm-go"')
+);
+// No modal without buttons: a page whose task types are all gone emits
+// neither, rather than a confirmation for nothing.
+$t->check(
+    'no buttons means no modal either',
+    false === strpos($emit(['*'], 'host', [9998, 9999]), 'quicktask-confirm-modal')
 );
 $t->check(
     'a task type this server has deleted simply loses its button',

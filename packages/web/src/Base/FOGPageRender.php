@@ -566,7 +566,7 @@ trait FOGPageRender
      * commit action -- the General tab's Update is -- so these are two
      * shortcuts in a header strip, not a decision cluster in a form footer,
      * and the weight a red button would carry is carried by the
-     * confirmation instead. It is also what the list grid's own quick
+     * confirmation modal instead. It is also what the list grid's own quick
      * buttons are, since DataTables draws its button bar that way.
      *
      * Filled, NOT btn-outline-secondary, and that is a contrast decision
@@ -636,9 +636,43 @@ trait FOGPageRender
             return '';
         }
 
+        // The confirmation is a modal, not window.confirm(). The browser's
+        // own dialog cannot be styled, ignores the dark theme entirely, and
+        // announces itself with the page's URL -- next to AdminLTE it reads
+        // as something the site got wrong. Same shape as assocDelModal(),
+        // which is what every other "are you sure" in this app looks like.
+        //
+        // ONE modal for the whole card, filled in by the script from the
+        // clicked button's data-confirm, rather than one per button: two
+        // would eventually say the same thing in two different wordings.
+        //
+        // Emitted next to the buttons, the way assocDelModal() sits in its
+        // card-footer. A .modal is position:fixed and display:none until
+        // shown, so it adds nothing to the flex row it nominally lives in.
+        $modal = self::makeModal(
+            'quicktask-confirm-modal',
+            '<h4 class="card-title">' . \Initiator::e(_('Create tasking'))
+            . '</h4>',
+            '<p id="quicktask-confirm-text" class="mb-0"></p>',
+            self::makeButton(
+                'quicktask-confirm-cancel',
+                _('Cancel'),
+                'btn btn-outline-secondary float-start',
+                'type="button" data-bs-dismiss="modal"'
+            )
+            . self::makeButton(
+                'quicktask-confirm-go',
+                _('Create'),
+                'btn btn-outline-secondary float-end',
+                'type="button"'
+            ),
+            '',
+            'warning'
+        );
+
         return '<div class="btn-group" role="group" aria-label="'
             . \Initiator::e(_('Quick tasks'))
-            . '">' . $buttons . '</div>';
+            . '">' . $buttons . '</div>' . $modal;
     }
 
     protected function renderInfoCard()
