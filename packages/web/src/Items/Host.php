@@ -239,9 +239,9 @@ class Host extends FOGController
      * @var array
      */
     /**
-     * ALO time val
+     * ALO time val, keyed by host id
      *
-     * @var int
+     * @var array
      */
     private static $_hostalo = [];
     /**
@@ -538,10 +538,13 @@ class Host extends FOGController
      */
     private function _setAlo()
     {
-        if (!empty(self::$_hostalo)) {
+        $id = (int)$this->get('id');
+        // array_key_exists, not !empty: a host whose auto logout is legitimately
+        // 0 must still cache, or every read re-queries.
+        if (array_key_exists($id, self::$_hostalo)) {
             return;
         }
-        self::$_hostalo = (
+        self::$_hostalo[$id] = (
             $this->get('hostalo')->get('time') ?:
             self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN')
         );
@@ -554,7 +557,7 @@ class Host extends FOGController
     public function getAlo()
     {
         $this->_setAlo();
-        return self::$_hostalo;
+        return self::$_hostalo[(int)$this->get('id')];
     }
     /**
      * Sets the auto logout time
@@ -565,6 +568,9 @@ class Host extends FOGController
      */
     public function setAlo($time)
     {
+        // The write invalidates this host's cached read, so a save and a
+        // getAlo() in the same request agree.
+        unset(self::$_hostalo[(int)$this->get('id')]);
         return $this->get('hostalo')
             ->set('hostID', $this->get('id'))
             ->set('time', $time)
