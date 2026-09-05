@@ -3728,8 +3728,20 @@ function fogSizeScroller(dt, release) {
   if (!init || !init.scroller) {
     return; // only Scroller-enabled tables
   }
-  var container = dt.table().container(),
-    body = $('div.dt-scroll-body', container);
+  // container() is null for a table whose wrapper is not in the document
+  // yet. registerTable() calls this on a setTimeout(0) right after init, and
+  // a grid built into a node that is still being attached -- a DataTables
+  // child row is the case that found this -- gets here before its wrapper
+  // lands. Guarded for the same reason init is above: `outer` below falls
+  // back to `container`, so a null one reached getBoundingClientRect() and
+  // threw an uncaught TypeError out of the timeout. Skipping is right rather
+  // than merely safe -- there is nothing to measure against yet, and
+  // whatever attaches the node re-runs the sizing pass once it has.
+  var container = dt.table().container();
+  if (!container) {
+    return;
+  }
+  var body = $('div.dt-scroll-body', container);
   if (!body.length || !body.is(':visible')) {
     return; // not rendered, or in a hidden tab
   }

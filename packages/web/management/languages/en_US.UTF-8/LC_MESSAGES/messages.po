@@ -298,6 +298,10 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "(deleted host %d)"
+msgstr "Approve selected Hosts"
+
 msgid "(deleted user)"
 msgstr ""
 
@@ -1051,6 +1055,10 @@ msgstr "Advanced"
 
 msgid "Agent"
 msgstr ""
+
+#, fuzzy
+msgid "Agent Activity"
+msgstr "Active"
 
 #, fuzzy
 msgid "Agent Approval Success"
@@ -2737,6 +2745,10 @@ msgid "Destroy failed"
 msgstr "Destroy failed: %s"
 
 #, fuzzy
+msgid "Detail"
+msgstr "Snapin Return Detail"
+
+#, fuzzy
 msgid "Details"
 msgstr "Snapin Return Detail"
 
@@ -4141,6 +4153,9 @@ msgstr "Printer already exists"
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "Printer already exists"
 
+msgid "Host Agent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "Host Created"
@@ -5490,6 +5505,10 @@ msgstr "Language"
 msgid "Largest images"
 msgstr "Images"
 
+#, fuzzy
+msgid "Last Activity"
+msgstr "Active"
+
 msgid "Last Agent Check-In"
 msgstr ""
 
@@ -5505,6 +5524,10 @@ msgstr ""
 
 msgid "Last Deployed"
 msgstr "Last Deployed"
+
+#, fuzzy
+msgid "Last Event"
+msgstr "Host Created"
 
 msgid "Last Ping"
 msgstr ""

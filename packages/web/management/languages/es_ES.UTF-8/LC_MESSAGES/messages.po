@@ -296,6 +296,10 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "(deleted host %d)"
+msgstr "retirar"
+
 msgid "(deleted user)"
 msgstr ""
 
@@ -1063,6 +1067,10 @@ msgstr "Avanzado"
 
 msgid "Agent"
 msgstr ""
+
+#, fuzzy
+msgid "Agent Activity"
+msgstr "Activo"
 
 #, fuzzy
 msgid "Agent Approval Success"
@@ -2764,6 +2772,9 @@ msgstr ""
 msgid "Destroy failed"
 msgstr "Destruir fallado: %s"
 
+msgid "Detail"
+msgstr ""
+
 msgid "Details"
 msgstr ""
 
@@ -4192,6 +4203,9 @@ msgstr "Impresora ya existe"
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "Impresora ya existe"
 
+msgid "Host Agent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "Creado"
@@ -5584,6 +5598,10 @@ msgstr ""
 msgid "Largest images"
 msgstr "Imagen"
 
+#, fuzzy
+msgid "Last Activity"
+msgstr "Activo"
+
 msgid "Last Agent Check-In"
 msgstr ""
 
@@ -5599,6 +5617,10 @@ msgstr ""
 
 msgid "Last Deployed"
 msgstr "última Desplegado"
+
+#, fuzzy
+msgid "Last Event"
+msgstr "Creado"
 
 msgid "Last Ping"
 msgstr ""

@@ -665,6 +665,17 @@ class Authorization extends FOGBase
             // narrowly: an audit row necessarily discloses attempted
             // usernames.
             'audit' => ['view', 'manage'],
+            // The agent's half of that trail, read by host. Its OWN node
+            // rather than an alias onto `audit`: ADR 0021 made audit.view
+            // narrow because the audit log discloses attempted usernames and
+            // refusals, and agent rows are enrollments, inventories and task
+            // results a machine reported -- a different disclosure with a
+            // different audience. Aliasing would force anyone who may see
+            // what an agent did to also see every failed sign-in.
+            //
+            // `view` only. Nothing here writes: auditlog has no create,
+            // update or delete route anywhere in FOG (ADR 0021 Decision 8).
+            'agentactivity' => ['view'],
             // The log viewer. Third sibling under Logging, and the one that
             // shipped without an entry here when it moved to its own node
             // (#1507) -- so it fell into "a node absent from the registry is
