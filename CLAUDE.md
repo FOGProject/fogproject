@@ -240,15 +240,26 @@ on this repo, each from their own. Use whatever `git config user.name` /
 `user.email` already say; never override them on the commit, and never fall back
 to `Claude <noreply@anthropic.com>` as the author.
 
-End the message with a co-author trailer:
+End the message with a co-author trailer, and let the agent's own tooling
+name the model it ran as:
 
 ```
-Co-Authored-By: Claude <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_<id>
 ```
 
-No model name in the trailer, and no model identifier anywhere else in a commit
-message, PR title/body, or code comment. Some older commits in this history do
-carry one (`Claude Opus 5`); they are not the pattern to copy.
+**The model name in the trailer is deliberate.** This file used to forbid it —
+`Co-Authored-By: Claude <noreply@anthropic.com>`, no model identifier anywhere.
+That rule lost on both counts. The harness emits the model-named trailer and
+the session line itself, so the rule was unenforceable in practice and the
+history already carried both shapes; and the name turns out to be worth having,
+because which model wrote a commit is a real thing to know when reading back a
+change that went wrong. Older commits with the bare trailer are equally fine —
+neither shape needs correcting.
+
+Still off limits: a model identifier in a **PR title or body**, or in a **code
+comment**. Those are read by people looking at FOG, not at how FOG was written,
+and the provenance question the trailer answers is not one they are asking.
 
 ---
 
