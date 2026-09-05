@@ -298,6 +298,10 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "(deleted host %d)"
+msgstr "Aprovar Hosts selecionados"
+
 msgid "(deleted user)"
 msgstr ""
 
@@ -1051,6 +1055,10 @@ msgstr "avançado"
 
 msgid "Agent"
 msgstr ""
+
+#, fuzzy
+msgid "Agent Activity"
+msgstr "Ativo"
 
 #, fuzzy
 msgid "Agent Approval Success"
@@ -2733,6 +2741,10 @@ msgid "Destroy failed"
 msgstr "Destrua falhou: %s"
 
 #, fuzzy
+msgid "Detail"
+msgstr "Detalhe Snapin Retorno"
+
+#, fuzzy
 msgid "Details"
 msgstr "Detalhe Snapin Retorno"
 
@@ -4137,6 +4149,9 @@ msgstr "Impressora já existe"
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "Impressora já existe"
 
+msgid "Host Agent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "host criado"
@@ -5486,6 +5501,10 @@ msgstr "Língua"
 msgid "Largest images"
 msgstr "imagens"
 
+#, fuzzy
+msgid "Last Activity"
+msgstr "Ativo"
+
 msgid "Last Agent Check-In"
 msgstr ""
 
@@ -5501,6 +5520,10 @@ msgstr ""
 
 msgid "Last Deployed"
 msgstr "Última Implantado"
+
+#, fuzzy
+msgid "Last Event"
+msgstr "host criado"
 
 msgid "Last Ping"
 msgstr ""
@@ -10385,7 +10408,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 

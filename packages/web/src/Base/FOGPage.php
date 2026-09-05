@@ -647,6 +647,16 @@ abstract class FOGPage extends FOGBase
                 _('Log Viewer'),
                 'fas fa-file-lines'
             ],
+            // Fourth under Logging. The audit log above holds these rows
+            // too, but only as one flat install-wide grid -- this reads them
+            // by host, which is the question anyone actually has about an
+            // agent. Its own gate for the reason its coreRegistry() entry
+            // gives: what a machine reported and who failed to sign in are
+            // different disclosures.
+            'agentactivity' => [
+                _('Agent Activity'),
+                'fas fa-satellite-dish'
+            ],
             'service' => [
                 self::$foglang['ClientSettings'],
                 'fas fa-gears'
@@ -851,7 +861,7 @@ abstract class FOGPage extends FOGBase
             'logging' => [
                 'title'    => _('Logging'),
                 'icon'     => 'fas fa-scroll',
-                'children' => ['activity', 'audit', 'logviewer'],
+                'children' => ['activity', 'audit', 'logviewer', 'agentactivity'],
             ],
         ];
     }

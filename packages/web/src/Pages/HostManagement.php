@@ -4358,6 +4358,25 @@ class HostManagement extends FOGPage
      *
      * @return void
      */
+    public function hostAgentActivity()
+    {
+        $this->renderHistoryTab(
+            [
+                _('When'),
+                _('Event'),
+                _('Detail'),
+                _('Outcome')
+            ],
+            [[], [], [], []],
+            _('Host Agent Activity'),
+            'host-agent-activity-table'
+        );
+    }
+    /**
+     * Renders the host's snapin history tab.
+     *
+     * @return void
+     */
     public function hostSnapinHistory()
     {
         $this->renderHistoryTab(
@@ -4705,6 +4724,18 @@ class HostManagement extends FOGPage
                         'id' => 'host-installed-software',
                         'generator' => function () {
                             $this->hostInstalledSoftware();
+                        }
+                    ],
+                    [
+                        // The agent's own trail for THIS host. The rows have
+                        // always been in auditLog tagged with the host id;
+                        // nothing could read them by host, so answering
+                        // "what has this machine's agent been doing" meant
+                        // scrolling the whole install's audit grid.
+                        'name' => _('Agent Activity'),
+                        'id' => 'host-agent-activity',
+                        'generator' => function () {
+                            $this->hostAgentActivity();
                         }
                     ],
                 ])
@@ -7514,6 +7545,34 @@ class HostManagement extends FOGPage
     }
     /**
      * Get the snapin history for this host.
+     *
+     * @return void
+     */
+    public function getAgentActivity()
+    {
+        header('Content-type: application/json');
+        // The same read AgentActivityManagement::getHostActivity() performs,
+        // so the host tab and the Logging page cannot drift into showing
+        // different histories for one machine. A LIKE on the prefix rather
+        // than a list of type names: a new fact kind is a registry entry and
+        // a block in the poll, not a third place to remember to edit.
+        Route::listem(
+            'auditlog',
+            [
+                'type' => AgentActivityManagement::TYPE_PREFIX . '%',
+                'subjectType' => 'host',
+                'subjectID' => (int)$this->obj->get('id')
+            ],
+            false,
+            'AND',
+            'id'
+        );
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * Serves the host's snapin history rows.
      *
      * @return void
      */

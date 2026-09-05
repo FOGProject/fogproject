@@ -1538,6 +1538,66 @@
         }
     });
 
+    // ---------------------------------------------------------------
+    // AGENT ACTIVITY TAB
+    //
+    // The same rows the Logging > Agent Activity page shows for this host,
+    // through the same query. Every column escapes: an audit row carries
+    // subject labels and detail text a machine on the network supplied, and
+    // DataTables writes cell data as HTML unless a column renders it.
+    var agentOutcomeClass = {
+        allowed: 'text-bg-success',
+        denied: 'text-bg-danger',
+        failed: 'text-bg-warning',
+        partial: 'text-bg-warning',
+        unknown: 'text-bg-secondary'
+    };
+    function agentEscaped(field) {
+        return {
+            data: field,
+            render: function(d, t) {
+                // display only: the CSV/copy exports ask for other types and
+                // escaping those would put &amp; into the exported file.
+                return t === 'display'
+                    ? $.escapeHtml(d === null ? '' : String(d))
+                    : d;
+            }
+        };
+    }
+    var hostAgentActivityTable = $('#host-agent-activity-table').registerTable(null, {
+        columns: [
+            agentEscaped('createdTime'),
+            agentEscaped('type'),
+            agentEscaped('text'),
+            {
+                data: 'outcome',
+                render: function(d, t) {
+                    var v = d === null ? '' : String(d);
+                    if (t !== 'display') {
+                        return v;
+                    }
+                    return '<span class="badge '
+                        + (agentOutcomeClass[v] || agentOutcomeClass.unknown)
+                        + '">' + $.escapeHtml(v) + '</span>';
+                }
+            }
+        ],
+        order: [
+            [0, 'desc']
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        select: false,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getAgentActivity&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
     // Enable searching
     if (Common.search && Common.search.length > 0) {
         macsTable.search(Common.search).draw();

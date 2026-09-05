@@ -274,6 +274,10 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
+#, php-format
+msgid "(deleted host %d)"
+msgstr ""
+
 msgid "(deleted user)"
 msgstr ""
 
@@ -912,6 +916,9 @@ msgid "Advanced Tasks"
 msgstr ""
 
 msgid "Agent"
+msgstr ""
+
+msgid "Agent Activity"
 msgstr ""
 
 msgid "Agent Approval Success"
@@ -2358,6 +2365,9 @@ msgstr ""
 msgid "Destroy failed"
 msgstr ""
 
+msgid "Detail"
+msgstr ""
+
 msgid "Details"
 msgstr ""
 
@@ -3565,6 +3575,9 @@ msgstr ""
 msgid "Host %1$s finished deploying image %2$s."
 msgstr ""
 
+msgid "Host Agent Activity"
+msgstr ""
+
 msgid "Host Approval Success"
 msgstr ""
 
@@ -4695,6 +4708,9 @@ msgstr ""
 msgid "Largest images"
 msgstr ""
 
+msgid "Last Activity"
+msgstr ""
+
 msgid "Last Agent Check-In"
 msgstr ""
 
@@ -4708,6 +4724,9 @@ msgid "Last Check-In"
 msgstr ""
 
 msgid "Last Deployed"
+msgstr ""
+
+msgid "Last Event"
 msgstr ""
 
 msgid "Last Ping"
@@ -8906,7 +8925,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
