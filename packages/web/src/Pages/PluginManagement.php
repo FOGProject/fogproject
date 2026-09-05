@@ -39,6 +39,15 @@ class PluginManagement extends FOGPage
      */
     public $node = 'plugin';
     /**
+     * This grid does not select.
+     *
+     * A plugin is installed and uninstalled by its own row action, never by
+     * ticking rows and pressing Delete.
+     *
+     * @var bool
+     */
+    public $selectable = false;
+    /**
      * Initialize the plugin page
      *
      * @param string $name the name of the page.

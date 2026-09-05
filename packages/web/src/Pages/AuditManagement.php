@@ -50,6 +50,16 @@ class AuditManagement extends FOGPage
      */
     public $node = 'audit';
     /**
+     * This grid does not select.
+     *
+     * Read only. `auditlog` and `auditchange` have no delete route anywhere in
+     * FOG (ADR 0021 Decision 8), so there is nothing here for a selection to
+     * act on.
+     *
+     * @var bool
+     */
+    public $selectable = false;
+    /**
      * How many change rows one header may show.
      *
      * Bounded in the query, not in the browser. A create writes one row per

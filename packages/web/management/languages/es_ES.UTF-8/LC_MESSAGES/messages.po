@@ -124,6 +124,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
+msgid "%d decided, %d not: %s"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -292,6 +296,10 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "(deleted host %d)"
+msgstr "retirar"
+
 msgid "(deleted user)"
 msgstr ""
 
@@ -418,6 +426,12 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A client ID is required"
 msgstr "Se requiere un nombre de imagen!"
 
+msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
+msgstr ""
+
+msgid "A disabled entry stops being managed; it does not remove the package."
+msgstr ""
+
 #, fuzzy
 msgid "A dmi field must be set!"
 msgstr "Evento debe ser una cadena"
@@ -481,6 +495,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A migration step failed. The plugin is left activated and not marked installed."
 msgstr ""
 
+msgid "A missing name, a bad use count, or an expiry that is not in the future."
+msgstr ""
+
 #, fuzzy
 msgid "A module already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
@@ -502,6 +519,9 @@ msgstr "No disponible"
 msgid "A permission name is required."
 msgstr "Se requiere un nombre de imagen!"
 
+msgid "A pinned entry needs a version."
+msgstr ""
+
 msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
 msgstr ""
 
@@ -522,6 +542,9 @@ msgstr "Una imagen ya existe con este nombre!"
 
 #, php-format
 msgid "A request is pending since %s for %s."
+msgstr ""
+
+msgid "A revoked token can never approve an enrollment again."
 msgstr ""
 
 #, fuzzy
@@ -563,6 +586,10 @@ msgstr "Una imagen ya existe con este nombre!"
 
 msgid "A snapin granted here reaches every host in this group, including hosts added later. Granting a snapin does not run it; deploy it from the Tasks tab when you want it to run."
 msgstr ""
+
+#, fuzzy
+msgid "A software entry already exists with this name!"
+msgstr "Una imagen ya existe con este nombre!"
 
 #, fuzzy
 msgid "A storage group already exists with this name!"
@@ -698,6 +725,12 @@ msgstr ""
 
 #, php-format
 msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
+msgid "Absent"
+msgstr ""
+
+msgid "Absent removes the package if it is installed."
 msgstr ""
 
 msgid "Accepts the same optional filter as a list. Reports the true filtered total and ignores paging."
@@ -944,6 +977,10 @@ msgid "Add snapin failed!"
 msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
+msgid "Add software failed!"
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
 msgid "Add storage node failed!"
 msgstr "Añadir fallidos SNAPin!"
 
@@ -1028,6 +1065,33 @@ msgstr "Avanzado"
 msgid "Advanced Tasks"
 msgstr "Avanzado"
 
+msgid "Agent"
+msgstr ""
+
+#, fuzzy
+msgid "Agent Activity"
+msgstr "Activo"
+
+#, fuzzy
+msgid "Agent Approval Success"
+msgstr "Creado"
+
+#, fuzzy
+msgid "Agent Denial Success"
+msgstr "Impresora actualiza!"
+
+#, fuzzy
+msgid "Agent Enrollment Tokens"
+msgstr "se ha actualizado correctamente"
+
+#, fuzzy
+msgid "Agent Tokens"
+msgstr "Nombre de usuario"
+
+#, fuzzy
+msgid "Agent enrollment tokens"
+msgstr "se ha actualizado correctamente"
+
 msgid "Ago must be boolean"
 msgstr ""
 
@@ -1044,6 +1108,10 @@ msgstr ""
 #, fuzzy
 msgid "All Hosts"
 msgstr "Hospedadores"
+
+#, fuzzy
+msgid "All Pending Agents"
+msgstr "macs pendientes"
 
 #, fuzzy
 msgid "All Pending Hosts"
@@ -1149,9 +1217,15 @@ msgstr ""
 msgid "An SQL error occurred"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
+msgid "An enrollment token, if the installer was given one."
+msgstr ""
+
 #, fuzzy
 msgid "An entry already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
+
+msgid "An expiry is required. The token approves enrollments until it is spent or expires; revoke it here at any time."
+msgstr ""
 
 msgid "An image already exists with this name!"
 msgstr "Una imagen ya existe con este nombre!"
@@ -1192,6 +1266,10 @@ msgstr ""
 msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
 msgstr ""
 
+#, fuzzy
+msgid "Any version"
+msgstr "Versión"
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1231,15 +1309,33 @@ msgid "Approve"
 msgstr "Creado"
 
 #, fuzzy
+msgid "Approve Agent Fail"
+msgstr "Creado"
+
+#, fuzzy
 msgid "Approve MAC Fail"
 msgstr "Creado"
+
+#, fuzzy
+msgid "Approve Pending Agents"
+msgstr "anfitriones pendientes"
 
 #, fuzzy
 msgid "Approve Pending Hosts"
 msgstr "anfitriones pendientes"
 
+msgid "Approve or deny an agent enrollment"
+msgstr ""
+
 #, fuzzy
 msgid "Approve selected"
+msgstr "retirar"
+
+msgid "Approved but the signer is unavailable; the agent retries."
+msgstr ""
+
+#, fuzzy
+msgid "Approved selected agents!"
 msgstr "retirar"
 
 #, fuzzy
@@ -1254,6 +1350,9 @@ msgstr "retirar"
 msgid "Approving the selected pending hosts."
 msgstr "retirar"
 
+msgid "Arch"
+msgstr ""
+
 msgid "Architecture"
 msgstr ""
 
@@ -1262,6 +1361,10 @@ msgstr ""
 
 msgid "Area"
 msgstr ""
+
+#, fuzzy
+msgid "Assigned"
+msgstr "No nodo asociado"
 
 #, fuzzy
 msgid "Assigned Group"
@@ -1324,6 +1427,9 @@ msgstr ""
 msgid "Authenticated but not permitted."
 msgstr ""
 
+msgid "Authenticated by the client certificate enrollment issued, verified by the web server and bound to the host by its key fingerprint before the route runs; no token or session applies. Records the check-in and answers with the revision of the host's desired state, plus the state itself when the applied revision the agent sent is not current or it asked for it. The revision is opaque: compared for equality, never parsed. A certificate that no longer binds to a live host gets 401, which tells the agent to enroll again. The request may also carry facts about the host -- hardware inventory, the installed-program list -- sent only when their content hash moved or the answer asked; the same conditional as the state, run in the other direction."
+msgstr ""
+
 msgid "Authentication missing or invalid."
 msgstr ""
 
@@ -1362,6 +1468,9 @@ msgstr "Vendedor del BIOS"
 
 msgid "BIOS Version"
 msgstr "Versión de la BIOS"
+
+msgid "Backend"
+msgstr ""
 
 #, fuzzy
 msgid "Bad request."
@@ -1601,6 +1710,10 @@ msgid "Canceled due to new tasking."
 msgstr "Cancelada debido a las nuevas tareas a la vez."
 
 #, fuzzy
+msgid "Cannot Run"
+msgstr "Registro no encontrado, error: %s"
+
+#, fuzzy
 msgid "Cannot bind to the LDAP server"
 msgstr "Error: No se pudo descargar kernel"
 
@@ -1612,10 +1725,6 @@ msgstr ""
 
 msgid "Cannot connect to database"
 msgstr ""
-
-#, fuzzy
-msgid "Cannot connect to ftp server"
-msgstr "Error: No se pudo descargar kernel"
 
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
@@ -1812,6 +1921,9 @@ msgstr ""
 msgid "Check this value against what the enrollment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
+msgid "Checked"
+msgstr ""
+
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
@@ -1999,13 +2111,22 @@ msgstr "Error: No se pudo descargar kernel"
 msgid "Confirm you would like to download a new kernel"
 msgstr "Error: No se pudo descargar kernel"
 
+msgid "Converged"
+msgstr ""
+
 #, php-format
 msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
+msgstr ""
+
+msgid "Copy"
 msgstr ""
 
 #, fuzzy
 msgid "Copy from existing"
 msgstr "No se pudo crear la impresora"
+
+msgid "Copy it now. It is not stored and cannot be shown again."
+msgstr ""
 
 msgid "Copy this token now"
 msgstr ""
@@ -2078,10 +2199,6 @@ msgstr "No se pudo leer el archivo tmp."
 #, fuzzy
 msgid "Could not read local file"
 msgstr "No se pudo leer el archivo temporal"
-
-#, fuzzy
-msgid "Could not read snapin file"
-msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 msgid "Could not read the database structure"
@@ -2179,6 +2296,9 @@ msgstr ""
 msgid "Create"
 msgstr "Crear"
 
+msgid "Create Enrollment Token"
+msgstr ""
+
 msgid "Create Immediate Power task"
 msgstr ""
 
@@ -2261,6 +2381,9 @@ msgstr "Crear nuevo sitio"
 msgid "Create New Snapin"
 msgstr "Crear nuevo snapin"
 
+msgid "Create New Software"
+msgstr "Crear nuevo software"
+
 msgid "Create New Storage Group"
 msgstr "Crear nuevo grupo de almacenamiento"
 
@@ -2309,6 +2432,10 @@ msgid "Create Users On First Login"
 msgstr ""
 
 #, fuzzy, php-format
+msgid "Create a %1$s task for %2$s?"
+msgstr "creado por el usuario"
+
+#, fuzzy, php-format
 msgid "Create a %s"
 msgstr "Crear nuevo grupo"
 
@@ -2331,8 +2458,16 @@ msgstr "creado por el usuario"
 msgid "Create task form success"
 msgstr "creado por el usuario"
 
+#, fuzzy
+msgid "Create tasking"
+msgstr "Crear nuevo grupo"
+
 msgid "Create tasking succeeded"
 msgstr ""
+
+#, fuzzy
+msgid "Create token"
+msgstr "Crear nuevo grupo"
 
 #, fuzzy
 msgid "Created"
@@ -2344,6 +2479,10 @@ msgstr "Creado"
 
 #, fuzzy
 msgid "Created Time"
+msgstr "Creado"
+
+#, fuzzy
+msgid "Created by"
 msgstr "Creado"
 
 msgid "Created by FOG Reg on"
@@ -2478,6 +2617,9 @@ msgstr "Opciones de arranque:"
 msgid "Debug Task"
 msgstr "Opciones de arranque:"
 
+msgid "Decided."
+msgstr ""
+
 #, fuzzy
 msgid "Default"
 msgstr "Defecto"
@@ -2580,6 +2722,28 @@ msgstr ""
 msgid "Deleting remote file"
 msgstr "Menú Error de creación"
 
+msgid "Denied by an admin. The agent backs off to hourly."
+msgstr ""
+
+#, fuzzy
+msgid "Denied selected agents!"
+msgstr "retirar"
+
+msgid "Deny"
+msgstr ""
+
+#, fuzzy
+msgid "Deny Agent Fail"
+msgstr "Eliminar los datos del archivo"
+
+#, fuzzy
+msgid "Deny Pending Agents"
+msgstr "macs pendientes"
+
+#, fuzzy
+msgid "Deny selected"
+msgstr "Eliminar seleccionado"
+
 #, fuzzy
 msgid "Deploy"
 msgstr "última Desplegado"
@@ -2599,11 +2763,26 @@ msgstr ""
 msgid "Description"
 msgstr "Descripción:"
 
+msgid "Desired"
+msgstr ""
+
+msgid "Desired OU"
+msgstr ""
+
+msgid "Desired domain"
+msgstr ""
+
 #, fuzzy
 msgid "Destroy failed"
 msgstr "Destruir fallado: %s"
 
+msgid "Detail"
+msgstr ""
+
 msgid "Details"
+msgstr ""
+
+msgid "Device URI"
 msgstr ""
 
 #, fuzzy
@@ -2632,6 +2811,10 @@ msgstr "Directorio"
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "Directorio"
+
+#, fuzzy
+msgid "Directory Membership"
+msgstr "miembros"
 
 #, fuzzy
 msgid "Disable on all hosts"
@@ -2749,6 +2932,9 @@ msgstr "Descarga fracasó"
 msgid "Downloaded file is not a bootable kernel image"
 msgstr ""
 
+msgid "Drift"
+msgstr ""
+
 #, php-format
 msgid "Drop %s and %s into %s and FOG adopts them -- no setting to edit. Add %s as well if your CA issued intermediates. The installer does the same thing on its next run, so this button only saves you the wait."
 msgstr ""
@@ -2767,6 +2953,9 @@ msgid "Each client needs this certificate enrolled once, by someone physically a
 msgstr ""
 
 msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered; the SHA-256 is what to compare against a client's trust store when working out why one stopped authenticating. Private keys are deliberately absent -- nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
+
+msgid "Each selected agent is issued a certificate and collects it on its next check-in."
 msgstr ""
 
 msgid "Edit"
@@ -2864,6 +3053,10 @@ msgstr ""
 
 msgid "Enrolled certificate must be a SHA-256 fingerprint (64 hex characters)"
 msgstr ""
+
+#, fuzzy
+msgid "Enrollment Token"
+msgstr "Gestión de usuarios"
 
 msgid "Enrollment kit"
 msgstr ""
@@ -2969,6 +3162,12 @@ msgstr ""
 msgid "Every configured multicast port is already in use"
 msgstr ""
 
+msgid "Every enrollment still waiting for a decision, without the CSR. What the Pending Agents page reads."
+msgstr ""
+
+msgid "Every enrollment token with its remaining uses and expiry, never the token itself. What the Agent Tokens page reads."
+msgstr ""
+
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "Ningún archivo fue subido"
@@ -2988,6 +3187,14 @@ msgstr "clave privada fracasó"
 
 msgid "Exists item must be boolean"
 msgstr ""
+
+#, fuzzy
+msgid "Exit Code"
+msgstr "snapins"
+
+#, fuzzy
+msgid "Exit code"
+msgstr "Código de retorno"
 
 msgid "Expand - walk the chain (any directory)"
 msgstr ""
@@ -3070,8 +3277,31 @@ msgid "External root CA"
 msgstr ""
 
 #, fuzzy
+msgid "Extra arguments"
+msgstr "Nombre snapin"
+
+#, fuzzy
 msgid "FOG"
 msgstr "En "
+
+#, fuzzy
+msgid "FOG Agent capability result"
+msgstr "Ningún archivo fue subido"
+
+#, fuzzy
+msgid "FOG Agent certificate renewal"
+msgstr "Ningún archivo fue subido"
+
+#, fuzzy
+msgid "FOG Agent enrollment"
+msgstr "se ha actualizado correctamente"
+
+#, fuzzy
+msgid "FOG Agent payload"
+msgstr "Ningún archivo fue subido"
+
+msgid "FOG Agent poll"
+msgstr ""
 
 #, fuzzy
 msgid "FOG Client"
@@ -3444,6 +3674,9 @@ msgstr "Nombre de la tarea"
 msgid "First Check In"
 msgstr ""
 
+msgid "First Seen"
+msgstr ""
+
 msgid "First row is a header"
 msgstr ""
 
@@ -3789,6 +4022,10 @@ msgid "Group Snapin History"
 msgstr "Camino snapin"
 
 #, fuzzy
+msgid "Group Software Assignment"
+msgstr "Camino snapin"
+
+#, fuzzy
 msgid "Group Task History"
 msgstr "replicador de imagen"
 
@@ -3877,7 +4114,13 @@ msgstr "Información general"
 msgid "Hardware Report"
 msgstr "Información general"
 
+msgid "Hardware facts, sent only when the agent's own content hash for them moved or the server asked. Absent means nothing new, never nothing there."
+msgstr ""
+
 msgid "Hash"
+msgstr ""
+
+msgid "Hash Mismatch"
 msgstr ""
 
 msgid "Have not locked the host for access"
@@ -3963,6 +4206,9 @@ msgstr "Impresora ya existe"
 #, fuzzy, php-format
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "Impresora ya existe"
+
+msgid "Host Agent Activity"
+msgstr ""
 
 #, fuzzy
 msgid "Host Approval Success"
@@ -4132,6 +4378,13 @@ msgid "Host Snapin History"
 msgstr "Camino snapin"
 
 #, fuzzy
+msgid "Host Software Assignment"
+msgstr "Camino snapin"
+
+msgid "Host Software Status"
+msgstr ""
+
+#, fuzzy
 msgid "Host Task History"
 msgstr "replicador de imagen"
 
@@ -4226,6 +4479,12 @@ msgstr "ID de host"
 msgid "Hosts registered per day"
 msgstr ""
 
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
+msgstr ""
+
+msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
+msgstr ""
+
 #, fuzzy
 msgid "Hosts:"
 msgstr "Hospedadores"
@@ -4291,6 +4550,10 @@ msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
 msgstr ""
+
+#, fuzzy
+msgid "Identity"
+msgstr "servidor TFTP"
 
 msgid "Identity Provider"
 msgstr ""
@@ -4816,6 +5079,10 @@ msgstr "Instalador inteligente (recomendado)"
 msgid "Installed Plugins"
 msgstr ""
 
+#, fuzzy
+msgid "Installed Software"
+msgstr "Instalador inteligente (recomendado)"
+
 msgid "Intel 32 Bit"
 msgstr ""
 
@@ -4905,10 +5172,6 @@ msgstr "Tipo de tarea no válida"
 #, fuzzy
 msgid "Invalid Storage Group"
 msgstr "Grupo de almacenamiento"
-
-#, fuzzy
-msgid "Invalid Storage Node"
-msgstr "nodo de almacenamiento"
 
 #, fuzzy
 msgid "Invalid Tasking"
@@ -5099,6 +5362,9 @@ msgstr ""
 msgid "Issued by %s"
 msgstr ""
 
+msgid "Issued. The certificate and the host it binds to."
+msgstr ""
+
 msgid "Issuer"
 msgstr ""
 
@@ -5122,6 +5388,9 @@ msgid "It tells the client to download snapins from"
 msgstr ""
 
 msgid "It will operate based on the fields the area typcially requires."
+msgstr ""
+
+msgid "Join"
 msgstr ""
 
 msgid "Join Domain after image task"
@@ -5333,6 +5602,9 @@ msgstr ""
 msgid "Largest images"
 msgstr "Imagen"
 
+msgid "Last Agent Check-In"
+msgstr ""
+
 #, fuzzy
 msgid "Last Captured"
 msgstr "Creado"
@@ -5343,14 +5615,15 @@ msgstr ""
 msgid "Last Check-In"
 msgstr ""
 
-msgid "Last Client Check-In"
-msgstr ""
-
 msgid "Last Deployed"
 msgstr "última Desplegado"
 
 msgid "Last Ping"
 msgstr ""
+
+#, fuzzy
+msgid "Last Seen"
+msgstr "Creado"
 
 #, fuzzy
 msgid "Last Successful Ping"
@@ -5367,12 +5640,19 @@ msgstr ""
 msgid "Last deployed"
 msgstr "última Desplegado"
 
+#, fuzzy
+msgid "Last error"
+msgstr "Error"
+
 msgid "Last flush"
 msgstr ""
 
 #, fuzzy
 msgid "Last imaged"
 msgstr "Imagen"
+
+msgid "Latest (upgrade at each check)"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -5501,6 +5781,9 @@ msgstr "Listar todos los sitios"
 
 msgid "List All Snapins"
 msgstr "Listar todos los snapins"
+
+msgid "List All Software"
+msgstr "Listar todo el software"
 
 msgid "List All Storage Groups"
 msgstr "Listar todos los grupos de almacenamiento"
@@ -5640,6 +5923,9 @@ msgid "Log out"
 msgstr "FOG Visor de registro"
 
 msgid "Log out and sign in as an administrator"
+msgstr ""
+
+msgid "Logged on"
 msgstr ""
 
 msgid "Logging"
@@ -5843,6 +6129,9 @@ msgstr "Tamaño máximo:"
 msgid "Maximum rows per class; 0 or absent means no cap."
 msgstr ""
 
+msgid "May be sent with Content-Encoding: gzip; a host's software list is a few hundred KB of JSON and about a tenth of that compressed."
+msgstr ""
+
 #, fuzzy
 msgid "Member"
 msgstr "miembros"
@@ -5924,12 +6213,19 @@ msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
 #, fuzzy
+msgid "Mint an agent enrollment token"
+msgstr "anfitriones pendientes"
+
+#, fuzzy
 msgid "Minute value is not valid"
 msgstr "tipo de tarea no es válida"
 
 #, fuzzy
 msgid "Minutes field is invalid"
 msgstr "tipo de tarea no es válida"
+
+msgid "Missing"
+msgstr ""
 
 msgid "Missing a temporary folder"
 msgstr "Falta una carpeta temporal"
@@ -6407,6 +6703,10 @@ msgid "No password is needed. Issue this account a token from its API tab, or fr
 msgstr ""
 
 #, fuzzy
+msgid "No payloads for the capability, or not a live row of this host."
+msgstr "No se encontró Clase FOGPage para este nodo"
+
+#, fuzzy
 msgid "No plugin tasks to run"
 msgstr "Ninguna clase válida enviado"
 
@@ -6462,6 +6762,10 @@ msgid "No snapins associated with this group as master"
 msgstr "No hay snapins asociados con este anfitrión"
 
 #, fuzzy
+msgid "No storage node can serve the file."
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
 msgid "No storage nodes assigned to this storage group"
 msgstr "Grupo de almacenamiento primaria"
 
@@ -6473,6 +6777,9 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "No storagegroups assigned to this snapin"
 msgstr "Marque aquí para ver los grupos no asignado esta imagen"
 
+msgid "No such enrollment, or no such action."
+msgstr ""
+
 msgid "No such file in the boot directory."
 msgstr ""
 
@@ -6480,6 +6787,9 @@ msgid "No such filter"
 msgstr ""
 
 msgid "No such object."
+msgstr ""
+
+msgid "No such token."
 msgstr ""
 
 msgid "No such user."
@@ -6516,6 +6826,9 @@ msgstr ""
 
 msgid "No values passed"
 msgstr "No hay valores pasados"
+
+msgid "No verified client certificate, or one bound to no live host."
+msgstr ""
 
 #, fuzzy
 msgid "No viable macs to use"
@@ -6574,6 +6887,9 @@ msgstr "Icono de archivo no encontrado"
 #, fuzzy
 msgid "Not Registered Hosts"
 msgstr "Registrado"
+
+msgid "Not a certificate request, or one for a key other than the one this certificate proved."
+msgstr ""
 
 msgid "Not a number"
 msgstr "No un número"
@@ -6711,6 +7027,13 @@ msgstr "el usuario actualiza"
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+#, fuzzy
+msgid "Observed domain"
+msgstr "Información general"
+
 msgid "Off"
 msgstr ""
 
@@ -6764,6 +7087,12 @@ msgstr ""
 #, fuzzy
 msgid "One or more macs are associated with a host"
 msgstr "Error, es una imagen asociada con este anfitrión"
+
+msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again at the next check), failed. Empty uses the defaults shown; any code not listed is failed. The defaults are Windows codes: Linux and macOS keep only the low 8 bits of an exit status, so list the code the program can return."
+msgstr ""
+
+msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again next check-in), failed. Empty uses the defaults shown; any code not listed is failed. The defaults are Windows codes: Linux and macOS keep only the low 8 bits of an exit status, so list the code the program can return."
+msgstr ""
 
 msgid "One preference."
 msgstr ""
@@ -6848,6 +7177,12 @@ msgstr ""
 msgid "Operations on %s."
 msgstr "Operación de no activado: %s"
 
+msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+msgstr ""
+
+msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
+msgstr ""
+
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward. The Chocolatey entry expects the uploaded file to be a Chocolatey packages.config naming the packages to install."
 msgstr ""
 
@@ -6895,7 +7230,13 @@ msgstr ""
 msgid "Over a year"
 msgstr ""
 
+msgid "Over the certificate being renewed: the same gate as poll binds the caller to its host, and the body carries a request for the same key. The answer is the enroll \"issued\" shape. A request for any other key is refused; a key change goes through enroll and an admin."
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
+msgstr ""
+
+msgid "Package"
 msgstr ""
 
 msgid "Page node is not registered as a permission node"
@@ -6980,6 +7321,10 @@ msgid "Pending"
 msgstr "macs pendientes"
 
 #, fuzzy
+msgid "Pending Agents"
+msgstr "macs pendientes"
+
+#, fuzzy
 msgid "Pending Hosts"
 msgstr "anfitriones pendientes"
 
@@ -6999,7 +7344,28 @@ msgstr "macs pendientes"
 msgid "Pending Registered Hosts"
 msgstr "anfitriones pendientes"
 
+msgid "Pending Registration created by FOG_AGENT"
+msgstr ""
+
 msgid "Pending Registration created by FOG_CLIENT"
+msgstr ""
+
+#, fuzzy
+msgid "Pending agent"
+msgstr "anfitriones pendientes"
+
+#, fuzzy
+msgid "Pending agent enrollments"
+msgstr "anfitriones pendientes"
+
+#, fuzzy
+msgid "Pending agents"
+msgstr "macs pendientes"
+
+msgid "Pending an admin decision. Poll again after retry_after seconds."
+msgstr ""
+
+msgid "Pending enrollment rows."
 msgstr ""
 
 #, fuzzy
@@ -7049,6 +7415,16 @@ msgstr "Estado"
 msgid "Ping cycle complete"
 msgstr "Deben estar cifrados"
 
+msgid "Pinned"
+msgstr ""
+
+#, fuzzy
+msgid "Placement"
+msgstr "Gestión de usuarios"
+
+msgid "Platform"
+msgstr ""
+
 msgid "Please Select an option"
 msgstr "Por favor seleccione una opción"
 
@@ -7094,7 +7470,15 @@ msgid "Please enter a name"
 msgstr "Por favor introduce un nombre de sesión"
 
 #, fuzzy
+msgid "Please enter a package id."
+msgstr "Por favor introduce un nombre de sesión"
+
+#, fuzzy
 msgid "Please enter a printer name."
+msgstr "Por favor introduce un nombre de sesión"
+
+#, fuzzy
+msgid "Please enter a software name."
 msgstr "Por favor introduce un nombre de sesión"
 
 #, fuzzy
@@ -7110,6 +7494,10 @@ msgstr ""
 
 msgid "Please physically associate"
 msgstr ""
+
+#, fuzzy
+msgid "Please select a valid backend."
+msgstr "Seleccionar una imagen válida"
 
 #, fuzzy
 msgid "Please select a valid certificate verification level"
@@ -7129,6 +7517,10 @@ msgstr "Seleccionar una imagen válida"
 
 #, fuzzy
 msgid "Please select a valid printer type."
+msgstr "Seleccionar una imagen válida"
+
+#, fuzzy
+msgid "Please select a valid state."
 msgstr "Seleccionar una imagen válida"
 
 #, fuzzy
@@ -7347,6 +7739,9 @@ msgstr ""
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the provider only decides who is in which bucket."
 msgstr ""
 
+msgid "Present"
+msgstr ""
+
 msgid "Present means enabled."
 msgstr ""
 
@@ -7394,6 +7789,10 @@ msgstr "actualización de la impresora ha fallado!"
 #, fuzzy
 msgid "Printer Create Success"
 msgstr "Impresora ya existe"
+
+#, fuzzy
+msgid "Printer Deployment"
+msgstr "Sin administración de la impresora"
 
 msgid "Printer Description"
 msgstr "Descripción de la impresora"
@@ -7554,6 +7953,9 @@ msgstr "Impresora actualiza!"
 msgid "Providers"
 msgstr ""
 
+msgid "Publisher"
+msgstr ""
+
 #, fuzzy
 msgid "Pushbullet Accounts"
 msgstr "Añadir nueva cuenta de usuario"
@@ -7596,6 +7998,10 @@ msgstr ""
 msgid "Queued deletion is not active and cannot be canceled"
 msgstr "está protegido, no se permite la eliminación"
 
+#, fuzzy
+msgid "Quick tasks"
+msgstr "MulticastTask"
+
 msgid "RESOURCES"
 msgstr ""
 
@@ -7628,6 +8034,9 @@ msgstr "Eliminar seleccionado"
 msgid "Real Time"
 msgstr "Tiempo de actividad del sistema"
 
+msgid "Reason"
+msgstr ""
+
 msgid "Reboot"
 msgstr "Reiniciar"
 
@@ -7656,6 +8065,9 @@ msgstr ""
 #, fuzzy
 msgid "Recorded in range"
 msgstr "Registro no encontrado, error: %s"
+
+msgid "Recorded; outcome present for an item report."
+msgstr ""
 
 #, fuzzy
 msgid "Records"
@@ -7823,6 +8235,10 @@ msgid "Report Management"
 msgstr "Gestión de usuarios"
 
 #, fuzzy
+msgid "Reported"
+msgstr "Reiniciar"
+
+#, fuzzy
 msgid "Reports"
 msgstr "Reiniciar"
 
@@ -7887,8 +8303,15 @@ msgstr ""
 msgid "Retention sweep failed"
 msgstr "Remoto"
 
+msgid "Retry"
+msgstr ""
+
 #, fuzzy
 msgid "Return Code"
+msgstr "Código de retorno"
+
+#, fuzzy
+msgid "Return Codes"
 msgstr "Código de retorno"
 
 msgid "Return To Local Login"
@@ -7901,7 +8324,31 @@ msgstr "Código de retorno"
 msgid "Returning value of key"
 msgstr "Volviendo valor de clave"
 
+msgid "Returns the token exactly once; only its hash is stored. An expiry is required. uses is how many enrollments it approves, or -1 for unlimited until it expires. Audited as agent.token."
+msgstr ""
+
 msgid "Reverse"
+msgstr ""
+
+msgid "Revoke"
+msgstr ""
+
+msgid "Revoke Enrollment Tokens"
+msgstr ""
+
+#, fuzzy
+msgid "Revoke an agent enrollment token"
+msgstr "anfitriones pendientes"
+
+#, fuzzy
+msgid "Revoke selected"
+msgstr "Remoto"
+
+#, fuzzy
+msgid "Revoked selected tokens."
+msgstr "retirar"
+
+msgid "Revoked."
 msgstr ""
 
 msgid "Role"
@@ -8041,6 +8488,9 @@ msgid "SB Enrolled"
 msgstr ""
 
 msgid "SHA-256"
+msgstr ""
+
+msgid "SMBIOS system UUID, system serial, board serial, chassis asset tag and the MAC list, as fog-agent identity prints them."
 msgstr ""
 
 #, fuzzy
@@ -8409,6 +8859,9 @@ msgstr "Sesión con ese nombre ya existe"
 #, fuzzy
 msgid "Sessions canceled!"
 msgstr "se ha actualizado correctamente"
+
+msgid "Sessions open right now, as last reported by each host's agent. A host that has not checked in recently may have logged its user off since."
+msgstr ""
 
 msgid "Set Printer as Default for Hosts"
 msgstr ""
@@ -8886,6 +9339,64 @@ msgstr "snapins"
 msgid "So if you are trying to transmit to remote node A"
 msgstr ""
 
+#, fuzzy
+msgid "Software"
+msgstr "Listar todo el software"
+
+#, fuzzy
+msgid "Software Create Fail"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Software Create Success"
+msgstr "Impresora ya existe"
+
+#, fuzzy
+msgid "Software Host Associations"
+msgstr "No nodo asociado"
+
+#, fuzzy
+msgid "Software Management"
+msgstr "Gestión de usuarios"
+
+#, fuzzy
+msgid "Software Name"
+msgstr "Nombre de la impresora"
+
+msgid "Software Order"
+msgstr ""
+
+#, fuzzy
+msgid "Software Report"
+msgstr "ID de host"
+
+#, fuzzy
+msgid "Software Status"
+msgstr "Crear nuevo grupo"
+
+#, fuzzy
+msgid "Software Update Fail"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Software Update Success"
+msgstr "actualización Valoración falló"
+
+#, fuzzy
+msgid "Software added!"
+msgstr "Nombre de la impresora"
+
+msgid "Software granted here applies to every host in this group, including hosts added later."
+msgstr ""
+
+#, fuzzy
+msgid "Software update failed!"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Software updated!"
+msgstr "Impresora actualiza!"
+
 msgid "Some nice description, should be short."
 msgstr ""
 
@@ -8896,6 +9407,9 @@ msgid "Space variable must be boolean"
 msgstr ""
 
 msgid "Specified download URL not allowed!"
+msgstr ""
+
+msgid "Spooler"
 msgstr ""
 
 msgid "Stale"
@@ -9671,6 +10185,9 @@ msgstr "No hay grupos en este servidor."
 msgid "The CA private key is on this server"
 msgstr "No hay grupos en este servidor."
 
+msgid "The CSR is not a usable P-256 request, or a required field is missing."
+msgstr ""
+
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrolls outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
@@ -9701,6 +10218,9 @@ msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
+msgstr ""
+
+msgid "The agent speaks a protocol this server does not."
 msgstr ""
 
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
@@ -9747,6 +10267,9 @@ msgstr "No se pudo leer el archivo temporal"
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
+msgid "The bytes behind one thing under a capability. For snapin, the file for one task of the host's own job; fetching it marks the task in progress. One route for every kind of payload. Same gate as poll."
+msgstr ""
+
 msgid "The calling user's preferences."
 msgstr ""
 
@@ -9787,6 +10310,12 @@ msgstr ""
 msgid "The default printer for hosts in this group. A host that has its own default keeps it."
 msgstr ""
 
+msgid "The desired state: revision, capabilities, and one block per capability listed. Absent when the agent is current."
+msgstr ""
+
+msgid "The enrollment is no longer pending."
+msgstr ""
+
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
@@ -9813,6 +10342,15 @@ msgstr ""
 #, fuzzy
 msgid "The grid key."
 msgstr "No se pudo crear la tarea"
+
+msgid "The host this certificate is, the revision of its desired state, and the state when it is not what the agent applied."
+msgstr ""
+
+msgid "The host's complete installed-program list, sent on the same terms as inventory. Complete by contract: anything installed and absent from it is marked removed."
+msgstr ""
+
+msgid "The id the package manager knows, e.g. googlechrome."
+msgstr ""
 
 #, fuzzy
 msgid "The identity provider could not be reached"
@@ -9869,7 +10407,14 @@ msgstr ""
 msgid "The issuer must be a full URL"
 msgstr ""
 
+#, fuzzy
+msgid "The item is not a live row of this host."
+msgstr "No se encontró Clase FOGPage para este nodo"
+
 msgid "The key will be assigned to registered hosts when a"
+msgstr ""
+
+msgid "The leaf followed by the agent CA, PEM."
 msgstr ""
 
 msgid "The logical sector size of the disk this image was captured from."
@@ -9901,10 +10446,19 @@ msgstr ""
 msgid "The older spelling of /unisearch?q=. An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
 msgstr ""
 
+msgid "The order software is applied in when the agent reconciles this host."
+msgstr ""
+
 msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
 msgstr ""
 
+msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order."
+msgstr ""
+
 msgid "The path requested is already in use by another image!"
+msgstr ""
+
+msgid "The payload bytes."
 msgstr ""
 
 #, fuzzy
@@ -9952,6 +10506,13 @@ msgstr ""
 msgid "The record could not be written."
 msgstr "No se pudo leer el archivo temporal"
 
+#, fuzzy
+msgid "The renewed certificate, leaf then chain."
+msgstr "Crear nuevo grupo"
+
+msgid "The reported software list is larger than the server accepts."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -9959,6 +10520,9 @@ msgid "The root CA has been imported and this server now trusts it."
 msgstr ""
 
 msgid "The root CA has been imported, but this host's system trust store could not be updated -- so HTTPS calls made on this server will not accept it yet. Re-run the installer, and check the installation log."
+msgstr ""
+
+msgid "The row goes, so the token can never match again. Audited as agent.token."
 msgstr ""
 
 msgid "The same rules in prose, for a client reading this at runtime."
@@ -9969,6 +10533,12 @@ msgid "The saved filter."
 msgstr "actualización de la impresora ha fallado!"
 
 msgid "The selected site no longer exists"
+msgstr ""
+
+msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
+msgstr ""
+
+msgid "The server holds no installed-software hash for this host and wants the list on the next poll."
 msgstr ""
 
 msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
@@ -9990,6 +10560,13 @@ msgstr ""
 msgid "The signed certificate, or full chain, leaf first (PEM)"
 msgstr ""
 
+msgid "The signer is unavailable; nothing changed."
+msgstr ""
+
+#, fuzzy
+msgid "The signing helper is not available on this server."
+msgstr "No hay grupos en este servidor."
+
 #, fuzzy
 msgid "The signing request could not be generated"
 msgstr "No se pudo leer el archivo temporal"
@@ -10009,6 +10586,10 @@ msgstr ""
 #, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
+
+#, fuzzy
+msgid "The token."
+msgstr "Contador de la CPU"
 
 msgid "The trust anchor, published as ca.cert.der. Every fog-client pins this one."
 msgstr ""
@@ -10173,6 +10754,9 @@ msgstr ""
 msgid "This host last reported UEFI firmware whose Secure Boot state could not be read, so FOS has nowhere to write the certificate."
 msgstr ""
 
+msgid "This host reported that its package manager is not installed. Chocolatey must be installed on the host before software can be managed."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -10229,6 +10813,9 @@ msgid "This is the only time it will be shown. Hand it to the person or service 
 msgstr ""
 
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
+msgstr ""
+
+msgid "This is what hosts report as installed (agent-reported), not the software FOG is configured to install."
 msgstr ""
 
 #, fuzzy, php-format
@@ -10342,6 +10929,13 @@ msgstr "nombre de usuario ya existe"
 msgid "Time since last imaged"
 msgstr ""
 
+#, fuzzy
+msgid "Timeout"
+msgstr "Hora"
+
+msgid "Timeout must be a whole number of seconds, zero or more."
+msgstr ""
+
 msgid "Title"
 msgstr ""
 
@@ -10364,7 +10958,29 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "Asociación para la imagen"
 
+#, fuzzy
+msgid "Token Create Fail"
+msgstr "actualización de la impresora ha fallado!"
+
+#, fuzzy
+msgid "Token Create Success"
+msgstr "Impresora ya existe"
+
+#, fuzzy
+msgid "Token Revoke Fail"
+msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+msgid "Token Revoke Success"
+msgstr "Impresora ya existe"
+
+msgid "Token created. Copy it now."
+msgstr ""
+
 msgid "Token or user:pass (optional)"
+msgstr ""
+
+msgid "Token rows."
 msgstr ""
 
 msgid "Too many MACs"
@@ -10550,6 +11166,9 @@ msgstr "Nombre de usuario"
 msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
 msgstr ""
 
+msgid "Unauthenticated, because this is how an agent obtains the client certificate it will authenticate with afterward. The agent posts a certificate signing request and its firmware identity; the server resolves the machine the way iPXE registration does and answers issued, pending or denied. Pending is the normal first answer for a machine nobody has approved yet -- the agent polls until an admin decides on /agent/enrollment/{id}/{action}, an enrollment token pre-approves it, or the server itself imaged the host recently (FOG_AGENT_ENROLL_DEPLOY_WINDOW). A pending agent can do nothing else: without a certificate no other agent route accepts it. Protocol 1."
+msgstr ""
+
 #, fuzzy
 msgid "Unauthenticated."
 msgstr "servidor de ponerse en contacto con el error"
@@ -10601,6 +11220,9 @@ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 msgid "Unknown action"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
+msgid "Unknown capability or status, or an item for a capability with no item reports."
+msgstr ""
+
 #, php-format
 msgid "Unknown field for %s: %s"
 msgstr ""
@@ -10629,6 +11251,9 @@ msgid "Unknown upload error occurred"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
 msgid "Unless it was declined with"
+msgstr ""
+
+msgid "Unlimited"
 msgstr ""
 
 #, fuzzy
@@ -10718,6 +11343,9 @@ msgstr "Impresora"
 
 #, php-format
 msgid "Updated %1$d field(s) on %2$d host(s)."
+msgstr ""
+
+msgid "Upgraded"
 msgstr ""
 
 #, fuzzy
@@ -10922,6 +11550,10 @@ msgid "User Password"
 msgstr "Contraseña de usuario"
 
 #, fuzzy
+msgid "User Sessions"
+msgstr "Asociación para la imagen"
+
+#, fuzzy
 msgid "User Tracker"
 msgstr "Nombre de usuario"
 
@@ -11007,6 +11639,12 @@ msgstr "Usuario"
 msgid "Users, user groups and roles as id/name pairs. Each section is gated on that entity's own view permission -- user.view, usergroup.view, role.view -- and comes back EMPTY rather than 403 when the caller lacks it, so this route discloses nothing they could not already list. A caller holding none of the three can still save private filters; there is simply nobody they may name."
 msgstr ""
 
+msgid "Uses"
+msgstr ""
+
+msgid "Uses left"
+msgstr ""
+
 msgid "Using the group match function"
 msgstr ""
 
@@ -11031,6 +11669,10 @@ msgstr "Versión"
 #, fuzzy
 msgid "Version information and paging bounds."
 msgstr "FOG Información de la versión"
+
+#, fuzzy
+msgid "Version policy"
+msgstr "Versión"
 
 #, fuzzy
 msgid "Versions"
@@ -11113,10 +11755,16 @@ msgstr "se ha actualizado correctamente"
 msgid "What it does"
 msgstr "se ha actualizado correctamente"
 
+msgid "What the agent did with one capability at one revision, recorded on the host as agent.result; or, with item, what happened to one thing under the capability (a snapin task, a software entry), answered with the outcome the agent acts on. One route for every kind of report. Same gate as poll."
+msgstr ""
+
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
 msgstr ""
 
 msgid "What this server itself trusts: FOG's root, plus any root imported below."
+msgstr ""
+
+msgid "What this token is for"
 msgstr ""
 
 msgid "What to do next"
@@ -11134,6 +11782,9 @@ msgstr ""
 msgid "Where to get help and guides"
 msgstr ""
 
+msgid "Whether this install collects facts at all (FOG_AGENT_INVENTORY_ENABLED). Always present: an agent cannot tell an absent boolean from a false one, and absent has to mean a server that predates the field rather than one that turned collection off. False stops the agent gathering."
+msgstr ""
+
 msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
 msgstr ""
 
@@ -11144,6 +11795,9 @@ msgid "Who"
 msgstr ""
 
 msgid "Who a filter can be shared with"
+msgstr ""
+
+msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflict, reissue."
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
@@ -11222,6 +11876,9 @@ msgid "Wipes"
 msgstr ""
 
 msgid "Within 30 days"
+msgstr ""
+
+msgid "Y-m-d H:i:s, server time."
 msgstr ""
 
 msgid "Yearly"
@@ -11347,6 +12004,9 @@ msgstr ""
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
+msgid "absent"
+msgstr ""
+
 #, fuzzy
 msgid "access"
 msgstr "Exitoso"
@@ -11357,9 +12017,16 @@ msgstr ""
 msgid "after"
 msgstr ""
 
+msgid "agent"
+msgstr ""
+
 #, fuzzy
 msgid "ago"
 msgstr " hace"
+
+#, php-format
+msgid "all %1$d hosts in group \"%2$s\""
+msgstr ""
 
 #, fuzzy
 msgid "all current storage nodes"
@@ -11395,6 +12062,13 @@ msgid "answering 0 for a read that never ran"
 msgstr ""
 
 #, fuzzy
+msgid "any version"
+msgstr "Versión"
+
+msgid "approve signs the CSR, binds the certificate to the host and takes the host out of pending; deny records the refusal. Either way the agent learns the outcome on its next poll. Audited as agent.enroll."
+msgstr ""
+
+#, fuzzy
 msgid "architecture not recorded"
 msgstr "No se pudo leer el archivo temporal"
 
@@ -11404,6 +12078,10 @@ msgstr ""
 #, fuzzy
 msgid "as its primary group"
 msgstr "Actualización de Grupo Primario"
+
+#, fuzzy
+msgid "assigned"
+msgstr "No nodo asociado"
 
 msgid "attr could not be run -- SELinux may be denying it"
 msgstr ""
@@ -11511,6 +12189,9 @@ msgstr "habilitado"
 msgid "does not exist and cannot be created"
 msgstr "está protegido, no se permite la eliminación"
 
+msgid "domain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -11527,9 +12208,19 @@ msgstr "Error"
 msgid "every column on this table will be treated as untyped"
 msgstr ""
 
+msgid "exclusive"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; canceling task"
 msgstr ""
+
+msgid "extra"
+msgstr ""
+
+#, fuzzy
+msgid "failed"
+msgstr "Ha fallado"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -11629,6 +12320,10 @@ msgid "hit rate"
 msgstr ""
 
 msgid "host"
+msgstr "anfitrión"
+
+#, fuzzy, php-format
+msgid "host \"%s\""
 msgstr "anfitrión"
 
 #, fuzzy
@@ -11833,6 +12528,10 @@ msgstr "DMI clave"
 msgid "keys"
 msgstr ""
 
+#, fuzzy
+msgid "latest"
+msgstr "¿Reproducir exactamente?"
+
 msgid "leave to keep the current one"
 msgstr ""
 
@@ -11864,6 +12563,10 @@ msgstr "minutos"
 
 msgid "mismatched"
 msgstr ""
+
+#, fuzzy
+msgid "missing"
+msgstr "Versión"
 
 msgid "moments from now"
 msgstr ""
@@ -11902,6 +12605,10 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "never reported"
+msgstr "ID de inventario"
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -11934,6 +12641,9 @@ msgstr ""
 msgid "not found on this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
 
+msgid "not joined"
+msgstr ""
+
 #, fuzzy
 msgid "not reachable"
 msgstr "No disponible"
@@ -11963,9 +12673,15 @@ msgstr ""
 msgid "of how much disk space the image is using."
 msgstr ""
 
+msgid "off"
+msgstr ""
+
 #, fuzzy
 msgid "off means an account must already exist"
 msgstr "Impresora ya existe"
+
+msgid "ok"
+msgstr ""
 
 msgid "old"
 msgstr ""
@@ -12255,6 +12971,10 @@ msgstr "No se dispone de hash"
 msgid "unchanged for"
 msgstr "Imagen"
 
+#, fuzzy
+msgid "unknown action"
+msgstr "Se produjo un error de carga desconocida. Código de retorno: "
+
 msgid "unrecorded"
 msgstr ""
 
@@ -12479,12 +13199,20 @@ msgstr ""
 #~ msgstr "clave privada fracasó"
 
 #, fuzzy
+#~ msgid "Cannot connect to ftp server"
+#~ msgstr "Error: No se pudo descargar kernel"
+
+#, fuzzy
 #~ msgid "Check that database is running"
 #~ msgstr "Compruebe que la base de datos se está ejecutando"
 
 #, fuzzy
 #~ msgid "Client Module Settings"
 #~ msgstr "Configuración Tecla"
+
+#, fuzzy
+#~ msgid "Could not read snapin file"
+#~ msgstr "No se pudo leer el archivo tmp."
 
 #, fuzzy
 #~ msgid "Create New Accesscontrol"
@@ -12585,6 +13313,18 @@ msgstr ""
 #, fuzzy
 #~ msgid "Export Users"
 #~ msgstr "Exportar"
+
+#, fuzzy
+#~ msgid "FOG Agent desired state"
+#~ msgstr "se ha actualizado correctamente"
+
+#, fuzzy
+#~ msgid "FOG Agent snapin result"
+#~ msgstr "Ningún archivo fue subido"
+
+#, fuzzy
+#~ msgid "FOG Agent software result"
+#~ msgstr "Ningún archivo fue subido"
 
 #, fuzzy
 #~ msgid "Failed to add/update snapin file"
@@ -12825,6 +13565,10 @@ msgstr ""
 #~ msgstr "Instalador inteligente (recomendado)"
 
 #, fuzzy
+#~ msgid "Invalid Storage Node"
+#~ msgstr "nodo de almacenamiento"
+
+#, fuzzy
 #~ msgid "Invalid Type"
 #~ msgstr "tipo no válido"
 
@@ -12846,6 +13590,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "LDAP User Filter"
 #~ msgstr "servidor TFTP"
+
+#, fuzzy
+#~ msgid "Last Activity"
+#~ msgstr "Activo"
+
+#, fuzzy
+#~ msgid "Last Event"
+#~ msgstr "Creado"
 
 #, fuzzy
 #~ msgid "Latest SVN Version"
@@ -12904,6 +13656,14 @@ msgstr ""
 #~ msgstr "Instalador inteligente (recomendado)"
 
 #, fuzzy
+#~ msgid "Not a live task of this host's job."
+#~ msgstr "No se encontró Clase FOGPage para este nodo"
+
+#, fuzzy
+#~ msgid "Not an entry in this host's software set."
+#~ msgstr "No se encontró Clase FOGPage para este nodo"
+
+#, fuzzy
 #~ msgid "Pause"
 #~ msgstr "Usuario"
 
@@ -12921,6 +13681,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Product Keys"
 #~ msgstr "Clave del producto Grupo"
+
+#, fuzzy
+#~ msgid "Recorded."
+#~ msgstr "Registros actuales"
 
 #, fuzzy
 #~ msgid "Release Version"
@@ -13026,8 +13790,16 @@ msgstr ""
 #~ msgstr "Impresora ya existe"
 
 #, fuzzy
-#~ msgid "The certificate chain"
-#~ msgstr "Crear nuevo grupo"
+#~ msgid "The desired state."
+#~ msgstr "No se pudo crear la tarea"
+
+#, fuzzy
+#~ msgid "The host this certificate is, and the capabilities this server offers."
+#~ msgstr "No hay grupos en este servidor."
+
+#, fuzzy
+#~ msgid "The task was already closed."
+#~ msgstr "Impresora ya existe"
 
 #, fuzzy
 #~ msgid "There are no "
@@ -13059,6 +13831,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Unable to set user filter."
 #~ msgstr "No se puede abrir archivo para lectura"
+
+#, fuzzy
+#~ msgid "Unknown status."
+#~ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
 #, fuzzy
 #~ msgid "Update Master Node"
@@ -13160,17 +13936,9 @@ msgstr ""
 #~ msgstr "habilitado"
 
 #, fuzzy
-#~ msgid "multicast tasks!"
-#~ msgstr "MulticastTask"
-
-#, fuzzy
 #~ msgid "not found on disk"
 #~ msgstr "No se encontró Clase FOGPage para este nodo"
 
 #, fuzzy
 #~ msgid "username"
 #~ msgstr "Nombre de usuario"
-
-#, fuzzy
-#~ msgid "version"
-#~ msgstr "Versión"

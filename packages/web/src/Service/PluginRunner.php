@@ -333,7 +333,7 @@ class PluginRunner extends FOGService
     public function serviceRun()
     {
         try {
-            self::$_runnerOn = self::getSetting('PLUGINRUNNERGLOBALENABLED');
+            self::$_runnerOn = (int) self::getSetting('PLUGINRUNNERGLOBALENABLED');
             if (self::$_runnerOn < 1) {
                 throw new \Exception(
                     _('Plugin runner is globally disabled')

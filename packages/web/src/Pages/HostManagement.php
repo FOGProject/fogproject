@@ -15,8 +15,10 @@
 
 namespace FOG\Pages;
 
+use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
+use FOG\Base\FOGManagerController;
 use FOG\Base\FOGPage;
 use FOG\Boot\SecureBootState;
 use FOG\Items\Architecture;
@@ -548,6 +550,428 @@ class HostManagement extends FOGPage
                     'title' => $errt
                 ]
             );
+        }
+        $this->jsonSend($code, $msg);
+    }
+    /**
+     * The fog-agent installs waiting for an admin: Pending Agents.
+     *
+     * Sibling of Pending Hosts and Pending MACs, and the reason the
+     * enrollment flow pends anything at all -- an admin looks at who is
+     * asking before a machine gets a credential (fog-agent design decision:
+     * admins should know who is doing what). The grid shows the identity
+     * the machine reported and where the request came from; the CSR and
+     * the certificate never reach the page.
+     *
+     * @return void
+     */
+    public function pendingAgents()
+    {
+        if (false === self::$showhtml) {
+            return;
+        }
+        $this->title = _('All Pending Agents');
+
+        $this->headerData = [
+            _('Host'),
+            _('Reason'),
+            _('Platform'),
+            _('Agent'),
+            _('From'),
+            _('Identity'),
+            _('Requested')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+
+        $buttons = self::makeButton(
+            'approve',
+            _('Approve selected'),
+            'btn btn-primary float-end'
+        );
+        $buttons .= self::makeButton(
+            'deny',
+            _('Deny selected'),
+            'btn btn-danger float-start'
+        );
+
+        $modalApprovalBtns = self::makeButton(
+            'confirmApproveModal',
+            _('Approve'),
+            'btn btn-outline-secondary float-end'
+        );
+        $modalApprovalBtns .= self::makeButton(
+            'cancelApprovalModal',
+            _('Cancel'),
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
+        );
+        $approvalModal = self::makeModal(
+            'approveModal',
+            _('Approve Pending Agents'),
+            _('Each selected agent is issued a certificate and collects it on its next check-in.'),
+            $modalApprovalBtns,
+            '',
+            'success'
+        );
+
+        $modalDenyBtns = self::makeButton(
+            'confirmDenyModal',
+            _('Deny'),
+            'btn btn-outline-secondary float-end'
+        );
+        $modalDenyBtns .= self::makeButton(
+            'cancelDenyModal',
+            _('Cancel'),
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
+        );
+        $denyModal = self::makeModal(
+            'denyModal',
+            _('Deny Pending Agents'),
+            _('A denied agent keeps asking and keeps being refused until it is enrolled with a new key.'),
+            $modalDenyBtns,
+            '',
+            'danger'
+        );
+
+        echo self::makeFormTag(
+            '',
+            'agent-pending-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        $this->render(12, 'dataTable', $buttons);
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $approvalModal;
+        echo $denyModal;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Approves or denies the selected pending agents.
+     *
+     * One decision per row through FOG\Agent\Enrollment, the same code the
+     * JSON route agentEnrollmentDecide runs, so a row approved here and a
+     * row approved over the API are indistinguishable afterward. A row
+     * that can no longer be decided -- already decided from elsewhere,
+     * deleted, unbound -- is reported and the rest still go through.
+     *
+     * @return void
+     */
+    public function pendingAgentsAjax()
+    {
+        header('Content-type: application/json');
+
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+        $items = filter_input_array(
+            INPUT_POST,
+            ['pending' => $flags]
+        );
+        $pending = array_map('intval', (array)($items['pending'] ?? []));
+        $by = (string)self::$FOGUser->get('name');
+        $approve = isset($_POST['approvepending']);
+        $errt = $approve ? _('Approve Agent Fail') : _('Deny Agent Fail');
+        $failed = [];
+        $done = 0;
+        foreach ($pending as $id) {
+            try {
+                if ($approve) {
+                    \FOG\Agent\Enrollment::approve($id, $by);
+                } else {
+                    \FOG\Agent\Enrollment::deny($id, $by);
+                }
+                $done++;
+            } catch (\RuntimeException $e) {
+                $failed[] = sprintf('%d: %s', $id, $e->getMessage());
+            }
+        }
+        if (count($failed)) {
+            $msg = json_encode(
+                [
+                    'error' => sprintf(
+                        _('%d decided, %d not: %s'),
+                        $done,
+                        count($failed),
+                        implode('; ', $failed)
+                    ),
+                    'title' => $errt
+                ]
+            );
+            $code = $done > 0
+                ? HTTPResponseCodes::HTTP_ACCEPTED
+                : HTTPResponseCodes::HTTP_BAD_REQUEST;
+        } else {
+            $msg = json_encode(
+                [
+                    'msg' => $approve
+                        ? _('Approved selected agents!')
+                        : _('Denied selected agents!'),
+                    'title' => $approve
+                        ? _('Agent Approval Success')
+                        : _('Agent Denial Success')
+                ]
+            );
+            $code = HTTPResponseCodes::HTTP_ACCEPTED;
+        }
+        $this->jsonSend($code, $msg);
+    }
+    /**
+     * Agent enrollment tokens: mint, list, revoke.
+     *
+     * A token lets a machine enroll without an admin clicking (design 0001
+     * agent-based registration: the token goes onto the disk before first
+     * boot). It is shown exactly once, in the modal that answers the mint;
+     * the list only ever shows name, uses left and expiry.
+     *
+     * @return void
+     */
+    public function agentTokens()
+    {
+        if (false === self::$showhtml) {
+            return;
+        }
+        $this->title = _('Agent Enrollment Tokens');
+
+        $this->headerData = [
+            _('Name'),
+            _('State'),
+            _('Uses left'),
+            _('Expires'),
+            _('Created by'),
+            _('Created')
+        ];
+        $this->attributes = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        ];
+
+        $buttons = self::makeButton(
+            'mint',
+            _('Create token'),
+            'btn btn-primary float-end'
+        );
+        $buttons .= self::makeButton(
+            'revoke',
+            _('Revoke selected'),
+            'btn btn-danger float-start'
+        );
+
+        $labelClass = 'col-sm-3 col-form-label';
+        $default = self::niceDate()->modify('+7 days')->format('Y-m-d\\TH:i');
+        $fields = [
+            self::makeLabel($labelClass, 'tokenName', _('Name'))
+            => self::makeInput('form-control', 'tokenName', _('What this token is for'), 'text', 'tokenName', '', true, false, -1, 191),
+            self::makeLabel($labelClass, 'tokenUses', _('Uses'))
+            => '<div class="input-group">'
+            . self::makeInput('form-control', 'tokenUses', '', 'number', 'tokenUses', '1', true, false, -1, -1, 'min="1"')
+            . '<div class="input-group-text">'
+            . self::makeInput('form-check-input mt-0', 'tokenUnlimited', '', 'checkbox', 'tokenUnlimited', '1')
+            . ' <label for="tokenUnlimited" class="ms-1">' . _('Unlimited') . '</label>'
+            . '</div></div>',
+            self::makeLabel($labelClass, 'tokenExpires', _('Expires'))
+            => self::makeInput('form-control', 'tokenExpires', '', 'datetime-local', 'tokenExpires', $default, true)
+        ];
+        $mintBody = '';
+        foreach ($fields as $label => $input) {
+            $mintBody .= '<div class="row mb-3">' . $label . '<div class="col-sm-9">' . $input . '</div></div>';
+        }
+        $mintBody .= '<p class="text-muted mb-0">'
+            . _('An expiry is required. The token approves enrollments until it is spent or expires; revoke it here at any time.')
+            . '</p>';
+        $modalMintBtns = self::makeButton(
+            'confirmMintModal',
+            _('Create'),
+            'btn btn-outline-secondary float-end'
+        );
+        $modalMintBtns .= self::makeButton(
+            'cancelMintModal',
+            _('Cancel'),
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
+        );
+        $mintModal = self::makeModal(
+            'mintModal',
+            _('Create Enrollment Token'),
+            $mintBody,
+            $modalMintBtns,
+            '',
+            'primary'
+        );
+
+        // The one time the token is on screen. Nothing on the server can
+        // show it again, and the modal says so.
+        $showBody = '<p>' . _('Copy it now. It is not stored and cannot be shown again.') . '</p>'
+            . '<div class="input-group">'
+            . self::makeInput('form-control font-monospace', 'mintedToken', '', 'text', 'mintedToken', '', false, false, -1, -1, 'readonly')
+            . self::makeButton('copyMintedToken', _('Copy'), 'btn btn-outline-secondary')
+            . '</div>'
+            . '<p class="mt-3 mb-0"><code>fog-agent enroll --server &lt;url&gt; --ca &lt;bundle&gt; --token &lt;token&gt;</code></p>';
+        $showModal = self::makeModal(
+            'showTokenModal',
+            _('Enrollment Token'),
+            $showBody,
+            self::makeButton('closeShowTokenModal', _('Done'), 'btn btn-outline-secondary float-end', 'data-bs-dismiss="modal"'),
+            '',
+            'success'
+        );
+
+        $modalRevokeBtns = self::makeButton(
+            'confirmRevokeModal',
+            _('Revoke'),
+            'btn btn-outline-secondary float-end'
+        );
+        $modalRevokeBtns .= self::makeButton(
+            'cancelRevokeModal',
+            _('Cancel'),
+            'btn btn-outline-secondary float-start',
+            'data-bs-dismiss="modal"'
+        );
+        $revokeModal = self::makeModal(
+            'revokeModal',
+            _('Revoke Enrollment Tokens'),
+            _('A revoked token can never approve an enrollment again.'),
+            $modalRevokeBtns,
+            '',
+            'danger'
+        );
+
+        echo self::makeFormTag(
+            '',
+            'agent-token-form',
+            $this->formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo $this->title;
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        $this->render(12, 'dataTable', $buttons);
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $mintModal;
+        echo $showModal;
+        echo $revokeModal;
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * The bare halves of the two ajax handlers below. FOGPageManager
+     * appends the Ajax suffix only after method_exists() passes for the
+     * bare name, so without these the posts fell through to index() and
+     * answered with the host list (found by the first browser run). A
+     * plain GET of either sub lands back on the tokens page.
+     *
+     * @return void
+     */
+    public function createAgentToken()
+    {
+        self::redirect('?node=host&sub=agentTokens');
+    }
+    /**
+     * See createAgentToken().
+     *
+     * @return void
+     */
+    public function deleteAgentTokens()
+    {
+        self::redirect('?node=host&sub=agentTokens');
+    }
+    /**
+     * Mints a token from the modal. Named create* so the permission is
+     * host.create: a token creates hosts.
+     *
+     * @return void
+     */
+    public function createAgentTokenAjax()
+    {
+        header('Content-type: application/json');
+        $uses = filter_input(INPUT_POST, 'tokenUnlimited')
+            ? \FOG\Agent\Token::UNLIMITED
+            : (int)filter_input(INPUT_POST, 'tokenUses');
+        // datetime-local sends 'Y-m-d\TH:i'; mint() wants a space.
+        $expires = str_replace('T', ' ', (string)filter_input(INPUT_POST, 'tokenExpires'));
+        try {
+            $minted = \FOG\Agent\Token::mint(
+                (string)filter_input(INPUT_POST, 'tokenName'),
+                $uses,
+                $expires,
+                (string)self::$FOGUser->get('name')
+            );
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $msg = json_encode(
+                [
+                    'msg' => _('Token created. Copy it now.'),
+                    'title' => _('Token Create Success'),
+                    'token' => $minted['token'],
+                    'name' => (string)$minted['row']->get('name')
+                ]
+            );
+        } catch (\RuntimeException $e) {
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $msg = json_encode(
+                [
+                    'error' => $e->getMessage(),
+                    'title' => _('Token Create Fail')
+                ]
+            );
+        }
+        $this->jsonSend($code, $msg);
+    }
+    /**
+     * Revokes the selected tokens. Named delete* so the permission is
+     * host.delete.
+     *
+     * @return void
+     */
+    public function deleteAgentTokensAjax()
+    {
+        header('Content-type: application/json');
+        $flags = ['flags' => FILTER_REQUIRE_ARRAY];
+        $items = filter_input_array(INPUT_POST, ['tokens' => $flags]);
+        $by = (string)self::$FOGUser->get('name');
+        $failed = [];
+        foreach (array_map('intval', (array)($items['tokens'] ?? [])) as $id) {
+            try {
+                \FOG\Agent\Token::revoke($id, $by);
+            } catch (\RuntimeException $e) {
+                $failed[] = sprintf('%d: %s', $id, $e->getMessage());
+            }
+        }
+        if (count($failed)) {
+            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $msg = json_encode(['error' => implode('; ', $failed), 'title' => _('Token Revoke Fail')]);
+        } else {
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $msg = json_encode(['msg' => _('Revoked selected tokens.'), 'title' => _('Token Revoke Success')]);
         }
         $this->jsonSend($code, $msg);
     }
@@ -1225,10 +1649,22 @@ class HostManagement extends FOGPage
                 strtoupper($pingMethod)
             );
         }
-        $lastCheckin = self::dateOrNever(
-            $this->obj->get('lastcheckin'),
+        // The fog-agent's poll heartbeat, written by Route::agentPoll() on
+        // every poll.
+        //
+        // This REPLACED "Last Client Check-In" (hostLastCheckin), which the
+        // legacy FOG Client wrote and which this form showed instead. On a
+        // host running the agent that field read "Never" -- or, worse, a
+        // real date from months ago -- for a machine that had checked in a
+        // minute earlier, because the two clients write different columns
+        // and the page only ever rendered the old one. The agent replaces
+        // the legacy client, so the form shows the agent's clock.
+        // hostLastCheckin itself is untouched: the legacy client still
+        // writes it, and the host list still has a column for it.
+        $agentCheckin = self::dateOrNever(
+            $this->obj->get('agentCheckin'),
             'hosts',
-            'hostLastCheckin'
+            'hostAgentCheckin'
         );
         // The Secure Boot ledger's two halves, prepared very differently on
         // purpose (schema steps 376 and 377).
@@ -1460,17 +1896,20 @@ class HostManagement extends FOGPage
                 true,
                 true
             ),
+            // OBSERVED, and disabled for the same reason as the rest of this
+            // group: it is a record of when a machine spoke, not a claim
+            // anyone may make on its behalf.
             self::makeLabel(
                 $labelClass,
-                'lastcheckin',
-                _('Last Client Check-In')
+                'agentcheckin',
+                _('Last Agent Check-In')
             ) => self::makeInput(
-                'form-control hostlastcheckin-input',
-                'lastcheckin',
+                'form-control hostagentcheckin-input',
+                'agentcheckin',
                 '',
                 'text',
-                'lastcheckin',
-                $lastCheckin,
+                'agentcheckin',
+                $agentCheckin,
                 false,
                 false,
                 -1,
@@ -2602,6 +3041,104 @@ class HostManagement extends FOGPage
     public function hostSnapinPost()
     {
         $this->assocPost('addSnapin', 'removeSnapin', 'setSnapinOrder');
+    }
+    /**
+     * Host software.
+     *
+     * Mirrors hostSnapins(): software is a package a host is held to
+     * (design 0003), not a one-shot run, but the assignment/order machinery
+     * is the same shape -- Host::addSoftware()/removeSoftware() stage the
+     * assignment, save() persists it via assocSetter(), and
+     * Host::appendSoftwareSequence()/setSoftwareOrder() manage the order the
+     * agent applies packages in.
+     *
+     * @return void
+     */
+    public function hostSoftware()
+    {
+        // Trailing 'software' opts this tab into the "Create New Software"
+        // button and modal (see renderAssocCreate), matching hostSnapins().
+        $this->renderAssocTab(
+            'host-software',
+            _('Host Software Assignment'),
+            _('Software Name'),
+            'software',
+            'btn btn-primary float-end',
+            '',
+            'software'
+        );
+
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'host-software',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $orderButton = self::makeButton(
+            'host-software-order-save',
+            _('Save order'),
+            'btn btn-primary float-end',
+            $props
+        );
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Software Order');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        echo '<p class="form-text">';
+        echo _(
+            'The order software is applied in when the agent reconciles '
+            . 'this host.'
+        );
+        echo '</p>';
+        echo '<ol id="host-software-order-list" class="list-group"></ol>';
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $orderButton;
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Returns the assigned software for this host in run order.
+     *
+     * @return void
+     */
+    public function getSoftwareOrderList()
+    {
+        $softwareIDs = (array)$this->obj->get('softwares');
+        $names = [];
+        if (count($softwareIDs) > 0) {
+            $Softwares = Route::getList('software', ['id' => $softwareIDs]);
+            foreach ($Softwares as $Software) {
+                $names[$Software->id] = $Software->name;
+            }
+        }
+        $data = [];
+        foreach ($softwareIDs as $softwareID) {
+            // Skip ids that don't resolve to a real software entry (a stale
+            // association left by a removed entry, or a 0/blank id).
+            // Mirrors setSoftwareOrder()'s "< 1" guard on the save path.
+            if (!isset($names[$softwareID])) {
+                continue;
+            }
+            $data[] = [
+                'id' => $softwareID,
+                'name' => $names[$softwareID]
+            ];
+        }
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
+    }
+    /**
+     * Host software post
+     *
+     * @return void
+     */
+    public function hostSoftwarePost()
+    {
+        $this->assocPost('addSoftware', 'removeSoftware', 'setSoftwareOrder', 'softwareorder');
     }
     /**
      * Display's the host service stuff
@@ -3821,6 +4358,25 @@ class HostManagement extends FOGPage
      *
      * @return void
      */
+    public function hostAgentActivity()
+    {
+        $this->renderHistoryTab(
+            [
+                _('When'),
+                _('Event'),
+                _('Detail'),
+                _('Outcome')
+            ],
+            [[], [], [], []],
+            _('Host Agent Activity'),
+            'host-agent-activity-table'
+        );
+    }
+    /**
+     * Renders the host's snapin history tab.
+     *
+     * @return void
+     */
     public function hostSnapinHistory()
     {
         $this->renderHistoryTab(
@@ -3829,9 +4385,11 @@ class HostManagement extends FOGPage
                 _('Start Time'),
                 _('Complete'),
                 _('Duration'),
-                _('Return Code')
+                _('Return Code'),
+                _('Status')
             ],
             [
+                [],
                 [],
                 [],
                 [],
@@ -3843,6 +4401,90 @@ class HostManagement extends FOGPage
         );
     }
     /**
+     * Display host software status.
+     *
+     * Read only: this reports what the agent last converged, it does not
+     * assign anything (that is the Software tab above). One alert replaces
+     * the table's usual silence when the host has software assigned but the
+     * package manager itself never ran -- reporting that failure once per
+     * host rather than once per row.
+     *
+     * @return void
+     */
+    public function hostSoftwareStatus()
+    {
+        $hostID = (int)$this->obj->get('id');
+        $resolved = Resolver::resolveSoftware([$hostID])[$hostID] ?? [];
+        if (count($resolved) > 0) {
+            $statuses = (array)Route::getIds(
+                'softwarestatus',
+                ['hostID' => $hostID],
+                'status'
+            );
+            // 'cannot_run' is the backend-missing status in
+            // FOG\Agent\SoftwareSet::STATUSES -- every row saying it means
+            // the agent never got as far as trying any package.
+            if (count($statuses) > 0
+                && count(array_diff($statuses, ['cannot_run'])) < 1
+            ) {
+                echo '<div class="alert alert-warning">';
+                echo _(
+                    'This host reported that its package manager is not '
+                    . 'installed. Chocolatey must be installed on the host '
+                    . 'before software can be managed.'
+                );
+                echo '</div>';
+            }
+        }
+        $this->renderHistoryTab(
+            [
+                _('Software'),
+                _('Package'),
+                _('Desired'),
+                _('Installed'),
+                _('Status'),
+                _('Exit Code'),
+                _('Checked'),
+                _('Details')
+            ],
+            [
+                [], [], [], [], [], [], [], []
+            ],
+            _('Host Software Status'),
+            'host-software-status-table'
+        );
+    }
+    /**
+     * Display the software the agent currently reports as installed.
+     *
+     * Read only, and unlike Software Status above, not tied to anything an
+     * admin assigned (design 0006): every hostSoftware row currently open
+     * (hsRemovedAt IS NULL) for this host, whether or not FOG ever asked for
+     * it.
+     *
+     * @return void
+     */
+    public function hostInstalledSoftware()
+    {
+        $this->renderHistoryTab(
+            [
+                _('Name'),
+                _('Version'),
+                _('Publisher'),
+                _('Source'),
+                _('Arch'),
+                _('Installed'),
+                _('First Seen'),
+                _('Last Seen')
+            ],
+            [
+                [], [], [], [], [], [], [], []
+            ],
+            _('Installed Software'),
+            'host-installed-software-table'
+        );
+    }
+    /**
      * Edits an existing item.
      *
      * @return void
@@ -3850,22 +4492,60 @@ class HostManagement extends FOGPage
     public function edit()
     {
         // Identity plus the facts you cannot see from the other twenty
-        // tabs: which image is assigned, when it was last imaged, and which
-        // group it belongs to.
-        $primaryGroup = new Group(self::minId($this->obj->get('groups')));
+        // tabs: which image is assigned and when it was last imaged.
+        //
+        // No group line. It used to say "Primary Group", meaning
+        // minId($this->obj->get('groups')) -- the lowest-id group the host
+        // happened to be in. There is no primary group: a group GRANTS, and
+        // what a host ends up with is resolved from every group it belongs
+        // to at task time, ordered by groupOrder (ADR 0038, and see
+        // FOG\Assign\Resolver). So the label named a rank that does not
+        // exist and the value picked one membership arbitrarily. Listing
+        // them all instead was considered and dropped: a host in eight
+        // groups blows the card out, and the Group Associations tab already
+        // shows them properly.
+        // Whichever of the two clients last spoke, named so the card is not
+        // ambiguous about which one it is reporting.
+        //
+        // The agent WINS when both are set, and not by date: a host that has
+        // enrolled an agent is a host whose legacy check-in has stopped
+        // moving, so the newer client is the live signal even on the day
+        // the agent is installed. Falling back keeps the card useful for the
+        // hosts that have not migrated yet, which during a migration is most
+        // of them.
+        // Two literal calls rather than one with a computed column: the
+        // column each date came out of decides whether it can predate the
+        // UTC boundary, so it is named where a reader -- and
+        // tests/utc-storage-boundary.test.php -- can see it.
+        $agentRaw = (string)$this->obj->get('agentCheckin');
+        if ('' !== $agentRaw && self::validDate($agentRaw)) {
+            $checkinWho = _('agent');
+            $lastSpoke = self::dateOrNever(
+                $this->obj->get('agentCheckin'),
+                'hosts',
+                'hostAgentCheckin'
+            );
+        } else {
+            $checkinWho = _('client');
+            $lastSpoke = self::dateOrNever(
+                $this->obj->get('lastcheckin'),
+                'hosts',
+                'hostLastCheckin'
+            );
+        }
+        if (_('Never') !== $lastSpoke) {
+            $lastSpoke = sprintf('%s (%s)', $lastSpoke, $checkinWho);
+        }
+
         $this->notes = [
             _('Host') => $this->obj->get('name'),
             _('Primary MAC') => (string)$this->obj->get('mac'),
             _('Assigned Image') => $this->obj->getImageName(),
+            _('Last Check-In') => $lastSpoke,
             _('Last Deployed') => self::dateOrNever(
                 $this->obj->get('deployed'),
                 'hosts',
                 'hostLastDeploy'
-            ),
-            _('Primary Group') => (
-                $primaryGroup->isValid() ?
-                $primaryGroup->get('name') :
-                _('None')
             )
         ];
         // Info-card notes that mirror a General-tab control, so the card
@@ -3877,6 +4557,18 @@ class HostManagement extends FOGPage
             _('Host') => '#host',
             _('Assigned Image') => '#image'
         ];
+        // Deploy and Capture, one click, from whichever tab is open. Gated
+        // on pending for the same reason the Tasks tab below is: a pending
+        // host cannot be tasked, and deployPost() refuses it anyway, so
+        // offering the button only produces a toast saying no.
+        if (!$this->obj->get('pending')) {
+            $this->noteActions = self::renderQuickTaskActions(
+                'host',
+                (int)$this->obj->get('id'),
+                [TaskType::DEPLOY, TaskType::CAPTURE],
+                sprintf(_('host "%s"'), $this->obj->get('name'))
+            );
+        }
         $tabData = [];
 
         // General
@@ -3932,6 +4624,13 @@ class HostManagement extends FOGPage
                         'id' => 'host-snapin',
                         'generator' => function () {
                             $this->hostSnapins();
+                        }
+                    ],
+                    [
+                        'name' => _('Software'),
+                        'id' => 'host-software',
+                        'generator' => function () {
+                            $this->hostSoftware();
                         }
                     ],
                 ]
@@ -4029,6 +4728,32 @@ class HostManagement extends FOGPage
                             $this->hostSnapinHistory();
                         }
                     ],
+                    [
+                        'name' => _('Software Status'),
+                        'id' => 'host-software-status',
+                        'generator' => function () {
+                            $this->hostSoftwareStatus();
+                        }
+                    ],
+                    [
+                        'name' => _('Installed Software'),
+                        'id' => 'host-installed-software',
+                        'generator' => function () {
+                            $this->hostInstalledSoftware();
+                        }
+                    ],
+                    [
+                        // The agent's own trail for THIS host. The rows have
+                        // always been in auditLog tagged with the host id;
+                        // nothing could read them by host, so answering
+                        // "what has this machine's agent been doing" meant
+                        // scrolling the whole install's audit grid.
+                        'name' => _('Agent Activity'),
+                        'id' => 'host-agent-activity',
+                        'generator' => function () {
+                            $this->hostAgentActivity();
+                        }
+                    ],
                 ])
             ]
         ];
@@ -4082,6 +4807,9 @@ class HostManagement extends FOGPage
                         break;
                     case 'host-snapin':
                         $this->hostSnapinPost();
+                        break;
+                    case 'host-software':
+                        $this->hostSoftwarePost();
                         break;
                     case 'host-module':
                         $this->hostModulePost();
@@ -5530,6 +6258,34 @@ class HostManagement extends FOGPage
         );
     }
     /**
+     * Presents the software list table.
+     *
+     * @return void
+     */
+    public function getSoftwareList()
+    {
+        // Not `return`: assocItemsList() is void (it echoes and exit()s), and
+        // HostManagement's phpstan baseline already budgets a fixed count of
+        // the "void result used" finding that returning it would trip.
+        // GroupManagement::getSoftwareList() calls it the same, unreturned,
+        // way.
+        $this->assocItemsList(
+            'software',
+            'softwareassociation',
+            'softwareAssoc',
+            '`software`.`swID`',
+            '`softwareAssoc`.`swaSoftwareID`',
+            '`softwareAssoc`.`swaHostID`',
+            [
+                [
+                    'db' => 'hostAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
      * Returns the module list as well as the associated
      * for the host being edited.
      *
@@ -5642,6 +6398,35 @@ class HostManagement extends FOGPage
             'macaddressassociation',
             ['pending' => 1]
         );
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * The pending agents grid's rows.
+     *
+     * Not Route::listem(): agentenrollment is deliberately not an API
+     * class -- every row carries a CSR and, once approved, a certificate --
+     * so the page takes the same whitelisted shape the admin JSON route
+     * serves and the table pages it client-side. The list is bounded by
+     * what an admin has not yet looked at, never by the fleet.
+     *
+     * @return void
+     */
+    public function getPendingAgentList()
+    {
+        Route::agentEnrollments();
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * The agent token grid's rows: the same whitelisted shape the admin
+     * JSON route serves, paged client-side.
+     *
+     * @return void
+     */
+    public function getAgentTokenList()
+    {
+        Route::agentTokens();
         echo Route::getData();
         exit;
     }
@@ -6779,9 +7564,180 @@ class HostManagement extends FOGPage
      *
      * @return void
      */
+    public function getAgentActivity()
+    {
+        header('Content-type: application/json');
+        // The same read AgentActivityManagement::getHostActivity() performs,
+        // so the host tab and the Logging page cannot drift into showing
+        // different histories for one machine. A LIKE on the prefix rather
+        // than a list of type names: a new fact kind is a registry entry and
+        // a block in the poll, not a third place to remember to edit.
+        Route::listem(
+            'auditlog',
+            [
+                'type' => AgentActivityManagement::TYPE_PREFIX . '%',
+                'subjectType' => 'host',
+                'subjectID' => (int)$this->obj->get('id')
+            ],
+            false,
+            'AND',
+            'id'
+        );
+        http_response_code(HTTPResponseCodes::HTTP_SUCCESS);
+        echo Route::getData();
+        exit;
+    }
+    /**
+     * Serves the host's snapin history rows.
+     *
+     * @return void
+     */
     public function getSnapinHist()
     {
         $this->renderSnapinHistoryData($this->obj->get('id'));
+    }
+    /**
+     * Serves the host's software status grid.
+     *
+     * Joined to `software` for display (name/package/desired state), built
+     * directly against FOGManagerController::complex() rather than through
+     * Route::listem() -- listem()'s per-class column building (the
+     * `taskTypeName`/`snapinLink`-style extras) lives entirely in
+     * route.class.php, which this pass does not touch, so the join and the
+     * DataTables envelope are assembled here instead, with the same generic
+     * paging/search/order engine every other grid in FOG runs through.
+     *
+     * @return void
+     */
+    public function getSoftwareStatus()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $request
+        );
+        $hostID = (int)$this->obj->get('id');
+        $columns = [
+            ['db' => 'sstID', 'dt' => 'id'],
+            ['db' => 'swName', 'dt' => 'software'],
+            ['db' => 'swPackage', 'dt' => 'package'],
+            // swVersion carries no column of its own in the grid; the
+            // 'desired' formatter below reads it off the row, so it still
+            // has to be selected.
+            ['db' => 'swVersion', 'dt' => 'version'],
+            [
+                'db' => 'swState',
+                'dt' => 'desired',
+                'formatter' => function ($state, $row) {
+                    if ('absent' === $state) {
+                        return _('absent');
+                    }
+                    $version = trim((string)($row['swVersion'] ?? ''));
+                    return _('present') . ' '
+                        . ('' !== $version ? $version : _('latest'));
+                }
+            ],
+            ['db' => 'sstInstalledVersion', 'dt' => 'installed'],
+            ['db' => 'sstStatus', 'dt' => 'status'],
+            ['db' => 'sstReturnCode', 'dt' => 'returnCode'],
+            ['db' => 'sstChecked', 'dt' => 'checked'],
+            ['db' => 'sstDetails', 'dt' => 'details']
+        ];
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            LEFT OUTER JOIN `software`
+            ON `softwareStatus`.`sstSoftwareID` = `software`.`swID`
+            %s
+            %s
+            %s";
+        $fltrstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `software`
+            ON `softwareStatus`.`sstSoftwareID` = `software`.`swID`
+            %s";
+        $ttlstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            LEFT OUTER JOIN `software`
+            ON `softwareStatus`.`sstSoftwareID` = `software`.`swID`";
+        $data = FOGManagerController::complex(
+            $request,
+            'softwareStatus',
+            'sstID',
+            $columns,
+            $sqlstr,
+            $fltrstr,
+            $ttlstr,
+            null,
+            sprintf('`softwareStatus`.`sstHostID` = %d', $hostID),
+            'checked'
+        );
+        $this->jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode($data, JSON_UNESCAPED_UNICODE)
+        );
+    }
+    /**
+     * Serves the host's installed-software grid.
+     *
+     * No join: unlike getSoftwareStatus() above, hostSoftware carries
+     * nothing that needs a lookup table, so this is built directly against
+     * FOGManagerController::complex() the same way, just simpler.
+     *
+     * @return void
+     */
+    public function getInstalledSoftware()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $request
+        );
+        $hostID = (int)$this->obj->get('id');
+        $columns = [
+            ['db' => 'hsID', 'dt' => 'id'],
+            ['db' => 'hsName', 'dt' => 'name'],
+            ['db' => 'hsVersion', 'dt' => 'version'],
+            ['db' => 'hsPublisher', 'dt' => 'publisher'],
+            ['db' => 'hsSource', 'dt' => 'source'],
+            ['db' => 'hsArch', 'dt' => 'arch'],
+            ['db' => 'hsInstallDate', 'dt' => 'installed'],
+            ['db' => 'hsFirstSeen', 'dt' => 'firstSeen'],
+            ['db' => 'hsLastSeen', 'dt' => 'lastSeen']
+        ];
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            %s
+            %s
+            %s";
+        $fltrstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            %s";
+        $ttlstr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+        $data = FOGManagerController::complex(
+            $request,
+            'hostSoftware',
+            'hsID',
+            $columns,
+            $sqlstr,
+            $fltrstr,
+            $ttlstr,
+            null,
+            // hostSoftware rows are CLOSED (hsRemovedAt set), not deleted,
+            // once the agent stops reporting a package -- so this IS NULL
+            // clause is what makes the tab "what is installed now" rather
+            // than "everything ever seen".
+            sprintf(
+                '`hostSoftware`.`hsHostID` = %d '
+                . 'AND `hostSoftware`.`hsRemovedAt` IS NULL',
+                $hostID
+            ),
+            'name'
+        );
+        $this->jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode($data, JSON_UNESCAPED_UNICODE)
+        );
     }
     /**
      * Get the hosts display man values

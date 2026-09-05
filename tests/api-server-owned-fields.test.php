@@ -198,6 +198,19 @@ $check(
     )
 );
 
+// Every column that records WHEN a machine spoke. A caller that can write
+// one of these is asserting an event that did not happen -- and agentCheckin
+// is not only a display field: WakeRelay chooses which hosts are fresh
+// enough to relay a wake by it, so a host able to write its own heartbeat
+// could nominate itself as a relay for a subnet it is not on.
+$check(
+    'the observed check-in columns are server-owned, agentCheckin included',
+    [] === array_diff(
+        ['lastping', 'lastcheckin', 'agentCheckin', 'sbstate', 'sbstatetime'],
+        Route::serverOwnedFields('host')
+    )
+);
+
 $check(
     'user.token is not server-owned; writing it takes over that account '
     . "'s API access",

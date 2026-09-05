@@ -133,6 +133,11 @@ class Retention extends FOGBase
                 'date' => 'utDateTime',
                 'id' => 'utID',
             ],
+            'hostUserSession' => [
+                'setting' => 'FOG_HOSTUSERSESSION_RETENTION_DAYS',
+                'date' => 'husStartedAt',
+                'id' => 'husID',
+            ],
         ];
     }
     /**

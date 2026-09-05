@@ -33,6 +33,7 @@ $foglang['Search'] = _('Search');
 $foglang['Storage'] = _('Storage');
 $foglang['Snapin'] = _('Snapin');
 $foglang['Snapins'] = _('Snapins');
+$foglang['Software'] = _('Software');
 $foglang['Remove'] = _('Remove');
 $foglang['Removed'] = _('Removed');
 $foglang['Enabled'] = _('Enabled');

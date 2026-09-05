@@ -175,6 +175,7 @@ const TABLE = [
     'WindowedStats' => 'Audit',
     'Retention' => 'Audit',
     'Blame' => 'Audit',
+    'FOGLdap' => 'Net',
     'FOGFTP' => 'Net',
     'FOGSSH' => 'Net',
     'FOGURLRequests' => 'Net',
@@ -200,6 +201,50 @@ const TABLE = [
     // and the task-completion report. Util is for things belonging to no
     // subsystem at all.
     'SecureBootState' => 'Boot',
+    // Agent, not Boot: fog-agent is the management client, not the netboot
+    // path. Both extend FOGBase directly -- Enrollment is the policy for who
+    // gets a client certificate, Principal is the pure verifier that turns a
+    // presented certificate back into a host -- so ancestry cannot place
+    // them, and they are one subsystem the way the Boot classes are.
+    'Enrollment' => 'Agent',
+    'Principal' => 'Agent',
+    'Token' => 'Agent',
+    'State' => 'Agent',
+    'Snapins' => 'Agent',
+    'SoftwareSet' => 'Agent',
+    // The two writers for what an agent reports about its own host
+    // (design 0006). Named *Facts rather than Inventory and Software
+    // because both of those already name an Items class -- these write
+    // those rows, they are not those rows.
+    'InventoryFacts' => 'Agent',
+    'SoftwareFacts' => 'Agent',
+    // The writer for what an agent reports about who is logged on (design
+    // 0008). Named UserSessions rather than UserTracking because that name
+    // is already an Items class for the legacy event table -- this writes
+    // hostUserSession rows, it is not either of those rows.
+    'DirectoryFacts' => 'Agent',
+    'DirectoryPlacement' => 'Agent',
+    // The join half of directory membership (design 0009 section 6): the
+    // one class that decides whether a credential leaves this server.
+    'DirectoryJoin' => 'Agent',
+    // The writer for the links a host is on, and the class that asks an
+    // awake agent to broadcast a wake for a sleeping neighbor (design
+    // 0011). Network and Wake would both be far too general as Items
+    // names; these write hostNetwork and agentWake rows.
+    'NetworkFacts' => 'Agent',
+    'WakeRelay' => 'Agent',
+    // The writer for what an agent reports about its installed printers
+    // (design 0010). Same naming reason: Printer is already an Items
+    // class for the assignable printer -- this writes hostPrinter and
+    // hostSpooler rows, it is not that row.
+    'PrinterFacts' => 'Agent',
+    'PrinterSet' => 'Agent',
+    // The second writer for hosts.hostSbState (design 0012). Named
+    // SecureBootFacts and not SecureBootState because THAT name is the Boot
+    // class holding the six state names -- this reports observations into
+    // that vocabulary, it does not define it.
+    'SecureBootFacts' => 'Agent',
+    'UserSessions' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',

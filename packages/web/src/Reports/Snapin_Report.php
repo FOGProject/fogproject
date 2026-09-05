@@ -208,6 +208,21 @@ class Snapin_Report extends ReportManagement
         [$start, $end] = ReportWindow::fromRequest(self::DEFAULT_WINDOW);
         $rows = SnapinStats::runs($start, $end);
 
+        // The task's own status column knows about reboot/retry and about
+        // a payload that never ran at all (hash_mismatch/timeout/
+        // cannot_run), none of which the exit code alone can tell you. It
+        // is the source of truth when a run recorded one; the code-based
+        // guess below is only for rows from before this column existed.
+        $outcomeLabels = [
+            'success' => _('Succeeded'),
+            'reboot' => _('Reboot'),
+            'retry' => _('Retry'),
+            'failed' => _('Failed'),
+            'hash_mismatch' => _('Hash Mismatch'),
+            'timeout' => _('Timeout'),
+            'cannot_run' => _('Cannot Run')
+        ];
+
         $states = [];
         $data = [];
         foreach ($rows as $row) {
@@ -217,15 +232,18 @@ class Snapin_Report extends ReportManagement
                     ->get('name');
             }
             $code = (int)($row['code'] ?? 0);
+            $status = (string)($row['status'] ?? '');
             $data[] = [
                 'snapin' => (string)($row['snapin'] ?? ''),
                 'hostName' => (string)($row['hostName'] ?? ''),
                 'completed' => (string)($row['completed'] ?? ''),
-                // Said in words as well as in the code, because 0 meaning
-                // success is a convention rather than something the column
-                // says. The code stays in its own column for anyone who
-                // needs the actual value.
-                'outcome' => 0 === $code ? _('Succeeded') : _('Failed'),
+                'outcome' => '' !== $status
+                    ? ($outcomeLabels[$status] ?? $status)
+                    // Said in words as well as in the code, because 0
+                    // meaning success is a convention rather than
+                    // something the column says. The code stays in its
+                    // own column for anyone who needs the actual value.
+                    : (0 === $code ? _('Succeeded') : _('Failed')),
                 'code' => (string)$code,
                 'details' => (string)($row['details'] ?? ''),
                 // Shown beside the outcome rather than instead of it: the

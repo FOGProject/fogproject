@@ -346,6 +346,15 @@ $expected = [
     'groupSnapinAssoc.gsaSnapinID',
     'groupPrinterAssoc.gpaGroupID',
     'groupPrinterAssoc.gpaPrinterID',
+    // Group 13 -- fog-agent software, design 0003. Same CASCADE reasoning
+    // as group 9 for the two assignment tables; a status row is a fact
+    // about a host and an entry and goes with either.
+    'softwareAssoc.swaHostID',
+    'softwareAssoc.swaSoftwareID',
+    'groupSoftwareAssoc.gswaGroupID',
+    'groupSoftwareAssoc.gswaSoftwareID',
+    'softwareStatus.sstHostID',
+    'softwareStatus.sstSoftwareID',
     // Group 10 -- modules, the third declarative grant. Same CASCADE
     // reasoning as group 9.
     'groupModuleAssoc.gmaGroupID',
@@ -356,6 +365,16 @@ $expected = [
     // an orphan schedule left against a reused group id would silently
     // start shutting down every host that inherited the number.
     'groupPowerManagement.gpmGroupID',
+    'agentEnrollment.aeHostID',
+    'hostSoftware.hsHostID',
+        'hostUserSession.husHostID',
+        'hostDirectory.hdHostID',
+        'hostPrinter.hpHostID',
+        'hostSpooler.hspHostID',
+    'hostNetwork.hnHostID',
+    'agentWake.awTargetID',
+    'agentWake.awSenderID',
+    'hostFactState.hfsHostID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its
     // manager's schema(); see fog-plugins tests/foreign-keys.test.php,

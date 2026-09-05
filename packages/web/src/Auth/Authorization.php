@@ -119,6 +119,9 @@ class Authorization extends FOGBase
         // on snapin.view. Same reasoning as the two above (ADR 0030
         // decision 4).
         'snapin_report' => 'snapin',
+        // Software Report reads `softwareStatus`, which Software Management
+        // gates on software.view. Same reasoning.
+        'software_report' => 'software',
         // Fleet Report reads `hosts` and `inventory`, both gated on
         // host.view everywhere else. Same reasoning (ADR 0030 decision 4).
         'fleet_report' => 'host',
@@ -126,6 +129,13 @@ class Authorization extends FOGBase
         // the `inventory` node onto `host`. Same reasoning (ADR 0030
         // decision 4).
         'hardware_report' => 'host',
+        // Installed Software reads `hostSoftware` (design 0006), which is
+        // host data -- the same table the host's own Installed Software tab
+        // reads, gated on host.view. Same reasoning.
+        'installed_software' => 'host',
+        'directory_membership' => 'host',
+        'printer_deployment' => 'host',
+        'user_sessions' => 'host',
         // Storage Report reads `images`, `imageGroupAssoc`, `nfsGroups` and
         // `nfsGroupMembers`. Group and node names are the part not already
         // reachable from a narrower screen, so it lands on storagenode.
@@ -334,6 +344,22 @@ class Authorization extends FOGBase
         // than left to the unknown-route fallback so the intent is recorded.
         'openapi' => null,
         'openapiSwaggerAlias' => null,
+        // fog-agent enrollment: public by construction (the caller is asking
+        // for its credential), and it decides nothing an admin did not
+        // approve -- see FOG\Agent\Enrollment. The admin side reads and
+        // edits hosts, so it carries the host permissions.
+        'agentenroll' => null,
+        'agentpoll' => null,                 // fog-agent: gated by the client certificate in Route, not by a token
+        'agentrenew' => null,                // fog-agent: same gate
+        'agentresult' => null,               // fog-agent: same gate
+        'agentpayload' => null,              // fog-agent: same gate
+        'agentenrollments' => 'host.view',
+        'agentenrollmentdecide' => 'host.edit',
+        // Tokens approve machines the admin has not seen, which creates
+        // hosts; minting one is host.create and pulling one is host.delete.
+        'agenttokens' => 'host.view',
+        'agenttokenmint' => 'host.create',
+        'agenttokenrevoke' => 'host.delete',
         'export' => 'system.export',
         'kernelUpdate' => 'settings.view',
         'initrdUpdate' => 'settings.view',
@@ -407,6 +433,25 @@ class Authorization extends FOGBase
         'snapingroupassociation' => 'snapin',
         'snapinjob' => 'task',
         'snapintask' => 'task',
+        // The agent's reported facts about one host, gated by the host node
+        // they belong to -- the same call as 'inventory' above, and for the
+        // same reason: they are host detail, not a feature of their own.
+        'hostsoftware' => 'host',
+        'hostdirectory' => 'host',
+        'hostprinter' => 'host',
+        'hostspooler' => 'host',
+        'hostnetwork' => 'host',
+        'hostusersession' => 'host',
+        // A wake relay names two hosts and belongs to neither more than
+        // the other. Gated on the host node all the same: seeing that a
+        // machine was asked to wake another is seeing host detail, and
+        // ordering the wake goes through the host's own page.
+        'agentwake' => 'host',
+        'hostfactstate' => 'host',
+        'software' => 'software',
+        'softwareassociation' => 'software',
+        'groupsoftwareassociation' => 'software',
+        'softwarestatus' => 'software',
         'storagegroup' => 'storagegroup',
         'storagenode' => 'storagenode',
         'task' => 'task',
@@ -530,6 +575,7 @@ class Authorization extends FOGBase
             'group' => ['view', 'create', 'edit', 'delete', 'task'],
             'image' => ['view', 'create', 'edit', 'delete', 'task'],
             'snapin' => ['view', 'create', 'edit', 'delete'],
+            'software' => ['view', 'create', 'edit', 'delete'],
             'printer' => ['view', 'create', 'edit', 'delete'],
             'module' => ['view', 'create', 'edit', 'delete'],
             'user' => ['view', 'create', 'edit', 'delete'],
@@ -619,6 +665,17 @@ class Authorization extends FOGBase
             // narrowly: an audit row necessarily discloses attempted
             // usernames.
             'audit' => ['view', 'manage'],
+            // The agent's half of that trail, read by host. Its OWN node
+            // rather than an alias onto `audit`: ADR 0021 made audit.view
+            // narrow because the audit log discloses attempted usernames and
+            // refusals, and agent rows are enrollments, inventories and task
+            // results a machine reported -- a different disclosure with a
+            // different audience. Aliasing would force anyone who may see
+            // what an agent did to also see every failed sign-in.
+            //
+            // `view` only. Nothing here writes: auditlog has no create,
+            // update or delete route anywhere in FOG (ADR 0021 Decision 8).
+            'agentactivity' => ['view'],
             // The log viewer. Third sibling under Logging, and the one that
             // shipped without an entry here when it moved to its own node
             // (#1507) -- so it fell into "a node absent from the registry is

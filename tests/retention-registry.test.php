@@ -93,8 +93,19 @@ if (!class_exists(\FOG\Audit\Retention::class, true)) {
 
 $core = Retention::coreRegistry();
 check(
-    'coreRegistry() lists the four tables ADR 0021, 0022 and 0023 name',
-    count($core) === 4,
+    'coreRegistry() lists the five tables ADR 0021, 0022, 0023 and design '
+    . '0008 name',
+    count($core) === 5,
+    $failures,
+    $checks
+);
+// hostUserSession is the fifth, added with schema 422. It is pinned for the
+// same reason taskLog is below: a table that grows a row per logon per host
+// is exactly the shape that went wrong before -- unbounded growth nobody had
+// registered a sweep for.
+check(
+    'hostUserSession, which grows per logon, is registered',
+    isset($core['hostUserSession']),
     $failures,
     $checks
 );

@@ -13,6 +13,276 @@ parameters:
 			path: tests/activity-sources.test.php
 
 		-
+			message: '#^Call to function in_array\(\) with arguments ''already_joined''\|''joined''\|''refused''\|''unsupported'', array\{''joined'', ''already_joined'', ''failed'', ''unsupported'', ''refused''\} and true will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/agent-directory-join.test.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''refused'', array\{''joined'', ''already_joined'', ''failed'', ''unsupported'', ''refused''\} and true will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/agent-directory-join.test.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''refused'', array\{''joined'', ''already_joined''\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/agent-directory-join.test.php
+
+		-
+			message: '#^Comparison operation "\>\=" between 3600 and 1800 is always true\.$#'
+			identifier: greaterOrEqual.alwaysTrue
+			count: 1
+			path: tests/agent-directory-join.test.php
+
+		-
+			message: '#^Offset ''directory'' on array\{inventory\: ''FOG\\\\Agent\\\\InventoryFacts'', software\: ''FOG\\\\Agent\\\\SoftwareFacts'', directory\: ''FOG\\\\Agent\\\\DirectoryFacts'', printers\: ''FOG\\\\Agent\\\\PrinterFacts''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Offset ''directory_membership'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', software_report\: ''software'', fleet_report\: ''host'', hardware_report\: ''host'', installed_software\: ''host'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''FOG\\\\Agent\\\\DirectoryFacts'' and ''FOG\\\\Agent\\\\DirectoryFacts'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''host'' and ''host'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\{''ad'', ''entra'', ''workgroup'', ''none''\} and array\{''ad'', ''entra'', ''workgroup'', ''none''\} will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Offset ''directory'' on array\{inventory\: ''FOG\\\\Agent\\\\InventoryFacts'', software\: ''FOG\\\\Agent\\\\SoftwareFacts'', directory\: ''FOG\\\\Agent\\\\DirectoryFacts'', printers\: ''FOG\\\\Agent\\\\PrinterFacts'', network\: ''FOG\\\\Agent\\\\NetworkFacts'', secureboot\: ''FOG\\\\Agent\\\\SecureBootFacts''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-directory.test.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''failed'', array\{''converged'', ''installed'', ''updated'', ''removed''\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''unsupported'', array\{''converged'', ''installed'', ''updated'', ''removed''\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Offset ''printers'' on array\{hostname\: ''hostnamechanger'', taskreboot\: ''taskreboot'', snapin\: ''snapinclient'', software\: ''software'', power\: ''powermanagement'', printers\: ''printermanager''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Offset ''printers'' on array\{inventory\: ''FOG\\\\Agent\\\\InventoryFacts'', software\: ''FOG\\\\Agent\\\\SoftwareFacts'', directory\: ''FOG\\\\Agent\\\\DirectoryFacts'', printers\: ''FOG\\\\Agent\\\\PrinterFacts''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Offset ''printers'' on array\{snapin\: ''FOG\\\\Agent\\\\Snapins'', software\: ''FOG\\\\Agent\\\\SoftwareSet'', printers\: ''FOG\\\\Agent\\\\PrinterSet''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Offset 3 on array\{''off'', ''assigned'', ''exclusive''\} in isset\(\) does not exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Result of && is always true\.$#'
+			identifier: booleanAnd.alwaysTrue
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''FOG\\\\Agent\\\\PrinterFacts'' and ''FOG\\\\Agent\\\\PrinterFacts'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''FOG\\\\Agent\\\\PrinterSet'' and ''FOG\\\\Agent\\\\PrinterSet'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''printermanager'' and ''printermanager'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\{''off'', ''assigned'', ''exclusive''\} and array\{''off'', ''assigned'', ''exclusive''\} will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Offset ''printers'' on array\{hostname\: ''hostnamechanger'', taskreboot\: ''taskreboot'', snapin\: ''snapinclient'', software\: ''software'', power\: ''powermanagement'', directory\: ''hostnamechanger'', printers\: ''printermanager'', wake\: ''powermanagement''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Offset ''printers'' on array\{inventory\: ''FOG\\\\Agent\\\\InventoryFacts'', software\: ''FOG\\\\Agent\\\\SoftwareFacts'', directory\: ''FOG\\\\Agent\\\\DirectoryFacts'', printers\: ''FOG\\\\Agent\\\\PrinterFacts'', network\: ''FOG\\\\Agent\\\\NetworkFacts'', secureboot\: ''FOG\\\\Agent\\\\SecureBootFacts''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Offset ''printers'' on array\{snapin\: ''FOG\\\\Agent\\\\Snapins'', software\: ''FOG\\\\Agent\\\\SoftwareSet'', printers\: ''FOG\\\\Agent\\\\PrinterSet'', directory\: ''FOG\\\\Agent\\\\DirectoryJoin'', wake\: ''FOG\\\\Agent\\\\WakeRelay''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-printer-facts.test.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''inferred'', array\{''logout'', ''disconnect'', ''service_stop''\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/agent-user-sessions.test.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''FOG\\\\Agent\\\\State'' and ''sessions'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/agent-user-sessions.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''usertracker'' and ''usertracker'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-user-sessions.test.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''expired''\|''pending'', array\{''sent'', ''failed''\} and true will always evaluate to false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''sent'', array\{''sent'', ''failed''\} and true will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Call to function is_int\(\) with 32 will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 600 and 3600 is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Comparison operation "\<\=" between 900 and 3600 is always true\.$#'
+			identifier: smallerOrEqual.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Comparison operation "\>" between 3 and 1 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Comparison operation "\>" between 32 and 0 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Comparison operation "\>" between 600 and 0 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Comparison operation "\>" between 900 and 0 is always true\.$#'
+			identifier: greater.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Offset ''network'' on array\{inventory\: ''FOG\\\\Agent\\\\InventoryFacts'', software\: ''FOG\\\\Agent\\\\SoftwareFacts'', directory\: ''FOG\\\\Agent\\\\DirectoryFacts'', printers\: ''FOG\\\\Agent\\\\PrinterFacts'', network\: ''FOG\\\\Agent\\\\NetworkFacts'', secureboot\: ''FOG\\\\Agent\\\\SecureBootFacts''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Offset ''wake'' on array\{hostname\: ''hostnamechanger'', taskreboot\: ''taskreboot'', snapin\: ''snapinclient'', software\: ''software'', power\: ''powermanagement'', directory\: ''hostnamechanger'', printers\: ''printermanager'', wake\: ''powermanagement''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Offset ''wake'' on array\{snapin\: ''FOG\\\\Agent\\\\Snapins'', software\: ''FOG\\\\Agent\\\\SoftwareSet'', printers\: ''FOG\\\\Agent\\\\PrinterSet'', directory\: ''FOG\\\\Agent\\\\DirectoryJoin'', wake\: ''FOG\\\\Agent\\\\WakeRelay''\} on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Result of && is always true\.$#'
+			identifier: booleanAnd.alwaysTrue
+			count: 2
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Result of method FogChecks\:\:finish\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''FOG\\\\Agent\\\\NetworkFacts'' and ''FOG\\\\Agent\\\\NetworkFacts'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''FOG\\\\Agent\\\\WakeRelay'' and ''FOG\\\\Agent\\\\WakeRelay'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''powermanagement'' and ''powermanagement'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array\{''id'', ''macs''\} and array\{''id'', ''macs''\} will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/agent-wake-relay.test.php
+
+		-
 			message: '#^Call to new Initiator\(\) on a separate line has no effect\.$#'
 			identifier: new.resultUnused
 			count: 1
@@ -793,13 +1063,13 @@ parameters:
 			path: tests/route-result-wrappers.test.php
 
 		-
-			message: '#^Call to function array_key_exists\(\) with ''run_history'' and array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', fleet_report\: ''host'', hardware_report\: ''host'', storage_report\: ''storagenode'', audit_report\: ''audit''\} will always evaluate to true\.$#'
+			message: '#^Call to function array_key_exists\(\) with ''run_history'' and array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', software_report\: ''software'', fleet_report\: ''host'', hardware_report\: ''host'', installed_software\: ''host'', \.\.\.\} will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: tests/run-history-report.test.php
 
 		-
-			message: '#^Offset ''run_history'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', fleet_report\: ''host'', hardware_report\: ''host'', storage_report\: ''storagenode'', audit_report\: ''audit''\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''run_history'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', software_report\: ''software'', fleet_report\: ''host'', hardware_report\: ''host'', installed_software\: ''host'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: tests/run-history-report.test.php
@@ -991,13 +1261,13 @@ parameters:
 			path: tests/usertracking-permission-split.test.php
 
 		-
-			message: '#^Call to function array_key_exists\(\) with ''imaging_report'' and array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', fleet_report\: ''host'', hardware_report\: ''host'', storage_report\: ''storagenode'', audit_report\: ''audit''\} will always evaluate to true\.$#'
+			message: '#^Call to function array_key_exists\(\) with ''imaging_report'' and array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', software_report\: ''software'', fleet_report\: ''host'', hardware_report\: ''host'', installed_software\: ''host'', \.\.\.\} will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: tests/imaging-report.test.php
 
 		-
-			message: '#^Offset ''imaging_report'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', fleet_report\: ''host'', hardware_report\: ''host'', storage_report\: ''storagenode'', audit_report\: ''audit''\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''imaging_report'' on array\{hosts_and_users\: ''usertracking'', run_history\: ''task'', imaging_report\: ''task'', snapin_report\: ''snapin'', software_report\: ''software'', fleet_report\: ''host'', hardware_report\: ''host'', installed_software\: ''host'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: tests/imaging-report.test.php

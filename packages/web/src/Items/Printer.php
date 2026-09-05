@@ -49,10 +49,7 @@ class Printer extends FOGController
         'config' => 'pConfig',
         'configFile' => 'pConfigFile',
         'ip' => 'pIP',
-        'pAnon2' => 'pAnon2',
-        'pAnon3' => 'pAnon3',
-        'pAnon4' => 'pAnon4',
-        'pAnon5' => 'pAnon5'
+        'uri' => 'pURI'
     ];
     /**
      * The required fields
@@ -183,6 +180,81 @@ class Printer extends FOGController
             return false;
         }
         return parent::isValid();
+    }
+    /**
+     * The device URI this printer is reached at (design 0010 section 2).
+     *
+     * Both print subsystems already describe a printer this way: CUPS takes
+     * a device URI directly, and a Windows Standard TCP/IP port is the same
+     * information written differently. One URI therefore serves both
+     * platforms, where `pConfig` could serve only one -- it named a code
+     * path, and three of its four values throw on whichever platform the
+     * machine happens to be running.
+     *
+     * DERIVED ON READ when nothing was explicitly set, rather than
+     * backfilled once on upgrade. `pPort` is a longtext that has held
+     * whatever an admin typed for a decade, so a derivation WILL be wrong
+     * for some rows -- and a wrong answer written into a column has to be
+     * found and corrected by hand on every install, where a wrong answer
+     * computed here is fixed for everybody by fixing this method. An admin
+     * who sets `pURI` overrides it and is never second-guessed.
+     *
+     * Empty when nothing can be derived, which is an honest answer: a Local
+     * printer with no address recorded has no URI, and inventing one would
+     * send the agent at a machine nobody named.
+     *
+     * @return string
+     */
+    public function uri()
+    {
+        $explicit = trim((string)$this->get('uri'));
+        if ('' !== $explicit) {
+            return $explicit;
+        }
+        $ip = trim((string)$this->get('ip'));
+        $port = trim((string)$this->get('port'));
+        switch (strtolower(trim((string)$this->get('config')))) {
+            case 'local':
+                // A TCP/IP port printer. 9100 is the RAW default and what every
+                // port monitor uses when no port number was recorded.
+                return '' === $ip ? '' : 'socket://' . $ip . ':9100';
+            case 'network':
+                // pPort holds a UNC path: \\server\share.
+                $unc = str_replace('\\', '/', $port);
+                $unc = ltrim($unc, '/');
+                return '' === $unc ? '' : 'smb://' . $unc;
+            case 'cups':
+                // The CUPS branch pointed lpadmin at lpd://<ip>/<queue>, with
+                // the printer's own alias as the queue name.
+                $name = trim((string)$this->get('name'));
+                return '' === $ip ? '' : 'lpd://' . $ip . '/' . $name;
+            case 'iprint':
+                // Novell/Micro Focus iPrint, driven by iprntcmd.exe and Windows
+                // only. Given a scheme of its own rather than forced into one of
+                // the others, so a provider that cannot handle it can say so
+                // (design 0010 section 2).
+                return '' === $port ? '' : 'iprint://' . $port;
+            default:
+                return '';
+        }
+    }
+    /**
+     * The driver to print with, or empty for driverless.
+     *
+     * Empty is a VALUE here, not a missing field: modern CUPS and Windows
+     * both support IPP Everywhere, where the printer describes its own
+     * capabilities and no driver file is involved. FOG's model assumed a
+     * driver always exists, which is why this needs saying out loud.
+     *
+     * @return string
+     */
+    public function driver()
+    {
+        $model = trim((string)$this->get('model'));
+        if ('' !== $model) {
+            return $model;
+        }
+        return trim((string)$this->get('file'));
     }
     /**
      * Builds the printer type selector

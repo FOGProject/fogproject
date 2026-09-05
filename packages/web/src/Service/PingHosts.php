@@ -125,7 +125,7 @@ class PingHosts extends FOGService
     private function _commonOutput()
     {
         try {
-            self::$_pingOn = self::getSetting('PINGHOSTGLOBALENABLED');
+            self::$_pingOn = (int) self::getSetting('PINGHOSTGLOBALENABLED');
             if (self::$_pingOn < 1) {
                 throw new \Exception(_(' * Ping hosts is globally disabled'));
             }

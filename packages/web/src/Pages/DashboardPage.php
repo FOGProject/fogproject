@@ -200,6 +200,33 @@ class DashboardPage extends FOGPage
             $title = $pendingMACs . ' ' . _('Pending macs');
             self::displayAlert($title, $macPend, 'warning', true, true);
         }
+        // fog-agent installs waiting for an admin (Pending Agents). The
+        // table arrives with schema step 416; before it, there is nothing
+        // to count.
+        if (DatabaseManager::getColumns('agentEnrollment', 'aeState')) {
+            $pendingAgents = Route::getCount(
+                'agentenrollment',
+                ['state' => 'pending']
+            );
+            if ($pendingAgents > 0) {
+                $title = $pendingAgents
+                    . ' '
+                    . (
+                        $pendingAgents != 1 ?
+                        _('Pending agents') :
+                        _('Pending agent')
+                    );
+                $agentPend = sprintf(
+                    $pendingInfo,
+                    _('Click'),
+                    'host',
+                    'pendingAgents',
+                    _('here'),
+                    _('to review.')
+                );
+                self::displayAlert($title, $agentPend, 'warning', true, true);
+            }
+        }
         $pluginsNeedingUpdate = (new PluginManager())
             ->getPluginsNeedingUpdate();
         $pluginUpdateCount = count($pluginsNeedingUpdate);

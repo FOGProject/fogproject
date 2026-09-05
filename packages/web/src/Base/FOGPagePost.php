@@ -394,17 +394,25 @@ trait FOGPagePost
     /**
      * Handles a standard association add/remove POST: reads the additems /
      * remitems arrays and dispatches them to the object's add/remove methods.
-     * When $orderMethod is supplied, also honors a snapinorder array (used by
-     * the group/host snapin tabs to persist execution order).
+     * When $orderMethod is supplied, also honors an ordered-id-list POST
+     * array (used by the group/host snapin and software tabs to persist run
+     * order), under the wire name $orderField.
      *
      * @param string $addMethod    obj method to add associations (e.g. 'addGroup')
      * @param string $removeMethod obj method to remove associations (e.g. 'removeGroup')
-     * @param string $orderMethod  obj method to set ordering from the snapinorder
-     *                             POST array, or null when the tab has no ordering
+     * @param string $orderMethod  obj method to set ordering from the
+     *                             $orderField POST array, or null when the
+     *                             tab has no ordering
+     * @param string $orderField   POST field name carrying the ordered id
+     *                             list. Defaults to 'snapinorder', the
+     *                             original (and still only pre-existing)
+     *                             caller; a second ordered association
+     *                             (software) needs its own name so the two
+     *                             do not share one wire field.
      *
      * @return void
      */
-    protected function assocPost($addMethod, $removeMethod, $orderMethod = null)
+    protected function assocPost($addMethod, $removeMethod, $orderMethod = null, $orderField = 'snapinorder')
     {
         self::checkAuthAndCSRF();
         if (isset($_POST['confirmadd'])) {
@@ -435,16 +443,16 @@ trait FOGPagePost
                 $this->obj->{$removeMethod}($items);
             }
         }
-        if ($orderMethod !== null && isset($_POST['snapinorder'])) {
+        if ($orderMethod !== null && isset($_POST[$orderField])) {
             $order = filter_input_array(
                 INPUT_POST,
                 [
-                    'snapinorder' => [
+                    $orderField => [
                         'flags' => FILTER_REQUIRE_ARRAY
                     ]
                 ]
             );
-            $order = $order['snapinorder'];
+            $order = $order[$orderField];
             if (count($order ?: []) > 0) {
                 $this->obj->{$orderMethod}($order);
             }

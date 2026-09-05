@@ -213,7 +213,12 @@ function _declaredClasses()
             return '' !== $f
                 && is_readable($f)
                 && 0 !== strpos($f, 'packages/web/vendor/')
-                && 0 !== strpos($f, 'tests/');
+                && 0 !== strpos($f, 'tests/')
+                // Analysis tooling, not product. build/ now holds only
+                // constants.stub.php, which PHPStan loads as a bootstrap
+                // file and which declares no class at all -- FOG's own
+                // autoloader has nothing to find there and is not meant to.
+                && 0 !== strpos($f, 'build/');
         }
     );
 

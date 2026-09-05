@@ -1,8 +1,10 @@
+agentwake	(nothing)	
 architecture	(nothing)	
 filedeletequeue	(nothing)	
 group	groupassociation	groupID
 group	sitegroupmember	groupID
 groupassociation	(nothing)	
+groupsoftwareassociation	(nothing)	
 history	(nothing)	
 hookevent	(nothing)	
 host	groupassociation	hostID
@@ -21,7 +23,14 @@ host	snapinjob	hostID
 host	snapintask	jobID
 host	task	hostID
 hostautologout	(nothing)	
+hostdirectory	(nothing)	
+hostfactstate	(nothing)	
+hostnetwork	(nothing)	
+hostprinter	(nothing)	
 hostscreensetting	(nothing)	
+hostsoftware	(nothing)	
+hostspooler	(nothing)	
+hostusersession	(nothing)	
 image	imageassociation	imageID
 imageassociation	(nothing)	
 imagepartitiontype	(nothing)	
@@ -64,6 +73,11 @@ snapinassociation	(nothing)
 snapingroupassociation	(nothing)	
 snapinjob	(nothing)	
 snapintask	(nothing)	
+software	groupsoftwareassociation	softwareID
+software	softwareassociation	softwareID
+software	softwarestatus	softwareID
+softwareassociation	(nothing)	
+softwarestatus	(nothing)	
 storagegroup	(nothing)	
 storagenode	(nothing)	
 task	(nothing)	

@@ -321,8 +321,8 @@ if ($schema !== $highest) {
         "FAIL: FOG_SCHEMA is $schema but commons/schema.php goes to "
         . "$highest.\n"
         . $why
-        . "  Set FOG_SCHEMA to $highest in packages/web/lib/fog/"
-        . "system.class.php, or add the missing step.\n"
+        . "  Set FOG_SCHEMA to $highest in packages/web/src/Base/"
+        . "System.php, or add the missing step.\n"
     );
     exit(1);
 }

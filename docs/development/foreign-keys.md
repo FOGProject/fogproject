@@ -603,7 +603,7 @@ half-converted column.
 ## Phase D — plugins, and the direction rule
 
 18 plugin tables ship in `FOGProject/fog-plugins`. All 18 clone cleanly into
-the survey and 25 of the map's 123 relationships live in them.
+the survey and 25 of the map's 139 relationships live in them.
 
 ### Direction is the whole rule
 

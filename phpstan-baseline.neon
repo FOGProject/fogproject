@@ -126,1187 +126,25 @@ parameters:
 			count: 1
 			path: packages/web/commons/schema.php
 
+		# No count. commons/schema.php is one long list of `$this->schema[] =`
+		# steps at file scope, so it gains an occurrence of this every time a
+		# schema step is added -- and a counted entry then has to be edited on
+		# the same line by every branch that adds one, which makes two such
+		# branches conflict there. That is the shape FOG_VERSION had before it
+		# became a generated file. A count buys nothing here: nobody is
+		# defending a budget of $this uses in this file, and PHPStan is only
+		# right that they are undefined because the file is included into a
+		# method rather than being one.
 		-
 			message: '#^Variable \$this might not be defined\.$#'
 			identifier: variable.undefined
-			count: 385
 			path: packages/web/commons/schema.php
 
 		-
-			message: '#^PHPDoc type string of property FOG\\Events\\HostList\:\:\$active is not covariant with PHPDoc type bool of overridden property FOG\\Base\\Event\:\:\$active\.$#'
-			identifier: property.phpDocType
-			count: 1
-			path: packages/web/src/Events/HostList.php
-
-		-
-			message: '#^Property FOG\\Events\\HostList\:\:\$active \(string\) does not accept default value of type false\.$#'
-			identifier: property.defaultValue
-			count: 1
-			path: packages/web/src/Events/HostList.php
-
-		-
-			message: '#^PHPDoc tag @var has invalid value \(\$name\)\: Unexpected token "\$name", expected type at offset 53 on line 4$#'
-			identifier: phpDoc.parseError
-			count: 1
-			path: packages/web/src/Hooks/BootItem.php
-
-		-
-			message: '#^PHPDoc tag @throws with type FOG\\Exception is not subtype of Throwable$#'
-			identifier: throws.notThrowable
-			count: 1
-			path: packages/web/src/Hooks/BootTask.php
-
-		-
-			message: '#^Parameter \#1 \$txt of static method FOG\\Base\\Hook\:\:log\(\) expects string, true given\.$#'
+			message: '#^Parameter \#2 \$id of method FOG\\Base\\FOGManagerController\:\:exists\(\) expects string, int given\.$#'
 			identifier: argument.type
 			count: 1
-			path: packages/web/src/Hooks/HookDebugger.php
-
-		-
-			message: '#^Parameter \#2 \$return of function print_r expects bool, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Hooks/HookDebugger.php
-
-		-
-			message: '#^Parameter \#3 \$logfile of static method FOG\\Base\\Hook\:\:log\(\) expects int, bool given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Hooks/HookDebugger.php
-
-		-
-			message: '#^Parameter \#4 \$logbrow of static method FOG\\Base\\Hook\:\:log\(\) expects int, bool given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Hooks/HookDebugger.php
-
-		-
-			message: '#^Parameter \#1 \$txt of static method FOG\\Base\\Hook\:\:log\(\) expects string, true given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Hooks/Template.php
-
-		-
-			message: '#^Parameter \#2 \$return of function print_r expects bool, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Hooks/Template.php
-
-		-
-			message: '#^Parameter \#3 \$logfile of static method FOG\\Base\\Hook\:\:log\(\) expects int, false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Hooks/Template.php
-
-		-
-			message: '#^Parameter \#4 \$logbrow of static method FOG\\Base\\Hook\:\:log\(\) expects int, true given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Hooks/Template.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\ActivityManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/ActivityManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\ApiDocumentation has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/ApiDocumentation.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\AuditManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/AuditManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\ClientManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/ClientManagement.php
-
-		-
-			message: '#^Call to function unset\(\) contains undefined variable \$SystemUptime\.$#'
-			identifier: unset.variable
-			count: 1
-			path: packages/web/src/Pages/DashboardPage.php
-
-		-
-			message: '#^Call to function unset\(\) contains undefined variable \$fields\.$#'
-			identifier: unset.variable
-			count: 1
-			path: packages/web/src/Pages/DashboardPage.php
-
-		-
-			message: '#^Call to function unset\(\) contains undefined variable \$tftp\.$#'
-			identifier: unset.variable
-			count: 2
-			path: packages/web/src/Pages/DashboardPage.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\DashboardPage has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/DashboardPage.php
-
-		-
-			message: '#^Static property FOG\\Pages\\DashboardPage\:\:\$_tftp is never read, only written\.$#'
-			identifier: property.onlyWritten
-			count: 1
-			path: packages/web/src/Pages/DashboardPage.php
-
-		-
-			message: '#^Variable \$pendingMACs might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/DashboardPage.php
-
-		-
-			message: '#^Call to function unset\(\) contains undefined variable \$findWhere\.$#'
-			identifier: unset.variable
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Call to function unset\(\) contains undefined variable \$setWhere\.$#'
-			identifier: unset.variable
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Call to function unset\(\) contains undefined variable \$val\.$#'
-			identifier: unset.variable
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Cannot access property \$name on null\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\FOGConfigurationPage has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Offset ''FOG_PXE_HIDDENMENU…''\|''FOG_PXE_MENU_TIMEOUT'' on array\{FOG_PXE_HIDDENMENU_TIMEOUT\: true, FOG_PXE_MENU_TIMEOUT\: true\} in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Offset ''refresh'' does not exist on array\{checkbox\: array, numeric\: array, ip\: array\}\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
-			identifier: argument.type
-			count: 2
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Ternary operator condition is always true\.$#'
-			identifier: ternary.alwaysTrue
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Variable \$ip might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Variable \$objGetter might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Variable \$set might not be defined\.$#'
-			identifier: variable.undefined
-			count: 11
-			path: packages/web/src/Pages/FOGConfigurationPage.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\GroupManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\GroupManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\GroupManagement\:\:getModulesList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\GroupManagement\:\:getPrintersList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\GroupManagement\:\:getSnapinsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Parameter \#1 \$array \(array\<int\<0, max\>, mixed\>\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
-			identifier: arrayFilter.same
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Parameter \#3 \$body of static method FOG\\Base\\FOGPage\:\:makeModal\(\) expects string, null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:newPMDisplay\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 2
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Variable \$printers might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Variable \$val might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/GroupManagement.php
-
-		-
-			message: '#^Access to an undefined property FOG\\Pages\\HostManagement\:\:\$exitEfi\.$#'
-			identifier: property.notFound
-			count: 5
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Access to an undefined property FOG\\Pages\\HostManagement\:\:\$exitNorm\.$#'
-			identifier: property.notFound
-			count: 5
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Call to function is_numeric\(\) with int will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\HostManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\HostManagement\:\:getGroupsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\HostManagement\:\:getModulesList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\HostManagement\:\:getPrintersList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\HostManagement\:\:getSnapinsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\HostManagement\:\:pending\(\) should return false but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\HostManagement\:\:pending\(\) should return false but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\HostManagement\:\:pendingMacs\(\) should return false but empty return statement found\.$#'
-			identifier: return.empty
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\HostManagement\:\:pendingMacs\(\) should return false but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Parameter \#3 \$body of static method FOG\\Base\\FOGPage\:\:makeModal\(\) expects string, null given\.$#'
-			identifier: argument.type
-			count: 2
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 3
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:newPMDisplay\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 2
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Ternary operator condition is always false\.$#'
-			identifier: ternary.alwaysFalse
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Variable \$code might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Variable \$msg might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Variable \$val might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/HostManagement.php
-
-		-
-			message: '#^Binary operation "\*" between array\|string and 60 results in an error\.$#'
-			identifier: binaryOp.invalid
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\ImpersonateManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/ImpersonateManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\ImageManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\ImageManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\ImageManagement\:\:getSessionsList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\ImageManagement\:\:getStoragegroupsList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
-			identifier: argument.type
-			count: 2
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Variable \$msgSuccess might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Variable \$storagegroups might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Variable \$titleFail might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Variable \$titleSuccess might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ImageManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\IpxeManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/IpxeManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\ModuleManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/ModuleManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\ModuleManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/ModuleManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Pages/ModuleManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\PluginManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/PluginManagement.php
-
-		-
-			message: '#^PHPDoc tag @return has invalid value \(false;\)\: Unexpected token ";", expected TOKEN_HORIZONTAL_WS at offset 121 on line 6$#'
-			identifier: phpDoc.parseError
-			count: 1
-			path: packages/web/src/Pages/PluginManagement.php
-
-		-
-			message: '#^PHPDoc tag @throws with type FOG\\Exception is not subtype of Throwable$#'
-			identifier: throws.notThrowable
-			count: 1
-			path: packages/web/src/Pages/PluginManagement.php
-
-		-
-			message: '#^Parameter \#1 \$main of static method FOG\\Base\\FOGPage\:\:buildMainMenuItems\(\) expects array, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Pages/PluginManagement.php
-
-		-
-			message: '#^Parameter \#1 \(array\) of echo cannot be converted to string\.$#'
-			identifier: echo.nonString
-			count: 1
-			path: packages/web/src/Pages/PluginManagement.php
-
-		-
-			message: '#^Parameter \#2 \$hookMain of static method FOG\\Base\\FOGPage\:\:buildMainMenuItems\(\) expects array, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Pages/PluginManagement.php
-
-		-
-			message: '#^Ternary operator condition is always false\.$#'
-			identifier: ternary.alwaysFalse
-			count: 3
-			path: packages/web/src/Pages/PluginManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\PrinterManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/PrinterManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\PrinterManagement\:\:getHostsDefaultList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/PrinterManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\PrinterManagement\:\:getHostsList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/PrinterManagement.php
-
-		-
-			message: '#^PHPDoc tag @throws with type FOG\\Exception is not subtype of Throwable$#'
-			identifier: throws.notThrowable
-			count: 1
-			path: packages/web/src/Pages/PrinterManagement.php
-
-		-
-			message: '#^Property FOG\\Pages\\PrinterManagement\:\:\$_config is unused\.$#'
-			identifier: property.unused
-			count: 1
-			path: packages/web/src/Pages/PrinterManagement.php
-
-		-
-			message: '#^Call to function is_array\(\) with \*NEVER\* will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Empty array passed to foreach\.$#'
-			identifier: foreach.emptyArray
-			count: 1
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^If condition is always true\.$#'
-			identifier: if.alwaysTrue
-			count: 1
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Method FOG\\Pages\\ProcessLogin\:\:processMainLogin\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 3
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Offset ''icon'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Offset ''label'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Offset ''url'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Property FOG\\Pages\\ProcessLogin\:\:\$_langMenu is unused\.$#'
-			identifier: property.unused
-			count: 1
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Result of static method FOG\\Pages\\ProcessLogin\:\:mainLoginForm\(\) \(void\) is used\.$#'
-			identifier: staticMethod.void
-			count: 3
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between 0 and 0 will always evaluate to true\.$#'
-			identifier: identical.alwaysTrue
-			count: 1
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: packages/web/src/Pages/ProcessLogin.php
-
-		-
-			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: packages/web/src/Pages/ReportManagement.php
-
-		-
-			message: '#^Call to function _\(\) on a separate line has no effect\.$#'
-			identifier: function.resultUnused
-			count: 15
-			path: packages/web/src/Pages/ReportManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\ReportManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/ReportManagement.php
-
-		-
-			message: '#^Static method FOG\\Pages\\ReportManagement\:\:_reportNamesForTranslation\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: packages/web/src/Pages/ReportManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\RoleManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/RoleManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\RoleManagement\:\:getSitesList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/RoleManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\RoleManagement\:\:getUserGroupsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/RoleManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\RoleManagement\:\:getUsersList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/RoleManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 3
-			path: packages/web/src/Pages/RoleManagement.php
-
-		-
-			message: '#^Access to an undefined property FOG\\Pages\\SchemaUpdaterPage\:\:\$schema\.$#'
-			identifier: property.notFound
-			count: 4
-			path: packages/web/src/Pages/SchemaUpdaterPage.php
-
-		-
-			message: '#^Constant FOG_SCHEMA_INSTALL_TOKEN not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: packages/web/src/Pages/SchemaUpdaterPage.php
-
-		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: packages/web/src/Pages/SchemaUpdaterPage.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: packages/web/src/Pages/SchemaUpdaterPage.php
-
-		-
-			message: '#^Parameter \#2 \$return of function print_r expects bool, int given\.$#'
-			identifier: argument.type
-			count: 4
-			path: packages/web/src/Pages/SchemaUpdaterPage.php
-
-		-
-			message: '#^Path in include\(\) "/commons/schema\.php" is not a file or it does not exist\.$#'
-			identifier: include.fileNotFound
-			count: 1
-			path: packages/web/src/Pages/SchemaUpdaterPage.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\ServerInfo has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Parameter \#1 \$size of static method FOG\\Base\\FOGBase\:\:formatByteSize\(\) expects float\|int, string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Variable \$NICDro might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Variable \$NICDropInfo might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Variable \$NICErr might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Variable \$NICErrInfo might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Variable \$NICMac might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Variable \$NICRec might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Variable \$NICRecSized might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Variable \$NICTrans might not be defined\.$#'
-			identifier: variable.undefined
-			count: 2
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Variable \$NICTransSized might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/ServerInfo.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\ServiceConfigurationPage has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/ServiceConfigurationPage.php
-
-		-
-			message: '#^Parameter \#2 \$value of static method FOG\\Base\\FOGBase\:\:setSetting\(\) expects string, int given\.$#'
-			identifier: argument.type
-			count: 4
-			path: packages/web/src/Pages/ServiceConfigurationPage.php
-
-		-
-			message: '#^Variable \$Module might not be defined\.$#'
-			identifier: variable.undefined
-			count: 4
-			path: packages/web/src/Pages/ServiceConfigurationPage.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\SiteManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/SiteManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\SiteManagement\:\:getGrantRolesList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/SiteManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\SiteManagement\:\:getGrantUserGroupsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/SiteManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\SiteManagement\:\:getGroupsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/SiteManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\SiteManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/SiteManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\SiteManagement\:\:getUserGroupsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/SiteManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\SiteManagement\:\:getUsersList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/SiteManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 6
-			path: packages/web/src/Pages/SiteManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\SnapinManagement\:\:_maker\(\) with return type void returns string\|false but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/SnapinManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\SnapinManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/SnapinManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\SnapinManagement\:\:getStoragegroupsList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/SnapinManagement.php
-
-		-
-			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Pages/SnapinManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Pages/SnapinManagement.php
-
-		-
-			message: '#^Result of method FOG\\Pages\\SnapinManagement\:\:_maker\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Pages/SnapinManagement.php
-
-		-
-			message: '#^Static property FOG\\Base\\FOGBase\:\:\$selected \(bool\|int\) does not accept string\.$#'
-			identifier: assign.propertyType
-			count: 3
-			path: packages/web/src/Pages/SnapinManagement.php
-
-		-
-			message: '#^Static property FOG\\Pages\\SnapinManagement\:\:\$_template2 \(string\) does not accept null\.$#'
-			identifier: assign.propertyType
-			count: 1
-			path: packages/web/src/Pages/SnapinManagement.php
-
-		-
-			message: '#^Variable \$storagegroups might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/SnapinManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\StorageGroupManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/StorageGroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\StorageGroupManagement\:\:getImagesList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/StorageGroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\StorageGroupManagement\:\:getSnapinsList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/StorageGroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\StorageGroupManagement\:\:getStorageNodesList\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/StorageGroupManagement.php
-
-		-
-			message: '#^Variable \$StorageGroup might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/StorageGroupManagement.php
-
-		-
-			message: '#^Variable \$storagenodes might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/StorageGroupManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\StorageNodeManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/StorageNodeManagement.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: packages/web/src/Pages/StorageNodeManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\StorageNodeManagement\:\:storagenodeGeneralPost\(\) with return type void returns string but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/StorageNodeManagement.php
-
-		-
-			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
-			identifier: argument.type
-			count: 3
-			path: packages/web/src/Pages/StorageNodeManagement.php
-
-		-
-			message: '#^Result of method FOG\\Pages\\StorageNodeManagement\:\:storagenodeGeneralPost\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Pages/StorageNodeManagement.php
-
-		-
-			message: '#^Variable \$StorageNode might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/StorageNodeManagement.php
-
-		-
-			message: '#^Variable \$warning might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/StorageNodeManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\TaskManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/TaskManagement.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: packages/web/src/Pages/TaskManagement.php
-
-		-
-			message: '#^Variable \$columns might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/TaskManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\UserGroupManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/UserGroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\UserGroupManagement\:\:getRolesList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/UserGroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\UserGroupManagement\:\:getSitesList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/UserGroupManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\UserGroupManagement\:\:getUsersList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/UserGroupManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 3
-			path: packages/web/src/Pages/UserGroupManagement.php
-
-		-
-			message: '#^Constructor of class FOG\\Pages\\UserManagement has an unused parameter \$name\.$#'
-			identifier: constructor.unusedParameter
-			count: 1
-			path: packages/web/src/Pages/UserManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\UserManagement\:\:__construct\(\) with return type void returns \$this\(FOG\\Pages\\UserManagement\) but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/UserManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\UserManagement\:\:getGroupsList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/UserManagement.php
-
-		-
-			message: '#^Method FOG\\Pages\\UserManagement\:\:getRolesList\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Pages/UserManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 2
-			path: packages/web/src/Pages/UserManagement.php
-
-		-
-			message: '#^Variable \$User might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Pages/UserManagement.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Reports/File_Deleter.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Reports/History_Report.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Reports/Hosts_And_Users.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/lib/reports/inventory_report.report.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Reports/Product_Keys.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Reports/Run_History.php
-
-		-
-			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
-			identifier: method.void
-			count: 1
-			path: packages/web/src/Reports/Snapin_List.php
-
-		-
-			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: packages/web/lib/router/altorouter.class.php
-
-		-
-			message: '#^Call to function unset\(\) contains undefined variable \$handler\.$#'
-			identifier: unset.variable
-			count: 1
-			path: packages/web/lib/router/altorouter.class.php
-
-		-
-			message: '#^Call to function unset\(\) contains undefined variable \$match\.$#'
-			identifier: unset.variable
-			count: 1
-			path: packages/web/lib/router/altorouter.class.php
-
-		-
-			message: '#^Instanceof between \*NEVER\* and Traversable will always evaluate to false\.$#'
-			identifier: instanceof.alwaysFalse
-			count: 1
-			path: packages/web/lib/router/altorouter.class.php
-
-		-
-			message: '#^Method AltoRouter\:\:__call\(\) with return type void returns \$this\(AltoRouter\) but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/lib/router/altorouter.class.php
-
-		-
-			message: '#^Method AltoRouter\:\:_compileRoute\(\) should return string but returns array\<string, array\<string, string\>\|string\>\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/lib/router/altorouter.class.php
-
-		-
-			message: '#^Method AltoRouter\:\:getBasePath\(\) should return array but returns string\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/lib/router/altorouter.class.php
-
-		-
-			message: '#^Offset ''regex'' does not exist on string\.$#'
-			identifier: offsetAccess.notFound
-			count: 1
-			path: packages/web/lib/router/altorouter.class.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 1
-			path: packages/web/lib/router/altorouter.class.php
+			path: packages/web/maintenance/create_update_node.php
 
 		-
 			message: '#^Result of && is always false\.$#'
@@ -1357,6 +195,12 @@ parameters:
 			path: packages/web/management/other/index.php
 
 		-
+			message: '#^Calling self\:\:displayTheme\(\) outside of class scope\.$#'
+			identifier: outOfClass.self
+			count: 1
+			path: packages/web/management/other/index.php
+
+		-
 			message: '#^Calling self\:\:formatByteSize\(\) outside of class scope\.$#'
 			identifier: outOfClass.self
 			count: 2
@@ -1364,12 +208,6 @@ parameters:
 
 		-
 			message: '#^Calling self\:\:formatTime\(\) outside of class scope\.$#'
-			identifier: outOfClass.self
-			count: 1
-			path: packages/web/management/other/index.php
-
-		-
-			message: '#^Calling self\:\:displayTheme\(\) outside of class scope\.$#'
 			identifier: outOfClass.self
 			count: 1
 			path: packages/web/management/other/index.php
@@ -1471,12 +309,6 @@ parameters:
 			path: packages/web/src/Auth/Authorization.php
 
 		-
-			message: '#^Parameter \#2 \$msg of static method FOG\\Router\\Route\:\:sendResponse\(\) expects int, string given\.$#'
-			identifier: argument.type
-			count: 2
-			path: packages/web/src/Auth/Authorization.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between null and string will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
@@ -1493,12 +325,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 1
 			path: packages/web/src/Auth/Authorization.php
-
-		-
-			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: packages/web/src/Base/EventManager.php
 
 		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
@@ -1519,12 +345,6 @@ parameters:
 			path: packages/web/src/Base/EventManager.php
 
 		-
-			message: '#^Cannot use array destructuring on string\.$#'
-			identifier: offsetAccess.nonArray
-			count: 1
-			path: packages/web/src/Base/EventManager.php
-
-		-
 			message: '#^Method FOG\\Base\\EventManager\:\:register\(\) should return bool but returns \$this\(FOG\\Base\\EventManager\)\.$#'
 			identifier: return.type
 			count: 1
@@ -1539,12 +359,6 @@ parameters:
 		-
 			message: '#^PHPDoc tag @var above a method has no effect\.$#'
 			identifier: varTag.misplaced
-			count: 1
-			path: packages/web/src/Base/EventManager.php
-
-		-
-			message: '#^Parameter \#1 \$array1 of static method FOG\\Base\\FOGBase\:\:fastmerge\(\) expects array, string given\.$#'
-			identifier: argument.type
 			count: 1
 			path: packages/web/src/Base/EventManager.php
 
@@ -1711,30 +525,6 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:fileitems\(\) should return string but returns array\<int, list\>\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:fileitems\(\) should return string but returns array\<int\<0, max\>, array\<int, string\>\>\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:fileitems\(\) should return string but returns list\<mixed\>\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:formatByteSize\(\) should return float but returns string\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
 			message: '#^Method FOG\\Base\\FOGBase\:\:getHostItem\(\) should return array\|object but empty return statement found\.$#'
 			identifier: return.empty
 			count: 1
@@ -1777,19 +567,7 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:validDate\(\) should return object but returns bool\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:validDate\(\) should return object but returns false\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Method FOG\\Base\\FOGBase\:\:validDate\(\) should return object but returns true\.$#'
+			message: '#^Method FOG\\Base\\FOGBase\:\:setSetting\(\) should return FOG\\Base\\this but returns bool\.$#'
 			identifier: return.type
 			count: 1
 			path: packages/web/src/Base/FOGBase.php
@@ -1803,7 +581,7 @@ parameters:
 		-
 			message: '#^Negated boolean expression is always false\.$#'
 			identifier: booleanNot.alwaysFalse
-			count: 6
+			count: 5
 			path: packages/web/src/Base/FOGBase.php
 
 		-
@@ -1825,14 +603,8 @@ parameters:
 			path: packages/web/src/Base/FOGBase.php
 
 		-
-			message: '#^Parameter \#1 \$array \(array\{''autologout'', ''displaymanager'', ''hostnamechanger'', ''hostregister'', ''powermanagement'', ''printermanager'', ''snapinclient'', ''taskreboot'', \.\.\.\}\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
+			message: '#^Parameter \#1 \$array \(array\{''autologout'', ''displaymanager'', ''hostnamechanger'', ''hostregister'', ''powermanagement'', ''printermanager'', ''snapinclient'', ''software'', \.\.\.\}\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
 			identifier: arrayFilter.same
-			count: 1
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Parameter \#1 \$array_arg of function natcasesort expects an array of values castable to string, list\<array\<int, string\>\> given\.$#'
-			identifier: argument.type
 			count: 1
 			path: packages/web/src/Base/FOGBase.php
 
@@ -1900,12 +672,6 @@ parameters:
 			message: '#^Result of \|\| is always false\.$#'
 			identifier: booleanOr.alwaysFalse
 			count: 2
-			path: packages/web/src/Base/FOGBase.php
-
-		-
-			message: '#^Static property FOG\\Base\\FOGBase\:\:\$TimeZone \(object\) does not accept string\.$#'
-			identifier: assign.propertyType
-			count: 1
 			path: packages/web/src/Base/FOGBase.php
 
 		-
@@ -1989,12 +755,6 @@ parameters:
 		-
 			message: '#^Property FOG\\Base\\FOGController\:\:\$databaseTable \(string\) in isset\(\) is not nullable\.$#'
 			identifier: isset.property
-			count: 1
-			path: packages/web/src/Base/FOGController.php
-
-		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
 			count: 1
 			path: packages/web/src/Base/FOGController.php
 
@@ -2191,6 +951,12 @@ parameters:
 			path: packages/web/src/Base/FOGPage.php
 
 		-
+			message: '#^Call to an undefined static method FOG\\Base\\FOGPage\:\:getIds\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: packages/web/src/Base/FOGPage.php
+
+		-
 			message: '#^Call to function unset\(\) contains undefined variable \$actionbox\.$#'
 			identifier: unset.variable
 			count: 1
@@ -2265,12 +1031,6 @@ parameters:
 		-
 			message: '#^Method FOG\\Base\\FOGPage\:\:unisearch\(\) should return string but return statement is missing\.$#'
 			identifier: return.missing
-			count: 1
-			path: packages/web/src/Base/FOGPage.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
 			count: 1
 			path: packages/web/src/Base/FOGPage.php
 
@@ -2389,12 +1149,6 @@ parameters:
 			path: packages/web/src/Base/FOGPage.php
 
 		-
-			message: '#^Argument of an invalid type string supplied for foreach, only iterables are supported\.$#'
-			identifier: foreach.nonIterable
-			count: 1
-			path: packages/web/src/Base/FOGPageManager.php
-
-		-
 			message: '#^Call to function is_object\(\) with object will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -2497,6 +1251,12 @@ parameters:
 			path: packages/web/src/Base/Page.php
 
 		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: packages/web/src/Base/StorageEpoch.php
+
+		-
 			message: '#^If condition is always false\.$#'
 			identifier: if.alwaysFalse
 			count: 1
@@ -2553,7 +1313,7 @@ parameters:
 		-
 			message: '#^Variable \$ip might not be defined\.$#'
 			identifier: variable.undefined
-			count: 3
+			count: 2
 			path: packages/web/src/Boot/BootMenuBase.php
 
 		-
@@ -2605,6 +1365,12 @@ parameters:
 			path: packages/web/src/Boot/IpxeBootMenu.php
 
 		-
+			message: '#^Parameter \#1 \$str of function trim expects string, object given\.$#'
+			identifier: argument.type
+			count: 4
+			path: packages/web/src/Boot/IpxeBootMenu.php
+
+		-
 			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
 			identifier: argument.type
 			count: 1
@@ -2623,12 +1389,6 @@ parameters:
 			path: packages/web/src/Boot/IpxeBootMenu.php
 
 		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: packages/web/src/Boot/Registration.php
-
-		-
 			message: '#^PHPDoc tag @throws with type FOG\\Boot\\Exception is not subtype of Throwable$#'
 			identifier: throws.notThrowable
 			count: 1
@@ -2642,6 +1402,12 @@ parameters:
 
 		-
 			message: '#^Parameter \#1 \$input of function str_pad expects string, \(float\|int\) given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Boot/Registration.php
+
+		-
+			message: '#^Parameter \#1 \$macs of method FOG\\Managers\\HostManager\:\:getHostByMacAddresses\(\) expects array, string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: packages/web/src/Boot/Registration.php
@@ -2899,26 +1665,14 @@ parameters:
 			path: packages/web/src/Db/PDODB.php
 
 		-
-			message: '#^Cannot call method lastInsertId\(\) on resource\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: packages/web/src/Db/PDODB.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: packages/web/src/Base/StorageEpoch.php
-
-		-
 			message: '#^Cannot call method exec\(\) on resource\.$#'
 			identifier: method.nonObject
 			count: 1
 			path: packages/web/src/Db/PDODB.php
 
 		-
-			message: '#^Static method FOG\\Db\\PDODB\:\:_pinSessionZone\(\) is unused\.$#'
-			identifier: method.unused
+			message: '#^Cannot call method lastInsertId\(\) on resource\.$#'
+			identifier: method.nonObject
 			count: 1
 			path: packages/web/src/Db/PDODB.php
 
@@ -2996,6 +1750,12 @@ parameters:
 
 		-
 			message: '#^Static method FOG\\Db\\PDODB\:\:_boundReadTimeout\(\) is unused\.$#'
+			identifier: method.unused
+			count: 1
+			path: packages/web/src/Db/PDODB.php
+
+		-
+			message: '#^Static method FOG\\Db\\PDODB\:\:_pinSessionZone\(\) is unused\.$#'
 			identifier: method.unused
 			count: 1
 			path: packages/web/src/Db/PDODB.php
@@ -3085,6 +1845,72 @@ parameters:
 			path: packages/web/src/Db/SchemaReconciler.php
 
 		-
+			message: '#^PHPDoc type string of property FOG\\Events\\HostList\:\:\$active is not covariant with PHPDoc type bool of overridden property FOG\\Base\\Event\:\:\$active\.$#'
+			identifier: property.phpDocType
+			count: 1
+			path: packages/web/src/Events/HostList.php
+
+		-
+			message: '#^Property FOG\\Events\\HostList\:\:\$active \(string\) does not accept default value of type false\.$#'
+			identifier: property.defaultValue
+			count: 1
+			path: packages/web/src/Events/HostList.php
+
+		-
+			message: '#^PHPDoc tag @var has invalid value \(\$name\)\: Unexpected token "\$name", expected type at offset 53 on line 4$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: packages/web/src/Hooks/BootItem.php
+
+		-
+			message: '#^Parameter \#1 \$txt of static method FOG\\Base\\Hook\:\:log\(\) expects string, true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Hooks/HookDebugger.php
+
+		-
+			message: '#^Parameter \#2 \$return of function print_r expects bool, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Hooks/HookDebugger.php
+
+		-
+			message: '#^Parameter \#3 \$logfile of static method FOG\\Base\\Hook\:\:log\(\) expects int, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Hooks/HookDebugger.php
+
+		-
+			message: '#^Parameter \#4 \$logbrow of static method FOG\\Base\\Hook\:\:log\(\) expects int, bool given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Hooks/HookDebugger.php
+
+		-
+			message: '#^Parameter \#1 \$txt of static method FOG\\Base\\Hook\:\:log\(\) expects string, true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Hooks/Template.php
+
+		-
+			message: '#^Parameter \#2 \$return of function print_r expects bool, int given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Hooks/Template.php
+
+		-
+			message: '#^Parameter \#3 \$logfile of static method FOG\\Base\\Hook\:\:log\(\) expects int, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Hooks/Template.php
+
+		-
+			message: '#^Parameter \#4 \$logbrow of static method FOG\\Base\\Hook\:\:log\(\) expects int, true given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Hooks/Template.php
+
+		-
 			message: '#^Binary operation "\*" between array\|string and 60 results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 1
@@ -3115,56 +1941,8 @@ parameters:
 			path: packages/web/src/Items/Group.php
 
 		-
-			message: '#^Call to function unset\(\) contains undefined variable \$insert_value\.$#'
-			identifier: unset.variable
-			count: 1
-			path: packages/web/src/Items/Group.php
-
-		-
 			message: '#^Call to function unset\(\) contains undefined variable \$multicastsessionassocs\.$#'
 			identifier: unset.variable
-			count: 1
-			path: packages/web/src/Items/Group.php
-
-		-
-			message: '#^Cannot access property \$id on int\.$#'
-			identifier: property.nonObject
-			count: 6
-			path: packages/web/src/Items/Group.php
-
-		-
-			message: '#^Cannot access property \$initIDs on int\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: packages/web/src/Items/Group.php
-
-		-
-			message: '#^Cannot access property \$isDeploy on int\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: packages/web/src/Items/Group.php
-
-		-
-			message: '#^Cannot access property \$isImagingTask on int\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: packages/web/src/Items/Group.php
-
-		-
-			message: '#^Cannot access property \$isMulticast on int\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: packages/web/src/Items/Group.php
-
-		-
-			message: '#^Cannot access property \$isSnapinTask on int\.$#'
-			identifier: property.nonObject
-			count: 1
-			path: packages/web/src/Items/Group.php
-
-		-
-			message: '#^Cannot access property \$isSnapinTasking on int\.$#'
-			identifier: property.nonObject
 			count: 1
 			path: packages/web/src/Items/Group.php
 
@@ -3182,12 +1960,6 @@ parameters:
 
 		-
 			message: '#^Method FOG\\Items\\Group\:\:destroy\(\) should return bool but returns object\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Items/Group.php
-
-		-
-			message: '#^Method FOG\\Items\\Group\:\:save\(\) should return object but returns false\.$#'
 			identifier: return.type
 			count: 1
 			path: packages/web/src/Items/Group.php
@@ -3529,12 +2301,6 @@ parameters:
 			path: packages/web/src/Items/Printer.php
 
 		-
-			message: '#^Method FOG\\Items\\Printer\:\:save\(\) should return object but returns false\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Items/Printer.php
-
-		-
 			message: '#^Return type \(bool\) of method FOG\\Items\\Printer\:\:destroy\(\) should be compatible with return type \(object\) of method FOG\\Base\\FOGController\:\:destroy\(\)$#'
 			identifier: method.childReturnType
 			count: 1
@@ -3841,12 +2607,6 @@ parameters:
 			path: packages/web/src/Items/StorageNode.php
 
 		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 4
-			path: packages/web/src/Items/Task.php
-
-		-
 			message: '#^PHPDoc tag @throws with type FOG\\Items\\Exception is not subtype of Throwable$#'
 			identifier: throws.notThrowable
 			count: 2
@@ -3937,6 +2697,12 @@ parameters:
 			path: packages/web/src/Managers/APITokenManager.php
 
 		-
+			message: '#^Method FOG\\Managers\\APITokenManager\:\:visibleToken\(\) should return FOG\\Managers\\APIToken\|null but returns FOG\\Items\\APIToken\.$#'
+			identifier: return.type
+			count: 1
+			path: packages/web/src/Managers/APITokenManager.php
+
+		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -3973,12 +2739,6 @@ parameters:
 			path: packages/web/src/Managers/HostManager.php
 
 		-
-			message: '#^Variable \$hostID might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: packages/web/src/Managers/HostManager.php
-
-		-
 			message: '#^Variable \$macs on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.variable
 			count: 1
@@ -3989,18 +2749,6 @@ parameters:
 			identifier: assign.propertyType
 			count: 1
 			path: packages/web/src/Managers/PXEMenuOptionsManager.php
-
-		-
-			message: '#^Method FOG\\Managers\\ScheduledTaskManager\:\:cancel\(\) should return bool but returns null\.$#'
-			identifier: return.type
-			count: 1
-			path: packages/web/src/Managers/ScheduledTaskManager.php
-
-		-
-			message: '#^Result of static method FOG\\Router\\Route\:\:deletemass\(\) \(void\) is used\.$#'
-			identifier: staticMethod.void
-			count: 1
-			path: packages/web/src/Managers/ScheduledTaskManager.php
 
 		-
 			message: '#^Access to an undefined property FOG\\Net\\FOGFTP\:\:\$host\.$#'
@@ -4411,37 +3159,1021 @@ parameters:
 			path: packages/web/src/Net/Ping.php
 
 		-
+			message: '#^Constructor of class FOG\\Pages\\ActivityManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/ActivityManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\AgentActivityManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/AgentActivityManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\ApiDocumentation has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/ApiDocumentation.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\AuditManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/AuditManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\ClientManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/ClientManagement.php
+
+		-
+			message: '#^Call to function unset\(\) contains undefined variable \$SystemUptime\.$#'
+			identifier: unset.variable
+			count: 1
+			path: packages/web/src/Pages/DashboardPage.php
+
+		-
+			message: '#^Call to function unset\(\) contains undefined variable \$fields\.$#'
+			identifier: unset.variable
+			count: 1
+			path: packages/web/src/Pages/DashboardPage.php
+
+		-
+			message: '#^Call to function unset\(\) contains undefined variable \$tftp\.$#'
+			identifier: unset.variable
+			count: 2
+			path: packages/web/src/Pages/DashboardPage.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\DashboardPage has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/DashboardPage.php
+
+		-
+			message: '#^Static property FOG\\Pages\\DashboardPage\:\:\$_tftp is never read, only written\.$#'
+			identifier: property.onlyWritten
+			count: 1
+			path: packages/web/src/Pages/DashboardPage.php
+
+		-
+			message: '#^Variable \$pendingMACs might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/DashboardPage.php
+
+		-
+			message: '#^Call to function unset\(\) contains undefined variable \$findWhere\.$#'
+			identifier: unset.variable
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Call to function unset\(\) contains undefined variable \$setWhere\.$#'
+			identifier: unset.variable
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Call to function unset\(\) contains undefined variable \$val\.$#'
+			identifier: unset.variable
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\FOGConfigurationPage has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Offset ''FOG_PXE_HIDDENMENU…''\|''FOG_PXE_MENU_TIMEOUT'' on array\{FOG_PXE_HIDDENMENU_TIMEOUT\: true, FOG_PXE_MENU_TIMEOUT\: true\} in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Offset ''refresh'' does not exist on array\{checkbox\: array, numeric\: array, ip\: array\}\.$#'
+			identifier: offsetAccess.notFound
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Ternary operator condition is always true\.$#'
+			identifier: ternary.alwaysTrue
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Variable \$objGetter might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Variable \$set might not be defined\.$#'
+			identifier: variable.undefined
+			count: 11
+			path: packages/web/src/Pages/FOGConfigurationPage.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\GroupManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/GroupManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\GroupManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/GroupManagement.php
+
+		-
+			message: '#^Parameter \#1 \$array \(array\<int\<0, max\>, mixed\>\) to function array_filter does not contain falsy values, the array will always stay the same\.$#'
+			identifier: arrayFilter.same
+			count: 1
+			path: packages/web/src/Pages/GroupManagement.php
+
+		-
+			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Pages/GroupManagement.php
+
+		-
+			message: '#^Parameter \#3 \$body of static method FOG\\Base\\FOGPage\:\:makeModal\(\) expects string, null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Pages/GroupManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Pages/GroupManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:newPMDisplay\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 2
+			path: packages/web/src/Pages/GroupManagement.php
+
+		-
+			message: '#^Variable \$printers might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/GroupManagement.php
+
+		-
+			message: '#^Access to an undefined property FOG\\Pages\\HostManagement\:\:\$exitEfi\.$#'
+			identifier: property.notFound
+			count: 5
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Access to an undefined property FOG\\Pages\\HostManagement\:\:\$exitNorm\.$#'
+			identifier: property.notFound
+			count: 5
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\HostManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\HostManagement\:\:getGroupsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\HostManagement\:\:getModulesList\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\HostManagement\:\:getPrintersList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\HostManagement\:\:getSnapinsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\HostManagement\:\:pending\(\) should return false but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\HostManagement\:\:pending\(\) should return false but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\HostManagement\:\:pendingMacs\(\) should return false but empty return statement found\.$#'
+			identifier: return.empty
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\HostManagement\:\:pendingMacs\(\) should return false but return statement is missing\.$#'
+			identifier: return.missing
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Parameter \#1 \$macs of method FOG\\Managers\\HostManager\:\:getHostByMacAddresses\(\) expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Parameter \#3 \$body of static method FOG\\Base\\FOGPage\:\:makeModal\(\) expects string, null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Parameter \#4 \$filter of method FOG\\Base\\FOGManagerController\:\:buildSelectBox\(\) expects string, list\<\(int\|string\)\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 3
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:newPMDisplay\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Ternary operator condition is always false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Variable \$code might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Variable \$msg might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Variable \$val might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/HostManagement.php
+
+		-
+			message: '#^Binary operation "\*" between array\|string and 60 results in an error\.$#'
+			identifier: binaryOp.invalid
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\ImageManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Expression on left side of \?\? is not nullable\.$#'
+			identifier: nullCoalesce.expr
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\ImageManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\ImageManagement\:\:getSessionsList\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\ImageManagement\:\:getStoragegroupsList\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
+			identifier: argument.type
+			count: 2
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Parameter \#4 \$filter of method FOG\\Base\\FOGManagerController\:\:buildSelectBox\(\) expects string, list\<\(int\|string\)\> given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Variable \$msgSuccess might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Variable \$storagegroups might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Variable \$titleFail might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Variable \$titleSuccess might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ImageManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\ImpersonateManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/ImpersonateManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\IpxeManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/IpxeManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\ModuleManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/ModuleManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\ModuleManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/ModuleManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Pages/ModuleManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\PluginManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/PluginManagement.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: packages/web/src/Pages/PluginManagement.php
+
+		-
+			message: '#^PHPDoc tag @return has invalid value \(false;\)\: Unexpected token ";", expected TOKEN_HORIZONTAL_WS at offset 121 on line 6$#'
+			identifier: phpDoc.parseError
+			count: 1
+			path: packages/web/src/Pages/PluginManagement.php
+
+		-
+			message: '#^Parameter \#1 \$main of static method FOG\\Base\\FOGPage\:\:buildMainMenuItems\(\) expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Pages/PluginManagement.php
+
+		-
+			message: '#^Parameter \#1 \(array\) of echo cannot be converted to string\.$#'
+			identifier: echo.nonString
+			count: 1
+			path: packages/web/src/Pages/PluginManagement.php
+
+		-
+			message: '#^Parameter \#2 \$hookMain of static method FOG\\Base\\FOGPage\:\:buildMainMenuItems\(\) expects array, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Pages/PluginManagement.php
+
+		-
+			message: '#^Ternary operator condition is always false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 4
+			path: packages/web/src/Pages/PluginManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\PrinterManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/PrinterManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\PrinterManagement\:\:getHostsDefaultList\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/PrinterManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\PrinterManagement\:\:getHostsList\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/PrinterManagement.php
+
+		-
+			message: '#^Property FOG\\Pages\\PrinterManagement\:\:\$_config is unused\.$#'
+			identifier: property.unused
+			count: 1
+			path: packages/web/src/Pages/PrinterManagement.php
+
+		-
+			message: '#^Call to function is_array\(\) with \*NEVER\* will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Empty array passed to foreach\.$#'
+			identifier: foreach.emptyArray
+			count: 1
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Method FOG\\Pages\\ProcessLogin\:\:processMainLogin\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 3
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Offset ''icon'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Offset ''label'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Offset ''url'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Property FOG\\Pages\\ProcessLogin\:\:\$_langMenu is unused\.$#'
+			identifier: property.unused
+			count: 1
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Result of static method FOG\\Pages\\ProcessLogin\:\:mainLoginForm\(\) \(void\) is used\.$#'
+			identifier: staticMethod.void
+			count: 3
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between 0 and 0 will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: packages/web/src/Pages/ProcessLogin.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\ReportManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/ReportManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\RoleManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/RoleManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\RoleManagement\:\:getSitesList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/RoleManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\RoleManagement\:\:getUserGroupsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/RoleManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\RoleManagement\:\:getUsersList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/RoleManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 3
+			path: packages/web/src/Pages/RoleManagement.php
+
+		-
+			message: '#^Access to an undefined property FOG\\Pages\\SchemaUpdaterPage\:\:\$schema\.$#'
+			identifier: property.notFound
+			count: 4
+			path: packages/web/src/Pages/SchemaUpdaterPage.php
+
+		-
+			message: '#^Constant FOG_SCHEMA_INSTALL_TOKEN not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: packages/web/src/Pages/SchemaUpdaterPage.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: packages/web/src/Pages/SchemaUpdaterPage.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: packages/web/src/Pages/SchemaUpdaterPage.php
+
+		-
+			message: '#^Parameter \#2 \$return of function print_r expects bool, int given\.$#'
+			identifier: argument.type
+			count: 4
+			path: packages/web/src/Pages/SchemaUpdaterPage.php
+
+		-
+			message: '#^Path in include\(\) "/commons/schema\.php" is not a file or it does not exist\.$#'
+			identifier: include.fileNotFound
+			count: 1
+			path: packages/web/src/Pages/SchemaUpdaterPage.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\ServerInfo has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Parameter \#1 \$size of static method FOG\\Base\\FOGBase\:\:formatByteSize\(\) expects float\|int, string given\.$#'
+			identifier: argument.type
+			count: 2
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Variable \$NICDro might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Variable \$NICDropInfo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Variable \$NICErr might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Variable \$NICErrInfo might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Variable \$NICMac might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Variable \$NICRec might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Variable \$NICRecSized might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Variable \$NICTrans might not be defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Variable \$NICTransSized might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/ServerInfo.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\ServiceConfigurationPage has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/ServiceConfigurationPage.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: packages/web/src/Pages/ServiceConfigurationPage.php
+
+		-
+			message: '#^Parameter \#2 \$value of static method FOG\\Base\\FOGBase\:\:setSetting\(\) expects string, int given\.$#'
+			identifier: argument.type
+			count: 4
+			path: packages/web/src/Pages/ServiceConfigurationPage.php
+
+		-
+			message: '#^Variable \$Module might not be defined\.$#'
+			identifier: variable.undefined
+			count: 4
+			path: packages/web/src/Pages/ServiceConfigurationPage.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\SiteManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/SiteManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\SiteManagement\:\:getGrantRolesList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/SiteManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\SiteManagement\:\:getGrantUserGroupsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/SiteManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\SiteManagement\:\:getGroupsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/SiteManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\SiteManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/SiteManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\SiteManagement\:\:getUserGroupsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/SiteManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\SiteManagement\:\:getUsersList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/SiteManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 6
+			path: packages/web/src/Pages/SiteManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\SnapinManagement\:\:_maker\(\) with return type void returns string\|false but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/SnapinManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\SnapinManagement\:\:getHostsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/SnapinManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\SnapinManagement\:\:getStoragegroupsList\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/SnapinManagement.php
+
+		-
+			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
+			identifier: argument.type
+			count: 1
+			path: packages/web/src/Pages/SnapinManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Pages/SnapinManagement.php
+
+		-
+			message: '#^Result of method FOG\\Pages\\SnapinManagement\:\:_maker\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Pages/SnapinManagement.php
+
+		-
+			message: '#^Static property FOG\\Base\\FOGBase\:\:\$selected \(bool\|int\) does not accept string\.$#'
+			identifier: assign.propertyType
+			count: 3
+			path: packages/web/src/Pages/SnapinManagement.php
+
+		-
+			message: '#^Static property FOG\\Pages\\SnapinManagement\:\:\$_template2 \(string\) does not accept null\.$#'
+			identifier: assign.propertyType
+			count: 1
+			path: packages/web/src/Pages/SnapinManagement.php
+
+		-
+			message: '#^Variable \$storagegroups might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/SnapinManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\StorageGroupManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/StorageGroupManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\StorageGroupManagement\:\:getImagesList\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/StorageGroupManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\StorageGroupManagement\:\:getSnapinsList\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/StorageGroupManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\StorageGroupManagement\:\:getStorageNodesList\(\) with return type void returns mixed but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/StorageGroupManagement.php
+
+		-
+			message: '#^Variable \$StorageGroup might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/StorageGroupManagement.php
+
+		-
+			message: '#^Variable \$storagenodes might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/StorageGroupManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\StorageNodeManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/StorageNodeManagement.php
+
+		-
+			message: '#^If condition is always false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: packages/web/src/Pages/StorageNodeManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\StorageNodeManagement\:\:storagenodeGeneralPost\(\) with return type void returns string but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/StorageNodeManagement.php
+
+		-
+			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
+			identifier: argument.type
+			count: 3
+			path: packages/web/src/Pages/StorageNodeManagement.php
+
+		-
+			message: '#^Result of method FOG\\Pages\\StorageNodeManagement\:\:storagenodeGeneralPost\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Pages/StorageNodeManagement.php
+
+		-
+			message: '#^Variable \$StorageNode might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/StorageNodeManagement.php
+
+		-
+			message: '#^Variable \$warning might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/StorageNodeManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\TaskManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/TaskManagement.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: packages/web/src/Pages/TaskManagement.php
+
+		-
+			message: '#^Variable \$columns might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/TaskManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\UserGroupManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/UserGroupManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\UserGroupManagement\:\:getRolesList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/UserGroupManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\UserGroupManagement\:\:getSitesList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/UserGroupManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\UserGroupManagement\:\:getUsersList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/UserGroupManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 3
+			path: packages/web/src/Pages/UserGroupManagement.php
+
+		-
+			message: '#^Constructor of class FOG\\Pages\\UserManagement has an unused parameter \$name\.$#'
+			identifier: constructor.unusedParameter
+			count: 1
+			path: packages/web/src/Pages/UserManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\UserManagement\:\:__construct\(\) with return type void returns \$this\(FOG\\Pages\\UserManagement\) but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/UserManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\UserManagement\:\:getGroupsList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/UserManagement.php
+
+		-
+			message: '#^Method FOG\\Pages\\UserManagement\:\:getRolesList\(\) with return type void returns null but should not return anything\.$#'
+			identifier: return.void
+			count: 1
+			path: packages/web/src/Pages/UserManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:assocItemsList\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 2
+			path: packages/web/src/Pages/UserManagement.php
+
+		-
+			message: '#^Variable \$User might not be defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: packages/web/src/Pages/UserManagement.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Reports/File_Deleter.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Reports/History_Report.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Reports/Hosts_And_Users.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Reports/Product_Keys.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Reports/Run_History.php
+
+		-
+			message: '#^Result of method FOG\\Base\\FOGPage\:\:render\(\) \(void\) is used\.$#'
+			identifier: method.void
+			count: 1
+			path: packages/web/src/Reports/Snapin_List.php
+
+		-
 			message: '#^Call to function is_numeric\(\) with int will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: packages/web/src/Router/HTTPResponseCodes.php
 
 		-
-			message: '#^Call to function method_exists\(\) with ''Authorization'' and ''resolveApiPermission'' will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: packages/web/src/Router/OpenAPI.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''Route'' and ''sensitiveFieldMap'' will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: packages/web/src/Router/OpenAPI.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''Route'' and ''serverOwnedFields'' will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: packages/web/src/Router/OpenAPI.php
-
-		-
 			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<FOGManagerController\>\|FOGManagerController, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Router/OpenAPI.php
-
-		-
-			message: '#^Parameter \#1 \$objectOrClass of class ReflectionClass constructor expects class\-string\<Route\>\|Route, string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: packages/web/src/Router/OpenAPI.php
@@ -4459,27 +4191,9 @@ parameters:
 			path: packages/web/src/Router/Route.php
 
 		-
-			message: '#^Anonymous function has an unused use \$tmpcolumns\.$#'
-			identifier: closure.unusedUse
-			count: 5
-			path: packages/web/src/Router/Route.php
-
-		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 2
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Call to function is_string\(\) with int will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 2
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Default value of the parameter \#2 \$msg \(false\) of method FOG\\Router\\Route\:\:sendResponse\(\) is incompatible with type int\.$#'
-			identifier: parameter.defaultValue
-			count: 1
 			path: packages/web/src/Router/Route.php
 
 		-
@@ -4497,7 +4211,7 @@ parameters:
 		-
 			message: '#^If condition is always true\.$#'
 			identifier: if.alwaysTrue
-			count: 2
+			count: 1
 			path: packages/web/src/Router/Route.php
 
 		-
@@ -4519,20 +4233,14 @@ parameters:
 			path: packages/web/src/Router/Route.php
 
 		-
-			message: '#^Method FOG\\Router\\Route\:\:delete\(\) with return type void returns null but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Method FOG\\Router\\Route\:\:deletemass\(\) with return type void returns mixed but should not return anything\.$#'
-			identifier: return.void
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
 			message: '#^Method FOG\\Router\\Route\:\:getsearchbody\(\) should return array but return statement is missing\.$#'
 			identifier: return.missing
+			count: 1
+			path: packages/web/src/Router/Route.php
+
+		-
+			message: '#^Negated boolean expression is always false\.$#'
+			identifier: booleanNot.alwaysFalse
 			count: 1
 			path: packages/web/src/Router/Route.php
 
@@ -4561,24 +4269,6 @@ parameters:
 			path: packages/web/src/Router/Route.php
 
 		-
-			message: '#^Parameter \#2 \$msg of static method FOG\\Router\\HTTPResponseCodes\:\:breakHead\(\) expects string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Parameter \#2 \$msg of static method FOG\\Router\\Route\:\:sendResponse\(\) expects int, string given\.$#'
-			identifier: argument.type
-			count: 8
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Parameter \#2 \$msg of static method FOG\\Router\\Route\:\:sendResponse\(\) expects int, string\|false given\.$#'
-			identifier: argument.type
-			count: 8
-			path: packages/web/src/Router/Route.php
-
-		-
 			message: '#^Parameter \#2 \$whereItems of static method FOG\\Router\\Route\:\:getIds\(\) expects array, false given\.$#'
 			identifier: argument.type
 			count: 4
@@ -4597,24 +4287,6 @@ parameters:
 			path: packages/web/src/Router/Route.php
 
 		-
-			message: '#^Result of static method FOG\\Router\\Route\:\:deletemass\(\) \(void\) is used\.$#'
-			identifier: staticMethod.void
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between '''' and \*NEVER\* will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between \*NEVER\* and '''' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: packages/web/src/Router/Route.php
-
-		-
 			message: '#^Strict comparison using \!\=\= between null and object will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
 			count: 1
@@ -4629,17 +4301,11 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 2
-			path: packages/web/src/Router/Route.php
-
-		-
-			message: '#^Variable \$id might not be defined\.$#'
-			identifier: variable.undefined
 			count: 1
 			path: packages/web/src/Router/Route.php
 
 		-
-			message: '#^Variable \$pass_vars might not be defined\.$#'
+			message: '#^Variable \$id might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
 			path: packages/web/src/Router/Route.php
@@ -4826,12 +4492,6 @@ parameters:
 			path: packages/web/src/Service/FileDeleter.php
 
 		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: packages/web/src/Service/FileDeleter.php
-
-		-
 			message: '#^PHPDoc tag @throws with type FOG\\Service\\Exception is not subtype of Throwable$#'
 			identifier: throws.notThrowable
 			count: 1
@@ -5006,12 +4666,6 @@ parameters:
 			path: packages/web/src/Service/PingHosts.php
 
 		-
-			message: '#^Right side of && is always true\.$#'
-			identifier: booleanAnd.rightAlwaysTrue
-			count: 1
-			path: packages/web/src/Service/PingHosts.php
-
-		-
 			message: '#^Static property FOG\\Service\\PingHosts\:\:\$_pingOn \(int\) does not accept array\|string\.$#'
 			identifier: assign.propertyType
 			count: 1
@@ -5036,18 +4690,6 @@ parameters:
 			path: packages/web/src/Service/TaskScheduler.php
 
 		-
-			message: '#^Call to method set\(\) on an unknown class FOG\\TaskHandling\\Task\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/TaskHandling/TaskError.php
-
-		-
-			message: '#^Parameter \$Task of method FOG\\TaskHandling\\TaskError\:\:_markFailed\(\) has invalid type FOG\\TaskHandling\\Task\.$#'
-			identifier: class.notFound
-			count: 1
-			path: packages/web/src/TaskHandling/TaskError.php
-
-		-
 			message: '''
 				#^Array has 2 duplicate keys with value '
 				' \("\\n", "\\n"\)\.$#
@@ -5059,12 +4701,6 @@ parameters:
 		-
 			message: '#^Left side of && is always true\.$#'
 			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: packages/web/src/TaskHandling/TaskQueue.php
-
-		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
 			count: 1
 			path: packages/web/src/TaskHandling/TaskQueue.php
 

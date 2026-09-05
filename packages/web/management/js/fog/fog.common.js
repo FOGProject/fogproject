@@ -3728,8 +3728,20 @@ function fogSizeScroller(dt, release) {
   if (!init || !init.scroller) {
     return; // only Scroller-enabled tables
   }
-  var container = dt.table().container(),
-    body = $('div.dt-scroll-body', container);
+  // container() is null for a table whose wrapper is not in the document
+  // yet. registerTable() calls this on a setTimeout(0) right after init, and
+  // a grid built into a node that is still being attached -- a DataTables
+  // child row is the case that found this -- gets here before its wrapper
+  // lands. Guarded for the same reason init is above: `outer` below falls
+  // back to `container`, so a null one reached getBoundingClientRect() and
+  // threw an uncaught TypeError out of the timeout. Skipping is right rather
+  // than merely safe -- there is nothing to measure against yet, and
+  // whatever attaches the node re-runs the sizing pass once it has.
+  var container = dt.table().container();
+  if (!container) {
+    return;
+  }
+  var body = $('div.dt-scroll-body', container);
   if (!body.length || !body.is(':visible')) {
     return; // not rendered, or in a hidden tab
   }
@@ -4410,6 +4422,23 @@ $.fn.registerTable = function(onSelect, opts) {
     defaults.buttons = defaults.buttons.concat(opts.extraButtons);
   }
   delete opts.extraButtons;
+
+  // A table that does not select does not get the buttons that select.
+  //
+  // `select: false` used to turn selection off and leave Select All and
+  // Deselect All sitting in the toolbar, where they were enabled, clickable
+  // and did nothing -- on 33 tables, including every report pane and the
+  // read-only event logs. The buttons live in `defaults.buttons` while the
+  // opt-out arrives in `opts`, so nothing connected the two.
+  //
+  // Dropped rather than disabled: a permanently grayed-out control still asks
+  // the reader what would enable it. The PHP half of the same statement is
+  // FOGPage::$selectable, which suppresses "Delete selected".
+  if (opts.select === false) {
+    defaults.buttons = defaults.buttons.filter(function(b) {
+      return !b || (b.extend !== 'selectAll' && b.extend !== 'selectNone');
+    });
+  }
 
   // Column resizing is on for every table. Pulled off opts before they reach
   // DataTables, which has no such option and would only carry it around.
@@ -5316,6 +5345,7 @@ function reinitialize() {
   setupPasswordReveal();
   setupUniversalSearch();
   setupInfoCard();
+  setupInfoCardActions();
 };
 
 /**
@@ -5381,6 +5411,99 @@ function setupInfoCard() {
         note.text(value);
       });
   });
+}
+
+
+/**
+ * The info card's one-click task buttons.
+ *
+ * Straight to the create endpoint. The options form at
+ * ?node={node}&sub=deploy is skipped deliberately -- Deploy, Capture and
+ * Multi-Cast need nothing off it, and fetching it only to post it back
+ * unchanged is the click this exists to remove. Everything that form's POST
+ * is checked for -- a pending host, an assigned and enabled image, a
+ * protected image on a capture, one image across a multicast -- is checked
+ * in deployPost(), not in the form, so nothing is skipped but the rendering.
+ *
+ * scheduleType is the one field that must be sent: validateScheduleType()
+ * throws on an absent value rather than defaulting, so an empty body would
+ * come back "Invalid scheduling type".
+ *
+ * Every button confirms first. The list grid's equivalents do not, but there
+ * you have ticked a row to get them; here you arrive on this page just by
+ * clicking a host name, and one stray click would deploy over a running
+ * machine -- or, from a group, over all of them. The text is built server
+ * side (FOGPageRender::renderQuickTaskActions) because it is translated.
+ *
+ * The confirmation is the page's own modal rather than window.confirm(): the
+ * browser dialog cannot be styled, ignores the dark theme, and prefixes the
+ * page URL, so it reads as something outside the application. Every button
+ * shares the one modal, which carries the clicked button's data-confirm as
+ * its body and remembers which button opened it.
+ */
+function setupInfoCardActions() {
+  // Guards the window between the click and the server's answer. Per button
+  // rather than one flag for the card: Deploy and Capture are different
+  // taskings and there is no reason firing one should block the other. The
+  // button stays enabled underneath so nothing has to re-enable it on a
+  // refusal; this is only about the impatient double-click, which would
+  // otherwise be two identical taskings.
+  var running = {};
+
+  // Which button opened the modal. Cleared on every open so a dismissed
+  // confirmation cannot be committed by the next one.
+  var pending = null;
+
+  function fire(btn) {
+    var node = btn.data('node'),
+      id = btn.data('id'),
+      type = btn.data('type'),
+      key = node + ':' + id + ':' + type;
+    if (running[key]) {
+      return;
+    }
+    running[key] = true;
+    $.apiCall(
+        'post',
+        '../management/index.php?node=' + encodeURIComponent(node)
+          + '&sub=deploy&id=' + encodeURIComponent(id)
+          + '&type=' + encodeURIComponent(type),
+        {scheduleType: 'instant'},
+        function() {
+          // Both outcomes land here and both only need the lock released.
+          // apiCall has already drawn the toast, and there is nothing on
+          // this page to repaint: the card's Last Deployed is the date the
+          // last task FINISHED, which a task just queued has not.
+          running[key] = false;
+        }
+    );
+  }
+
+  // Delegated and namespaced: the card and its modal are torn down and
+  // rebuilt with the page on every AJAX nav, so a direct binding would be
+  // lost on the first one and doPageLoad() would stack a new one per visit.
+  // Both handlers share the one namespace so the .off() clears the pair.
+  $(document)
+    .off('click.fogQuickTask')
+    .on('click.fogQuickTask', '.fog-quicktask', function(e) {
+      e.preventDefault();
+      pending = $(this);
+      // .text(), never .html(): data-confirm carries a host or group name,
+      // which is admin-supplied.
+      $('#quicktask-confirm-text').text(pending.data('confirm'));
+      $('#quicktask-confirm-modal').modal('show');
+    })
+    .on('click.fogQuickTask', '#quicktask-confirm-go', function(e) {
+      e.preventDefault();
+      var btn = pending;
+      // Taken before the request so a second click during the hide
+      // animation has nothing left to commit.
+      pending = null;
+      $('#quicktask-confirm-modal').modal('hide');
+      if (btn) {
+        fire(btn);
+      }
+    });
 }
 
 // Select2 builds its search inputs with neither id/name nor a label, tripping

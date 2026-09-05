@@ -842,6 +842,196 @@
 
     loadSnapinOrder();
 
+    // ---------------------------------------------------------------
+    // SOFTWARE TAB
+    // Mirrors the snapin tab above. The software order panel (below)
+    // mirrors the assigned set, so refresh it after every add/remove
+    // commits via afterCommit.
+    var hostSoftwareTable = $.registerAssociationTab({
+        slug: 'host-software',
+        item: 'software',
+        sub: 'getSoftwareList',
+        afterCommit: loadSoftwareOrder
+    });
+    $.registerCreateAndAssociate('host-software', hostSoftwareTable);
+
+    // ---------------------------------------------------------------
+    // SOFTWARE ORDER
+    var hostSoftwareOrderList = $('#host-software-order-list'),
+        hostSoftwareOrderSaveBtn = $('#host-software-order-save');
+
+    function updateSoftwareOrderPositions() {
+        hostSoftwareOrderList.children('li').each(function(i) {
+            $(this).find('.software-order-pos').text((i + 1) + '. ');
+        });
+    }
+
+    function renderSoftwareOrder(items) {
+        hostSoftwareOrderList.empty();
+        if (!items || items.length === 0) {
+            hostSoftwareOrderList.append(
+                $('<li>', {'class': 'list-group-item text-muted'})
+                    .text('No software assigned.')
+            );
+            hostSoftwareOrderSaveBtn.prop('disabled', true);
+            return;
+        }
+        hostSoftwareOrderSaveBtn.prop('disabled', false);
+        $.each(items, function(i, item) {
+            var controls = $('<span>', {'class': 'float-end'})
+                .append(
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-sm btn-secondary software-order-up',
+                        'title': 'Move up'
+                    }).append($('<i>', {'class': 'fas fa-arrow-up'})),
+                    ' ',
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-sm btn-secondary software-order-down',
+                        'title': 'Move down'
+                    }).append($('<i>', {'class': 'fas fa-arrow-down'}))
+                );
+            hostSoftwareOrderList.append(
+                $('<li>', {
+                    'class': 'list-group-item',
+                    'data-id': item.id
+                }).append(
+                    $('<span>', {'class': 'software-order-pos'}),
+                    $('<span>', {'class': 'software-order-name'}).text(item.name),
+                    controls
+                )
+            );
+        });
+        updateSoftwareOrderPositions();
+    }
+
+    function loadSoftwareOrder() {
+        $.ajax({
+            url: '../management/index.php?node=' + Common.node
+                + '&sub=getSoftwareOrderList&id=' + Common.id,
+            dataType: 'json',
+            success: function(data) {
+                renderSoftwareOrder(data && data.data ? data.data : []);
+            }
+        });
+    }
+
+    hostSoftwareOrderList.on('click', '.software-order-up', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            prev = li.prev('li');
+        if (prev.length) {
+            li.insertBefore(prev);
+            updateSoftwareOrderPositions();
+        }
+    });
+
+    hostSoftwareOrderList.on('click', '.software-order-down', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            next = li.next('li');
+        if (next.length) {
+            li.insertAfter(next);
+            updateSoftwareOrderPositions();
+        }
+    });
+
+    hostSoftwareOrderSaveBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            order = [];
+        hostSoftwareOrderList.children('li').each(function() {
+            var id = $(this).attr('data-id');
+            if (id) {
+                order.push(id);
+            }
+        });
+        if (order.length === 0) {
+            return;
+        }
+        $.apiCall(method, action, {softwareorder: order});
+    });
+
+    loadSoftwareOrder();
+
+    // ---------------------------------------------------------------
+    // SOFTWARE STATUS TAB (read only)
+    var hostSoftwareStatusTable = $('#host-software-status-table').registerTable(null, {
+        columns: [
+            $.escapedColumn('software'),
+            $.escapedColumn('package'),
+            $.escapedColumn('desired'),
+            $.escapedColumn('installed'),
+            $.escapedColumn('status'),
+            $.escapedColumn('returnCode'),
+            $.escapedColumn('checked'),
+            {
+                data: 'details',
+                render: function(d, t) {
+                    var full = d === null ? '' : String(d),
+                        clipped = full.length > 200
+                            ? full.slice(0, 200) + '…'
+                            : full;
+                    if (t !== 'display') {
+                        return full;
+                    }
+                    return '<span title="' + $.escapeHtml(full) + '">'
+                        + $.escapeHtml(clipped)
+                        + '</span>';
+                }
+            }
+        ],
+        order: [
+            [6, 'desc']
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        select: false,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getSoftwareStatus&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
+    // ---------------------------------------------------------------
+    // INSTALLED SOFTWARE TAB (read only)
+    //
+    // hsInstallDate/hsFirstSeen/hsLastSeen are nullable and hsPublisher/
+    // hsArch can be '' -- $.escapedColumn already turns a null into '',
+    // same as every other column here, so no per-column handling is needed.
+    var hostInstalledSoftwareTable = $('#host-installed-software-table').registerTable(null, {
+        columns: [
+            $.escapedColumn('name'),
+            $.escapedColumn('version'),
+            $.escapedColumn('publisher'),
+            $.escapedColumn('source'),
+            $.escapedColumn('arch'),
+            $.escapedColumn('installed'),
+            $.escapedColumn('firstSeen'),
+            $.escapedColumn('lastSeen')
+        ],
+        order: [
+            [0, 'asc']
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        select: false,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getInstalledSoftware&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
     // FOG CLIENT AREA
     // ---------------------------------------------------------------
     // CLIENT SETTINGS TAB
@@ -1319,7 +1509,8 @@
             {data: 'checkin'},
             {data: 'complete'},
             {data: 'diff'},
-            {data: 'return'}
+            {data: 'return'},
+            {data: 'status'}
         ],
         columnDefs: [
             {
@@ -1347,6 +1538,66 @@
         }
     });
 
+    // ---------------------------------------------------------------
+    // AGENT ACTIVITY TAB
+    //
+    // The same rows the Logging > Agent Activity page shows for this host,
+    // through the same query. Every column escapes: an audit row carries
+    // subject labels and detail text a machine on the network supplied, and
+    // DataTables writes cell data as HTML unless a column renders it.
+    var agentOutcomeClass = {
+        allowed: 'text-bg-success',
+        denied: 'text-bg-danger',
+        failed: 'text-bg-warning',
+        partial: 'text-bg-warning',
+        unknown: 'text-bg-secondary'
+    };
+    function agentEscaped(field) {
+        return {
+            data: field,
+            render: function(d, t) {
+                // display only: the CSV/copy exports ask for other types and
+                // escaping those would put &amp; into the exported file.
+                return t === 'display'
+                    ? $.escapeHtml(d === null ? '' : String(d))
+                    : d;
+            }
+        };
+    }
+    var hostAgentActivityTable = $('#host-agent-activity-table').registerTable(null, {
+        columns: [
+            agentEscaped('createdTime'),
+            agentEscaped('type'),
+            agentEscaped('text'),
+            {
+                data: 'outcome',
+                render: function(d, t) {
+                    var v = d === null ? '' : String(d);
+                    if (t !== 'display') {
+                        return v;
+                    }
+                    return '<span class="badge '
+                        + (agentOutcomeClass[v] || agentOutcomeClass.unknown)
+                        + '">' + $.escapeHtml(v) + '</span>';
+                }
+            }
+        ],
+        order: [
+            [0, 'desc']
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        select: false,
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getAgentActivity&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
     // Enable searching
     if (Common.search && Common.search.length > 0) {
         macsTable.search(Common.search).draw();
@@ -1354,6 +1605,7 @@
         hostGroupsTable.search(Common.search).draw();
         hostPrintersTable.search(Common.search).draw();
         hostSnapinsTable.search(Common.search).draw();
+        hostSoftwareTable.search(Common.search).draw();
         // FOG Client
         hostModulesTable.search(Common.search).draw();
         powermanagementTable.search(Common.search).draw();
@@ -1363,6 +1615,7 @@
         }
         hostHistoryImageTable.search(Common.search).draw();
         hostHistorySnapinTable.search(Common.search).draw();
+        hostSoftwareStatusTable.search(Common.search).draw();
     }
 
     // ---------------------------------------------------------------

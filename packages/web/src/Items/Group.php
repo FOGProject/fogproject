@@ -13,6 +13,7 @@
 
 namespace FOG\Items;
 
+use FOG\Agent\WakeRelay;
 use FOG\Assign\Resolver;
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
@@ -20,6 +21,7 @@ use FOG\Boot\UbootTftpSync;
 use FOG\Managers\GroupModuleAssociationManager;
 use FOG\Managers\GroupPrinterAssociationManager;
 use FOG\Managers\GroupSnapinAssociationManager;
+use FOG\Managers\GroupSoftwareAssociationManager;
 use FOG\Managers\HostAutoLogoutManager;
 use FOG\Managers\HostManager;
 use FOG\Managers\HostScreenSettingManager;
@@ -297,6 +299,61 @@ class Group extends FOGController
         return $this;
     }
     /**
+     * Grants software to this group.
+     *
+     * ADR 0038: one row on the group, not one row per member host. See
+     * addPrinter() for the shape of the change.
+     *
+     * @param array $addArray the items to grant
+     *
+     * @return object
+     */
+    public function addSoftware($addArray)
+    {
+        // Drop any stale/blank ids (e.g. a 0 from an empty submission) so a
+        // grant can't seed a phantom gswaSoftwareID=0 row.
+        $addArray = self::positiveIntIds($addArray);
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1 || count($addArray) < 1) {
+            return $this;
+        }
+        $insert_values = [];
+        foreach ($addArray as $softwareID) {
+            $insert_values[] = [$groupID, $softwareID];
+        }
+        // sequence is deliberately NOT in the field list, for the same
+        // reason isDefault is not in addPrinter's: insertBatch upserts on the
+        // unique key and would overwrite the run order the admin set on the
+        // Software Order card. New rows therefore land at the column
+        // default of 0, and the sweep below numbers them.
+        (new GroupSoftwareAssociationManager())
+            ->insertBatch(
+                ['groupID', 'softwareID'],
+                $insert_values
+            );
+        $this->appendSoftwareSequence();
+
+        return $this;
+    }
+    /**
+     * Revokes software from this group.
+     *
+     * @param array $removeArray the items to remove
+     *
+     * @return object
+     */
+    public function removeSoftware($removeArray)
+    {
+        Route::deletemass(
+            'groupsoftwareassociation',
+            [
+                'softwareID' => $removeArray,
+                'groupID' => $this->get('id')
+            ]
+        );
+        return $this;
+    }
+    /**
      * Numbers any of this group's snapin grants that have no sequence yet.
      *
      * The host-side twin is Host::appendSnapinSequence() and this is the same
@@ -372,6 +429,82 @@ class Group extends FOGController
                     [
                         'groupID' => $groupID,
                         'snapinID' => $snapinID
+                    ],
+                    '',
+                    ['sequence' => $sequence]
+                );
+        }
+        return $this;
+    }
+    /**
+     * Numbers any of this group's software grants that have no sequence yet.
+     *
+     * Mirrors appendSnapinSequence() above over groupSoftwareAssoc.
+     *
+     * @return object
+     */
+    public function appendSoftwareSequence()
+    {
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1) {
+            return $this;
+        }
+        $associations = Route::getList(
+            'groupsoftwareassociation',
+            ['groupID' => $groupID],
+            'AND',
+            'sequence'
+        );
+        $maxSequence = 0;
+        $unsequenced = [];
+        foreach ($associations as $association) {
+            $sequence = (int)$association->sequence;
+            if ($sequence > 0) {
+                $maxSequence = max($maxSequence, $sequence);
+            } else {
+                $unsequenced[] = $association->softwareID;
+            }
+        }
+        foreach ($unsequenced as $softwareID) {
+            (new GroupSoftwareAssociationManager())
+                ->update(
+                    [
+                        'groupID' => $groupID,
+                        'softwareID' => $softwareID
+                    ],
+                    '',
+                    ['sequence' => ++$maxSequence]
+                );
+        }
+        return $this;
+    }
+    /**
+     * Sets the run order of the software this group grants.
+     *
+     * Mirrors setSnapinOrder() above.
+     *
+     * @param array $softwareIDs the ordered software ids (first runs first)
+     *
+     * @return object
+     */
+    public function setSoftwareOrder($softwareIDs)
+    {
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1) {
+            return $this;
+        }
+        $sequence = 0;
+        foreach ((array)$softwareIDs as $softwareID) {
+            $softwareID = (int)$softwareID;
+            if ($softwareID < 1) {
+                continue;
+            }
+            ++$sequence;
+            (new GroupSoftwareAssociationManager())
+                ->update(
+                    [
+                        'groupID' => $groupID,
+                        'softwareID' => $softwareID
                     ],
                     '',
                     ['sequence' => $sequence]
@@ -1025,6 +1158,14 @@ class Group extends FOGController
                 $hostMACs
             );
             self::wakeUp($hostMACs);
+        }
+        // Design 0011, additional to the fan-out above. Per host rather
+        // than per MAC, because a relay request names the machine being
+        // woken so its result has a row to land on -- and because the
+        // neighbor that can reach one host on a link is not necessarily
+        // the one that can reach another.
+        foreach ((array)$this->get('hosts') as $hostID) {
+            WakeRelay::request(new Host($hostID), 'group wake');
         }
     }
     /**
