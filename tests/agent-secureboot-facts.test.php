@@ -245,4 +245,58 @@ $t->check(
     false !== $parsed && abs(time() - $parsed->getTimestamp()) < 120
 );
 
+/**
+ * The text of the audit line the report recorded, or '' for none.
+ *
+ * @param array $binds the recorded statements
+ *
+ * @return string
+ */
+function sbAuditText(array $binds)
+{
+    foreach ($binds as list($sql, $params)) {
+        if (false === stripos($sql, 'auditLog')) {
+            continue;
+        }
+        foreach ((array)$params as $v) {
+            if (is_string($v) && false !== strpos($v, 'agent reported')) {
+                return $v;
+            }
+        }
+    }
+
+    return '';
+}
+
+// The audit line is what an admin actually reads, and it shipped saying
+// "agent reported Secure Boot Secure Boot ON" -- label() already spells the
+// words. Every other check in this file passed straight through that.
+list(, $binds) = sbReport(
+    $db,
+    ['platform' => 'efi', 'secure_boot' => '01', 'setup_mode' => '00'],
+    'disabled'
+);
+$text = sbAuditText($binds);
+$t->check('the report records an audit line', '' !== $text);
+$t->check(
+    'the audit line does not repeat "Secure Boot"',
+    '' !== $text && false === strpos($text, 'Secure Boot Secure Boot')
+);
+$t->check(
+    'the audit line names both ends of the move',
+    false !== strpos($text, 'Secure Boot ON')
+    && false !== strpos($text, 'was Secure Boot OFF')
+);
+
+// A first report has no previous value to name, and "(was Never reported)"
+// is noise on every newly enrolled host.
+list(, $binds) = sbReport(
+    $db,
+    ['platform' => 'efi', 'secure_boot' => '01', 'setup_mode' => '00']
+);
+$t->check(
+    'a first report does not claim a previous state',
+    false === strpos(sbAuditText($binds), '(was')
+);
+
 $t->finish();

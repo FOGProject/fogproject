@@ -135,8 +135,14 @@ class SecureBootFacts extends FOGBase
                 'renderable' => 1,
                 'affectedCount' => 1,
                 'text' => substr(
+                    // No "Secure Boot" prefix: label() already spells it
+                    // where it belongs ("Secure Boot ON"), and prepending
+                    // produced "agent reported Secure Boot Secure Boot ON"
+                    // on the first real report. It reads correctly for the
+                    // labels that do NOT carry the words, too -- "agent
+                    // reported UEFI, state unreadable".
                     sprintf(
-                        'agent reported Secure Boot %s%s',
+                        'agent reported %s%s',
                         SecureBootState::label($state),
                         '' === $previous || $previous === $state
                             ? ''
