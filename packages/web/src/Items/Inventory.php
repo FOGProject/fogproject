@@ -131,33 +131,56 @@ class Inventory extends FOGController
     /**
      * Cleanly represent the memory.
      *
-     * @return float
+     * @return string
      */
     public function getMem($val = '')
     {
         if (!$val) {
             $val = $this->get('mem');
         }
-        $memar = preg_split('/\s+/', $val);
-
-        $memar = isset($memar[1]) ? $memar[1] : 0;
-        
-        return self::formatByteSize(((int)$memar * 1024));
+        return self::formatByteSize(self::memBytes($val));
     }
     /**
      * Cleanly represent the memory.
      *
-     * @return float
+     * Float only for the empty case, which predates the formatter and is
+     * left alone deliberately: 0.00 echoes as "0" and '0.00' would echo as
+     * "0.00", so narrowing it here would change what the Inventory tab
+     * prints for a host that reported no memory.
+     *
+     * @return string|float
      */
     public static function getMemory($val)
     {
         if (!$val) {
             return 0.00;
         }
-        $memar = preg_split('/\s+/', $val);
-
-        $memar = isset($memar[1]) ? $memar[1] : 0;
-
-        return self::formatByteSize(((int)$memar * 1024));
+        return self::formatByteSize(self::memBytes($val));
+    }
+    /**
+     * Total physical memory in bytes, from either the legacy client's
+     * format or the fog-agent client's.
+     *
+     * The legacy base64 client posts a multi-token string (e.g. the tail of
+     * a dmidecode/wmic line) with the size in KB at index 1 -- that shape is
+     * what the original single-token parse below always assumed. The
+     * fog-agent client (internal/inventory.Inventory.Mem, design 0006)
+     * reports a bare decimal string in MB instead, so a single-token value
+     * with no whitespace to split on used to fall through to 0 here every
+     * time. Token count is what tells the two apart.
+     *
+     * @param string $val the raw `mem` field, either format
+     *
+     * @return int
+     */
+    private static function memBytes($val)
+    {
+        $memar = preg_split('/\s+/', trim((string)$val));
+        if (count($memar) > 1) {
+            $kb = isset($memar[1]) ? (int)$memar[1] : 0;
+            return $kb * 1024;
+        }
+        $mb = (int)$memar[0];
+        return $mb * 1024 * 1024;
     }
 }

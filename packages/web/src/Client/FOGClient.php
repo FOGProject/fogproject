@@ -133,9 +133,6 @@ abstract class FOGClient extends FOGBase
                     $moduleid
                 );
                 switch ($this->shortName) {
-                    case 'dircleaner':
-                        $this->shortName = 'dircleanup';
-                        break;
                     case 'snapin':
                         $this->shortName = 'snapinclient';
                         break;
@@ -208,7 +205,6 @@ abstract class FOGClient extends FOGBase
             $this->{$method}();
             $nonJsonEncode = [
                 'autologout',
-                'displaymanager',
                 'printerclient',
                 'servicemodule',
             ];

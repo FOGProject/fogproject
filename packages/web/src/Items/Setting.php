@@ -53,30 +53,6 @@ class Setting extends FOGController
         'name'
     ];
     /**
-     * Set the display settings.
-     *
-     * @param int $x The width of the screen.
-     * @param int $y The height of the screen.
-     * @param int $r The refresh rate.
-     *
-     * @return void
-     */
-    public function setDisplay(
-        $x,
-        $y,
-        $r
-    ) {
-        $keySettings = [
-            'FOG_CLIENT_DISPLAYMANAGER_X' => $x,
-            'FOG_CLIENT_DISPLAYMANAGER_Y' => $y,
-            'FOG_CLIENT_DISPLAYMANAGER_R' => $r,
-        ];
-        foreach ($keySettings as $name => &$value) {
-            self::setSetting($name, $value);
-            unset($value);
-        }
-    }
-    /**
      * Builds the exit type selectors for us.
      *
      * @param string $name      What to call the form selector (name=)

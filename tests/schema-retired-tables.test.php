@@ -68,6 +68,65 @@ $t->check(
 // is the one thing that file must never do.
 $schemaSrc = file_get_contents($schemaFile);
 
+/**
+ * The SQL statements schema.php builds, each one assembled.
+ *
+ * Needed because a statement is written as a chain of string literals --
+ * "ALTER TABLE `printerAssoc` " . "DROP COLUMN `paAnon1`, ..." -- so the
+ * table name and the column name are never in the same literal, and a
+ * search of the raw source cannot tell "printerAssoc drops paAnon2" from
+ * "some other table drops paAnon2". `plugins` has a pAnon2 of its own that
+ * was RENAMED and never dropped, so that is not a hypothetical distinction.
+ *
+ * Lexed rather than regexed, for the reason bin/schema-manifest.php gives:
+ * a regex looking for string boundaries in 11,000 lines of concatenated
+ * literals eventually matches a span running out of one literal and into
+ * the next.
+ *
+ * @param string $src the schema.php source
+ *
+ * @return string[] one entry per assembled statement
+ */
+function schemaStatements($src)
+{
+    $out = [];
+    $cur = '';
+    $joining = false;
+    foreach (token_get_all($src) as $tok) {
+        if (is_array($tok)) {
+            if (T_WHITESPACE === $tok[0] || T_COMMENT === $tok[0]) {
+                continue;
+            }
+            if (T_CONSTANT_ENCAPSED_STRING === $tok[0]) {
+                if ('' !== $cur && !$joining) {
+                    $out[] = $cur;
+                    $cur = '';
+                }
+                $cur .= substr($tok[1], 1, -1);
+                $joining = false;
+                continue;
+            }
+        }
+        // A '.' between two literals continues the same statement; anything
+        // else ends it.
+        if ('.' === $tok) {
+            $joining = true;
+            continue;
+        }
+        if ('' !== $cur) {
+            $out[] = $cur;
+            $cur = '';
+        }
+        $joining = false;
+    }
+    if ('' !== $cur) {
+        $out[] = $cur;
+    }
+    return $out;
+}
+
+$schemaStatements = schemaStatements($schemaSrc);
+
 foreach ($retired as $i => $entry) {
     $name = (string)($entry['table'] ?? '');
     $t->check(
@@ -81,6 +140,32 @@ foreach ($retired as $i => $entry) {
         "retired `$name` records a reason",
         '' !== trim((string)($entry['reason'] ?? ''))
     );
+    // An entry carrying a `column` retires that one column and leaves the
+    // table in place, so none of the whole-table assertions below apply to
+    // it -- the table is still in the manifest, still built, never dropped.
+    // What DOES have to hold is that schema.php actually drops the column,
+    // or the manifest is claiming an end state the replay never reaches.
+    $column = (string)($entry['column'] ?? '');
+    if ('' !== $column) {
+        $t->check(
+            "retired `$name`.`$column` is gone from the manifest's columns",
+            !isset($tables[strtolower($name)]['columns'][$column])
+        );
+        $drops = false;
+        foreach ($schemaStatements as $stmt) {
+            if (false !== stripos($stmt, 'ALTER TABLE `' . $name . '`')
+                && false !== stripos($stmt, 'DROP COLUMN `' . $column . '`')
+            ) {
+                $drops = true;
+                break;
+            }
+        }
+        $t->check(
+            "schema.php drops `$name`.`$column`",
+            $drops
+        );
+        continue;
+    }
     $t->check(
         "retired `$name` is absent from the manifest's tables",
         !isset($tables[strtolower($name)])

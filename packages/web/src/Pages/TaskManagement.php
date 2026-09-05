@@ -49,6 +49,15 @@ class TaskManagement extends FOGPage
      */
     public $node = 'task';
     /**
+     * This grid does not select.
+     *
+     * Tasks are canceled per-pane, never deleted, so there is nothing for a
+     * selection to act on.
+     *
+     * @var bool
+     */
+    public $selectable = false;
+    /**
      * Initializes the task page items.
      *
      * @param string $name The name to initialize with.

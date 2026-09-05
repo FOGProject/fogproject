@@ -2466,6 +2466,458 @@ class OpenAPI extends FOGBase
                     )
                 )
             ],
+            '/agent/v1/enroll' => [
+                'post' => self::_op(
+                    '',
+                    'agentenroll',
+                    _('FOG Agent enrollment'),
+                    _('Unauthenticated, because this is how an agent obtains '
+                        . 'the client certificate it will authenticate with '
+                        . 'afterward. The agent posts a certificate signing '
+                        . 'request and its firmware identity; the server '
+                        . 'resolves the machine the way iPXE registration '
+                        . 'does and answers issued, pending or denied. Pending '
+                        . 'is the normal first answer for a machine nobody has '
+                        . 'approved yet -- the agent polls until an admin '
+                        . 'decides on /agent/enrollment/{id}/{action}, an '
+                        . 'enrollment token pre-approves it, or the server '
+                        . 'itself imaged the host recently '
+                        . '(FOG_AGENT_ENROLL_DEPLOY_WINDOW). A pending agent '
+                        . 'can do nothing else: without a certificate no other '
+                        . 'agent route accepts it. Protocol 1.'),
+                    [
+                        '200' => [
+                            'description' => _('Issued. The certificate and '
+                                . 'the host it binds to.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['issued']],
+                                    'host_id' => ['type' => 'integer'],
+                                    'certificate_pem' => [
+                                        'type' => 'string',
+                                        'description' => _('The leaf followed by the agent CA, PEM.')
+                                    ],
+                                    'not_after' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
+                        '202' => [
+                            'description' => _('Pending an admin decision. '
+                                . 'Poll again after retry_after seconds.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['pending']],
+                                    'reason' => [
+                                        'type' => 'string',
+                                        'description' => _('Why it waits: unknown-host, '
+                                            . 'known-host-no-agent, rebind, '
+                                            . 'identity-conflict, reissue.')
+                                    ],
+                                    'retry_after' => ['type' => 'integer']
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('The CSR is not a usable P-256 request, or a required field is missing.')],
+                        '403' => ['description' => _('Denied by an admin. The agent backs off to hourly.')],
+                        '426' => ['description' => _('The agent speaks a protocol this server does not.')],
+                        '503' => ['description' => _('Approved but the signer is unavailable; the agent retries.')]
+                    ],
+                    [],
+                    [
+                        'required' => true,
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['protocol', 'csr_pem', 'identity'],
+                            'properties' => [
+                                'protocol' => ['type' => 'integer', 'enum' => [1]],
+                                'agent_version' => ['type' => 'string'],
+                                'os' => ['type' => 'string'],
+                                'arch' => ['type' => 'string'],
+                                'hostname' => ['type' => 'string'],
+                                'identity' => [
+                                    'type' => 'object',
+                                    'description' => _('SMBIOS system UUID, system serial, '
+                                        . 'board serial, chassis asset tag and the MAC list, '
+                                        . 'as fog-agent identity prints them.')
+                                ],
+                                'csr_pem' => ['type' => 'string'],
+                                'token' => [
+                                    'type' => 'string',
+                                    'description' => _('An enrollment token, if the installer was given one.')
+                                ]
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/v1/poll' => [
+                'post' => self::_op(
+                    '',
+                    'agentpoll',
+                    _('FOG Agent poll'),
+                    _('Authenticated by the client certificate enrollment '
+                        . 'issued, verified by the web server and bound to '
+                        . 'the host by its key fingerprint before the route '
+                        . 'runs; no token or session applies. Records the '
+                        . 'check-in and answers with the revision of the '
+                        . 'host\'s desired state, plus the state itself when '
+                        . 'the applied revision the agent sent is not '
+                        . 'current or it asked for it. The revision is '
+                        . 'opaque: compared for equality, never parsed. A '
+                        . 'certificate that no longer binds to a live host '
+                        . 'gets 401, which tells the agent to enroll again. '
+                        . 'The request may also carry facts about the host -- '
+                        . 'hardware inventory, the installed-program list -- '
+                        . 'sent only when their content hash moved or the '
+                        . 'answer asked; the same conditional as the state, '
+                        . 'run in the other direction.'),
+                    [
+                        '200' => [
+                            'description' => _('The host this certificate is, '
+                                . 'the revision of its desired state, and the '
+                                . 'state when it is not what the agent applied.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['ok']],
+                                    'protocol' => ['type' => 'integer'],
+                                    'host' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'id' => ['type' => 'integer'],
+                                            'name' => ['type' => 'string']
+                                        ]
+                                    ],
+                                    'revision' => ['type' => 'string'],
+                                    'poll_interval' => ['type' => 'integer'],
+                                    'server_time' => ['type' => 'string'],
+                                    'state' => [
+                                        'type' => 'object',
+                                        'description' => _('The desired state: revision, '
+                                            . 'capabilities, and one block per capability '
+                                            . 'listed. Absent when the agent is current.'),
+                                        'properties' => [
+                                            'revision' => ['type' => 'string'],
+                                            'capabilities' => [
+                                                'type' => 'array',
+                                                'items' => ['type' => 'string']
+                                            ]
+                                        ],
+                                        'additionalProperties' => true
+                                    ],
+                                    'want_inventory' => [
+                                        'type' => 'boolean',
+                                        'description' => _('The server holds no hardware '
+                                            . 'inventory hash for this host and wants the '
+                                            . 'block on the next poll.')
+                                    ],
+                                    'want_software' => [
+                                        'type' => 'boolean',
+                                        'description' => _('The server holds no installed-'
+                                            . 'software hash for this host and wants the '
+                                            . 'list on the next poll.')
+                                    ],
+                                    'collect_facts' => [
+                                        'type' => 'boolean',
+                                        'description' => _('Whether this install collects '
+                                            . 'facts at all (FOG_AGENT_INVENTORY_ENABLED). '
+                                            . 'Always present: an agent cannot tell an '
+                                            . 'absent boolean from a false one, and absent '
+                                            . 'has to mean a server that predates the '
+                                            . 'field rather than one that turned collection '
+                                            . 'off. False stops the agent gathering.')
+                                    ]
+                                ]
+                            ]]]
+                        ],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '413' => ['description' => _('The reported software list is larger than the server accepts.')]
+                    ],
+                    [],
+                    [
+                        'description' => _('May be sent with Content-Encoding: gzip; a '
+                            . 'host\'s software list is a few hundred KB of JSON and about '
+                            . 'a tenth of that compressed.'),
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'properties' => [
+                                'agent_version' => ['type' => 'string'],
+                                'applied_revision' => ['type' => 'string'],
+                                'want_state' => ['type' => 'boolean'],
+                                'inventory' => [
+                                    'type' => 'object',
+                                    'description' => _('Hardware facts, sent only when the '
+                                        . 'agent\'s own content hash for them moved or the '
+                                        . 'server asked. Absent means nothing new, never '
+                                        . 'nothing there.'),
+                                    'additionalProperties' => ['type' => 'string']
+                                ],
+                                'software' => [
+                                    'type' => 'array',
+                                    'description' => _('The host\'s complete installed-'
+                                        . 'program list, sent on the same terms as '
+                                        . 'inventory. Complete by contract: anything '
+                                        . 'installed and absent from it is marked removed.'),
+                                    'items' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'name' => ['type' => 'string'],
+                                            'version' => ['type' => 'string'],
+                                            'publisher' => ['type' => 'string'],
+                                            'source' => ['type' => 'string'],
+                                            'arch' => ['type' => 'string'],
+                                            'install_date' => ['type' => 'string']
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/v1/result' => [
+                'post' => self::_op(
+                    '',
+                    'agentresult',
+                    _('FOG Agent capability result'),
+                    _('What the agent did with one capability at one '
+                        . 'revision, recorded on the host as agent.result; '
+                        . 'or, with item, what happened to one thing under '
+                        . 'the capability (a snapin task, a software entry), '
+                        . 'answered with the outcome the agent acts on. One '
+                        . 'route for every kind of report. Same gate as poll.'),
+                    [
+                        '200' => [
+                            'description' => _('Recorded; outcome present for an item report.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string'],
+                                    'outcome' => ['type' => 'string', 'enum' => ['success', 'reboot', 'retry', 'failed']]
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('Unknown capability or status, or an item for a capability with no item reports.')],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '404' => ['description' => _('The item is not a live row of this host.')]
+                    ],
+                    [],
+                    [
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['revision', 'capability', 'status'],
+                            'properties' => [
+                                'revision' => ['type' => 'string'],
+                                'capability' => ['type' => 'string'],
+                                'status' => ['type' => 'string', 'enum' => ['applied', 'unchanged', 'pending_reboot', 'failed']],
+                                'detail' => ['type' => 'string'],
+                                'item' => [
+                                    'type' => 'object',
+                                    'required' => ['id', 'status'],
+                                    'properties' => [
+                                        'id' => ['type' => 'integer'],
+                                        'status' => ['type' => 'string'],
+                                        'exit_code' => ['type' => 'integer'],
+                                        'installed_version' => ['type' => 'string'],
+                                        'details' => ['type' => 'string']
+                                    ]
+                                ]
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/v1/payload/{capability}/{id}' => [
+                'get' => self::_op(
+                    '',
+                    'agentpayload',
+                    _('FOG Agent payload'),
+                    _('The bytes behind one thing under a capability. For '
+                        . 'snapin, the file for one task of the host\'s own '
+                        . 'job; fetching it marks the task in progress. One '
+                        . 'route for every kind of payload. Same gate as poll.'),
+                    [
+                        '200' => [
+                            'description' => _('The payload bytes.'),
+                            'content' => ['application/octet-stream' => ['schema' => ['type' => 'string', 'format' => 'binary']]]
+                        ],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '404' => ['description' => _('No payloads for the capability, or not a live row of this host.')],
+                        '503' => ['description' => _('No storage node can serve the file.')]
+                    ],
+                    [
+                        [
+                            'name' => 'capability',
+                            'in' => 'path',
+                            'required' => true,
+                            'schema' => ['type' => 'string', 'enum' => ['snapin']]
+                        ],
+                        self::_idParameter()
+                    ]
+                )
+            ],
+            '/agent/v1/renew' => [
+                'post' => self::_op(
+                    '',
+                    'agentrenew',
+                    _('FOG Agent certificate renewal'),
+                    _('Over the certificate being renewed: the same gate as '
+                        . 'poll binds the caller to its host, and the body '
+                        . 'carries a request for the same key. The answer is '
+                        . 'the enroll "issued" shape. A request for any other '
+                        . 'key is refused; a key change goes through enroll '
+                        . 'and an admin.'),
+                    [
+                        '200' => [
+                            'description' => _('The renewed certificate, leaf then chain.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['issued']],
+                                    'host_id' => ['type' => 'integer'],
+                                    'certificate_pem' => ['type' => 'string'],
+                                    'not_after' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('Not a certificate request, or one for a key other than the one this certificate proved.')],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '503' => ['description' => _('The signing helper is not available on this server.')]
+                    ],
+                    [],
+                    [
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['csr_pem'],
+                            'properties' => [
+                                'csr_pem' => ['type' => 'string']
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/enrollments' => [
+                'get' => self::_op(
+                    '',
+                    'agentenrollments',
+                    _('Pending agent enrollments'),
+                    _('Every enrollment still waiting for a decision, '
+                        . 'without the CSR. What the Pending Agents page reads.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'data' => ['type' => 'array', 'items' => ['type' => 'object']],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('Pending enrollment rows.')
+                    )
+                )
+            ],
+            '/agent/tokens' => [
+                'get' => self::_op(
+                    '',
+                    'agenttokens',
+                    _('Agent enrollment tokens'),
+                    _('Every enrollment token with its remaining uses and '
+                        . 'expiry, never the token itself. What the Agent '
+                        . 'Tokens page reads.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'data' => ['type' => 'array', 'items' => ['type' => 'object']],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('Token rows.')
+                    )
+                )
+            ],
+            '/agent/token' => [
+                'post' => self::_op(
+                    '',
+                    'agenttokenmint',
+                    _('Mint an agent enrollment token'),
+                    _('Returns the token exactly once; only its hash is '
+                        . 'stored. An expiry is required. uses is how many '
+                        . 'enrollments it approves, or -1 for unlimited '
+                        . 'until it expires. Audited as agent.token.'),
+                    [
+                        '200' => [
+                            'description' => _('The token.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'id' => ['type' => 'integer'],
+                                    'name' => ['type' => 'string'],
+                                    'token' => ['type' => 'string'],
+                                    'expires' => ['type' => 'string'],
+                                    'msg' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
+                        '400' => ['description' => _('A missing name, a bad use count, or an expiry that is not in the future.')]
+                    ],
+                    [],
+                    [
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['name', 'expires'],
+                            'properties' => [
+                                'name' => ['type' => 'string'],
+                                'uses' => ['type' => 'integer', 'default' => 1],
+                                'expires' => ['type' => 'string', 'description' => _('Y-m-d H:i:s, server time.')]
+                            ]
+                        ]]]
+                    ]
+                )
+            ],
+            '/agent/token/{id}' => [
+                'delete' => self::_op(
+                    '',
+                    'agenttokenrevoke',
+                    _('Revoke an agent enrollment token'),
+                    _('The row goes, so the token can never match again. '
+                        . 'Audited as agent.token.'),
+                    [
+                        '200' => ['description' => _('Revoked.')],
+                        '404' => ['description' => _('No such token.')]
+                    ],
+                    [self::_idParameter()]
+                )
+            ],
+            '/agent/enrollment/{id}/{action}' => [
+                'post' => self::_op(
+                    '',
+                    'agentenrollmentdecide',
+                    _('Approve or deny an agent enrollment'),
+                    _('approve signs the CSR, binds the certificate to the '
+                        . 'host and takes the host out of pending; deny '
+                        . 'records the refusal. Either way the agent learns '
+                        . 'the outcome on its next poll. Audited as '
+                        . 'agent.enroll.'),
+                    [
+                        '200' => ['description' => _('Decided.')],
+                        '404' => ['description' => _('No such enrollment, or no such action.')],
+                        '503' => ['description' => _('The signer is unavailable; nothing changed.')]
+                    ] + self::_conflictResponse(
+                        _('The enrollment is no longer pending.')
+                    ),
+                    [
+                        self::_idParameter(),
+                        [
+                            'name' => 'action',
+                            'in' => 'path',
+                            'required' => true,
+                            'schema' => ['type' => 'string', 'enum' => ['approve', 'deny']]
+                        ]
+                    ]
+                )
+            ],
             '/system/openapi' => [
                 'get' => self::_op(
                     '',

@@ -1,10 +1,10 @@
 <?php
 /**
- * Host screen settings manager class.
+ * Manager for fog-agent enrollment tokens.
  *
  * PHP version 7.4+
  *
- * @category HostScreenSettingManager
+ * @category AgentEnrollTokenManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -16,20 +16,14 @@ namespace FOG\Managers;
 use FOG\Base\FOGManagerController;
 
 /**
- * Host screen settings manager class.
+ * Manager for fog-agent enrollment tokens.
  *
- * @category HostScreenSettingManager
+ * @category AgentEnrollTokenManager
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class HostScreenSettingManager extends FOGManagerController
+class AgentEnrollTokenManager extends FOGManagerController
 {
-    /**
-     * The base table name.
-     *
-     * @var string
-     */
-    public $tablename = 'hostScreenSettings';
 }

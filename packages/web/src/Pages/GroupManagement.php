@@ -639,6 +639,73 @@ class GroupManagement extends FOGPage
         $this->assocPost('addSnapin', 'removeSnapin', 'setSnapinOrder');
     }
     /**
+     * Group software.
+     *
+     * Mirrors groupSnapins(): association runs through
+     * Group::addSoftware()/removeSoftware(), which writes one row on the
+     * GROUP.
+     *
+     * @return void
+     */
+    public function groupSoftware()
+    {
+        $this->renderAssocTab(
+            'group-software',
+            _('Group Software Assignment'),
+            _('Software Name'),
+            'software',
+            'btn btn-primary float-end',
+            _(
+                'Software granted here applies to every host in this group, '
+                . 'including hosts added later.'
+            ),
+            'software'
+        );
+
+        $props = ' method="post" action="'
+            . self::makeTabUpdateURL(
+                'group-software',
+                $this->obj->get('id')
+            )
+            . '" ';
+
+        $orderButton = self::makeButton(
+            'group-software-order-save',
+            _('Save order'),
+            'btn btn-primary float-end',
+            $props
+        );
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Software Order');
+        echo '</h4>';
+        echo '<p class="form-text">';
+        echo _(
+            'The order this group\'s software is applied in. A host applies '
+            . 'its own software first, then the software granted here, in '
+            . 'this order.'
+        );
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        echo '<ol id="group-software-order-list" class="list-group"></ol>';
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo $orderButton;
+        echo '</div>';
+        echo '</div>';
+    }
+    /**
+     * Group software post
+     *
+     * @return void
+     */
+    public function groupSoftwarePost()
+    {
+        $this->assocPost('addSoftware', 'removeSoftware', 'setSoftwareOrder', 'softwareorder');
+    }
+    /**
      * Display's the group service stuff
      *
      * @return void
@@ -1667,9 +1734,11 @@ class GroupManagement extends FOGPage
                 _('Start Time'),
                 _('Complete'),
                 _('Duration'),
-                _('Return Code')
+                _('Return Code'),
+                _('Status')
             ],
             [
+                [],
                 [],
                 [],
                 [],
@@ -1688,9 +1757,12 @@ class GroupManagement extends FOGPage
      */
     public function edit()
     {
+        // Read once: the note below and the quick-task confirmation both
+        // want it, and getHostCount() is a query.
+        $hostCount = (int)$this->obj->getHostCount();
         $this->notes = [
             _('Group') => $this->obj->get('name'),
-            _('Members') => (string)$this->obj->getHostCount()
+            _('Members') => (string)$hostCount
         ];
         // Info-card notes that mirror a General-tab control, so the card
         // tracks the form instead of going stale until the next page
@@ -1700,6 +1772,29 @@ class GroupManagement extends FOGPage
         $this->noteSources = [
             _('Group') => '#group'
         ];
+        // Deploy and Multi-Cast, one click, from whichever tab is open.
+        // Multi-Cast rather than Capture: capturing is a thing you do to
+        // one machine, and a group is by definition more than one. Not a
+        // style call -- deployPost() below throws "Groups cannot create
+        // capture tasks" outright, so a Capture button here could only ever
+        // produce a toast saying no. The list grid draws the same line on
+        // ttIsAccess ('host' vs 'group').
+        //
+        // The member count goes in the confirmation, not just the name. A
+        // group's size is the fact that decides whether you meant to press
+        // this, and it is the one thing the button itself cannot show.
+        if ($hostCount > 0) {
+            $this->noteActions = self::renderQuickTaskActions(
+                'group',
+                (int)$this->obj->get('id'),
+                [TaskType::DEPLOY, TaskType::MULTICAST],
+                sprintf(
+                    _('all %1$d hosts in group "%2$s"'),
+                    $hostCount,
+                    $this->obj->get('name')
+                )
+            );
+        }
         $tabData = [];
 
         // General
@@ -1744,6 +1839,13 @@ class GroupManagement extends FOGPage
                         'id' => 'group-snapin',
                         'generator' => function () {
                             $this->groupSnapins();
+                        }
+                    ],
+                    [
+                        'name' => _('Software'),
+                        'id' => 'group-software',
+                        'generator' => function () {
+                            $this->groupSoftware();
                         }
                     ]
                 ]
@@ -1866,6 +1968,9 @@ class GroupManagement extends FOGPage
                         break;
                     case 'group-snapin':
                         $this->groupSnapinPost();
+                        break;
+                    case 'group-software':
+                        $this->groupSoftwarePost();
                         break;
                     case 'group-module':
                         $this->groupModulePost();
@@ -2158,6 +2263,29 @@ class GroupManagement extends FOGPage
         );
     }
     /**
+     * Presents the software list table.
+     *
+     * @return void
+     */
+    public function getSoftwareList()
+    {
+        $this->assocItemsList(
+            'software',
+            'groupsoftwareassociation',
+            'groupSoftwareAssoc',
+            '`software`.`swID`',
+            '`groupSoftwareAssoc`.`gswaSoftwareID`',
+            '`groupSoftwareAssoc`.`gswaGroupID`',
+            [
+                [
+                    'db' => 'groupAssoc',
+                    'dt' => 'association',
+                    'removeFromQuery' => true
+                ]
+            ]
+        );
+    }
+    /**
      * Returns the snapins this group grants, in run order.
      *
      * ADR 0038: the group owns the rows, so the order is read straight off
@@ -2202,6 +2330,46 @@ class GroupManagement extends FOGPage
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
     }
     /**
+     * Returns the software this group grants, in run order.
+     *
+     * Mirrors getSnapinOrderList() above over groupSoftwareAssoc/gswaSequence.
+     *
+     * @return void
+     */
+    public function getSoftwareOrderList()
+    {
+        $data = [];
+        $grants = Route::getList(
+            'groupsoftwareassociation',
+            ['groupID' => $this->obj->get('id')],
+            'AND',
+            'sequence'
+        );
+        $softwareIDs = [];
+        foreach ($grants as $grant) {
+            $softwareIDs[] = (int)$grant->softwareID;
+        }
+        if (count($softwareIDs) > 0) {
+            $names = [];
+            $Softwares = Route::getList('software', ['id' => $softwareIDs]);
+            foreach ($Softwares as $Software) {
+                $names[(int)$Software->id] = $Software->name;
+            }
+            foreach ($softwareIDs as $sid) {
+                // Same contract as the host tab: only list ids that resolve
+                // to a real software entry (skip stale/0 associations).
+                if (!isset($names[$sid])) {
+                    continue;
+                }
+                $data[] = [
+                    'id' => $sid,
+                    'name' => $names[$sid]
+                ];
+            }
+        }
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
+    }
+    /**
      * Returns the module list as well as the associated
      * for the group being edited.
      *
@@ -2216,12 +2384,6 @@ class GroupManagement extends FOGPage
                 $keys[] = $short_name;
             }
         }
-        $notWhere = [
-            'clientupdater',
-            'dircleanup',
-            'usercleanup'
-        ];
-        $keys = array_diff($keys, $notWhere);
         $where = "`modules`.`short_name` IN ('"
             . implode("','", $keys)
             . "')";

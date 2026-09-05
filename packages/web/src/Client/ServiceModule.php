@@ -48,9 +48,6 @@ class ServiceModule extends FOGClient
             )
         );
         switch ($mod) {
-            case 'dircleaner':
-                $mod = 'dircleanup';
-                break;
             case 'snapin':
                 $mod = 'snapinclient';
                 break;
@@ -58,31 +55,13 @@ class ServiceModule extends FOGClient
         if (!in_array($mod, $mods)) {
             throw new \Exception('#!um');
         }
-        $remArr = [
-            'dircleanup',
-            'usercleanup',
-            'clientupdater'
-        ];
-        $globalModules = (
-            !self::$newService ?
-            self::getGlobalModuleStatus(
-                false,
-                true
-            ) :
-            array_diff(
-                self::getGlobalModuleStatus(
-                    false,
-                    true
-                ),
-                $remArr
-            )
+        $globalModules = self::getGlobalModuleStatus(
+            false,
+            true
         );
         $globalInfo = self::getGlobalModuleStatus();
         $globalDisabled = array();
         foreach ($globalInfo as $key => $en) {
-            if (self::$newService && in_array($key, $remArr)) {
-                continue;
-            }
             if (!$en) {
                 $globalDisabled[] = $key;
             }
@@ -97,17 +76,9 @@ class ServiceModule extends FOGClient
             ['id' => self::$Host->resolvedModules()],
             'shortName'
         );
-        $hostEnabled = (
-            self::$newService ?
-            array_diff(
-                (array)$hostModules,
-                $remArr
-            ) :
-            $hostModules
-        );
         $hostDisabled = array_diff(
             $globalModules,
-            $hostEnabled
+            (array)$hostModules
         );
         if (in_array(
             $mod,

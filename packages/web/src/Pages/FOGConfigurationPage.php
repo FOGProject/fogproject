@@ -4413,16 +4413,12 @@ class FOGConfigurationPage extends FOGPage
             'FOG_QUICKREG_AUTOPOP' => true,
             'FOG_CLIENT_AUTOUPDATE' => true,
             'FOG_CLIENT_AUTOLOGOFF_ENABLED' => true,
-            'FOG_CLIENT_CLIENTUPDATER_ENABLED' => true,
-            'FOG_CLIENT_DIRECTORYCLEANER_ENABLED' => true,
-            'FOG_CLIENT_DISPLAYMANAGER_ENABLED' => true,
             'FOG_CLIENT_HOSTREGISTER_ENABLED' => true,
             'FOG_CLIENT_HOSTNAMECHANGER_ENABLED' => true,
             'FOG_CLIENT_POWERMANAGEMENT_ENABLED' => true,
             'FOG_CLIENT_PRINTERMANAGER_ENABLED' => true,
             'FOG_CLIENT_SNAPIN_ENABLED' => true,
             'FOG_CLIENT_TASKREBOOT_ENABLED' => true,
-            'FOG_CLIENT_USERCLEANUP_ENABLED' => true,
             'FOG_CLIENT_USERTRACKER_ENABLED' => true,
             'FOG_ADVANCED_STATISTICS' => true,
             'FOG_CHANGE_HOSTNAME_EARLY' => true,
@@ -4508,12 +4504,11 @@ class FOGConfigurationPage extends FOGPage
             'FOG_GRACE_TIMEOUT' => true,
             // FOG Service - Auto Log Off
             'FOG_CLIENT_AUTOLOGOFF_MIN' => true,
-            // FOG Service - Display manager
-            'FOG_CLIENT_DISPLAYMANAGER_X' => true,
-            'FOG_CLIENT_DISPLAYMANAGER_Y' => true,
-            'FOG_CLIENT_DISPLAYMANAGER_R' => true,
+            'FOG_CLIENT_AUTOLOGOFF_WARN' => true,
             // FOG Service - Host Register
             'FOG_QUICKREG_MAX_PENDING_MACS' => true,
+            // FOG Service - Software
+            'FOG_SOFTWARE_DRIFT_INTERVAL' => true,
             // FOG View Settings
             'FOG_VIEW_DEFAULT_SCREEN' => ['set' => $viewvals],
             'FOG_DATA_RETURNED' => true,

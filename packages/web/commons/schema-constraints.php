@@ -103,10 +103,8 @@ return [
 
     // ---- satellite: rows wholly owned by one parent ----------------------
     ['child' => 'inventory', 'column' => 'iHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
-    ['child' => 'hostScreenSettings', 'column' => 'hssHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'hostAutoLogOut', 'column' => 'haloHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'powerManagement', 'column' => 'pmHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
-    ['child' => 'greenFog', 'column' => 'gfHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 1],
     ['child' => 'apiTokens', 'column' => 'atUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
     ['child' => 'userAuths', 'column' => 'uaUserID', 'parent' => 'users', 'pcolumn' => 'uId', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 2],
     // Group 7, added with the table itself (schema 391/392). A NUMBER, not a
@@ -299,6 +297,15 @@ return [
     ['child' => 'groupSnapinAssoc', 'column' => 'gsaSnapinID', 'parent' => 'snapins', 'pcolumn' => 'sID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
     ['child' => 'groupPrinterAssoc', 'column' => 'gpaGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
     ['child' => 'groupPrinterAssoc', 'column' => 'gpaPrinterID', 'parent' => 'printers', 'pcolumn' => 'pID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 9],
+    // Group 13 -- fog-agent software (design 0003, schema 418). An
+    // assignment or a status row is meaningless without both its host (or
+    // group) and its software entry.
+    ['child' => 'softwareAssoc', 'column' => 'swaHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'softwareAssoc', 'column' => 'swaSoftwareID', 'parent' => 'software', 'pcolumn' => 'swID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'groupSoftwareAssoc', 'column' => 'gswaGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'groupSoftwareAssoc', 'column' => 'gswaSoftwareID', 'parent' => 'software', 'pcolumn' => 'swID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'softwareStatus', 'column' => 'sstHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
+    ['child' => 'softwareStatus', 'column' => 'sstSoftwareID', 'parent' => 'software', 'pcolumn' => 'swID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 13],
     // ADR 0038 decision 3, revised. Group 10, created empty by step 407 so
     // there is nothing to sweep before the flip.
     //
@@ -321,6 +328,38 @@ return [
     // against a reused group id would silently start shutting down every
     // host that inherited the number.
     ['child' => 'groupPowerManagement', 'column' => 'gpmGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 11],
+    // FOG Agent enrollment. Group 12, created empty by step 416 so there is
+    // nothing to sweep before the flip.
+    //
+    // `satellite`: an enrollment row is the agent's standing with ONE host --
+    // pending, issued or denied -- and means nothing once that host is gone.
+    // Every row gets a host, because an unknown machine is given a pending
+    // host at enrollment time, the same way iPXE registration does it.
+    // CASCADE rather than RESTRICT because deleting the pending host IS how
+    // an admin forgets a machine; the agent then comes back as unknown and
+    // waits for a fresh decision. A denied row going with its host is the
+    // same outcome, and the decision itself is in auditLog.
+    ['child' => 'agentEnrollment', 'column' => 'aeHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 12],
+    // The facts an agent reports about its own host (design 0006). Both are
+    // satellites in the same sense inventory is: the rows describe one host
+    // and mean nothing without it. CASCADE, so deleting a host takes its
+    // reported software history with it -- the same call FOG already makes
+    // for that host's inventory row, and the reason the fleet report reads
+    // "which hosts have X" rather than "which machines ever did".
+    ['child' => 'hostSoftware', 'column' => 'hsHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'hostUserSession', 'column' => 'husHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'hostFactState', 'column' => 'hfsHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'hostDirectory', 'column' => 'hdHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'hostPrinter', 'column' => 'hpHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'hostSpooler', 'column' => 'hspHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'hostNetwork', 'column' => 'hnHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    // Both ends of a wake relay are hosts, and BOTH cascade. A deleted
+    // target has nothing left to wake; a deleted sender cannot be asked.
+    // Leaving either behind would leave a row naming a host id that has
+    // since been reused, which is how an admin ends up reading that a
+    // machine relayed a wake it has never heard of.
+    ['child' => 'agentWake', 'column' => 'awTargetID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'agentWake', 'column' => 'awSenderID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
 ];

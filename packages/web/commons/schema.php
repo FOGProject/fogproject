@@ -10772,3 +10772,854 @@ $this->schema[] = [
     . "WHERE `settingKey`='FOG_MEMTEST_KERNEL' "
     . "AND `settingValue`='memtest.bin'",
 ];
+
+// 416
+$this->schema[] = [
+    // fog-agent enrollment (docs/design in the fog-agent repo, section 4;
+    // wire contract in its docs/design/protocol-v1.md).
+    //
+    // An agent that has no certificate yet presents its firmware identity,
+    // its MACs and a CSR. Nothing is issued until one of three approvals
+    // happens: an admin clicks Approve, a valid enrollment token was
+    // presented, or this server itself imaged the host within
+    // FOG_AGENT_ENROLL_DEPLOY_WINDOW hours. Until then the request waits
+    // here, verbatim, so that what gets signed on approval is exactly what
+    // was presented and not a re-read of anything the agent could change in
+    // between.
+    //
+    // One row per KEY (aeFingerprint is the sha256 of the SubjectPublicKeyInfo),
+    // not per request: an agent repeats the identical request every few
+    // minutes while it waits, and the repeat refreshes the row rather than
+    // adding one. A denied key stays denied across repeats for the same
+    // reason.
+    //
+    //   aeHostID     0 until the request is bound to a host. Set at approval,
+    //                or immediately when the identity resolved to a host and
+    //                the request is merely waiting for a click.
+    //   aeIdentity   the SMBIOS tuple, smbios version and MAC list as the
+    //                agent sent them, JSON. Kept raw: canonicalization is
+    //                SmbiosIdentity's job at read time, the same as for boot.
+    //   aeReason     why it is waiting: unknown-host, known-host-no-agent,
+    //                rebind, identity-conflict. Shown to the admin.
+    //   aeState      pending, issued, denied.
+    //   aeCert       the issued leaf plus its chain, PEM. Filled at approval
+    //                so the agent's next poll can collect it; cleared once
+    //                collected so a database read does not hand out a
+    //                certificate twice.
+    "CREATE TABLE IF NOT EXISTS `agentEnrollment` ( "
+    . "`aeID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`aeHostID` int(11) NOT NULL DEFAULT 0, "
+    . "`aeFingerprint` varchar(64) NOT NULL DEFAULT '', "
+    . "`aeCSR` text NOT NULL, "
+    . "`aeIdentity` text NOT NULL DEFAULT '', "
+    . "`aeHostname` varchar(191) NOT NULL DEFAULT '', "
+    . "`aeOS` varchar(20) NOT NULL DEFAULT '', "
+    . "`aeArch` varchar(20) NOT NULL DEFAULT '', "
+    . "`aeAgentVersion` varchar(50) NOT NULL DEFAULT '', "
+    . "`aeRemoteIP` varchar(45) NOT NULL DEFAULT '', "
+    . "`aeReason` varchar(32) NOT NULL DEFAULT '', "
+    . "`aeState` varchar(16) NOT NULL DEFAULT 'pending', "
+    . "`aeCert` text NOT NULL DEFAULT '', "
+    . "`aeCreated` datetime DEFAULT NULL, "
+    . "`aeUpdated` datetime DEFAULT NULL, "
+    . "`aeDecided` datetime DEFAULT NULL, "
+    . "`aeDecidedBy` varchar(191) NOT NULL DEFAULT '', "
+    . "`aeDecidedVia` varchar(16) NOT NULL DEFAULT '', "
+    . "PRIMARY KEY (`aeID`), "
+    . "UNIQUE KEY `aeFingerprint` (`aeFingerprint`), "
+    . "KEY `aeState` (`aeState`), "
+    . "KEY `aeHostID` (`aeHostID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Enrollment tokens: an admin's pre-approval, minted in the UI and baked
+    // into an installer or an image's bootstrap file. Only the sha256 of the
+    // token is stored, so a database read does not yield a usable token.
+    // atUses counts down; -1 means unlimited until atExpires.
+    "CREATE TABLE IF NOT EXISTS `agentEnrollToken` ( "
+    . "`atID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`atName` varchar(191) NOT NULL DEFAULT '', "
+    . "`atHash` varchar(64) NOT NULL DEFAULT '', "
+    . "`atUses` int(11) NOT NULL DEFAULT 1, "
+    . "`atExpires` datetime DEFAULT NULL, "
+    . "`atCreatedBy` varchar(191) NOT NULL DEFAULT '', "
+    . "`atCreated` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`atID`), "
+    . "UNIQUE KEY `atHash` (`atHash`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // What the host knows about its agent. The fingerprint is the binding:
+    // a client certificate whose key does not hash to this value is not this
+    // host's agent, whatever its subject says. Same shape as the Secure Boot
+    // enrollment columns above it in the host table.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostAgentFingerprint` varchar(64) NOT NULL DEFAULT '', "
+    . "ADD COLUMN `hostAgentNotAfter` datetime DEFAULT NULL, "
+    . "ADD COLUMN `hostAgentVersion` varchar(50) NOT NULL DEFAULT '', "
+    . "ADD COLUMN `hostAgentCheckin` datetime DEFAULT NULL, "
+    . "ADD KEY `hostAgentFingerprint` (`hostAgentFingerprint`)",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_ENROLL_DEPLOY_WINDOW','Hours after this server completes "
+    . "a deploy to a host during which an agent presenting that host''s "
+    . "firmware identity is enrolled without an admin approving it. The "
+    . "deploy was the approval. 0 disables the shortcut and every "
+    . "enrollment waits for a click or a token.','24','General Settings')",
+];
+// 417
+$this->schema[] = [
+    // fog-agent snapins (design 0001 section 7, protocol-v1 "Snapins").
+    // A snapin's return-code table: one `code=class` per line, class one
+    // of success, reboot, retry, failed. Empty means the installer
+    // defaults (0 and 1707 success, 3010 and 1641 reboot, 1618 retry).
+    // The server reads a task's exit code against it for the agent and
+    // the legacy client alike, so an MSI that answers 3010 is a success
+    // that needs a reboot instead of a failed job.
+    "ALTER TABLE `snapins` ADD COLUMN IF NOT EXISTS `sReturnCodes` text NULL",
+    // What a run came to: success, reboot, retry, failed, or when the
+    // payload never ran, hash_mismatch, timeout, cannot_run. Beside the
+    // raw exit code, which stays the program's own.
+    "ALTER TABLE `snapinTasks` ADD COLUMN IF NOT EXISTS `stStatus` varchar(16) NOT NULL DEFAULT '' AFTER `stReturnCode`",
+    // Installers put the useful line well past 250 characters; the agent
+    // reports the last 4 KB of output.
+    "ALTER TABLE `snapinTasks` MODIFY COLUMN `stReturnDetails` text NOT NULL",
+];
+// 418
+$this->schema[] = [
+    // fog-agent software management (design 0003). Software is desired
+    // state, not a task: a package id plus a version policy, held on the
+    // host by a package manager (Chocolatey first) and reported back with
+    // the version the host actually has. Snapins stay as they are.
+    "CREATE TABLE IF NOT EXISTS `software` ( "
+    . "`swID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`swName` varchar(200) NOT NULL, "
+    . "`swDesc` longtext NOT NULL DEFAULT '', "
+    // Which package manager knows the package: choco now, others later
+    // behind the same interface.
+    . "`swBackend` varchar(16) NOT NULL DEFAULT 'choco', "
+    . "`swPackage` varchar(255) NOT NULL, "
+    // '' any version, 'latest' tracks the source, else an exact pin.
+    . "`swVersion` varchar(64) NOT NULL DEFAULT '', "
+    . "`swState` varchar(8) NOT NULL DEFAULT 'present', "
+    . "`swSource` varchar(255) NOT NULL DEFAULT '', "
+    . "`swArgs` varchar(255) NOT NULL DEFAULT '', "
+    . "`swTimeout` int(11) NOT NULL DEFAULT 900, "
+    // The same code=class table snapins carry (schema 417).
+    . "`swReturnCodes` text NULL, "
+    . "`swEnabled` tinyint(1) NOT NULL DEFAULT 1, "
+    . "`swCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), "
+    . "`swCreator` varchar(50) NOT NULL DEFAULT '', "
+    . "PRIMARY KEY (`swID`), "
+    . "UNIQUE KEY `swName` (`swName`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Host-direct assignment, ordered like snapinAssoc.
+    "CREATE TABLE IF NOT EXISTS `softwareAssoc` ( "
+    . "`swaID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`swaHostID` int(11) NOT NULL, "
+    . "`swaSoftwareID` int(11) NOT NULL, "
+    . "`swaSequence` int(11) NOT NULL DEFAULT 0, "
+    . "PRIMARY KEY (`swaID`), "
+    . "UNIQUE KEY `swaHostSoftware` (`swaHostID`,`swaSoftwareID`), "
+    . "KEY `swaSoftwareID` (`swaSoftwareID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Group grant, the ADR 0038 shape: a fact about the group, resolved
+    // per host after its direct assignments and deduplicated.
+    "CREATE TABLE IF NOT EXISTS `groupSoftwareAssoc` ( "
+    . "`gswaID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`gswaGroupID` int(11) NOT NULL, "
+    . "`gswaSoftwareID` int(11) NOT NULL, "
+    . "`gswaSequence` int(11) NOT NULL DEFAULT 0, "
+    . "PRIMARY KEY (`gswaID`), "
+    . "UNIQUE KEY `gswaGroupSoftware` (`gswaGroupID`,`gswaSoftwareID`), "
+    . "KEY `gswaSoftwareID` (`gswaSoftwareID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // What each host last reported per entry: one row, refreshed in
+    // place, so the host's Software tab is a current picture rather than
+    // a history.
+    "CREATE TABLE IF NOT EXISTS `softwareStatus` ( "
+    . "`sstID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`sstHostID` int(11) NOT NULL, "
+    . "`sstSoftwareID` int(11) NOT NULL, "
+    . "`sstInstalledVersion` varchar(64) NOT NULL DEFAULT '', "
+    // converged, installed, upgraded, removed, failed, retry, reboot,
+    // timeout, cannot_run.
+    . "`sstStatus` varchar(16) NOT NULL DEFAULT '', "
+    . "`sstReturnCode` int(11) NOT NULL DEFAULT 0, "
+    . "`sstDetails` text NOT NULL DEFAULT '', "
+    . "`sstChecked` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`sstID`), "
+    . "UNIQUE KEY `sstHostSoftware` (`sstHostID`,`sstSoftwareID`), "
+    . "KEY `sstSoftwareID` (`sstSoftwareID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // 417 widened stReturnDetails without a default, which a strict server
+    // refuses on an INSERT that omits it (the legacy client's does).
+    "ALTER TABLE `snapinTasks` MODIFY COLUMN `stReturnDetails` text NOT NULL DEFAULT ''",
+    // How often a host re-checks its software set when nothing changed on
+    // the server. Six hours: often enough to catch a removed package the
+    // same working day, rare enough that choco is not a poll-loop cost.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_SOFTWARE_DRIFT_INTERVAL','Seconds between a host''s checks of "
+    . "its software set when the set has not changed. The check runs "
+    . "choco against every entry, so keep it hours, not minutes.',"
+    . "'21600','FOG Client')",
+];
+// 419
+$this->schema[] = [
+    // 418 tried to seed the software module row at id 13, which step 223
+    // had already given to powermanagement, so INSERT IGNORE dropped it on
+    // every server that has that step. Seed by short name instead and let
+    // the id be whatever is free; nothing keys on the number.
+    "INSERT INTO `modules` (`name`, `short_name`, `description`) "
+    . "SELECT 'Software', 'software', 'This setting will enable or disable "
+    . "the software management module on this specific host. If the module "
+    . "is globally disabled, this setting is ignored.' "
+    . "FROM DUAL WHERE NOT EXISTS "
+    . "(SELECT 1 FROM `modules` WHERE `short_name` = 'software')",
+    // The global switch every module has (FOGBase::getGlobalModuleStatus).
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_CLIENT_SOFTWARE_ENABLED','This setting defines if the agent''s "
+    . "software management module should be enabled on client computers. "
+    . "It holds each host to its assigned software through the host''s "
+    . "package manager. (Valid values: 0 or 1).','1','FOG Client')",
+    // The two TEXT defaults 418 carries in its final form but not on a
+    // server that ran it before they were added: a strict server refuses
+    // an INSERT that omits a NOT NULL column with no default, and the
+    // legacy client's snapin close-out omits stReturnDetails.
+    "ALTER TABLE `snapinTasks` MODIFY COLUMN `stReturnDetails` text NOT NULL DEFAULT ''",
+    "ALTER TABLE `softwareStatus` MODIFY COLUMN `sstDetails` text NOT NULL DEFAULT ''",
+];
+// 420
+$this->schema[] = [
+    // Chocolatey bootstrap (fog-agent design 0003 section 8). Off by
+    // default: the agent runs the fetched script as SYSTEM, so an admin
+    // opts in by naming the script, the community one or a copy they host.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_SOFTWARE_CHOCO_BOOTSTRAP_URL','URL of Chocolatey''s install "
+    . "script for hosts that have software assigned but no Chocolatey. "
+    . "Empty leaves such hosts reporting cannot run. The public script is "
+    . "https://community.chocolatey.org/install.ps1; a copy on a server "
+    . "you control works too. The agent runs it as SYSTEM.','','FOG Client')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_SOFTWARE_CHOCO_NUPKG_URL','Optional URL of the chocolatey "
+    . ".nupkg the bootstrap script installs from (its chocolateyDownloadUrl), "
+    . "for hosts with no route to the community feed. Empty uses the "
+    . "script''s default.','','FOG Client')",
+];
+// 421
+$this->schema[] = [
+    // fog-agent inventory and installed-software reporting (design 0006).
+    // What the agent last reported per host, per fact kind: hsSource is
+    // part of identity because an OS package list enumerates the same
+    // name under more than one manager, and hsVersion because two
+    // versions can be installed at once and an upgrade is one version
+    // removed, another added -- the history a report wants. hsRemovedAt
+    // NULL is "installed now"; a row is never deleted, only closed out.
+    "CREATE TABLE IF NOT EXISTS `hostSoftware` ( "
+    . "`hsID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hsHostID` int(11) NOT NULL, "
+    . "`hsName` varchar(255) NOT NULL, "
+    . "`hsVersion` varchar(128) NOT NULL DEFAULT '', "
+    . "`hsPublisher` varchar(255) NOT NULL DEFAULT '', "
+    . "`hsSource` varchar(16) NOT NULL DEFAULT '', "
+    . "`hsArch` varchar(16) NOT NULL DEFAULT '', "
+    . "`hsInstallDate` date DEFAULT NULL, "
+    . "`hsFirstSeen` datetime DEFAULT NULL, "
+    . "`hsLastSeen` datetime DEFAULT NULL, "
+    . "`hsRemovedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hsID`), "
+    . "UNIQUE KEY `hsHostNameSrcVer` (`hsHostID`,`hsName`,`hsSource`,`hsVersion`), "
+    . "KEY `hsName` (`hsName`), "
+    . "KEY `hsHostRemoved` (`hsHostID`,`hsRemovedAt`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // What the server last heard from a host, per fact kind (inventory,
+    // software): the hash it holds and when. Doubles as "when did we last
+    // hear facts from this host". A missing row is the want_* signal --
+    // the agent has never successfully reported that kind.
+    "CREATE TABLE IF NOT EXISTS `hostFactState` ( "
+    . "`hfsID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hfsHostID` int(11) NOT NULL, "
+    . "`hfsKind` varchar(16) NOT NULL, "
+    . "`hfsHash` varchar(64) NOT NULL DEFAULT '', "
+    . "`hfsUpdated` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hfsID`), "
+    . "UNIQUE KEY `hfsHostKind` (`hfsHostID`,`hfsKind`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // The one gate for both: an installed-program list is mildly
+    // sensitive, so a site can turn collection off. Hardware inventory
+    // and software share it for v1 (design 0006 section 2, "Gate").
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_INVENTORY_ENABLED','This setting defines if the agent "
+    . "collects and reports hardware inventory and installed software for "
+    . "its host. When disabled, the server never requests a report and "
+    . "ignores one if it arrives. (Valid values: 0 or 1).','1','FOG Client')",
+];
+
+// 422
+$this->schema[] = [
+    // fog-agent user tracking as sessions (design 0008). One row per logon
+    // with two ends, replacing the login/logout EVENT pairs in
+    // `userTracking` -- which is not touched, and keeps working for 1.5
+    // clients and the Activity page.
+    //
+    // The event log cannot answer "who is logged in now": a logout needs a
+    // network round trip at the moment the machine is going away, so six of
+    // eleven sessions on the lab server have no logout at all. Here the open
+    // set is re-reported and whatever stops being reported is closed --
+    // marked `inferred`, dated to husLastSeen, because "we never found out"
+    // and "logged out at 11:54" are different facts.
+    //
+    // husSessionKey plus husStartedAt is identity: a second logon by the
+    // same user is a distinct session, not an ambiguous second event.
+    // husUserName and husDomain are separate and unmangled, unlike the
+    // legacy table, which lowercases and strips the domain and so merges
+    // CORP\jsmith with LAB\jsmith.
+    "CREATE TABLE IF NOT EXISTS `hostUserSession` ( "
+    . "`husID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`husHostID` int(11) NOT NULL, "
+    . "`husSessionKey` varchar(191) NOT NULL DEFAULT '', "
+    . "`husUserName` varchar(255) NOT NULL DEFAULT '', "
+    . "`husDomain` varchar(255) NOT NULL DEFAULT '', "
+    . "`husUserSID` varchar(191) NOT NULL DEFAULT '', "
+    . "`husType` varchar(32) NOT NULL DEFAULT '', "
+    . "`husState` varchar(32) NOT NULL DEFAULT '', "
+    . "`husRemoteHost` varchar(255) NOT NULL DEFAULT '', "
+    . "`husStartedAt` datetime NOT NULL, "
+    . "`husEndedAt` datetime DEFAULT NULL, "
+    . "`husEndReason` varchar(32) NOT NULL DEFAULT '', "
+    . "`husLastSeen` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`husID`), "
+    . "UNIQUE KEY `husHostKeyStart` (`husHostID`,`husSessionKey`,`husStartedAt`), "
+    . "KEY `husHostOpen` (`husHostID`,`husEndedAt`), "
+    . "KEY `husUserName` (`husUserName`), "
+    . "KEY `husStartedAt` (`husStartedAt`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Whether to keep feeding the legacy table as well. On by default so a
+    // fleet migrating to fog-agent sees no gap in the Activity page it
+    // already uses; off for an estate that has fully migrated and does not
+    // want the duplicate rows.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_USERTRACKING_COMPAT_WRITE','This setting defines if agent-reported "
+    . "user sessions are also written to the legacy user tracking table, so "
+    . "the Activity page keeps showing them while an estate migrates. Turn it "
+    . "off once every client is a fog-agent. (Valid values: 0 or 1).','1','FOG Client')",
+    // Sessions age out on their own clock: they are far coarser than the
+    // event rows (one per logon, not two), so an estate may want to keep
+    // them longer than the legacy table's.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_HOSTUSERSESSION_RETENTION_DAYS','This setting defines how many "
+    . "days of agent-reported user sessions to keep. Zero keeps them "
+    . "forever. (Valid values: a whole number of days).','365','FOG Audit')",
+];
+
+// 423
+$this->schema[] = [
+    // What directory each host is ACTUALLY a member of, and
+    // where its computer object ACTUALLY sits (design 0009).
+    //
+    // The hosts table's hostADDomain and hostADOU are intent -- what an
+    // admin typed into a form -- and nothing anywhere has ever recorded the
+    // other half. So FOG cannot answer "which of my machines are not where
+    // I think they are", and the legacy client made that worse by never
+    // comparing the OU at all: it short-circuits on "already joined to the
+    // target domain" and reads the OU only as lpAccountOU at the initial
+    // join, so editing a host's OU does nothing, forever, silently.
+    //
+    // One row per host, not a history: this is current state, so it is
+    // replaced in place and needs no retention entry. hdComputerDN is the
+    // load-bearing column -- a server-side LDAP Modify DN needs the exact
+    // object, and having the machine report its own DN means the server
+    // never has to search by name and guess between duplicates.
+    //
+    // hdObservedAt is when this membership was last REPORTED, not when it
+    // was last confirmed true. The agent hash-gates the block, so an
+    // unchanged membership is never sent and this column would otherwise
+    // claim a freshness nobody checked. "Is this still true" is answered by
+    // the host's own hostAgentCheckin, which the report shows beside it.
+    "CREATE TABLE IF NOT EXISTS `hostDirectory` ( "
+    . "`hdID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hdHostID` int(11) NOT NULL, "
+    . "`hdJoined` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hdKind` varchar(32) NOT NULL DEFAULT '', "
+    . "`hdDomain` varchar(255) NOT NULL DEFAULT '', "
+    . "`hdNetbios` varchar(64) NOT NULL DEFAULT '', "
+    . "`hdComputerDN` varchar(1024) NOT NULL DEFAULT '', "
+    . "`hdMachineAccount` varchar(255) NOT NULL DEFAULT '', "
+    . "`hdSite` varchar(255) NOT NULL DEFAULT '', "
+    . "`hdObservedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hdID`), "
+    . "UNIQUE KEY `hdHostID` (`hdHostID`), "
+    . "KEY `hdDomain` (`hdDomain`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
+
+// 424
+$this->schema[] = [
+    // Design 0009 section 5: FOG moves a computer object between OUs itself,
+    // with one LDAP Modify DN, instead of asking the machine to leave the
+    // domain and rejoin -- which is what an admin is reduced to today, and
+    // which costs the object its password and, if it is recreated, its SID.
+    //
+    // Proven against a real DC before these columns existed: a service
+    // account delegated create/delete-child of computer objects on ONE
+    // subtree moved an object between two OUs under it, and was refused
+    // ("Insufficient access") when it tried to move the same object out of
+    // that subtree. That refusal is the whole security argument for giving
+    // FOG an account of its own rather than a domain admin.
+    //
+    // Named for the ATTEMPT, not the move. This stamp is written whenever
+    // placement consults the directory about a host -- which is also how a
+    // host that cannot report its own DN is kept off an every-poll LDAP
+    // search -- so a name like hdMovedAt would say a move happened on every
+    // occasion nothing did.
+    "ALTER TABLE `hostDirectory` "
+    . "ADD COLUMN `hdPlacementAt` datetime DEFAULT NULL, "
+    . "ADD COLUMN `hdPlacementError` varchar(255) NOT NULL DEFAULT ''",
+    // Off until it is configured. Placement WRITES to the directory, so it
+    // must never begin working because someone upgraded.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_PLACEMENT_ENABLED','This setting defines if FOG moves "
+    . "a host\\'s computer object into the OU set on the host, using the "
+    . "directory account below. Off by default: this writes to your "
+    . "directory. (Valid values: 0 or 1).','0','FOG Directory')",
+    // ldaps:// or an ldap:// that will be promoted with StartTLS. A bind
+    // carries the credential, and Active Directory refuses a simple bind on
+    // a cleartext connection anyway ("Strong(er) authentication required").
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_LDAP_URI','This setting defines the directory server "
+    . "FOG connects to when placing computer objects, as a URI. Use "
+    . "ldaps://dc.example.com -- a host name, not an address, or the "
+    . "server\\'s certificate cannot be verified. (Valid values: an LDAP "
+    . "URI).','','FOG Directory')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_BIND_DN','This setting defines the account FOG binds "
+    . "as to move computer objects, as a userPrincipalName or a full DN. It "
+    . "needs create-child and delete-child of computer objects on the "
+    . "subtree holding them, and nothing else. (Valid values: a UPN or "
+    . "DN).','','FOG Directory')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_BIND_PASSWORD','This setting defines the password for "
+    . "the directory account above. Stored encrypted. (Valid values: a "
+    . "password).','','FOG Directory')",
+    // The search base for the fallback when a host could not report its own
+    // DN -- no Linux join tool exposes one, so the server looks the object
+    // up by its machine account name instead.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_BASE_DN','This setting defines where FOG searches for "
+    . "a computer object when the host could not report its own "
+    . "distinguished name, which is normal on Linux. (Valid values: a base "
+    . "DN such as DC=example,DC=com).','','FOG Directory')",
+    // A private CA is the norm for a directory, and refusing to verify the
+    // certificate would make the TLS above decorative.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_DIRECTORY_CA_CERT','This setting defines the path to the CA "
+    . "certificate that signed your directory server\\'s certificate. Leave "
+    . "empty to use the system trust store. (Valid values: a file "
+    . "path).','','FOG Directory')",
+];
+
+// 425
+$this->schema[] = [
+    // Step 424 described FOG_DIRECTORY_BIND_PASSWORD as "Stored encrypted".
+    // It is not, and saying so is worse than saying nothing: an admin who
+    // believes a secret is encrypted at rest will treat a database dump as
+    // safe to hand over.
+    //
+    // FOG has no key store. aesencrypt() takes a key and PUTS IT IN THE
+    // CIPHERTEXT (`iv|data|key`), and aesdecrypt() returns anything without a
+    // `|` unchanged -- which is why the LDAP plugin's bind password has always
+    // been stored exactly as typed. This setting behaves the same way, so the
+    // description now says what is true and points at the mitigation that is
+    // real: delegate the account narrowly, so what the row is worth to an
+    // attacker is bounded by what the account can do.
+    "UPDATE `globalSettings` SET `settingDesc` = 'This setting defines the "
+    . "password for the directory account above. Stored in the database as "
+    . "typed -- FOG has no key store, so treat a database dump as disclosing "
+    . "it, and delegate the account to one subtree rather than granting it "
+    . "domain rights. (Valid values: a password).' "
+    . "WHERE `settingKey` = 'FOG_DIRECTORY_BIND_PASSWORD'",
+];
+
+// 426
+$this->schema[] = [
+    // Design 0010: FOG has never recorded what printers a machine actually
+    // has. Both legacy platform managers had a GetPrinters() and neither
+    // ever transmitted the result -- all three call sites are local
+    // decisions inside PrinterManager.cs -- so "did the printer I assigned
+    // actually install?" has had no answer since the feature shipped.
+    //
+    // Two tables rather than one. hostSpooler is the per-host anchor: which
+    // print subsystem the machine runs, and when it last said so. It exists
+    // separately from hostPrinter because a machine with CUPS and no queues
+    // has REPORTED, and a report that could only see hostPrinter rows would
+    // show that host as never having answered -- which is precisely the
+    // invisible-absence failure design 0010 section 6 is built to avoid.
+    //
+    // hostFactState already records the same "when did this host last
+    // report kind X", but that table is the poll's hash cache. A report
+    // built on it would couple an admin-facing page to the protocol's
+    // internal bookkeeping, and would break the next time the gate changes.
+    "CREATE TABLE IF NOT EXISTS `hostSpooler` ( "
+    . "`hspID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hspHostID` int(11) NOT NULL, "
+    . "`hspSubsystem` varchar(16) NOT NULL DEFAULT '', "
+    . "`hspObservedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hspID`), "
+    . "UNIQUE KEY `hspHostID` (`hspHostID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // One row per queue observed on a host.
+    //
+    // hpURI is the load-bearing column and the whole of design 0010 section
+    // 2: both spoolers already describe a printer as a device URI plus a
+    // driver, so recording the URI is what lets a Windows row and a CUPS row
+    // for the same physical device be recognized as the same device. FOG's
+    // pConfig could never do that -- it named a code path, not a printer.
+    //
+    // hpDriver empty is a real value meaning driverless (IPP Everywhere),
+    // which FOG's existing model has no way to express at all.
+    "CREATE TABLE IF NOT EXISTS `hostPrinter` ( "
+    . "`hpID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hpHostID` int(11) NOT NULL, "
+    . "`hpName` varchar(255) NOT NULL DEFAULT '', "
+    . "`hpURI` varchar(1024) NOT NULL DEFAULT '', "
+    . "`hpDriver` varchar(255) NOT NULL DEFAULT '', "
+    . "`hpDefault` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hpShared` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hpObservedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hpID`), "
+    . "UNIQUE KEY `hpHostName` (`hpHostID`,`hpName`), "
+    . "KEY `hpName` (`hpName`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Where a failed install gets to live. Today a printer that will not
+    // install produces nothing an admin can see: the client retries the same
+    // thing every poll, forever, silently. paAppliedAt is named for the
+    // ATTEMPT, not the success -- the hdPlacementAt lesson from step 424.
+    "ALTER TABLE `printerAssoc` "
+    . "ADD COLUMN `paAppliedAt` datetime DEFAULT NULL, "
+    . "ADD COLUMN `paError` varchar(255) NOT NULL DEFAULT ''",
+    // paIsDefault is a varchar(2) holding a boolean; groupPrinterAssoc's
+    // gpaIsDefault is a tinyint(1) holding the same idea. Same concept, two
+    // types, because they were added years apart.
+    //
+    // The UPDATE has to come first. The column holds '' on every row nobody
+    // ever set, and MariaDB in strict mode refuses to convert '' to an
+    // integer -- so a bare MODIFY fails the upgrade on essentially every
+    // existing install rather than on none of them.
+    "UPDATE `printerAssoc` SET `paIsDefault`='0' "
+    . "WHERE `paIsDefault` NOT IN ('0','1')",
+    "ALTER TABLE `printerAssoc` "
+    . "MODIFY COLUMN `paIsDefault` tinyint(1) NOT NULL DEFAULT 0",
+    // The pre-allocated spare columns. `plugins` had the same pAnon1-pAnon5
+    // and they were renamed into real columns (pIcon, pRunfile, pLocation)
+    // through schema-expected.php's `renames` block; the printer ones were
+    // never claimed by anything, in ten years. Verified across the whole
+    // tree before dropping: the only readers were the two Items field maps
+    // and four hidden DataTables export columns, all updated in this change.
+    "ALTER TABLE `printerAssoc` "
+    . "DROP COLUMN `paAnon1`, DROP COLUMN `paAnon2`, DROP COLUMN `paAnon3`, "
+    . "DROP COLUMN `paAnon4`, DROP COLUMN `paAnon5`",
+    "ALTER TABLE `printers` "
+    . "DROP COLUMN `pAnon2`, DROP COLUMN `pAnon3`, DROP COLUMN `pAnon4`, "
+    . "DROP COLUMN `pAnon5`",
+];
+
+// 427
+$this->schema[] = [
+    // Design 0010 section 2: a printer is a device URI and a driver, which
+    // is how both spoolers already describe one. This is the column that
+    // makes a printer row portable -- the same physical device is a TCP/IP
+    // port on Windows and a socket:// device URI on CUPS, and until they are
+    // written the same way nothing can tell they are the same printer.
+    //
+    // It is also the only way to express a DRIVERLESS printer (IPP
+    // Everywhere), where the device describes its own capabilities and no
+    // driver file exists. FOG's model has pDefFile and pModel and no way to
+    // say "neither", which for a lot of estates is now the common case.
+    //
+    // DELIBERATELY NOT BACKFILLED, and this is a change from what design
+    // 0010 section 7 first proposed. Deriving pConfig/pIP/pPort into a
+    // stored URI once, on upgrade, bakes the derivation in: pPort is a
+    // longtext that has held whatever an admin typed for a decade, so some
+    // rows will derive wrong, and a stored wrong answer has to be found and
+    // corrected by hand on every install. Items\Printer::uri() derives on
+    // read instead, so this column holds only what an admin explicitly set,
+    // an empty one keeps following the type-specific fields, and fixing the
+    // derivation fixes every printer at once.
+    "ALTER TABLE `printers` "
+    . "ADD COLUMN `pURI` varchar(1024) NOT NULL DEFAULT ''",
+];
+
+// 428
+$this->schema[] = [
+    // Design 0009 section 6: the agent joins a machine to the domain the
+    // host record asks for, and what happened is recorded here.
+    //
+    // These two columns are the whole reason the join is safe to automate.
+    // A join that fails on a bad password is a FAILED AUTHENTICATION
+    // against somebody's domain controller, and without a stamp to hold a
+    // cooldown against it is one per host per poll -- which is how a
+    // service account with a lockout policy gets locked out, taking every
+    // other host's join with it. `hdJoinAt` is what
+    // Agent\DirectoryJoin::RETRY_AFTER reads.
+    //
+    // Named for the ATTEMPT, like hdPlacementAt beside it: this is stamped
+    // whenever the agent acted, so a name like hdJoinedAt would claim a
+    // join happened on every occasion one did not.
+    //
+    // Deliberately separate from hdPlacementAt/hdPlacementError rather than
+    // reusing them. They are different operations by different actors --
+    // the machine joins, the server moves -- and a report that showed one
+    // error against both would be a report that lies about which half is
+    // broken.
+    "ALTER TABLE `hostDirectory` "
+    . "ADD COLUMN `hdJoinAt` datetime DEFAULT NULL, "
+    . "ADD COLUMN `hdJoinError` varchar(255) NOT NULL DEFAULT ''",
+];
+
+// 429
+$this->schema[] = [
+    // Design 0011 section 3: which links a host is actually on.
+    //
+    // FOG has never recorded a host's interfaces. `hosts.hostIP` is
+    // whatever the host last resolved to -- one address, no prefix, no
+    // notion of which of several interfaces it came from -- so "which
+    // machines share a link with host 41" has not been a question this
+    // server could answer, and that question is the entire basis of the
+    // wake relay: a magic packet is a link-layer broadcast, and FOG can
+    // only send one from a machine it owns.
+    //
+    // hnNetwork is the address masked to hnPrefix, stored rather than
+    // computed. Two hosts are on the same link when both columns match,
+    // which is an index lookup; the honest alternative,
+    // `INET_ATON(hnIPv4) & mask`, is a full scan on every wake.
+    //
+    // One row per host per interface ADDRESS, not per interface: an
+    // interface with two addresses is on two links and can broadcast on
+    // both. Replaced in place, not a history -- this is current state.
+    //
+    // hnObservedAt is when the interfaces were last REPORTED, not when
+    // they were last confirmed. The agent hash-gates the block, so an
+    // unchanged set is never sent; "is this still true" is answered by
+    // the host's own hostAgentCheckin, which is also what says whether
+    // the machine is awake enough to relay anything.
+    "CREATE TABLE IF NOT EXISTS `hostNetwork` ( "
+    . "`hnID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hnHostID` int(11) NOT NULL, "
+    . "`hnName` varchar(255) NOT NULL DEFAULT '', "
+    . "`hnMAC` varchar(17) NOT NULL DEFAULT '', "
+    . "`hnIPv4` varchar(15) NOT NULL DEFAULT '', "
+    . "`hnPrefix` tinyint(3) unsigned NOT NULL DEFAULT 0, "
+    . "`hnNetwork` varchar(15) NOT NULL DEFAULT '', "
+    . "`hnBroadcast` varchar(15) NOT NULL DEFAULT '', "
+    . "`hnUp` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hnWireless` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`hnObservedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`hnID`), "
+    . "UNIQUE KEY `hnHostAddress` (`hnHostID`,`hnName`,`hnIPv4`), "
+    . "KEY `hnLink` (`hnNetwork`,`hnPrefix`), "
+    . "KEY `hnMAC` (`hnMAC`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
+
+// 430
+$this->schema[] = [
+    // Design 0011: one row per (machine to wake, machine asked to send it).
+    //
+    // A wake ordered now cannot be relayed now -- the neighboring agent
+    // finds out when it next polls -- so the request has to be written
+    // down somewhere, and FOG has nowhere. That is what this table is.
+    //
+    // Fanning out to SEVERAL senders is deliberate: a magic packet is one
+    // UDP datagram, sending three costs nothing, and the alternative is a
+    // wake that silently does nothing because the single chosen sender
+    // went to sleep between the poll and the send.
+    //
+    // It is also the first time FOG can say anything at all about whether
+    // a wake happened. The existing path is fire and forget: a machine
+    // that stays asleep is indistinguishable from a packet that never
+    // left the building. Here "three machines were asked and all three
+    // said they sent it" is a row an admin can read.
+    //
+    // awExpiresAt is what keeps a wake from being a standing instruction.
+    // A machine that comes back a week later must not be told to broadcast
+    // for a wake somebody ordered last Tuesday.
+    "CREATE TABLE IF NOT EXISTS `agentWake` ( "
+    . "`awID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`awTargetID` int(11) NOT NULL, "
+    . "`awSenderID` int(11) NOT NULL, "
+    . "`awRequestedAt` datetime DEFAULT NULL, "
+    . "`awExpiresAt` datetime DEFAULT NULL, "
+    . "`awStatus` varchar(16) NOT NULL DEFAULT 'pending', "
+    . "`awPackets` int(11) NOT NULL DEFAULT 0, "
+    . "`awDetail` varchar(255) NOT NULL DEFAULT '', "
+    . "`awReportedAt` datetime DEFAULT NULL, "
+    . "`awRequestedBy` varchar(255) NOT NULL DEFAULT '', "
+    . "PRIMARY KEY (`awID`), "
+    . "KEY `awSenderStatus` (`awSenderID`,`awStatus`), "
+    . "KEY `awTargetID` (`awTargetID`), "
+    . "KEY `awExpiresAt` (`awExpiresAt`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Off by default. This asks one customer machine to put traffic on the
+    // network on behalf of another, which is a thing an estate owner opts
+    // into rather than discovers after an upgrade.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_WAKE_RELAY_ENABLED','This setting defines if FOG may ask "
+    . "an enrolled agent to send a Wake-on-LAN packet for another FOG host "
+    . "on the same subnet. This reaches subnets that have no FOG server or "
+    . "storage node on them, which cannot be woken otherwise. Off by "
+    . "default. (Valid values: 0 or 1).','0','FOG Agent')",
+];
+
+// 431
+$this->schema[] = [
+    // Display Manager goes, and its table with it.
+    //
+    // The module reset a client's screen resolution to a fixed size at
+    // logoff and at startup. That was a reasonable thing for a lab in 2010
+    // and it is the wrong layer now: Windows has honored the per-monitor
+    // EDID-preferred mode by itself for a decade, a fixed resolution pushed
+    // over the top of it is wrong on every machine whose panel is not the
+    // size the setting names, and a laptop that docks changes its answer
+    // twice a day. Nothing in the rebuilt agent implements it and nothing
+    // will; the answer to "my screens are wrong" is not a FOG setting.
+    //
+    // This is the greenfog removal (step 375) repeated with one difference:
+    // Display Manager owns a table, and the table goes too.
+    //
+    // That is a deliberate, irreversible loss of the per-host `hssWidth`,
+    // `hssHeight` and `hssRefresh` an admin configured. Keeping the rows
+    // was considered and rejected. Every consumer is removed in this same
+    // commit -- the client endpoint, the host card, the mass-edit field,
+    // Host::getDispVals()/setDisp(), Group::setDisp() -- so keeping the
+    // table would mean keeping `HostScreenSetting`, its manager, its
+    // `hostscreensetting` REST route, its Authorization mapping and its
+    // foreign key alive to serve data that nothing writes and nothing
+    // honors. Step 375 named that failure exactly: a setting that lies is
+    // worse than no setting, and an API route reporting a resolution the
+    // fleet does not apply is a setting that lies.
+    //
+    // Ordered so nothing ever references something already gone: the
+    // per-host module answers first, then the module row, then the four
+    // globalSettings rows, then the table. msModuleID is a VARCHAR and step
+    // 34 seeded these with the short name before a later step rewrote them
+    // to the numeric id, so a server upgraded across that boundary can hold
+    // either spelling and both are matched -- the same care step 375 took.
+    //
+    // The seed steps that created all of this are deliberately NOT edited.
+    // schema.php is a replay log; step 326 set that precedent and step 375
+    // followed it. A fresh install creates these and removes them one step
+    // later, which costs nothing and keeps the history readable.
+    "DELETE FROM `moduleStatusByHost` "
+    . "WHERE `msModuleID` IN ('3', 'displaymanager')",
+    "DELETE FROM `modules` WHERE `short_name` = 'displaymanager'",
+    "DELETE FROM `globalSettings` WHERE `settingKey` IN ("
+    . "'FOG_CLIENT_DISPLAYMANAGER_ENABLED',"
+    . "'FOG_CLIENT_DISPLAYMANAGER_X',"
+    . "'FOG_CLIENT_DISPLAYMANAGER_Y',"
+    . "'FOG_CLIENT_DISPLAYMANAGER_R')",
+    Schema::dropTable('hostScreenSettings'),
+];
+
+// 432
+$this->schema[] = [
+    // Auto Log Out gets a configurable warning, and loses a setting that
+    // has never done anything.
+    //
+    // FOG_CLIENT_AUTOLOGOFF_WARN is how long the user is told before they
+    // are logged off. The legacy .NET client baked that countdown in; the
+    // rebuilt agent (design 0014) takes it from here, and 0 means log the
+    // user off with no warning at all -- legal, and what a kiosk wants.
+    // Sixty seconds is the default because it is long enough to notice and
+    // short enough that the machine is actually freed.
+    //
+    // FOG_CLIENT_AUTOLOGOFF_BGIMAGE goes. It named the 300x300 background
+    // of the .NET client's countdown window, and there is no countdown
+    // window any more: the agent is a service in session 0, which has had
+    // no visible desktop since Vista, so it warns through WTSSendMessage --
+    // rendered by winlogon inside the user's own session, and not something
+    // an image can be attached to. Nothing has read this setting since the
+    // legacy client stopped shipping, and the FOG Configuration page never
+    // rendered it, so it is a row that promises a thing FOG cannot do. That
+    // is the same defect step 375 removed FOG_CLIENT_GREENFOG_ENABLED for
+    // and step 326 removed FOG_PLUGINSYS_DIR for: a setting that lies is
+    // worse than no setting.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_CLIENT_AUTOLOGOFF_WARN','This setting defines how many seconds "
+    . "before an automatic log out the user is warned. 0 logs the user out "
+    . "with no warning. The warning is a message box shown in the users own "
+    . "session; moving the mouse or pressing a key cancels the log out.',"
+    . "'60','FOG Client - Auto Log Off')",
+    "DELETE FROM `globalSettings` "
+    . "WHERE `settingKey` = 'FOG_CLIENT_AUTOLOGOFF_BGIMAGE'",
+];
+
+// 433
+$this->schema[] = [
+    // The last four legacy client modules go, and their tables with them.
+    //
+    // Directory Cleaner deleted the contents of paths a `dirCleaner` row
+    // named. User Cleanup deleted the Windows profiles a `userCleanup` row
+    // named. Client Updater served .NET client binaries out of
+    // `clientUpdates` so the old service could replace itself. Green FOG
+    // ran scheduled power actions; step 375 removed its module, settings
+    // and per-host rows but left `greenFog` standing.
+    //
+    // None of the four is reimplemented and none will be. Power Management
+    // (design 0004) already does what Green FOG did. The rebuilt agent
+    // updates through the MSI at a stable URL plus a snapin filtered on the
+    // agentVersion it already reports -- a deliberate decision against a
+    // self-replacing updater, so Client Updater is not a gap but a closed
+    // question. Deleting paths and profiles across a fleet is what snapins
+    // are for: a snapin ships a script and returns an exit code and its
+    // output, where these modules returned nothing an admin could read.
+    //
+    // They were already inert. getGlobalModuleStatus() has not listed any
+    // of them for some time, so ServiceModule::send() answered `#!um` to a
+    // legacy client that asked, no service/ endpoint serves them, and the
+    // three surviving FOG_CLIENT_*_ENABLED settings were rendered as
+    // checkboxes nothing read. What survived was rows: a `modules` row
+    // apiece and 86 per-host answers each on the lab, which is a fleet's
+    // worth of stored opinion about modules that cannot run. That is the
+    // FOG_PLUGINSYS_DIR and greenfog defect (steps 326 and 375) a third
+    // time.
+    //
+    // NOTHING RECOVERABLE IS LOST. `dirCleaner`, `clientUpdates` and
+    // `greenFog` are empty on a server that ever ran the modules, because
+    // 1.6 removed every page that wrote them. `userCleanup` holds rows, but
+    // they are the seed step 9 inserts on every install -- admin, guest,
+    // administrator, HelpAssistant, ASPNET, SUPPORT_ -- and not operator
+    // data. An install that added its own names loses those names, which is
+    // the same trade Display Manager took in step 431.
+    //
+    // Ordered so nothing references something already gone: per-host
+    // answers, then the module rows, then the settings, then the tables.
+    // msModuleID is a VARCHAR that held the short name before a later step
+    // rewrote it to the numeric id, so both spellings are matched -- the
+    // care steps 375 and 431 took.
+    //
+    // The seed steps are deliberately NOT edited. schema.php is a replay
+    // log; step 326 set that precedent, 375 and 431 followed it.
+    "DELETE FROM `moduleStatusByHost` WHERE `msModuleID` IN ("
+    . "'1', '2', '7', 'dircleanup', 'usercleanup', 'clientupdater')",
+    "DELETE FROM `modules` WHERE `short_name` IN ("
+    . "'dircleanup', 'usercleanup', 'clientupdater')",
+    "DELETE FROM `globalSettings` WHERE `settingKey` IN ("
+    . "'FOG_CLIENT_DIRECTORYCLEANER_ENABLED',"
+    . "'FOG_CLIENT_USERCLEANUP_ENABLED',"
+    . "'FOG_CLIENT_CLIENTUPDATER_ENABLED')",
+    Schema::dropTable('dirCleaner'),
+    Schema::dropTable('userCleanup'),
+    Schema::dropTable('clientUpdates'),
+    Schema::dropTable('greenFog'),
+];

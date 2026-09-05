@@ -42,11 +42,8 @@ class PrinterAssociation extends FOGController
         'hostID' => 'paHostID',
         'printerID' => 'paPrinterID',
         'isDefault' => 'paIsDefault',
-        'anon1' => 'paAnon1',
-        'anon2' => 'paAnon2',
-        'anon3' => 'paAnon3',
-        'anon4' => 'paAnon4',
-        'anon5' => 'paAnon5'
+        'appliedAt' => 'paAppliedAt',
+        'error' => 'paError'
     ];
     /**
      * The required fields.

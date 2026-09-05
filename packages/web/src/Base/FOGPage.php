@@ -69,6 +69,29 @@ abstract class FOGPage extends FOGBase
      */
     public $title;
     /**
+     * Whether this page's grid lets you select and act on rows.
+     *
+     * The toolbar used to decide by NODE NAME -- a hardcoded list of
+     * ['plugin', 'task', 'activity', 'audit'] that a read-only page had to
+     * be added to, and which the next one silently was not: Agent Activity
+     * shipped drawing a red "Delete selected" over a grid whose own JS sets
+     * `select: false` and whose table has no delete route anywhere in FOG
+     * (ADR 0021 Decision 8).
+     *
+     * A page says what it is instead of the toolbar guessing from its URL.
+     * The pages that were in that list set this false, and so does any page
+     * added later -- forgetting it now means the buttons appear, which is
+     * visible, rather than a name missing from a list nobody reads.
+     *
+     * This is the PHP half. Select All / Deselect All are DataTables Buttons
+     * and are dropped by registerTable() when a table passes
+     * `select: false`, which is the same statement made in the layer that
+     * owns those buttons.
+     *
+     * @var bool
+     */
+    public $selectable = true;
+    /**
      * The menu (always display)
      *
      * @var array
@@ -99,6 +122,18 @@ abstract class FOGPage extends FOGBase
      * @var array
      */
     public $noteSources = [];
+    /**
+     * Pre-rendered action buttons for the info card, or ''.
+     *
+     * Sits to the right of the notes in the same card. Built by a page's
+     * edit() -- renderQuickTaskActions() is the only builder today -- and
+     * echoed by renderInfoCard(). A string rather than a spec array because
+     * the only thing the renderer does with it is echo it, and the pages
+     * that set it are already building markup with makeButton().
+     *
+     * @var string
+     */
+    public $noteActions = '';
     /**
      * Table header data
      *
@@ -138,6 +173,7 @@ abstract class FOGPage extends FOGBase
         'storagenode',
         'storagegroup',
         'snapin',
+        'software',
         'plugin',
         'printer',
         'task',
@@ -546,6 +582,10 @@ abstract class FOGPage extends FOGBase
                 self::$foglang['Snapins'],
                 'fas fa-cube'
             ],
+            'software' => [
+                self::$foglang['Software'],
+                'fas fa-box-open'
+            ],
             'storagegroup' => [
                 self::$foglang['Storagegroups'],
                 'far fa-object-group'
@@ -641,6 +681,16 @@ abstract class FOGPage extends FOGBase
             'logviewer' => [
                 _('Log Viewer'),
                 'fas fa-file-lines'
+            ],
+            // Fourth under Logging. The audit log above holds these rows
+            // too, but only as one flat install-wide grid -- this reads them
+            // by host, which is the question anyone actually has about an
+            // agent. Its own gate for the reason its coreRegistry() entry
+            // gives: what a machine reported and who failed to sign in are
+            // different disclosures.
+            'agentactivity' => [
+                _('Agent Activity'),
+                'fas fa-satellite-dish'
             ],
             'service' => [
                 self::$foglang['ClientSettings'],
@@ -846,7 +896,7 @@ abstract class FOGPage extends FOGBase
             'logging' => [
                 'title'    => _('Logging'),
                 'icon'     => 'fas fa-scroll',
-                'children' => ['activity', 'audit', 'logviewer'],
+                'children' => ['activity', 'audit', 'logviewer', 'agentactivity'],
             ],
         ];
     }
@@ -1084,6 +1134,9 @@ abstract class FOGPage extends FOGBase
             case 'snapin':
                 return ['list' => _('List All Snapins'),
                         'add' => _('Create New Snapin')];
+            case 'software':
+                return ['list' => _('List All Software'),
+                        'add' => _('Create New Software')];
             case 'storagegroup':
                 return ['list' => _('List All Storage Groups'),
                         'add' => _('Create New Storage Group')];
@@ -1272,6 +1325,18 @@ abstract class FOGPage extends FOGBase
                     $menu,
                     'pendingMacs',
                     _('Pending MACs')
+                );
+                self::arrayInsertBefore(
+                    'export',
+                    $menu,
+                    'pendingAgents',
+                    _('Pending Agents')
+                );
+                self::arrayInsertBefore(
+                    'export',
+                    $menu,
+                    'agentTokens',
+                    _('Agent Tokens')
                 );
                 break;
             case 'report':
@@ -1860,18 +1925,20 @@ abstract class FOGPage extends FOGBase
             if ($sub == 'list') {
                 // Tasks are canceled per-pane, never deleted; the tabbed
                 // task page hits sub=list via the no-sub default, so keep
-                // the delete actionbox off it. Activity and the audit log
-                // are read-only views of the event logs -- ?node=X&sub=list
-                // resolves to index() like any unknown sub does, and without
-                // this they would draw a "Delete selected" neither page
-                // implements. For the audit log there is nothing to
-                // implement it WITH: auditlog and auditchange have no delete
-                // route anywhere in FOG (ADR 0021 Decision 8).
-                if (!in_array(
-                    $node,
-                    ['plugin', 'task', 'activity', 'audit'],
-                    true
-                )) {
+                // the delete actionbox off it. Activity, the audit log and
+                // agent activity are read-only views of the event logs --
+                // ?node=X&sub=list resolves to index() like any unknown sub
+                // does, and without this they would draw a "Delete selected"
+                // none of them implements. For the audit trail there is
+                // nothing to implement it WITH: auditlog and auditchange
+                // have no delete route anywhere in FOG (ADR 0021
+                // Decision 8).
+                //
+                // Read from the page, not from its node name. The list this
+                // replaces had to be edited every time a read-only page was
+                // added and was not when Agent Activity arrived, so that
+                // page shipped a red Delete selected it could not honor.
+                if ($this->selectable) {
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),
@@ -3646,20 +3713,17 @@ abstract class FOGPage extends FOGBase
         (new RegisterClient())->json();
         ob_end_clean();
         try {
+            // The legacy client has no module for `software`: the agent
+            // takes it through /agent/v1 (Agent\State). Left in this list
+            // the default branch below resolves the key to Items\Software,
+            // which has no json(), and every legacy check-in fatals.
             $igMods = [
-                'dircleanup',
-                'usercleanup',
-                'clientupdater',
                 'hostregister',
+                'software',
             ];
             $globalModules = array_diff(
                 self::getGlobalModuleStatus(false, true),
-                [
-                    'dircleanup',
-                    'usercleanup',
-                    'clientupdater',
-                    'hostregister'
-                ]
+                $igMods
             );
             $globalInfo = self::getGlobalModuleStatus();
             $globalDisabled = [];

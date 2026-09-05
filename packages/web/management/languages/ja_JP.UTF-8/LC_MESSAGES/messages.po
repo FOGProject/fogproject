@@ -117,6 +117,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
+msgid "%d decided, %d not: %s"
+msgstr ""
+
+#, php-format
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
@@ -285,6 +289,10 @@ msgstr ""
 msgid "(all)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "(deleted host %d)"
+msgstr "選択したホストを承認"
+
 #, fuzzy
 msgid "(deleted user)"
 msgstr "選択したユーザーを追加"
@@ -305,7 +313,13 @@ msgstr ""
 msgid ", Arguments = %s"
 msgstr "カーネル引数"
 
+msgid "0 checks only when the assigned set changes"
+msgstr ""
+
 msgid "0 is a normal snapin, 1 a snapin pack the client extracts before running."
+msgstr ""
+
+msgid "0 logs the user out with no warning"
 msgstr ""
 
 msgid "1 Hour"
@@ -408,6 +422,12 @@ msgstr "この名前のブロードキャストは既に存在します！"
 msgid "A client ID is required"
 msgstr "名前は必須です！"
 
+msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
+msgstr ""
+
+msgid "A disabled entry stops being managed; it does not remove the package."
+msgstr ""
+
 #, fuzzy
 msgid "A dmi field must be set!"
 msgstr "名前を設定する必要があります"
@@ -465,6 +485,9 @@ msgstr "この名前のユーザーは既に存在します"
 msgid "A migration step failed. The plugin is left activated and not marked installed."
 msgstr ""
 
+msgid "A missing name, a bad use count, or an expiry that is not in the future."
+msgstr ""
+
 #, fuzzy
 msgid "A module already exists with this name!"
 msgstr "この名前のロールは既に存在します！"
@@ -486,6 +509,9 @@ msgstr "すべてのルールを一覧表示"
 msgid "A permission name is required."
 msgstr "プリンター名は必須です！"
 
+msgid "A pinned entry needs a version."
+msgstr ""
+
 msgid "A plugin is PHP that runs on this server. Only upload one you trust. Nothing is installed until you have seen what the archive contains and confirmed it."
 msgstr ""
 
@@ -505,6 +531,9 @@ msgstr "この名前のプリンターは既に存在します！"
 
 #, php-format
 msgid "A request is pending since %s for %s."
+msgstr ""
+
+msgid "A revoked token can never approve an enrollment again."
 msgstr ""
 
 msgid "A role already exists with this name!"
@@ -544,6 +573,10 @@ msgstr "この名前のスナップインは既に存在します！"
 
 msgid "A snapin granted here reaches every host in this group, including hosts added later. Granting a snapin does not run it; deploy it from the Tasks tab when you want it to run."
 msgstr ""
+
+#, fuzzy
+msgid "A software entry already exists with this name!"
+msgstr "この名前のユーザーは既に存在します"
 
 #, fuzzy
 msgid "A storage group already exists with this name!"
@@ -673,6 +706,12 @@ msgstr ""
 
 #, php-format
 msgid "Aborted due to failure of \"%s\" with exit code %s"
+msgstr ""
+
+msgid "Absent"
+msgstr ""
+
+msgid "Absent removes the package if it is installed."
 msgstr ""
 
 msgid "Accepts the same optional filter as a list. Reports the true filtered total and ignores paging."
@@ -893,6 +932,10 @@ msgstr "ロケーションの追加に失敗しました！"
 msgid "Add snapin failed!"
 msgstr "スナップインの追加に失敗しました！"
 
+#, fuzzy
+msgid "Add software failed!"
+msgstr "サイトの追加に失敗しました！"
+
 msgid "Add storage node failed!"
 msgstr "ストレージノードの追加に失敗しました！"
 
@@ -971,6 +1014,33 @@ msgstr "詳細"
 msgid "Advanced Tasks"
 msgstr "詳細"
 
+msgid "Agent"
+msgstr ""
+
+#, fuzzy
+msgid "Agent Activity"
+msgstr "有効"
+
+#, fuzzy
+msgid "Agent Approval Success"
+msgstr "承認に成功しました"
+
+#, fuzzy
+msgid "Agent Denial Success"
+msgstr "プラグインをインストールしました！"
+
+#, fuzzy
+msgid "Agent Enrollment Tokens"
+msgstr "強制終了されました"
+
+#, fuzzy
+msgid "Agent Tokens"
+msgstr "ユーザー API トークン"
+
+#, fuzzy
+msgid "Agent enrollment tokens"
+msgstr "強制終了されました"
+
 msgid "Ago must be boolean"
 msgstr "Ago はブール値である必要があります"
 
@@ -987,6 +1057,10 @@ msgstr "メニュー項目を削除"
 
 msgid "All Hosts"
 msgstr "すべてのホスト"
+
+#, fuzzy
+msgid "All Pending Agents"
+msgstr "保留中 MAC アドレス"
 
 #, fuzzy
 msgid "All Pending Hosts"
@@ -1091,9 +1165,15 @@ msgstr ""
 msgid "An SQL error occurred"
 msgstr "不明なアップロードエラーが発生しました"
 
+msgid "An enrollment token, if the installer was given one."
+msgstr ""
+
 #, fuzzy
 msgid "An entry already exists with this name!"
 msgstr "この名前のプリンターは既に存在します！"
+
+msgid "An expiry is required. The token approves enrollments until it is spent or expires; revoke it here at any time."
+msgstr ""
 
 msgid "An image already exists with this name!"
 msgstr "この名前のイメージは既に存在します！"
@@ -1134,6 +1214,10 @@ msgstr ""
 msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
 msgstr ""
 
+#, fuzzy
+msgid "Any version"
+msgstr "バージョン"
+
 msgid "Anyone signing in through one of these directory groups is placed in this user group. Membership granted this way is recomputed on every sign in."
 msgstr ""
 
@@ -1171,15 +1255,33 @@ msgid "Approve"
 msgstr "承認"
 
 #, fuzzy
+msgid "Approve Agent Fail"
+msgstr "MAC アドレスを承認"
+
+#, fuzzy
 msgid "Approve MAC Fail"
 msgstr "MAC アドレスを承認"
+
+#, fuzzy
+msgid "Approve Pending Agents"
+msgstr "保留中ホスト"
 
 #, fuzzy
 msgid "Approve Pending Hosts"
 msgstr "保留中ホスト"
 
+msgid "Approve or deny an agent enrollment"
+msgstr ""
+
 #, fuzzy
 msgid "Approve selected"
+msgstr "選択したホストを承認"
+
+msgid "Approved but the signer is unavailable; the agent retries."
+msgstr ""
+
+#, fuzzy
+msgid "Approved selected agents!"
 msgstr "選択したホストを承認"
 
 #, fuzzy
@@ -1194,6 +1296,9 @@ msgstr "選択したホストを承認"
 msgid "Approving the selected pending hosts."
 msgstr "選択したホストを承認"
 
+msgid "Arch"
+msgstr ""
+
 msgid "Architecture"
 msgstr ""
 
@@ -1202,6 +1307,10 @@ msgstr ""
 
 msgid "Area"
 msgstr ""
+
+#, fuzzy
+msgid "Assigned"
+msgstr "関連付けられたホスト"
 
 #, fuzzy
 msgid "Assigned Group"
@@ -1264,6 +1373,9 @@ msgstr ""
 msgid "Authenticated but not permitted."
 msgstr ""
 
+msgid "Authenticated by the client certificate enrollment issued, verified by the web server and bound to the host by its key fingerprint before the route runs; no token or session applies. Records the check-in and answers with the revision of the host's desired state, plus the state itself when the applied revision the agent sent is not current or it asked for it. The revision is opaque: compared for equality, never parsed. A certificate that no longer binds to a live host gets 401, which tells the agent to enroll again. The request may also carry facts about the host -- hardware inventory, the installed-program list -- sent only when their content hash moved or the answer asked; the same conditional as the state, run in the other direction."
+msgstr ""
+
 msgid "Authentication missing or invalid."
 msgstr ""
 
@@ -1301,6 +1413,9 @@ msgstr "BIOS ベンダー"
 
 msgid "BIOS Version"
 msgstr "BIOS バージョン"
+
+msgid "Backend"
+msgstr ""
 
 #, fuzzy
 msgid "Bad request."
@@ -1525,6 +1640,10 @@ msgstr "キャンセルされたタスク"
 msgid "Canceled due to new tasking."
 msgstr "新しいタスクによりキャンセルされました。"
 
+#, fuzzy
+msgid "Cannot Run"
+msgstr "アイコンファイルが見つかりません"
+
 msgid "Cannot bind to the LDAP server"
 msgstr "LDAP サーバーにバインドできません"
 
@@ -1536,9 +1655,6 @@ msgstr "接続できません:"
 
 msgid "Cannot connect to database"
 msgstr "データベースに接続できません"
-
-msgid "Cannot connect to ftp server"
-msgstr "FTP サーバーに接続できません"
 
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
@@ -1736,6 +1852,10 @@ msgstr "このノードの FOGPage クラスが見つかりません"
 msgid "Check this value against what the enrollment tool shows before confirming, whether the certificate reached the client on a USB stick or over the network. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
+#, fuzzy
+msgid "Checked"
+msgstr "チェックサム"
+
 msgid "Checking for expired checked-in tasks..."
 msgstr ""
 
@@ -1746,6 +1866,12 @@ msgid "Checking if I am the group manager"
 msgstr "自身がグループマネージャーか確認しています"
 
 msgid "Chocolatey (offline source)"
+msgstr ""
+
+msgid "Chocolatey Install Script"
+msgstr ""
+
+msgid "Chocolatey Package Source"
 msgstr ""
 
 msgid "Choose a user"
@@ -1911,12 +2037,21 @@ msgstr "エラー: initrd のダウンロードに失敗しました"
 msgid "Confirm you would like to download a new kernel"
 msgstr "エラー: カーネルのダウンロードに失敗しました"
 
+msgid "Converged"
+msgstr ""
+
 #, php-format
 msgid "Converted %1$d `0` reference(s) to NULL across %2$d column(s)"
 msgstr ""
 
+msgid "Copy"
+msgstr ""
+
 msgid "Copy from existing"
 msgstr "既存の項目からコピー"
+
+msgid "Copy it now. It is not stored and cannot be shown again."
+msgstr ""
 
 msgid "Copy this token now"
 msgstr ""
@@ -1985,9 +2120,6 @@ msgstr "一時ファイルを読み取れませんでした。"
 
 #, fuzzy
 msgid "Could not read local file"
-msgstr "スナップインファイルを読み取れませんでした"
-
-msgid "Could not read snapin file"
 msgstr "スナップインファイルを読み取れませんでした"
 
 #, fuzzy
@@ -2085,6 +2217,9 @@ msgstr ""
 msgid "Create"
 msgstr "作成"
 
+msgid "Create Enrollment Token"
+msgstr ""
+
 msgid "Create Immediate Power task"
 msgstr ""
 
@@ -2166,6 +2301,10 @@ msgstr "新しい サイト を作成"
 msgid "Create New Snapin"
 msgstr "新しいスナップインを作成"
 
+#, fuzzy
+msgid "Create New Software"
+msgstr "新しい サイト を作成"
+
 msgid "Create New Storage Group"
 msgstr "新しい Storage Group を作成"
 
@@ -2214,6 +2353,10 @@ msgid "Create Users On First Login"
 msgstr ""
 
 #, fuzzy, php-format
+msgid "Create a %1$s task for %2$s?"
+msgstr "タスク状態を作成"
+
+#, fuzzy, php-format
 msgid "Create a %s"
 msgstr "新しい %s を作成"
 
@@ -2237,8 +2380,16 @@ msgid "Create task form success"
 msgstr "タスク状態を作成"
 
 #, fuzzy
+msgid "Create tasking"
+msgstr "新しいスナップインを作成"
+
+#, fuzzy
 msgid "Create tasking succeeded"
 msgstr "タスク状態を作成"
+
+#, fuzzy
+msgid "Create token"
+msgstr "新しい %s を作成"
 
 #, fuzzy
 msgid "Created"
@@ -2250,6 +2401,10 @@ msgstr "作成者"
 #, fuzzy
 msgid "Created Time"
 msgstr "ジョブ作成時刻"
+
+#, fuzzy
+msgid "Created by"
+msgstr "作成者"
 
 msgid "Created by FOG Reg on"
 msgstr "FOG Reg により作成:"
@@ -2379,21 +2534,15 @@ msgstr "デバッグオプション"
 msgid "Debug Task"
 msgstr "デバッグ"
 
+msgid "Decided."
+msgstr ""
+
 msgid "Default"
 msgstr "既定"
 
 #, fuzzy
 msgid "Default Choice"
 msgstr "既定の項目"
-
-msgid "Default Height"
-msgstr "既定の高さ"
-
-msgid "Default Refresh Rate"
-msgstr "既定の更新レート"
-
-msgid "Default Width"
-msgstr "既定の幅"
 
 #, fuzzy
 msgid "Default init, ARM64"
@@ -2474,6 +2623,28 @@ msgstr ""
 msgid "Deleting remote file"
 msgstr "リモートファイルを削除しています"
 
+msgid "Denied by an admin. The agent backs off to hourly."
+msgstr ""
+
+#, fuzzy
+msgid "Denied selected agents!"
+msgstr "選択したホストを承認"
+
+msgid "Deny"
+msgstr ""
+
+#, fuzzy
+msgid "Deny Agent Fail"
+msgstr "削除に失敗しました"
+
+#, fuzzy
+msgid "Deny Pending Agents"
+msgstr "保留中 MAC アドレス"
+
+#, fuzzy
+msgid "Deny selected"
+msgstr "選択項目を削除"
+
 msgid "Deploy"
 msgstr "展開"
 
@@ -2490,12 +2661,30 @@ msgstr ""
 msgid "Description"
 msgstr "説明"
 
+msgid "Desired"
+msgstr ""
+
+msgid "Desired OU"
+msgstr ""
+
+#, fuzzy
+msgid "Desired domain"
+msgstr "AD ドメイン"
+
 msgid "Destroy failed"
 msgstr "解除に失敗しました"
 
 #, fuzzy
+msgid "Detail"
+msgstr "マシン詳細"
+
+#, fuzzy
 msgid "Details"
 msgstr "マシン詳細"
+
+#, fuzzy
+msgid "Device URI"
+msgstr "HD デバイス"
 
 msgid "Device must be a string"
 msgstr "デバイスは文字列で指定してください"
@@ -2509,9 +2698,6 @@ msgstr "ディレクトリ"
 msgid "Directory Already Exists"
 msgstr "ディレクトリは既に存在します"
 
-msgid "Directory Cleaner"
-msgstr "ディレクトリクリーナー"
-
 #, fuzzy
 msgid "Directory Group"
 msgstr "ディレクトリ"
@@ -2519,6 +2705,10 @@ msgstr "ディレクトリ"
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "ディレクトリ"
+
+#, fuzzy
+msgid "Directory Membership"
+msgstr "ホストメンバーシップ"
 
 msgid "Disable on all hosts"
 msgstr ""
@@ -2636,6 +2826,9 @@ msgstr "ダウンロードに失敗しました"
 msgid "Downloaded file is not a bootable kernel image"
 msgstr ""
 
+msgid "Drift"
+msgstr ""
+
 #, php-format
 msgid "Drop %s and %s into %s and FOG adopts them -- no setting to edit. Add %s as well if your CA issued intermediates. The installer does the same thing on its next run, so this button only saves you the wait."
 msgstr ""
@@ -2653,6 +2846,9 @@ msgid "Each client needs this certificate enrolled once, by someone physically a
 msgstr ""
 
 msgid "Each of these is a public certificate. Downloading one is how you add this server to another machine's trust store, hand an auditor the chain, or check what a client is actually being offered; the SHA-256 is what to compare against a client's trust store when working out why one stopped authenticating. Private keys are deliberately absent -- nothing on this page can read one, and nothing on it can hand one out."
+msgstr ""
+
+msgid "Each selected agent is issued a certificate and collects it on its next check-in."
 msgstr ""
 
 msgid "Edit"
@@ -2751,6 +2947,10 @@ msgstr ""
 
 msgid "Enrolled certificate must be a SHA-256 fingerprint (64 hex characters)"
 msgstr ""
+
+#, fuzzy
+msgid "Enrollment Token"
+msgstr "Pushbullet アカウント"
 
 msgid "Enrollment kit"
 msgstr ""
@@ -2852,6 +3052,12 @@ msgstr ""
 msgid "Every configured multicast port is already in use"
 msgstr ""
 
+msgid "Every enrollment still waiting for a decision, without the CSR. What the Pending Agents page reads."
+msgstr ""
+
+msgid "Every enrollment token with its remaining uses and expiry, never the token itself. What the Agent Tokens page reads."
+msgstr ""
+
 #, fuzzy
 msgid "Every file was uploaded."
 msgstr "ファイルはアップロードされませんでした"
@@ -2871,6 +3077,14 @@ msgstr "秘密鍵の処理に失敗しました"
 
 msgid "Exists item must be boolean"
 msgstr "Exists 項目はブール値である必要があります"
+
+#, fuzzy
+msgid "Exit Code"
+msgstr "ノードを編集"
+
+#, fuzzy
+msgid "Exit code"
+msgstr "戻りコード"
 
 msgid "Expand - walk the chain (any directory)"
 msgstr ""
@@ -2946,8 +3160,31 @@ msgstr "データベースをエクスポート"
 msgid "External root CA"
 msgstr ""
 
+#, fuzzy
+msgid "Extra arguments"
+msgstr "スナップイン実行時の引数"
+
 msgid "FOG"
 msgstr "FOG"
+
+#, fuzzy
+msgid "FOG Agent capability result"
+msgstr "ファイルはアップロードされませんでした"
+
+#, fuzzy
+msgid "FOG Agent certificate renewal"
+msgstr "ファイルはアップロードされませんでした"
+
+#, fuzzy
+msgid "FOG Agent enrollment"
+msgstr "強制終了されました"
+
+#, fuzzy
+msgid "FOG Agent payload"
+msgstr "ファイルはアップロードされませんでした"
+
+msgid "FOG Agent poll"
+msgstr ""
 
 msgid "FOG Client"
 msgstr "FOG クライアント"
@@ -3289,6 +3526,9 @@ msgstr "タスク実行に失敗しました"
 msgid "First Check In"
 msgstr ""
 
+msgid "First Seen"
+msgstr ""
+
 msgid "First row is a header"
 msgstr ""
 
@@ -3624,6 +3864,10 @@ msgid "Group Snapin History"
 msgstr "スナップイン履歴"
 
 #, fuzzy
+msgid "Group Software Assignment"
+msgstr "グループ スナップイン"
+
+#, fuzzy
 msgid "Group Task History"
 msgstr "イメージ履歴"
 
@@ -3706,8 +3950,15 @@ msgstr "ハードウェア情報"
 msgid "Hardware Report"
 msgstr "レポートを作成しますか？"
 
+msgid "Hardware facts, sent only when the agent's own content hash for them moved or the server asked. Absent means nothing new, never nothing there."
+msgstr ""
+
 msgid "Hash"
 msgstr "ハッシュ"
+
+#, fuzzy
+msgid "Hash Mismatch"
+msgstr "ファイルハッシュが一致しません"
 
 msgid "Have not locked the host for access"
 msgstr "ホストはアクセス用にロックされていません"
@@ -3715,10 +3966,6 @@ msgstr "ホストはアクセス用にロックされていません"
 #, php-format
 msgid "Header is missing the required \"%s\" column"
 msgstr ""
-
-#, fuzzy
-msgid "Height"
-msgstr "午前 0 時"
 
 msgid "Height must be 120 pixels."
 msgstr "高さは 120 ピクセルである必要があります。"
@@ -3792,6 +4039,9 @@ msgstr "このホストは既に存在します"
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "このホストは既に存在します"
 
+msgid "Host Agent Activity"
+msgstr ""
+
 #, fuzzy
 msgid "Host Approval Success"
 msgstr "承認に成功しました"
@@ -3824,10 +4074,6 @@ msgstr "既定のプリンターを更新"
 
 msgid "Host Description"
 msgstr "ホストの説明"
-
-#, fuzzy
-msgid "Host Display Manager Settings"
-msgstr "ホストモジュール設定"
 
 msgid "Host EFI Exit Type"
 msgstr "ホスト EFI 終了方法"
@@ -3929,15 +4175,20 @@ msgstr "ホスト プロダクトキー"
 msgid "Host Registration"
 msgstr "ホスト登録"
 
-msgid "Host Screen Resolution"
-msgstr "ホスト画面解像度"
-
 #, fuzzy
 msgid "Host Snapin Associations"
 msgstr "スナップインロケーション"
 
 msgid "Host Snapin History"
 msgstr "ホストスナップイン履歴"
+
+#, fuzzy
+msgid "Host Software Assignment"
+msgstr "グループ スナップイン"
+
+#, fuzzy
+msgid "Host Software Status"
+msgstr "ホスト状態"
 
 #, fuzzy
 msgid "Host Task History"
@@ -4028,6 +4279,12 @@ msgstr "ホスト Init"
 msgid "Hosts registered per day"
 msgstr ""
 
+msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
+msgstr ""
+
+msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
+msgstr ""
+
 #, fuzzy
 msgid "Hosts:"
 msgstr "ホスト"
@@ -4089,6 +4346,10 @@ msgstr ""
 
 msgid "Id of the storage group whose master receives the file."
 msgstr ""
+
+#, fuzzy
+msgid "Identity"
+msgstr "サーバーシェル"
 
 msgid "Identity Provider"
 msgstr ""
@@ -4580,6 +4841,10 @@ msgstr "インストール/更新"
 msgid "Installed Plugins"
 msgstr "インストール済みプラグイン"
 
+#, fuzzy
+msgid "Installed Software"
+msgstr "インストール/更新"
+
 msgid "Intel 32 Bit"
 msgstr ""
 
@@ -4658,9 +4923,6 @@ msgstr "無効なスナップインタスクオブジェクト"
 
 msgid "Invalid Storage Group"
 msgstr "無効なストレージグループ"
-
-msgid "Invalid Storage Node"
-msgstr "無効なストレージノード"
 
 msgid "Invalid Tasking"
 msgstr "無効なタスク"
@@ -4832,6 +5094,9 @@ msgstr ""
 msgid "Issued by %s"
 msgstr ""
 
+msgid "Issued. The certificate and the host it binds to."
+msgstr ""
+
 msgid "Issuer"
 msgstr ""
 
@@ -4858,6 +5123,10 @@ msgstr "クライアントに次の場所からスナップインをダウンロ
 #, fuzzy
 msgid "It will operate based on the fields the area typcially requires."
 msgstr "通常その領域で必要とされるフィールドに基づいて動作します"
+
+#, fuzzy
+msgid "Join"
+msgstr "AD 参加"
 
 #, fuzzy
 msgid "Join Domain after image task"
@@ -5051,6 +5320,10 @@ msgstr "言語"
 msgid "Largest images"
 msgstr "イメージ"
 
+#, fuzzy
+msgid "Last Agent Check-In"
+msgstr "タスクチェックイン日"
+
 msgid "Last Captured"
 msgstr "最終キャプチャ"
 
@@ -5062,15 +5335,15 @@ msgstr "タスクチェックイン日"
 msgid "Last Check-In"
 msgstr "タスクチェックイン日"
 
-#, fuzzy
-msgid "Last Client Check-In"
-msgstr "タスクチェックイン日"
-
 msgid "Last Deployed"
 msgstr "最終展開"
 
 msgid "Last Ping"
 msgstr ""
+
+#, fuzzy
+msgid "Last Seen"
+msgstr "最終キャプチャ"
 
 #, fuzzy
 msgid "Last Successful Ping"
@@ -5088,12 +5361,19 @@ msgstr "タスクチェックイン日"
 msgid "Last deployed"
 msgstr "最終展開"
 
+#, fuzzy
+msgid "Last error"
+msgstr "エラー"
+
 msgid "Last flush"
 msgstr ""
 
 #, fuzzy
 msgid "Last imaged"
 msgstr "イメージ"
+
+msgid "Latest (upgrade at each check)"
+msgstr ""
 
 #, fuzzy
 msgid "Latest Alpha Version"
@@ -5211,6 +5491,10 @@ msgstr "すべての サイトs を一覧表示"
 
 msgid "List All Snapins"
 msgstr "すべての スナップインs を一覧表示"
+
+#, fuzzy
+msgid "List All Software"
+msgstr "すべての サイトs を一覧表示"
 
 msgid "List All Storage Groups"
 msgstr "すべての Storage Groups を一覧表示"
@@ -5338,6 +5622,10 @@ msgstr "ログビューアー"
 
 msgid "Log out and sign in as an administrator"
 msgstr ""
+
+#, fuzzy
+msgid "Logged on"
+msgstr "ログイン済み"
 
 msgid "Logging"
 msgstr ""
@@ -5527,6 +5815,9 @@ msgstr "最大サイズ"
 msgid "Maximum rows per class; 0 or absent means no cap."
 msgstr ""
 
+msgid "May be sent with Content-Encoding: gzip; a host's software list is a few hundred KB of JSON and about a tenth of that compressed."
+msgstr ""
+
 #, fuzzy
 msgid "Member"
 msgstr "メンバー"
@@ -5609,12 +5900,19 @@ msgstr "午前 0 時"
 msgid "Minimum time limit for Auto Logout to become active is 5 minutes."
 msgstr ""
 
+#, fuzzy
+msgid "Mint an agent enrollment token"
+msgstr "保留中の登録済みホスト"
+
 msgid "Minute value is not valid"
 msgstr "分の値が無効です"
 
 #, fuzzy
 msgid "Minutes field is invalid"
 msgstr "分の値が無効です"
+
+msgid "Missing"
+msgstr ""
 
 msgid "Missing a temporary folder"
 msgstr "一時フォルダーがありません"
@@ -6074,6 +6372,10 @@ msgid "No password is needed. Issue this account a token from its API tab, or fr
 msgstr ""
 
 #, fuzzy
+msgid "No payloads for the capability, or not a live row of this host."
+msgstr "このホストの実行中タスクは見つかりません"
+
+#, fuzzy
 msgid "No plugin tasks to run"
 msgstr "有効なタスクが見つかりません"
 
@@ -6126,6 +6428,10 @@ msgid "No snapins associated with this group as master"
 msgstr "このグループにマスターとして関連付けられたスナップインはありません"
 
 #, fuzzy
+msgid "No storage node can serve the file."
+msgstr "ストレージノードの更新に失敗しました！"
+
+#, fuzzy
 msgid "No storage nodes assigned to this storage group"
 msgstr "このストレージグループ内に有効なものがあるか"
 
@@ -6137,6 +6443,9 @@ msgstr "このイメージを削除できる有効なマスターノードがあ
 msgid "No storagegroups assigned to this snapin"
 msgstr "割り当てられたイメージのストレージグループが無効です"
 
+msgid "No such enrollment, or no such action."
+msgstr ""
+
 msgid "No such file in the boot directory."
 msgstr ""
 
@@ -6146,6 +6455,10 @@ msgstr "サイトがありません"
 
 msgid "No such object."
 msgstr ""
+
+#, fuzzy
+msgid "No such token."
+msgstr "サイトがありません"
 
 msgid "No such user."
 msgstr ""
@@ -6179,6 +6492,9 @@ msgstr ""
 
 msgid "No values passed"
 msgstr "値が渡されていません"
+
+msgid "No verified client certificate, or one bound to no live host."
+msgstr ""
 
 msgid "No viable macs to use"
 msgstr "使用可能な MAC アドレスがありません"
@@ -6230,6 +6546,9 @@ msgstr "見つかりません"
 
 msgid "Not Registered Hosts"
 msgstr "未登録ホスト"
+
+msgid "Not a certificate request, or one for a key other than the one this certificate proved."
+msgstr ""
 
 msgid "Not a number"
 msgstr "数値ではありません"
@@ -6368,6 +6687,13 @@ msgstr "ユーザーを更新しました！"
 msgid "OUs"
 msgstr ""
 
+msgid "Observed OU"
+msgstr ""
+
+#, fuzzy
+msgid "Observed domain"
+msgstr "サーバー情報"
+
 msgid "Off"
 msgstr ""
 
@@ -6421,6 +6747,12 @@ msgstr ""
 
 msgid "One or more macs are associated with a host"
 msgstr "1 つ以上の MAC アドレスがホストに関連付けられています"
+
+msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again at the next check), failed. Empty uses the defaults shown; any code not listed is failed. The defaults are Windows codes: Linux and macOS keep only the low 8 bits of an exit status, so list the code the program can return."
+msgstr ""
+
+msgid "One per line, code=class. Classes: success, reboot (installed, reboot to finish), retry (try again next check-in), failed. Empty uses the defaults shown; any code not listed is failed. The defaults are Windows codes: Linux and macOS keep only the low 8 bits of an exit status, so list the code the program can return."
+msgstr ""
 
 msgid "One preference."
 msgstr ""
@@ -6506,6 +6838,12 @@ msgstr ""
 msgid "Operations on %s."
 msgstr "操作フィールドが設定されていません"
 
+msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+msgstr ""
+
+msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
+msgstr ""
+
 msgid "Optional. Pick a type to pre-fill the command fields below; you can still edit them afterward. The Chocolatey entry expects the uploaded file to be a Chocolatey packages.config naming the packages to install."
 msgstr ""
 
@@ -6552,7 +6890,13 @@ msgstr ""
 msgid "Over a year"
 msgstr ""
 
+msgid "Over the certificate being renewed: the same gate as poll binds the caller to its host, and the body carries a request for the same key. The answer is the enroll \"issued\" shape. A request for any other key is refused; a key change goes through enroll and an admin."
+msgstr ""
+
 msgid "PLUGIN OPTIONS"
+msgstr ""
+
+msgid "Package"
 msgstr ""
 
 msgid "Page node is not registered as a permission node"
@@ -6631,6 +6975,10 @@ msgstr ""
 msgid "Pending"
 msgstr "保留中..."
 
+#, fuzzy
+msgid "Pending Agents"
+msgstr "保留中 MAC アドレス"
+
 msgid "Pending Hosts"
 msgstr "保留中ホスト"
 
@@ -6648,8 +6996,30 @@ msgstr "保留中 MAC アドレス"
 msgid "Pending Registered Hosts"
 msgstr "保留中の登録済みホスト"
 
+#, fuzzy
+msgid "Pending Registration created by FOG_AGENT"
+msgstr "FOG_CLIENT により保留中の登録が作成されました"
+
 msgid "Pending Registration created by FOG_CLIENT"
 msgstr "FOG_CLIENT により保留中の登録が作成されました"
+
+#, fuzzy
+msgid "Pending agent"
+msgstr "保留中ホスト"
+
+#, fuzzy
+msgid "Pending agent enrollments"
+msgstr "保留中の登録済みホスト"
+
+#, fuzzy
+msgid "Pending agents"
+msgstr "保留中 MAC アドレス"
+
+msgid "Pending an admin decision. Poll again after retry_after seconds."
+msgstr ""
+
+msgid "Pending enrollment rows."
+msgstr ""
 
 #, fuzzy
 msgid "Pending host"
@@ -6698,6 +7068,17 @@ msgstr "状態"
 msgid "Ping cycle complete"
 msgstr "完了しました"
 
+msgid "Pinned"
+msgstr ""
+
+#, fuzzy
+msgid "Placement"
+msgstr "Slack 管理"
+
+#, fuzzy
+msgid "Platform"
+msgstr "クロスプラットフォーム"
+
 msgid "Please Select an option"
 msgstr "オプションを選択してください"
 
@@ -6742,7 +7123,15 @@ msgid "Please enter a name"
 msgstr "ホスト名を入力してください"
 
 #, fuzzy
+msgid "Please enter a package id."
+msgstr "ホスト名を入力してください"
+
+#, fuzzy
 msgid "Please enter a printer name."
+msgstr "ホスト名を入力してください"
+
+#, fuzzy
+msgid "Please enter a software name."
 msgstr "ホスト名を入力してください"
 
 msgid "Please enter a valid CIDR subnet."
@@ -6756,6 +7145,10 @@ msgstr ""
 
 msgid "Please physically associate"
 msgstr "物理的に関連付けてください"
+
+#, fuzzy
+msgid "Please select a valid backend."
+msgstr "有効なイメージを選択してください"
 
 #, fuzzy
 msgid "Please select a valid certificate verification level"
@@ -6775,6 +7168,10 @@ msgstr "有効な LDAP ポートを選択してください"
 #, fuzzy
 msgid "Please select a valid printer type."
 msgstr "有効な LDAP ポートを選択してください"
+
+#, fuzzy
+msgid "Please select a valid state."
+msgstr "有効なイメージを選択してください"
 
 #, fuzzy
 msgid "Please select an LDAP server!"
@@ -6988,6 +7385,9 @@ msgstr ""
 msgid "Preferred over mapping straight to a role: the user group holds the roles, so policy stays in one place and the provider only decides who is in which bucket."
 msgstr ""
 
+msgid "Present"
+msgstr ""
+
 msgid "Present means enabled."
 msgstr ""
 
@@ -7030,6 +7430,10 @@ msgstr "プリンターの作成に失敗しました"
 
 msgid "Printer Create Success"
 msgstr "プリンターの作成に成功しました"
+
+#, fuzzy
+msgid "Printer Deployment"
+msgstr "プリンター管理"
 
 msgid "Printer Description"
 msgstr "プリンターの説明"
@@ -7184,6 +7588,9 @@ msgstr "プリンターを更新しました！"
 msgid "Providers"
 msgstr ""
 
+msgid "Publisher"
+msgstr ""
+
 msgid "Pushbullet Accounts"
 msgstr "Pushbullet アカウント"
 
@@ -7224,6 +7631,10 @@ msgstr ""
 msgid "Queued deletion is not active and cannot be canceled"
 msgstr "スナップインは保護されているため削除できません"
 
+#, fuzzy
+msgid "Quick tasks"
+msgstr "マルチキャストタスク"
+
 msgid "RESOURCES"
 msgstr ""
 
@@ -7236,6 +7647,10 @@ msgstr "RX"
 #, fuzzy
 msgid "Re-Transmit Hello Interval"
 msgstr "Hello 送信間隔"
+
+#, fuzzy
+msgid "Re-check Interval"
+msgstr "Hello 再送信間隔"
 
 msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
 msgstr ""
@@ -7256,6 +7671,9 @@ msgstr "関連付けを削除"
 #, fuzzy
 msgid "Real Time"
 msgstr "日時"
+
+msgid "Reason"
+msgstr ""
 
 msgid "Reboot"
 msgstr "再起動"
@@ -7283,6 +7701,9 @@ msgstr ""
 msgid "Recorded in range"
 msgstr "レコードが見つかりません"
 
+msgid "Recorded; outcome present for an item report."
+msgstr ""
+
 #, fuzzy
 msgid "Records"
 msgstr "現在のレコード"
@@ -7294,9 +7715,6 @@ msgid "Redirect Login To This Provider"
 msgstr ""
 
 msgid "Redirect URI"
-msgstr ""
-
-msgid "Refresh"
 msgstr ""
 
 msgid "Refresh Settings Cache"
@@ -7439,6 +7857,10 @@ msgstr "レポート"
 msgid "Report Management"
 msgstr "レポート管理"
 
+#, fuzzy
+msgid "Reported"
+msgstr "レポート"
+
 msgid "Reports"
 msgstr "レポート"
 
@@ -7502,7 +7924,14 @@ msgstr ""
 msgid "Retention sweep failed"
 msgstr "削除に失敗しました"
 
+msgid "Retry"
+msgstr ""
+
 msgid "Return Code"
+msgstr "戻りコード"
+
+#, fuzzy
+msgid "Return Codes"
 msgstr "戻りコード"
 
 msgid "Return To Local Login"
@@ -7514,7 +7943,31 @@ msgstr "戻りコード"
 msgid "Returning value of key"
 msgstr "キーの値を返しています"
 
+msgid "Returns the token exactly once; only its hash is stored. An expiry is required. uses is how many enrollments it approves, or -1 for unlimited until it expires. Audited as agent.token."
+msgstr ""
+
 msgid "Reverse"
+msgstr ""
+
+msgid "Revoke"
+msgstr ""
+
+msgid "Revoke Enrollment Tokens"
+msgstr ""
+
+#, fuzzy
+msgid "Revoke an agent enrollment token"
+msgstr "保留中の登録済みホスト"
+
+#, fuzzy
+msgid "Revoke selected"
+msgstr "選択した項目を削除"
+
+#, fuzzy
+msgid "Revoked selected tokens."
+msgstr "選択したルールを削除"
+
+msgid "Revoked."
 msgstr ""
 
 #, fuzzy
@@ -7648,6 +8101,9 @@ msgstr ""
 msgid "SHA-256"
 msgstr ""
 
+msgid "SMBIOS system UUID, system serial, board serial, chassis asset tag and the MAC list, as fog-agent identity prints them."
+msgstr ""
+
 msgid "SQL Error"
 msgstr "SQL エラー"
 
@@ -7762,18 +8218,6 @@ msgstr "iPXE 設定を更新しました！"
 
 msgid "Scopes"
 msgstr ""
-
-#, fuzzy
-msgid "Screen Height"
-msgstr "画面の高さ（ピクセル）"
-
-#, fuzzy
-msgid "Screen Refresh Rate"
-msgstr "画面のリフレッシュレート（Hz）"
-
-#, fuzzy
-msgid "Screen Width"
-msgstr "画面の幅（ピクセル）"
 
 msgid "Search"
 msgstr "検索"
@@ -8001,6 +8445,9 @@ msgstr "その名前のセッションは既に存在します"
 #, fuzzy
 msgid "Sessions canceled!"
 msgstr "キャンセルされました"
+
+msgid "Sessions open right now, as last reported by each host's agent. A host that has not checked in recently may have logged its user off since."
+msgstr ""
 
 msgid "Set Printer as Default for Hosts"
 msgstr ""
@@ -8436,6 +8883,64 @@ msgstr "使用中のスナップイン"
 msgid "So if you are trying to transmit to remote node A"
 msgstr "そのため、リモートノード A に送信しようとしている場合"
 
+msgid "Software"
+msgstr ""
+
+#, fuzzy
+msgid "Software Create Fail"
+msgstr "サイトの作成に失敗しました"
+
+#, fuzzy
+msgid "Software Create Success"
+msgstr "サイトを作成しました"
+
+#, fuzzy
+msgid "Software Host Associations"
+msgstr "サイトの関連付け"
+
+#, fuzzy
+msgid "Software Management"
+msgstr "ストレージ管理"
+
+#, fuzzy
+msgid "Software Name"
+msgstr "サイト名"
+
+#, fuzzy
+msgid "Software Order"
+msgstr "Initrd を保存"
+
+#, fuzzy
+msgid "Software Report"
+msgstr "レポートを作成しますか？"
+
+#, fuzzy
+msgid "Software Status"
+msgstr "ホスト状態"
+
+#, fuzzy
+msgid "Software Update Fail"
+msgstr "サイトの更新に失敗しました"
+
+#, fuzzy
+msgid "Software Update Success"
+msgstr "サイトを更新しました"
+
+#, fuzzy
+msgid "Software added!"
+msgstr "サイトを追加しました！"
+
+msgid "Software granted here applies to every host in this group, including hosts added later."
+msgstr ""
+
+#, fuzzy
+msgid "Software update failed!"
+msgstr "サイトの更新に失敗しました！"
+
+#, fuzzy
+msgid "Software updated!"
+msgstr "サイトを更新しました！"
+
 #, fuzzy
 msgid "Some nice description, should be short."
 msgstr "説明は必須です"
@@ -8448,6 +8953,9 @@ msgstr "Space 変数はブール値である必要があります"
 
 msgid "Specified download URL not allowed!"
 msgstr "指定されたダウンロード URL は許可されていません！"
+
+msgid "Spooler"
+msgstr ""
 
 msgid "Stale"
 msgstr ""
@@ -9159,6 +9667,9 @@ msgstr "このサーバーにはグループがありません"
 msgid "The CA private key is on this server"
 msgstr "このサーバーにはグループがありません"
 
+msgid "The CSR is not a usable P-256 request, or a required field is missing."
+msgstr ""
+
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrolls outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
@@ -9190,6 +9701,9 @@ msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
+msgstr ""
+
+msgid "The agent speaks a protocol this server does not."
 msgstr ""
 
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
@@ -9236,6 +9750,9 @@ msgstr "ファイルまたはパスに到達できません"
 msgid "The breakdowns cover every inventoried machine. The range selects inventory recorded inside it."
 msgstr ""
 
+msgid "The bytes behind one thing under a capability. For snapin, the file for one task of the host's own job; fetching it marks the task in progress. One route for every kind of payload. Same gate as poll."
+msgstr ""
+
 msgid "The calling user's preferences."
 msgstr ""
 
@@ -9275,6 +9792,13 @@ msgstr ""
 msgid "The default printer for hosts in this group. A host that has its own default keeps it."
 msgstr ""
 
+msgid "The desired state: revision, capabilities, and one block per capability listed. Absent when the agent is current."
+msgstr ""
+
+#, fuzzy
+msgid "The enrollment is no longer pending."
+msgstr "選択したプリンターを追加"
+
 msgid "The fields a queued task accepts. Wake-on-lan is this body with wol set, not a route of its own."
 msgstr ""
 
@@ -9301,6 +9825,15 @@ msgstr ""
 #, fuzzy
 msgid "The grid key."
 msgstr "タスクの作成に失敗しました"
+
+msgid "The host this certificate is, the revision of its desired state, and the state when it is not what the agent applied."
+msgstr ""
+
+msgid "The host's complete installed-program list, sent on the same terms as inventory. Complete by contract: anything installed and absent from it is marked removed."
+msgstr ""
+
+msgid "The id the package manager knows, e.g. googlechrome."
+msgstr ""
 
 #, fuzzy
 msgid "The identity provider could not be reached"
@@ -9355,8 +9888,15 @@ msgstr ""
 msgid "The issuer must be a full URL"
 msgstr ""
 
+#, fuzzy
+msgid "The item is not a live row of this host."
+msgstr "このホストの実行中タスクは見つかりません"
+
 msgid "The key will be assigned to registered hosts when a"
 msgstr "キーは、登録済みホストに次の場合割り当てられます"
+
+msgid "The leaf followed by the agent CA, PEM."
+msgstr ""
 
 msgid "The logical sector size of the disk this image was captured from."
 msgstr ""
@@ -9388,12 +9928,21 @@ msgstr ""
 msgid "The older spelling of /unisearch?q=. An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
 msgstr ""
 
+msgid "The order software is applied in when the agent reconciles this host."
+msgstr ""
+
 msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
+msgstr ""
+
+msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order."
 msgstr ""
 
 #, fuzzy
 msgid "The path requested is already in use by another image!"
 msgstr "これは既に別のイメージで使用されています"
+
+msgid "The payload bytes."
+msgstr ""
 
 #, fuzzy
 msgid "The plugin directory"
@@ -9439,6 +9988,13 @@ msgstr ""
 msgid "The record could not be written."
 msgstr "強制終了できませんでした"
 
+#, fuzzy
+msgid "The renewed certificate, leaf then chain."
+msgstr "新しいロケーションを作成"
+
+msgid "The reported software list is larger than the server accepts."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -9446,6 +10002,9 @@ msgid "The root CA has been imported and this server now trusts it."
 msgstr ""
 
 msgid "The root CA has been imported, but this host's system trust store could not be updated -- so HTTPS calls made on this server will not accept it yet. Re-run the installer, and check the installation log."
+msgstr ""
+
+msgid "The row goes, so the token can never match again. Audited as agent.token."
 msgstr ""
 
 msgid "The same rules in prose, for a client reading this at runtime."
@@ -9458,6 +10017,12 @@ msgstr "サイトの更新に失敗しました！"
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr "選択したプリンターを追加"
+
+msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
+msgstr ""
+
+msgid "The server holds no installed-software hash for this host and wants the list on the next poll."
+msgstr ""
 
 msgid "The server refuses to activate this plugin, or the plugin declares no schema() migrations and is already installed, so re-running its installer would drop and recreate its tables. The message says which."
 msgstr ""
@@ -9477,6 +10042,13 @@ msgstr ""
 
 msgid "The signed certificate, or full chain, leaf first (PEM)"
 msgstr ""
+
+msgid "The signer is unavailable; nothing changed."
+msgstr ""
+
+#, fuzzy
+msgid "The signing helper is not available on this server."
+msgstr "このサーバーにはグループがありません"
 
 #, fuzzy
 msgid "The signing request could not be generated"
@@ -9498,6 +10070,10 @@ msgstr ""
 #, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
+
+#, fuzzy
+msgid "The token."
+msgstr "CPU 数"
 
 msgid "The trust anchor, published as ca.cert.der. Every fog-client pins this one."
 msgstr ""
@@ -9656,6 +10232,9 @@ msgstr ""
 msgid "This host last reported UEFI firmware whose Secure Boot state could not be read, so FOS has nowhere to write the certificate."
 msgstr ""
 
+msgid "This host reported that its package manager is not installed. Chocolatey must be installed on the host before software can be managed."
+msgstr ""
+
 msgid "This identity is linked to a different FOG account"
 msgstr ""
 
@@ -9714,9 +10293,16 @@ msgstr ""
 msgid "This is what MokManager's own View key screen shows after enrolling from the PXE menu -- that route never runs the script above, so check it against this value instead."
 msgstr ""
 
+msgid "This is what hosts report as installed (agent-reported), not the software FOG is configured to install."
+msgstr ""
+
 #, fuzzy, php-format
 msgid "This machine already registered as %s"
 msgstr "既に次の名前で登録されています:"
+
+#, fuzzy
+msgid "This module has no settings to configure."
+msgstr "このモジュールは旧クライアントでのみ使用されます。"
 
 msgid "This name is not a recognized file in the boot directory."
 msgstr ""
@@ -9823,6 +10409,12 @@ msgstr "この時刻は既に存在します"
 msgid "Time since last imaged"
 msgstr ""
 
+msgid "Timeout"
+msgstr "タイムアウト"
+
+msgid "Timeout must be a whole number of seconds, zero or more."
+msgstr ""
+
 msgid "Title"
 msgstr ""
 
@@ -9845,7 +10437,29 @@ msgstr ""
 msgid "Toggle navigation"
 msgstr "ナビゲーション切り替え"
 
+#, fuzzy
+msgid "Token Create Fail"
+msgstr "ロールの作成に失敗しました"
+
+#, fuzzy
+msgid "Token Create Success"
+msgstr "ロールを作成しました"
+
+#, fuzzy
+msgid "Token Revoke Fail"
+msgstr "FTP 接続に失敗しました"
+
+#, fuzzy
+msgid "Token Revoke Success"
+msgstr "ロールを作成しました"
+
+msgid "Token created. Copy it now."
+msgstr ""
+
 msgid "Token or user:pass (optional)"
+msgstr ""
+
+msgid "Token rows."
 msgstr ""
 
 msgid "Too many MACs"
@@ -10026,6 +10640,9 @@ msgstr "ユーザー名属性"
 msgid "Unauthenticated, and generated per request from this server's live routing and model metadata. Also served at /swagger.json, which is where most tooling looks first."
 msgstr ""
 
+msgid "Unauthenticated, because this is how an agent obtains the client certificate it will authenticate with afterward. The agent posts a certificate signing request and its firmware identity; the server resolves the machine the way iPXE registration does and answers issued, pending or denied. Pending is the normal first answer for a machine nobody has approved yet -- the agent polls until an admin decides on /agent/enrollment/{id}/{action}, an enrollment token pre-approves it, or the server itself imaged the host recently (FOG_AGENT_ENROLL_DEPLOY_WINDOW). A pending agent can do nothing else: without a certificate no other agent route accepts it. Protocol 1."
+msgstr ""
+
 #, fuzzy
 msgid "Unauthenticated."
 msgstr "認証できません"
@@ -10075,6 +10692,9 @@ msgstr "不明なデータベースエラー"
 msgid "Unknown action"
 msgstr "不明なデータベースエラー"
 
+msgid "Unknown capability or status, or an item for a capability with no item reports."
+msgstr ""
+
 #, php-format
 msgid "Unknown field for %s: %s"
 msgstr ""
@@ -10101,6 +10721,9 @@ msgid "Unknown upload error occurred"
 msgstr "不明なアップロードエラーが発生しました"
 
 msgid "Unless it was declined with"
+msgstr ""
+
+msgid "Unlimited"
 msgstr ""
 
 msgid "Unmark selected client ignore"
@@ -10190,6 +10813,9 @@ msgstr "選択項目を削除"
 
 #, php-format
 msgid "Updated %1$d field(s) on %2$d host(s)."
+msgstr ""
+
+msgid "Upgraded"
 msgstr ""
 
 #, fuzzy
@@ -10305,9 +10931,6 @@ msgstr "ユーザーは既に存在します"
 msgid "User Association"
 msgstr "ルールの関連付け"
 
-msgid "User Cleanup"
-msgstr "ユーザークリーンアップ"
-
 #, fuzzy
 msgid "User Count"
 msgstr "CPU 数"
@@ -10389,6 +11012,10 @@ msgstr "ユーザー名属性"
 msgid "User Password"
 msgstr "ユーザーパスワード"
 
+#, fuzzy
+msgid "User Sessions"
+msgstr "セッションを開始"
+
 msgid "User Tracker"
 msgstr "ユーザートラッカー"
 
@@ -10467,6 +11094,12 @@ msgstr "ユーザー"
 msgid "Users, user groups and roles as id/name pairs. Each section is gated on that entity's own view permission -- user.view, usergroup.view, role.view -- and comes back EMPTY rather than 403 when the caller lacks it, so this route discloses nothing they could not already list. A caller holding none of the three can still save private filters; there is simply nobody they may name."
 msgstr ""
 
+msgid "Uses"
+msgstr ""
+
+msgid "Uses left"
+msgstr ""
+
 msgid "Using the group match function"
 msgstr "グループ照合機能を使用しています"
 
@@ -10493,6 +11126,10 @@ msgid "Version information and paging bounds."
 msgstr "FOG バージョン情報"
 
 #, fuzzy
+msgid "Version policy"
+msgstr "バージョン"
+
+#, fuzzy
 msgid "Versions"
 msgstr "バージョン"
 
@@ -10515,6 +11152,9 @@ msgid "Wake On Lan"
 msgstr "Wake on LAN"
 
 msgid "Wake Up"
+msgstr ""
+
+msgid "Warning Before Log Out"
 msgstr ""
 
 msgid "Warnings"
@@ -10567,10 +11207,16 @@ msgstr "強制終了されました"
 msgid "What it does"
 msgstr "強制終了されました"
 
+msgid "What the agent did with one capability at one revision, recorded on the host as agent.result; or, with item, what happened to one thing under the capability (a snapin task, a software entry), answered with the outcome the agent acts on. One route for every kind of report. Same gate as poll."
+msgstr ""
+
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
 msgstr ""
 
 msgid "What this server itself trusts: FOG's root, plus any root imported below."
+msgstr ""
+
+msgid "What this token is for"
 msgstr ""
 
 msgid "What to do next"
@@ -10589,6 +11235,9 @@ msgstr ""
 msgid "Where to get help and guides"
 msgstr "ヘルプの入手先"
 
+msgid "Whether this install collects facts at all (FOG_AGENT_INVENTORY_ENABLED). Always present: an agent cannot tell an absent boolean from a false one, and absent has to mean a server that predates the field rather than one that turned collection off. False stops the agent gathering."
+msgstr ""
+
 msgid "Which side of a deploy each architecture may be picked on. An architecture set to Hosts only is not offered on an image, and one set to Images only is not offered on a host. This never affects what a host reports at boot or what a capture records -- only what a person may choose."
 msgstr ""
 
@@ -10601,10 +11250,10 @@ msgstr ""
 msgid "Who a filter can be shared with"
 msgstr ""
 
-msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
+msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflict, reissue."
 msgstr ""
 
-msgid "Width"
+msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
 msgstr ""
 
 msgid "Width must be 650 pixels."
@@ -10665,6 +11314,9 @@ msgid "Wipes"
 msgstr ""
 
 msgid "Within 30 days"
+msgstr ""
+
+msgid "Y-m-d H:i:s, server time."
 msgstr ""
 
 msgid "Yearly"
@@ -10796,6 +11448,9 @@ msgstr ""
 msgid "a service account: it may hold API tokens and can never sign in to this interface"
 msgstr ""
 
+msgid "absent"
+msgstr ""
+
 #, fuzzy
 msgid "access"
 msgstr "アクセス"
@@ -10806,8 +11461,15 @@ msgstr "追加 MAC アドレス"
 msgid "after"
 msgstr ""
 
+msgid "agent"
+msgstr ""
+
 msgid "ago"
 msgstr "前"
+
+#, php-format
+msgid "all %1$d hosts in group \"%2$s\""
+msgstr ""
 
 msgid "all current storage nodes"
 msgstr "現在のすべてのストレージノード"
@@ -10843,6 +11505,13 @@ msgid "answering 0 for a read that never ran"
 msgstr ""
 
 #, fuzzy
+msgid "any version"
+msgstr "バージョン"
+
+msgid "approve signs the CSR, binds the certificate to the host and takes the host out of pending; deny records the refusal. Either way the agent learns the outcome on its next poll. Audited as agent.enroll."
+msgstr ""
+
+#, fuzzy
 msgid "architecture not recorded"
 msgstr "強制終了できませんでした"
 
@@ -10851,6 +11520,10 @@ msgstr "FOG がインターネットへ接続を試みるため"
 
 msgid "as its primary group"
 msgstr "プライマリグループとして"
+
+#, fuzzy
+msgid "assigned"
+msgstr "関連付けられたホスト"
 
 msgid "attr could not be run -- SELinux may be denying it"
 msgstr ""
@@ -10950,6 +11623,10 @@ msgstr "無効"
 msgid "does not exist and cannot be created"
 msgstr "イメージは保護されているため削除できません"
 
+#, fuzzy
+msgid "domain"
+msgstr "AD ドメイン"
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -10959,6 +11636,9 @@ msgstr "既に選択済み、またはアップロード済み"
 msgid "either because you have updated"
 msgstr "更新したため、または"
 
+msgid "empty means never install Chocolatey"
+msgstr ""
+
 #, fuzzy
 msgid "error"
 msgstr "エラー"
@@ -10966,9 +11646,19 @@ msgstr "エラー"
 msgid "every column on this table will be treated as untyped"
 msgstr ""
 
+msgid "exclusive"
+msgstr ""
+
 #, php-format
 msgid "exited abnormally with code %d; canceling task"
 msgstr ""
+
+msgid "extra"
+msgstr ""
+
+#, fuzzy
+msgid "failed"
+msgstr "失敗しました"
 
 #, fuzzy
 msgid "failed to execute, image file"
@@ -11065,6 +11755,10 @@ msgid "hit rate"
 msgstr "ビットレート"
 
 msgid "host"
+msgstr "ホスト"
+
+#, fuzzy, php-format
+msgid "host \"%s\""
 msgstr "ホスト"
 
 #, fuzzy
@@ -11175,18 +11869,12 @@ msgstr ""
 msgid "in"
 msgstr "分"
 
-msgid "in Hz"
-msgstr ""
-
 msgid "in batch row"
 msgstr ""
 
 #, fuzzy
 msgid "in minutes"
 msgstr "分"
-
-msgid "in pixels"
-msgstr ""
 
 msgid "in seconds"
 msgstr "秒単位"
@@ -11260,6 +11948,10 @@ msgid "keys"
 msgstr ""
 
 #, fuzzy
+msgid "latest"
+msgstr "レプリケーションを実行しますか？"
+
+#, fuzzy
 msgid "leave to keep the current one"
 msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
 
@@ -11290,6 +11982,10 @@ msgstr "分"
 
 msgid "mismatched"
 msgstr ""
+
+#, fuzzy
+msgid "missing"
+msgstr "バージョン"
 
 msgid "moments from now"
 msgstr ""
@@ -11326,6 +12022,10 @@ msgstr ""
 msgid "never"
 msgstr ""
 
+#, fuzzy
+msgid "never reported"
+msgstr "さらにサポートが必要な場合"
+
 msgid "no enabled master node answered the probe"
 msgstr ""
 
@@ -11355,6 +12055,9 @@ msgstr ""
 
 msgid "not found on this node"
 msgstr "このノード上に見つかりません"
+
+msgid "not joined"
+msgstr ""
 
 #, fuzzy
 msgid "not reachable"
@@ -11386,8 +12089,15 @@ msgid "of how much disk space the image is using."
 msgstr ""
 
 #, fuzzy
+msgid "off"
+msgstr "の"
+
+#, fuzzy
 msgid "off means an account must already exist"
 msgstr "このホストは既に存在します"
+
+msgid "ok"
+msgstr ""
 
 msgid "old"
 msgstr ""
@@ -11401,6 +12111,9 @@ msgstr ""
 #, fuzzy
 msgid "optional"
 msgstr "ロケーション"
+
+msgid "optional; for an air-gapped or mirrored install"
+msgstr ""
 
 msgid "or"
 msgstr "または"
@@ -11670,6 +12383,10 @@ msgid "unchanged for"
 msgstr "イメージ処理対象"
 
 #, fuzzy
+msgid "unknown action"
+msgstr "不明なデータベースエラー"
+
+#, fuzzy
 msgid "unrecorded"
 msgstr "保護されていません"
 
@@ -11805,12 +12522,6 @@ msgstr ""
 
 #~ msgid "A subnetgroup already exists with this name!"
 #~ msgstr "この名前のサブネットグループは既に存在します！"
-
-#~ msgid "AD Domain"
-#~ msgstr "AD ドメイン"
-
-#~ msgid "AD Join"
-#~ msgstr "AD 参加"
 
 #~ msgid "AD OU"
 #~ msgstr "AD OU"
@@ -12007,6 +12718,9 @@ msgstr ""
 #~ msgid "Cannot cancel tasks this way"
 #~ msgstr "この方法ではタスクをキャンセルできません"
 
+#~ msgid "Cannot connect to ftp server"
+#~ msgstr "FTP サーバーに接続できません"
+
 #~ msgid "Cannot create tasking as image is not enabled"
 #~ msgstr "イメージが有効ではないためタスクを作成できません"
 
@@ -12046,9 +12760,6 @@ msgstr ""
 #~ msgid "Checkin Time"
 #~ msgstr "チェックイン時刻"
 
-#~ msgid "Checksum"
-#~ msgstr "チェックサム"
-
 #~ msgid "Checksums"
 #~ msgstr "チェックサム"
 
@@ -12079,6 +12790,9 @@ msgstr ""
 #~ msgid "Conflicting path/file"
 #~ msgstr "競合するパス/ファイル"
 
+#~ msgid "Could not read snapin file"
+#~ msgstr "スナップインファイルを読み取れませんでした"
+
 #~ msgid "Create New Access Control Role"
 #~ msgstr "新しいアクセス制御ロールを作成"
 
@@ -12091,9 +12805,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Create and associate"
 #~ msgstr "関連付けられたノードがありません"
-
-#~ msgid "Cross platform"
-#~ msgstr "クロスプラットフォーム"
 
 #~ msgid "Current Associations"
 #~ msgstr "現在の関連付け"
@@ -12134,6 +12845,15 @@ msgstr ""
 
 #~ msgid "Date of checkout"
 #~ msgstr "貸出日"
+
+#~ msgid "Default Height"
+#~ msgstr "既定の高さ"
+
+#~ msgid "Default Refresh Rate"
+#~ msgstr "既定の更新レート"
+
+#~ msgid "Default Width"
+#~ msgstr "既定の幅"
 
 #~ msgid "Delayed Start"
 #~ msgstr "遅延開始"
@@ -12176,6 +12896,9 @@ msgstr ""
 
 #~ msgid "Directories"
 #~ msgstr "ディレクトリ"
+
+#~ msgid "Directory Cleaner"
+#~ msgstr "ディレクトリクリーナー"
 
 #~ msgid "Domain Password Legacy"
 #~ msgstr "従来のドメインパスワード"
@@ -12313,6 +13036,18 @@ msgstr ""
 
 #~ msgid "FOG 1.2.0 and earlier."
 #~ msgstr "FOG 1.2.0 以前。"
+
+#, fuzzy
+#~ msgid "FOG Agent desired state"
+#~ msgstr "強制終了されました"
+
+#, fuzzy
+#~ msgid "FOG Agent snapin result"
+#~ msgstr "ファイルはアップロードされませんでした"
+
+#, fuzzy
+#~ msgid "FOG Agent software result"
+#~ msgstr "ファイルはアップロードされませんでした"
 
 #~ msgid "FOG Client Service Updater"
 #~ msgstr "FOG クライアントサービス更新プログラム"
@@ -12551,9 +13286,6 @@ msgstr ""
 #~ msgid "Groups are not allowed to schedule upload tasks"
 #~ msgstr "グループではアップロードタスクをスケジュールできません"
 
-#~ msgid "HD Device"
-#~ msgstr "HD デバイス"
-
 #~ msgid "HD Firmware"
 #~ msgstr "HD ファームウェア"
 
@@ -12562,6 +13294,10 @@ msgstr ""
 
 #~ msgid "HD Serial"
 #~ msgstr "HD シリアル"
+
+#, fuzzy
+#~ msgid "Height"
+#~ msgstr "午前 0 時"
 
 #~ msgid "Hide Menu"
 #~ msgstr "メニューを非表示"
@@ -12605,6 +13341,10 @@ msgstr ""
 #~ msgid "Host Desc"
 #~ msgstr "ホスト説明"
 
+#, fuzzy
+#~ msgid "Host Display Manager Settings"
+#~ msgstr "ホストモジュール設定"
+
 #~ msgid "Host FOG Client Module configuration"
 #~ msgstr "ホスト FOG クライアントモジュール設定"
 
@@ -12626,6 +13366,9 @@ msgstr ""
 #~ msgid "Host Printers"
 #~ msgstr "ホスト プリンター"
 
+#~ msgid "Host Screen Resolution"
+#~ msgstr "ホスト画面解像度"
+
 #~ msgid "Host Site"
 #~ msgstr "ホスト サイト"
 
@@ -12635,9 +13378,6 @@ msgstr ""
 
 #~ msgid "Host Snapins"
 #~ msgstr "ホスト スナップイン"
-
-#~ msgid "Host Status"
-#~ msgstr "ホスト状態"
 
 #~ msgid "Host Status is a plugin that adds a new entry in the Host edit Page"
 #~ msgstr "Host Status は、ホスト編集ページに新しい項目を追加するプラグインです"
@@ -12804,6 +13544,9 @@ msgstr ""
 #~ msgid "Invalid Plugin Passed"
 #~ msgstr "無効なプラグインが渡されました"
 
+#~ msgid "Invalid Storage Node"
+#~ msgstr "無効なストレージノード"
+
 #~ msgid "Invalid Task Type"
 #~ msgstr "無効なタスクタイプ"
 
@@ -12887,6 +13630,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "LDAP User Filter"
 #~ msgstr "ユーザーフィルター"
+
+#, fuzzy
+#~ msgid "Last Activity"
+#~ msgstr "有効"
+
+#, fuzzy
+#~ msgid "Last Event"
+#~ msgstr "最終キャプチャ"
 
 #~ msgid "Last Updated Time"
 #~ msgstr "最終更新時刻"
@@ -13158,11 +13909,19 @@ msgstr ""
 #~ msgid "Not Valid"
 #~ msgstr "無効"
 
+#, fuzzy
+#~ msgid "Not a live task of this host's job."
+#~ msgstr "このホストの実行中タスクは見つかりません"
+
 #~ msgid "Not able to add"
 #~ msgstr "追加できません"
 
 #~ msgid "Not all elements in filter or ports setting are integer"
 #~ msgstr "フィルターまたはポート設定のすべての要素が整数ではありません"
+
+#, fuzzy
+#~ msgid "Not an entry in this host's software set."
+#~ msgstr "このホストの実行中タスクは見つかりません"
 
 #~ msgid "Notes"
 #~ msgstr "メモ"
@@ -13372,7 +14131,7 @@ msgstr ""
 #~ msgstr "ブランド設定を更新しました！"
 
 #, fuzzy
-#~ msgid "Recorded"
+#~ msgid "Recorded."
 #~ msgstr "保護されていません"
 
 #~ msgid "Register must be managed from hooks or events"
@@ -13412,9 +14171,6 @@ msgstr ""
 #~ msgid "Remove selected printers"
 #~ msgstr "選択したプリンターを削除"
 
-#~ msgid "Remove selected rules"
-#~ msgstr "選択したルールを削除"
-
 #~ msgid "Remove selected users"
 #~ msgstr "選択したユーザーを削除"
 
@@ -13445,9 +14201,6 @@ msgstr ""
 
 #~ msgid "Reverse the file: (newest on top)"
 #~ msgstr "ファイルを逆順に表示（新しいものを上に）"
-
-#~ msgid "Rexmit Hello Interval"
-#~ msgstr "Hello 再送信間隔"
 
 #~ msgid "Routes should be an array or an instance of Traversable"
 #~ msgstr "ルートは配列または Traversable のインスタンスである必要があります"
@@ -13493,6 +14246,18 @@ msgstr ""
 
 #~ msgid "Schedule with shutdown"
 #~ msgstr "シャットダウンを含めてスケジュール"
+
+#, fuzzy
+#~ msgid "Screen Height"
+#~ msgstr "画面の高さ（ピクセル）"
+
+#, fuzzy
+#~ msgid "Screen Refresh Rate"
+#~ msgstr "画面のリフレッシュレート（Hz）"
+
+#, fuzzy
+#~ msgid "Screen Width"
+#~ msgstr "画面の幅（ピクセル）"
 
 #~ msgid "Search pattern"
 #~ msgstr "検索パターン"
@@ -13614,9 +14379,6 @@ msgstr ""
 #~ msgid "Start Date"
 #~ msgstr "開始日"
 
-#~ msgid "Start Session"
-#~ msgstr "セッションを開始"
-
 #~ msgid "Static"
 #~ msgstr "静的"
 
@@ -13639,9 +14401,6 @@ msgstr ""
 
 #~ msgid "Storage Node General"
 #~ msgstr "ストレージノード全般"
-
-#~ msgid "Storage Node update failed!"
-#~ msgstr "ストレージノードの更新に失敗しました！"
 
 #~ msgid "SubnetGroup General"
 #~ msgstr "サブネットグループ全般"
@@ -13697,18 +14456,22 @@ msgstr ""
 #~ msgid "The below items are only used for the old client."
 #~ msgstr "以下の項目は旧クライアントでのみ使用されます。"
 
-#, fuzzy
-#~ msgid "The certificate chain"
-#~ msgstr "新しいロケーションを作成"
-
 #~ msgid "The clients will checkin with the server from time"
 #~ msgstr "クライアントは一定時間ごとにサーバーへチェックインします"
+
+#, fuzzy
+#~ msgid "The desired state."
+#~ msgstr "タスクの作成に失敗しました"
 
 #~ msgid "The following errors occured"
 #~ msgstr "次のエラーが発生しました"
 
 #~ msgid "The following errors occurred"
 #~ msgstr "次のエラーが発生しました"
+
+#, fuzzy
+#~ msgid "The host this certificate is, and the capabilities this server offers."
+#~ msgstr "このサーバーにはグループがありません"
 
 #~ msgid "The old client is what was distributed with"
 #~ msgstr "旧クライアントは次のバージョンまで配布されていました"
@@ -13721,6 +14484,10 @@ msgstr ""
 
 #~ msgid "The old client was distributed with FOG 1.2.0 and earlier."
 #~ msgstr "旧クライアントは FOG 1.2.0 以前で配布されていました。"
+
+#, fuzzy
+#~ msgid "The task was already closed."
+#~ msgstr "このホストは既に存在します"
 
 #~ msgid "There are currently"
 #~ msgstr "現在"
@@ -13790,9 +14557,6 @@ msgstr ""
 #~ msgid "This module is only used on the old client"
 #~ msgstr "このモジュールは旧クライアントでのみ使用されます"
 
-#~ msgid "This module is only used on the old client."
-#~ msgstr "このモジュールは旧クライアントでのみ使用されます。"
-
 #~ msgid "This section allows you to customize or alter"
 #~ msgstr "このセクションでは各種設定をカスタマイズできます"
 
@@ -13824,9 +14588,6 @@ msgstr ""
 #~ msgid "This will set the configuration level to all hosts in this group"
 #~ msgstr "このグループ内のすべてのホストでこの項目をクリアします。"
 
-#~ msgid "Timeout"
-#~ msgstr "タイムアウト"
-
 #~ msgid "Title must be a string"
 #~ msgstr "タイトルは文字列で指定してください"
 
@@ -13851,6 +14612,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Unable to set user filter."
 #~ msgstr "サーバー情報を取得できません！"
+
+#, fuzzy
+#~ msgid "Unknown status."
+#~ msgstr "不明なデータベースエラー"
 
 #~ msgid "Update General?"
 #~ msgstr "全般設定を更新しますか？"
@@ -13913,6 +14678,9 @@ msgstr ""
 
 #~ msgid "User Change Password"
 #~ msgstr "ユーザーパスワードを変更"
+
+#~ msgid "User Cleanup"
+#~ msgstr "ユーザークリーンアップ"
 
 #~ msgid "User General"
 #~ msgstr "ユーザー全般"
@@ -14166,9 +14934,6 @@ msgstr ""
 #~ msgid "it will enforce login to gain access to the advanced"
 #~ msgstr "詳細メニューへアクセスするにはログインが必要になります"
 
-#~ msgid "logged in"
-#~ msgstr "ログイン済み"
-
 #~ msgid "may see the issue and help and/or use the solutions"
 #~ msgstr "問題を確認し、支援したり解決策を利用したりできます"
 
@@ -14184,19 +14949,12 @@ msgstr ""
 #~ msgid "more secure"
 #~ msgstr "より安全"
 
-#, fuzzy
-#~ msgid "multicast tasks!"
-#~ msgstr "マルチキャストタスク"
-
 #~ msgid "no login will appear"
 #~ msgstr "ログイン画面は表示されません"
 
 #, fuzzy
 #~ msgid "not found on disk"
 #~ msgstr "このノード上に見つかりません"
-
-#~ msgid "of"
-#~ msgstr "の"
 
 #~ msgid "on the following pages of this document"
 #~ msgstr "このドキュメントの次のページ"
@@ -14285,9 +15043,6 @@ msgstr ""
 
 #~ msgid "username"
 #~ msgstr "ユーザー名"
-
-#~ msgid "version"
-#~ msgstr "バージョン"
 
 #~ msgid "where to download the snapin"
 #~ msgstr "スナップインのダウンロード元"

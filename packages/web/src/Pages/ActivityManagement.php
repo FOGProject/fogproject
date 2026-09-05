@@ -62,6 +62,15 @@ class ActivityManagement extends FOGPage
      */
     public $node = 'activity';
     /**
+     * This grid does not select.
+     *
+     * Read only: this is a view of the event log, not a table anything here
+     * removes rows from.
+     *
+     * @var bool
+     */
+    public $selectable = false;
+    /**
      * Every source this viewer knows, before any permission is applied.
      *
      * value => [label, api class, extra permission or null].

@@ -45,14 +45,14 @@ CONF="/opt/fog/.fog-pki"
 die() { echo "$*" >&2; exit 1; }
 
 [[ $EUID -eq 0 ]] || die "fog-sign-node-cert must run as root"
-[[ $# -eq 2 ]] || die "usage: fog-sign-node-cert <web|signing> <request-id>"
+[[ $# -eq 2 ]] || die "usage: fog-sign-node-cert <web|signing|agent> <request-id>"
 
 type="$1"
 reqid="$2"
 
 # Validated before use, not after. A request id reaching the filesystem
 # unchecked is a path traversal into whatever the web user can write.
-[[ $type =~ ^(web|signing)$ ]] || die "unknown certificate type"
+[[ $type =~ ^(web|signing|agent)$ ]] || die "unknown certificate type"
 [[ $reqid =~ ^[a-f0-9]{32}$ ]] || die "malformed request id"
 
 [[ -r $CONF ]] || die "missing $CONF -- re-run the FOG installer"
@@ -68,6 +68,59 @@ out="${PKI_STAGING}/${reqid}.pem"
 chainout="${PKI_STAGING}/${reqid}.chain"
 
 [[ -f $csr ]] || die "no request at ${csr}"
+
+# The agent zone issues CLIENT certificates to fog-agent installs
+# (FOG\Agent\Enrollment stages the request). No names: the certificate
+# identifies a host record, not an address, and the only thing the endpoint
+# hands over is the host id, in its own file, matched against a fixed
+# pattern here before it goes anywhere near a subject line. The key it is
+# signed with is the agent intermediate, never the web CA -- the web CA may
+# be one the admin brought, and a public CA does not issue client
+# certificates -- and clientAuth alone on the EKU means nothing issued here
+# can ever pose as a server.
+if [[ $type == agent ]]; then
+    hostfile="${PKI_STAGING}/${reqid}.agent"
+    [[ -f $hostfile ]] || die "no host id at ${hostfile}"
+    hostid=$(head -n1 "$hostfile" | tr -d '[:space:]')
+    [[ $hostid =~ ^[0-9]{1,10}$ ]] || die "malformed host id"
+    cacert="${PKI_AGENT_CA_CERT:-}"
+    cakey="${PKI_AGENT_CA_KEY:-}"
+    [[ -n $cacert && -f $cacert ]] || die "the agent CA is not present on this server -- re-run the FOG installer"
+    [[ -n $cakey && -f $cakey ]] || die "the agent CA private key is not on this server (expected at ${cakey:-<unset>})"
+    tmpext=$(mktemp) || die "could not create a temporary file"
+    trap 'rm -f "$tmpext"' EXIT
+    {
+        echo "[ v3_agent ]"
+        echo "basicConstraints = critical,CA:FALSE"
+        echo "keyUsage = critical,digitalSignature"
+        echo "extendedKeyUsage = clientAuth"
+        echo "subjectKeyIdentifier = hash"
+        echo "authorityKeyIdentifier = keyid"
+    } > "$tmpext"
+    rm -f "$out" "$chainout"
+    # One year. The agent renews over its own mTLS session well before then;
+    # a shorter life bounds what a copied key is worth.
+    if ! openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
+            -CAcreateserial -sha256 -days 365 \
+            -extensions v3_agent -extfile "$tmpext" \
+            -subj "/CN=fog-agent host ${hostid}/O=FOG Project/OU=FOG Agent" \
+            -out "$out" 2>/dev/null; then
+        die "signing failed"
+    fi
+    # What the agent presents beneath its leaf: the intermediate. The root
+    # is what the server's vhost trusts and need not travel.
+    cat "$cacert" > "$chainout"
+    anchor="${PKI_ROOT_CERT:-}"
+    [[ -n $anchor && -f $anchor ]] || anchor="$cacert"
+    if ! openssl verify -purpose sslclient -CAfile "$anchor" -untrusted "$cacert" "$out" >/dev/null 2>&1; then
+        rm -f "$out" "$chainout"
+        die "the issued certificate does not verify against ${anchor}"
+    fi
+    chmod 0644 "$out" "$chainout"
+    echo "OK"
+    exit 0
+fi
+
 [[ -f $san ]] || die "no name list at ${san}"
 
 # anchor: what the issued certificate must verify against, and what the node is

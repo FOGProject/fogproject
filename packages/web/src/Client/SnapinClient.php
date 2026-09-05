@@ -13,6 +13,7 @@
 
 namespace FOG\Client;
 
+use FOG\Agent\Snapins;
 use FOG\Items\SnapinTask;
 use FOG\Items\StorageGroup;
 use FOG\Items\StorageNode;
@@ -318,75 +319,10 @@ class SnapinClient extends FOGClient
         } else {
             $exitcode = (int)$exitcode;
         }
-        $SnapinTask
-            ->set('stateID', self::getCompleteState())
-            ->set('return', $exitcode)
-            ->set('details', $exitdesc)
-            ->set('complete', $date)
-            ->save();
-        self::$EventManager->notify(
-            'HOST_SNAPINTASK_COMPLETE',
-            [
-                'Snapin' => &$Snapin,
-                'SnapinTask' => &$SnapinTask,
-                'Host' => &self::$Host,
-                'HostName' => &$HostName
-            ]
-        );
-        $abortedOnFailure = false;
-        if ($SnapinJob->get('abortOnFail') && $exitcode !== 0) {
-            $abortedOnFailure = true;
-            (new SnapinTaskManager())
-                ->update(
-                    [
-                        'jobID' => $SnapinJob->get('id'),
-                        'stateID' => self::fastmerge(
-                            self::getQueuedStates(),
-                            (array)self::getProgressState()
-                        )
-                    ],
-                    '',
-                    [
-                        'stateID' => self::getCancelledState(),
-                        'return' => $exitcode,
-                        'details' => sprintf(
-                            _(
-                                'Aborted due to failure of "%s" '
-                                . 'with exit code %s'
-                            ),
-                            $Snapin->get('name'),
-                            $exitcode
-                        ),
-                        'complete' => $date
-                    ]
-                );
-        }
-        $STaskCount = Route::getCount(
-            'snapintask',
-            [
-                'jobID' => $SnapinJob->get('id'),
-                'stateID' => self::fastmerge(
-                    self::getQueuedStates(),
-                    (array)self::getProgressState()
-                )
-            ]
-        );
-        if ($STaskCount < 1) {
-            $stateID = $abortedOnFailure ?
-                self::getCancelledState() :
-                self::getCompleteState();
-            if ($Task->isValid()) {
-                $Task->set('stateID', $stateID)->save();
-            }
-            $SnapinJob->set('stateID', $stateID)->save();
-            self::$EventManager->notify(
-                'HOST_SNAPIN_COMPLETE',
-                [
-                    'HostName' => &$HostName,
-                    'Host' => &self::$Host
-                ]
-            );
-        }
+        // The state changes -- task complete, abort-on-fail cancellation,
+        // job and host task closed -- are the same for fog-agent and live
+        // in one place, so the two clients cannot drift.
+        Snapins::close(self::$Host, $SnapinTask, $exitcode, (string)$exitdesc);
     }
 
     /**
@@ -442,131 +378,8 @@ class SnapinClient extends FOGClient
                 )
             );
         }
-        $Snapin = $SnapinTask->getSnapin();
-        if (!$Snapin->isValid()) {
-            throw new \Exception(_('Invalid Snapin'));
-        }
-        $StorageGroup = $StorageNode = null;
-        self::$HookManager->processEvent(
-            'SNAPIN_GROUP',
-            [
-                'Host' => &self::$Host,
-                'Snapin' => &$Snapin,
-                'StorageGroup' => &$StorageGroup,
-                'HostName' => &$HostName
-            ]
-        );
-        self::$HookManager->processEvent(
-            'SNAPIN_NODE',
-            [
-                'Host' => &self::$Host,
-                'Snapin' => &$Snapin,
-                'StorageNode' => &$StorageNode
-            ]
-        );
-        if (!($StorageGroup instanceof StorageGroup
-            && $StorageGroup->isValid())
-        ) {
-            $StorageGroup = $Snapin->getStorageGroup();
-            if (!$StorageGroup->isValid()) {
-                throw new \Exception(
-                    sprintf(
-                        '%s: %s',
-                        '#!er',
-                        _('Invalid Storage Group')
-                    )
-                );
-            }
-        }
-        if (!($StorageNode instanceof StorageNode
-            && $StorageNode->isValid())
-        ) {
-            $StorageNode = $StorageGroup->getMasterStorageNode();
-            if (!($StorageNode instanceof StorageNode
-                && $StorageNode->isValid())
-            ) {
-                throw new \Exception(
-                    sprintf(
-                        '%s: %s',
-                        '#!er',
-                        _('Invalid Storage Node')
-                    )
-                );
-            }
-        }
-        $path = sprintf(
-            '/%s',
-            trim($StorageNode->get('snapinpath'), '/')
-        );
-        $file = $Snapin->get('file');
-        $filepath = sprintf(
-            '%s/%s',
-            $path,
-            $file
-        );
-        $host = $StorageNode->get('ip');
-        $user = $StorageNode->get('user');
-        $pass = $StorageNode->get('pass');
-        self::$FOGFTP->username = $user;
-        self::$FOGFTP->password = $pass;
-        self::$FOGFTP->host = $host;
-        if (!self::$FOGFTP->connect()) {
-            throw new \Exception(
-                sprintf(
-                    '%s: %s',
-                    '#!er',
-                    _('Cannot connect to ftp server')
-                )
-            );
-        }
-        $SnapinFile = sprintf(
-            'ftp://%s:%s@%s%s',
-            $user,
-            urlencode($pass),
-            $host,
-            $filepath
-        );
-        if ($Task->isValid()) {
-            $Task
-                ->set('stateID', self::getProgressState())
-                ->set('checkInTime', $date)
-                ->save();
-        }
-        $SnapinJob
-            ->set('stateID', self::getProgressState())
-            ->save();
-        $SnapinTask
-            ->set('stateID', self::getProgressState())
-            ->set('return', -1)
-            ->set('details', _('Pending...'))
-            ->save();
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
-        header("X-Sendfile: $filepath");
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header("Content-Disposition: attachment; filename=$file");
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        if (($fh = fopen($SnapinFile, 'rb')) === false) {
-            throw new \Exception(
-                sprintf(
-                    '%s: %s',
-                    '#!er',
-                    _('Could not read snapin file')
-                )
-            );
-        }
-        while (feof($fh) === false) {
-            if (($line = fread($fh, 4096)) === false) {
-                break;
-            }
-            echo $line;
-            flush();
-        }
-        fclose($fh);
-        exit;
+        // Node choice, in-progress marking and the FTP-backed stream are
+        // shared with fog-agent (Agent\Snapins::stream); does not return.
+        Snapins::stream(self::$Host, $SnapinTask);
     }
 }

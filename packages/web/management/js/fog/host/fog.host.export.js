@@ -33,6 +33,10 @@
         {data: 'efiexit', visible: false},
         {data: 'enforce', visible: false},
         {data: 'tokenlock', visible: false},
+        {data: 'agentFingerprint', visible: false},
+        {data: 'agentNotAfter', visible: false},
+        {data: 'agentVersion', visible: false},
+        {data: 'agentCheckin', visible: false},
         {data: 'associations', visible: false}
     ], {order: [[1, 'asc']]});
 })(jQuery);

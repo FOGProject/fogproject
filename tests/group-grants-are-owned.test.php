@@ -473,7 +473,7 @@ foreach (['group-image', 'group-active-directory'] as $tab) {
 $pushes = [
     'groupGeneralPost' => ['HostManager', 'productKey', 'bootTypeExit'],
     'groupPrinterPost' => ['printerLevel', 'confirmlevelup'],
-    'groupModulePost' => ['setDisp', 'setAlo', 'confirmenforcesend'],
+    'groupModulePost' => ['setAlo', 'confirmenforcesend'],
 ];
 foreach ($pushes as $method => $needles) {
     $body = codeOnly(methodBody($pageSrc, $method));

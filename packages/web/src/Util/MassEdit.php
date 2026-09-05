@@ -148,84 +148,6 @@ class MassEdit extends FOGBase
     }
 
     /**
-     * resolve() for fields whose value is more than one number.
-     *
-     * Screen resolution is one setting made of three values -- width, height
-     * and refresh -- written as one row. It cannot be three independent
-     * fields, because the row is deleted and re-inserted whole, so "set the
-     * width and leave the height" has no meaning at the storage layer. And
-     * it must not be one string like `1024x768@60`, because that is an
-     * in-band encoding, which is the exact shape ADR 0038 decision 11 threw
-     * out: undiscoverable, unescapable, and a second format to remember at
-     * every call site.
-     *
-     * So the value arrives the way HTTP already gives it -- `value[key][x]`,
-     * `value[key][y]`, `value[key][r]` -- and stays an array all the way to
-     * the arm that writes it. Nothing parses anything.
-     *
-     * This is a SEPARATE function rather than a flag on resolve() on
-     * purpose. resolve()'s safety property is "an array is never a value,
-     * because a field posting key[]=a&key[]=b is either a bug or somebody
-     * probing". Adding a parameter that suspends that rule for some keys
-     * would make the property conditional on the caller passing the right
-     * list. Here it stays literally true of resolve(), and asking for a
-     * composite is an explicit choice of which function to call.
-     *
-     * Fails closed the same way in both directions: a composite key posting
-     * a scalar resolves to LEAVE, and so does one posting an array with a
-     * non-scalar in it.
-     *
-     * @param array $keys    the composite field keys the caller offers
-     * @param mixed $actions the posted action map, key => action
-     * @param mixed $values  the posted value map, key => array of scalars
-     *
-     * @return array key => ['action' => ..., 'value' => array of strings].
-     *               EVERY key in $keys is present, as with resolve().
-     */
-    public static function resolveComposite(array $keys, $actions, $values)
-    {
-        $actions = is_array($actions) ? $actions : [];
-        $values = is_array($values) ? $values : [];
-        $allowed = [self::LEAVE, self::SET, self::CLEAR];
-        $resolved = [];
-        foreach ($keys as $key) {
-            $key = (string)$key;
-            $action = $actions[$key] ?? self::LEAVE;
-            if (!is_string($action)
-                || !in_array($action, $allowed, true)
-            ) {
-                $action = self::LEAVE;
-            }
-            if (self::SET === $action && !array_key_exists($key, $values)) {
-                $action = self::LEAVE;
-            }
-            $value = [];
-            if (self::SET === $action) {
-                $raw = $values[$key];
-                if (!is_array($raw)) {
-                    $action = self::LEAVE;
-                } else {
-                    foreach ($raw as $part => $sub) {
-                        if (!is_scalar($sub) && null !== $sub) {
-                            // One bad part discards the whole instruction.
-                            // A composite half-written is a row half-right,
-                            // and there is no way for the arm downstream to
-                            // tell that from a deliberate blank.
-                            $action = self::LEAVE;
-                            $value = [];
-                            break;
-                        }
-                        $value[(string)$part] = trim((string)$sub);
-                    }
-                }
-            }
-            $resolved[$key] = ['action' => $action, 'value' => $value];
-        }
-
-        return $resolved;
-    }
-
-    /**
      * Turns resolved instructions into the column map an update takes.
      *
      * @param array $resolved output of resolve()
@@ -252,11 +174,11 @@ class MassEdit extends FOGBase
             }
             $action = $instruction['action'] ?? self::LEAVE;
             if (self::SET === $action) {
-                // A composite instruction can never be a column update: its
-                // value is an array and a column takes one value. Guarded
-                // here rather than left to the spec, because the spec is
-                // partly written by plugins and a plugin naming `field` on a
-                // composite key would otherwise write "Array" into a column.
+                // An array value can never be a column update: a column
+                // takes one value. Guarded here rather than left to the
+                // spec, because the spec is partly written by plugins and a
+                // plugin naming `field` on a key whose posted value is an
+                // array would otherwise write the string "Array" into it.
                 if (is_array($instruction['value'])) {
                     continue;
                 }

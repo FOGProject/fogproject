@@ -311,7 +311,7 @@ class MulticastManager extends FOGService
             ];
 
             // Check if status changed.
-            self::$_mcOn = self::getSetting('MULTICASTGLOBALENABLED');
+            self::$_mcOn = (int) self::getSetting('MULTICASTGLOBALENABLED');
 
             try {
                 // Any sender still recorded against a node we master

@@ -1163,6 +1163,39 @@ foreach (['FOGBase', 'Authorization', 'Route'] as $cls) {
     FogTestHarness::setStatic($cls, 'FOGUser', $savedUser);
 }
 
+// (k) The fog-agent prefix declares FOG_MACHINE_REQUEST, and only after the
+//     certificate has bound a host.
+//
+//     (j) is what an agent request would otherwise get: no user, so every
+//     scoped read under /agent/v1/ -- the host's own task, its group grants --
+//     answers empty on a server with sites configured. The declaration is
+//     the cure, and its position is the safety: before the 401 it would be an
+//     inference from a missing user, exactly what _hasNoPrincipal's comment
+//     rules out. The whole dispatch block is anchored so a rewrite of either
+//     half is a visible failure here rather than a silent policy change.
+$routeSrc = (string)file_get_contents(__DIR__ . '/../packages/web/src/Router/Route.php');
+// Anchored on the constant rather than the literal it holds: the prefix is
+// now Route::AGENT_ROUTE_SEGMENT, shared with DatabaseManager::init() so the
+// two places that recognize an agent route cannot drift. The closing paren
+// picks the dispatch site rather than the declaration above it.
+$agentBlockStart = strpos($routeSrc, 'self::AGENT_ROUTE_SEGMENT)');
+$agentBlockEnd = false === $agentBlockStart ? false : strpos($routeSrc, '$isunauth = true;', $agentBlockStart);
+$agentBlock = (
+    false === $agentBlockStart || false === $agentBlockEnd ?
+    '' :
+    substr($routeSrc, $agentBlockStart, $agentBlockEnd - $agentBlockStart)
+);
+$agent401 = strpos($agentBlock, 'HTTP_UNAUTHORIZED');
+$agentDefine = strpos($agentBlock, "define('FOG_MACHINE_REQUEST', true);");
+$t->check(
+    'the agent prefix declares FOG_MACHINE_REQUEST',
+    false !== $agentDefine
+);
+$t->check(
+    'the agent prefix declares it only after the 401 on an unbound host',
+    false !== $agent401 && false !== $agentDefine && $agent401 < $agentDefine
+);
+
 /*
  * The null-vs-[] distinction, asserted directly on the filter as well. The
  * end-to-end cases above would both pass if listem() stopped calling the

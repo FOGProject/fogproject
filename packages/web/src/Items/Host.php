@@ -13,6 +13,7 @@
 
 namespace FOG\Items;
 
+use FOG\Agent\WakeRelay;
 use FOG\Assign\Resolver;
 use FOG\Base\FOGController;
 use FOG\Boot\SecureBootState;
@@ -22,6 +23,7 @@ use FOG\Managers\PrinterAssociationManager;
 use FOG\Managers\SnapinAssociationManager;
 use FOG\Managers\SnapinJobManager;
 use FOG\Managers\SnapinTaskManager;
+use FOG\Managers\SoftwareAssociationManager;
 use FOG\Managers\TaskManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
@@ -130,7 +132,15 @@ class Host extends FOGController
         'efiexit' => 'hostExitEfi',
         'enforce' => 'hostEnforce',
         'token' => 'hostInfoKey',
-        'tokenlock' => 'hostInfoLock'
+        'tokenlock' => 'hostInfoLock',
+        // fog-agent binding (schema 416). agentFingerprint is the sha256 of
+        // the agent key's SubjectPublicKeyInfo and is what a client
+        // certificate is matched against; the rest is what the agent last
+        // reported about itself.
+        'agentFingerprint' => 'hostAgentFingerprint',
+        'agentNotAfter' => 'hostAgentNotAfter',
+        'agentVersion' => 'hostAgentVersion',
+        'agentCheckin' => 'hostAgentCheckin'
     ];
     /**
      * The required fields
@@ -150,11 +160,15 @@ class Host extends FOGController
         'primac',
         'imagename',
         'groups',
-        'hostscreen',
         'hostalo',
         'optimalStorageNode',
         'printers',
         'snapins',
+        // Named 'softwares', not 'software': assocSetter() pluralizes the
+        // alter item it is given as "{$alterItem}s", so save()'s
+        // assocSetter('Software', 'software') diffs against this exact key.
+        // See appendSoftwareSequence() and loadSoftwares() below.
+        'softwares',
         'modules',
         'inventory',
         'task',
@@ -180,11 +194,6 @@ class Host extends FOGController
             'id',
             'imageID',
             'imagename'
-        ],
-        'HostScreenSetting' => [
-            'hostID',
-            'id',
-            'hostscreen'
         ],
         'HostAutoLogout' => [
             'hostID',
@@ -229,11 +238,10 @@ class Host extends FOGController
      *
      * @var array
      */
-    private static $_hostscreen = [];
     /**
-     * ALO time val
+     * ALO time val, keyed by host id
      *
-     * @var int
+     * @var array
      */
     private static $_hostalo = [];
     /**
@@ -389,7 +397,8 @@ class Host extends FOGController
             ->assocSetter('Group', 'group')
             ->assocSetter('Module', 'module')
             ->assocSetter('Printer', 'printer')
-            ->assocSetter('Snapin', 'snapin');
+            ->assocSetter('Snapin', 'snapin')
+            ->assocSetter('Software', 'software');
         // assocSetter inserts new snapin associations with sequence 0; give
         // any unsequenced rows a run-order value after the existing ones so
         // newly added snapins land at the end rather than jumping to front.
@@ -398,6 +407,12 @@ class Host extends FOGController
         // snapins, even if something else in the request read them.
         if ($this->isDirty('snapins')) {
             self::appendSnapinSequence($this->get('id'));
+        }
+        // Same reasoning as the snapin sequence above, for software's
+        // swaSequence. isDirty('softwares') because assocSetter() diffs
+        // against 'softwares' (the pluralized alter item), not 'software'.
+        if ($this->isDirty('softwares')) {
+            self::appendSoftwareSequence($this->get('id'));
         }
         // Safety net: never leave the host with MAC rows but no primary MAC.
         // The primac join requires hmPrimary='1', so a host with no primary
@@ -493,7 +508,7 @@ class Host extends FOGController
                 [
                     'printerID' => $printers,
                     'hostID' => $this->get('id'),
-                    'isDefault' => '1'
+                    'isDefault' => 1
                 ],
                 '',
                 ['isDefault' => 0]
@@ -503,85 +518,17 @@ class Host extends FOGController
                 ->update(
                     [
                         'printerID' => $printerid,
+                        // Schema 426 made paIsDefault a tinyint(1). The
+                        // empty string this used to also match was the
+                        // 1.5-origin varchar's "never set", and the upgrade
+                        // normalizes it to 0.
                         'hostID' => $this->get('id'),
-                        'isDefault' => ['0', '']
+                        'isDefault' => 0
                     ],
                     '',
                     ['isDefault' => 1]
                 );
         }
-        return $this;
-    }
-    /**
-     * Sets display vals for the host
-     *
-     * @return void
-     */
-    private function _setDispVals()
-    {
-        if (count(self::$_hostscreen)) {
-            return;
-        }
-        $keys = [
-            'FOG_CLIENT_DISPLAYMANAGER_R',
-            'FOG_CLIENT_DISPLAYMANAGER_X',
-            'FOG_CLIENT_DISPLAYMANAGER_y'
-        ];
-        list(
-            $refresh,
-            $width,
-            $height
-        ) = self::getSetting($keys);
-        $refresh = (
-            $this->get('hostscreen')->get('refresh') ?:
-            $refresh
-        );
-        $width = (
-            $this->get('hostscreen')->get('width') ?:
-            $width
-        );
-        $height = (
-            $this->get('hostscreen')->get('height') ?:
-            $height
-        );
-        self::$_hostscreen = [
-            'refresh' => $refresh,
-            'width' => $width,
-            'height' => $height
-        ];
-    }
-    /**
-     * Gets the display values
-     *
-     * @param string $key the key to get
-     *
-     * @return mixed
-     */
-    public function getDispVals($key = '')
-    {
-        $this->_setDispVals();
-        return self::$_hostscreen[$key];
-    }
-    /**
-     * Sets the display values
-     *
-     * @param mixed $x the width
-     * @param mixed $y the height
-     * @param mixed $r the refresh
-     *
-     * @return object
-     */
-    public function setDisp($x, $y, $r)
-    {
-        if (!$this->get('hostscreen')->isValid()) {
-            $this->get('hostscreen')
-                ->set('hostID', $this->get('id'));
-        }
-        $this->get('hostscreen')
-            ->set('width', $x)
-            ->set('height', $y)
-            ->set('refresh', $r)
-            ->save();
         return $this;
     }
     /**
@@ -591,10 +538,13 @@ class Host extends FOGController
      */
     private function _setAlo()
     {
-        if (!empty(self::$_hostalo)) {
+        $id = (int)$this->get('id');
+        // array_key_exists, not !empty: a host whose auto logout is legitimately
+        // 0 must still cache, or every read re-queries.
+        if (array_key_exists($id, self::$_hostalo)) {
             return;
         }
-        self::$_hostalo = (
+        self::$_hostalo[$id] = (
             $this->get('hostalo')->get('time') ?:
             self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN')
         );
@@ -607,7 +557,7 @@ class Host extends FOGController
     public function getAlo()
     {
         $this->_setAlo();
-        return self::$_hostalo;
+        return self::$_hostalo[(int)$this->get('id')];
     }
     /**
      * Sets the auto logout time
@@ -618,6 +568,9 @@ class Host extends FOGController
      */
     public function setAlo($time)
     {
+        // The write invalidates this host's cached read, so a save and a
+        // getAlo() in the same request agree.
+        unset(self::$_hostalo[(int)$this->get('id')]);
         return $this->get('hostalo')
             ->set('hostID', $this->get('id'))
             ->set('time', $time)
@@ -710,6 +663,26 @@ class Host extends FOGController
             'sequence'
         );
         $this->set('snapins', (array)$snapins);
+    }
+    /**
+     * Loads any software directly assigned to this host, in run order.
+     *
+     * Mirrors loadSnapins(); the field is 'softwares' rather than
+     * 'software' -- see the additionalFields comment above for why.
+     *
+     * @return void
+     */
+    protected function loadSoftwares()
+    {
+        $find = ['hostID' => $this->get('id')];
+        $software = Route::getIds(
+            'softwareassociation',
+            $find,
+            'softwareID',
+            'AND',
+            'sequence'
+        );
+        $this->set('softwares', (array)$software);
     }
     /**
      * Loads the modules this host itself has turned ON.
@@ -1651,6 +1624,13 @@ class Host extends FOGController
     public function wakeOnLAN()
     {
         self::wakeUp($this->getMyMacs());
+        // Design 0011, and ADDITIONAL to the line above rather than a
+        // replacement for it. wakeUp() reaches every link FOG owns a
+        // machine on; this reaches the links it does not, by asking an
+        // agent already awake there. Off by default and a no-op when the
+        // host has no awake neighbor, which is why it needs no branch
+        // here.
+        WakeRelay::request($this, 'host wake');
         return $this;
     }
     /**
@@ -1869,6 +1849,40 @@ class Host extends FOGController
         );
     }
     /**
+     * Adds software to the host.
+     *
+     * Staged in-memory here; the softwareAssoc rows (and their run-order
+     * sequence) are persisted in save() via
+     * assocSetter()/appendSoftwareSequence().
+     *
+     * @param array $addArray the software ids to add
+     *
+     * @return object
+     */
+    public function addSoftware($addArray)
+    {
+        return $this->addRemItem(
+            'softwares',
+            (array)$addArray,
+            'merge'
+        );
+    }
+    /**
+     * Removes software from the host.
+     *
+     * @param array $removeArray the software ids to remove
+     *
+     * @return object
+     */
+    public function removeSoftware($removeArray)
+    {
+        return $this->addRemItem(
+            'softwares',
+            (array)$removeArray,
+            'diff'
+        );
+    }
+    /**
      * Assigns a run-order sequence to any snapin associations that do
      * not have one yet, placing newly added snapins after existing ones.
      *
@@ -1941,6 +1955,81 @@ class Host extends FOGController
                     [
                         'hostID' => $this->get('id'),
                         'snapinID' => $snapinID
+                    ],
+                    '',
+                    ['sequence' => $sequence]
+                );
+        }
+        return $this;
+    }
+    /**
+     * Assigns a run-order sequence to any software associations that do
+     * not have one yet, placing newly added software after existing ones.
+     *
+     * Mirrors appendSnapinSequence() above over softwareAssoc/swaSequence.
+     *
+     * @param int $hostID the host whose unsequenced rows to number
+     *
+     * @return void
+     */
+    public static function appendSoftwareSequence($hostID)
+    {
+        $hostID = (int)$hostID;
+        if ($hostID < 1) {
+            return;
+        }
+        $associations = Route::getList(
+            'softwareassociation',
+            ['hostID' => $hostID],
+            'AND',
+            'sequence'
+        );
+        $maxSequence = 0;
+        $unsequenced = [];
+        foreach ($associations as $association) {
+            $sequence = (int)$association->sequence;
+            if ($sequence > 0) {
+                $maxSequence = max($maxSequence, $sequence);
+            } else {
+                $unsequenced[] = $association->softwareID;
+            }
+        }
+        foreach ($unsequenced as $softwareID) {
+            (new SoftwareAssociationManager())
+                ->update(
+                    [
+                        'hostID' => $hostID,
+                        'softwareID' => $softwareID
+                    ],
+                    '',
+                    ['sequence' => ++$maxSequence]
+                );
+        }
+    }
+    /**
+     * Sets the run order of the host's software from an ordered list of
+     * software ids (first id runs first).
+     *
+     * Mirrors setSnapinOrder() above.
+     *
+     * @param array $softwareIDs the ordered software ids
+     *
+     * @return object
+     */
+    public function setSoftwareOrder($softwareIDs)
+    {
+        $sequence = 0;
+        foreach ((array)$softwareIDs as $softwareID) {
+            $softwareID = (int)$softwareID;
+            if ($softwareID < 1) {
+                continue;
+            }
+            ++$sequence;
+            (new SoftwareAssociationManager())
+                ->update(
+                    [
+                        'hostID' => $this->get('id'),
+                        'softwareID' => $softwareID
                     ],
                     '',
                     ['sequence' => $sequence]

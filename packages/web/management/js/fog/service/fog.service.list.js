@@ -6,9 +6,9 @@
     // is needed here -- which also removes the old click/submit inconsistency
     // that left the user-tracker form wired differently from the rest.
     var services = [
-        {btn: '#displaymanager-update', form: '#displaymanagerupdate-form'},
         {btn: '#autologout-update', form: '#autologoutupdate-form'},
         {btn: '#snapinclient-update', form: '#snapinclientupdate-form'},
+        {btn: '#software-update', form: '#softwareupdate-form'},
         {btn: '#hostregister-update', form: '#hostregisterupdate-form'},
         {btn: '#hostnamechanger-update', form: '#hostnamechangerupdate-form'},
         {btn: '#printermanager-update', form: '#printermanagerupdate-form'},

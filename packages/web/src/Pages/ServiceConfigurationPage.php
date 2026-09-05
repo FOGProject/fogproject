@@ -70,20 +70,9 @@ class ServiceConfigurationPage extends FOGPage
         self::$_moduleName = self::getGlobalModuleStatus();
         self::$_modNames = self::getGlobalModuleStatus(true);
         // Loop the client module options
-        $notWhere = [
-            'clientupdater',
-            'dircleanup',
-            'usercleanup'
-        ];
-        $modkeys = array_keys(self::getGlobalModuleStatus());
-        $where = array_diff(
-            $modkeys,
-            $notWhere
-        );
-
         self::$_modules = Route::getList(
             'module',
-            ['shortName' => $where]
+            ['shortName' => array_keys(self::getGlobalModuleStatus())]
         );
     }
     /**
@@ -283,108 +272,6 @@ class ServiceConfigurationPage extends FOGPage
         }
     }
     /**
-     * Presents the displaymanager page.
-     *
-     * @return void
-     */
-    public function serviceDisplaymanager()
-    {
-        list(
-            $r,
-            $x,
-            $y
-        ) = self::getSetting(
-            [
-                'FOG_CLIENT_DISPLAYMANAGER_R',
-                'FOG_CLIENT_DISPLAYMANAGER_X',
-                'FOG_CLIENT_DISPLAYMANAGER_Y'
-            ]
-        );
-
-        $labelClass = 'col-sm-3 col-form-label';
-
-        $this->_renderModuleTab(
-            'displaymanager',
-            'display manager',
-            'dm',
-            'MODULE_DISPLAYMANAGER_FIELDS',
-            [
-                self::makeLabel(
-                    $labelClass,
-                    'width',
-                    _('Default Width')
-                    . '<br/>('
-                    . _('in pixels')
-                    . ')'
-                ) => self::makeInput(
-                    'form-control',
-                    'width',
-                    '1024',
-                    'number',
-                    'width',
-                    $x
-                ),
-                self::makeLabel(
-                    $labelClass,
-                    'height',
-                    _('Default Height')
-                    . '<br/>('
-                    . _('in pixels')
-                    . ')'
-                ) => self::makeInput(
-                    'form-control',
-                    'height',
-                    '768',
-                    'number',
-                    'height',
-                    $y
-                ),
-                self::makeLabel(
-                    $labelClass,
-                    'refresh',
-                    _('Default Refresh Rate')
-                    . '<br/>('
-                    . _('in Hz')
-                    . ')'
-                ) => self::makeInput(
-                    'form-control',
-                    'refresh',
-                    '60',
-                    'number',
-                    'refresh',
-                    $r
-                )
-            ]
-        );
-    }
-    /**
-     * Updates the display manager elements.
-     *
-     * @return void
-     */
-    public function serviceDisplaymanagerPost()
-    {
-        $this->_saveModuleTab(
-            'displaymanager',
-            'display manager',
-            'MODULE_DISPLAYMANAGER_POST',
-            function () {
-                self::setSetting(
-                    'FOG_CLIENT_DISPLAYMANAGER_R',
-                    (int)filter_input(INPUT_POST, 'refresh')
-                );
-                self::setSetting(
-                    'FOG_CLIENT_DISPLAYMANAGER_X',
-                    (int)filter_input(INPUT_POST, 'width')
-                );
-                self::setSetting(
-                    'FOG_CLIENT_DISPLAYMANAGER_Y',
-                    (int)filter_input(INPUT_POST, 'height')
-                );
-            }
-        );
-    }
-    /**
      * Presents the autologout page.
      *
      * @return void
@@ -393,7 +280,15 @@ class ServiceConfigurationPage extends FOGPage
     {
         $labelClass = 'col-sm-3 col-form-label';
 
-        $tme = self::getSetting('FOG_CLIENT_AUTOLOGOFF_MIN');
+        list(
+            $tme,
+            $warn
+        ) = self::getSetting(
+            [
+                'FOG_CLIENT_AUTOLOGOFF_MIN',
+                'FOG_CLIENT_AUTOLOGOFF_WARN'
+            ]
+        );
 
         $this->_renderModuleTab(
             'autologout',
@@ -417,6 +312,23 @@ class ServiceConfigurationPage extends FOGPage
                     'number',
                     'updatetme',
                     $tme
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'updatewarn',
+                    _('Warning Before Log Out')
+                    . '<br/>('
+                    . _('in seconds')
+                    . ')<br/>('
+                    . _('0 logs the user out with no warning')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'warn',
+                    '60',
+                    'number',
+                    'updatewarn',
+                    $warn
                 )
             ]
         );
@@ -438,6 +350,129 @@ class ServiceConfigurationPage extends FOGPage
                     $tme = 0;
                 }
                 self::setSetting('FOG_CLIENT_AUTOLOGOFF_MIN', $tme);
+                // Clamped rather than refused, and never negative. A warning
+                // longer than the timeout is clamped again on the agent, to
+                // half the timeout -- the point of doing it in both places
+                // is that a policy which arrived wrong must not be able to
+                // log a fleet off the moment anybody stops typing.
+                $warn = (int)filter_input(INPUT_POST, 'warn');
+                if ($warn < 0) {
+                    $warn = 0;
+                }
+                self::setSetting('FOG_CLIENT_AUTOLOGOFF_WARN', $warn);
+            }
+        );
+    }
+    /**
+     * Presents the software management page.
+     *
+     * @return void
+     */
+    public function serviceSoftware()
+    {
+        $labelClass = 'col-sm-3 col-form-label';
+
+        list(
+            $drift,
+            $bootstrap,
+            $nupkg
+        ) = self::getSetting(
+            [
+                'FOG_SOFTWARE_DRIFT_INTERVAL',
+                'FOG_SOFTWARE_CHOCO_BOOTSTRAP_URL',
+                'FOG_SOFTWARE_CHOCO_NUPKG_URL'
+            ]
+        );
+
+        $this->_renderModuleTab(
+            'software',
+            'software',
+            'sw',
+            'MODULE_SOFTWARE_FIELDS',
+            [
+                self::makeLabel(
+                    $labelClass,
+                    'updatedrift',
+                    _('Re-check Interval')
+                    . '<br/>('
+                    . _('in seconds')
+                    . ')<br/>('
+                    . _('0 checks only when the assigned set changes')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'drift',
+                    '21600',
+                    'number',
+                    'updatedrift',
+                    $drift
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'updatebootstrap',
+                    _('Chocolatey Install Script')
+                    . '<br/>('
+                    . _('empty means never install Chocolatey')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'bootstrap',
+                    'https://community.chocolatey.org/install.ps1',
+                    'url',
+                    'updatebootstrap',
+                    $bootstrap
+                ),
+                self::makeLabel(
+                    $labelClass,
+                    'updatenupkg',
+                    _('Chocolatey Package Source')
+                    . '<br/>('
+                    . _('optional; for an air-gapped or mirrored install')
+                    . ')'
+                ) => self::makeInput(
+                    'form-control',
+                    'nupkg',
+                    '',
+                    'url',
+                    'updatenupkg',
+                    $nupkg
+                )
+            ]
+        );
+    }
+    /**
+     * Updates the software management elements.
+     *
+     * @return void
+     */
+    public function serviceSoftwarePost()
+    {
+        $this->_saveModuleTab(
+            'software',
+            'software',
+            'MODULE_SOFTWARE_POST',
+            function () {
+                // Clamped, not refused, and never negative: the agent reads
+                // <= 0 as "only re-check when the assigned set changes", so
+                // a negative number would silently mean the same thing as 0
+                // while showing the admin something else.
+                $drift = (int)filter_input(INPUT_POST, 'drift');
+                if ($drift < 0) {
+                    $drift = 0;
+                }
+                self::setSetting('FOG_SOFTWARE_DRIFT_INTERVAL', $drift);
+                // Both URLs are trimmed on the way out in
+                // Agent\SoftwareSet, so trim them on the way in too and an
+                // admin who pastes a trailing space does not see the value
+                // change under them.
+                self::setSetting(
+                    'FOG_SOFTWARE_CHOCO_BOOTSTRAP_URL',
+                    trim((string)filter_input(INPUT_POST, 'bootstrap'))
+                );
+                self::setSetting(
+                    'FOG_SOFTWARE_CHOCO_NUPKG_URL',
+                    trim((string)filter_input(INPUT_POST, 'nupkg'))
+                );
             }
         );
     }
@@ -613,7 +648,12 @@ class ServiceConfigurationPage extends FOGPage
         $this->_renderModuleTab(
             'powermanagement',
             'power management',
-            'pm',
+            // Not 'pm': printer manager already has it, and every tab is
+            // rendered into one document, so both were emitting an element
+            // with id="ispmEnabled". A <label for> binds to the first match
+            // in the document, which made Power Management's "Module
+            // Enabled" label toggle Printer Manager's checkbox.
+            'pwm',
             'MODULE_POWERMANAGEMENT_FIELDS'
         );
     }
@@ -685,6 +725,18 @@ class ServiceConfigurationPage extends FOGPage
                 'id' => 'service-' . $Module->shortName,
                 'generator' => function () use ($Module) {
                     $func = 'service' . ucfirst($Module->shortName);
+                    // A module row whose tab is missing must not take the
+                    // whole page down with it. Schema 419 seeded `software`
+                    // before this page had a serviceSoftware(), and the
+                    // result was a 500 on the page that configures every
+                    // other module. A plugin seeding a row can do the same.
+                    if (!method_exists($this, $func)) {
+                        printf(
+                            '<p>%s</p>',
+                            _('This module has no settings to configure.')
+                        );
+                        return;
+                    }
                     $this->{$func}();
                 }
             ];
@@ -711,9 +763,6 @@ class ServiceConfigurationPage extends FOGPage
                 case 'service-autologout':
                     $this->serviceAutologoutPost();
                     break;
-                case 'service-displaymanager':
-                    $this->serviceDisplaymanagerPost();
-                    break;
                 case 'service-hostnamechanger':
                     $this->serviceHostnamechangerPost();
                     break;
@@ -728,6 +777,9 @@ class ServiceConfigurationPage extends FOGPage
                     break;
                 case 'service-snapinclient':
                     $this->serviceSnapinclientPost();
+                    break;
+                case 'service-software':
+                    $this->serviceSoftwarePost();
                     break;
                 case 'service-taskreboot':
                     $this->serviceTaskrebootPost();

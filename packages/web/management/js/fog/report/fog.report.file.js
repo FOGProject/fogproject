@@ -373,6 +373,70 @@
           }
         });
       break;
+      // Software Report
+      //
+      // Not serverSide, like the snapin and imaging reports above: the rows
+      // are the same bounded window the "range" fields on screen were drawn
+      // from, so paging them server side would be a second query answering
+      // a slightly different question. Every column is plain text -- the
+      // package id and install details are strings a plugin or an operator
+      // set -- so every column escapes.
+    case 'software report':
+      var softwareReportTable = $('#softwarereport-table'),
+        table = softwareReportTable.registerTable(null, {
+          order: [
+            [7, 'desc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'softwareName', render: $.fn.dataTable.render.text()},
+            {data: 'package', render: $.fn.dataTable.render.text()},
+            {data: 'desired', render: $.fn.dataTable.render.text()},
+            {data: 'installed', render: $.fn.dataTable.render.text()},
+            {data: 'status', render: $.fn.dataTable.render.text()},
+            {data: 'code', render: $.fn.dataTable.render.text()},
+            {data: 'checked', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+      // Installed Software
+      //
+      // Not serverSide, same reasoning as software report above: reportRows()
+      // hands back a plain array with its own MAX_ROWS cap and no DataTables
+      // paging protocol, so there is no server-side page to ask for. No
+      // window either -- "currently installed" is a state, not a range -- but
+      // windowedUrl() is harmless with none of its params present and every
+      // other non-serverSide report here uses it, so this does too rather
+      // than being the one case with a hand-built URL.
+    case 'installed software':
+      var installedSoftwareTable = $('#installedsoftwarereport-table'),
+        table = installedSoftwareTable.registerTable(null, {
+          order: [
+            [2, 'desc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'name', render: $.fn.dataTable.render.text()},
+            {data: 'version', render: $.fn.dataTable.render.text()},
+            {data: 'hostCount', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
       // Fleet Report
       //
       // Ordered by the Days column DESCENDING, which is the report: the

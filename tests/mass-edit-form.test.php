@@ -227,21 +227,6 @@ $check(
         && false !== strpos($level, 'value="2"')
 );
 
-// The composite. Its parts must arrive as an ARRAY under one key, which is
-// what lets MassEdit::resolveComposite() read them without parsing anything
-// -- and is why there is no 1024x768@60 string anywhere in this form.
-$res = $call('massEditValueControl', ['resolution', $rows['resolution']]);
-$check(
-    'the resolution posts three parts under one key',
-    false !== strpos($res, 'name="value[resolution][x]"')
-        && false !== strpos($res, 'name="value[resolution][y]"')
-        && false !== strpos($res, 'name="value[resolution][r]"')
-);
-$check(
-    'the resolution is not encoded into one string field',
-    false === strpos($res, 'name="value[resolution]"')
-);
-
 // --- Control ids ----------------------------------------------------------
 
 $check(
@@ -348,27 +333,11 @@ $check(
         )
 );
 
-// The row-backed hints ask their own tables, and the resolution's three
-// columns are combined into one answer rather than reported separately.
+// The row-backed hint asks its own table.
 $check(
     'the auto-logout hint reads its own table',
     null !== $hintBody
         && false !== strpos((string)$hintBody, "'hostAutoLogOut'")
-);
-$check(
-    'the resolution hint reads its own table',
-    null !== $hintBody
-        && false !== strpos((string)$hintBody, "'hostScreenSettings'")
-);
-$check(
-    'the resolution is uniform only when all three parts agree',
-    null !== $hintBody
-        && 1 === preg_match(
-            '/\$uniform = !empty\(\$disp\[.x.\]\[.uniform.\]\)\s*'
-            . '&& !empty\(\$disp\[.y.\]\[.uniform.\]\)\s*'
-            . '&& !empty\(\$disp\[.r.\]\[.uniform.\]\)/s',
-            (string)$hintBody
-        )
 );
 
 // --- Where the button sits ------------------------------------------------
@@ -582,7 +551,6 @@ $where = [
     'useAD' => 'ad',
     'ADPass' => 'ad',
     'autologout' => 'client',
-    'resolution' => 'client'
 ];
 $wrong = [];
 foreach ($where as $key => $tab) {

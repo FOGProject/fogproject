@@ -85,6 +85,7 @@ class PrinterManagement extends FOGPage
                 'port' => $this->obj->get('port'),
                 'model' => $this->obj->get('model'),
                 'ip' => $this->obj->get('ip'),
+                'uri' => $this->obj->get('uri'),
                 'config' => strtolower($this->obj->get('config')),
                 'configFile' => $this->obj->get('configFile')
             ]
@@ -117,6 +118,7 @@ class PrinterManagement extends FOGPage
         $config = $values['config'] ?? '';
         $configFile = $values['configFile'] ?? '';
         $model = $values['model'] ?? '';
+        $uri = $values['uri'] ?? '';
         if (!$config) {
             $config = 'Local';
         }
@@ -178,6 +180,30 @@ class PrinterManagement extends FOGPage
                 _('Printer Description'),
                 'description',
                 $description
+            ),
+            // Design 0010 section 2. Optional, and empty is the normal
+            // state: Items\Printer::uri() derives one from the type and the
+            // address fields, so every printer created before this column
+            // existed keeps working with nobody editing it. Filling it in
+            // is the override, and it is the only way to express a
+            // driverless IPP printer -- which FOG's four types cannot say
+            // at all.
+            self::makeLabel(
+                $labelClass,
+                'uri',
+                _('Device URI')
+                . '<br/><small class="text-muted">'
+                . _('Optional. Leave empty to derive it from the type and '
+                    . 'address above. Examples:')
+                . ' socket://10.0.4.20:9100, ipp://printer.corp/ipp/print, '
+                . 'smb://srv/HP4550</small>'
+            ) => self::makeInput(
+                'form-control printeruri-input',
+                'uri',
+                'socket://10.0.4.20:9100',
+                'text',
+                'uri',
+                $uri
             )
         ];
 
@@ -435,6 +461,7 @@ class PrinterManagement extends FOGPage
                 'port' => filter_input(INPUT_POST, 'port'),
                 'inf' => filter_input(INPUT_POST, 'inf'),
                 'ip' => filter_input(INPUT_POST, 'ip'),
+                'uri' => filter_input(INPUT_POST, 'uri'),
                 'config' => filter_input(INPUT_POST, 'printertype'),
                 'configFile' => filter_input(INPUT_POST, 'configFile'),
                 'model' => filter_input(INPUT_POST, 'model')
@@ -472,6 +499,7 @@ class PrinterManagement extends FOGPage
                 'port' => filter_input(INPUT_POST, 'port'),
                 'inf' => filter_input(INPUT_POST, 'inf'),
                 'ip' => filter_input(INPUT_POST, 'ip'),
+                'uri' => filter_input(INPUT_POST, 'uri'),
                 'config' => filter_input(INPUT_POST, 'printertype'),
                 'configFile' => filter_input(INPUT_POST, 'configFile'),
                 'model' => filter_input(INPUT_POST, 'model')
@@ -527,6 +555,9 @@ class PrinterManagement extends FOGPage
                 $model = trim(
                     (string)filter_input(INPUT_POST, 'model')
                 );
+                $uri = trim(
+                    (string)filter_input(INPUT_POST, 'uri')
+                );
 
                 if ($printer === '') {
                     throw new \Exception(
@@ -555,7 +586,8 @@ class PrinterManagement extends FOGPage
                     ->set('port', $port)
                     ->set('file', $inf)
                     ->set('configFile', $configFile)
-                    ->set('ip', $ip);
+                    ->set('ip', $ip)
+                    ->set('uri', $uri);
                 if (!$Printer->save()) {
                     $serverFault = true;
                     throw new \Exception(_('Add printer failed!'));
@@ -604,6 +636,10 @@ class PrinterManagement extends FOGPage
                 'model' => (
                     filter_input(INPUT_POST, 'model') ?:
                     $this->obj->get('model')
+                ),
+                'uri' => (
+                    filter_input(INPUT_POST, 'uri') ?:
+                    $this->obj->get('uri')
                 )
             ]
         );
@@ -696,6 +732,9 @@ class PrinterManagement extends FOGPage
         $model = trim(
             (string)filter_input(INPUT_POST, 'model')
         );
+        $uri = trim(
+            (string)filter_input(INPUT_POST, 'uri')
+        );
 
         if ($printer === '') {
             throw new \Exception(
@@ -726,7 +765,8 @@ class PrinterManagement extends FOGPage
             ->set('port', $port)
             ->set('file', $inf)
             ->set('configFile', $configFile)
-            ->set('ip', $ip);
+            ->set('ip', $ip)
+            ->set('uri', $uri);
     }
     /**
      * Printer hosts display.
@@ -831,16 +871,19 @@ class PrinterManagement extends FOGPage
                         'isDefault' => 1
                     ],
                     '',
-                    ['isDefault' => '0']
+                    ['isDefault' => 0]
                 );
                 (new PrinterAssociationManager())->update(
                     [
                         'printerID' => $this->obj->get('id'),
+                        // Schema 426 made paIsDefault a tinyint(1); the
+                        // empty string this also matched was the 1.5-origin
+                        // varchar's "never set", normalized to 0 on upgrade.
                         'hostID' => $hosts,
-                        'isDefault' => ['0', '']
+                        'isDefault' => 0
                     ],
                     '',
-                    ['isDefault' => '1']
+                    ['isDefault' => 1]
                 );
             }
         }
@@ -862,7 +905,7 @@ class PrinterManagement extends FOGPage
                         'isDefault' => 1,
                     ],
                     '',
-                    ['isDefault' => '0']
+                    ['isDefault' => 0]
                 );
             }
         }

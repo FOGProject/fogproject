@@ -395,6 +395,119 @@
 
     loadGroupSnapinOrder();
 
+    // ---------------------------------------------------------------
+    // SOFTWARE TAB
+    // Association goes through Group::addSoftware(), which writes one grant
+    // row on the group, mirroring the snapin tab above.
+    var groupSoftwareTable = $.registerAssociationTab({
+        slug: 'group-software',
+        item: 'software',
+        sub: 'getSoftwareList',
+        afterCommit: loadGroupSoftwareOrder
+    });
+    $.registerCreateAndAssociate('group-software', groupSoftwareTable);
+
+    // ---------------------------------------------------------------
+    // GROUP SOFTWARE ORDER (the software this group grants)
+    var groupSoftwareOrderList = $('#group-software-order-list'),
+        groupSoftwareOrderSaveBtn = $('#group-software-order-save');
+
+    function updateGroupSoftwareOrderPositions() {
+        groupSoftwareOrderList.children('li').each(function(i) {
+            $(this).find('.software-order-pos').text((i + 1) + '. ');
+        });
+    }
+
+    function renderGroupSoftwareOrder(items) {
+        groupSoftwareOrderList.empty();
+        if (!items || items.length === 0) {
+            groupSoftwareOrderList.append(
+                $('<li>', {'class': 'list-group-item text-muted'})
+                    .text('No software is granted by this group.')
+            );
+            groupSoftwareOrderSaveBtn.prop('disabled', true);
+            return;
+        }
+        groupSoftwareOrderSaveBtn.prop('disabled', false);
+        $.each(items, function(i, item) {
+            var controls = $('<span>', {'class': 'float-end'})
+                .append(
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-sm btn-secondary software-order-up',
+                        'title': 'Move up'
+                    }).append($('<i>', {'class': 'fas fa-arrow-up'})),
+                    ' ',
+                    $('<button>', {
+                        'type': 'button',
+                        'class': 'btn btn-sm btn-secondary software-order-down',
+                        'title': 'Move down'
+                    }).append($('<i>', {'class': 'fas fa-arrow-down'}))
+                );
+            groupSoftwareOrderList.append(
+                $('<li>', {
+                    'class': 'list-group-item',
+                    'data-id': item.id
+                }).append(
+                    $('<span>', {'class': 'software-order-pos'}),
+                    $('<span>', {'class': 'software-order-name'}).text(item.name),
+                    controls
+                )
+            );
+        });
+        updateGroupSoftwareOrderPositions();
+    }
+
+    function loadGroupSoftwareOrder() {
+        $.ajax({
+            url: '../management/index.php?node=' + Common.node
+                + '&sub=getSoftwareOrderList&id=' + Common.id,
+            dataType: 'json',
+            success: function(data) {
+                renderGroupSoftwareOrder(data && data.data ? data.data : []);
+            }
+        });
+    }
+
+    groupSoftwareOrderList.on('click', '.software-order-up', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            prev = li.prev('li');
+        if (prev.length) {
+            li.insertBefore(prev);
+            updateGroupSoftwareOrderPositions();
+        }
+    });
+
+    groupSoftwareOrderList.on('click', '.software-order-down', function(e) {
+        e.preventDefault();
+        var li = $(this).closest('li'),
+            next = li.next('li');
+        if (next.length) {
+            li.insertAfter(next);
+            updateGroupSoftwareOrderPositions();
+        }
+    });
+
+    groupSoftwareOrderSaveBtn.on('click', function(e) {
+        e.preventDefault();
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            order = [];
+        groupSoftwareOrderList.children('li').each(function() {
+            var id = $(this).attr('data-id');
+            if (id) {
+                order.push(id);
+            }
+        });
+        if (order.length === 0) {
+            return;
+        }
+        $.apiCall(method, action, {softwareorder: order});
+    });
+
+    loadGroupSoftwareOrder();
+
     // FOG CLIENT AREA
     // ---------------------------------------------------------------
     // CLIENT SETTINGS TAB
@@ -691,7 +804,8 @@
             {data: 'checkin'},
             {data: 'complete'},
             {data: 'diff'},
-            {data: 'return'}
+            {data: 'return'},
+            {data: 'status'}
         ],
         // Host first, because RowGroup only groups correctly when the
         // grouped column is the primary sort -- otherwise a host's rows
@@ -730,6 +844,7 @@
         groupHostsTable.search(Common.search).draw();
         groupPrintersTable.search(Common.search).draw();
         groupSnapinsTable.search(Common.search).draw();
+        groupSoftwareTable.search(Common.search).draw();
         // FOG Client
         groupModulesTable.search(Common.search).draw();
         // History

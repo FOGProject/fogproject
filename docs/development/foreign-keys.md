@@ -224,7 +224,7 @@ today and the class where PHP already agrees.
 
 ### 1:1 and 1:N satellites — CASCADE. Agreed.
 
-`inventory`, `hostScreenSettings`, `hostAutoLogOut`, `powerManagement`,
+`inventory`, `hostAutoLogOut`, `powerManagement`,
 `greenFog`, `apiTokens`, `userAuths`, `nfsGroupMembers`, and the plugins'
 `LDAPGroups`, `OIDCGroups`, `oidcIdentity`.
 
@@ -603,7 +603,7 @@ half-converted column.
 ## Phase D — plugins, and the direction rule
 
 18 plugin tables ship in `FOGProject/fog-plugins`. All 18 clone cleanly into
-the survey and 25 of the map's 123 relationships live in them.
+the survey and 25 of the map's 137 relationships live in them.
 
 ### Direction is the whole rule
 
@@ -877,10 +877,8 @@ snapinAssoc         saHostID -> hosts    saSnapinID -> snapins
 printerAssoc        paHostID -> hosts    paPrinterID -> printers
 moduleStatusByHost  msHostID -> hosts    msModuleID -> modules
 inventory           iHostID -> hosts
-hostScreenSettings  hssHostID -> hosts
 hostAutoLogOut      haloHostID -> hosts
 powerManagement     pmHostID -> hosts
-greenFog            gfHostID -> hosts
 ```
 
 All CASCADE, and **nothing an admin can see changes**: `deletemass()`

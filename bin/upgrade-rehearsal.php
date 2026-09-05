@@ -595,7 +595,6 @@ switch ($cmd) {
         seedRow('snapinAssoc <- host and snapin', 'snapinAssoc', ['saHostID' => 900001, 'saSnapinID' => 900001]);
         seedRow('printerAssoc <- host and printer', 'printerAssoc', ['paHostID' => 900001, 'paPrinterID' => 900001]);
         seedRow('inventory <- host', 'inventory', ['iHostID' => 900001]);
-        seedRow('greenFog <- host', 'greenFog', ['gfHostID' => 900001, 'gfHour' => 1, 'gfMin' => 0]);
         seedRow('powerManagement <- host', 'powerManagement', ['pmHostID' => 900001]);
         seedRow('imageGroupAssoc <- image and storage group', 'imageGroupAssoc', ['igaImageID' => 900001, 'igaStorageGroupID' => 900001]);
         seedRow('snapinGroupAssoc <- snapin and storage group', 'snapinGroupAssoc', ['sgaSnapinID' => 900001, 'sgaStorageGroupID' => 900001]);
@@ -1067,8 +1066,8 @@ switch ($cmd) {
         $tables = ['hosts', 'hostMAC', 'groupMembers', 'snapinAssoc', 'printerAssoc',
             'moduleStatusByHost', 'inventory', 'tasks', 'scheduledTasks', 'images',
             'nfsGroups', 'nfsGroupMembers', 'users', 'snapinJobs', 'snapinTasks',
-            'multicastSessions', 'multicastSessionsAssoc', 'greenFog',
-            'hostScreenSettings', 'hostAutoLogOut', 'powerManagement', 'taskLog',
+            'multicastSessions', 'multicastSessionsAssoc',
+            'hostAutoLogOut', 'powerManagement', 'taskLog',
             'sites', 'siteHostMembers', 'siteUserMembers', 'siteGroupMembers'];
         printf("census  %s (schema %d)\n", $db, $runner->version());
         foreach ($tables as $t) {

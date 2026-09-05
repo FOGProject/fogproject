@@ -1,10 +1,10 @@
 <?php
 /**
- * Host screen settings class.
+ * Host-direct software assignment.
  *
  * PHP version 7.4+
  *
- * @category HostScreenSetting
+ * @category SoftwareAssociation
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
@@ -16,52 +16,58 @@ namespace FOG\Items;
 use FOG\Base\FOGController;
 
 /**
- * Host screen settings class.
+ * Host-direct software assignment.
  *
- * @category HostScreenSetting
+ * @category SoftwareAssociation
  * @package  FOGProject
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
-class HostScreenSetting extends FOGController
+class SoftwareAssociation extends FOGController
 {
     /**
-     * The host screen settings table name.
+     * The table.
      *
      * @var string
      */
-    protected $databaseTable = 'hostScreenSettings';
+    protected $databaseTable = 'softwareAssoc';
     /**
-     * The host screen settings fields and common names.
+     * The fields and common names.
      *
      * @var array
      */
     protected $databaseFields = [
-        'id' => 'hssID',
-        'hostID' => 'hssHostID',
-        'width' => 'hssWidth',
-        'height' => 'hssHeight',
-        'refresh' => 'hssRefresh',
-        'orientation' => 'hssOrientation',
-        'other1' => 'hssOther1',
-        'other2' => 'hssOther2'
+        'id' => 'swaID',
+        'hostID' => 'swaHostID',
+        'softwareID' => 'swaSoftwareID',
+        'sequence' => 'swaSequence'
     ];
     /**
-     * The required fields
+     * The required fields.
      *
      * @var array
      */
     protected $databaseFieldsRequired = [
-        'hostID'
+        'hostID',
+        'softwareID'
     ];
     /**
-     * Gets the host object.
+     * The host.
      *
      * @return object
      */
     public function getHost()
     {
         return new Host($this->get('hostID'));
+    }
+    /**
+     * The software entry.
+     *
+     * @return object
+     */
+    public function getSoftware()
+    {
+        return new Software($this->get('softwareID'));
     }
 }
