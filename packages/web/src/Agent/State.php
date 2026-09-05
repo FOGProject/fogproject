@@ -137,6 +137,12 @@ class State extends FOGBase
         'directory' => DirectoryFacts::class,
         'printers' => PrinterFacts::class,
         'network' => NetworkFacts::class,
+        // The second reporter for hosts.hostSbState (design 0012). iPXE
+        // writes the same column on every netboot; this one speaks on
+        // every poll, which is what a machine that boots its own disk
+        // actually does. Both go through
+        // SecureBootState::fromBootRequest() so there is one mapping.
+        'secureboot' => SecureBootFacts::class,
     ];
 
     /**
