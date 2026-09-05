@@ -69,6 +69,29 @@ abstract class FOGPage extends FOGBase
      */
     public $title;
     /**
+     * Whether this page's grid lets you select and act on rows.
+     *
+     * The toolbar used to decide by NODE NAME -- a hardcoded list of
+     * ['plugin', 'task', 'activity', 'audit'] that a read-only page had to
+     * be added to, and which the next one silently was not: Agent Activity
+     * shipped drawing a red "Delete selected" over a grid whose own JS sets
+     * `select: false` and whose table has no delete route anywhere in FOG
+     * (ADR 0021 Decision 8).
+     *
+     * A page says what it is instead of the toolbar guessing from its URL.
+     * The pages that were in that list set this false, and so does any page
+     * added later -- forgetting it now means the buttons appear, which is
+     * visible, rather than a name missing from a list nobody reads.
+     *
+     * This is the PHP half. Select All / Deselect All are DataTables Buttons
+     * and are dropped by registerTable() when a table passes
+     * `select: false`, which is the same statement made in the layer that
+     * owns those buttons.
+     *
+     * @var bool
+     */
+    public $selectable = true;
+    /**
      * The menu (always display)
      *
      * @var array
@@ -1902,18 +1925,20 @@ abstract class FOGPage extends FOGBase
             if ($sub == 'list') {
                 // Tasks are canceled per-pane, never deleted; the tabbed
                 // task page hits sub=list via the no-sub default, so keep
-                // the delete actionbox off it. Activity and the audit log
-                // are read-only views of the event logs -- ?node=X&sub=list
-                // resolves to index() like any unknown sub does, and without
-                // this they would draw a "Delete selected" neither page
-                // implements. For the audit log there is nothing to
-                // implement it WITH: auditlog and auditchange have no delete
-                // route anywhere in FOG (ADR 0021 Decision 8).
-                if (!in_array(
-                    $node,
-                    ['plugin', 'task', 'activity', 'audit'],
-                    true
-                )) {
+                // the delete actionbox off it. Activity, the audit log and
+                // agent activity are read-only views of the event logs --
+                // ?node=X&sub=list resolves to index() like any unknown sub
+                // does, and without this they would draw a "Delete selected"
+                // none of them implements. For the audit trail there is
+                // nothing to implement it WITH: auditlog and auditchange
+                // have no delete route anywhere in FOG (ADR 0021
+                // Decision 8).
+                //
+                // Read from the page, not from its node name. The list this
+                // replaces had to be edited every time a read-only page was
+                // added and was not when Agent Activity arrived, so that
+                // page shipped a red Delete selected it could not honor.
+                if ($this->selectable) {
                     $actionbox .= self::makeButton(
                         'deleteSelected',
                         _('Delete selected'),

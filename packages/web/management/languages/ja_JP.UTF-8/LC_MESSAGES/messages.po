@@ -5332,10 +5332,6 @@ msgid "Largest images"
 msgstr "イメージ"
 
 #, fuzzy
-msgid "Last Activity"
-msgstr "有効"
-
-#, fuzzy
 msgid "Last Agent Check-In"
 msgstr "タスクチェックイン日"
 
@@ -5352,10 +5348,6 @@ msgstr "タスクチェックイン日"
 
 msgid "Last Deployed"
 msgstr "最終展開"
-
-#, fuzzy
-msgid "Last Event"
-msgstr "最終キャプチャ"
 
 msgid "Last Ping"
 msgstr ""
@@ -10097,7 +10089,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -13636,6 +13627,14 @@ msgstr ""
 #, fuzzy
 #~ msgid "LDAP User Filter"
 #~ msgstr "ユーザーフィルター"
+
+#, fuzzy
+#~ msgid "Last Activity"
+#~ msgstr "有効"
+
+#, fuzzy
+#~ msgid "Last Event"
+#~ msgstr "最終キャプチャ"
 
 #~ msgid "Last Updated Time"
 #~ msgstr "最終更新時刻"

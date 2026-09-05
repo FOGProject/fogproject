@@ -26,19 +26,40 @@ use FOG\Router\Route;
  * install in one flat grid with no host filter, so "what has this machine's
  * agent been doing" meant scrolling past every other machine.
  *
- * SUMMARY FIRST, ROWS ON DEMAND. This page lists one row per host --
- * hostname, how many agent events it has, when the last one was and what it
- * was -- and fetches a host's actual rows only when it is expanded.
+ * ONE GRID, GROUPED BY HOST. Every host that has agent activity gets a
+ * RowGroup header carrying its name and its event count, and under it that
+ * host's newest event. Expanding a header loads the rest of that host's
+ * events and shows them as ordinary rows of the same grid.
  *
- * That shape rather than a flat grid with group headers, for three reasons.
- * DataTables' rowGroup would group only within the current PAGE under
- * `serverSide`, so one hostname would head a dozen separate pages. Any table
- * using rowGroup is auto-paged out of the infinite scroll by registerTable()
- * -- Scroller's virtual row-height math cannot reconcile injected header
- * rows -- and fog.audit.list.js already records that as the reason the audit
- * grid does not group. And an agent writes an audit row per changed fact per
- * host, so a flat list is the one thing that grows without bound while the
- * summary is bounded by the size of the fleet.
+ * The first version of this page was a summary grid whose rows each opened
+ * a nested DataTable through `row.child()`. That never worked in the
+ * browser and could not have: a DataTables row has ONE child slot,
+ * registerTable() turns Responsive on for every grid, and Responsive claims
+ * that slot for its own hidden-column detail. Clicking expand rendered
+ * Responsive's field list and the nested table was never constructed --
+ * measured on a live install at 1920px with no columns hidden. Nothing
+ * errored, which is why it survived a fix (`the expanded host was stuck at
+ * ten rows`) aimed at a pager inside a table that did not exist.
+ *
+ * So the drill-down uses no child row at all. Rows are added to the grid
+ * itself, which is also what makes them look like the rest of FOG rather
+ * than a grid nested inside a grid with its own scrollbar and its own pager.
+ *
+ * WHY EACH GROUP KEEPS A ROW. Collapsing is a search filter over the event
+ * rows, and RowGroup builds its headers from the rows that SURVIVE the
+ * filter -- a group with none left renders no header and the host
+ * disappears. Measured, not assumed. So the newest event of every host is
+ * seeded into the table and never filtered: it is the anchor its header is
+ * drawn from, and it doubles as the thing worth seeing when everything is
+ * collapsed, which is what each agent last did.
+ *
+ * WHY THE SEED IS A SUMMARY QUERY AND THE REST IS NOT. An agent writes a
+ * row per changed fact per host and FOG_AUDIT_RETENTION_DAYS defaults to 0,
+ * "keep everything forever" -- so the flat event set is unbounded and
+ * cannot be loaded client side, which is also why rowGroup over a
+ * `serverSide` grid is not an option here (it would group within one page).
+ * The seed is bounded by the size of the fleet; each expansion is bounded
+ * by a cap. Nothing on this page loads a set bounded by neither.
  *
  * The expand fetches through the SAME endpoint the host page's Agent
  * Activity tab uses, so there is one query behind both surfaces.
@@ -68,6 +89,16 @@ class AgentActivityManagement extends FOGPage
      * @var string
      */
     public $node = 'agentactivity';
+    /**
+     * This grid does not select.
+     *
+     * Read only, like the audit log it reads: `auditlog` has no create, update
+     * or delete route anywhere in FOG (ADR 0021 Decision 8), so there is
+     * nothing here for a selection to act on.
+     *
+     * @var bool
+     */
+    public $selectable = false;
     /**
      * The prefix every type this page shows begins with.
      *
@@ -113,21 +144,31 @@ class AgentActivityManagement extends FOGPage
     {
         $this->title = _('Agent Activity');
 
-        // The first column is the expand control and carries no heading of
-        // its own: a header on it would be a label for a button.
+        // ONE column set for both kinds of row. The grid holds each host's
+        // newest event and, once its group is expanded, the rest of that
+        // host's events -- and those are the same shape, so they are the
+        // same columns. The host itself is not a column: it is the RowGroup
+        // header, which is where the per-host counts and the expand control
+        // live too.
         $this->headerData = [
-            '',
-            _('Host'),
-            _('Events'),
-            _('Last Activity'),
-            _('Last Event')
+            _('When'),
+            _('Event'),
+            _('Detail'),
+            _('Outcome'),
+            _('Host')
         ];
+        // The host column is hidden and stays hidden -- `noVis` keeps it out
+        // of the Column Visibility picker. It exists because RowGroup needs
+        // the table SORTED by its group, and a group is only contiguous if
+        // something orders it: ordering by time alone lets one host's older
+        // rows fall past the next host's newest one, which splits the group
+        // and draws its header a second time. Observed before this existed.
         $this->attributes = [
-            ['class' => 'agentactivity-toggle'],
             [],
             [],
             [],
-            []
+            [],
+            ['class' => 'noVis']
         ];
 
         echo '<div class="card">';
@@ -174,7 +215,8 @@ class AgentActivityManagement extends FOGPage
         $rows = self::$DB->query(
             'SELECT a.`alSubjectID` AS `hostID`, h.`hostName` AS `hostName`, '
             . 's.`events` AS `events`, s.`lastTime` AS `lastTime`, '
-            . 'a.`alType` AS `lastType` '
+            . 'a.`alType` AS `lastType`, a.`alText` AS `lastText`, '
+            . 'a.`alOutcome` AS `lastOutcome` '
             . 'FROM `auditLog` a '
             . 'INNER JOIN ('
             . 'SELECT `alSubjectID`, COUNT(*) AS `events`, '
@@ -214,7 +256,14 @@ class AgentActivityManagement extends FOGPage
                     : self::toDisplayStored(
                         (string) $row['lastTime']
                     )->format('Y-m-d H:i:s'),
-                'lastType' => (string) ($row['lastType'] ?? '')
+                'lastType' => (string) ($row['lastType'] ?? ''),
+                // The newest row IN FULL, not just its type. It is the one
+                // row of the host that is always on screen -- the anchor its
+                // group header is drawn from -- so it has to carry the same
+                // four fields an expanded row does or the collapsed view
+                // would have empty cells under populated headings.
+                'lastText' => (string) ($row['lastText'] ?? ''),
+                'lastOutcome' => (string) ($row['lastOutcome'] ?? '')
             ];
         }
 

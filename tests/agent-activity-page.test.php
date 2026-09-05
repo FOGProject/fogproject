@@ -20,10 +20,16 @@
  *   audit log discloses attempted usernames and refusals; aliasing this
  *   onto it would force anyone who may see what an agent did to also see
  *   every failed sign-in.
- * - NO rowGroup. fog.audit.list.js records why the audit grid does not
- *   group, and registerTable() auto-pages any table that does -- so a
- *   grouped grid would silently lose the infinite scroll. The grouping here
- *   is done in SQL instead.
+ * - rowGroup, grouped on hostName. This bullet used to say the opposite --
+ *   that the grid must NOT group, because registerTable() auto-pages any
+ *   table that does and a grouped grid loses the infinite scroll. That trade
+ *   was real but it was the wrong side of it: the summary-plus-child-table
+ *   arrangement it protected never worked in a browser at all, because
+ *   Responsive owns the one row.child() slot every DataTables row has. The
+ *   page now groups, is paged rather than infinitely scrolled, and expands a
+ *   host by adding rows to the same grid. tests/agent-activity-grouping
+ *   .test.php holds the detail; what is pinned here is that the child table
+ *   does not come back.
  *
  * Usage: php tests/agent-activity-page.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -169,9 +175,9 @@ $t->check(
 // ------------------------------------------------------ the grid contract
 
 $t->check(
-    'the grid does not use rowGroup, which would auto-page it out of the '
-    . 'infinite scroll and group only within one page',
-    false === strpos($jsSrc, 'rowGroup:')
+    'the grid groups on hostName with rowGroup',
+    false !== strpos($jsSrc, 'rowGroup:')
+        && 1 === preg_match('~dataSrc:\s*\x27hostName\x27~', $jsSrc)
 );
 
 // headerData and attributes are positional; a mismatch silently shifts
@@ -214,16 +220,26 @@ $t->check(
 // -- including its `dom`, which is where the pager lives, and its Scroller
 // setup. An expanded host showed the first ten of its events with no way to
 // reach the rest. Reported against a host with seventy-nine of them.
-$t->check(
-    'the expanded host table goes through registerTable, not a bare DataTable',
-    1 === preg_match(
-        '~agentactivity-child-\x27 \+ hostID\)\.registerTable\(~',
-        $jsSrc
+// Comment lines dropped first. The file explains at length why row.child()
+// is not used here, and scanning the prose that says "never do this" for the
+// thing not to do fails the build on the documentation.
+$jsCode = implode(
+    "\n",
+    array_filter(
+        preg_split('/\R/', $jsSrc),
+        static function ($line) {
+            $trim = ltrim($line);
+            return '' === $trim
+                || (0 !== strpos($trim, '//')
+                    && 0 !== strpos($trim, '/*')
+                    && 0 !== strpos($trim, '*'));
+        }
     )
 );
 $t->check(
-    'no bare .DataTable( construction builds the child grid',
-    0 === preg_match('~child-\x27 \+ hostID\)\.DataTable\(\{~', $jsSrc)
+    'no child table is built for an expanded host, by any route',
+    false === strpos($jsCode, 'agentactivity-child-')
+        && 0 === preg_match('~\brow\.child\(~', $jsCode)
 );
 
 // registerTable() sizes a Scroller table on a setTimeout(0) after init. A

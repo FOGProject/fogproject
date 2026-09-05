@@ -4423,6 +4423,23 @@ $.fn.registerTable = function(onSelect, opts) {
   }
   delete opts.extraButtons;
 
+  // A table that does not select does not get the buttons that select.
+  //
+  // `select: false` used to turn selection off and leave Select All and
+  // Deselect All sitting in the toolbar, where they were enabled, clickable
+  // and did nothing -- on 33 tables, including every report pane and the
+  // read-only event logs. The buttons live in `defaults.buttons` while the
+  // opt-out arrives in `opts`, so nothing connected the two.
+  //
+  // Dropped rather than disabled: a permanently grayed-out control still asks
+  // the reader what would enable it. The PHP half of the same statement is
+  // FOGPage::$selectable, which suppresses "Delete selected".
+  if (opts.select === false) {
+    defaults.buttons = defaults.buttons.filter(function(b) {
+      return !b || (b.extend !== 'selectAll' && b.extend !== 'selectNone');
+    });
+  }
+
   // Column resizing is on for every table. Pulled off opts before they reach
   // DataTables, which has no such option and would only carry it around.
   var columnResize = opts.columnResize !== false;
