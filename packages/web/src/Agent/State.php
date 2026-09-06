@@ -81,7 +81,7 @@ class State extends FOGBase
      * Results the agent reports that are not a capability of their own:
      * the reboot coordinator's decisions (design 0001 section 6).
      */
-    const RESULT_SOURCES = ['reboot'];
+    const RESULT_SOURCES = ['reboot', 'update'];
 
     /**
      * Capabilities whose reports can address one server-owned row: the
@@ -182,6 +182,15 @@ class State extends FOGBase
                 $out[] = $capability;
             }
         }
+        // Self-update has no legacy module to be gated on -- the old
+        // client's updater was a different thing and design 0015 does not
+        // reproduce it -- so it is gated on an admin having named a
+        // version. Empty is the shipped default, so no host begins
+        // updating itself because somebody upgraded their server, which is
+        // the rule 0010 and 0011 already hold themselves to.
+        if ('' !== Update::version($Host)) {
+            $out[] = Update::CAPABILITY;
+        }
         return $out;
     }
 
@@ -264,6 +273,15 @@ class State extends FOGBase
             if (null !== $wake) {
                 $state['wake'] = $wake;
             }
+        }
+        if (in_array(Update::CAPABILITY, $capabilities, true)) {
+            // The version this host should be running. Nothing else: what
+            // that version is comes from a manifest FOG Project signed,
+            // which the agent checks against a root compiled into itself.
+            // This server picks which published version runs here; it
+            // cannot publish one, and that is what makes an unattended
+            // update channel safe to point at every machine.
+            $state['update'] = Update::desired($Host);
         }
         if (in_array('power', $capabilities, true)) {
             // Design 0004. Schedules are what Client\PM hands the legacy

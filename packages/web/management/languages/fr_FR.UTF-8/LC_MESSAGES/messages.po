@@ -1084,6 +1084,10 @@ msgid "Agent Tokens"
 msgstr "Jeton d'accès"
 
 #, fuzzy
+msgid "Agent Version"
+msgstr "CPU Version"
+
+#, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "a été mis à jour avec succès"
 
@@ -2740,6 +2744,10 @@ msgstr "La description"
 
 msgid "Desired"
 msgstr ""
+
+#, fuzzy
+msgid "Desired Agent Version"
+msgstr "CPU Version"
 
 msgid "Desired OU"
 msgstr ""
@@ -10386,7 +10394,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 

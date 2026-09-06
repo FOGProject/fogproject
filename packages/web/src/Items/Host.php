@@ -140,6 +140,7 @@ class Host extends FOGController
         'agentFingerprint' => 'hostAgentFingerprint',
         'agentNotAfter' => 'hostAgentNotAfter',
         'agentVersion' => 'hostAgentVersion',
+        'agentDesiredVersion' => 'hostAgentDesiredVersion',
         'agentCheckin' => 'hostAgentCheckin'
     ];
     /**
