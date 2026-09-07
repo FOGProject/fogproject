@@ -184,6 +184,15 @@ class HostManagement extends FOGPage
             // worth asking is whether the two agree.
             _('Agent Version'),
             _('Desired Agent Version'),
+            // Whether the two above are converging (schema 435). The stored
+            // word IS the displayed word -- 'ok', 'pending', 'refused',
+            // 'cannot' -- for the reason the Secure Boot comment above
+            // gives: the free-text box, the column search header and the
+            // Filter panel all match what is stored, so a rendered label
+            // would be a second vocabulary nobody could search on. Blank
+            // means no version has been asked of this host at all, which is
+            // the shipped default and is not the same as healthy.
+            _('Agent Update State'),
             _('Description')
         );
         array_push(
@@ -197,6 +206,7 @@ class HostManagement extends FOGPage
             ['data-col' => 'sbenrolled'],
             ['data-col' => 'agentVersion'],
             ['data-col' => 'agentDesiredVersion'],
+            ['data-col' => 'agentUpdateState'],
             ['data-col' => 'description']
         );
     }
@@ -1950,6 +1960,31 @@ class HostManagement extends FOGPage
                 'text',
                 'agentdesiredversion',
                 $agentDesiredVersion
+            ),
+            // OBSERVED -- disabled, and deliberately the field directly
+            // under the one it answers. Whoever has just typed a version
+            // into Desired Agent Version is asking exactly one question
+            // afterward -- did it take -- and this is the answer, without
+            // a trip back to the host list (schema 435, design 0015
+            // section 12). Blank means nothing has been asked of this host.
+            self::makeLabel(
+                $labelClass,
+                'agentupdatestate',
+                _('Agent Update State')
+            ) => self::makeInput(
+                'form-control hostagentupdatestate-input',
+                'agentupdatestate',
+                '',
+                'text',
+                'agentupdatestate',
+                (string)$this->obj->get('agentUpdateState'),
+                false,
+                false,
+                -1,
+                -1,
+                '',
+                true,
+                true
             ),
             // OBSERVED -- disabled, for the same reason and in the same way
             // as the two above. This is the field ADR 0029's hard constraint

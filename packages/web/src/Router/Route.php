@@ -552,6 +552,14 @@ class Route extends FOGBase
             // by this column, so a host that could write it could nominate
             // itself as a relay for a subnet it is not on.
             'agentCheckin',
+            // The agent's own verdict on the version it was told to run
+            // (schema 435). Server-owned for the sbstate reason directly
+            // below: it is a REPORT of what a machine did, so a caller
+            // asserting it would be asserting an observation nobody made.
+            // A host that could write it could also claim to have arrived
+            // at a version it refused, which is precisely the fact the
+            // column exists to make visible.
+            'agentUpdateState',
             // The observed half of the Secure Boot ledger (schema step 376).
             // This is the field the HARD constraint in ADR 0029 is about: it
             // is a REPORT of what a machine said, so a caller asserting it
@@ -3016,6 +3024,20 @@ class Route extends FOGBase
         $fields = ['agentCheckin' => self::niceDate()->format('Y-m-d H:i:s')];
         if ('' !== $version) {
             $fields['agentVersion'] = $version;
+        }
+        // Close the update loop on the poll rather than only on a result
+        // report (design 0015 section 12). Arrival is the common case and it
+        // is silent: an agent that updated successfully says so once, then
+        // simply keeps polling as the new version, and nothing else would
+        // ever turn the column green. This also puts a host back to "not
+        // asked" when its desired version is withdrawn, so a refusal from a
+        // rollout that was called off does not sit on the list forever.
+        $state = \FOG\Agent\Update::reconcile(
+            $Host,
+            '' !== $version ? $version : (string)$Host->get('agentVersion')
+        );
+        if ($state !== (string)$Host->get('agentUpdateState')) {
+            $fields['agentUpdateState'] = $state;
         }
         (new HostManager())->update(
             ['id' => (int)$Host->get('id')],

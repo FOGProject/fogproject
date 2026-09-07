@@ -1083,7 +1083,15 @@ msgid "Agent Tokens"
 msgstr "访问令牌"
 
 #, fuzzy
+msgid "Agent Update State"
+msgstr "用户创建"
+
+#, fuzzy
 msgid "Agent Version"
+msgstr "CPU版本"
+
+#, fuzzy
+msgid "Agent Versions"
 msgstr "CPU版本"
 
 #, fuzzy
@@ -10397,7 +10405,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12786,6 +12793,10 @@ msgstr "不可用"
 #, fuzzy
 msgid "unchanged for"
 msgstr "成像"
+
+#, fuzzy
+msgid "unknown"
+msgstr "未知"
 
 #, fuzzy
 msgid "unknown action"

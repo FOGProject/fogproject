@@ -19,6 +19,7 @@ use FOG\Base\FOGBase;
 use FOG\Items\Host;
 use FOG\Items\HostFactState;
 use FOG\Items\PowerManagement;
+use FOG\Managers\HostManager;
 use FOG\Router\Route;
 
 /**
@@ -410,6 +411,10 @@ class State extends FOGBase
             // legacy client, except here only once the agent has them.
             self::_consumeOndemand((int)$Host->get('id'));
         }
+        if (Update::CAPABILITY === $capability) {
+            self::_updateResult($Host, $status, $detail);
+            return null;
+        }
         Audit::record(
             [
                 'type' => 'agent.result',
@@ -428,6 +433,85 @@ class State extends FOGBase
             ]
         );
         return null;
+    }
+
+    /**
+     * Records what an agent did with a version it was told to run.
+     *
+     * Split out from the generic agent.result row because a self-update is
+     * the one capability whose outcome has to be answerable across the
+     * FLEET rather than per host: "which machines refused 0.4.2" is a
+     * question you ask once during a rollout and cannot ask of free text.
+     * So the verdict is distilled onto the host as a filterable state
+     * (design 0015 section 12) and the narrative goes to an audit row typed
+     * by what happened (section 13).
+     *
+     * These rows replace the agent.result row rather than joining it. Two
+     * rows saying the same thing in different words would double every
+     * entry in the host's Agent Activity tab, and the typed one is strictly
+     * the more useful: it survives being filtered on, which 'agent.result'
+     * with the word 'update' inside its text does not.
+     *
+     * @param Host   $Host   the reporting host
+     * @param string $status the result status
+     * @param string $detail the result detail
+     *
+     * @return void
+     */
+    private static function _updateResult(Host $Host, $status, $detail)
+    {
+        $state = Update::classify($status, $detail);
+        // Written through the manager for agentPoll()'s reason: Host::save()
+        // rewrites the MAC association, and this rides a poll.
+        (new HostManager())->update(
+            ['id' => (int)$Host->get('id')],
+            '',
+            ['agentUpdateState' => $state]
+        );
+        // Keep the in-memory host consistent with the row just written, so
+        // anything later in this same request reads the new state rather
+        // than the one the poll loaded.
+        $Host->set('agentUpdateState', $state);
+        $type = Update::auditType($status, $detail);
+        if ('' === $type) {
+            return;
+        }
+        // A revert already names its own transition, and it runs the other
+        // way: prefixing it with "running -> desired" put two different
+        // arrows in one line saying opposite things ("da11e37 -> 9.9.9:
+        // reverted: 9.9.9 -> da11e37"). For every other type the prefix is
+        // the useful part, because the detail is a reason rather than a
+        // transition.
+        if (Update::AUDIT_REVERTED === $type) {
+            $text = $detail;
+        } else {
+            $text = sprintf(
+                '%s -> %s%s',
+                '' === (string)$Host->get('agentVersion')
+                    ? _('unknown')
+                    : (string)$Host->get('agentVersion'),
+                '' === Update::version($Host)
+                    ? _('unknown')
+                    : Update::version($Host),
+                '' === $detail ? '' : ': ' . $detail
+            );
+        }
+        Audit::record(
+            [
+                'type' => $type,
+                'subjectType' => 'host',
+                'subjectID' => (int)$Host->get('id'),
+                'subjectLabel' => (string)$Host->get('name'),
+                'renderable' => 1,
+                'text' => $text,
+                // ADR 0021 decision 4: machine-originated, so it says
+                // plainly that no authorization was consulted rather than
+                // borrowing whatever actor happened to be around.
+                'createdBy' => Audit::MACHINE_ACTOR,
+                'authSource' => Principal::AUTH_SOURCE,
+                'permission' => ''
+            ]
+        );
     }
 
     /**

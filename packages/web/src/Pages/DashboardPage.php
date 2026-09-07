@@ -340,7 +340,38 @@ class DashboardPage extends FOGPage
         echo '</div>';
         echo '</div>';
         echo '</div>';
+
+        // Agent Versions.
+        //
+        // Rendered only where there is a fleet to describe. Every other card
+        // on this page reports on something a FOG server always has -- disks,
+        // a storage group, its own uptime -- but agents are opt-in and brand
+        // new, so on the great majority of installs this card would be a
+        // permanent empty box teaching admins to ignore that corner of the
+        // dashboard. One host having enrolled is the moment it starts being
+        // worth the space.
+        $agents = (int)self::$DB->query(
+            'SELECT COUNT(*) AS `total` FROM `hosts` '
+            . 'WHERE `hostAgentFingerprint` <> \'\''
+        )->fetch()->get('total');
+        if ($agents > 0) {
+            echo '<div class="col-md-4">';
+            echo '<div class="card card-primary card-outline">';
+            echo '<div class="card-header">';
+            echo '<h4 class="card-title">';
+            echo _('Agent Versions');
+            echo '</h4>';
+            echo '</div>';
+            echo '<div class="card-body">';
+            echo '<a href="?node=host" id="agentversionslink">';
+            echo '<div id="graph-agentversions"></div>';
+            echo '</a>';
+            echo '</div>';
+            echo '</div>';
+            echo '</div>';
+        }
         unset(
+            $agents,
             $fields,
             $SystemUptime,
             $tftp
@@ -768,6 +799,94 @@ class DashboardPage extends FOGPage
                 'urls' => $sent
             ]
         ));
+    }
+    /**
+     * The enrolled agent fleet, grouped by the version each host is running
+     * and by whether it is converging on the version it was told to run.
+     *
+     * This is the card an admin watches DURING a staged rollout (design 0015
+     * section 12), which is what decides its shape. The host list can already
+     * answer "which hosts are on 0.4.2" one filter at a time; what it cannot
+     * do is answer "is this rollout moving, and is anything stuck" at a
+     * glance, on a page that refreshes itself. So both halves are here: the
+     * version census says how far it has got, and the state census says
+     * whether the remainder is still working on it or has given up.
+     *
+     * Enrolled means it has a fingerprint. A host with a certificate but no
+     * version yet has enrolled and not polled, which is a real and temporary
+     * state worth showing rather than hiding -- it is counted under an empty
+     * version and rendered as unknown.
+     *
+     * One GROUP BY rather than a host-object walk: this runs on every
+     * dashboard poll, and instantiating every Host on an install with
+     * thousands of them to read two columns is the shape that makes admins
+     * turn the dashboard off.
+     *
+     * @return void
+     */
+    public function agentversions()
+    {
+        header('Content-type: application/json');
+        $rows = (array)self::$DB->query(
+            'SELECT `hostAgentVersion` AS `version`, '
+            . '`hostAgentUpdateState` AS `state`, COUNT(*) AS `total` '
+            . 'FROM `hosts` '
+            . 'WHERE `hostAgentFingerprint` <> \'\' '
+            . 'GROUP BY `hostAgentVersion`, `hostAgentUpdateState`'
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $versions = [];
+        $states = [];
+        $total = 0;
+        foreach ($rows as $row) {
+            $count = (int)($row['total'] ?? 0);
+            $version = (string)($row['version'] ?? '');
+            $state = (string)($row['state'] ?? '');
+            $total += $count;
+            if (!isset($versions[$version])) {
+                $versions[$version] = 0;
+            }
+            $versions[$version] += $count;
+            // An empty state is "nothing has been asked of this host", which
+            // is the shipped default and must not be counted as a problem.
+            // It is reported under its own key so the card can say "not
+            // managed" rather than leaving the numbers not adding up.
+            $key = '' === $state ? 'unmanaged' : $state;
+            if (!isset($states[$key])) {
+                $states[$key] = 0;
+            }
+            $states[$key] += $count;
+        }
+        // Highest version first, so a rollout fills the card from the top and
+        // the number an admin is watching does not move down the list as it
+        // grows. version_compare rather than a string sort: 0.4.10 is above
+        // 0.4.9, and a plain sort puts it below.
+        uksort(
+            $versions,
+            function ($a, $b) {
+                if ('' === $a || '' === $b) {
+                    // Unknown last, whichever side it falls on.
+                    return '' === $a ? 1 : -1;
+                }
+                return version_compare($b, $a);
+            }
+        );
+        $out = [];
+        foreach ($versions as $version => $count) {
+            $out[] = ['version' => $version, 'count' => $count];
+        }
+        $this->jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode(
+                [
+                    'total' => $total,
+                    'desired' => trim(
+                        (string)self::getSetting('FOG_AGENT_DESIRED_VERSION')
+                    ),
+                    'versions' => $out,
+                    'states' => $states
+                ]
+            )
+        );
     }
     /**
      * Returns the running FOG version of each graph-enabled storage node,
