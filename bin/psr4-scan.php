@@ -245,6 +245,12 @@ const TABLE = [
     // that vocabulary, it does not define it.
     'SecureBootFacts' => 'Agent',
     'UserSessions' => 'Agent',
+    // The version an agent should be running (design 0015). Extends FOGBase
+    // directly, like Enrollment and State, so ancestry cannot place it.
+    // Agent and not Util because it is only ever read through the agent's
+    // desired state -- and not Items, because it is not a row: it reads a
+    // host column and a global setting and decides which of the two wins.
+    'Update' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',
