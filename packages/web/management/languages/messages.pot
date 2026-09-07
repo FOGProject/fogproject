@@ -939,6 +939,9 @@ msgstr ""
 msgid "Agent Tokens"
 msgstr ""
 
+msgid "Agent Version"
+msgstr ""
+
 msgid "Agent enrollment tokens"
 msgstr ""
 
@@ -2364,6 +2367,9 @@ msgid "Description"
 msgstr ""
 
 msgid "Desired"
+msgstr ""
+
+msgid "Desired Agent Version"
 msgstr ""
 
 msgid "Desired OU"

@@ -1038,6 +1038,10 @@ msgid "Agent Tokens"
 msgstr "ユーザー API トークン"
 
 #, fuzzy
+msgid "Agent Version"
+msgstr "クライアントバージョン"
+
+#, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "強制終了されました"
 
@@ -2663,6 +2667,10 @@ msgstr "説明"
 
 msgid "Desired"
 msgstr ""
+
+#, fuzzy
+msgid "Desired Agent Version"
+msgstr "クライアントバージョン"
 
 msgid "Desired OU"
 msgstr ""

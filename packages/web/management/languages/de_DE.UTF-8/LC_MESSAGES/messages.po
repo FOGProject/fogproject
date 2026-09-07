@@ -1079,6 +1079,10 @@ msgid "Agent Tokens"
 msgstr "API-Zugangstoken"
 
 #, fuzzy
+msgid "Agent Version"
+msgstr "Client-Version"
+
+#, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "wurde abgebrochen"
 
@@ -2737,6 +2741,10 @@ msgstr "Beschreibung"
 
 msgid "Desired"
 msgstr ""
+
+#, fuzzy
+msgid "Desired Agent Version"
+msgstr "Client-Version"
 
 msgid "Desired OU"
 msgstr ""

@@ -1083,6 +1083,10 @@ msgid "Agent Tokens"
 msgstr "token de acesso"
 
 #, fuzzy
+msgid "Agent Version"
+msgstr "Versão CPU"
+
+#, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "foi atualizado com sucesso"
 
@@ -2740,6 +2744,10 @@ msgstr "Descrição"
 
 msgid "Desired"
 msgstr ""
+
+#, fuzzy
+msgid "Desired Agent Version"
+msgstr "Versão CPU"
 
 msgid "Desired OU"
 msgstr ""

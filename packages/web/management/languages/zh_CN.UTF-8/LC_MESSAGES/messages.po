@@ -1083,6 +1083,10 @@ msgid "Agent Tokens"
 msgstr "访问令牌"
 
 #, fuzzy
+msgid "Agent Version"
+msgstr "CPU版本"
+
+#, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "已成功更新"
 
@@ -2740,6 +2744,10 @@ msgstr "描述"
 
 msgid "Desired"
 msgstr ""
+
+#, fuzzy
+msgid "Desired Agent Version"
+msgstr "CPU版本"
 
 msgid "Desired OU"
 msgstr ""

@@ -36,6 +36,7 @@
         {data: 'agentFingerprint', visible: false},
         {data: 'agentNotAfter', visible: false},
         {data: 'agentVersion', visible: false},
+        {data: 'agentDesiredVersion', visible: false},
         {data: 'agentCheckin', visible: false},
         {data: 'associations', visible: false}
     ], {order: [[1, 'asc']]});

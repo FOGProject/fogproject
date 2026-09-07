@@ -1084,6 +1084,10 @@ msgid "Agent Tokens"
 msgstr "Jeton d'accès"
 
 #, fuzzy
+msgid "Agent Version"
+msgstr "CPU Version"
+
+#, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "a été mis à jour avec succès"
 
@@ -2740,6 +2744,10 @@ msgstr "La description"
 
 msgid "Desired"
 msgstr ""
+
+#, fuzzy
+msgid "Desired Agent Version"
+msgstr "CPU Version"
 
 msgid "Desired OU"
 msgstr ""

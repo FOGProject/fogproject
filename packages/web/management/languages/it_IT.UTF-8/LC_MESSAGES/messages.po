@@ -1057,6 +1057,10 @@ msgid "Agent Tokens"
 msgstr "API Utente Token"
 
 #, fuzzy
+msgid "Agent Version"
+msgstr "Versione client"
+
+#, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "è stato cancellato"
 
@@ -2677,6 +2681,10 @@ msgstr "Descrizione"
 
 msgid "Desired"
 msgstr ""
+
+#, fuzzy
+msgid "Desired Agent Version"
+msgstr "Versione client"
 
 msgid "Desired OU"
 msgstr ""

@@ -177,6 +177,13 @@ class HostManagement extends FOGPage
             // and what the Filter panel offers as conditions.
             _('Secure Boot'),
             _('SB Enrolled'),
+            // fog-agent self-update (schema step 434). agentVersion is what
+            // the fleet is actually running; agentDesiredVersion is what the
+            // server has told it to become, and is empty on a host that just
+            // follows the global setting. Together because the only question
+            // worth asking is whether the two agree.
+            _('Agent Version'),
+            _('Desired Agent Version'),
             _('Description')
         );
         array_push(
@@ -188,6 +195,8 @@ class HostManagement extends FOGPage
             ['data-col' => 'arch'],
             ['data-col' => 'sbstate'],
             ['data-col' => 'sbenrolled'],
+            ['data-col' => 'agentVersion'],
+            ['data-col' => 'agentDesiredVersion'],
             ['data-col' => 'description']
         );
     }
@@ -1623,6 +1632,13 @@ class HostManagement extends FOGPage
             filter_input(INPUT_POST, 'dev') ?:
             ($this->obj->get('kernelDevice') ?: '')
         );
+        // The per-host override from schema step 434; empty follows the
+        // global setting. Read the same way as every other editable field
+        // on this form -- a rejected POST is echoed back, not lost.
+        $agentDesiredVersion = (
+            filter_input(INPUT_POST, 'agentdesiredversion') ?:
+            ($this->obj->get('agentDesiredVersion') ?: '')
+        );
         $enforce = (int)filter_input(INPUT_POST, 'enforce')
             ?: $this->obj->get('enforce');
         // Server-owned, never posted back -- see the disabled inputs below.
@@ -1917,6 +1933,24 @@ class HostManagement extends FOGPage
                 true,
                 true
             ),
+            // EDITABLE, unlike the OBSERVED fields around it -- this is the
+            // per-host override from schema step 434, and it sits next to
+            // Last Agent Check-In because that is where an admin will look
+            // to see whether the fleet's actual agentVersion has caught up
+            // with what was set here. Empty means "follow the global
+            // setting" rather than "pin to nothing".
+            self::makeLabel(
+                $labelClass,
+                'agentdesiredversion',
+                _('Desired Agent Version')
+            ) => self::makeInput(
+                'form-control hostagentdesiredversion-input',
+                'agentdesiredversion',
+                '0.2.0',
+                'text',
+                'agentdesiredversion',
+                $agentDesiredVersion
+            ),
             // OBSERVED -- disabled, for the same reason and in the same way
             // as the two above. This is the field ADR 0029's hard constraint
             // is about: it is a report of what a machine said, not a claim
@@ -2132,6 +2166,14 @@ class HostManagement extends FOGPage
         $init = trim(
             (string)filter_input(INPUT_POST, 'init')
         );
+        // The per-host override from schema step 434. Stored as '' rather
+        // than null for empty -- Agent\Update::version() tests it with
+        // trim((string)...) and falls back to the global setting on '', so
+        // the empty string IS "follow the global setting" and needs no
+        // second sentinel.
+        $agentDesiredVersion = trim(
+            (string)filter_input(INPUT_POST, 'agentdesiredversion')
+        );
         $bte = trim(
             (string)filter_input(INPUT_POST, 'bootTypeExit')
         );
@@ -2256,6 +2298,7 @@ class HostManagement extends FOGPage
             ->set('kernelArgs', $args)
             ->set('kernelDevice', $dev)
             ->set('init', $init)
+            ->set('agentDesiredVersion', $agentDesiredVersion)
             ->set('biosexit', $bte)
             ->set('efiexit', $ebte)
             ->set('enforce', $enforce)

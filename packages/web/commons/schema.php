@@ -11623,3 +11623,42 @@ $this->schema[] = [
     Schema::dropTable('clientUpdates'),
     Schema::dropTable('greenFog'),
 ];
+
+// 434
+$this->schema[] = [
+    // fog-agent self-update (design 0015). The server names a version and
+    // nothing else: what that version IS comes from a manifest signed by
+    // FOG Project, which the agent verifies against a root compiled into
+    // itself. So a compromised or mistaken FOG server can choose which
+    // published version a fleet runs, and cannot publish one.
+    //
+    // Per-host, and an override rather than a floor. A rollout is: set it
+    // on the hosts of one group from the host list, watch the agent
+    // version column, then set the global and clear these. It has to be
+    // able to name a LOWER version than the global, because a downgrade
+    // is the only fleet-wide recovery from a build that runs and polls
+    // perfectly well and behaves badly -- and a floor could not express
+    // that.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN IF NOT EXISTS `hostAgentDesiredVersion` varchar(50) NOT NULL DEFAULT ''",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_DESIRED_VERSION','The fog-agent version every enrolled "
+    . "host should be running, for example 0.4.2. Empty is the default and "
+    . "means no host ever updates itself: nothing starts managing agent "
+    . "versions because a server was upgraded. A host''s own Desired Agent "
+    . "Version overrides this, which is how a rollout is staged. Only an "
+    . "exact version is accepted -- there is deliberately no ''latest'', "
+    . "because that would hand the decision to whatever was published this "
+    . "morning rather than to you.','','General Settings')",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_UPDATE_MANIFEST_URL','Where agents look for the signed "
+    . "release manifest. Empty means the location built into the agent. "
+    . "Point it at a mirror for a site with no internet access, or to stop "
+    . "every machine fetching separately -- a copy on any web server, "
+    . "including this one, will do. The mirror is not trusted: whatever it "
+    . "serves still has to carry FOG Project''s signature, so hosting one "
+    . "gives nobody the ability to change what your machines "
+    . "run.','','General Settings')",
+];
