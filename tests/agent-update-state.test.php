@@ -160,6 +160,34 @@ $eq('a revert records agent.update.reverted, not refused', Update::AUDIT_REVERTE
 // poll on every host forever.
 $eq('already at the version records NOTHING', '', Update::auditType('unchanged', 'already 0.4.2'));
 $eq('deferred records nothing either', '', Update::auditType('unchanged', 'deferred, imaging in flight'));
+// auditText: which types already name their own transition.
+//
+// This is the bug the live rollout printed on host 239 (2026-09-07): the
+// agent's applied detail IS a transition, so prefixing it with the
+// server's own "running -> desired" rendered the same arrow twice.
+$eq(
+    'applied uses the agent detail alone, no duplicated arrow',
+    '0.1.1 -> 0.1.2, restarting',
+    Update::auditText(Update::AUDIT_APPLIED, '0.1.1', '0.1.2', '0.1.1 -> 0.1.2, restarting')
+);
+$eq(
+    'reverted uses the agent detail alone too',
+    'reverted: 9.9.9 -> da11e37',
+    Update::auditText(Update::AUDIT_REVERTED, 'da11e37', '9.9.9', 'reverted: 9.9.9 -> da11e37')
+);
+// A refusal's detail is a REASON, so the prefix is the only place the
+// versions appear at all -- dropping it there would lose them.
+$eq(
+    'a refusal keeps the running -> desired prefix',
+    '0.1.1 -> 9.9.9: signature_invalid: the manifest is not signed by a key this build trusts',
+    Update::auditText(Update::AUDIT_REFUSED, '0.1.1', '9.9.9', 'signature_invalid: the manifest is not signed by a key this build trusts')
+);
+$eq(
+    'an unreported running version reads unknown rather than an empty arrow',
+    'unknown -> 0.1.2: no_artifact',
+    Update::auditText(Update::AUDIT_REFUSED, '', '0.1.2', 'no_artifact')
+);
+
 $eq('the three audit types are distinct', 3, count(array_unique([Update::AUDIT_APPLIED, Update::AUDIT_REFUSED, Update::AUDIT_REVERTED])));
 // The host tab and the Logging page both read auditLog with a LIKE on
 // AgentActivityManagement::TYPE_PREFIX, so a type outside that prefix would

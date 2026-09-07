@@ -476,26 +476,12 @@ class State extends FOGBase
         if ('' === $type) {
             return;
         }
-        // A revert already names its own transition, and it runs the other
-        // way: prefixing it with "running -> desired" put two different
-        // arrows in one line saying opposite things ("da11e37 -> 9.9.9:
-        // reverted: 9.9.9 -> da11e37"). For every other type the prefix is
-        // the useful part, because the detail is a reason rather than a
-        // transition.
-        if (Update::AUDIT_REVERTED === $type) {
-            $text = $detail;
-        } else {
-            $text = sprintf(
-                '%s -> %s%s',
-                '' === (string)$Host->get('agentVersion')
-                    ? _('unknown')
-                    : (string)$Host->get('agentVersion'),
-                '' === Update::version($Host)
-                    ? _('unknown')
-                    : Update::version($Host),
-                '' === $detail ? '' : ': ' . $detail
-            );
-        }
+        $text = Update::auditText(
+            $type,
+            (string)$Host->get('agentVersion'),
+            Update::version($Host),
+            $detail
+        );
         Audit::record(
             [
                 'type' => $type,
