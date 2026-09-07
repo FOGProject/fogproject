@@ -203,6 +203,46 @@ class Update extends FOGBase
     }
 
     /**
+     * The line the audit log shows for one update report.
+     *
+     * Two of the three types arrive with a detail that already names its
+     * own transition, and prefixing those with "running -> desired"
+     * prints the same arrow twice:
+     *
+     *   applied   the agent sends "0.1.1 -> 0.1.2, restarting", which
+     *             rendered as "0.1.1 -> 0.1.2: 0.1.1 -> 0.1.2,
+     *             restarting" (observed on host 239, 2026-09-07).
+     *   reverted  the same, and it runs the other way, so the prefix put
+     *             two arrows in one line saying opposite things:
+     *             "da11e37 -> 9.9.9: reverted: 9.9.9 -> da11e37".
+     *
+     * Those two are also the AGENT's account of what it did, which beats
+     * the server's: the agent knows what it was actually running, while
+     * $running is only the last value that got reported. A refusal is the
+     * other shape -- its detail is a reason ("signature_invalid: ..."),
+     * so the prefix is the only place the versions appear at all.
+     *
+     * @param string $type    one of the AUDIT_* constants
+     * @param string $running the version the host last reported
+     * @param string $desired the version it was asked to run
+     * @param string $detail  the agent's own words
+     *
+     * @return string
+     */
+    public static function auditText($type, $running, $desired, $detail)
+    {
+        if (self::AUDIT_REVERTED === $type || self::AUDIT_APPLIED === $type) {
+            return (string)$detail;
+        }
+        return sprintf(
+            '%s -> %s%s',
+            '' === (string)$running ? _('unknown') : (string)$running,
+            '' === (string)$desired ? _('unknown') : (string)$desired,
+            '' === (string)$detail ? '' : ': ' . $detail
+        );
+    }
+
+    /**
      * The state a poll implies, given what the host just said it is running.
      *
      * Called on every poll, and it is what closes the loop: a host that has
