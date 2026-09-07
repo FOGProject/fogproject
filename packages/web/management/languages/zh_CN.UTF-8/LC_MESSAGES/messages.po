@@ -1083,7 +1083,15 @@ msgid "Agent Tokens"
 msgstr "访问令牌"
 
 #, fuzzy
+msgid "Agent Update State"
+msgstr "用户创建"
+
+#, fuzzy
 msgid "Agent Version"
+msgstr "CPU版本"
+
+#, fuzzy
+msgid "Agent Versions"
 msgstr "CPU版本"
 
 #, fuzzy
@@ -12786,6 +12794,10 @@ msgstr "不可用"
 #, fuzzy
 msgid "unchanged for"
 msgstr "成像"
+
+#, fuzzy
+msgid "unknown"
+msgstr "未知"
 
 #, fuzzy
 msgid "unknown action"

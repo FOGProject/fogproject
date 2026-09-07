@@ -1079,7 +1079,15 @@ msgid "Agent Tokens"
 msgstr "API-Zugangstoken"
 
 #, fuzzy
+msgid "Agent Update State"
+msgstr "Modulupdate erfolgreich"
+
+#, fuzzy
 msgid "Agent Version"
+msgstr "Client-Version"
+
+#, fuzzy
+msgid "Agent Versions"
 msgstr "Client-Version"
 
 #, fuzzy
@@ -12794,6 +12802,10 @@ msgstr "nicht verfügbar"
 #, fuzzy
 msgid "unchanged for"
 msgstr "Imaged für"
+
+#, fuzzy
+msgid "unknown"
+msgstr "Unbekannt"
 
 #, fuzzy
 msgid "unknown action"

@@ -1057,7 +1057,15 @@ msgid "Agent Tokens"
 msgstr "API Utente Token"
 
 #, fuzzy
+msgid "Agent Update State"
+msgstr "Aggiornamento del modulo completato"
+
+#, fuzzy
 msgid "Agent Version"
+msgstr "Versione client"
+
+#, fuzzy
+msgid "Agent Versions"
 msgstr "Versione client"
 
 #, fuzzy
@@ -12426,6 +12434,10 @@ msgstr "non disponibile"
 #, fuzzy
 msgid "unchanged for"
 msgstr "Immagini per"
+
+#, fuzzy
+msgid "unknown"
+msgstr "Sconosciuto"
 
 #, fuzzy
 msgid "unknown action"

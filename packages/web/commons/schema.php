@@ -11662,3 +11662,39 @@ $this->schema[] = [
     . "gives nobody the ability to change what your machines "
     . "run.','','General Settings')",
 ];
+
+// 435
+$this->schema[] = [
+    // fog-agent self-update surfacing (design 0015 section 12). The version
+    // column says where a host IS; this one says whether it is CONVERGING,
+    // which is the question a staged rollout actually asks. Without it the
+    // only signal that a host has rejected a version is an audit row
+    // somebody has to go looking for, one host at a time.
+    //
+    // Four states, and the split between the last two is the useful part:
+    //
+    //   ''        no desired version, so nothing is being asked of it
+    //   ok        running the version it was told to run
+    //   pending   told a version, has not got there yet -- in flight,
+    //             deferred behind another job, or restarting after a swap
+    //   refused   the agent VERIFIED and said no: a bad version string, a
+    //             signature that does not check out, a replayed or expired
+    //             manifest, bytes that do not match their hash. Something
+    //             is wrong with what this server asked for, and asking a
+    //             second host will produce the same answer
+    //   cannot    the agent would have and could not: no signing root in
+    //             this build, no artifact for its platform, the fetch or
+    //             the swap failed. Something is wrong with THIS machine or
+    //             the path to the mirror, and other hosts may be fine
+    //
+    // Those two want different people looking at them, which is why they
+    // are not one 'failed'. Kept as a short word rather than a code so the
+    // Filter panel offers something an admin can read.
+    //
+    // Server-owned (Route::$serverOwnedFields): it is a report of what a
+    // machine did, so an API caller asserting it would be asserting an
+    // observation nobody made -- the same argument ADR 0029 makes for
+    // sbstate and agentCheckin.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN IF NOT EXISTS `hostAgentUpdateState` varchar(16) NOT NULL DEFAULT ''",
+];

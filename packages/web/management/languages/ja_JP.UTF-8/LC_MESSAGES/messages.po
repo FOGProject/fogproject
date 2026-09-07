@@ -1038,7 +1038,15 @@ msgid "Agent Tokens"
 msgstr "ユーザー API トークン"
 
 #, fuzzy
+msgid "Agent Update State"
+msgstr "モジュールを更新しました"
+
+#, fuzzy
 msgid "Agent Version"
+msgstr "クライアントバージョン"
+
+#, fuzzy
+msgid "Agent Versions"
 msgstr "クライアントバージョン"
 
 #, fuzzy
@@ -12389,6 +12397,10 @@ msgstr "利用不可"
 #, fuzzy
 msgid "unchanged for"
 msgstr "イメージ処理対象"
+
+#, fuzzy
+msgid "unknown"
+msgstr "不明"
 
 #, fuzzy
 msgid "unknown action"

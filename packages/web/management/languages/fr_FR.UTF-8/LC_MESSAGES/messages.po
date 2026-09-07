@@ -1084,7 +1084,15 @@ msgid "Agent Tokens"
 msgstr "Jeton d'accès"
 
 #, fuzzy
+msgid "Agent Update State"
+msgstr "utilisateur créé"
+
+#, fuzzy
 msgid "Agent Version"
+msgstr "CPU Version"
+
+#, fuzzy
+msgid "Agent Versions"
 msgstr "CPU Version"
 
 #, fuzzy
@@ -12783,6 +12791,10 @@ msgstr "Indisponible"
 #, fuzzy
 msgid "unchanged for"
 msgstr "imager"
+
+#, fuzzy
+msgid "unknown"
+msgstr "Inconnu"
 
 #, fuzzy
 msgid "unknown action"

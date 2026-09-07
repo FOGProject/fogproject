@@ -38,6 +38,7 @@
         {data: 'agentVersion', visible: false},
         {data: 'agentDesiredVersion', visible: false},
         {data: 'agentCheckin', visible: false},
+        {data: 'agentUpdateState', visible: false},
         {data: 'associations', visible: false}
     ], {order: [[1, 'asc']]});
 })(jQuery);

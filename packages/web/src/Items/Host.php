@@ -141,7 +141,12 @@ class Host extends FOGController
         'agentNotAfter' => 'hostAgentNotAfter',
         'agentVersion' => 'hostAgentVersion',
         'agentDesiredVersion' => 'hostAgentDesiredVersion',
-        'agentCheckin' => 'hostAgentCheckin'
+        'agentCheckin' => 'hostAgentCheckin',
+        // Whether this host is CONVERGING on its desired version, as
+        // opposed to agentVersion which says where it currently is
+        // (schema 435). Written only by the agent's own poll and result
+        // reports; see \FOG\Agent\Update::STATE_* for the vocabulary.
+        'agentUpdateState' => 'hostAgentUpdateState'
     ];
     /**
      * The required fields

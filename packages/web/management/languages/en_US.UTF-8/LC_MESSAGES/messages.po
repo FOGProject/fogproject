@@ -1083,7 +1083,15 @@ msgid "Agent Tokens"
 msgstr "Access Token"
 
 #, fuzzy
+msgid "Agent Update State"
+msgstr "User created"
+
+#, fuzzy
 msgid "Agent Version"
+msgstr "CPU Version"
+
+#, fuzzy
+msgid "Agent Versions"
 msgstr "CPU Version"
 
 #, fuzzy
@@ -12798,6 +12806,10 @@ msgstr "Not Available"
 #, fuzzy
 msgid "unchanged for"
 msgstr "Imaged"
+
+#, fuzzy
+msgid "unknown"
+msgstr "Unknown"
 
 #, fuzzy
 msgid "unknown action"

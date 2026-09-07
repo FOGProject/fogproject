@@ -716,6 +716,119 @@
     });
   }
 
+  // --- Agent Versions (rollout census) ---------------------------------
+
+  function setupAgentVersions() {
+    var SEL = '#graph-agentversions';
+    if (!alive(SEL)) {
+      // The card is rendered server-side only where a host has enrolled, so
+      // on most installs there is nothing here and this chain never starts.
+      return;
+    }
+    var timer;
+
+    // Everything drawn below is a version string or a state word that came
+    // from an agent, so it is escaped rather than concatenated into HTML.
+    // jQuery's .text() does it for us; this is for the places a string has
+    // to go into an attribute.
+    function esc(v) {
+      return $('<div>').text(v === null || v === undefined ? '' : v).html();
+    }
+
+    // 'refused' and 'cannot' are the two an admin has to act on, so they are
+    // the two that get a color. 'ok' and 'pending' are the healthy shape of a
+    // rollout in progress and would only compete for attention.
+    var STATE_CLASS = {
+      refused: 'text-danger',
+      cannot: 'text-warning'
+    };
+
+    function draw(data) {
+      if (!alive(SEL)) {
+        return;
+      }
+      data = data || {};
+      var versions = data.versions || [];
+      var total = parseInt(data.total, 10) || 0;
+      if (!total || !versions.length) {
+        $(SEL).html(
+          '<p class="text-muted mb-0">' +
+            'No agent has reported a version yet.' +
+          '</p>'
+        );
+        return;
+      }
+      var html = '<table class="table table-sm mb-2"><tbody>';
+      $.each(versions, function (i, row) {
+        var count = parseInt(row.count, 10) || 0;
+        var pct = Math.round((count / total) * 100);
+        var label = row.version === '' ? 'unknown' : row.version;
+        // The version the fleet is being moved TO is the number being
+        // watched, so it is the one marked. Nothing is marked when no
+        // desired version is set, which is the shipped default.
+        var isTarget = data.desired && row.version === data.desired;
+        html +=
+          '<tr>' +
+            '<td class="text-nowrap">' +
+              (isTarget ? '<b>' : '') + esc(label) + (isTarget ? '</b>' : '') +
+            '</td>' +
+            '<td class="w-100 align-middle">' +
+              '<div class="progress" style="height:6px;">' +
+                '<div class="progress-bar" role="progressbar" style="width:' +
+                  pct + '%;"></div>' +
+              '</div>' +
+            '</td>' +
+            '<td class="text-end text-nowrap">' + count + '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+
+      // The state line is what makes this a rollout view rather than an
+      // inventory: it answers "is the remainder still working on it, or has
+      // it stopped". 'unmanaged' is reported separately by the endpoint so
+      // the numbers add up to the fleet without counting "nothing was asked
+      // of this host" as a problem.
+      var states = data.states || {};
+      var parts = [];
+      $.each(['ok', 'pending', 'refused', 'cannot', 'unmanaged'], function (i, k) {
+        var n = parseInt(states[k], 10) || 0;
+        if (!n) {
+          return;
+        }
+        var cls = STATE_CLASS[k] || 'text-muted';
+        parts.push('<span class="' + cls + '">' + n + ' ' + k + '</span>');
+      });
+      $(SEL).html(
+        html +
+        '<p class="mb-0 small">' + parts.join(' &middot; ') + '</p>'
+      );
+    }
+
+    function poll() {
+      if (!alive(SEL)) {
+        return;
+      }
+      boxLoad(SEL, true);
+      Pace.ignore(function () {
+        $.ajax({
+          url: BASE + '&sub=agentversions',
+          type: 'post',
+          dataType: 'json',
+          success: draw,
+          error: function () {
+            showError(SEL, 'Unavailable', 'Unable to get agent versions');
+          },
+          complete: function () {
+            boxLoad(SEL, false);
+            clearTimeout(timer);
+            timer = setTimeout(poll, nextSlow());
+          }
+        });
+      });
+    }
+    poll();
+  }
+
   // --- boot ------------------------------------------------------------
 
   $(function () {
@@ -723,5 +836,6 @@
     setupDiskUsage();
     setupImagingHistory();
     setupBandwidth();
+    setupAgentVersions();
   });
 })(jQuery);
