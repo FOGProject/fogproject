@@ -235,8 +235,21 @@ abstract class FOGClient extends FOGBase
             );
             $jsonSub = (!isset($sub) || $sub !== 'requestClientInfo');
             if ($jsonSub && self::$json) {
-                return $this->sendData($message);
+                $sent = $this->sendData($message);
+                // sendData() exits on every path it can actually print on.
+                // It *returns* when it could not -- an invalid host, so
+                // nothing to encrypt for -- and this is a constructor, so a
+                // returned body goes nowhere and the client gets 200 with
+                // Content-Length: 0. A silent empty 200 is unreadable to the
+                // client and invisible in the logs; print the error instead.
+                // See issue #1725, where it hid a failed registration.
+                echo is_array($sent) ? json_encode($sent) : $message;
+                exit;
             }
+            // Only reachable as the requestClientInfo path, which is the
+            // one caller that must NOT exit: FOGPage::requestClientInfo()
+            // constructs a client inside ob_start()/ob_end_clean() and keeps
+            // going, so exiting here would truncate the combined check-in.
             return $message;
         }
     }

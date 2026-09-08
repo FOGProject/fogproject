@@ -3202,7 +3202,13 @@ abstract class FOGBase
      * @param bool   $service    if not a service simpy return
      * @param array  $array      The non-encoded array data.
      *
-     * @return string
+     * @return array|null Nothing is returned on the paths that can print:
+     *                    those exit. An array comes back only when the
+     *                    error path could not print -- json mode with a
+     *                    host too invalid to encrypt for -- and null when
+     *                    there is no service to answer at all. Documented
+     *                    as `string` until issue #1725, which is a return
+     *                    type it has never produced.
      */
     protected function sendData(
         $datatosend,
@@ -3211,7 +3217,7 @@ abstract class FOGBase
     ) {
         global $sub;
         if (false === $service) {
-            return;
+            return null;
         }
         try {
             if (!self::$Host->isValid()) {

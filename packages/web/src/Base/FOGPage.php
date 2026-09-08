@@ -5180,11 +5180,19 @@ abstract class FOGPage extends FOGBase
                     if ($isHost) {
                         $Item
                             ->set('modules', $modules)
-                            ->addPriMAC($primac)
-                            ->addMAC($macs);
+                            ->addPriMAC($primac);
                     }
                     if ($Item->save()) {
                         $Item->load();
+                        // Only after the save, for the same reason as every
+                        // other addMAC() caller: it writes the hostMAC rows
+                        // at once with the id the object holds, and before
+                        // save() an imported host holds none, so a CSV row
+                        // carrying more than one mac failed the insertBatch
+                        // foreign-key guard and aborted the import.
+                        if ($isHost && count($macs ?: [])) {
+                            $Item->addMAC($macs);
+                        }
                         $totalRows++;
                         // Apply any associations (lenient: warn and skip
                         // unresolved references rather than failing the row).
