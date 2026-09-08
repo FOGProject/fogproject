@@ -1652,6 +1652,64 @@ fogUserCount() {
     [[ -z $sqloptionsuser ]] && return 0
     mysql $sqloptionsuser --password="${DB_password}" -N -B --execute="SELECT COUNT(*) FROM \`${DB_name}\`.\`users\`" 2>/dev/null | tail -1
 }
+# The number of indexed migration steps this release carries, or empty when
+# that cannot be read.
+#
+# Factored out of verifySchemaDeploy() because updateDB() now needs the same
+# number BEFORE the deploy, to decide whether there is anything to migrate at
+# all. Two copies of this grep would be two things to keep in step, and the
+# consequence of them disagreeing is an installer that asks about a migration
+# it then reports as unnecessary, or the reverse.
+#
+# A zero count means the pattern stopped matching the file's formatting, not
+# that there are no steps. It is reported as UNKNOWN (empty), the same rule
+# schemaVersionInDB() follows -- asserting a bogus threshold would either fail
+# every install or pass every broken one.
+schemaStepCount() {
+    local count=$(grep -c '^\$this->schema\[\] = ' $webdirdest/commons/schema.php 2>/dev/null)
+    [[ -z $count || $count -lt 1 ]] && return 0
+    printf '%s' "$count"
+}
+# Whether every indexed migration step this release carries is already applied.
+#
+# 0 = nothing indexed left to run. 1 = there is work, OR either number is
+# unknown -- a fresh install has no schemaVersion table to read and
+# DB_external=yes deliberately refuses to look, and both of those must behave
+# exactly as they always have.
+#
+# count($this->schema) <= mySchema is the test the updater itself uses to
+# decide it has nothing left to do, which is why the same comparison answers
+# here. It is NOT a statement that the deploy has nothing to do: the deploy
+# also seeds required rows, and Schema::seedRequiredRows() exists precisely for
+# the "nothing indexed left, but rows are missing" state. So this gates the
+# QUESTION, never the deploy.
+schemaIndexedStepsDone() {
+    local expected=$(schemaStepCount)
+    local deployed=$(schemaVersionInDB)
+    [[ -n $expected && -n $deployed && $deployed -ge $expected ]]
+}
+# The answer to a yes/no prompt, with the things a terminal adds removed:
+# a carriage return, and leading or trailing whitespace. Lowercased so a
+# caller's patterns need only one case.
+#
+# `read` returns exactly what the terminal sent. A client that ends a line with
+# CRLF sends the CR too, and read strips only the newline -- so the answer
+# becomes $'Y\r', which matches no pattern any caller writes. In updateDB()
+# that silently routed a deliberate "yes" to the manual browser path: no
+# migration ran, the install token was printed to stdout, and
+# verifySchemaDeploy() then reported "Done" because the schema happened to be
+# current already. On a server that DID need migrating, the same slip leaves it
+# unmigrated under a reassuring success line. Reported from a live upgrade.
+normalizeAnswer() {
+    local a="${1//$'\r'/}"
+    a="${a//$'\n'/}"
+    # Trim both ends. ${a%%[![:space:]]*} is the leading run of whitespace, and
+    # ${a##*[![:space:]]} the trailing one; removing each by its own value is
+    # the portable-in-bash way to do this without a subshell.
+    a="${a#"${a%%[![:space:]]*}"}"
+    a="${a%"${a##*[![:space:]]}"}"
+    printf '%s' "${a,,}"
+}
 # Confirm the deploy actually landed in the database. Neither update path used
 # to prove anything: the automatic branch only checked curl's exit status, and
 # the manual branch accepted any keypress -- so a failed schema update still
@@ -1676,12 +1734,7 @@ verifySchemaDeploy() {
     #
     # count($this->schema) <= mySchema is the exact test the updater uses to
     # decide it has nothing left to do, so it is the right thing to verify.
-    local expected=$(grep -c '^\$this->schema\[\] = ' $webdirdest/commons/schema.php 2>/dev/null)
-    # A zero count means the pattern stopped matching the file's formatting,
-    # not that there are no steps. Treat it as unknown and skip verification,
-    # the same rule schemaVersionInDB() follows -- asserting a bogus threshold
-    # would either fail every install or pass every broken one.
-    [[ -z $expected || $expected -lt 1 ]] && expected=""
+    local expected=$(schemaStepCount)
     local deployed=$(schemaVersionInDB)
     if [[ -z $expected || -z $deployed ]]; then
         echo " * Skipping schema verification (unable to read the schema version)"
@@ -1722,15 +1775,36 @@ updateDB() {
     # and hands the install token out on stdout. Default to the automatic path
     # and make opting out deliberate. backupDB has already run by this point,
     # so the historical reason to pause here is covered.
+    # Nothing indexed to migrate: do not ask. The question implies a migration
+    # is pending, and an administrator who answers it then sees a run that
+    # migrates nothing -- which reads as the answer having been ignored.
+    #
+    # It takes the automatic path rather than skipping the step, because the
+    # deploy is not only migrations: it seeds required rows, and
+    # Schema::seedRequiredRows() is written for exactly this state -- indexed
+    # steps all applied, rows still missing. Skipping here would make that
+    # repair unreachable on the servers that need it.
+    if [[ -z $dbupdate ]] && schemaIndexedStepsDone; then
+        echo
+        echo " * The database schema is already at version $(schemaVersionInDB) --"
+        echo "   no migration to apply. Checking required rows."
+        dbupdate="yes"
+    fi
     if [[ -z $dbupdate ]]; then
         if [[ -n $autoaccept || ! -t 0 ]]; then
             dbupdate="yes"
         else
             echo
-            read -p " * Install/update the FOG database schema now? (Y/n) " dbupdate
+            # -r, so a backslash in the answer is not an escape.
+            read -r -p " * Install/update the FOG database schema now? (Y/n) " dbupdate
             [[ -z $dbupdate ]] && dbupdate="yes"
         fi
     fi
+    # Normalized before the case, not inside the read branch, so every source
+    # of this value goes through it -- including bin/installfog.sh's -y. See
+    # normalizeAnswer() for the carriage return that made a typed "Y" take the
+    # manual path.
+    dbupdate=$(normalizeAnswer "$dbupdate")
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
