@@ -243,6 +243,34 @@ class Update extends FOGBase
     }
 
     /**
+     * The canonical form of a version string: no leading "v".
+     *
+     * A release is tagged `v0.1.6` and build/cross.sh stamps the binary
+     * from the tag, so every agent in the field reports `v0.1.6` while a
+     * desired version is written `0.1.6` -- the form the manifest and the
+     * settings field use. The agent's own comparator trims the prefix
+     * (internal/provider/update/version.go); this server compared the raw
+     * strings, so an arrived host never matched its desired version and
+     * sat in `pending` forever with nothing wrong with it.
+     *
+     * Normalizing on the way in is not enough on its own, because rows and
+     * settings written before this fix still hold either spelling, so the
+     * comparison normalizes too.
+     *
+     * @param string $v the version as given
+     *
+     * @return string
+     */
+    public static function normalize($v)
+    {
+        $v = trim((string)$v);
+        if ('' !== $v && ('v' === $v[0] || 'V' === $v[0])) {
+            $v = substr($v, 1);
+        }
+        return $v;
+    }
+
+    /**
      * The state a poll implies, given what the host just said it is running.
      *
      * Called on every poll, and it is what closes the loop: a host that has
@@ -266,6 +294,7 @@ class Update extends FOGBase
         if ('' === $want) {
             return self::STATE_NONE;
         }
+        $running = self::normalize($running);
         if ('' !== $running && $running === $want) {
             return self::STATE_OK;
         }
@@ -298,11 +327,11 @@ class Update extends FOGBase
      */
     public static function version(Host $Host)
     {
-        $own = trim((string)$Host->get('agentDesiredVersion'));
+        $own = self::normalize($Host->get('agentDesiredVersion'));
         if ('' !== $own) {
             return $own;
         }
-        return trim((string)self::getSetting('FOG_AGENT_DESIRED_VERSION'));
+        return self::normalize(self::getSetting('FOG_AGENT_DESIRED_VERSION'));
     }
 
     /**

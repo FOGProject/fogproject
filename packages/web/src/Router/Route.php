@@ -3016,10 +3016,17 @@ class Route extends FOGBase
     {
         $Host = self::$agentHost;
         $body = self::_jsonBody();
-        $version = substr(
-            preg_replace('/[^A-Za-z0-9.+_-]/', '', (string)($body['agent_version'] ?? '')),
-            0,
-            50
+        // Canonical form on the way in: the agent stamps itself from the
+        // release tag and so reports `v0.1.6`, while every version the
+        // server is given is written `0.1.6`. Storing the spelling the
+        // agent used split the dashboard's version card in two and left
+        // reconcile() comparing `v0.1.6` with `0.1.6` forever.
+        $version = \FOG\Agent\Update::normalize(
+            substr(
+                preg_replace('/[^A-Za-z0-9.+_-]/', '', (string)($body['agent_version'] ?? '')),
+                0,
+                50
+            )
         );
         $fields = ['agentCheckin' => self::niceDate()->format('Y-m-d H:i:s')];
         if ('' !== $version) {

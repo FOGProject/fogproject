@@ -121,7 +121,7 @@ class Enrollment extends FOGBase
         if ($Row) {
             $Row->set('updated', $now)
                 ->set('remoteIP', (string)$remoteIP)
-                ->set('agentVersion', (string)($body['agent_version'] ?? ''));
+                ->set('agentVersion', Update::normalize($body['agent_version'] ?? ''));
             switch ($Row->get('state')) {
                 case AgentEnrollment::STATE_DENIED:
                     $Row->save();
@@ -164,7 +164,7 @@ class Enrollment extends FOGBase
             ->set('hostname', (string)($body['hostname'] ?? ''))
             ->set('os', (string)($body['os'] ?? ''))
             ->set('arch', (string)($body['arch'] ?? ''))
-            ->set('agentVersion', (string)($body['agent_version'] ?? ''))
+            ->set('agentVersion', Update::normalize($body['agent_version'] ?? ''))
             ->set('remoteIP', (string)$remoteIP)
             ->set('hostID', $hostID)
             ->set('reason', $reason)
@@ -595,7 +595,7 @@ class Enrollment extends FOGBase
 
         $Host->set('agentFingerprint', (string)$Row->get('fingerprint'))
             ->set('agentNotAfter', $notAfter)
-            ->set('agentVersion', (string)$Row->get('agentVersion'))
+            ->set('agentVersion', Update::normalize($Row->get('agentVersion')))
             ->set('agentCheckin', $now);
         if ($Host->get('pending')) {
             $Host->set('pending', '0');

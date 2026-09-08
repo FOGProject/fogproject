@@ -264,6 +264,51 @@ $eq(
     Update::reconcile(updateHost('', '', ''), '')
 );
 
+// ------------------------------------------------- the "v" prefix, one form
+
+// The bug this section pins, seen in the lab on 2026-09-08: two hosts that
+// had successfully updated to 0.1.6 sat in `pending` overnight. Nothing was
+// wrong with either of them. A release is tagged `v0.1.6` and
+// build/cross.sh stamps main.Version from the tag, so the agent reports
+// `v0.1.6`; the desired version is written `0.1.6`, the form the manifest
+// and the settings field use. reconcile() compared the raw strings, they
+// never matched, and the state could not reach ok by any route -- the one
+// state that is supposed to be self-clearing was the one that could not
+// clear. The agent's own comparator has always trimmed the prefix
+// (internal/provider/update/version.go); the server had not.
+$eq('normalize() strips a leading v', '0.1.6', Update::normalize('v0.1.6'));
+$eq('normalize() strips an upper-case V a human typed', '0.1.6', Update::normalize('V0.1.6'));
+$eq('normalize() leaves a bare version alone', '0.1.6', Update::normalize('0.1.6'));
+$eq('normalize() trims surrounding space', '0.1.6', Update::normalize('  v0.1.6  '));
+$eq('normalize() of nothing is nothing', '', Update::normalize(''));
+// Only the prefix, and only one of it: a v anywhere else is part of the
+// string the admin or the agent meant, not decoration to be eaten.
+$eq('normalize() strips ONE v, not a run of them', 'v0.1.6', Update::normalize('vv0.1.6'));
+$eq('normalize() leaves a v inside a pre-release tag', '0.1.6-rc.v2', Update::normalize('0.1.6-rc.v2'));
+
+$eq(
+    'a host reporting v0.1.6 has ARRIVED at a desired 0.1.6',
+    Update::STATE_OK,
+    Update::reconcile(updateHost('0.1.6', 'v0.1.6', Update::STATE_PENDING), 'v0.1.6')
+);
+$eq(
+    'and the mirror: a desired v0.1.6 typed into the field is reached by 0.1.6',
+    Update::STATE_OK,
+    Update::reconcile(updateHost('v0.1.6', '0.1.6', Update::STATE_PENDING), '0.1.6')
+);
+$eq(
+    'both spellings the same way round is still ok',
+    Update::STATE_OK,
+    Update::reconcile(updateHost('v0.1.6', 'v0.1.6', Update::STATE_PENDING), 'v0.1.6')
+);
+// The prefix is noise; the numbers are not. Trimming it must not make two
+// genuinely different versions look like arrival.
+$eq(
+    'v0.1.5 has NOT arrived at 0.1.6',
+    Update::STATE_PENDING,
+    Update::reconcile(updateHost('0.1.6', 'v0.1.5', ''), 'v0.1.5')
+);
+
 // The column value IS the search term (the host list stores and displays the
 // same word), so the states must stay short, lowercase and free of spaces.
 foreach ([Update::STATE_OK, Update::STATE_PENDING, Update::STATE_REFUSED, Update::STATE_CANNOT] as $state) {
