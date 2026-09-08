@@ -128,6 +128,14 @@ mkleaf plain   "www.example.org" corp
 # leave the interesting case untested.
 mkleaf corpleaf "corpleaf.example.org" corpint
 
+# A stand-in for a PUBLIC issuer: root -> intermediate -> leaf, in the shape
+# Let's Encrypt uses. Deliberately never imported on the page, so the only way
+# a path can build for it is out of the HOST trust store -- which is what the
+# section at the bottom of this file injects with SSL_CERT_FILE.
+mkroot pubroot "Test Root X1" 3650
+mkint  pubint  "YE2"          pubroot
+mkleaf publeaf "publeaf.example.org" pubint
+
 # An expired root has to be MINTED expired: openssl req -days cannot go
 # negative, so back-date with -not_before/-not_after via a CA-signed self
 # issuance is fussier than simply using faketime. Use a 1-day root and
@@ -951,6 +959,66 @@ mv "$CONF.away" "$CONF"
 # the only way to exercise the rest of the script at all. It is one line and
 # the sudoers rule is what actually places the boundary; noted rather than
 # faked with an assertion that proves nothing.
+
+echo
+echo "== a publicly trusted leaf needs no root imported =="
+# verifyLeafChain() used to consult ${PKI_WEB_ANCHOR} and NOTHING ELSE, and
+# `openssl verify -trusted` REPLACES the default trust locations rather than
+# adding to them. So there was no path by which a publicly trusted leaf could
+# pass: uploading certbot's own fullchain.pem -- leaf + intermediate, complete
+# and publicly verifiable, the exact file every ACME client produces -- was
+# refused with "no trust path builds for that certificate", while the refusal
+# advised importing the issuing root "if it is not a public CA". It was one,
+# and fullchain.pem carries no root by design, so nothing the administrator
+# could supply would have satisfied it either.
+#
+# The host store is injected with SSL_CERT_FILE rather than by writing into the
+# runner's real trust store: openssl reads it for the DEFAULT locations, which
+# is precisely the code path under test, and the test stays hermetic.
+#
+# pubroot is never imported on the page, so ${PKI_WEB_ANCHOR} cannot be what
+# makes this pass -- checked below rather than assumed.
+rm -f "$CUSTOM/"web-leaf*
+# The precondition, checked rather than assumed: if pubroot were in the anchor
+# then step 1 of verifyLeafChain() would answer and the host-store path below
+# would never be reached, so the whole case would pass while proving nothing.
+if openssl verify -trusted "$ZONE/ca/.trustAnchor.pem" -untrusted "$WORK/pubint.pem" \
+        "$WORK/publeaf.pem" >/dev/null 2>&1; then
+    bad "fixture error: the public leaf already verifies against FOG's anchor"
+else
+    ok "the public leaf does NOT verify against FOG's anchor bundle"
+fi
+
+install -m 0644 "$WORK/publeaf.pem" "$CUSTOM/web-leaf.pem"
+install -m 0600 "$WORK/publeaf.key" "$CUSTOM/web-leaf.key"
+install -m 0644 "$WORK/pubint.pem"  "$CUSTOM/web-leaf-chain.pem"
+
+SSL_CERT_FILE="$WORK/hoststore.pem"
+cat "$WORK/pubroot.pem" > "$SSL_CERT_FILE"
+export SSL_CERT_FILE
+out=$("$HELPER" adopt-custom-leaf 2>&1)
+check "$?" "0" "a leaf whose root is in the host store is adopted"
+case "$out" in
+    *"no trust path builds"*) bad "it still refused: $out" ;;
+    *)                        ok "and is not refused for having no trust path" ;;
+esac
+check "$(subjectOf "$CUSTOM/web-leaf.pem")" "subject=CN=publeaf.example.org" \
+    "and it is the public leaf that got adopted"
+
+# The refusal still has to work. Same leaf, same chain, a host store that does
+# not carry its root -- otherwise the fix above would be "accept everything".
+rm -f "$CUSTOM/"web-leaf*
+install -m 0644 "$WORK/publeaf.pem" "$CUSTOM/web-leaf.pem"
+install -m 0600 "$WORK/publeaf.key" "$CUSTOM/web-leaf.key"
+install -m 0644 "$WORK/pubint.pem"  "$CUSTOM/web-leaf-chain.pem"
+cat "$WORK/corp.pem" > "$SSL_CERT_FILE"
+out=$("$HELPER" adopt-custom-leaf 2>&1)
+check "$?" "1" "a leaf trusted by neither anchor nor host store is still refused"
+case "$out" in
+    *"no trust path builds"*) ok "and still says no trust path builds" ;;
+    *)                        bad "the refusal blamed something else: $out" ;;
+esac
+unset SSL_CERT_FILE
 
 echo
 printf '%d passed, %d failed\n' "$PASS" "$FAIL"
