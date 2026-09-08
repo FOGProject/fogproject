@@ -3587,6 +3587,9 @@ msgstr "アクセスが拒否されました（無効な CSRF トークン）"
 msgid "Force"
 msgstr "強制"
 
+msgid "Force netboot over HTTPS"
+msgstr ""
+
 #, fuzzy
 msgid "Foreign key preparation"
 msgstr "イメージレプリケーション"
@@ -6144,9 +6147,6 @@ msgstr "ユーザー名は 41 文字未満で指定してください"
 msgid "Nested group search failed"
 msgstr "ユーザーの更新に失敗しました！"
 
-msgid "Netboot fetches boot.php over"
-msgstr ""
-
 msgid "Network Information"
 msgstr "ネットワーク情報"
 
@@ -8342,7 +8342,7 @@ msgstr ""
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
 
-msgid "Separate from the HTTP redirect above, which never applies to the paths a bootloader fetches for itself. Choosing https here also FORCES it: the installer stops deriving the transport and keeps what you set. If iPXE cannot validate the certificate this server serves, every netboot stops at boot.php and nothing server-side says why -- so decide it together with the two settings above, not on its own."
+msgid "Separate from the HTTP redirect above, which never applies to the paths a bootloader fetches for itself -- netboot is excluded from that redirect even when it is on. Left off, FOG derives the transport on every run from the two settings above. Turning it on records BOOT_url_proto_forced and stops that: https is kept even if those settings later change. If iPXE cannot validate the certificate this server serves, every netboot stops at boot.php and nothing server-side says why -- and the machines it stops are the ones that cannot fix themselves. Turning it back off returns to deriving."
 msgstr ""
 
 msgid "Serial Number"
@@ -11610,6 +11610,10 @@ msgstr "完了できませんでした"
 msgid "could not be killed"
 msgstr "強制終了できませんでした"
 
+#, php-format
+msgid "currently %1$s (%2$s)"
+msgstr ""
+
 msgid "cycles since last line"
 msgstr ""
 
@@ -11618,6 +11622,15 @@ msgstr "日"
 
 msgid "deploy task occurs for it"
 msgstr "展開タスクが実行されたとき"
+
+msgid "derived"
+msgstr ""
+
+msgid "derived from the embedded-CA setting above"
+msgstr ""
+
+msgid "derived from the public CA setting above"
+msgstr ""
 
 msgid "difference(s) from the manifest. Nothing was changed -- these are reported, not repaired."
 msgstr ""
@@ -11711,6 +11724,10 @@ msgid "for user"
 msgstr "ユーザーを作成しますか？"
 
 #, fuzzy
+msgid "forced"
+msgstr "強制"
+
+#, fuzzy
 msgid "foreign key(s) could not be added"
 msgstr "強制終了できませんでした"
 
@@ -11793,12 +11810,6 @@ msgstr "時間"
 
 msgid "hr"
 msgstr "時間"
-
-msgid "http"
-msgstr ""
-
-msgid "https"
-msgstr ""
 
 #, fuzzy
 msgid "iPXE Config Update Fail"

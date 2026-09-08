@@ -458,6 +458,41 @@ check "$(settingOf BOOT_url_proto)" "https" "and the value lands in the file"
 check "$?" "0" "and accepts http"
 check "$(settingOf BOOT_url_proto)" "http" "and back again"
 
+# `auto` is the third member of that domain and the only one that is not a
+# transport. It means "nothing is forcing this", so it clears the flag instead
+# of writing itself anywhere.
+#
+# Without it the page was a one-way door. _resolveNetbootProto() re-derives the
+# transport on every run UNLESS BOOT_url_proto_forced is yes, and BOTH real
+# transports set that flag when the installer reads them -- so a server
+# deriving https from a public certificate was pinned by the first toggle and
+# never derived again, whatever its certificate later became.
+"$HELPER" set-preference BOOT_url_proto https >/dev/null 2>&1
+"$HELPER" set-preference BOOT_url_proto auto >/dev/null 2>&1
+check "$?" "0" "set-preference accepts auto for BOOT_url_proto"
+check "$(settingOf BOOT_url_proto_forced)" "no" "and auto clears the forced flag"
+check "$(settingOf BOOT_url_proto)" "https" \
+    "while leaving the transport itself alone, for the installer to re-derive"
+
+# The flag is writable ONLY as auto's effect, never as a key in its own right.
+# ADR 0036 refuses the latter: forcing https with neither steering key set
+# breaks PXE for machines that cannot fix themselves.
+before=$(sha256sum "$SETTINGS" | cut -d' ' -f1)
+"$HELPER" set-preference BOOT_url_proto_forced yes >/dev/null 2>&1
+check "$?" "1" "set-preference refuses BOOT_url_proto_forced as a key"
+"$HELPER" set-preference BOOT_url_proto_forced no >/dev/null 2>&1
+check "$?" "1" "and refuses it even for the value auto is allowed to write"
+check "$(sha256sum "$SETTINGS" | cut -d' ' -f1)" "$before" \
+    "neither attempt changed the file"
+
+# The page cannot render the switch correctly without knowing whether the
+# transport was chosen or derived, and the two are the same value.
+out=$("$HELPER" status 2>&1)
+case "$out" in
+    *'"BOOT_url_proto_forced":'*) ok "status reports the forced flag" ;;
+    *) bad "status does not report BOOT_url_proto_forced" ;;
+esac
+
 # The domains must not leak into one another. A switch that accepted a
 # transport, or a transport that accepted yes, would mean the per-key lookup
 # had collapsed back to one permissive pattern.

@@ -3689,6 +3689,10 @@ msgid "Force"
 msgstr "Force"
 
 #, fuzzy
+msgid "Force netboot over HTTPS"
+msgstr "Reboot"
+
+#, fuzzy
 msgid "Foreign key preparation"
 msgstr "Image Replicator"
 
@@ -6352,9 +6356,6 @@ msgstr "Event must be a string"
 msgid "Nested group search failed"
 msgstr "User update failed"
 
-msgid "Netboot fetches boot.php over"
-msgstr ""
-
 msgid "Network Information"
 msgstr "Network Information"
 
@@ -8606,7 +8607,7 @@ msgstr ""
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
 
-msgid "Separate from the HTTP redirect above, which never applies to the paths a bootloader fetches for itself. Choosing https here also FORCES it: the installer stops deriving the transport and keeps what you set. If iPXE cannot validate the certificate this server serves, every netboot stops at boot.php and nothing server-side says why -- so decide it together with the two settings above, not on its own."
+msgid "Separate from the HTTP redirect above, which never applies to the paths a bootloader fetches for itself -- netboot is excluded from that redirect even when it is on. Left off, FOG derives the transport on every run from the two settings above. Turning it on records BOOT_url_proto_forced and stops that: https is kept even if those settings later change. If iPXE cannot validate the certificate this server serves, every netboot stops at boot.php and nothing server-side says why -- and the machines it stops are the ones that cannot fix themselves. Turning it back off returns to deriving."
 msgstr ""
 
 msgid "Serial Number"
@@ -11991,6 +11992,10 @@ msgstr "Could not read temp file"
 msgid "could not be killed"
 msgstr "Could not read temp file"
 
+#, php-format
+msgid "currently %1$s (%2$s)"
+msgstr ""
+
 msgid "cycles since last line"
 msgstr ""
 
@@ -11998,6 +12003,15 @@ msgid "day"
 msgstr ""
 
 msgid "deploy task occurs for it"
+msgstr ""
+
+msgid "derived"
+msgstr ""
+
+msgid "derived from the embedded-CA setting above"
+msgstr ""
+
+msgid "derived from the public CA setting above"
 msgstr ""
 
 msgid "difference(s) from the manifest. Nothing was changed -- these are reported, not repaired."
@@ -12093,6 +12107,10 @@ msgid "for user"
 msgstr ""
 
 #, fuzzy
+msgid "forced"
+msgstr "Force"
+
+#, fuzzy
 msgid "foreign key(s) could not be added"
 msgstr "Could not read temp file"
 
@@ -12180,12 +12198,6 @@ msgstr "1 hour"
 #, fuzzy
 msgid "hr"
 msgstr "here"
-
-msgid "http"
-msgstr ""
-
-msgid "https"
-msgstr ""
 
 #, fuzzy
 msgid "iPXE Config Update Fail"
@@ -13195,10 +13207,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "I am not the fog web server"
-
-#, fuzzy
-#~ msgid "Force Reboot"
-#~ msgstr "Reboot"
 
 #~ msgid "Green FOG"
 #~ msgstr "Green FOG"
