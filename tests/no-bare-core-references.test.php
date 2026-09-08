@@ -114,6 +114,175 @@ if (count($daemons) < 10) {
 }
 
 $skipTokens = [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT];
+
+/**
+ * The short names a file already resolves through a namespace-level import.
+ *
+ * Tokenised, for the same reason the reference scan below is: a regex has to
+ * anchor somewhere, and the one this replaced anchored `use` at the start of
+ * a line. That is correct for the unbraced `namespace X;` form every core
+ * file uses, and wrong for a file declaring MORE THAN ONE namespace -- PHP
+ * requires braces there, so every import inside one is indented, and the gate
+ * reported properly imported classes as bare references (GH-1726).
+ *
+ * Simply allowing leading whitespace would have traded that false positive
+ * for a false NEGATIVE, by a route worth spelling out because it is not the
+ * obvious one. A trait import inside a class body is also an indented
+ * `use X;` -- packages/web/src/Base/FOGPage.php:45 really does say
+ * `use FOGPageRender;` bare. The gate does NOT report that line itself: a
+ * reference is only counted after new/extends/implements/instanceof or
+ * before `::`, and a trait import is none of those. The damage is that
+ * $known suppresses EVERY occurrence of a short name in the file, so
+ * binding the trait import would also silence a `new FOGPageRender()`
+ * further down -- a reference the gate does detect. Verified both ways
+ * against a file carrying the trait import and the `new` together: the
+ * tokeniser still reports the `new`; a whitespace-tolerant regex binds
+ * FOGPageRender and reports nothing.
+ *
+ * Only brace depth separates a trait import from a namespace import, and
+ * only the tokeniser knows the depth.
+ *
+ * Two forms are deliberately not handled because the tree contains none of
+ * either, verified by `git grep`: group imports (`use A\{B, C};`) and
+ * `use function` / `use const`. Both would need adding here if one ever
+ * lands; a group import would currently bind nothing and so read as a bare
+ * reference, which fails in the safe direction.
+ *
+ * @param array $tokens token_get_all() output for the file
+ *
+ * @return array short names, as written
+ */
+function fogImportedNames(array $tokens)
+{
+    $names = [];
+    $depth = 0;
+    $classBody = [];
+    $expectBody = false;
+    $count = count($tokens);
+    for ($i = 0; $i < $count; $i++) {
+        $tok = $tokens[$i];
+        if (!is_array($tok)) {
+            if ('{' === $tok) {
+                $depth++;
+                if ($expectBody) {
+                    $classBody[$depth] = true;
+                    $expectBody = false;
+                }
+            } elseif ('}' === $tok) {
+                unset($classBody[$depth]);
+                $depth--;
+            }
+            continue;
+        }
+        if (in_array($tok[0], [T_CLASS, T_INTERFACE, T_TRAIT], true)) {
+            // The next `{` opens a class-like body, named or anonymous.
+            $expectBody = true;
+            continue;
+        }
+        if (T_USE !== $tok[0]) {
+            continue;
+        }
+        // Inside a class-like body this is a TRAIT import. It binds nothing
+        // for `new X` and must not mark X as resolved -- see the docblock.
+        if (isset($classBody[$depth])) {
+            continue;
+        }
+        // A closure's `use (...)` binds variables, not names.
+        $j = $i + 1;
+        while ($j < $count
+            && is_array($tokens[$j])
+            && in_array(
+                $tokens[$j][0],
+                [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT],
+                true
+            )
+        ) {
+            $j++;
+        }
+        if (isset($tokens[$j]) && !is_array($tokens[$j]) && '(' === $tokens[$j]) {
+            continue;
+        }
+        // Everything up to the terminating `;`, as written.
+        $clause = '';
+        for (; $j < $count; $j++) {
+            if (!is_array($tokens[$j])) {
+                if (';' === $tokens[$j]) {
+                    break;
+                }
+                $clause .= $tokens[$j];
+                continue;
+            }
+            if (in_array(
+                $tokens[$j][0],
+                [T_COMMENT, T_DOC_COMMENT],
+                true
+            )) {
+                continue;
+            }
+            $clause .= $tokens[$j][1];
+        }
+        // `use A\B, C\D;` is one statement binding two names.
+        foreach (explode(',', $clause) as $one) {
+            $one = trim($one);
+            if ('' === $one) {
+                continue;
+            }
+            $bind = false !== stripos($one, ' as ')
+                ? trim(preg_split('/\s+as\s+/i', $one)[1])
+                : substr(strrchr('\\' . $one, '\\'), 1);
+            if ('' !== $bind) {
+                $names[] = $bind;
+            }
+        }
+        $i = $j;
+    }
+
+    return $names;
+}
+/*
+ * Self-check on fogImportedNames(), because nothing in the tree currently
+ * exercises it. Every tracked file today puts its imports at column 0, so a
+ * regression that stopped seeing indented ones -- the GH-1726 bug -- would
+ * scan all 389 files and report a clean pass. The same reasoning as the
+ * daemon-count assertion above: a scanner that has quietly stopped scanning
+ * must fail, not succeed.
+ */
+$selfSrc = <<<'PROBE'
+<?php
+namespace Probe {
+    use FOG\Items\Host;
+    use FOG\Items\Image as Picture;
+    class Thing
+    {
+        use SomeTrait;
+        public function go(array $rows)
+        {
+            return array_map(function ($r) use ($rows) {
+                return $r;
+            }, $rows);
+        }
+    }
+}
+PROBE;
+$selfGot = fogImportedNames(token_get_all($selfSrc));
+sort($selfGot);
+$selfWant = ['Host', 'Picture'];
+if ($selfGot !== $selfWant) {
+    fwrite(
+        STDERR,
+        "FAIL: fogImportedNames() self-check.\n"
+        . '  expected: ' . implode(', ', $selfWant) . "\n"
+        . '  got:      ' . (count($selfGot) ? implode(', ', $selfGot) : '(none)')
+        . "\n\n"
+        . "  Host      indented namespace import, must be bound (GH-1726).\n"
+        . "  Picture   aliased import binds the ALIAS, not the class.\n"
+        . "  SomeTrait trait import in a class body must NOT be bound -- it\n"
+        . "            would suppress every other use of that short name.\n"
+        . "  \$rows     a closure's use() binds variables, not names.\n"
+    );
+    exit(1);
+}
+
 $hits = [];
 $scanned = 0;
 
@@ -131,17 +300,12 @@ foreach ($files as $rel) {
     $src = file_get_contents($path);
     $scanned++;
 
-    $ns = preg_match('/^namespace\s+([^;]+);/m', $src, $m) ? trim($m[1]) : '';
+    $tokens = token_get_all($src);
+
     // Names the file already resolves: its imports and its own declarations.
     $known = [];
-    if (preg_match_all('/^use\s+([^;]+);$/m', $src, $um)) {
-        foreach ($um[1] as $use) {
-            $use = trim($use);
-            $bind = false !== stripos($use, ' as ')
-                ? trim(preg_split('/\s+as\s+/i', $use)[1])
-                : substr(strrchr('\\' . $use, '\\'), 1);
-            $known[strtolower($bind)] = true;
-        }
+    foreach (fogImportedNames($tokens) as $bind) {
+        $known[strtolower($bind)] = true;
     }
     if (preg_match_all(
         '/^\s*(?:final\s+|abstract\s+)*(?:class|interface|trait)\s+(\w+)/mi',
@@ -153,7 +317,6 @@ foreach ($files as $rel) {
         }
     }
 
-    $tokens = token_get_all($src);
     $count = count($tokens);
     for ($i = 0; $i < $count; $i++) {
         if (!is_array($tokens[$i]) || T_STRING !== $tokens[$i][0]) {
