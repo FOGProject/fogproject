@@ -568,6 +568,11 @@ fog-client installer and reboot PXE clients after the switch.
 - **`no trust path builds for that certificate` on the Certificates page** — the
   upload carried the leaf alone. Upload the leaf **and** its intermediates
   (certbot's `fullchain.pem`, not `cert.pem`).
+
+  You do **not** need to import the root for a public CA. The page verifies
+  against FOG's own anchor bundle *and* the host trust store, so Let's Encrypt
+  and commercial issuers pass on the intermediates alone. Importing a root is
+  only for a private or corporate CA the host does not already trust.
 - **Clients stop trusting the server after a renewal** — the pinned CA changed.
   See [Renewal and rotation](#renewal-and-rotation); clients must re-pin the new
   `ca.cert.der`.

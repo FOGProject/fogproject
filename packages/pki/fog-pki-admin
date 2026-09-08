@@ -743,19 +743,53 @@ sortLeafMaterial() {
 
 # Does a path build for this leaf, against what this server ACTUALLY trusts?
 #
-# ${PKI_WEB_ANCHOR} is the same bundle FOG verifies its own HTTPS self-calls
-# against, so this asks the question that matters rather than a weaker one: an
-# administrator who has imported their corporate root passes, and one who has
-# not is told so before the vhost is repointed.
+# TWO anchors, because this server has two, and a leaf only has to satisfy one
+# of them:
+#
+#   1. ${PKI_WEB_ANCHOR} -- FOG's own root, plus any root imported on this
+#      page. This is the bundle FOG verifies its own HTTPS self-calls against,
+#      so an administrator who has imported their corporate root passes.
+#   2. The HOST trust store -- the public CAs, for a leaf from Let's Encrypt or
+#      a commercial issuer.
+#
+# Only the first used to be consulted, and `openssl verify -trusted` REPLACES
+# the default trust locations rather than adding to them, so there was no path
+# by which a publicly trusted leaf could pass. The practical effect was that
+# uploading certbot's own fullchain.pem -- leaf + intermediate, which is
+# complete and publicly verifiable, and is the exact file every ACME client
+# produces -- was refused with "no trust path builds for that certificate",
+# advising the administrator to "import the issuing root ... if it is not a
+# public CA" when it demonstrably was one. fullchain.pem carries no root, by
+# design, so there was nothing they could have supplied to satisfy it either;
+# the only way through was to hunt down ISRG Root X1 and import it as though
+# Let's Encrypt were a private CA.
+#
+# Checked in that order so the answer for FOG's own and for imported roots is
+# reached without consulting anything else, and so the failure path is
+# unchanged for a genuinely untrusted leaf.
+#
+# The host store legitimately contains FOG's own root -- _installCATrustAnchor()
+# puts it there -- so step 2 can succeed via it. That is not a loophole: the
+# question is whether this server trusts the issuer, and a root in its own
+# trust store is trusted by every client on the box, curl included.
 verifyLeafChain() {
     local leaf="$1" chain="$2"
-    [[ -n $PKI_WEB_ANCHOR && -s $PKI_WEB_ANCHOR ]] || return 1
-    if [[ -s $chain ]]; then
-        openssl verify -trusted "$PKI_WEB_ANCHOR" -untrusted "$chain" "$leaf" \
-            >/dev/null 2>&1
-    else
-        openssl verify -trusted "$PKI_WEB_ANCHOR" "$leaf" >/dev/null 2>&1
+    if [[ -n $PKI_WEB_ANCHOR && -s $PKI_WEB_ANCHOR ]]; then
+        if [[ -s $chain ]]; then
+            openssl verify -trusted "$PKI_WEB_ANCHOR" -untrusted "$chain" "$leaf" \
+                >/dev/null 2>&1 && return 0
+        else
+            openssl verify -trusted "$PKI_WEB_ANCHOR" "$leaf" >/dev/null 2>&1 && return 0
+        fi
     fi
+    # No -trusted and no -CAfile: the default trust locations, which is the
+    # host store, are exactly what is being asked about here.
+    if [[ -s $chain ]]; then
+        openssl verify -untrusted "$chain" "$leaf" >/dev/null 2>&1 && return 0
+    else
+        openssl verify "$leaf" >/dev/null 2>&1 && return 0
+    fi
+    return 1
 }
 
 # Refuse anything that would leave this server worse off than it is now.
