@@ -108,6 +108,18 @@ shift
 # default.
 PREF_KEYS="PKI_web_cert_publicly_trusted WEB_https_redirect BOOT_rebuild_ipxe_with_my_ca BOOT_url_proto"
 
+# Keys the status report may READ but that nothing may WRITE through this verb.
+# Two lists rather than one, because they answer different questions and
+# conflating them is how BOOT_url_proto_forced would become settable by
+# accident: PREF_KEYS is the write allowlist and the security boundary,
+# REPORT_KEYS is only what the page is allowed to see.
+#
+# BOOT_url_proto_forced is here because the page cannot otherwise tell a
+# DERIVED https from a FORCED one -- _resolveNetbootProto() reads it to decide
+# whether to re-derive at all -- and a switch that cannot tell those apart
+# renders the wrong state on every server whose transport was derived.
+REPORT_KEYS="$PREF_KEYS BOOT_url_proto_forced"
+
 # The value domain, per key.
 #
 # It was one ^(yes|no)$ for all three, and that pattern is the security
@@ -118,7 +130,7 @@ PREF_KEYS="PKI_web_cert_publicly_trusted WEB_https_redirect BOOT_rebuild_ipxe_wi
 # ADR 0036's rule requires. It is the implementation that generalizes.
 prefPattern() {
     case "$1" in
-        BOOT_url_proto) printf '%s' '^(http|https)$' ;;
+        BOOT_url_proto) printf '%s' '^(http|https|auto)$' ;;
         *)              printf '%s' '^(yes|no)$' ;;
     esac
 }
@@ -1009,7 +1021,7 @@ EOF
 
     printf '  "preferences": {'
     first=1
-    for key in $PREF_KEYS; do
+    for key in $REPORT_KEYS; do
         [[ $first -eq 1 ]] || printf ', '
         first=0
         printf '%s: %s' "$(jstr "$key")" "$(jstr "$(readSetting "$key")")"
@@ -1336,6 +1348,30 @@ set-preference)
     # quoted one would match the pattern as a literal string.
     pattern=$(prefPattern "$key")
     [[ $value =~ $pattern ]] || die "value for ${key} must match ${pattern}"
+    # `auto` is not a transport, it is the ABSENCE of a forced one, so it
+    # clears the force rather than writing itself into BOOT_url_proto.
+    # _resolveNetbootProto() then re-derives from the two steering keys on
+    # every run, which is what it does on a server nobody has forced.
+    #
+    # Without this there is no way back. Both real transports set
+    # BOOT_url_proto_forced=yes when the installer reads them, so a page that
+    # could only write http or https was a one-way door: a server deriving
+    # https from a public certificate would be pinned by the first toggle and
+    # never derive again, whatever its certificate later became.
+    #
+    # It writes BOOT_url_proto_forced, a key deliberately absent from
+    # PREF_KEYS, and that is not a hole in ADR 0036's refusal. The refusal was
+    # about FORCING https with neither steering key set -- "not a thing a
+    # misclick should reach". This only ever writes `no`, and clearing a force
+    # can do nothing but return the value to whatever derivation already says.
+    # Reaching forced=yes still requires posting https to a key whose control
+    # says so.
+    if [[ $key == BOOT_url_proto && $value == auto ]]; then
+        writeSetting BOOT_url_proto_forced no \
+            || die "could not clear BOOT_url_proto_forced in .fogsettings"
+        echo "OK"
+        exit 0
+    fi
     writeSetting "$key" "$value" || die "could not update ${key} in .fogsettings"
     echo "OK"
     ;;

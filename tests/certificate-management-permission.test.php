@@ -169,17 +169,52 @@ $results[] = pkiPermCheck(
  * quietly acquire a permissive default.
  */
 $results[] = pkiPermCheck(
-    'the netboot transport is constrained to http or https',
+    'the netboot transport is constrained to http, https or auto',
     1 === preg_match(
-        "#BOOT_url_proto\\)\\s+printf '%s' '\\^\\(http\\|https\\)\\$'#",
+        "#BOOT_url_proto\\)\\s+printf '%s' '\\^\\(http\\|https\\|auto\\)\\$'#",
         $helper
     ),
-    'the ^(http|https)$ pattern is not bound to BOOT_url_proto'
+    'the ^(http|https|auto)$ pattern is not bound to BOOT_url_proto'
 );
 $results[] = pkiPermCheck(
-    'http is reachable through no key but BOOT_url_proto',
-    1 === preg_match_all("#'\\^\\(http\\|https\\)\\\$'#", $helper),
-    'the http|https domain appears more than once in fog-pki-admin'
+    'that domain is reachable through no key but BOOT_url_proto',
+    1 === preg_match_all("#'\\^\\(http\\|https\\|auto\\)\\\$'#", $helper),
+    'the http|https|auto domain appears more than once in fog-pki-admin'
+);
+/*
+ * `auto` is the third member and is NOT a transport: it means "no forced
+ * transport", and the verb turns it into BOOT_url_proto_forced=no rather than
+ * writing it anywhere. It exists because both real transports set that flag
+ * when the installer reads them, so without it the page had no way back to
+ * deriving -- the first toggle pinned the server for good.
+ *
+ * The danger in a verb that can write a key outside PREF_KEYS is that it grows
+ * a second one, so both halves are pinned: which key it writes, and that the
+ * only value it can write there is `no`.
+ */
+$results[] = pkiPermCheck(
+    'auto clears the force rather than writing a transport',
+    1 === preg_match('#\$key == BOOT_url_proto && \$value == auto#', $helper)
+        && 1 === preg_match('#writeSetting BOOT_url_proto_forced no#', $helper),
+    'set-preference does not turn auto into BOOT_url_proto_forced=no'
+);
+$results[] = pkiPermCheck(
+    'and it can only ever write `no` to that flag',
+    0 === preg_match('#writeSetting BOOT_url_proto_forced yes#', $helper),
+    'the helper can set BOOT_url_proto_forced=yes, which ADR 0036 refuses'
+);
+/*
+ * The page's own half of the same contract. An off switch must post `auto`;
+ * posting `http` would PIN http, which is a different setting, the one this
+ * page deliberately does not offer, and the one that cannot be undone here.
+ */
+$pageSrc = (string) file_get_contents(
+    __DIR__ . '/../packages/web/src/Pages/FOGConfigurationPage.php'
+);
+$results[] = pkiPermCheck(
+    'the page turns an off switch into auto, never into http',
+    1 === preg_match("#\\\$value = \\\$raw \\? 'https' : 'auto';#", $pageSrc),
+    'FOGConfigurationPage does not map the off state to auto'
 );
 $results[] = pkiPermCheck(
     'the value is matched against a pattern the helper chose, not the caller',
