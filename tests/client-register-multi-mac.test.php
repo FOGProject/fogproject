@@ -112,7 +112,12 @@ namespace {
 
     require_once __DIR__ . '/lib/fog-test-harness.php';
 
-    use FOG\Client\RegisterClient;
+    // Fully qualified at each use rather than imported. The import is valid
+    // PHP -- it sits in this same bracketed namespace block -- but
+    // tests/no-bare-core-references.test.php only recognizes a top-level
+    // `use`, so a bare short name here reads to that gate as the
+    // class-not-found it is guarding against. FQCN is the dominant idiom in
+    // this directory anyway (ADR 0013 section 2).
 
     /**
      * The fake request $_GET/$_POST that FOG\Base\filter_input() and
@@ -203,7 +208,7 @@ namespace {
         // but CI shows a stack trace instead of which invariant broke.
         // Turning it into a payload lets the checks below name it.
         try {
-            $payload = (new \ReflectionClass(RegisterClient::class))
+            $payload = (new \ReflectionClass(\FOG\Client\RegisterClient::class))
                 ->newInstanceWithoutConstructor()
                 ->json();
         } catch (\Throwable $e) {
@@ -280,7 +285,7 @@ namespace {
     // this is where the batch guard throws, and letting it escape would
     // abort the file instead of failing the two checks below by name.
     try {
-        (new \ReflectionClass(RegisterClient::class))
+        (new \ReflectionClass(\FOG\Client\RegisterClient::class))
             ->newInstanceWithoutConstructor()
             ->json();
     } catch (\Throwable $e) {
