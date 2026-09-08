@@ -238,10 +238,29 @@ $t->check(
 );
 
 /*
- * 5. The page itself. This runs where the PKI helper is absent (no sudoers
- *    rule for whoever runs the suite), which is the storage-node shape: the
- *    warning, then a tab card carrying the one section that survives.
+ * 5. The page itself, in whichever of its two shapes this host is in.
+ *
+ *    Which one is not a choice: _pkiStatus() returns null where the helper is
+ *    absent -- no sudoers rule for whoever runs the suite, which is a bare CI
+ *    runner and is also the storage-node shape -- and a status array on a
+ *    server that has actually been installed, which is every FOG developer's
+ *    own box. This block used to assert the absent shape unconditionally, so
+ *    it passed on CI and reported two failures to anyone running the suite on
+ *    a working install: no warning to find, and a chain tab that legitimately
+ *    has content.
+ *
+ *    Branching rather than skipping. The card, the tab wiring and the
+ *    collapse ban are the same either way and are asserted once; only the
+ *    warning and the chain tab differ, and each shape is a real gate in the
+ *    environment that produces it.
  */
+$pkiStatus = new \ReflectionMethod(
+    'FOG\\Pages\\FOGConfigurationPage',
+    '_pkiStatus'
+);
+$pkiStatus->setAccessible(true);
+$helperPresent = null !== $pkiStatus->invoke(null);
+
 ob_start();
 $page->certificates();
 $rendered = (string) ob_get_clean();
@@ -255,19 +274,30 @@ $t->check(
     false !== strpos($rendered, 'id="pki-own"')
         && false !== strpos($rendered, 'data-bs-toggle="tab"')
 );
-$t->check(
-    'a section with nothing to show is not an empty tab',
-    false === strpos($rendered, 'id="pki-chain"')
-);
-$t->check(
-    'the missing-helper warning is rendered',
-    false !== strpos($rendered, 'helper is not installed')
-);
-$t->check(
-    'and it is ABOVE the tabs, not behind one of them',
-    strpos($rendered, 'helper is not installed')
-        < strpos($rendered, 'nav nav-tabs')
-);
+if ($helperPresent) {
+    $t->check(
+        'with the helper present the chain section has content, so it is a tab',
+        false !== strpos($rendered, 'id="pki-chain"')
+    );
+    $t->check(
+        'and the missing-helper warning is NOT rendered',
+        false === strpos($rendered, 'helper is not installed')
+    );
+} else {
+    $t->check(
+        'a section with nothing to show is not an empty tab',
+        false === strpos($rendered, 'id="pki-chain"')
+    );
+    $t->check(
+        'the missing-helper warning is rendered',
+        false !== strpos($rendered, 'helper is not installed')
+    );
+    $t->check(
+        'and it is ABOVE the tabs, not behind one of them',
+        strpos($rendered, 'helper is not installed')
+            < strpos($rendered, 'nav nav-tabs')
+    );
+}
 $t->check(
     'nothing on the page ships behind a collapse an AJAX visit cannot open',
     false === strpos($rendered, 'collapsed-card')
