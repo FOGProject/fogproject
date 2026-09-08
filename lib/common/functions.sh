@@ -9919,8 +9919,194 @@ _resolveWebLeafPaths() {
 #
 # Both stay empty when there is no intermediate, and the callers fall back to
 # ${PKI_web_vhost_cert}, so a direct-signed server emits byte-identical config to before.
+# The chain paths the LIVE vhost names, one per line, or nothing. Companion to
+# _vhostCertPath()/_vhostKeyPath(), which deliberately exclude these because
+# they are looking for the leaf.
+#
+# All three directives, because all three carry intermediates in the wild:
+# Apache's SSLCertificateChainFile is the documented place for them,
+# SSLCACertificateFile is where plenty of guides put them anyway, and nginx's
+# ssl_trusted_certificate is the nearest equivalent. Whether a certificate
+# found this way is actually usable is not decided here -- _walkChainFromLeaf
+# checks signatures, so a wrong file costs nothing but a read.
+_vhostChainPaths() {
+    [[ -n $etcconf && -f $etcconf ]] || return 0
+    grep -oiE '^[[:space:]]*(SSLCertificateChainFile|SSLCACertificateFile|ssl_trusted_certificate)[[:space:]]+[^;[:space:]]+' \
+        "$etcconf" 2>/dev/null | awk '{print $NF}'
+}
+# Every certificate that MIGHT belong in the chain for ${PKI_web_vhost_cert},
+# concatenated to stdout. A candidate pool, not an answer: nothing here is
+# trusted for having been found, because _walkChainFromLeaf accepts a
+# certificate only if its key actually signed the one below it.
+#
+# That split is what makes searching safe. Guessing at file locations would be
+# reckless if the guess were believed; it is free when every candidate has to
+# prove itself cryptographically.
+_webChainCandidates() {
+    local p d f base pkitree
+    # FOG's own chain, always and first. A FOG-issued leaf therefore walks
+    # exactly the path it always has, and this function needs no branch for it.
+    [[ -n ${PKI_web_trust_chain} && -s ${PKI_web_trust_chain} ]] && \
+        cat "${PKI_web_trust_chain}" 2>>$error_log
+    # Everything below is about a leaf FOG did not issue. For FOG's own leaf
+    # the chain file above is the whole truth, and reading the admin's vhost or
+    # scanning ACME trees could only add candidates the walk has to reject.
+    { _externallyManagedLeaf || [[ ${PKI_web_cert_publicly_trusted} == yes ]]; } || return 0
+    [[ -n ${PKI_web_vhost_cert} && -s ${PKI_web_vhost_cert} ]] || return 0
+    pkitree="$(readlink -f "$(_pkiRootDir)" 2>/dev/null)"
+
+    # (e) The blessed drop point for a certificate you bring:
+    #     $(_customPkiDir)/web-leaf-chain.pem, which readme.txt in
+    #     /etc/fog/customizations tells administrators to use.
+    #
+    #     _adoptCustomChain() already reads that file -- but only from the
+    #     signal-0 arm of _detectExternalCertManagement(), which is to say
+    #     only when a matching web-leaf.pem/web-leaf.key PAIR was dropped
+    #     beside it. An administrator whose leaf lives anywhere else (an ACME
+    #     client's tree, /etc/pki/tls/certs, a mounted secret) has no pair to
+    #     drop, so the chain they supplied at the documented path was read by
+    #     nothing. Reading it here decouples the chain from the pair.
+    p="$(_customPkiDir)/web-leaf-chain.pem"
+    [[ -s $p ]] && cat "$p" 2>>$error_log
+
+    # (a) The leaf file itself. An admin who pointed FOG at fullchain.pem has
+    #     already supplied the intermediate -- _writeWebChainFiles reads only
+    #     the FIRST certificate out of this file for the leaf, and everything
+    #     after it used to be discarded.
+    cat "${PKI_web_vhost_cert}" 2>>$error_log
+
+    # (b) What the live vhost serves as its chain. _writeWebChainFiles runs
+    #     BEFORE beginManagedVhost(), so $etcconf is still the administrator's
+    #     own file -- the configuration that was working before FOG rewrote it.
+    #
+    #     Any path resolving under FOG's own pki/ tree is skipped. That tree
+    #     holds this function's own output, and feeding derived output back in
+    #     as input is exactly GH-1120: see tests/web-chain-feedback.test.sh for
+    #     the fourteen-certificate bundle it produced.
+    for p in $(_vhostChainPaths); do
+        [[ -n $p && -s $p ]] || continue
+        [[ -n $pkitree && "$(readlink -f "$p" 2>/dev/null)" == "$pkitree"/* ]] && continue
+        cat "$p" 2>>$error_log
+    done
+
+    # (c) The leaf's own directory. certbot writes chain.pem and fullchain.pem
+    #     beside cert.pem, acme.sh writes ca.cer and fullchain.cer, dehydrated
+    #     writes chain.pem -- so for a leaf FOG was pointed at IN PLACE the
+    #     intermediate is one readdir away.
+    base="$(readlink -f "${PKI_web_vhost_cert}" 2>/dev/null)"
+    d="$(dirname "${base:-/}")"
+    if [[ -n $d && -d $d && ( -z $pkitree || $d != "$pkitree"* ) ]]; then
+        for f in chain.pem fullchain.pem ca.cer fullchain.cer chain.crt fullchain.crt; do
+            [[ -s "$d/$f" ]] && cat "$d/$f" 2>>$error_log
+        done
+        for f in "$d"/*-chain.pem "$d"/*.chain.pem; do
+            [[ -s $f ]] && cat "$f" 2>>$error_log
+        done
+    fi
+
+    # (d) The ACME client trees themselves, wherever the leaf lives.
+    #
+    #     (c) is not enough on its own and the difference is the common case:
+    #     an administrator who COPIES the leaf out to /etc/pki/tls/certs and
+    #     points FOG at the copy has left the intermediate behind in
+    #     /etc/letsencrypt/live, one directory the leaf knows nothing about.
+    #     That server has the certificate it needs, on disk, and every earlier
+    #     source misses it.
+    #
+    #     Bounded and cheap: three known layouts, a fixed set of file names, no
+    #     recursive walk of the filesystem. Reading a chain belonging to some
+    #     unrelated domain is harmless because the signature check rejects it.
+    for d in /etc/letsencrypt/live/* /etc/dehydrated/certs/* \
+             /root/.acme.sh/* "${HOME:-/root}"/.acme.sh/*; do
+        [[ -d $d ]] || continue
+        for f in chain.pem fullchain.pem ca.cer fullchain.cer; do
+            [[ -s "$d/$f" ]] && cat "$d/$f" 2>>$error_log
+        done
+    done
+    return 0
+}
+# The intermediates that cryptographically link the leaf in $1 upwards, out of
+# the candidate pool $2, written to stdout in leaf-first order -- which is the
+# order TLS wants and NOT the order the pool is in.
+#
+# Returns 0 when the leaf's issuer was located (whether that issuer turned out
+# to be an intermediate worth sending or a root that must not be), and 1 when
+# nothing in the pool issued this leaf. The caller needs that distinction: no
+# output means "nothing to send" in the first case and "this server is about to
+# serve an unverifiable leaf" in the second.
+#
+# Selection is by SIGNATURE, not by name. A subject DN equal to the leaf's
+# issuer DN is a claim anyone can make -- a superseded CA of the same name, a
+# private CA that happens to share a corporate name, a stale copy from before a
+# key rotation -- and serving the wrong one produces a chain that fails exactly
+# like serving nothing, while looking correct to anyone reading subject lines.
+# -partial_chain treats the candidate as an anchor, which reduces the question
+# to the only one that matters: did this key sign the certificate below it?
+_walkChainFromLeaf() {
+    local leaf="$1" pool="$2" tmpd cur want found f subj issuer hop st=1
+    [[ -n $leaf && -s $leaf && -n $pool && -s $pool ]] || return 1
+    command -v openssl >/dev/null 2>&1 || return 1
+    tmpd=$(mktemp -d) || return 1
+    cur="$tmpd/cur.pem"
+    # The leaf ONLY. openssl x509 reads the first certificate out of a bundle,
+    # which is the leaf in anything a web server will accept -- and is the same
+    # reason _writeWebChainFiles reads this file the way it does.
+    openssl x509 -in "$leaf" -out "$cur" 2>>$error_log || { rm -rf "$tmpd"; return 1; }
+    _splitPemBundle "$pool" "$tmpd" >/dev/null 2>&1
+    # Bounded rather than "until it ends". Cross-signed CAs make it possible
+    # for a pool to contain a cycle, and a real chain is never this deep.
+    for hop in 1 2 3 4 5 6 7 8; do
+        want=$(openssl x509 -in "$cur" -noout -issuer -nameopt RFC2253 2>/dev/null)
+        want="${want#issuer=}"
+        [[ -n $want ]] || break
+        found=""
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            subj=$(openssl x509 -in "$f" -noout -subject -nameopt RFC2253 2>/dev/null)
+            [[ -n $subj && ${subj#subject=} == "$want" ]] || continue
+            openssl verify -partial_chain -trusted "$f" "$cur" >/dev/null 2>&1 || continue
+            found="$f"
+            break
+        done
+        [[ -n $found ]] || break
+        # The issuer exists and signed what is below it, so the path is real
+        # from here down however far up it goes.
+        st=0
+        subj=$(openssl x509 -in "$found" -noout -subject -nameopt RFC2253 2>/dev/null)
+        issuer=$(openssl x509 -in "$found" -noout -issuer -nameopt RFC2253 2>/dev/null)
+        # A self-signed match is the ROOT, and the root is never sent: a client
+        # that does not already hold it will not trust it for arriving on the
+        # wire, and one that does hold it did not need the copy.
+        [[ ${subj#subject=} == "${issuer#issuer=}" ]] && break
+        cat "$found"
+        cp -f "$found" "$cur" >>$error_log 2>&1 || break
+    done
+    rm -rf "$tmpd" >>$error_log 2>&1
+    return $st
+}
+# Said out loud, because the failure it describes is silent from the server's
+# own point of view: the web server starts, the vhost is valid, and a browser
+# holding the intermediate from another site shows a good padlock. What breaks
+# is every client that does NOT already hold it, FOG's own self-calls included.
+_warnNoWebIntermediate() {
+    local issuer
+    issuer=$(openssl x509 -in "${PKI_web_vhost_cert}" -noout -issuer -nameopt RFC2253 2>/dev/null)
+    echo " * WARNING: no intermediate certificate was found for the web leaf."
+    echo "   Leaf:   ${PKI_web_vhost_cert}"
+    echo "   Issuer: ${issuer#issuer=}"
+    echo "   Nothing on this server chains to that issuer, so FOG is serving the"
+    echo "   leaf ALONE. Clients that do not already hold the intermediate will"
+    echo "   reject it as \"unable to get local issuer certificate\" -- including"
+    echo "   this installer's own calls, so the schema deploy will refuse to run."
+    echo "   Put the issuer's certificate in any ONE of these and re-run:"
+    echo "     - ${PKI_web_vhost_cert} itself, after the leaf (i.e. a fullchain)"
+    echo "     - chain.pem, fullchain.pem or ca.cer beside it"
+    echo "     - SSLCertificateChainFile / ssl_trusted_certificate in your vhost"
+    echo "   Your ACME client already has it: certbot keeps it as chain.pem in"
+    echo "   /etc/letsencrypt/live/<name>/, acme.sh as ca.cer."
+}
 _writeWebChainFiles() {
-    local leafdir block subj issuer
+    local leafdir
     sslfullchain=""
     sslchainonly=""
     # -s, not -f. An EMPTY certificate file passes -f, and cat'ing it into the
@@ -9931,7 +10117,13 @@ _writeWebChainFiles() {
     # down, and the leaf on disk was correct the whole time, so nothing about
     # the failure pointed at the file that was actually wrong.
     [[ -n ${PKI_web_vhost_cert} && -s ${PKI_web_vhost_cert} ]] || return 0
-    [[ -n ${PKI_web_trust_chain} && -s ${PKI_web_trust_chain} ]] || return 0
+    # No test on ${PKI_web_trust_chain} here any more. It used to be a
+    # precondition, on the premise that FOG's chain file was the only possible
+    # source of an intermediate -- which is false for every leaf FOG did not
+    # issue, and returning early meant an ACME server never even looked for
+    # the certificate sitting in its own /etc/letsencrypt/live. The chain file
+    # is now one candidate among several; _webChainCandidates handles it being
+    # absent, and a pool that ends up empty is handled below.
 
     leafdir="$(_pkiZoneDir web)/leaf"
     mkdir -p "$leafdir" >>$error_log 2>&1
@@ -9947,23 +10139,22 @@ _writeWebChainFiles() {
     # validateExternalCA writes the root FIRST -- and an admin-supplied chain
     # may be in any order at all. _rootFromChain selects the other way round off
     # the same property, so neither reader depends on the order.
-    local tmpd f
+    local tmpd
     tmpd=$(mktemp -d) || return 0
-    _splitPemBundle "${PKI_web_trust_chain}" "$tmpd"
-    for f in "$tmpd"/c*.pem; do
-        [[ -f $f ]] || continue
-        subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
-        issuer=$(openssl x509 -in "$f" -noout -issuer 2>/dev/null)
-        [[ -z $subj ]] && continue
-        # -subject prints "subject=..." and -issuer "issuer=...", so compare the
-        # values rather than the whole line.
-        [[ ${subj#subject=} == "${issuer#issuer=}" ]] && continue
-        cat "$f" >> "$chainonly"
-    done
+    _webChainCandidates > "$tmpd/pool.pem" 2>>$error_log
+    _walkChainFromLeaf "${PKI_web_vhost_cert}" "$tmpd/pool.pem" > "$chainonly" 2>>$error_log
+    local located=$?
     rm -rf "$tmpd" >>$error_log 2>&1
 
     if [[ ! -s $chainonly ]]; then
         rm -f "$chainonly" >>$error_log 2>&1
+        # Empty is the CORRECT answer for a leaf signed directly by a root:
+        # one certificate is already a complete path, and the callers fall
+        # back to ${PKI_web_vhost_cert}. _walkChainFromLeaf says which of the
+        # two silences apply -- it returns 0 when it found the leaf's issuer
+        # (as a root, so nothing to send) and 1 when it found nothing at all,
+        # which is a server about to serve an unverifiable leaf.
+        [[ $located -ne 0 ]] && _warnNoWebIntermediate
         return 0
     fi
     # Assemble beside the live file, not over it. This bundle is what the web

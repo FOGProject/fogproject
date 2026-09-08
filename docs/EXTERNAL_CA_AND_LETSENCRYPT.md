@@ -122,6 +122,44 @@ why the directory is where it is, and why it is not
 issued leaf makes the browser and iPXE happy; `ca.cert.der` is still FOG's own
 root, which is what fog-client pins. Read the caveats before rolling one out.
 
+### The intermediate is found for you
+
+A publicly issued leaf is not a complete chain. It is signed by an
+intermediate — `CN=R10`, `CN=YE2` and friends for Let's Encrypt — and a client
+that trusts the public root still cannot build a path unless that intermediate
+is sent alongside the leaf. Sending only the leaf fails as
+`unable to get local issuer certificate`, which is also what a missing CA looks
+like, so it is easy to misread as "FOG never installed my certificate".
+
+You do not have to tell FOG where the intermediate is. When the leaf is one you
+brought, the installer looks for it in each of these, and uses the first
+certificate that **actually signed the leaf**:
+
+| Looked in | Typical source |
+|---|---|
+| `PKI_web_trust_chain` | FOG's own chain, and what `web-leaf-chain.pem` is adopted into |
+| `/etc/fog/customizations/pki/web-leaf-chain.pem` | the documented drop point |
+| the leaf file itself, after the leaf | you pointed FOG at a `fullchain.pem` |
+| `SSLCertificateChainFile` / `ssl_trusted_certificate` in your live vhost | the config that already worked |
+| `chain.pem`, `fullchain.pem`, `ca.cer` beside the leaf | certbot, acme.sh, dehydrated |
+| `/etc/letsencrypt/live/*/`, `/etc/dehydrated/certs/*/`, `~/.acme.sh/*/` | your ACME client's own tree |
+
+Selection is by signature, not by name: a certificate whose subject matches the
+leaf's issuer but whose key did not sign it is rejected, so a superseded CA of
+the same name cannot poison the chain. The root is never sent even when it is
+found — a client that does not already hold it would not trust it for arriving
+on the wire.
+
+The last row is what makes the common case work. Copying the leaf out to
+somewhere like `/etc/pki/tls/certs/` and pointing FOG at the copy leaves the
+intermediate behind in `/etc/letsencrypt/live/`, a directory the leaf itself
+knows nothing about.
+
+If none of them holds it, the install says so, names the issuer it could not
+find and the places it looked, and serves the leaf alone rather than serving
+something that cannot verify. Note that FOG's self-calls verify strictly, so the
+schema deploy will refuse to run in that state.
+
 ---
 
 ## How iPXE validates HTTPS
@@ -513,6 +551,23 @@ fog-client installer and reboot PXE clients after the switch.
   `basicConstraints CA:TRUE`. You passed a leaf, not an intermediate CA.
 - **`The intermediate CA does not verify against the supplied root`** — `--ca-cert`
   does not chain to `--ca-root`. Check you exported the correct root.
+- **`curl: (60) unable to get local issuer certificate` against your own
+  server, with a publicly issued leaf** — the served chain is missing the
+  intermediate. Check what is actually on the wire rather than what is on disk:
+
+  ```
+  openssl s_client -connect <name>:443 -servername <name> 2>/dev/null \
+      | grep -E '^ *[0-9] s:|^ *i:'
+  ```
+
+  A chain whose only entries are your leaf and `CN=FOG Web CA` is the shape this
+  used to produce: FOG's own intermediate sent beside a foreign leaf, which
+  cannot be part of that path, and the real intermediate omitted. Put the
+  issuer's certificate anywhere in
+  [the list above](#the-intermediate-is-found-for-you) and re-run the installer.
+- **`no trust path builds for that certificate` on the Certificates page** — the
+  upload carried the leaf alone. Upload the leaf **and** its intermediates
+  (certbot's `fullchain.pem`, not `cert.pem`).
 - **Clients stop trusting the server after a renewal** — the pinned CA changed.
   See [Renewal and rotation](#renewal-and-rotation); clients must re-pin the new
   `ca.cert.der`.
