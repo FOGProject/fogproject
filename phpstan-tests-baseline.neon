@@ -535,6 +535,18 @@ parameters:
 			path: tests/getfilesize-walks-directories.test.php
 
 		-
+			message: '#^Call to an undefined static method Initiator\:\:language\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/gettext-output-is-utf8.test.php
+
+		-
+			message: '#^Parameter \#2 \$codeset of function bind_textdomain_codeset expects string, null given\.$#'
+			identifier: argument.type
+			count: 1
+			path: tests/gettext-output-is-utf8.test.php
+
+		-
 			message: '#^Function hostOrderColumns\(\) never returns array so it can be removed from the return type\.$#'
 			identifier: return.unusedType
 			count: 1
