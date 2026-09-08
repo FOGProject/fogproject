@@ -3608,6 +3608,9 @@ msgstr ""
 msgid "Force"
 msgstr "Forza"
 
+msgid "Force netboot over HTTP or HTTPS"
+msgstr ""
+
 #, fuzzy
 msgid "Foreign key preparation"
 msgstr "replica dell'immagine"
@@ -6170,9 +6173,6 @@ msgstr "Nuova chiave deve essere una stringa"
 msgid "Nested group search failed"
 msgstr "Aggiornamento utente non riuscita"
 
-msgid "Netboot fetches boot.php over"
-msgstr ""
-
 msgid "Network Information"
 msgstr "Informationi di rete"
 
@@ -8371,7 +8371,7 @@ msgstr ""
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
 
-msgid "Separate from the HTTP redirect above, which never applies to the paths a bootloader fetches for itself. Choosing https here also FORCES it: the installer stops deriving the transport and keeps what you set. If iPXE cannot validate the certificate this server serves, every netboot stops at boot.php and nothing server-side says why -- so decide it together with the two settings above, not on its own."
+msgid "Separate from the HTTP redirect above, which never applies to the paths a bootloader fetches for itself. Setting either one here FORCES it -- the installer records BOOT_url_proto_forced and stops deriving the transport from the two settings above, so it keeps what you set even if those change. If iPXE cannot validate the certificate this server serves, every netboot stops at boot.php and nothing server-side says why -- so decide it together with the two settings above, not on its own."
 msgstr ""
 
 msgid "Serial Number"
