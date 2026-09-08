@@ -239,6 +239,137 @@ function fogImportedNames(array $tokens)
 
     return $names;
 }
+/**
+ * The bare core-class references in one already-tokenised file.
+ *
+ * Split out of the scan loop so it can be exercised directly: it decides
+ * three separate things -- what the namespace in force is, whether a name is
+ * already resolved, and whether an occurrence is a REFERENCE at all -- and
+ * none of them had a guard. Every tracked file happens to satisfy them
+ * today, so a regression in any one would scan all 389 files and report a
+ * clean pass.
+ *
+ * @param array $tokens     token_get_all() output
+ * @param array $core       short name (lowercased) => FQCN
+ * @param array $known      short name (lowercased) => true, already resolved
+ * @param array $skipTokens token types that are not significant
+ *
+ * @return array [line, short name] per bare reference
+ */
+function fogBareReferences(array $tokens, array $core, array $known, array $skipTokens)
+{
+    $found = [];
+$count = count($tokens);
+// The namespace in force at the token being looked at. A bare name
+// resolves against it before anything else, so a file already inside a
+// core namespace refers to its neighbors correctly without an import,
+// and reporting those would be a false positive.
+//
+// Tracked as the scan walks rather than captured once: a file may
+// declare several namespaces, and then which one is in force depends on
+// WHERE the reference is. Resetting at each `namespace` is enough for
+// both forms -- an unbraced `namespace X;` runs to end of file, and a
+// braced block runs to the next declaration, because PHP does not allow
+// code between braced blocks.
+//
+// This is what the unused `namespace` capture removed in GH-1727 was
+// reaching for; it was assigned and never read, so the exemption the
+// header promises had never actually been implemented.
+$curNs = '';
+for ($i = 0; $i < $count; $i++) {
+    if (is_array($tokens[$i]) && T_NAMESPACE === $tokens[$i][0]) {
+        $curNs = '';
+        for ($j = $i + 1; $j < $count; $j++) {
+            if (!is_array($tokens[$j])) {
+                if (';' === $tokens[$j] || '{' === $tokens[$j]) {
+                    break;
+                }
+                continue;
+            }
+            if (in_array(
+                $tokens[$j][0],
+                [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT],
+                true
+            )) {
+                continue;
+            }
+            $curNs .= $tokens[$j][1];
+        }
+        $curNs = trim($curNs, '\\ ');
+        continue;
+    }
+    if (!is_array($tokens[$i]) || T_STRING !== $tokens[$i][0]) {
+        continue;
+    }
+    $name = $tokens[$i][1];
+    $key = strtolower($name);
+    if (!isset($core[$key]) || isset($known[$key])) {
+        continue;
+    }
+    // Already in the class's own namespace: the bare name resolves.
+    // Namespaces are case-insensitive in PHP, so compare that way.
+    $sep = strrpos($core[$key], '\\');
+    if ('' !== $curNs
+        && false !== $sep
+        && 0 === strcasecmp($curNs, substr($core[$key], 0, $sep))
+    ) {
+        continue;
+    }
+    // Keywords that tokenise as T_STRING and are not class references.
+    if (in_array($key, ['self', 'parent', 'static'], true)) {
+        continue;
+    }
+    // The previous significant token. Skipping whitespace matters: PHP
+    // puts a T_WHITESPACE between `new` and the name, so $tokens[$i - 1]
+    // never sees the T_NEW and a naive scanner misses every `new Foo()`.
+    $prev = $i - 1;
+    while ($prev >= 0
+        && is_array($tokens[$prev])
+        && in_array($tokens[$prev][0], $skipTokens, true)
+    ) {
+        $prev--;
+    }
+    // Already qualified (\Foo or Bar\Foo), a method name, a property, or
+    // a function declaration -- none of these is an unqualified class
+    // reference.
+    if (isset($tokens[$prev])
+        && is_array($tokens[$prev])
+        && in_array(
+            $tokens[$prev][0],
+            [
+                T_NS_SEPARATOR, T_OBJECT_OPERATOR, T_DOUBLE_COLON,
+                T_FUNCTION, T_CONST
+            ],
+            true
+        )
+    ) {
+        continue;
+    }
+    $next = $i + 1;
+    while ($next < $count
+        && is_array($tokens[$next])
+        && in_array($tokens[$next][0], $skipTokens, true)
+    ) {
+        $next++;
+    }
+    $isRef = (isset($tokens[$next])
+            && is_array($tokens[$next])
+            && T_DOUBLE_COLON === $tokens[$next][0])
+        || (isset($tokens[$prev])
+            && is_array($tokens[$prev])
+            && in_array(
+                $tokens[$prev][0],
+                [T_NEW, T_EXTENDS, T_IMPLEMENTS, T_INSTANCEOF],
+                true
+            ));
+        if ($isRef) {
+            $found[] = [$tokens[$i][2], $name];
+        }
+    }
+
+    return $found;
+}
+
 /*
  * Self-check on fogImportedNames(), because nothing in the tree currently
  * exercises it. Every tracked file today puts its imports at column 0, so a
@@ -283,6 +414,67 @@ if ($selfGot !== $selfWant) {
     exit(1);
 }
 
+/*
+ * Self-check on fogBareReferences(), for the same reason as the one above.
+ * It decides three things and every tracked file happens to satisfy all
+ * three, so a regression in any of them scans 389 files and reports a clean
+ * pass. The namespace exemption in particular was documented in this file's
+ * header for as long as it has existed and was never actually implemented
+ * -- the capture it needed was assigned and never read (GH-1727) -- which is
+ * exactly the kind of gap a self-check catches and a green run does not.
+ */
+$refSrc = <<<'PROBE'
+<?php
+namespace FOG\Items {
+    function inAnotherCoreNamespace()
+    {
+        return new FOGPageRender();
+    }
+}
+namespace FOG\Base {
+    function inOwnNamespace()
+    {
+        return new FOGPageRender();
+    }
+}
+namespace {
+    $a = new FOGPageRender();
+    $b = new \FOG\Base\FOGPageRender();
+    $c = $obj->FOGPageRender();
+    $d = FOGPageRender::make();
+}
+PROBE;
+$refCore = ['fogpagerender' => 'FOG\Base\FOGPageRender'];
+$refGot = fogBareReferences(
+    token_get_all($refSrc),
+    $refCore,
+    [],
+    $skipTokens
+);
+$refLines = [];
+foreach ($refGot as $one) {
+    $refLines[] = $one[0];
+}
+sort($refLines);
+$refWant = [5, 15, 18];
+if ($refLines !== $refWant) {
+    fwrite(
+        STDERR,
+        "FAIL: fogBareReferences() self-check.\n"
+        . '  expected lines: ' . implode(', ', $refWant) . "\n"
+        . '  got:            '
+        . (count($refLines) ? implode(', ', $refLines) : '(none)') . "\n\n"
+        . "  line 5   a DIFFERENT core namespace -- must be reported.\n"
+        . "  line 11  same namespace as the class -- must be EXEMPT, and\n"
+        . "           only is if the namespace RESETS at each block.\n"
+        . "  line 15  global namespace -- must be reported.\n"
+        . "  line 16  already qualified -- must not be reported.\n"
+        . "  line 17  a method call -- must not be reported.\n"
+        . "  line 18  static call on a bare name -- must be reported.\n"
+    );
+    exit(1);
+}
+
 $hits = [];
 $scanned = 0;
 
@@ -317,72 +509,14 @@ foreach ($files as $rel) {
         }
     }
 
-    $count = count($tokens);
-    for ($i = 0; $i < $count; $i++) {
-        if (!is_array($tokens[$i]) || T_STRING !== $tokens[$i][0]) {
-            continue;
-        }
-        $name = $tokens[$i][1];
-        $key = strtolower($name);
-        if (!isset($core[$key]) || isset($known[$key])) {
-            continue;
-        }
-        // Keywords that tokenise as T_STRING and are not class references.
-        if (in_array($key, ['self', 'parent', 'static'], true)) {
-            continue;
-        }
-        // The previous significant token. Skipping whitespace matters: PHP
-        // puts a T_WHITESPACE between `new` and the name, so $tokens[$i - 1]
-        // never sees the T_NEW and a naive scanner misses every `new Foo()`.
-        $prev = $i - 1;
-        while ($prev >= 0
-            && is_array($tokens[$prev])
-            && in_array($tokens[$prev][0], $skipTokens, true)
-        ) {
-            $prev--;
-        }
-        // Already qualified (\Foo or Bar\Foo), a method name, a property, or
-        // a function declaration -- none of these is an unqualified class
-        // reference.
-        if (isset($tokens[$prev])
-            && is_array($tokens[$prev])
-            && in_array(
-                $tokens[$prev][0],
-                [
-                    T_NS_SEPARATOR, T_OBJECT_OPERATOR, T_DOUBLE_COLON,
-                    T_FUNCTION, T_CONST
-                ],
-                true
-            )
-        ) {
-            continue;
-        }
-        $next = $i + 1;
-        while ($next < $count
-            && is_array($tokens[$next])
-            && in_array($tokens[$next][0], $skipTokens, true)
-        ) {
-            $next++;
-        }
-        $isRef = (isset($tokens[$next])
-                && is_array($tokens[$next])
-                && T_DOUBLE_COLON === $tokens[$next][0])
-            || (isset($tokens[$prev])
-                && is_array($tokens[$prev])
-                && in_array(
-                    $tokens[$prev][0],
-                    [T_NEW, T_EXTENDS, T_IMPLEMENTS, T_INSTANCEOF],
-                    true
-                ));
-        if ($isRef) {
-            $hits[] = sprintf(
-                '  %s:%d  %s  ->  use %s;',
-                $rel,
-                $tokens[$i][2],
-                $name,
-                $core[$key]
-            );
-        }
+    foreach (fogBareReferences($tokens, $core, $known, $skipTokens) as $ref) {
+        $hits[] = sprintf(
+            '  %s:%d  %s  ->  use %s;',
+            $rel,
+            $ref[0],
+            $ref[1],
+            $core[strtolower($ref[1])]
+        );
     }
 }
 
