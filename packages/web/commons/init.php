@@ -285,6 +285,18 @@ class Initiator
         $apppath = realpath(__DIR__ . '/../management/languages');
         setlocale(LC_MESSAGES, $lang . ".UTF-8");
         bindtextdomain($domain, $apppath);
+        // The catalogs are UTF-8 and every page declares UTF-8, but gettext
+        // converts a translation from the catalog's charset to the codeset of
+        // LC_CTYPE -- not LC_MESSAGES -- and replaces anything the target
+        // cannot represent with a literal `?`. php-fpm commonly starts with
+        // LC_CTYPE=C, whose codeset is ASCII, so the Chinese dashboard title
+        // reached the browser as `???` -- three bytes 3f3f3f -- even though
+        // the right catalog had been selected and the response declared
+        // charset=UTF-8 (GH-1720).
+        // Binding the domain's output codeset fixes that without depending on
+        // a zh_CN.UTF-8/ja_JP.UTF-8/... locale being generated on the host,
+        // which setting LC_CTYPE would.
+        bind_textdomain_codeset($domain, 'UTF-8');
         textdomain($domain);
     }
 
