@@ -2206,8 +2206,8 @@ class HostManagement extends FOGPage
         // trim((string)...) and falls back to the global setting on '', so
         // the empty string IS "follow the global setting" and needs no
         // second sentinel.
-        $agentDesiredVersion = trim(
-            (string)filter_input(INPUT_POST, 'agentdesiredversion')
+        $agentDesiredVersion = \FOG\Agent\Update::normalize(
+            filter_input(INPUT_POST, 'agentdesiredversion')
         );
         $bte = trim(
             (string)filter_input(INPUT_POST, 'bootTypeExit')

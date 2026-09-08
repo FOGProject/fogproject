@@ -879,8 +879,8 @@ class DashboardPage extends FOGPage
             json_encode(
                 [
                     'total' => $total,
-                    'desired' => trim(
-                        (string)self::getSetting('FOG_AGENT_DESIRED_VERSION')
+                    'desired' => \FOG\Agent\Update::normalize(
+                        self::getSetting('FOG_AGENT_DESIRED_VERSION')
                     ),
                     'versions' => $out,
                     'states' => $states
