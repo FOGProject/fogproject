@@ -175,34 +175,48 @@
     });
   });
 
-  // The netboot transport is a select, not a switch, so it posts its own word
-  // rather than a flag. Same one-key-per-call shape as the switches below: the
-  // helper rewrites a single .fogsettings line per call, so two administrators
-  // changing different settings cannot overwrite each other's.
-  $('.pki-pref-select').on('change', function() {
-    var sel = $(this),
-      wanted = sel.val(),
-      previous = sel.data('previous') || wanted;
-    sel.prop('disabled', true);
-    $.apiCall('post', sel.data('action'), {
+  // The netboot transport is a radio group, not a switch, so it posts its own
+  // word rather than a flag. Same one-key-per-call shape as the switches
+  // below: the helper rewrites a single .fogsettings line per call, so two
+  // administrators changing different settings cannot overwrite each other's.
+  //
+  // `change` fires only on the radio being SELECTED, never on the one being
+  // cleared, so this runs once per click rather than twice.
+  $('.pki-pref-radio').on('change', function() {
+    var hit = $(this),
+      wanted = hit.val(),
+      // The whole group, so the revert below can re-check a sibling and so
+      // both inputs are locked while the call is out. Grouped by name rather
+      // than by data-key: name is what makes them mutually exclusive in the
+      // first place, so it cannot drift from the group the browser sees.
+      group = $('.pki-pref-radio[name="' + hit.attr('name') + '"]'),
+      previous = group.filter(function() {
+        return $(this).data('previous');
+      }).val() || wanted;
+    group.prop('disabled', true);
+    $.apiCall('post', hit.data('action'), {
       action: 'setPreference',
-      key: sel.data('key'),
+      key: hit.data('key'),
       value: wanted
     }, function(err) {
-      sel.prop('disabled', false);
+      group.prop('disabled', false);
       if (err) {
         // Put it back to what the server still holds, for the reason the
         // switches do: this card's whole job is to say what the next installer
         // run will do, and a control that lies about that is worse than none.
-        sel.val(previous);
+        group.filter('[value="' + previous + '"]').prop('checked', true);
         return;
       }
-      sel.data('previous', wanted);
+      group.removeData('previous');
+      hit.data('previous', true);
     });
   }).each(function() {
-    // Remember the starting value, so a rejected change has something to
-    // revert to -- `change` has already replaced it by the time we are called.
-    $(this).data('previous', $(this).val());
+    // Remember which one started checked, so a rejected change has something
+    // to revert to -- the browser has already moved the selection by the time
+    // `change` reaches us.
+    if (this.checked) {
+      $(this).data('previous', true);
+    }
   });
 
   // One handler for all three switches. Each posts only its own key, so two

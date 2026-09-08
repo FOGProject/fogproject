@@ -1322,32 +1322,60 @@ class FOGConfigurationPage extends FOGPage
         // The netboot transport, rendered after the three switches and inside
         // the same card, because it is not a fourth independent preference --
         // it is the same decision the other two steer. Kept out of $meta
-        // because its domain is http|https, so it is a select rather than a
-        // switch, and a checkbox would have to invent which way is "on".
+        // because its domain is http|https rather than yes|no, so a switch
+        // would have to invent which way is "on".
+        //
+        // RADIOS, not a select. Both are honest about the domain, but a select
+        // shows one value and hides the other behind a click, which on a row
+        // whose whole point is "this is a choice between two transports" reads
+        // as a status badge rather than a control -- and at form-select-sm in
+        // a narrow first column it rendered as a bare `http` chip that did not
+        // look interactive at all. Two radios show the domain AND the current
+        // value at once, which is what the three switches beside it do.
+        //
+        // Titled "Force" because that is what writing this key does. The page
+        // cannot set BOOT_url_proto_forced -- it is deliberately absent from
+        // the helper's allowlist (ADR 0036) -- but it does not need to:
+        // _resolveInstallMode() sets it to yes whenever an explicit value is
+        // supplied, so recording a transport here IS forcing it, and a title
+        // that said only "fetches over" hid the irreversible half of that.
         $proto = 'https' === (string) ($prefs['BOOT_url_proto'] ?? 'http')
             ? 'https' : 'http';
         $protoRow = '<tr><td class="text-nowrap">';
-        $protoRow .= '<select class="form-select form-select-sm pki-pref-select"'
-            . ' id="BOOT_url_proto" data-key="BOOT_url_proto"'
-            . ' data-action="' . \Initiator::e($this->formAction) . '"'
-            . ($mayEdit ? '' : ' disabled') . '>';
         foreach (['http' => _('http'), 'https' => _('https')] as $val => $label) {
-            $protoRow .= '<option value="' . \Initiator::e($val) . '"'
-                . ($proto === $val ? ' selected' : '') . '>'
-                . \Initiator::e($label) . '</option>';
+            $protoId = 'BOOT_url_proto_' . $val;
+            $protoRow .= '<div class="form-check form-check-inline mb-0">'
+                . '<input class="form-check-input pki-pref-radio" type="radio"'
+                . ' name="BOOT_url_proto"'
+                . ' id="' . \Initiator::e($protoId) . '"'
+                . ' value="' . \Initiator::e($val) . '"'
+                . ' data-key="BOOT_url_proto"'
+                . ' data-action="' . \Initiator::e($this->formAction) . '"'
+                . ($proto === $val ? ' checked' : '')
+                . ($mayEdit ? '' : ' disabled')
+                . '>'
+                . '<label class="form-check-label" for="' . \Initiator::e($protoId)
+                . '">' . \Initiator::e($label) . '</label>'
+                . '</div>';
         }
-        $protoRow .= '</select></td>';
-        $protoRow .= '<td><label class="form-check-label" for="BOOT_url_proto">'
-            . '<strong>' . _('Netboot fetches boot.php over') . '</strong>'
+        $protoRow .= '</td>';
+        // Pointed at the radio that is ALREADY checked, so the setting name
+        // stays the click target the switches' names are without the click
+        // changing anything -- a title that silently flipped the transport
+        // would be the one misclick ADR 0036 spent a rejected alternative on.
+        $protoRow .= '<td><label class="form-check-label" for="BOOT_url_proto_'
+            . \Initiator::e($proto) . '">'
+            . '<strong>' . _('Force netboot over HTTP or HTTPS') . '</strong>'
             . '<br><code class="small">BOOT_url_proto</code></label></td>';
         $protoRow .= '<td><small class="text-muted">' . _(
             'Separate from the HTTP redirect above, which never applies to the '
-            . 'paths a bootloader fetches for itself. Choosing https here also '
-            . 'FORCES it: the installer stops deriving the transport and keeps '
-            . 'what you set. If iPXE cannot validate the certificate this '
-            . 'server serves, every netboot stops at boot.php and nothing '
-            . 'server-side says why -- so decide it together with the two '
-            . 'settings above, not on its own.'
+            . 'paths a bootloader fetches for itself. Setting either one here '
+            . 'FORCES it -- the installer records BOOT_url_proto_forced and '
+            . 'stops deriving the transport from the two settings above, so it '
+            . 'keeps what you set even if those change. If iPXE cannot '
+            . 'validate the certificate this server serves, every netboot '
+            . 'stops at boot.php and nothing server-side says why -- so decide '
+            . 'it together with the two settings above, not on its own.'
         ) . '</small></td></tr>';
 
         $rows = '';

@@ -303,4 +303,86 @@ $t->check(
     false === strpos($rendered, 'collapsed-card')
 );
 
+/*
+ * 6. The netboot transport row. Two radios rather than a select, because a
+ *    select showed one value and hid the other behind a click -- which on a
+ *    row whose point is "this is a choice between two transports" read as a
+ *    status badge, not a control.
+ *
+ *    Pinned on the rendered row, not on a call site, because the failure is
+ *    entirely in what the browser receives: a radio group that lost its shared
+ *    `name` still renders as two radios and still posts, but both can be
+ *    checked at once and the row stops describing a single setting. The
+ *    ALREADY-checked `for` target is here for a sharper reason -- pointing the
+ *    title at a fixed id would make one click on the setting name silently
+ *    force the transport, which is the exact misclick ADR 0036 spent a
+ *    rejected alternative refusing to expose.
+ */
+$prefsOf = function ($proto, $mayEdit) use ($invoke) {
+    return $invoke('_certificatePreferences', [
+        ['preferences' => ['BOOT_url_proto' => $proto]],
+        $mayEdit
+    ]);
+};
+
+$protoHtml = $prefsOf('http', true);
+$t->check(
+    'the netboot transport is a radio group, not a select',
+    2 === substr_count($protoHtml, 'type="radio"')
+        && false === strpos($protoHtml, 'pki-pref-select')
+        && false === strpos($protoHtml, '<select')
+);
+$t->check(
+    'both radios share one name, so they are mutually exclusive',
+    2 === substr_count($protoHtml, 'name="BOOT_url_proto"')
+);
+$t->check(
+    'exactly one radio is checked',
+    1 === substr_count($protoHtml, ' checked')
+);
+$t->check(
+    'and it is the transport the helper reported',
+    false !== strpos(
+        $protoHtml,
+        'id="BOOT_url_proto_http" value="http" data-key="BOOT_url_proto"'
+    )
+);
+$t->check(
+    'the setting name is worded as the force it performs',
+    false !== strpos($protoHtml, 'Force netboot over HTTP or HTTPS')
+);
+$t->check(
+    'and it says which key records that force',
+    false !== strpos($protoHtml, 'BOOT_url_proto_forced')
+);
+$t->check(
+    'the title label points at the radio already checked, so a click on it '
+        . 'cannot change the transport',
+    false !== strpos($protoHtml, 'for="BOOT_url_proto_http"><strong>')
+);
+
+$protoHttps = $prefsOf('https', true);
+$t->check(
+    'https is what is checked when https is what is set',
+    false !== strpos($protoHttps, 'id="BOOT_url_proto_https" value="https"')
+        && false !== strpos($protoHttps, 'for="BOOT_url_proto_https"><strong>')
+        && 1 === substr_count($protoHttps, ' checked')
+);
+
+// Counted on the radio tags themselves. The three switches above carry
+// `disabled` under the same condition, so a count over the whole body would
+// pass whatever the radios did.
+$radiosDisabled = function ($html) {
+    return preg_match_all('/type="radio"[^>]*\sdisabled/', $html);
+};
+$protoRo = $prefsOf('http', false);
+$t->check(
+    'a caller without system.pki gets both radios disabled',
+    2 === $radiosDisabled($protoRo)
+);
+$t->check(
+    'and the writable render disables neither',
+    0 === $radiosDisabled($protoHtml)
+);
+
 $t->finish();
