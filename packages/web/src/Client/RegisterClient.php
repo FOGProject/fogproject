@@ -97,11 +97,22 @@ class RegisterClient extends FOGClient
                     ->set('pending', "1")
                     ->set('enforce', (string)$enforce)
                     ->set('modules', $modules)
-                    ->addPriMAC($PriMAC)
-                    ->addMAC($MACs);
+                    ->addPriMAC($PriMAC);
                 self::$Host->save();
                 if (!self::$Host->isValid()) {
                     return ['error' => 'db'];
+                }
+                // Only after the save: addMAC() writes the hostMAC rows at
+                // once with the id the object holds, and before save() a new
+                // host holds none, so insertBatch()'s foreign-key guard threw
+                // and the whole registration died -- silently, because the
+                // client protocol answers an uncaught error with an empty
+                // 200. That made a multi-NIC machine unable to register at
+                // all while a single-NIC one worked. The primary is
+                // unaffected -- addPriMAC() stages it and save() writes it
+                // once the id exists.
+                if (count($MACs ?: [])) {
+                    self::$Host->addMAC($MACs);
                 }
                 return ['complete' => true];
             }
