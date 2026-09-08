@@ -3689,6 +3689,10 @@ msgid "Force"
 msgstr "Força"
 
 #, fuzzy
+msgid "Force netboot over HTTPS"
+msgstr "reinicialização"
+
+#, fuzzy
 msgid "Foreign key preparation"
 msgstr "Replicator imagem"
 
@@ -6339,9 +6343,6 @@ msgstr "Evento deve ser uma string"
 msgid "Nested group search failed"
 msgstr "atualização do utilizador falhou"
 
-msgid "Netboot fetches boot.php over"
-msgstr ""
-
 msgid "Network Information"
 msgstr "Informações de rede"
 
@@ -8593,7 +8594,7 @@ msgstr ""
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
 msgstr ""
 
-msgid "Separate from the HTTP redirect above, which never applies to the paths a bootloader fetches for itself. Choosing https here also FORCES it: the installer stops deriving the transport and keeps what you set. If iPXE cannot validate the certificate this server serves, every netboot stops at boot.php and nothing server-side says why -- so decide it together with the two settings above, not on its own."
+msgid "Separate from the HTTP redirect above, which never applies to the paths a bootloader fetches for itself -- netboot is excluded from that redirect even when it is on. Left off, FOG derives the transport on every run from the two settings above. Turning it on records BOOT_url_proto_forced and stops that: https is kept even if those settings later change. If iPXE cannot validate the certificate this server serves, every netboot stops at boot.php and nothing server-side says why -- and the machines it stops are the ones that cannot fix themselves. Turning it back off returns to deriving."
 msgstr ""
 
 msgid "Serial Number"
@@ -11979,6 +11980,10 @@ msgstr "Não foi possível ler arquivo temporário"
 msgid "could not be killed"
 msgstr "Não foi possível ler arquivo temporário"
 
+#, php-format
+msgid "currently %1$s (%2$s)"
+msgstr ""
+
 msgid "cycles since last line"
 msgstr ""
 
@@ -11986,6 +11991,15 @@ msgid "day"
 msgstr ""
 
 msgid "deploy task occurs for it"
+msgstr ""
+
+msgid "derived"
+msgstr ""
+
+msgid "derived from the embedded-CA setting above"
+msgstr ""
+
+msgid "derived from the public CA setting above"
 msgstr ""
 
 msgid "difference(s) from the manifest. Nothing was changed -- these are reported, not repaired."
@@ -12081,6 +12095,10 @@ msgid "for user"
 msgstr ""
 
 #, fuzzy
+msgid "forced"
+msgstr "Força"
+
+#, fuzzy
 msgid "foreign key(s) could not be added"
 msgstr "Não foi possível ler arquivo temporário"
 
@@ -12168,12 +12186,6 @@ msgstr "1 hora"
 #, fuzzy
 msgid "hr"
 msgstr "Aqui"
-
-msgid "http"
-msgstr ""
-
-msgid "https"
-msgstr ""
 
 #, fuzzy
 msgid "iPXE Config Update Fail"
@@ -13183,10 +13195,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Files do not match on server"
 #~ msgstr "Eu não sou o servidor web nevoeiro"
-
-#, fuzzy
-#~ msgid "Force Reboot"
-#~ msgstr "reinicialização"
 
 #~ msgid "Green FOG"
 #~ msgstr "FOG verde"

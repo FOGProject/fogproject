@@ -1321,33 +1321,76 @@ class FOGConfigurationPage extends FOGPage
         ];
         // The netboot transport, rendered after the three switches and inside
         // the same card, because it is not a fourth independent preference --
-        // it is the same decision the other two steer. Kept out of $meta
-        // because its domain is http|https, so it is a select rather than a
-        // switch, and a checkbox would have to invent which way is "on".
+        // it is the same decision the other two steer.
+        //
+        // A SWITCH, like the other three, and the domain it switches is not
+        // http|https. The transport is DERIVED on every run from the two
+        // settings above unless somebody has forced it, so the real question
+        // this row asks is "forced to https, or left to derive" -- which is a
+        // yes/no. Rendering the raw http|https domain instead was the mistake:
+        // both of those values set BOOT_url_proto_forced=yes when the
+        // installer reads them, so a control offering only those two was a
+        // one-way door. A server deriving https from a public certificate got
+        // pinned by the first interaction and never derived again.
+        //
+        // Off therefore posts `auto`, which clears the force rather than
+        // writing a transport -- see the helper's set-preference verb.
+        //
+        // Forcing plain http is deliberately NOT offered here. It is the rare
+        // case (a public certificate iPXE still cannot validate), it is the
+        // direction that breaks netboot rather than the one that repairs it,
+        // and installfog.sh --netboot-proto http still does it.
         $proto = 'https' === (string) ($prefs['BOOT_url_proto'] ?? 'http')
             ? 'https' : 'http';
+        $protoForced = 'yes' === (string) ($prefs['BOOT_url_proto_forced'] ?? 'no');
+        // Checked only when https was CHOSEN. A derived https is the same
+        // value and a different fact: nobody forced it, and it will follow the
+        // certificate if that changes.
+        $protoOn = $protoForced && 'https' === $proto;
+        // Why it is what it is, in the page's own words. Recomputed from the
+        // two steering keys rather than reported by the helper, because they
+        // are the same two switches rendered directly above this row -- so the
+        // sentence and the controls it refers to cannot disagree.
+        if ($protoForced) {
+            $protoWhy = _('forced');
+        } elseif ('yes' === (string) ($prefs['PKI_web_cert_publicly_trusted'] ?? 'no')) {
+            $protoWhy = _('derived from the public CA setting above');
+        } elseif ('yes' === (string) ($prefs['BOOT_rebuild_ipxe_with_my_ca'] ?? 'no')) {
+            $protoWhy = _('derived from the embedded-CA setting above');
+        } else {
+            $protoWhy = _('derived');
+        }
         $protoRow = '<tr><td class="text-nowrap">';
-        $protoRow .= '<select class="form-select form-select-sm pki-pref-select"'
+        $protoRow .= '<div class="form-check form-switch mb-0">';
+        $protoRow .= '<input class="form-check-input pki-pref" type="checkbox"'
             . ' id="BOOT_url_proto" data-key="BOOT_url_proto"'
             . ' data-action="' . \Initiator::e($this->formAction) . '"'
-            . ($mayEdit ? '' : ' disabled') . '>';
-        foreach (['http' => _('http'), 'https' => _('https')] as $val => $label) {
-            $protoRow .= '<option value="' . \Initiator::e($val) . '"'
-                . ($proto === $val ? ' selected' : '') . '>'
-                . \Initiator::e($label) . '</option>';
-        }
-        $protoRow .= '</select></td>';
+            . ($protoOn ? ' checked' : '')
+            . ($mayEdit ? '' : ' disabled')
+            . '>';
+        $protoRow .= '</div></td>';
         $protoRow .= '<td><label class="form-check-label" for="BOOT_url_proto">'
-            . '<strong>' . _('Netboot fetches boot.php over') . '</strong>'
-            . '<br><code class="small">BOOT_url_proto</code></label></td>';
+            . '<strong>' . _('Force netboot over HTTPS') . '</strong>'
+            . '<br><code class="small">BOOT_url_proto</code>'
+            . ' <span class="small text-muted">&middot; '
+            . sprintf(
+                /* translators: 1: http or https, 2: why that value is in effect */
+                _('currently %1$s (%2$s)'),
+                \Initiator::e($proto),
+                \Initiator::e($protoWhy)
+            )
+            . '</span></label></td>';
         $protoRow .= '<td><small class="text-muted">' . _(
             'Separate from the HTTP redirect above, which never applies to the '
-            . 'paths a bootloader fetches for itself. Choosing https here also '
-            . 'FORCES it: the installer stops deriving the transport and keeps '
-            . 'what you set. If iPXE cannot validate the certificate this '
-            . 'server serves, every netboot stops at boot.php and nothing '
-            . 'server-side says why -- so decide it together with the two '
-            . 'settings above, not on its own.'
+            . 'paths a bootloader fetches for itself -- netboot is excluded '
+            . 'from that redirect even when it is on. Left off, FOG derives '
+            . 'the transport on every run from the two settings above. Turning '
+            . 'it on records BOOT_url_proto_forced and stops that: https is '
+            . 'kept even if those settings later change. If iPXE cannot '
+            . 'validate the certificate this server serves, every netboot '
+            . 'stops at boot.php and nothing server-side says why -- and the '
+            . 'machines it stops are the ones that cannot fix themselves. '
+            . 'Turning it back off returns to deriving.'
         ) . '</small></td></tr>';
 
         $rows = '';
@@ -2175,7 +2218,12 @@ class FOGConfigurationPage extends FOGPage
         // re-checks against that key's own literal pattern, and that check is
         // the boundary, because .fogsettings is sourced as shell by root.
         if ('BOOT_url_proto' === $key) {
-            $value = 'https' === $raw ? 'https' : 'http';
+            // Off is `auto`, never `http`. The switch means "force https", so
+            // its off state is the absence of a force -- and writing `http`
+            // would instead PIN http, which is a different setting and the one
+            // that cannot be undone from this page. The helper turns `auto`
+            // into BOOT_url_proto_forced=no.
+            $value = $raw ? 'https' : 'auto';
         } else {
             $value = $raw ? 'yes' : 'no';
         }

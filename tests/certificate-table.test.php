@@ -303,4 +303,91 @@ $t->check(
     false === strpos($rendered, 'collapsed-card')
 );
 
+/*
+ * 6. The netboot transport row. A SWITCH, like the three above it, because the
+ *    yes/no it actually asks is "forced to https, or left to derive" -- not
+ *    which of two transports, which is what it used to render.
+ *
+ *    That distinction is the bug, not a preference. _resolveNetbootProto()
+ *    derives the transport on every run UNLESS BOOT_url_proto_forced is yes,
+ *    and both http and https set that flag when the installer reads them. So a
+ *    control offering only those two was a one-way door: a server deriving
+ *    https from a public certificate was pinned by the first interaction and
+ *    never derived again. Off posts `auto`, which clears the force.
+ *
+ *    Checked state and displayed state are asserted SEPARATELY at each of the
+ *    four combinations, because they are different facts that happen to
+ *    coincide in one of them: derived-https and forced-https are the same
+ *    transport and only one of them is a choice.
+ */
+$prefsOf = function (array $prefs, $mayEdit = true) use ($invoke) {
+    return $invoke('_certificatePreferences', [['preferences' => $prefs], $mayEdit]);
+};
+// Scoped to the transport input's own tag. `checked` appears on whichever of
+// the other three switches is on, so a substring test over the whole body
+// would answer about the wrong control.
+$switchOn = function ($html) {
+    return 1 === preg_match('/id="BOOT_url_proto"[^>]*\schecked/', $html);
+};
+
+$derivedHttp = $prefsOf(['BOOT_url_proto' => 'http', 'BOOT_url_proto_forced' => 'no']);
+$t->check(
+    'the netboot transport is a switch, not a select or a radio group',
+    false !== strpos($derivedHttp, 'id="BOOT_url_proto" data-key="BOOT_url_proto"')
+        && false === strpos($derivedHttp, '<select')
+        && false === strpos($derivedHttp, 'type="radio"')
+);
+$t->check(
+    'it is the fourth switch, sharing the class the other three post through',
+    4 === substr_count($derivedHttp, 'class="form-check-input pki-pref"')
+        && 4 === substr_count($derivedHttp, 'form-check form-switch')
+);
+$t->check(
+    'the setting is named for the force it performs',
+    false !== strpos($derivedHttp, 'Force netboot over HTTPS')
+);
+$t->check(
+    'a derived http is off, and says it was derived',
+    !$switchOn($derivedHttp)
+        && false !== strpos($derivedHttp, 'currently http (derived)')
+);
+
+// The case the old control could not express: https is in effect, and nobody
+// chose it. A switch that read the transport alone would render this ON and
+// then pin it the moment anyone touched it.
+$derivedHttps = $prefsOf([
+    'BOOT_url_proto' => 'https',
+    'BOOT_url_proto_forced' => 'no',
+    'PKI_web_cert_publicly_trusted' => 'yes'
+]);
+$t->check(
+    'a DERIVED https is off, not on -- nobody forced it',
+    !$switchOn($derivedHttps)
+);
+$t->check(
+    'and it names the setting it was derived from',
+    false !== strpos($derivedHttps, 'currently https (derived from the public CA setting above)')
+);
+
+$forcedHttps = $prefsOf(['BOOT_url_proto' => 'https', 'BOOT_url_proto_forced' => 'yes']);
+$t->check(
+    'a FORCED https is the only state that renders on',
+    $switchOn($forcedHttps)
+        && false !== strpos($forcedHttps, 'currently https (forced)')
+);
+
+// Reachable from the CLI, never from this page -- but it still has to render
+// truthfully when the installer put it there.
+$forcedHttp = $prefsOf(['BOOT_url_proto' => 'http', 'BOOT_url_proto_forced' => 'yes']);
+$t->check(
+    'a forced http renders off and says it was forced',
+    !$switchOn($forcedHttp)
+        && false !== strpos($forcedHttp, 'currently http (forced)')
+);
+
+$t->check(
+    'a caller without system.pki gets all four switches disabled',
+    4 === substr_count($prefsOf(['BOOT_url_proto' => 'http'], false), ' disabled')
+);
+
 $t->finish();
