@@ -373,6 +373,15 @@ $scenarios = [
         'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
         'settings' => ['FOG_BOOT_EXIT_TYPE' => 'sanboot'],
     ],
+    // The sanboot string is NOT the same on both platforms: `--drive 0` means
+    // "first disk carrying \EFI\Boot\bootx64.efi" on UEFI and "int13 drive
+    // 0x00, the first floppy" on BIOS, so the EFI probe is emitted only for
+    // EFI. Pin both, or a future edit collapses them back to one string and
+    // legacy clients go back to failing an int13 floppy read on every exit.
+    'exit-sanboot-efi' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'efi'],
+        'settings' => ['FOG_EFI_BOOT_EXIT_TYPE' => 'sanboot'],
+    ],
     'exit-exit' => [
         'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
         'settings' => ['FOG_BOOT_EXIT_TYPE' => 'exit'],

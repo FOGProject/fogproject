@@ -673,9 +673,35 @@ class IpxeBootMenu extends BootMenuBase
          * could add additional linux detections per distro like `sanboot --drive 0 --no-describe --extra \EFI\rocky` and EFI\centos and EFI\debian etc. but need an || entry for every distro.
          * If the --drive 0 option fails to find a boot option it then just tries the first 3 found local drives sequentially, after that it will fail if it hasn't booted.
          * See also https://ipxe.org/cmd/console and https://ipxe.org/cmd/sanboot
+         *
+         * `--drive 0` is a UEFI-only idea. Under BIOS, iPXE passes the number
+         * straight to int13, where 0x00 is the first FLOPPY and hard disks
+         * start at 0x80 -- so a legacy client spends its first exit attempt
+         * trying to boot a floppy that is not there:
+         *
+         *   Booting from SAN device 0x00
+         *   Boot from SAN device 0x00 failed: Input/output error
+         *   Booting from SAN device 0x80
+         *
+         * That is a regression, not a design: the string was
+         * `--drive 0x80 || 0x81 || 0x82` until 558368119 (2024-07) prepended
+         * the EFI probe for every platform. The `|| 0x80` behind it means the
+         * machine usually still boots, which is why it went unnoticed -- but
+         * the failed int13 attempt is not free on every firmware, and the
+         * error it prints sends people hunting a disk fault that is not there.
+         *
+         * Gate on platform, not arch, and only where the platform is
+         * positively known NOT to be EFI -- ${platform} is absent from some
+         * older chain URLs, and EFI is the safe assumption when it is missing
+         * (an EFI client handed the BIOS string loses the \EFI\Boot probe;
+         * a BIOS client handed the EFI string is what this fixes).
         */
-        
-        $sanboot = 'console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82';
+
+        $sanbootDrives = 'sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82';
+        $sanboot = 'console && sanboot --drive 0 --no-describe || ' . $sanbootDrives;
+        if (isset($_REQUEST['platform']) && $_REQUEST['platform'] != 'efi') {
+            $sanboot = 'console && ' . $sanbootDrives;
+        }
         $grub = [
             'basic' => sprintf(
                 $grubChain,
