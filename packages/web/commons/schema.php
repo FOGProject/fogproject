@@ -11698,3 +11698,55 @@ $this->schema[] = [
     "ALTER TABLE `hosts` "
     . "ADD COLUMN IF NOT EXISTS `hostAgentUpdateState` varchar(16) NOT NULL DEFAULT ''",
 ];
+// 436
+$this->schema[] = [
+    // Repair multicast sessions that were written with no state at all.
+    //
+    // Step 386 converted `multicastSessions`.`msState` from the integer 0 to
+    // NULL along with eight other columns, reading the 0 as the "no
+    // reference" sentinel it is everywhere else. It was not one here.
+    // FOGMulticastManager selects the sessions it may start with
+    // `stateID IN getQueuedStates()`, and that list is `range(0, 2)` -- the
+    // 0 is deliberately in it, and it is what "created, not yet started"
+    // meant. A NULL matches no IN list, so from that step until the fix in
+    // this commit every session created was invisible to the daemon: the
+    // tasks were queued, the machines PXE booted and sat waiting, and no
+    // udp-sender was ever started. The Active Multicast Tasks grid could not
+    // show those rows either -- it joins msState to taskStates -- so there
+    // was no button to cancel them with. Reported in forum topic 18238.
+    //
+    // The write path is fixed in Group, Host and ImageManagement. This is
+    // for the rows an install is already carrying, which no code change
+    // reaches.
+    //
+    // TWO OUTCOMES, decided by whether anything is still waiting on the
+    // session, because the two cases want opposite answers:
+    //
+    //   still has an active task -- the administrator asked for this and
+    //   never canceled it, and its machines may be sitting in FOS right now
+    //   waiting for a stream. Queued, so the daemon does what was asked.
+    //
+    //   nothing active left -- the tasks were canceled, completed or reaped
+    //   out from under it. Nothing will ever join, so Canceled: an honest
+    //   record that it did not run, and one the grid can finally show.
+    //
+    // Queuing EVERY stranded row instead would start a sender for sessions
+    // whose moment has passed, unattended, on the first page load after an
+    // upgrade. Canceling every row instead would throw away exactly the
+    // sessions someone is waiting on -- which on the install that reported
+    // this is a room of 36 machines.
+    //
+    // Ordered so the cancel arm cannot see rows the queue arm just wrote:
+    // it is scoped to `msState IS NULL`, and the queue arm has already
+    // taken its rows out of that set.
+    "UPDATE `multicastSessions` "
+    . "SET `msState` = 1 "
+    . "WHERE `msState` IS NULL "
+    . "AND `msID` IN ("
+    . "SELECT DISTINCT `a`.`msID` "
+    . "FROM `multicastSessionsAssoc` `a` "
+    . "INNER JOIN `tasks` `t` ON `t`.`taskID` = `a`.`tID` "
+    . "WHERE `t`.`taskStateID` IN (1, 2, 3)"
+    . ")",
+    "UPDATE `multicastSessions` SET `msState` = 5 WHERE `msState` IS NULL",
+];
