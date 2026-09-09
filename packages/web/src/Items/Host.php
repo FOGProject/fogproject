@@ -1179,6 +1179,33 @@ class Host extends FOGController
             if ($TaskType->isSnapinTasking) {
                 switch ($TaskType->id) {
                     case TaskType::SINGLE_SNAPIN:
+                        // CONVERTS an existing task; never creates one.
+                        //
+                        // The conversion exists because a host has one task
+                        // row and several queued snapins: asking for a second,
+                        // different snapin while one is already queued leaves
+                        // a task that is no longer about a single snapin, so
+                        // it is relabeled All Snapins.
+                        //
+                        // None of that is true of a host with no live task,
+                        // and this arm used to run for one anyway. $Task is
+                        // then an empty object, no snapin is queued, so
+                        // $curSnapins is empty, in_array() is false, and three
+                        // fields plus a save() INSERT a task typed All Snapins
+                        // and named "Multiple Snapin -- orig Single" -- for a
+                        // first, ordinary, single-snapin task. Being valid, it
+                        // then skips _createTasking() below, so the type is
+                        // never corrected. Only the one snapin the admin
+                        // picked is ever queued, so the task RUNS right and
+                        // reads wrong, in the list and in the audit trail.
+                        // Reported in forum topic 18238.
+                        //
+                        // 1.5 guarded the whole block on $Task->isValid()
+                        // (host.class.php:1359); e959f9d70 lost the guard
+                        // while flattening the surrounding branches in 2018.
+                        if (!$Task->isValid()) {
+                            break;
+                        }
                         $find = [
                             'jobID' => $this->get('snapinjob')->get('id'),
                             'stateID' => self::fastmerge(
@@ -1193,27 +1220,8 @@ class Host extends FOGController
                         );
                         if (!in_array($deploySnapins, $curSnapins)) {
                             $Task
-                                ->set('hostID', $this->get('hostID'))
                                 ->set('name', _('Multiple Snapin -- orig Single'))
                                 ->set('typeID', TaskType::ALL_SNAPINS);
-                            // A task reached here is normally a NEW one --
-                            // the branch above cancels any live non-imaging
-                            // task and replaces it with an empty object, and
-                            // a live imaging task has already thrown. Three
-                            // fields and a save() therefore INSERTS, and
-                            // taskStateID was not among them: save()'s
-                            // optional-*id branch filled it with 0, which is
-                            // not a taskStates row, so the task never showed
-                            // in Active Tasks and never ran. Schema step 389
-                            // turns that into a visible 1452 rather than a
-                            // silent dud; this is the actual fix.
-                            //
-                            // Guarded rather than unconditional so that an
-                            // existing task being converted keeps whatever
-                            // state it is already in.
-                            if (!$Task->get('stateID')) {
-                                $Task->set('stateID', self::getQueuedState());
-                            }
                             if (!$Task->save()) {
                                 $serverFault = true;
                                 throw new \Exception(_('Unable to update task'));
