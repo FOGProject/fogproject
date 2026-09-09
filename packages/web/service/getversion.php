@@ -63,8 +63,14 @@ if (isset($_REQUEST['client'])) {
      *
      * mclvm: multicast tasks emit per-LV LVM image files in sidecar
      * order (fos docs/adr/0007).
+     *
+     * mcstreamid: every multicast stream is prefixed with a fixed-width
+     * header naming the image file it carries, so a receiver can refuse
+     * a stream that is not the one it asked for (issue #1742). A client
+     * that sees this token strips and checks the header; one that does
+     * not must not, or it would eat 128 bytes of payload.
      */
-    $ver = 'mclvm';
+    $ver = 'mclvm mcstreamid';
 } elseif (isset($_REQUEST['url'])) {
     FOGCore::checkAuthAndCSRF();
     $url = $_REQUEST['url'];
