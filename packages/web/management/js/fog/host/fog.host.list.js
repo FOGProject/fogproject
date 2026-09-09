@@ -64,8 +64,14 @@
             // full name, and Add then CREATED a group called "Something"
             // because an unmatched term is sent in groups_new. Two of the
             // three groups on the reporter's own server were named that way.
-            // Comma still separates, so pasting a list of names works.
-            tokenSeparators: [','],
+            // Comma and semicolon separate, so pasting a list of names
+            // works either way round. Same trade-off as the space in
+            // miniature -- a group actually named "Lab;Annex" cannot be
+            // TYPED whole -- but it is recoverable where the space was not:
+            // the search runs on every keystroke before the separator, so
+            // the real group is already in the list to be picked, and Tab
+            // or Enter below commits the whole term without one.
+            tokenSeparators: [',', ';'],
             ajax: {
                 url: function(params) {
                     return '../group/names/name='
@@ -119,6 +125,42 @@
                 }
                 return $result;
             }
+        });
+
+        // TAB COMMITS THE HIGHLIGHTED OPTION, the way Enter already does.
+        //
+        // Without this Tab throws the term away: select2 binds its own
+        // keydown on the search field, closes the dropdown on Tab and clears
+        // what you typed, so a name typed and tabbed simply vanished.
+        // Measured before the change -- type "Lab Room Two", press Tab, and
+        // the select holds no option and the field is empty.
+        //
+        // CAPTURE phase, because select2's handler is bound first and a
+        // bubbling one would only run after it had already closed. And the
+        // key is re-dispatched as Enter rather than the option being
+        // selected directly: select2 hangs no data on the results <li>
+        // ($(li).data('data') is undefined here), so its own Enter path is
+        // the available API and reuses the code Enter is already tested on.
+        //
+        // Shift+Tab is left alone so it still moves focus backwards out of
+        // the control, and with nothing highlighted Tab keeps its normal
+        // meaning. The listener needs no teardown: it is on the container
+        // select2 builds, which select2('destroy') removes when the modal
+        // closes.
+        groupModalSelect.next('.select2-container').each(function() {
+            this.addEventListener('keydown', function(e) {
+                if (e.key !== 'Tab' || e.shiftKey) {
+                    return;
+                }
+                if (!groupModal.find('.select2-results__option--highlighted').length) {
+                    return;
+                }
+                e.preventDefault();
+                e.stopPropagation();
+                $(e.target).trigger(
+                    $.Event('keydown', {which: 13, keyCode: 13, key: 'Enter'})
+                );
+            }, true);
         });
 
         // One submit for both directions. The only thing that differs on the
