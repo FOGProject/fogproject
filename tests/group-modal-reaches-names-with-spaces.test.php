@@ -37,9 +37,26 @@
  *    <option value="Something Dark"> unselected and <option value="1">
  *    selected.
  *
- * Both are pinned as the DEFINITION that decides the behavior -- the option
- * value select2 is constructed with, and the selector the submit reads --
- * not as a mention of either name.
+ * 3. THE DROPDOWN RENDERED BEHIND THE MODAL. Reported straight after the
+ *    first two, with a screenshot of "som" typed and no list. select2
+ *    appends its dropdown to <body> at z-index 1051; a Bootstrap 5 modal is
+ *    1055. So the list was built, populated and correct -- and painted
+ *    underneath the dialog. Measured: with "som" typed,
+ *    .select2-results__option held "Something DarksideMilk", and
+ *    elementFromPoint() at the middle of the first row returned
+ *    P.form-text -- the modal's own help paragraph. Nothing errors, and it
+ *    is indistinguishable from a search that matched nothing.
+ *
+ *    `dropdownParent: groupModal` puts it inside the dialog, which is what
+ *    the .fog-select2 loop in fog.common.js already does for every other
+ *    select in a modal. Raising the z-index would not do: this control is
+ *    built without `theme`, so it is select2-container--default and the
+ *    bootstrap-5 theme's 1056 rule never matches it, and a modal is a
+ *    stacking context regardless.
+ *
+ * All three are pinned as the DEFINITION that decides the behavior -- the
+ * option values select2 is constructed with, and the selector the submit
+ * reads -- not as a mention of any of their names.
  *
  * Usage: php tests/group-modal-reaches-names-with-spaces.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -112,6 +129,18 @@ $t->check(
     0 === preg_match(
         '#groupModalSelect\s*\.\s*find\(\s*[\'"]option[\'"]\s*\)#',
         $code
+    )
+);
+
+// -- 3. where the dropdown is parented ------------------------------------
+// Anchored to the select2 CONSTRUCTION, not to the string anywhere in the
+// file: dropdownParent only does anything as an option on this call.
+$t->check(
+    'the dropdown is parented to the modal, not to <body>',
+    1 === preg_match(
+        '#groupModalSelect\s*\.\s*select2\(\s*\{.*?'
+        . 'dropdownParent:\s*groupModal\b#s',
+        substr($code, 0, (int)strpos($code, 'submitMembership'))
     )
 );
 
