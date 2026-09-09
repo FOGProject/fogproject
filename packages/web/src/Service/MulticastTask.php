@@ -243,6 +243,13 @@ class MulticastTask extends FOGService
      * Byte width of STREAM_HEADER_FORMAT once expanded. FOS reads exactly
      * this many bytes, so the two must move together.
      *
+     * The width belongs to the record VERSION, because nothing on the wire
+     * carries it: a FOGMC1 record is 128 bytes, on this side and on FOS's.
+     * So changing the width means changing the magic as well. A client that
+     * meets a version it does not read refuses and names it; one that meets
+     * an unannounced width reads the wrong number of bytes and fails
+     * somewhere inside the decompressor instead. fos issue #179.
+     *
      * @var int
      */
     const STREAM_HEADER_BYTES = 128;

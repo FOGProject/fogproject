@@ -241,8 +241,21 @@ function idsFor($dir, $type, $format, $osid = 9)
 $headerBytes = constant('FOG\\Service\\MulticastTask::STREAM_HEADER_BYTES');
 /** @var string $headerFormat */
 $headerFormat = constant('FOG\\Service\\MulticastTask::STREAM_HEADER_FORMAT');
+/*
+ * THE CONTRACT WITH FOS. Nothing on the wire carries the width, so a
+ * FOGMC1 record is 128 bytes on both sides by agreement and by nothing
+ * else. Pinned as a PAIR, not as a number: if you are here because this
+ * failed, bump the magic too, in this constant and in FOS's
+ * checkStreamIdentity(). An old client then refuses FOGMC2 by name instead
+ * of reading the wrong number of bytes off a record it cannot frame.
+ * fos issue #179.
+ */
 check(
-    'STREAM_HEADER_BYTES is 128',
+    'the record magic is FOGMC1',
+    0 === strpos($headerFormat, 'FOGMC1 ')
+);
+check(
+    'a FOGMC1 record is 128 bytes -- change the width, change the magic',
     128 === $headerBytes
 );
 check(
