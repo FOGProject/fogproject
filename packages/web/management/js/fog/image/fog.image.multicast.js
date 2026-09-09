@@ -48,7 +48,7 @@
             // dropdownParent, or this re-init undoes the one
             // fog.common.js gave #image at page load. The select carries
             // fog-select2, so the shared loop already anchored its dropdown
-            // to this modal; re-initialising without the option re-parents
+            // to this modal; re-initializing without the option re-parents
             // it to <body> at z-index 1051, under the modal's 1055. Measured:
             // before the re-init the topmost element over the open dropdown
             // is select2's own search field, after it the modal's help

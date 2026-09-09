@@ -25,7 +25,7 @@
  *    paragraph.
  *  - fog.image.multicast.js -- #image DOES carry fog-select2, so the shared
  *    loop anchors it correctly at page load, and then the success handler
- *    re-initialises it WITHOUT the option, which re-parents the dropdown to
+ *    re-initializes it WITHOUT the option, which re-parents the dropdown to
  *    <body>. Measured in the same harness: before the re-init the topmost
  *    element over the open dropdown is select2's own search field, after it
  *    the modal's help paragraph. So the first session creates fine and every
