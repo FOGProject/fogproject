@@ -761,10 +761,24 @@ class Group extends FOGController
                     ->set('logpath', $Image->get('path'))
                     ->set('image', $Image->get('id'))
                     ->set('interface', $StorageNode->get('interface'))
-                    // A session that has not started names no state. NULL
-                    // rather than 0 since schema step 386 -- taskStates
-                    // has no row with tsID 0.
-                    ->set('stateID', null)
+                    // QUEUED, and never NULL or 0. FOGMulticastManager
+                    // selects sessions with `stateID IN getQueuedStates()`,
+                    // which is range(0, 2) -- so the 0 this used to write was
+                    // matched by that list and the session was picked up.
+                    // Schema step 386 read the 0 as the "no reference"
+                    // sentinel it is everywhere else and made it NULL, and a
+                    // NULL matches no IN list: the session was created, its
+                    // tasks were queued, the machines booted and waited, and
+                    // no udp-sender was ever started. The Active Multicast
+                    // Tasks grid could not show it either -- it joins
+                    // msState to taskStates -- so there was no way to cancel
+                    // it from the UI. Reported in forum topic 18238.
+                    //
+                    // 1 is a real taskStates row, which is what the column's
+                    // foreign key wants, and "queued" is what an unstarted
+                    // session actually IS. The daemon moves it to In-Progress
+                    // when it starts the sender.
+                    ->set('stateID', self::getQueuedState())
                     ->set('starttime', $now->format('Y-m-d H:i:s'))
                     ->set('percent', 0)
                     ->set('isDD', $Image->get('imageTypeID'))
