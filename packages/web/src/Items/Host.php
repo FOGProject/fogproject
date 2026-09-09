@@ -1548,10 +1548,13 @@ class Host extends FOGController
                         ->set('logpath', $this->getImage()->get('path'))
                         ->set('image', $this->getImage()->get('id'))
                         ->set('interface', $StorageNode->get('interface'))
-                        // A session that has not started names no state. NULL
-                        // rather than 0 since schema step 386 -- taskStates
-                        // has no row with tsID 0.
-                        ->set('stateID', null)
+                        // QUEUED, never NULL or 0. Same reason as
+                        // Group::createImagePackage()'s session: the
+                        // daemon selects on stateID IN getQueuedStates(),
+                        // and the NULL schema step 386 introduced matches
+                        // no IN list, so nothing ever started the sender.
+                        // Forum topic 18238.
+                        ->set('stateID', self::getQueuedState())
                         ->set('starttime', self::niceDate()->format('Y-m-d H:i:s'))
                         ->set('percent', 0)
                         ->set('isDD', $this->getImage()->get('imageTypeID'))
