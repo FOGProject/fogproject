@@ -136,6 +136,11 @@ $emit = static function (
         FogTestHarness::setStatic($cls, 'FOGUser', $user);
     }
     FogTestHarness::setStatic('Authorization', '_permCache', [1 => $perms]);
+    // The builder APPENDS its modal to a static the card drains later, so
+    // without this every emit in this file would stack onto the last one's
+    // leftovers and the "no buttons means no modal" checks would read a
+    // modal an earlier call had left behind.
+    FogTestHarness::setStatic(HostManagement::class, '_infoCardModals', '');
 
     return (string)HostManagement::renderQuickTaskActions(
         $node,
@@ -143,6 +148,18 @@ $emit = static function (
         $typeIds,
         $target
     );
+};
+
+/**
+ * The modal the last $emit() built, taken from where it is parked.
+ *
+ * @return string
+ */
+$deferred = static function () {
+    $prop = new \ReflectionProperty(HostManagement::class, '_infoCardModals');
+    $prop->setAccessible(true);
+
+    return (string)$prop->getValue();
 };
 
 $hostTypes = [TaskType::DEPLOY, TaskType::CAPTURE];
@@ -237,6 +254,9 @@ $field = static function (array $buttons, $type, $field) {
 };
 
 $markup = $emit(['*'], 'host', $hostTypes);
+// Read before the next $emit() below clears it -- the store holds one
+// render, not a history.
+$markupModal = $deferred();
 $hostButtons = $parse($markup);
 $groupButtons = $parse(
     $emit(['*'], 'group', $groupTypes, 'all 12 hosts in group "Lab"')
@@ -324,27 +344,28 @@ $t->check(
 // modal that failed to render would leave the script showing nothing and
 // firing nothing -- a dead button, not an unguarded one, but still broken.
 $t->check(
-    'a confirmation modal ships with the buttons',
-    false !== strpos($markup, 'id="quicktask-confirm-modal"')
+    'a confirmation modal is built alongside the buttons',
+    false !== strpos($markupModal, 'id="quicktask-confirm-modal"')
 );
 $t->check(
     'it has the body the script writes the confirmation into',
-    false !== strpos($markup, 'id="quicktask-confirm-text"')
+    false !== strpos($markupModal, 'id="quicktask-confirm-text"')
 );
 $t->check(
     'it can be dismissed without tasking anything',
-    false !== strpos($markup, 'id="quicktask-confirm-cancel"')
-    && false !== strpos($markup, 'data-bs-dismiss="modal"')
+    false !== strpos($markupModal, 'id="quicktask-confirm-cancel"')
+    && false !== strpos($markupModal, 'data-bs-dismiss="modal"')
 );
 $t->check(
     'and it has the commit button the script fires on',
-    false !== strpos($markup, 'id="quicktask-confirm-go"')
+    false !== strpos($markupModal, 'id="quicktask-confirm-go"')
 );
 // No modal without buttons: a page whose task types are all gone emits
 // neither, rather than a confirmation for nothing.
+$emit(['*'], 'host', [9998, 9999]);
 $t->check(
     'no buttons means no modal either',
-    false === strpos($emit(['*'], 'host', [9998, 9999]), 'quicktask-confirm-modal')
+    '' === $deferred()
 );
 $t->check(
     'a task type this server has deleted simply loses its button',
@@ -355,6 +376,89 @@ $t->check(
 $t->check(
     'and a page whose every type is gone emits nothing at all',
     '' === $emit(['*'], 'host', [9998, 9999])
+);
+
+// -------------------------------------------------------------------------
+// 2c. Where the modal is emitted. THE BUG THIS SECTION EXISTS FOR.
+// -------------------------------------------------------------------------
+// #edit-info-card is position:sticky WITH a z-index (fog-default-ui.scss),
+// which makes it a stacking context: every z-index inside it is resolved
+// against the card's siblings, not against the page. A .modal emitted in
+// there is therefore painted BELOW the modal backdrop (1050) and below the
+// app header (1034) however high its own z-index is -- so the dialog appears
+// behind the header, and the backdrop is the topmost element over Cancel and
+// Create, which swallows both clicks. Reported 2026-09-09 against Host ->
+// Edit -> Deploy, and measured in a browser against the shipped stylesheets:
+// document.elementFromPoint() over #quicktask-confirm-go returned
+// .modal-backdrop.
+//
+// So the check is structural, not textual: the modal must not be a
+// DESCENDANT of the card. A plain .card is position:relative/z-index:auto
+// and is not a stacking context, which is why assocDelModal() sitting in a
+// card-footer has always worked -- the property that breaks it is on the
+// container, not on the modal.
+$card = static function ($actions) {
+    $page = (new \ReflectionClass(HostManagement::class))
+        ->newInstanceWithoutConstructor();
+    $page->notes = ['Host' => 'bench-01'];
+    $page->noteSources = [];
+    $page->noteActions = $actions;
+    $render = new \ReflectionMethod(HostManagement::class, 'renderInfoCard');
+    $render->setAccessible(true);
+    ob_start();
+    $render->invoke($page);
+
+    return (string)ob_get_clean();
+};
+
+$html = $card($emit(['*'], 'host', $hostTypes));
+$t->check(
+    'the info card emits the confirmation modal',
+    false !== strpos($html, 'id="quicktask-confirm-modal"')
+);
+$t->check(
+    'and the quick task buttons',
+    false !== strpos($html, 'fog-quicktask')
+);
+
+$dom = new \DOMDocument();
+// The fragment is not a document and carries entities; libxml would warn on
+// both and the warnings are not the thing under test.
+libxml_use_internal_errors(true);
+$dom->loadHTML(
+    '<!DOCTYPE html><html><body>' . $html . '</body></html>',
+    LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+);
+libxml_clear_errors();
+$xpath = new \DOMXPath($dom);
+$modalNode = $xpath->query('//*[@id="quicktask-confirm-modal"]')->item(0);
+$cardNode = $xpath->query('//*[@id="edit-info-card"]')->item(0);
+$t->check(
+    'both nodes parse out of the rendered card',
+    null !== $modalNode && null !== $cardNode
+);
+$inside = false;
+for ($n = $modalNode; null !== $n; $n = $n->parentNode) {
+    if ($n === $cardNode) {
+        $inside = true;
+        break;
+    }
+}
+$t->check(
+    'the modal is NOT inside #edit-info-card, whose z-index would bury it',
+    !$inside
+);
+// The store is drained, so a page that renders its card twice in one request
+// cannot emit two elements sharing the modal's id -- which would leave
+// jQuery's #quicktask-confirm-modal pointing at whichever came first, quite
+// possibly the one still trapped in the card.
+$t->check(
+    'the modal is emitted exactly once',
+    1 === substr_count($html, 'id="quicktask-confirm-modal"')
+);
+$t->check(
+    'and the store is drained, so re-rendering the card emits no second copy',
+    false === strpos($card($markup), 'id="quicktask-confirm-modal"')
 );
 
 // -------------------------------------------------------------------------

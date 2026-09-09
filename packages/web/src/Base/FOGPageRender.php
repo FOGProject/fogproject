@@ -444,6 +444,24 @@ trait FOGPageRender
      * @var bool
      */
     protected static $_unadjustedSeen = false;
+    /**
+     * Modal markup a note-card action built, held back until the card has
+     * closed.
+     *
+     * #edit-info-card is position:sticky with a z-index, which makes it a
+     * stacking context: every z-index inside it is resolved against its
+     * siblings, not against the page. A .modal in there therefore paints
+     * BELOW the backdrop and the app header however high its own z-index
+     * is, and the backdrop swallows the clicks on its buttons. Same class
+     * of trap as the flex/float mismatch in the button rules -- the
+     * property that breaks it is on the container, not on the modal.
+     *
+     * Set by renderQuickTaskActions(), drained by renderInfoCard(). One
+     * render per request, the same lifetime as $_unadjustedSeen above.
+     *
+     * @var string
+     */
+    protected static $_infoCardModals = '';
     protected static function dateOrNever($value, $table = '', $column = '')
     {
         if (!$value || !self::validDate($value)) {
@@ -646,10 +664,14 @@ trait FOGPageRender
         // clicked button's data-confirm, rather than one per button: two
         // would eventually say the same thing in two different wordings.
         //
-        // Emitted next to the buttons, the way assocDelModal() sits in its
-        // card-footer. A .modal is position:fixed and display:none until
-        // shown, so it adds nothing to the flex row it nominally lives in.
-        $modal = self::makeModal(
+        // NOT emitted next to the buttons, which is where assocDelModal()
+        // sits in its card-footer. That works there because a plain .card
+        // is position:relative with z-index:auto; #edit-info-card is
+        // position:sticky WITH a z-index, so it is a stacking context and
+        // a modal inside it can never rise above the backdrop. Held in
+        // $_infoCardModals and emitted by renderInfoCard() once the card
+        // has closed.
+        self::$_infoCardModals .= self::makeModal(
             'quicktask-confirm-modal',
             '<h4 class="card-title">' . \Initiator::e(_('Create tasking'))
             . '</h4>',
@@ -672,7 +694,7 @@ trait FOGPageRender
 
         return '<div class="btn-group" role="group" aria-label="'
             . \Initiator::e(_('Quick tasks'))
-            . '">' . $buttons . '</div>' . $modal;
+            . '">' . $buttons . '</div>';
     }
 
     protected function renderInfoCard()
@@ -756,6 +778,14 @@ trait FOGPageRender
         }
         echo '</div>';
         echo '</div>';
+        // Outside the card, and therefore outside its stacking context, so
+        // the modal's own z-index is resolved against the page and it lands
+        // above the backdrop and the header. Drained, so a second call in
+        // the same request cannot emit the same modal id twice.
+        if ('' !== self::$_infoCardModals) {
+            echo self::$_infoCardModals;
+            self::$_infoCardModals = '';
+        }
     }
 
     /**
