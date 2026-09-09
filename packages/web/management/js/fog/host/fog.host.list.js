@@ -37,6 +37,25 @@
     function loadGroupSelect(){
         var hostGroupUpdateBtn = $('#confirmGroupAdd');
         groupModalSelect.select2({
+            // The dropdown must live INSIDE the modal. select2 appends it to
+            // <body> by default at z-index 1051, and a Bootstrap 5 modal is
+            // 1055 -- so the list rendered, populated and correct, entirely
+            // behind the modal: elementFromPoint() over its first row
+            // returned the modal's own help paragraph. Nothing errors, and
+            // from the outside it is indistinguishable from a search that
+            // matched nothing.
+            //
+            // Raising the z-index is not the fix. The bootstrap-5 theme does
+            // carry .select2-dropdown{z-index:1056}, but this control is
+            // built without `theme`, so its container is
+            // select2-container--default and that rule never applies -- and
+            // a modal is a stacking context anyway, so a dropdown outside it
+            // is competing at the page level rather than inside the dialog.
+            //
+            // Same reasoning, and the same one-liner, as the .fog-select2
+            // loop in fog.common.js, which every other select in a modal
+            // already goes through.
+            dropdownParent: groupModal,
             tags: true,
             // COMMA ONLY. A space used to commit the term as a tag too,
             // which made every group whose name contains one impossible to
