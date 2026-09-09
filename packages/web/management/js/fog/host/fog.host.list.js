@@ -38,7 +38,15 @@
         var hostGroupUpdateBtn = $('#confirmGroupAdd');
         groupModalSelect.select2({
             tags: true,
-            tokenSeparators: [',', ' '],
+            // COMMA ONLY. A space used to commit the term as a tag too,
+            // which made every group whose name contains one impossible to
+            // reach: typing "Something DarksideMilk" turned into the tag
+            // "Something" at the first space, the search never ran on the
+            // full name, and Add then CREATED a group called "Something"
+            // because an unmatched term is sent in groups_new. Two of the
+            // three groups on the reporter's own server were named that way.
+            // Comma still separates, so pasting a list of names works.
+            tokenSeparators: [','],
             ajax: {
                 url: function(params) {
                     return '../group/names/name='
@@ -106,7 +114,14 @@
         // does the same thing either way, and remove is told which of the
         // names it could not find rather than silently doing nothing.
         function submitMembership(remove) {
-            var items = groupModalSelect.find('option').map(function() {return $(this).val()}).get(),
+            // :selected, not every option. select2's createTag puts the
+            // term you are still typing into the select as an UNSELECTED
+            // <option> so it can be offered as "(new)". Reading every option
+            // submitted that half-typed text as well, so picking
+            // "Something DarksideMilk" out of the list after typing
+            // "Something Dark" joined the right group AND created a junk one
+            // named for the fragment.
+            var items = groupModalSelect.find('option:selected').map(function() {return $(this).val()}).get(),
                 hosts = $.getSelectedIds(table),
                 groups = [],
                 groups_new = [];
