@@ -251,9 +251,11 @@ check(
  * that: it set hostID, name and typeID on a task object the branch above had
  * just replaced with an empty one, then saved.
  *
- * Both halves are pinned. The required-field list is the general fix; the
- * guard at that call site is what keeps that specific path from throwing
- * "Required database field" at an administrator instead of working.
+ * The required-field list is the general fix. The call site is now fixed at
+ * the root instead of being made to insert a valid row: that arm CONVERTS an
+ * existing task and has no business creating one, so it bails when there is
+ * none and lets the ordinary _createTasking() path run. See
+ * single-snapin-task-keeps-its-type.test.php, which pins that.
  */
 $task = file_get_contents($root . '/packages/web/src/Items/Task.php');
 $required = '';
@@ -277,7 +279,7 @@ check(
 $host = file_get_contents($root . '/packages/web/src/Items/Host.php');
 $convert = '';
 if (preg_match(
-    "/\\\$Task\s*\n\s*->set\('hostID'.*?Multiple Snapin -- orig Single.*?if \(!\\\$Task->save\(\)\)/s",
+    "/case TaskType::SINGLE_SNAPIN:.*?if \(!\\\$Task->save\(\)\)/s",
     $host,
     $m
 )) {
@@ -289,20 +291,20 @@ check(
     $failures,
     $checks
 );
+/*
+ * The stateless-task fix at this call site is now the absence of a save
+ * rather than a better one: nothing is written unless there is already a
+ * task to convert, so there is no INSERT here to leave without a state.
+ */
 check(
-    'and it supplies a stateID before saving',
-    false !== strpos($convert, "->set('stateID', self::getQueuedState())"),
+    'and it writes nothing unless a task already exists',
+    false !== strpos($convert, "if (!\$Task->isValid())"),
     $failures,
     $checks
 );
-/*
- * Guarded, not unconditional. The same block also runs against an EXISTING
- * task being converted, and forcing that one back to Queued would restart
- * work already in progress.
- */
 check(
-    'only when the task does not already have one',
-    false !== strpos($convert, "if (!\$Task->get('stateID'))"),
+    'and no longer invents the task it was meant to be updating',
+    false === strpos($convert, "->set('hostID'"),
     $failures,
     $checks
 );
