@@ -213,6 +213,57 @@ class MulticastTask extends FOGService
         return array_filter($NewTasks);
     }
     /**
+     * Shell printf format for the identity header that prefixes every
+     * multicast stream.
+     *
+     * udpcast carries no metadata: the server chains one udp-sender per
+     * image file on a shared portbase, the client opens one udp-receiver
+     * per file it expects, and the Nth receiver gets the Nth stream. If
+     * the two ever fall out of step -- a client that reboots mid-session,
+     * or one whose receiver opens after a sender has already given up on
+     * it -- every partition after that point is restored from the wrong
+     * stream. partclone objects only when the target partition is smaller
+     * than the source; when it is larger the wrong filesystem is written
+     * and the deploy reports success (issue #1742).
+     *
+     * So each stream is introduced by a fixed 128-byte record naming the
+     * image file it carries, and FOS refuses a stream whose name is not
+     * the one it asked for. Fixed width because the client reads the
+     * header with a single dd before it opens the decompressor, and a
+     * count of bytes is the only thing a pipe lets it read without
+     * consuming payload.
+     *
+     * 7 bytes of tag, 120 of left-justified name, one newline. Names are
+     * image file basenames, far short of 120.
+     *
+     * @var string
+     */
+    const STREAM_HEADER_FORMAT = 'FOGMC1 %-120s\n';
+    /**
+     * Byte width of STREAM_HEADER_FORMAT once expanded. FOS reads exactly
+     * this many bytes, so the two must move together.
+     *
+     * @var int
+     */
+    const STREAM_HEADER_BYTES = 128;
+    /**
+     * Reduces a chunked image filename to the stem the client's glob
+     * collapses to: d1p4.img.007 and sys.img.000 both name streams the
+     * client asks for as d1p4.img* and sys.img.*.
+     *
+     * Only ever applied where the emitting branch knows the stream is a
+     * concatenation or the image is split -- rec.img.000 and rec.img.001
+     * are whole partitions under the legacy layouts and keep their names.
+     *
+     * @param string $basename image file basename
+     *
+     * @return string
+     */
+    private static function _streamStem($basename)
+    {
+        return preg_replace('#\.[0-9]{3,}$#', '', $basename);
+    }
+    /**
      * Session ID
      *
      * @var int
@@ -1083,6 +1134,7 @@ class MulticastTask extends FOGService
          * not change. Part of the 065 sink fix.
          */
         $streams = [];
+        $streamIds = [];
         $claimed = [];
         foreach ($sendfiles as $file) {
             if (isset($claimed[$file])) {
@@ -1102,16 +1154,24 @@ class MulticastTask extends FOGService
                 }
                 $matches = array_map('basename', $matches);
                 if ('sys.img.*' === $file) {
+                    // One partition spread over sys.img.000, .001 ...
+                    // The client names it with the same glob, so the id
+                    // is the stem both sides collapse to.
                     $streams[] = $matches;
+                    $streamIds[] = self::_streamStem($matches[0]);
                     continue;
                 }
                 foreach ($matches as $match) {
+                    // rec.img.000 / rec.img.001 are whole partitions, not
+                    // chunks: the client asks for each by its exact name.
                     $streams[] = [$match];
+                    $streamIds[] = $match;
                 }
                 continue;
             }
             if (!$split) {
                 $streams[] = [$file];
+                $streamIds[] = $file;
                 continue;
             }
             /*
@@ -1138,6 +1198,9 @@ class MulticastTask extends FOGService
                 $claimed[$chunk] = true;
             }
             $streams[] = $chunks;
+            // Split layouts are always chunk-suffixed and the client
+            // always globs them, single chunk included.
+            $streamIds[] = self::_streamStem($chunks[0]);
         }
         ob_start();
         foreach ($streams as $i => $stream) {
@@ -1154,20 +1217,24 @@ class MulticastTask extends FOGService
             foreach ($stream as $file) {
                 $paths[] = escapeshellarg($imagedir . DS . $file);
             }
-            if (count($paths) > 1) {
-                // udp-sender accepts a single --file and discards the
-                // rest ("Extra argument ... ignored"), which is why a
-                // multi-chunk partition used to go out truncated. With no
-                // --file it reads stdin, so the chunks are concatenated
-                // onto it in the same order cat would use unicast.
-                printf(
-                    'cat %s | %s;',
-                    implode(' ', $paths),
-                    $cmd
-                );
-                continue;
-            }
-            printf('%s --file %s;', $cmd, $paths[0]);
+            /*
+             * Every stream is prefixed with a fixed 128-byte identity
+             * header naming the image file it carries, and therefore
+             * goes in on stdin -- including the single-file case, which
+             * used to pass --file. udp-sender accepts a single --file
+             * and discards the rest ("Extra argument ... ignored"),
+             * which is separately why a multi-chunk partition used to go
+             * out truncated; with no --file it reads stdin, so chunks
+             * are concatenated onto it in the same order cat would use
+             * unicast.
+             */
+            printf(
+                '{ printf %s %s; cat %s; } | %s;',
+                escapeshellarg(self::STREAM_HEADER_FORMAT),
+                escapeshellarg($streamIds[$i]),
+                implode(' ', $paths),
+                $cmd
+            );
         }
         unset($filelist, $sendfiles, $streams, $lvfiles, $buildcmd);
         return ob_get_clean();
