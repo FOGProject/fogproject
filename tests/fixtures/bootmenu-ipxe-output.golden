@@ -35,7 +35,7 @@ item fog.reg Quick Registration and Inventory
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -588,7 +588,7 @@ item fog.quickdel Quick Host Deletion
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -776,7 +776,7 @@ item fog.quickdel Quick Host Deletion
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -894,7 +894,7 @@ item fog.quickdel Quick Host Deletion
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -1144,7 +1144,7 @@ item fog.sysinfo Client System Information (Compatibility)
 item fog.approvehost Approve This Host
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -1215,7 +1215,7 @@ item fog.quickdel Quick Host Deletion
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -1803,7 +1803,7 @@ item fog.sysinfo Client System Information (Compatibility)
 item fog.debug Debug Mode
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -1918,7 +1918,7 @@ item fog.memtest Run Memtest86+
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -1972,7 +1972,7 @@ item fog.sysinfo Client System Information (Compatibility)
 item fog.advanced Advanced Menu
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -2036,7 +2036,7 @@ item fog.sysinfo Client System Information (Compatibility)
 item fog.advancedlogin Advanced Menu
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -2086,7 +2086,7 @@ set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
 iseq ${platform} efi && set key 0x1b || set key 0x1b
 iseq ${platform} efi && set keyName ESC || set keyName Escape
-prompt --key ${key} --timeout 3000 Booting... (Press ${keyName} to access the menu) && goto menuAccess || console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
+prompt --key ${key} --timeout 3000 Booting... (Press ${keyName} to access the menu) && goto menuAccess || console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
 :menuAccess
 login
 params
@@ -2128,7 +2128,7 @@ set arch ${buildarch}
 iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
 iseq ${platform} efi && set key 0x1b || set key 0x1b
 iseq ${platform} efi && set keyName ESC || set keyName F12
-prompt --key ${key} --timeout 3000 Booting... (Press ${keyName} to access the menu) && goto menuAccess || console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
+prompt --key ${key} --timeout 3000 Booting... (Press ${keyName} to access the menu) && goto menuAccess || console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
 :menuAccess
 login
 params
@@ -2196,7 +2196,7 @@ item fog.reg Quick Registration and Inventory
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -2257,6 +2257,68 @@ item fog.reg Quick Registration and Inventory
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
+boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
+:fog.reginput
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=manreg
+imgfetch init.xz
+boot || goto MENU
+:fog.reg
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=autoreg
+imgfetch init.xz
+boot || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+
+########## exit-sanboot-efi ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0xff0000 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is NOT registered!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.reginput Perform Full Host Registration and Inventory
+item fog.reg Quick Registration and Inventory
+item fog.sysinfo Client System Information (Compatibility)
+item fog.enrollsecureboot Enroll Secure Boot Key
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
 console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
@@ -2276,6 +2338,11 @@ boot || goto MENU
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
 imgfetch init.xz
 boot || goto MENU
+:fog.enrollsecureboot
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+goto MENU
 :bootme
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
 goto MENU
@@ -2819,7 +2886,7 @@ item fog.reg Quick Registration and Inventory
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -2967,7 +3034,7 @@ set boot-url http://${fog-ip}/${fog-webroot}
 set setmacto ${netX/mac}
 set hostname testhost
 set storage-ip 10.0.0.1
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82
 
 ########## keymap-set ##########
 #!ipxe
@@ -3006,7 +3073,7 @@ item fog.reg Quick Registration and Inventory
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -3067,7 +3134,7 @@ item fog.reg Quick Registration and Inventory
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -3128,7 +3195,7 @@ item fog.reg Quick Registration and Inventory
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
@@ -3189,7 +3256,7 @@ item fog.reg Quick Registration and Inventory
 item fog.sysinfo Client System Information (Compatibility)
 choose --default fog.local --timeout 3000 target && goto ${target}
 :fog.local
-console && sanboot --drive 0 --no-describe || sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
 :fog.memtest
 iseq ${platform} efi && goto fog.memtest.efi ||
 kernel mt86plus_x86_64
