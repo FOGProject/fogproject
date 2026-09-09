@@ -136,6 +136,16 @@ class TaskQueue extends TaskingElement
     public function checkIn()
     {
         try {
+            /*
+             * Read before taskCheckIn() moves it. A multicast task whose
+             * state has already left the literal queued state has been
+             * through this endpoint before, which is the only per-host
+             * signal that the host is coming BACK to a session rather than
+             * arriving at it. Note getQueuedStates() is range(0, 2) and so
+             * includes the checked-in state -- "still queued" is not the
+             * question being asked here.
+             */
+            $priorState = (int)$this->Task->get('stateID');
             $this->Task->taskCheckIn();
             if ($this->imagingTask) {
                 if ($this->Task->isCapture()) {
@@ -149,6 +159,39 @@ class TaskQueue extends TaskingElement
                     $MulticastSession = new MulticastSession($msID);
                     if (!$MulticastSession->isValid()) {
                         throw new \Exception(_('Invalid Multicast Session'));
+                    }
+                    /*
+                     * A host cannot rejoin a session that is already under
+                     * way. udpcast binds a stream to a partition by nothing
+                     * but position -- the Nth receiver gets the Nth stream
+                     * -- so a host coming back part way through opens its
+                     * FIRST receiver against whichever sender is running
+                     * now, and is one or more streams out of step for the
+                     * rest of the session. Since #1743 FOS refuses the
+                     * mismatched stream by name rather than restoring it to
+                     * the wrong partition, but by then it has laid the
+                     * partition table. Refusing here costs the host
+                     * nothing: fog.checkin blocks on this answer before
+                     * fog.download touches the disk. Issue #1744.
+                     *
+                     * Both halves are required. The state alone would lock
+                     * a host out after any transient failure later in this
+                     * method, because taskCheckIn() above has already moved
+                     * it -- the client would retry forever against its own
+                     * first attempt. A client count above zero says some
+                     * host really did get through, which is what makes this
+                     * a rejoin rather than a retry.
+                     */
+                    $begun = [
+                        (int)self::getCheckedInState(),
+                        (int)self::getProgressState()
+                    ];
+                    if (in_array($priorState, $begun, true)
+                        && (int)$MulticastSession->get('clients') > 0
+                    ) {
+                        throw new \Exception(
+                            _('This host has already joined this multicast session, which is now under way. A host cannot rejoin a session in progress. Cancel the task and re-create it once the current session has finished.')
+                        );
                     }
                     if ($MulticastSession->get('clients') < 0) {
                         $clients = 1;

@@ -10727,6 +10727,9 @@ msgstr "Impresora ya existe"
 msgid "This host failed imaging %1$s: %2$s"
 msgstr "Impresora ya existe"
 
+msgid "This host has already joined this multicast session, which is now under way. A host cannot rejoin a session in progress. Cancel the task and re-create it once the current session has finished."
+msgstr ""
+
 #, php-format
 msgid "This host has finished capturing image %s."
 msgstr ""
