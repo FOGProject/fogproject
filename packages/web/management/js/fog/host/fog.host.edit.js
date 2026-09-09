@@ -1065,7 +1065,15 @@
                 ['off', 'Off'],
                 ['unset', 'Not set']
             ],
-            html = '<select class="form-select form-select-sm module-state"'
+            // w-auto, because .form-select is width:100%. A cell whose only
+            // content is a 100%-wide control has no intrinsic width, so the
+            // auto layout gives the column its header width -- and
+            // fogSeedColWidths() then measures that and freezes it into the
+            // <colgroup> before .fog-table-fixed goes on, where content can
+            // no longer widen it. The select was 35px inside a 53px column
+            // and every option read as "O". Sized to its widest option
+            // instead, the seeded width fits the control.
+            html = '<select class="form-select form-select-sm w-auto module-state"'
                 + ' data-module="' + $.escapeHtml(String(row.id)) + '">';
         $.each(options, function(i, opt) {
             html += '<option value="' + opt[0] + '"'
