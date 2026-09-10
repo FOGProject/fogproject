@@ -44,7 +44,7 @@ foreach (array_slice(isset($argv) ? $argv : [], 1) as $arg) {
     }
 }
 if (null !== $childCase) {
-    runChild($childCase);
+    apiSwitchRunChild($childCase);
     exit(0);
 }
 
@@ -52,11 +52,16 @@ if (null !== $childCase) {
  * Construct Route for one request and print what it answered. Never
  * asserts -- the parent owns the verdict.
  *
+ * Both helpers carry a prefix because phpstan analyses tests/ as one
+ * program, and route-read-path-guards.test.php already declares runChild()
+ * and child(). Unprefixed, phpstan read this file's calls against those
+ * declarations and failed the CI job.
+ *
  * @param string $case "<FOG_API_ENABLED> <request uri>"
  *
  * @return void
  */
-function runChild($case)
+function apiSwitchRunChild($case)
 {
     list($flag, $uri) = explode(' ', $case, 2);
     FogTestHarness::boot('agent-routes-ignore-api-switch');
@@ -106,7 +111,7 @@ function runChild($case)
  *
  * @return array [int status (0 when the child printed nothing), string body]
  */
-function child($flag, $uri)
+function apiSwitchChild($flag, $uri)
 {
     $pipes = [];
     $proc = proc_open(
@@ -131,13 +136,13 @@ function child($flag, $uri)
 
 $t = new FogChecks();
 
-list($code, $body) = child('0', '/fog/agent/v1/enroll');
+list($code, $body) = apiSwitchChild('0', '/fog/agent/v1/enroll');
 $t->check(
     "enroll with the API off is not redirected (got $code $body)",
     0 !== $code && ($code < 300 || $code >= 400)
 );
 
-list($code, $body) = child('0', '/fog/agent/v1/poll');
+list($code, $body) = apiSwitchChild('0', '/fog/agent/v1/poll');
 $t->check(
     "poll with the API off reaches the agent gate and gets 401 (got $code)",
     401 === $code
@@ -147,7 +152,7 @@ $t->check(
     false !== strpos($body, '"reason":"no_client_certificate"')
 );
 
-list($code, $body) = child('0', '/fog/host');
+list($code, $body) = apiSwitchChild('0', '/fog/host');
 $t->check(
     "an API route with the API off is still redirected (got $code)",
     308 === $code
