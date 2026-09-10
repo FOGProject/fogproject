@@ -598,9 +598,21 @@ validip() {
     echo $stat
 }
 getCidr() {
-    local cidr
-    cidr=$(ip -f inet -o addr | grep $1 | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1)
-    echo $cidr
+    # Prefix length of address $2 on interface $1. When $2 is not given, or is
+    # not on that interface, the prefix of the interface's first global address.
+    #
+    # GH-1747: this grepped the whole address table for the interface name and
+    # printed the SECOND global match (head -n2 | tail -n1). On an interface
+    # with more than one address that is another address's prefix: a stray
+    # 169.254.x.x/16 turned a /24 into 255.255.0.0. The unanchored grep also
+    # let eth1 read eth10.
+    [[ -n $1 ]] || return 0
+    ip -4 -o addr show dev "$1" 2>/dev/null | awk -v want="$2" '
+        $3 != "inet" { next }
+        { split($4, addr, "/") }
+        want != "" && addr[1] == want { print addr[2]; found = 1; exit }
+        first == "" && / scope global / { first = addr[2] }
+        END { if (!found && first != "") print first }'
 }
 mask2cidr() {
     local submask=$1
@@ -629,8 +641,7 @@ mask2cidr() {
                 break
                 ;;
             224)
-                let
-                nbits+=3
+                let nbits+=3
                 break
                 ;;
             192)
@@ -644,7 +655,8 @@ mask2cidr() {
             0)
                 ;;
             *)
-                echo "Error: $dec is not recognized"
+                # stderr: every caller takes stdout as the prefix length.
+                echo "Error: $dec is not recognized" >&2
                 exit 1
                 ;;
         esac
@@ -653,6 +665,10 @@ mask2cidr() {
     echo "$nbits"
 }
 cidr2mask() {
+    # No prefix means no mask. "$((/8))" put an arithmetic syntax error on the
+    # screen instead (GH-1747), and every caller already treats an empty mask
+    # as unknown.
+    [[ $1 =~ ^[0-9]+$ && $1 -le 32 ]] || return 1
     local i=""
     local mask=""
     local full_octets=$(($1/8))
@@ -701,11 +717,19 @@ interface2broadcast() {
         echo "No interface passed" >&2
         return 1
     fi
-    # One address per line means one brd per line, so an interface carrying a
-    # second address returned two. Take the first, matching the $ipaddress /
-    # $ipaddresses contract from GH-954. Empty is a legitimate answer -- a /32
-    # or a point-to-point link has no broadcast -- and the caller falls back.
-    ip -4 addr show $interface | grep -oP 'brd \K\S+' | head -1
+    # The brd of address $2 on that interface. Without $2, or when $2 is not
+    # there, the first brd on the interface. Empty is a legitimate answer -- a
+    # /32 or a point-to-point link has no broadcast -- and the caller falls back.
+    #
+    # GH-1747: this always took the first brd, which belongs to whichever
+    # address is listed first. A link-local 169.254.x.x listed ahead of the
+    # real address ended the DHCP pool at 169.254.255.254.
+    ip -4 -o addr show dev "$interface" 2>/dev/null | awk -v want="$2" '
+        $3 != "inet" { next }
+        { split($4, addr, "/"); brd = ""; for (i = 5; i < NF; i++) if ($i == "brd") brd = $(i + 1) }
+        want != "" && addr[1] == want { print brd; found = 1; exit }
+        first == "" && brd != "" { first = brd }
+        END { if (!found) print first }'
 }
 subtract1fromAddress() {
     local ip=$1
@@ -6407,18 +6431,18 @@ writeKeaSample() {
     local target="${webdirdest%/}/kea-dhcp4.conf.fog-sample"
     [[ -z $webdirdest ]] && target="/etc/kea/kea-dhcp4.conf.fog-sample"
     [[ -d $(dirname "$target") ]] || return 0
-    local sampleip
-    sampleip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
-    [[ -z $sampleip ]] && sampleip="$ipaddress"
-    [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
-    local network=$(mask2network $sampleip $submask)
+    # GH-1747: the subnet comes from $ipaddress, the address FOG advertises.
+    # Every global address on the interface used to land here, unquoted, so a
+    # second address became the mask.
+    [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface $ipaddress))
+    local network=$(mask2network $ipaddress $submask)
     local cidr=$(mask2cidr $submask)
     local startrange=$(addToAddress $network 10)
     # GH-667: an interface with no brd flag, or any failure inside these
     # helpers, used to leave endrange holding an error string that went
     # straight into the generated config. Fall back to the broadcast computed
     # from the network and mask we already have.
-    local broadcast=$(interface2broadcast $interface)
+    local broadcast=$(interface2broadcast $interface $ipaddress)
     [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network $submask)
     local endrange=$(subtract1fromAddress $broadcast)
     [[ $(validip $endrange) -ne 0 ]] && endrange=$(subtract1fromAddress $(mask2broadcast $network $submask))
@@ -6461,15 +6485,16 @@ configureDHCP() {
     fi
     case $bldhcp in
         1)
-            serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
-            [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | grep -oE 'inet[:]? addr[:]?([0-9]{1,3}\.){3}[0-9]{1,3}' | awk -F'(inet[:]? ?addr[:]?)' '{print $2}')
-            [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
-            network=$(mask2network $serverip $submask)
+            # GH-1747: the subnet comes from $ipaddress, the address handed out
+            # as next-server. Every global address on the interface used to land
+            # here, unquoted, so a second address became the mask.
+            [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface $ipaddress))
+            network=$(mask2network $ipaddress $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 10)
             # GH-667: same guard -- never let a helper's failure become the
             # value that lands in dhcpd.conf.
             if [[ -z $endrange ]]; then
-                broadcast=$(interface2broadcast $interface)
+                broadcast=$(interface2broadcast $interface $ipaddress)
                 [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network $submask)
                 endrange=$(subtract1fromAddress $broadcast)
                 [[ $(validip $endrange) -ne 0 ]] && endrange=$(subtract1fromAddress $(mask2broadcast $network $submask))
