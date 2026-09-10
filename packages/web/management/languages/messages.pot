@@ -1816,7 +1816,7 @@ msgstr ""
 msgid "Confirm Download"
 msgstr ""
 
-msgid "Confirm password"
+msgid "Confirm delete"
 msgstr ""
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
@@ -9033,6 +9033,9 @@ msgstr ""
 msgid "This acts on the hosts that are in the group right now. It is a task, not a grant: a host added afterward is not affected."
 msgstr ""
 
+msgid "This cannot be undone."
+msgstr ""
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -9376,9 +9379,6 @@ msgid "U-Boot TFTP sync: %s is not in %s, so a board booting over TFTP cannot fe
 msgstr ""
 
 msgid "UEFI, state unreadable"
-msgstr ""
-
-msgid "Unable to Authenticate"
 msgstr ""
 
 msgid "Unable to connect to SSH"
