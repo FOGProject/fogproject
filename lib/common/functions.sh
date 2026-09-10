@@ -2026,9 +2026,21 @@ validhostname() {
     echo $?
 }
 getCidr() {
-    local cidr
-    cidr=$(ip -f inet -o addr | grep $1 | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1)
-    echo $cidr
+    # Prefix length of address $2 on interface $1. When $2 is not given, or is
+    # not on that interface, the prefix of the interface's first global address.
+    #
+    # GH-1747: this grepped the whole address table for the interface name and
+    # printed the SECOND global match (head -n2 | tail -n1). On an interface
+    # with more than one address that is another address's prefix: a stray
+    # 169.254.x.x/16 turned a /24 into 255.255.0.0. The unanchored grep also
+    # let eth1 read eth10.
+    [[ -n $1 ]] || return 0
+    ip -4 -o addr show dev "$1" 2>/dev/null | awk -v want="$2" '
+        $3 != "inet" { next }
+        { split($4, addr, "/") }
+        want != "" && addr[1] == want { print addr[2]; found = 1; exit }
+        first == "" && / scope global / { first = addr[2] }
+        END { if (!found && first != "") print first }'
 }
 mask2cidr() {
     local NET_subnet_mask=$1
@@ -2071,7 +2083,8 @@ mask2cidr() {
             0)
                 ;;
             *)
-                echo "Error: $dec is not recognized"
+                # stderr: every caller takes stdout as the prefix length.
+                echo "Error: $dec is not recognized" >&2
                 exit 1
                 ;;
         esac
@@ -2080,6 +2093,10 @@ mask2cidr() {
     echo "$nbits"
 }
 cidr2mask() {
+    # No prefix means no mask. "$((/8))" put an arithmetic syntax error on the
+    # screen instead (GH-1747), and every caller already treats an empty mask
+    # as unknown.
+    [[ $1 =~ ^[0-9]+$ && $1 -le 32 ]] || return 1
     local i=""
     local mask=""
     local full_octets=$(($1/8))
@@ -2128,16 +2145,23 @@ interface2broadcast() {
         echo "No interface passed" >&2
         return 1
     fi
-    # One address per line means one brd per line, so an interface carrying a
-    # second address returned two. Take the first, matching the ${NET_fog_server_ip} /
-    # ${PKI_san_ip_addresses} contract from GH-954. Empty is a legitimate answer -- a /32
-    # or a point-to-point link has no broadcast -- and the caller falls back.
+    # The brd of address $2 on that interface. Without $2, or when $2 is not
+    # there, the first brd on the interface. Empty is a legitimate answer -- a
+    # /32 or a point-to-point link has no broadcast -- and the caller falls back.
     # awk rather than `grep -oP 'brd \K\S+'`: busybox grep has no -P at all,
     # so on Alpine that printed grep's whole usage screen into the middle of
     # the install and returned nothing -- the same trap as the -E/-P note in
     # installPackages. See #863.
-    ip -4 addr show ${NET_interface} \
-        | awk '{for (i = 1; i < NF; i++) if ($i == "brd") { print $(i + 1); exit }}'
+    #
+    # GH-1747: this always took the first brd, which belongs to whichever
+    # address is listed first. A link-local 169.254.x.x listed ahead of the
+    # real address ended the DHCP pool at 169.254.255.254.
+    ip -4 -o addr show dev "${NET_interface}" 2>/dev/null | awk -v want="$2" '
+        $3 != "inet" { next }
+        { split($4, addr, "/"); brd = ""; for (i = 5; i < NF; i++) if ($i == "brd") brd = $(i + 1) }
+        want != "" && addr[1] == want { print brd; found = 1; exit }
+        first == "" && brd != "" { first = brd }
+        END { if (!found) print first }'
 }
 subtract1fromAddress() {
     local ip=$1
@@ -12667,7 +12691,7 @@ configureHttpd() {
     # calls from the local subnet out of the box. Stays empty (no extra trust)
     # if it cannot be derived; the schema migration then leaves the group alone.
     storageDefaultCidr=""
-    storageTrustPrefix=$(getCidr "${NET_interface}")
+    storageTrustPrefix=$(getCidr "${NET_interface}" "${NET_fog_server_ip}")
     if [[ -n ${NET_fog_server_ip} && -n $storageTrustPrefix ]]; then
         storageTrustMask=$(cidr2mask "$storageTrustPrefix" 2>/dev/null)
         storageTrustNetwork=$(mask2network "${NET_fog_server_ip}" "$storageTrustMask" 2>/dev/null)
@@ -15892,18 +15916,19 @@ writeKeaSample() {
     local target="${webdirdest%/}/kea-dhcp4.conf.fog-sample"
     [[ -z $webdirdest ]] && target="/etc/kea/kea-dhcp4.conf.fog-sample"
     [[ -d $(dirname "$target") ]] || return 0
-    local sampleip
-    sampleip=$(ip -4 -o addr show ${NET_interface} | awk -F'([ /])+' '/global/ {print $4}')
-    [[ -z $sampleip ]] && sampleip="${NET_fog_server_ip}"
-    [[ -z ${NET_subnet_mask} ]] && NET_subnet_mask=$(cidr2mask $(getCidr ${NET_interface}))
-    local network=$(mask2network $sampleip ${NET_subnet_mask})
+    # GH-1747: the subnet comes from ${NET_fog_server_ip}, the address FOG
+    # advertises. This used to read every global address on the interface,
+    # unquoted, so a second address became mask2network's mask argument and
+    # the subnet came out as a host address ("10.0.45.2/24").
+    [[ -z ${NET_subnet_mask} ]] && NET_subnet_mask=$(cidr2mask $(getCidr ${NET_interface} ${NET_fog_server_ip}))
+    local network=$(mask2network ${NET_fog_server_ip} ${NET_subnet_mask})
     local cidr=$(mask2cidr ${NET_subnet_mask})
     local DHCP_range_start=$(addToAddress $network 10)
     # GH-667: an interface with no brd flag, or any failure inside these
     # helpers, used to leave endrange holding an error string that went
     # straight into the generated config. Fall back to the broadcast computed
     # from the network and mask we already have.
-    local broadcast=$(interface2broadcast ${NET_interface})
+    local broadcast=$(interface2broadcast ${NET_interface} ${NET_fog_server_ip})
     [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network ${NET_subnet_mask})
     local DHCP_range_end=$(subtract1fromAddress $broadcast)
     [[ $(validip ${DHCP_range_end}) -ne 0 ]] && DHCP_range_end=$(subtract1fromAddress $(mask2broadcast $network ${NET_subnet_mask}))
@@ -15946,17 +15971,17 @@ configureDHCP() {
     fi
     case ${DHCP_enabled} in
         yes)
-            # GH-954: one line per address, so a second address on the NIC
-            # made this multi-line and every consumer below it wrong.
-            serverip=$(ip -4 -o addr show ${NET_interface} | awk -F'([ /])+' '/global/ {print $4}' | head -1)
-            [[ -z $serverip ]] && serverip=$(/sbin/ifconfig ${NET_interface} | grep -oE 'inet[:]? addr[:]?([0-9]{1,3}\.){3}[0-9]{1,3}' | awk -F'(inet[:]? ?addr[:]?)' '{print $2}')
-            [[ -z ${NET_subnet_mask} ]] && NET_subnet_mask=$(cidr2mask $(getCidr ${NET_interface}))
-            network=$(mask2network $serverip ${NET_subnet_mask})
+            # GH-1747: the subnet comes from ${NET_fog_server_ip}, the address
+            # handed out as next-server. The first global address on the
+            # interface is not always that one: a global 169.254.x.x listed
+            # ahead of it put the pool in the link-local range.
+            [[ -z ${NET_subnet_mask} ]] && NET_subnet_mask=$(cidr2mask $(getCidr ${NET_interface} ${NET_fog_server_ip}))
+            network=$(mask2network ${NET_fog_server_ip} ${NET_subnet_mask})
             [[ -z ${DHCP_range_start} ]] && DHCP_range_start=$(addToAddress $network 10)
             # GH-667: same guard as writeKeaSample -- never let a helper's
             # failure become the value that lands in dhcpd.conf.
             if [[ -z ${DHCP_range_end} ]]; then
-                broadcast=$(interface2broadcast ${NET_interface})
+                broadcast=$(interface2broadcast ${NET_interface} ${NET_fog_server_ip})
                 [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network ${NET_subnet_mask})
                 DHCP_range_end=$(subtract1fromAddress $broadcast)
                 [[ $(validip ${DHCP_range_end}) -ne 0 ]] && DHCP_range_end=$(subtract1fromAddress $(mask2broadcast $network ${NET_subnet_mask}))

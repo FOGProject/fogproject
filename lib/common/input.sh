@@ -134,21 +134,28 @@ testInterface
 # certificate SANs, nginx server_name, apache ServerAlias, the maintenance
 # allow list -- and normalizeIpAddress() then reduces ${NET_fog_server_ip} to the primary,
 # which is what every other consumer has always assumed it was.
+#
+# GH-1747: global addresses only, and never link-local 169.254.0.0/16. A
+# link-local address appears when DHCP gets no answer on the deployment NIC.
+# No client can reach FOG there, and listed first it became the primary.
 while [[ -z ${NET_fog_server_ip} ]]; do
-    NET_fog_server_ip=$(ip -4 addr show ${NET_interface} | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}')
+    NET_fog_server_ip=$(ip -4 addr show ${NET_interface} | awk '$1 == "inet" && / scope global / && $2 !~ /^169\.254\./ {gsub(/\/.*$/, "", $2); print $2}')
     PKI_san_ip_addresses="${NET_fog_server_ip}"
     if [[ $(validip ${NET_fog_server_ip}) -ne 0 ]]; then
         echo
         echo "  * The interface ${NET_interface} does not seem to have a valid IP Configured to it."
+        # With -y nothing can pick another interface, so this loop would
+        # repeat the same answer forever.
+        [[ -n $autoaccept ]] && exit 1
         NET_interface=""
         testInterface
     fi
 done
-NET_subnet_mask=$(cidr2mask $(getCidr ${NET_interface}))
-if [[ -z ${NET_subnet_mask} ]]; then
-    NET_subnet_mask=$(/sbin/ifconfig -a | grep ${NET_fog_server_ip} -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
-    NET_subnet_mask=$(mask2cidr ${NET_subnet_mask})
-fi
+# The mask of the primary address (the first one listed), not of whichever
+# address getCidr found. The ifconfig fallback that followed stored mask2cidr's
+# prefix length in the mask, and ifconfig is not installed before the package
+# step. An empty mask is derived again in configureDHCP.
+NET_subnet_mask=$(cidr2mask $(getCidr ${NET_interface} ${NET_fog_server_ip%%[[:space:]]*}))
 if [[ $strSuggestedHostname == ${NET_fog_server_ip} ]]; then
     strSuggestedHostname=$(hostnamectl --static)
 fi
