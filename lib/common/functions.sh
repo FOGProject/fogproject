@@ -4000,14 +4000,18 @@ addOndrejRepo() {
 }
 resolveDHCPEngine() {
     # Decide between Kea and ISC-DHCP for the optional FOG-hosted DHCP service.
-    # Only relevant when FOG is actually building DHCP and the ISC package is
+    # Only relevant when FOG is actually building DHCP and a DHCP package is
     # still in the install set (the storage-node and DHCP_enabled=0 paths strip it in
     # doOSSpecificIncludes before we ever get here). Must run after repo setup
     # so the Kea availability probe sees enabled repos (e.g. EPEL on RHEL).
     [[ -z $keaconfig ]] && keaconfig="/etc/kea/kea-dhcp4.conf"
     [[ ${DHCP_enabled} == yes ]] || return 0
     local iscpkg="$dhcpname"
-    [[ -n $iscpkg && ${FOG_packages} == *"$iscpkg"* ]] || return 0
+    # Accept the Kea package as well. The swap below is saved with the package
+    # list, but $dhcpname and $dhcpconfig are re-seeded from the distro config
+    # on every run. Matching only the ISC name returned here on every re-run of
+    # a Kea install, which left the ISC config path for the Kea JSON (GH-1747).
+    [[ -n $iscpkg && ( ${FOG_packages} == *"$iscpkg"* || ( -n $keapackage && ${FOG_packages} == *"$keapackage"* ) ) ]] || return 0
     # Honor an explicit/persisted choice; an existing install is never switched.
     DHCP_engine="${DHCP_engine,,}"
     if [[ -z ${DHCP_engine} ]]; then
@@ -7435,8 +7439,10 @@ writeUpdateFile() {
         # FOG_installed stays unquoted+numeric in the emitted file to match the
         # historical format (see settingLine below).
         FOG_installed
-        # FOG_packages is a RECORD: re-derived every run from the distro package
-        # lists in lib/{redhat,ubuntu,alpine,arch}/config.sh.
+        # FOG_packages is NOT re-derived on an upgrade: this file is sourced
+        # before lib/{redhat,ubuntu,alpine,arch}/config.sh, and those only fill
+        # it when empty. So edits made to it during a run (the Kea swap in
+        # resolveDHCPEngine) come back on the next run (GH-1747).
         FOG_packages
         # FOG_git_path is a RECORD like FOG_program_dir (GH-850), not a control --
         # installfog.sh re-asserts the value it actually resolved after sourcing
