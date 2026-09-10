@@ -206,23 +206,17 @@ class FOGCore extends FOGBase
         $getSettings = [
             'FOG_HOST_LOOKUP',
             'FOG_MEMORY_LIMIT',
-            'FOG_REAUTH_ON_DELETE',
-            'FOG_REAUTH_ON_EXPORT',
             'FOG_TZ_INFO',
             'FOG_VIEW_DEFAULT_SCREEN',
         ];
         list(
             $hostLookup,
             $memoryLimit,
-            $authdelete,
-            $authexport,
             $tzInfo,
             $view
         ) = self::getSetting($getSettings);
         self::$defaultscreen = $view;
         self::$fogpingactive = $hostLookup;
-        self::$fogdeleteactive = $authdelete;
-        self::$fogexportactive = $authexport;
         $GLOBALS['TimeZone'] = $tzInfo ?? (ini_get('date.timezone') ?: 'UTC');
         ini_set('max_input_vars', 10000);
         $memorySet = preg_replace('#M#', '', ini_get('memory_limit'));

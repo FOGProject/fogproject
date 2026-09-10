@@ -2065,17 +2065,10 @@ abstract class FOGPage extends FOGBase
                     $actionbox .= '</div>';
                     $modals .= self::makeModal(
                         'deleteModal',
-                        _('Confirm password'),
-                        '<div class="input-group">'
-                        . self::makeInput(
-                            'form-control',
-                            'deletePW',
-                            _('Password'),
-                            'password',
-                            'deletePassword'
-                        )
-                        . '</div>'
-                        . '<br/>'
+                        _('Confirm delete'),
+                        // Confirmation, not a password: the confirm button
+                        // names how many items go, and that is the check.
+                        '<p>' . _('This cannot be undone.') . '</p>'
                         . (
                             in_array($node, ['snapin', 'image', 'group']) ?
                             self::makeLabel(
@@ -2337,7 +2330,6 @@ abstract class FOGPage extends FOGBase
     public function deletemulti()
     {
         header('Content-type: application/json');
-        self::checkauth();
         $remitems = filter_input_array(
             INPUT_POST,
             [
@@ -3907,10 +3899,7 @@ abstract class FOGPage extends FOGBase
         // CSRF::requireForStateChanging() returns early by design and would
         // never have fired. Every shipped caller already POSTs with a token
         // ($.registerGeneralTab in fog.common.js), so this is transparent to
-        // the UI. Deliberately NOT calling checkauth() here -- the edit-page
-        // delete modal carries no password field, so with the default
-        // FOG_REAUTH_ON_DELETE=1 that would 401 every legitimate delete.
-        // Reported by Aisle Research (064 / 3.25.1).
+        // the UI. Reported by Aisle Research (064 / 3.25.1).
         if ('POST' !== strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET')) {
             header('Content-type: application/json');
             http_response_code(HTTPResponseCodes::HTTP_METHOD_NOT_ALLOWED);

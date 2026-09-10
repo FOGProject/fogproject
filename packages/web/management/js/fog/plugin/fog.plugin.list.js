@@ -1,7 +1,6 @@
 (function($) {
     var deleteSelected = $('#deleteSelected'),
         deleteModal = $('#deleteModal'),
-        passwordField = $('#deletePassword'),
         confirmDelete = $('#confirmDeleteModal'),
         cancelDelete = $('#closeDeleteModal'),
         numPluginString = confirmDelete.val(),

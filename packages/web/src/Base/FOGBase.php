@@ -56,18 +56,6 @@ abstract class FOGBase
      */
     public static $fogpingactive = false;
     /**
-     * Delete auth is active?
-     *
-     * @var bool
-     */
-    public static $fogdeleteactive = false;
-    /**
-     * Export auth is active?
-     *
-     * @var bool
-     */
-    public static $fogexportactive = false;
-    /**
      * The pending macs count.
      *
      * @var int
@@ -4774,41 +4762,6 @@ abstract class FOGBase
                 );
             }
             unset($file);
-        }
-    }
-    /**
-     * Does the work for reauthentication during delete, if needed.
-     *
-     * @return void
-     */
-    public static function checkauth()
-    {
-        if (self::getSetting('FOG_REAUTH_ON_DELETE')) {
-            $user = filter_input(INPUT_POST, 'fogguiuser');
-            if (empty($user)) {
-                $user = self::$FOGUser->get('name');
-            }
-            $pass = filter_input(INPUT_POST, 'fogguipass');
-            // Re-authentication proves a human with valid credentials is
-            // present; it is not a second authorization step. Whether this
-            // deletion is allowed was already decided by the node's delete
-            // permission before we got here.
-            $validate = (new User())
-                ->passwordValidate(
-                    $user,
-                    $pass
-                );
-            if (!$validate) {
-                header('Content-type: application/json');
-                echo json_encode(
-                    [
-                        'error' => self::$foglang['InvalidLogin'],
-                        'title' => _('Unable to Authenticate')
-                    ]
-                );
-                http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
-                exit;
-            }
         }
     }
     /**

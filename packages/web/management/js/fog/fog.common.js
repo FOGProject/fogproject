@@ -668,8 +668,7 @@ if (document.readyState === 'loading') {
   fogBindTimezonePicker();
 }
 
-var shouldReAuth,
-  reAuthModal,
+var deleteConfirmModal,
   deleteConfirmButton,
   deleteLang,
   // Per-column filtering, on every table that carries a button toolbar.
@@ -1230,14 +1229,14 @@ $.deleteAssociated = function(table, url, cb, opts) {
 // opts.modal      - confirm modal, when the page's own #deleteModal is not it.
 // opts.confirmSel - that modal's confirm button.
 // opts.noun       - what the confirm button should say is being deleted.
-//                   The last three are passed straight through to $.reAuth;
+//                   The last three are passed straight through to $.confirmDelete;
 //                   see the note there for why a page can need them.
 $.deleteSelected = function(table, cb, opts) {
   opts = opts || {};
   opts = $.fogDefaults(opts, {
     node: Common.node,
     rows: table.rows({selected: true}),
-    password: undefined
+    confirmed: false
   });
   opts = $.fogDefaults(opts, {
     ids: opts.rows.ids().toArray(),
@@ -1263,7 +1262,6 @@ $.deleteSelected = function(table, cb, opts) {
   $('#andHosts').trigger('change');
 
   var ajaxOpts = {
-    fogguipass: opts.password,
     confirmdel: 1,
     remitems: opts.ids,
     andHosts: 'andHosts' in opts ? 1 : 0,
@@ -1272,18 +1270,19 @@ $.deleteSelected = function(table, cb, opts) {
 
   var numItems = ajaxOpts.remitems.length;
 
-  // If we know in advance that the user should reauth,
-  // prompt them with a modal to do so instead of wasting
-  // an API call
-  if (opts.password === undefined && shouldReAuth) {
-    $.reAuth(numItems, function(err, password) {
+  // Always confirm first, whatever the settings. The dialog names how many
+  // items go, and that is the check that somebody meant to delete them. It
+  // used to be a password prompt shown only when FOG_REAUTH_ON_DELETE was
+  // on, so with the setting off a bulk delete ran on the first click.
+  if (!opts.confirmed) {
+    $.confirmDelete(numItems, function(err) {
       if (err) {
         if (cb && typeof(cb) === 'function') {
           cb(err);
         }
         return;
       }
-      opts.password = password;
+      opts.confirmed = true;
       $.deleteSelected(table, cb, opts);
     }, {
       modal: opts.modal,
@@ -1303,32 +1302,17 @@ $.deleteSelected = function(table, cb, opts) {
         if (table !== undefined) {
           table.draw(false);
         }
-        $.finishReAuth(opts.modal || reAuthModal);
+        $.finishConfirmDelete(opts.modal || deleteConfirmModal);
         $.notifyFromAPI(res, false);
         if (cb && typeof(cb) === 'function') {
           cb(null,res);
         }
       },
       error: function(res) {
-        if (res.status == 401) {
-          $.notifyFromAPI(res.responseJSON, res);
-          $.reAuth(numItems, function(err, password) {
-            if (err) {
-              if (cb && typeof(cb) === 'function') {
-                cb(err,res.responseJSON);
-              }
-              return;
-            }
-            opts.password = password;
-            $.deleteSelected(table, cb, opts);
-          });
-          return;
-        } else {
-          $.finishReAuth(opts.modal || reAuthModal);
-          $.notifyFromAPI(res.responseJSON, res);
-          if (cb && typeof(cb) === 'function') {
-            cb(res,res.responseJSON);
-          }
+        $.finishConfirmDelete(opts.modal || deleteConfirmModal);
+        $.notifyFromAPI(res.responseJSON, res);
+        if (cb && typeof(cb) === 'function') {
+          cb(res,res.responseJSON);
         }
       }
     });
@@ -2855,7 +2839,7 @@ $.notifyFromAPI = function(res, isError) {
   $.debugLog(res);
 };
 // opts.modal      - the confirm modal (default '#deleteModal', resolved once
-//                   at page load into reAuthModal).
+//                   at page load into deleteConfirmModal).
 // opts.confirmSel - its confirm button (default '#confirmDeleteModal').
 // opts.noun       - what is being deleted, for the button text. Defaults to
 //                   Common.node, which is the page's entity -- wrong for any
@@ -2864,14 +2848,16 @@ $.notifyFromAPI = function(res, isError) {
 // Parameterized because a page can carry more than one deletable grid. The
 // Bearer API token card sits on the USER edit page, whose own #deleteModal
 // deletes the account: sharing it meant the confirm read "Delete 1 users",
-// the password field the token delete needs was not in that modal at all,
 // and -- worst -- deleteConfirmButton.off('click') below tore the General
 // tab's delete-user handler off, leaving that button dead until a reload.
 // $.registerGeneralTab already parameterizes exactly these two selectors;
 // this follows it.
-$.reAuth = function(count, cb, opts) {
+//
+// It asks for confirmation, not a password. It was $.reAuth, a password
+// prompt, and an account from an identity provider has no password to type.
+$.confirmDelete = function(count, cb, opts) {
   opts = opts || {};
-  var modal = opts.modal ? $(opts.modal) : reAuthModal,
+  var modal = opts.modal ? $(opts.modal) : deleteConfirmModal,
     confirmBtn = opts.confirmSel ? $(opts.confirmSel) : deleteConfirmButton,
     // deleteLang is captured once at load from the default button. A custom
     // one carries its own template, so read it the first time and stash it
@@ -2880,45 +2866,26 @@ $.reAuth = function(count, cb, opts) {
       ? (confirmBtn.data('reauthLang')
         || confirmBtn.data('reauthLang', confirmBtn.text()).data('reauthLang'))
       : deleteLang,
-    noun = opts.noun || Common.node,
-    // Scoped to the modal: two of these on one page means two #deletePassword
-    // inputs, and a document-wide lookup reads whichever came first.
-    pw = modal.find('input[type="password"]').first();
+    noun = opts.noun || Common.node;
 
   confirmBtn.text(lang.replace('{0}', count).replace('{node}', noun + (count != 1 ? 's' : '')));
-  // enable all buttons / focus on the input box incase
-  //   the modal is already being shown
+  // enable all buttons in case the modal is already being shown
   modal.setContainerDisable(false);
-  pw.trigger('focus');
   modal.registerModal(
     // On show
     function(e) {
-      pw.val('');
-      pw.trigger('focus');
       modal.setContainerDisable(false);
     },
     // On close
     function(e) {
-      pw.val('');
-      cb('authClose');
+      cb('closed');
     }
   );
-  // The auth modal is not a form, so
-  //   the enter key must be manually bound
-  //   to submit the password
-  pw.off('keypress');
-  pw.keypress(function (e) {
-    if (e.which == 13) {
-      modal.setContainerDisable(true);
-      cb(null, pw.val());
-      return false;
-    }
-  });
 
   confirmBtn.off('click');
   confirmBtn.on('click', function(e) {
     modal.setContainerDisable(true);
-    cb(null, pw.val());
+    cb(null);
   });
   modal.modal('show');
 };
@@ -2937,7 +2904,7 @@ $.cachedScript = function(url, options) {
   // Return the jqXHR object so we can chain callbacks
   return $.ajax(options);
 };
-$.finishReAuth = function(modal) {
+$.finishConfirmDelete = function(modal) {
   $(modal).modal('hide');
 };
 $.mirror = function(start, selector, regex, replace) {
@@ -5145,8 +5112,7 @@ function reinitialize() {
     NodeList.prototype.forEach = Array.prototype.forEach;
   }
   $_GET = getQueryParams();
-  shouldReAuth = ($('#reAuthDelete').val() == '1') ? true : false;
-  reAuthModal = $('#deleteModal');
+  deleteConfirmModal = $('#deleteModal');
   deleteConfirmButton = $('#confirmDeleteModal');
   deleteLang = deleteConfirmButton.text();
   Common = {

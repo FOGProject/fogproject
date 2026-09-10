@@ -122,14 +122,10 @@ class User extends FOGController
      * Validates the users password and user
      *
      * The $adminTest parameter is gone. It made the credential typed into
-     * the re-authentication prompt (FOG_REAUTH_ON_DELETE) have to belong to
-     * a uType 0 account -- pre-RBAC shorthand for "not a mobile user", back
-     * when FOG had exactly two tiers and the mobile one could not perform a
-     * destructive action anyway. Under roles the tiering is the role's job:
-     * the acting user has already had to pass the node's delete permission
-     * before checkauth() is reached, so re-testing an account type here
-     * decided nothing and would, if translated literally to "must hold '*'",
-     * have newly blocked every scoped role from deleting anything.
+     * the old delete re-authentication prompt belong to a uType 0 account --
+     * pre-RBAC shorthand for "not a mobile user". Under roles the tiering is
+     * the role's job. That prompt is gone too: delete now asks for
+     * confirmation, not a password.
      *
      * @param string $username the username to test
      * @param string $password the password to test
