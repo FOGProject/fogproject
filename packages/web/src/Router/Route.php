@@ -1010,7 +1010,9 @@ class Route extends FOGBase
          * without a bound host whatever it forgets to check. Enroll is
          * the one exception and it is in $unauthexact above.
          */
-        if (!$isunauth && $isAgentRoute) {
+        if (!$isunauth
+            && 0 === strpos($requripath, $webrootbase . self::AGENT_ROUTE_SEGMENT)
+        ) {
             self::$agentHost = self::_agentPrincipal();
             if (!self::$agentHost) {
                 HTTPResponseCodes::breakHead(
