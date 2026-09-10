@@ -285,18 +285,8 @@ class HostManagement extends FOGPage
         );
         $deleteModal = self::makeModal(
             'deleteModal',
-            _('Confirm password'),
-            '<div class="input-group">'
-            . self::makeInput(
-                'form-control',
-                'deletePassword',
-                _('Password'),
-                'password',
-                'deletePassword',
-                '',
-                true
-            )
-            . '</div>',
+            _('Confirm delete'),
+            '<p>' . _('This cannot be undone.') . '</p>',
             $modalDeleteBtns,
             '',
             'danger'
@@ -346,7 +336,6 @@ class HostManagement extends FOGPage
         $remitems = $items['remitems'];
         $pending = $items['pending'];
         if (isset($_POST['confirmdel'])) {
-            self::checkauth();
             Route::deletemass(
                 'host',
                 [
@@ -449,18 +438,8 @@ class HostManagement extends FOGPage
         );
         $deleteModal = self::makeModal(
             'deleteModal',
-            _('Confirm password'),
-            '<div class="input-group">'
-            . self::makeInput(
-                'form-control',
-                'deletePassword',
-                _('Password'),
-                'password',
-                'deletePassword',
-                '',
-                true
-            )
-            . '</div>',
+            _('Confirm delete'),
+            '<p>' . _('This cannot be undone.') . '</p>',
             $modalDeleteBtns,
             '',
             'danger'
@@ -518,7 +497,6 @@ class HostManagement extends FOGPage
         try {
             if (isset($_POST['confirmdel'])) {
                 $errt = _('Delete MAC Fail');
-                self::checkauth();
                 self::$HookManager->processEvent(
                     'MULTI_REMOVE',
                     ['removing' => &$remitems]

@@ -2093,8 +2093,8 @@ msgid "Confirm Download"
 msgstr "Management Password"
 
 #, fuzzy
-msgid "Confirm password"
-msgstr "Management Password"
+msgid "Confirm delete"
+msgstr "Invalid task"
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
 msgstr ""
@@ -10539,6 +10539,10 @@ msgstr ""
 msgid "This acts on the hosts that are in the group right now. It is a task, not a grant: a host added afterward is not affected."
 msgstr ""
 
+#, fuzzy
+msgid "This cannot be undone."
+msgstr "Could not read temp file"
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -10907,10 +10911,6 @@ msgstr ""
 
 msgid "UEFI, state unreadable"
 msgstr ""
-
-#, fuzzy
-msgid "Unable to Authenticate"
-msgstr "Error contacting server"
 
 #, fuzzy
 msgid "Unable to connect to SSH"
@@ -13069,6 +13069,10 @@ msgstr ""
 #~ msgstr "Settings"
 
 #, fuzzy
+#~ msgid "Confirm password"
+#~ msgstr "Management Password"
+
+#, fuzzy
 #~ msgid "Could not read snapin file"
 #~ msgstr "Could not read tmp file."
 
@@ -13719,6 +13723,10 @@ msgstr ""
 
 #~ msgid "Total Rows"
 #~ msgstr "Total Rows"
+
+#, fuzzy
+#~ msgid "Unable to Authenticate"
+#~ msgstr "Error contacting server"
 
 #, fuzzy
 #~ msgid "Unable to find basic information!"

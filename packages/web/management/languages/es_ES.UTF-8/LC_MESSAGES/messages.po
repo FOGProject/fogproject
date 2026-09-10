@@ -2114,8 +2114,8 @@ msgid "Confirm Download"
 msgstr "La gestión de contraseñas"
 
 #, fuzzy
-msgid "Confirm password"
-msgstr "La gestión de contraseñas"
+msgid "Confirm delete"
+msgstr "tarea no válido"
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
 msgstr ""
@@ -10698,6 +10698,10 @@ msgstr ""
 msgid "This acts on the hosts that are in the group right now. It is a task, not a grant: a host added afterward is not affected."
 msgstr ""
 
+#, fuzzy
+msgid "This cannot be undone."
+msgstr "No se pudo leer el archivo temporal"
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -11060,10 +11064,6 @@ msgstr ""
 
 msgid "UEFI, state unreadable"
 msgstr ""
-
-#, fuzzy
-msgid "Unable to Authenticate"
-msgstr "servidor de ponerse en contacto con el error"
 
 #, fuzzy
 msgid "Unable to connect to SSH"
@@ -13222,6 +13222,10 @@ msgstr ""
 #~ msgstr "Configuración Tecla"
 
 #, fuzzy
+#~ msgid "Confirm password"
+#~ msgstr "La gestión de contraseñas"
+
+#, fuzzy
 #~ msgid "Could not read snapin file"
 #~ msgstr "No se pudo leer el archivo tmp."
 
@@ -13863,6 +13867,10 @@ msgstr ""
 
 #~ msgid "Total Rows"
 #~ msgstr "Filas totales"
+
+#, fuzzy
+#~ msgid "Unable to Authenticate"
+#~ msgstr "servidor de ponerse en contacto con el error"
 
 #, fuzzy
 #~ msgid "Unable to find basic information!"

@@ -24,12 +24,11 @@
  *     reject a duplicate -- it would UPDATE the existing row and replace a
  *     live credential's hash, revoking a working token with no audit row
  *     saying so.
- *  3. THE DELETE MODAL. $.deleteSelected drives $.reAuth, which calls
+ *  3. THE DELETE MODAL. $.deleteSelected drives $.confirmDelete, which calls
  *     modal('show') on $('#deleteModal'). process() renders that modal only
- *     when the sub is 'list', and this pane's is not -- so with
- *     FOG_DELETE_REAUTH on, delete would open nothing, do nothing and log
- *     nothing. A silent no-op, which is the failure class this codebase
- *     keeps paying for.
+ *     when the sub is 'list', and this pane's is not -- so delete would open
+ *     nothing, do nothing and log nothing. A silent no-op, which is the
+ *     failure class this codebase keeps paying for.
  *
  * Usage: php tests/apitoken-grid-and-scope.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -198,14 +197,13 @@ $t->check(
 );
 // Its OWN modal, and both surfaces point $.deleteSelected at it. Reusing
 // the shared 'deleteModal' id is what broke the per-user card: that page
-// already renders one -- the one that deletes the ACCOUNT -- so $.reAuth
-// resolved the wrong modal, found no password field, and unbound the
-// General tab's delete-user handler on its way past.
+// already renders one -- the one that deletes the ACCOUNT -- so the confirm
+// helper resolved the wrong modal and unbound the General tab's delete-user
+// handler on its way past.
 $t->check(
-    'the re-auth modal $.reAuth needs is rendered by the pane',
+    'the confirm modal $.confirmDelete needs is rendered by the pane',
     (bool)preg_match("/'apitokenDeleteModal',/", $cfg)
     && (bool)preg_match("/'confirmAPITokenDelete',/", $cfg)
-    && (bool)preg_match("/'apitokenDeletePassword'/", $cfg)
 );
 $t->check(
     'neither surface reuses the shared deleteModal id',
@@ -221,34 +219,24 @@ $t->check(
     )
     && 2 === substr_count($js . $usrJsStripped, "noun: 'API token'")
 );
-// $.reAuth defaults its noun to Common.node, which on these two pages is
-// 'about' and 'user' -- so without the override the confirm button offers to
-// delete "1 abouts" or "1 users".
+// $.confirmDelete defaults its noun to Common.node, which on these two pages
+// is 'about' and 'user' -- so without the override the confirm button offers
+// to delete "1 abouts" or "1 users".
 $t->check(
-    '$.reAuth honors an explicit modal, button and noun',
+    '$.confirmDelete honors an explicit modal, button and noun',
     (bool)preg_match(
-        '/\$\.reAuth = function\(count, cb, opts\)/',
+        '/\$\.confirmDelete = function\(count, cb, opts\)/',
         $common
     )
     && (bool)preg_match('/noun = opts\.noun \|\| Common\.node/', $common)
     && (bool)preg_match(
-        '/modal = opts\.modal \? \$\(opts\.modal\) : reAuthModal/',
+        '/modal = opts\.modal \? \$\(opts\.modal\) : deleteConfirmModal/',
         $common
     )
     && (bool)preg_match(
         '/confirmBtn = opts\.confirmSel \? \$\(opts\.confirmSel\)/',
         $common
     )
-);
-// The password input is read out of the modal that was opened. Document-wide
-// it picks whichever #deletePassword came first in the DOM.
-$t->check(
-    'the password field is scoped to that modal',
-    (bool)preg_match(
-        "/pw = modal\.find\('input\[type=\"password\"\]'\)\.first\(\)/",
-        $common
-    )
-    && false === strpos($common, '$("#deletePassword")')
 );
 $t->check(
     'enable and disable are one endpoint driven by a flag',

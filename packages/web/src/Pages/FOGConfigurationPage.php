@@ -3792,12 +3792,11 @@ class FOGConfigurationPage extends FOGPage
 
         $modals = '';
         if ($mayDelete) {
-            // The re-auth prompt $.deleteSelected drives when
-            // FOG_DELETE_REAUTH is on. process() builds this for a page
-            // whose sub is 'list' and this pane's is not, so without it
-            // $.reAuth calls modal('show') on an empty jQuery set:
-            // nothing opens, nothing is deleted, nothing is logged, and
-            // the button looks broken rather than gated.
+            // The confirm dialog $.deleteSelected opens before every delete.
+            // process() builds this for a page whose sub is 'list' and this
+            // pane's is not, so without it $.confirmDelete calls
+            // modal('show') on an empty jQuery set: nothing opens, nothing
+            // is deleted, nothing is logged, and the button looks broken.
             // Named for this grid rather than reusing 'deleteModal', so the
             // pane never depends on being the only deletable thing on its
             // page -- the assumption that broke the same card on the user
@@ -3805,16 +3804,8 @@ class FOGConfigurationPage extends FOGPage
             // that id.
             $modals .= self::makeModal(
                 'apitokenDeleteModal',
-                _('Confirm password'),
-                '<div class="input-group">'
-                . self::makeInput(
-                    'form-control',
-                    'apitokenDeletePW',
-                    _('Password'),
-                    'password',
-                    'apitokenDeletePassword'
-                )
-                . '</div>',
+                _('Confirm delete'),
+                '<p>' . _('This cannot be undone.') . '</p>',
                 self::makeButton(
                     'closeAPITokenDeleteModal',
                     _('Cancel'),
@@ -4506,8 +4497,6 @@ class FOGConfigurationPage extends FOGPage
             'FOG_API_ENABLED' => true,
             'FOG_ENABLE_SHOW_PASSWORDS' => true,
             'FOG_IMAGE_LIST_MENU' => true,
-            'FOG_REAUTH_ON_DELETE' => true,
-            'FOG_REAUTH_ON_EXPORT' => true,
             'FOG_LOG_INFO' => true,
             'FOG_LOG_ERROR' => true,
             'FOG_LOG_DEBUG' => true,

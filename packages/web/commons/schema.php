@@ -11750,3 +11750,14 @@ $this->schema[] = [
     . ")",
     "UPDATE `multicastSessions` SET `msState` = 5 WHERE `msState` IS NULL",
 ];
+
+// 437
+$this->schema[] = [
+    // Delete asks for confirmation, not a password (forum topic 18239).
+    // FOG_REAUTH_ON_DELETE made every bulk delete re-enter the account
+    // password, which an account created by an identity provider does not
+    // have. FOG_REAUTH_ON_EXPORT had no code reading it at all.
+    "DELETE FROM `globalSettings` WHERE `settingKey` IN ("
+    . "'FOG_REAUTH_ON_DELETE',"
+    . "'FOG_REAUTH_ON_EXPORT')",
+];

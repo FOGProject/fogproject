@@ -795,7 +795,6 @@ class RoleManagement extends FOGPage
      */
     public function delete()
     {
-        self::checkauth();
         $this->_guardRoleRemoval([(int)$this->obj->get('id')]);
         parent::delete();
     }
@@ -807,7 +806,6 @@ class RoleManagement extends FOGPage
      */
     public function deletemulti()
     {
-        self::checkauth();
         $remitems = filter_input_array(
             INPUT_POST,
             ['remitems' => ['flags' => FILTER_REQUIRE_ARRAY]]

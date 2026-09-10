@@ -454,7 +454,6 @@ if ($isLoggedIn && \FOG\Auth\Identity::canStart()) : ?>
             </aside>
             <!-- Main Content -->
             <main class="app-main">
-                <?= FOGPage::makeInput('reAuthDelete', 'reAuthDelete', '', 'hidden', 'reAuthDelete', self::getSetting('FOG_REAUTH_ON_DELETE')); ?>
                 <?php
             $pageLength = self::getSetting('FOG_VIEW_DEFAULT_SCREEN');
 if (in_array(strtolower($pageLength), ['search', 'list'])) {

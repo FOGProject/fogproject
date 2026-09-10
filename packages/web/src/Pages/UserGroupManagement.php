@@ -456,7 +456,6 @@ class UserGroupManagement extends FOGPage
      */
     public function delete()
     {
-        self::checkauth();
         $this->_guardGroupRemoval([(int)$this->obj->get('id')]);
         parent::delete();
     }
@@ -468,7 +467,6 @@ class UserGroupManagement extends FOGPage
      */
     public function deletemulti()
     {
-        self::checkauth();
         $remitems = filter_input_array(
             INPUT_POST,
             ['remitems' => ['flags' => FILTER_REQUIRE_ARRAY]]

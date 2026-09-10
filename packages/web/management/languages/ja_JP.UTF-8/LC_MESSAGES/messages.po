@@ -2028,8 +2028,8 @@ msgid "Confirm Download"
 msgstr "FOG クライアントのダウンロード"
 
 #, fuzzy
-msgid "Confirm password"
-msgstr "パスワードを変更"
+msgid "Confirm delete"
+msgstr "タスクを確認"
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
 msgstr ""
@@ -10200,6 +10200,10 @@ msgstr ""
 msgid "This acts on the hosts that are in the group right now. It is a task, not a grant: a host added afterward is not affected."
 msgstr ""
 
+#, fuzzy
+msgid "This cannot be undone."
+msgstr "Windows で使用できます"
+
 msgid "This change would leave no user with administrator access."
 msgstr ""
 
@@ -10558,9 +10562,6 @@ msgstr ""
 
 msgid "UEFI, state unreadable"
 msgstr ""
-
-msgid "Unable to Authenticate"
-msgstr "認証できません"
 
 #, fuzzy
 msgid "Unable to connect to SSH"
@@ -12821,6 +12822,10 @@ msgstr ""
 #~ msgid "Computer Information"
 #~ msgstr "コンピューター情報"
 
+#, fuzzy
+#~ msgid "Confirm password"
+#~ msgstr "パスワードを変更"
+
 #~ msgid "Conflicting path/file"
 #~ msgstr "競合するパス/ファイル"
 
@@ -14639,6 +14644,9 @@ msgstr ""
 
 #~ msgid "UAC introduced in Vista and up"
 #~ msgstr "UAC は Windows Vista 以降で導入されました"
+
+#~ msgid "Unable to Authenticate"
+#~ msgstr "認証できません"
 
 #~ msgid "Unable to find basic information!"
 #~ msgstr "基本情報が見つかりません！"

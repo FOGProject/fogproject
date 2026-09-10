@@ -1101,31 +1101,22 @@ class UserManagement extends FOGPage
             );
         }
         if ($mayDelete) {
-            // The re-auth prompt $.deleteSelected drives when
-            // FOG_DELETE_REAUTH is on. Without it $.reAuth calls
-            // modal('show') on an empty jQuery set: nothing opens, nothing
-            // is deleted, nothing is logged.
+            // The confirm dialog $.deleteSelected opens before every delete.
+            // Without it $.confirmDelete calls modal('show') on an empty
+            // jQuery set: nothing opens, nothing is deleted, nothing is
+            // logged.
             //
             // Its OWN id, not the shared 'deleteModal'. This page already
             // renders one of those -- the one that deletes the account --
-            // and reusing the id put two of them in the DOM: $.reAuth
-            // resolved the account's, so the confirm read "delete this
-            // user", the password field it needs was not in that modal at
-            // all, and its deleteConfirmButton.off('click') tore the
+            // and reusing the id put two of them in the DOM: the confirm
+            // helper resolved the account's, so the confirm read "delete
+            // this user", and its deleteConfirmButton.off('click') tore the
             // General tab's delete-user handler off for the rest of the
             // page's life.
             $modals .= self::makeModal(
                 'apitokenDeleteModal',
-                _('Confirm password'),
-                '<div class="input-group">'
-                . self::makeInput(
-                    'form-control',
-                    'apitokenDeletePW',
-                    _('Password'),
-                    'password',
-                    'apitokenDeletePassword'
-                )
-                . '</div>',
+                _('Confirm delete'),
+                '<p>' . _('This cannot be undone.') . '</p>',
                 self::makeButton(
                     'closeAPITokenDeleteModal',
                     _('Cancel'),
