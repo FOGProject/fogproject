@@ -30,7 +30,10 @@ use FOG\Router\Route;
  */
 class User extends FOGController
 {
-    const PATTERN = '/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[\w0-9][\w0-9\s\-\.]*[\w0-9]$/i';
+    // "@" is allowed so an email address can sign in. The user form accepts
+    // one (UserManagement::USERNAME_REGEX), and an account the form can
+    // create must be one somebody can sign in as.
+    const PATTERN = '/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[\w0-9][\w0-9\s\-\.@]*[\w0-9]$/i';
     /**
      * A session established by presenting a local password.
      *
