@@ -162,6 +162,12 @@
         },
         {
           render: function(data, type, row) {
+            // A task with no transfer data (queued, a snapin task, any
+            // non-imaging task) has nothing to show here -- rendering the
+            // fields anyway reads as "/ of (/min)" with an empty bar.
+            if (!row.dataTotal) {
+              return '';
+            }
             if (data) {
               data = parseInt(data);
             } else {
