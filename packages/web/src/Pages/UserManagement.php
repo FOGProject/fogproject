@@ -39,6 +39,17 @@ class UserManagement extends FOGPage
      */
     public $node = 'user';
     /**
+     * What a username may look like on the add and edit forms.
+     *
+     * One copy, because the browser and the server both enforce it: the
+     * forms render it into beRegexTo and the POST handlers preg_match it.
+     * "@" is allowed so that an email address can be a username. Identity
+     * providers commonly send one as the username claim.
+     *
+     * @var string
+     */
+    const USERNAME_REGEX = '(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.@]*[A-Za-z\d]$';
+    /**
      * Initializes the user class.
      *
      * @param string $name The name to load this as.
@@ -112,13 +123,13 @@ class UserManagement extends FOGPage
                 3,
                 50,
                 'beRegexTo="'
-                . '(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$"'
+                . self::USERNAME_REGEX . '"'
                 . ' requirements="'
                 . _('Username must begin with 2 numbers or letters.')
                 . ' '
                 . _('Username must end with a number or letter.')
                 . ' '
-                . _('You may use _, ., -, or a space between.')
+                . _('You may use _, ., -, @, or a space between.')
                 . ' '
                 . _('It must be between 3 and 50 characters.')
                 . '"'
@@ -294,12 +305,12 @@ class UserManagement extends FOGPage
         self::checkAuthAndCSRF();
         header('Content-type: application/json');
         self::$HookManager->processEvent('USER_ADD_POST');
-        $userPat = "/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$/";
+        $userPat = '/' . self::USERNAME_REGEX . '/';
         $userErr =  _('Username must begin with 2 numbers or letters.')
             . ' '
             . _('Username must end with a number or letter.')
             . ' '
-            . _('You may use _, ., -, or a space between.')
+            . _('You may use _, ., -, @, or a space between.')
             . ' '
             . _('It must be between 3 and 50 characters.');
         $user = strtolower(
@@ -433,13 +444,13 @@ class UserManagement extends FOGPage
                 3,
                 50,
                 'beRegexTo="'
-                . '(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$"'
+                . self::USERNAME_REGEX . '"'
                 . ' requirements="'
                 . _('Username must begin with 2 numbers or letters.')
                 . ' '
                 . _('Username must end with a number or letter.')
                 . ' '
-                . _('You may use _, ., -, or a space between.')
+                . _('You may use _, ., -, @, or a space between.')
                 . ' '
                 . _('It must be between 3 and 50 characters.')
                 . '"'
@@ -610,12 +621,12 @@ class UserManagement extends FOGPage
     public function userGeneralPost()
     {
         self::checkAuthAndCSRF();
-        $userPat = "/(?=^.{3,50}$)^(?!.*[_\s\-\.]{2,})[A-Za-z\d][\w\s\-\.]*[A-Za-z\d]$/";
+        $userPat = '/' . self::USERNAME_REGEX . '/';
         $userErr =  _('Username must begin with 2 numbers or letters.')
             . ' '
             . _('Username must end with a number or letter.')
             . ' '
-            . _('You may use _, ., -, or a space between.')
+            . _('You may use _, ., -, @, or a space between.')
             . ' '
             . _('It must be between 3 and 50 characters.');
         $user = strtolower(
@@ -629,8 +640,12 @@ class UserManagement extends FOGPage
         if (!preg_match($userPat, $user)) {
             throw new \Exception($userErr);
         }
+        // Pass this account's own id, so the check cannot find this row.
+        // The name is lowercased above and uName compares case-insensitively,
+        // so a mixed-case name such as an IdP's "Rahman@Example.com" matched
+        // itself, and no save of that account could succeed.
         $exists = (new UserManager())
-            ->exists($user);
+            ->exists($user, $this->obj->get('id'));
         if ($user != $this->obj->get('name')
             && $exists
         ) {
