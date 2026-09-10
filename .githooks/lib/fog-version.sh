@@ -31,7 +31,11 @@ system_file="$project_dir/packages/web/src/Base/System.php"
 gitbranch="${1:-$(git branch --show-current)}"
 mode="${2:-0}"
 
-gitcom=$(git rev-list --tags --no-walk --max-count=1)
+# Release tags only. A release tag is the version string itself (1.5.10.2253),
+# so it starts with a digit. Any other tag -- archive/feature-fog2-gui, pushed
+# on 2026-09-06 -- would otherwise become the base version whenever it is the
+# newest tag, and its slash then breaks the sed in apply-fog-version.sh.
+gitcom=$(git rev-list --tags='[0-9]*' --no-walk --max-count=1)
 
 git fetch origin master:master 2>/dev/null || true
 gitcount=$(git rev-list master..HEAD --count)
@@ -70,13 +74,13 @@ compute_version() {
     # is. tests/update-channel-vocabulary.test.sh fails if the halves drift.
     case "$branchon" in
         dev)
-            tagversion=$(git describe --tags "$gitcom")
+            tagversion=$(git describe --tags --match '[0-9]*' "$gitcom")
             baseversion=${tagversion%.*}
             trunkversion="${baseversion}.${count}"
             channel="Patches"
             ;;
         stable)
-            tagversion=$(git describe --tags "$gitcom")
+            tagversion=$(git describe --tags --match '[0-9]*' "$gitcom")
             baseversion=${tagversion%.*}
             count=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
             trunkversion="${baseversion}.${count}"
