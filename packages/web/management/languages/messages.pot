@@ -10148,7 +10148,7 @@ msgstr ""
 msgid "You may not save a filter for everyone"
 msgstr ""
 
-msgid "You may use _, ., -, or a space between."
+msgid "You may use _, ., -, @, or a space between."
 msgstr ""
 
 msgid "You must enable JavaScript to use FOG Management."
