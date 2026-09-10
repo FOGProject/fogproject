@@ -913,10 +913,24 @@ class Route extends FOGBase
         $webrootbase = '/' . ($webrootbase === '' ? '' : $webrootbase . '/');
         self::$_webrootbase = $webrootbase;
 
+        $requripath = strtok((string)self::$requesturi, '?');
         /**
          * If API is not enabled redirect to home page.
+         *
+         * Not the agent routes. FOG_API_ENABLED switches off the REST API
+         * that people and API tokens use; /agent/v1/ is FOG's client
+         * channel, which the setting never governed for the legacy client
+         * (service/*.php) either. Caught here, every fog-agent on a server
+         * with the API off was sent a 308 to the login page and could never
+         * enroll or poll (forum topic 18241). The agent routes keep their
+         * own gate below: enroll issues nothing without an approval, and
+         * everything else needs a certificate bound to a host.
          */
-        if (!self::$ajax && !self::$_enabled) {
+        $isAgentRoute = 0 === strpos(
+            $requripath,
+            $webrootbase . self::AGENT_ROUTE_SEGMENT
+        );
+        if (!self::$ajax && !self::$_enabled && !$isAgentRoute) {
             header(
                 sprintf(
                     'Location: %s://%s%smanagement/index.php',
@@ -975,7 +989,6 @@ class Route extends FOGBase
             }
             $unauthexact[] = $webrootbase . ltrim($pluginRoute['path'], '/');
         }
-        $requripath = strtok((string)self::$requesturi, '?');
         $requribase = dirname($requripath);
         $isunauth = in_array($requribase, $unauthprefixes)
             || in_array(rtrim($requripath, '/'), $unauthexact);
@@ -997,9 +1010,7 @@ class Route extends FOGBase
          * without a bound host whatever it forgets to check. Enroll is
          * the one exception and it is in $unauthexact above.
          */
-        if (!$isunauth
-            && 0 === strpos($requripath, $webrootbase . self::AGENT_ROUTE_SEGMENT)
-        ) {
+        if (!$isunauth && $isAgentRoute) {
             self::$agentHost = self::_agentPrincipal();
             if (!self::$agentHost) {
                 HTTPResponseCodes::breakHead(
