@@ -1571,14 +1571,18 @@ addOndrejRepo() {
 }
 resolveDHCPEngine() {
     # Decide between Kea and ISC-DHCP for the optional FOG-hosted DHCP service.
-    # Only relevant when FOG is actually building DHCP and the ISC package is
+    # Only relevant when FOG is actually building DHCP and a DHCP package is
     # still in the install set (the storage-node and bldhcp=0 paths strip it in
     # doOSSpecificIncludes before we ever get here). Must run after repo setup
     # so the Kea availability probe sees enabled repos (e.g. EPEL on RHEL).
     [[ -z $keaconfig ]] && keaconfig="/etc/kea/kea-dhcp4.conf"
     [[ $bldhcp -eq 1 ]] || return 0
     local iscpkg="$dhcpname"
-    [[ -n $iscpkg && $packages == *"$iscpkg"* ]] || return 0
+    # Accept the Kea package as well. The swap below is saved with the package
+    # list, but $dhcpname and $dhcpconfig are re-seeded from the distro config
+    # on every run. Matching only the ISC name returned here on every re-run of
+    # a Kea install, which left the ISC config path for the Kea JSON (GH-1747).
+    [[ -n $iscpkg && ( $packages == *"$iscpkg"* || ( -n $keapackage && $packages == *"$keapackage"* ) ) ]] || return 0
     # Honor an explicit/persisted choice; an existing install is never switched.
     dhcpengine="${dhcpengine,,}"
     if [[ -z $dhcpengine ]]; then
