@@ -141,6 +141,9 @@ class Host extends FOGController
         'agentNotAfter' => 'hostAgentNotAfter',
         'agentVersion' => 'hostAgentVersion',
         'agentDesiredVersion' => 'hostAgentDesiredVersion',
+        // The update ring for Latest mode (schema 438): an index into
+        // FOG_AGENT_UPDATE_RINGS. Empty means the last ring.
+        'agentUpdateRing' => 'hostAgentUpdateRing',
         'agentCheckin' => 'hostAgentCheckin',
         // Whether this host is CONVERGING on its desired version, as
         // opposed to agentVersion which says where it currently is

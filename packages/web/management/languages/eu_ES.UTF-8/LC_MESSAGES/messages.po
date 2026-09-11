@@ -1074,9 +1074,22 @@ msgstr "Drucker aktualisiert!"
 msgid "Agent Enrollment Tokens"
 msgstr "wurde abgebrochen"
 
+msgid "Agent Release Sync"
+msgstr ""
+
 #, fuzzy
 msgid "Agent Tokens"
 msgstr "API-Zugangstoken"
+
+#, fuzzy
+msgid "Agent Update Ring"
+msgstr "Modulupdate erfolgreich"
+
+msgid "Agent Update Ring must be a ring number, such as 0"
+msgstr ""
+
+msgid "Agent Update Ring must be a ring number, such as 0, or blank"
+msgstr ""
 
 #, fuzzy
 msgid "Agent Update State"
@@ -1093,6 +1106,20 @@ msgstr "Client-Version"
 #, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "wurde abgebrochen"
+
+msgid "Agent release sync failed"
+msgstr ""
+
+#, fuzzy
+msgid "Agent release sync is globally disabled"
+msgstr "* Imagereplikation ist global deaktiviert"
+
+#, fuzzy
+msgid "Agent releases are current"
+msgstr "Falls die Zugangsdaten korrekt sind,"
+
+msgid "Agent updates are off, and no host or minimum version needs a release"
+msgstr ""
 
 msgid "Ago must be boolean"
 msgstr "Ago muss boolean sein"
@@ -1723,6 +1750,10 @@ msgstr "kann keine Verbindung aufbauen"
 msgid "Cannot connect to database"
 msgstr "Kann keine Verbindung zur Datenbank herstellen"
 
+#, fuzzy
+msgid "Cannot create"
+msgstr "kann keine Verbindung aufbauen"
+
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
 msgstr ""
@@ -1746,8 +1777,16 @@ msgid "Cannot select %s field(s): %s"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot store"
+msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
+
+#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Es können keine Tasks auf ausstehende Hosts ausgeführt werden!"
+
+#, fuzzy
+msgid "Cannot write"
+msgstr "Datensatz wurde nicht gefunden, Fehler: %s"
 
 msgid "Capability"
 msgstr ""
@@ -2911,6 +2950,10 @@ msgstr "Download fehlgeschlagen"
 
 #, fuzzy
 msgid "Download the request"
+msgstr "Download fehlgeschlagen"
+
+#, fuzzy
+msgid "Downloaded"
 msgstr "Download fehlgeschlagen"
 
 msgid "Downloaded file is not a bootable kernel image"
@@ -5567,7 +5610,14 @@ msgstr ""
 msgid "Last imaged"
 msgstr "Images"
 
+#, fuzzy
+msgid "Last ring"
+msgstr "Images"
+
 msgid "Latest (upgrade at each check)"
+msgstr ""
+
+msgid "Latest - newest release, by update ring"
 msgstr ""
 
 #, fuzzy
@@ -6931,6 +6981,9 @@ msgstr "MAC-Adresse"
 msgid "Off - direct membership only"
 msgstr ""
 
+msgid "Off - hosts do not update"
+msgstr ""
+
 msgid "Off by default on purpose. Trust in FOG's CA reaches a client when fog-client installs it there, so on a server whose clients are not enrolled yet a forced redirect breaks exactly the machines that cannot fix themselves. Turn it on once trust is in place. It does NOT affect netboot -- that is the separate setting below. Turning it on is not fully reversible: it also sends HSTS, and a browser that has seen that header refuses plain HTTP to this host for six months out of its own cache, whatever this server later says."
 msgstr ""
 
@@ -7300,6 +7353,9 @@ msgid "Ping cycle complete"
 msgstr "wurde abgeschlossen"
 
 msgid "Pinned"
+msgstr ""
+
+msgid "Pinned - every host runs FOG_AGENT_DESIRED_VERSION"
 msgstr ""
 
 #, fuzzy
@@ -8222,6 +8278,9 @@ msgstr "Ausgewählten MAcs freigeben"
 msgid "Revoked."
 msgstr ""
 
+msgid "Ring"
+msgstr ""
+
 #, fuzzy
 msgid "Role"
 msgstr "Rollenname"
@@ -8948,6 +9007,10 @@ msgstr "Größe"
 #, fuzzy
 msgid "Size on Server"
 msgstr "Web-Server"
+
+#, fuzzy
+msgid "Size or hash does not match the manifest"
+msgstr "Diese Methode ist nicht vorhanden"
 
 msgid "Sizes are what each group is configured to hold, not current node usage. The range selects images added inside it, and marks an image stale if it has not been deployed since it opened."
 msgstr ""
@@ -10332,6 +10395,17 @@ msgstr ""
 #, fuzzy
 msgid "The record could not be written."
 msgstr "Temporäre Datei konnte nicht gelesen werden."
+
+msgid "The release manifest is empty or too large"
+msgstr ""
+
+#, fuzzy
+msgid "The release manifest is not readable"
+msgstr "Private Schlüssel nicht lesbar"
+
+#, fuzzy
+msgid "The release signature is not readable"
+msgstr "Private Schlüssel nicht lesbar"
 
 #, fuzzy
 msgid "The renewed certificate, leaf then chain."
@@ -12000,6 +12074,9 @@ msgstr ""
 msgid "day"
 msgstr "Tag"
 
+msgid "days"
+msgstr ""
+
 msgid "deploy task occurs for it"
 msgstr "es eine Verteilungs-Task gibt."
 
@@ -12090,6 +12167,10 @@ msgstr "Starten fehlgeschlagen"
 #, fuzzy
 msgid "file to"
 msgstr "für diese Datei"
+
+#, fuzzy
+msgid "files in the manifest"
+msgstr "Erstellen eines Snapin-Jobs fehlgeschlagen"
 
 msgid "filesize"
 msgstr "Dateigröße"
@@ -12313,6 +12394,9 @@ msgstr "Liste der MAC-Adressen"
 msgid "is already running with pid"
 msgstr "läuft bereits mit PID"
 
+msgid "is below FOG_AGENT_MIN_VERSION"
+msgstr ""
+
 msgid "is missing -- a UNIQUE index the manifest declares"
 msgstr ""
 
@@ -12326,6 +12410,9 @@ msgstr ""
 #, fuzzy
 msgid "is no longer running"
 msgstr "läuft nicht mehr"
+
+msgid "is not a version in the release manifest"
+msgstr ""
 
 msgid "is not currently online"
 msgstr ""
@@ -12424,6 +12511,18 @@ msgstr ""
 
 msgid "multiple places to get your image"
 msgstr "Orte gibt, an denen Sie Ihr Image abrufen können"
+
+msgid "must be a whole number from 0 to 100"
+msgstr ""
+
+msgid "must be an exact version, for example 0.1.8"
+msgstr ""
+
+msgid "must be delays in days from 0 to 365, separated by commas, for example 0,3,7"
+msgstr ""
+
+msgid "must be off, pinned or latest"
+msgstr ""
 
 #, fuzzy
 msgid "must be specified"

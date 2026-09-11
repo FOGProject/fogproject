@@ -52,6 +52,17 @@ class Update extends FOGBase
     const CAPABILITY = 'update';
 
     /**
+     * FOG_AGENT_UPDATE_MODE (schema 438). Off names no version, pinned
+     * names FOG_AGENT_DESIRED_VERSION, latest names the newest release the
+     * host's ring allows. A host's own desired version overrides all three,
+     * and FOG_AGENT_MIN_VERSION is a floor under every one of them.
+     */
+    const MODE_OFF = 'off';
+    const MODE_PINNED = 'pinned';
+    const MODE_LATEST = 'latest';
+    const MODES = [self::MODE_OFF, self::MODE_PINNED, self::MODE_LATEST];
+
+    /**
      * Where a host stands in relation to the version it was told to run
      * (schema 435). Stored on the host so it can be a column and a filter:
      * the whole point is turning "something out there refused" into a list
@@ -321,17 +332,131 @@ class Update extends FOGBase
      * says which hosts carry one, so "everything not following the fleet"
      * is a filter and clearing them is one mass edit.
      *
+     * Below the override, FOG_AGENT_UPDATE_MODE decides (schema 438). Off
+     * names nothing. Pinned names FOG_AGENT_DESIRED_VERSION. Latest names
+     * the newest release this server has known for as long as the host's
+     * ring asks. This server resolves latest, so an agent is still only
+     * ever given an exact version, and every agent already in the field
+     * follows latest with no change of its own.
+     *
      * @param Host $Host the host asking
      *
      * @return string
      */
     public static function version(Host $Host)
     {
-        $own = self::normalize($Host->get('agentDesiredVersion'));
-        if ('' !== $own) {
-            return $own;
+        return self::resolve(
+            $Host->get('agentDesiredVersion'),
+            $Host->get('agentUpdateRing'),
+            $Host->get('agentVersion'),
+            self::fleet()
+        );
+    }
+
+    /**
+     * The fleet-wide half of resolve(), read once.
+     *
+     * The release index is read only when something can use it. Before
+     * schema 438 the table does not exist, and Latest cannot be chosen
+     * until that step has run.
+     *
+     * @param bool $releases read the release index whatever the mode, as
+     *                       the sync does to keep running versions
+     *
+     * @return array
+     */
+    public static function fleet($releases = false)
+    {
+        $mode = self::mode();
+        return [
+            'mode' => $mode,
+            'pinned' => self::normalize(self::getSetting('FOG_AGENT_DESIRED_VERSION')),
+            'min' => self::normalize(self::getSetting('FOG_AGENT_MIN_VERSION')),
+            'rings' => Releases::ringDelays(self::getSetting('FOG_AGENT_UPDATE_RINGS')),
+            'firstSeen' => ($releases || self::MODE_LATEST === $mode)
+                ? Releases::firstSeen()
+                : [],
+            'now' => self::niceDate()->getTimestamp()
+        ];
+    }
+
+    /**
+     * The version one host should run, from its own fields and the fleet.
+     *
+     * The override wins over the mode, and FOG_AGENT_MIN_VERSION is applied
+     * last, to whatever was chosen, so no source can name a version below
+     * the minimum.
+     *
+     * @param string $override the host's own desired version
+     * @param string $ring     the host's update ring
+     * @param string $running  the version the host runs
+     * @param array  $fleet    fleet()
+     *
+     * @return string
+     */
+    public static function resolve($override, $ring, $running, array $fleet)
+    {
+        $target = self::normalize($override);
+        if ('' === $target) {
+            switch ($fleet['mode']) {
+                case self::MODE_PINNED:
+                    $target = $fleet['pinned'];
+                    break;
+                case self::MODE_LATEST:
+                    $target = Releases::latest(
+                        $fleet['firstSeen'],
+                        Releases::delayFor($ring, $fleet['rings']),
+                        $running,
+                        $fleet['now']
+                    );
+                    break;
+            }
         }
-        return self::normalize(self::getSetting('FOG_AGENT_DESIRED_VERSION'));
+        return Releases::floor($target, $running, $fleet['min']);
+    }
+
+    /**
+     * Whether a version is below FOG_AGENT_MIN_VERSION.
+     *
+     * The host form and the settings page refuse to save one: the floor
+     * would raise it, and the saved value would then name a version no host
+     * runs.
+     *
+     * @param string      $version the version to save
+     * @param string|null $min     the minimum, or null for the setting
+     *
+     * @return bool
+     */
+    public static function belowMinimum($version, $min = null)
+    {
+        $min = self::normalize(
+            null === $min ? self::getSetting('FOG_AGENT_MIN_VERSION') : $min
+        );
+        $version = self::normalize($version);
+        return Releases::isVersion($min)
+            && Releases::isVersion($version)
+            && version_compare($version, $min, '<');
+    }
+
+    /**
+     * The fleet's update mode, one of the MODE_* constants.
+     *
+     * A server that has not run schema 438 has no mode setting. There a
+     * version in FOG_AGENT_DESIRED_VERSION meant pinned and an empty one
+     * meant off, and this answers the same, so code deployed ahead of the
+     * schema updater changes nothing.
+     *
+     * @return string
+     */
+    public static function mode()
+    {
+        $mode = strtolower(trim((string)self::getSetting('FOG_AGENT_UPDATE_MODE')));
+        if (in_array($mode, self::MODES, true)) {
+            return $mode;
+        }
+        return '' === self::normalize(self::getSetting('FOG_AGENT_DESIRED_VERSION'))
+            ? self::MODE_OFF
+            : self::MODE_PINNED;
     }
 
     /**
@@ -356,6 +481,37 @@ class Update extends FOGBase
         if ('' !== $url) {
             $block['manifest_url'] = $url;
         }
+        // This server's copy, when FOGAgentReleaseSync has one (schema 438).
+        // The agent verifies the manifest and signature exactly as if it had
+        // fetched them, and takes the file from the payload route before it
+        // tries the release address. An agent older than 0.1.8 ignores the
+        // three keys and fetches from the origin as before.
+        $inline = Releases::inline($version);
+        if (null !== $inline) {
+            $block['manifest'] = $inline['manifest'];
+            $block['signature'] = $inline['signature'];
+        }
+        $artifact = Releases::artifactFor($Host, $version);
+        if ($artifact > 0) {
+            $block['artifact'] = $artifact;
+        }
         return $block;
+    }
+
+    /**
+     * The release file for GET /agent/v1/payload/update/{id}. Streams and
+     * exits.
+     *
+     * @param Host $Host the agent's host
+     * @param int  $id   the agentReleaseArtifacts row the update block named
+     *
+     * @throws \RuntimeException 404, 503 (see Releases::stream)
+     *
+     * @return void
+     */
+    public static function payload(Host $Host, $id)
+    {
+        Releases::stream((int)$id, self::version($Host));
+        exit;
     }
 }

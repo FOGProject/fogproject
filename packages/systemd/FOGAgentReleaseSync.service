@@ -1,0 +1,38 @@
+### BEGIN INIT INFO
+# Provides: FOGAgentReleaseSync
+# Required-Start: $local_fs $remote_fs $network $syslog $network $inetd
+# Required-Stop: $local_fs $remote_fs $network $syslog $network $inetd
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# X-Interactive: true
+# Short-Description: Start/Stop FOGAgentReleaseSync
+# Long-Description: Downloads the signed fog-agent release manifest and the
+# agent binaries this server's enrolled hosts need, so agents update from
+# their FOG server instead of each downloading from GitHub. Stopping or
+# disabling this unit stops that sync; nothing else does it.
+### END INIT INFO
+
+[Unit]
+Description=FOGAgentReleaseSync
+After=syslog.target network.target network-online.target mysql.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+# Like FOGPluginRunner and FOGRetentionRunner, this daemon does not run as
+# root. It downloads and stores the files agents update from, into a place the
+# web tier serves -- so it runs as the account that already owns that tree,
+# with no reason to be able to do more than that.
+#
+# FOGWEBUSER is a placeholder installInitScript() rewrites to $apacheuser in
+# the INSTALLED copy, never here. If that substitution does not happen systemd
+# refuses to start the unit on an unknown user, which is the intended failure:
+# loud, rather than silently falling back to root.
+User=FOGWEBUSER
+Group=FOGWEBUSER
+ExecStart=/usr/bin/env php /opt/fog/service/FOGAgentReleaseSync/FOGAgentReleaseSync
+
+[Install]
+WantedBy=multi-user.target

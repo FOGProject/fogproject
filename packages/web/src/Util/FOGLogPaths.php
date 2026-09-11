@@ -58,9 +58,13 @@ class FOGLogPaths
      * daemon, separate from plugins/ not for privilege -- both run as the web
      * user -- but because a retention log filed under plugins/ would suggest
      * retention is a plugin feature, which is the confusion that daemon was
-     * split out to end. 'fos' is where the web tier records what FOS told it,
-     * and is separate for the same reason as plugins/: that writer IS the web
-     * tier, and the top level belongs to root's daemons.
+     * split out to end. 'agentreleasesync' is the release sync runner's, the
+     * third non-root daemon, separate from the other two for the same reason:
+     * it downloads the signed fog-agent release manifest and the agent
+     * binaries this server's enrolled hosts need, which is neither a plugin
+     * nor a retention concern. 'fos' is where the web tier records what FOS
+     * told it, and is separate for the same reason as plugins/: that writer
+     * IS the web tier, and the top level belongs to root's daemons.
      *
      * 'faults' is FOGBase::logFault()'s -- every database write FOG could not
      * complete. It is the one entry here written by BOTH tiers, which is why
@@ -74,6 +78,7 @@ class FOGLogPaths
         '',
         'plugins',
         'retention',
+        'agentreleasesync',
         'fos',
         'faults',
     ];

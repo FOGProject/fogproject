@@ -671,7 +671,14 @@ $check(
 // reason the value-control checks above drop them -- standing a schema up to
 // watch ImageManager build a select would make this an install rehearsal --
 // and the tab question is unaffected by which control a pane contains.
-$needsDb = ['image' => 1, 'arch' => 1, 'biosexit' => 1, 'efiexit' => 1];
+$needsDb = ['image' => 1, 'arch' => 1, 'biosexit' => 1, 'efiexit' => 1, 'ring' => 1];
+// The ring picker reads FOG_AGENT_UPDATE_RINGS, so it is pinned at the spec
+// level instead: a picker, never free text, because a typed ring reaches
+// every selected host.
+$check(
+    'the agent update ring is a ring picker, not free text',
+    'ring' === ($core['agentUpdateRing']['kind'] ?? '')
+);
 $renderCore = [];
 foreach ($core as $key => $spec) {
     if (!isset($needsDb[$spec['kind'] ?? 'text'])) {

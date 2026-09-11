@@ -11761,3 +11761,157 @@ $this->schema[] = [
     . "'FOG_REAUTH_ON_DELETE',"
     . "'FOG_REAUTH_ON_EXPORT')",
 ];
+
+// 438
+$this->schema[] = [
+    // fog-agent update modes, update rings, and this server's release cache
+    // (design 0015 sections 2.2 and 7, as changed on 2026-09-11).
+    //
+    // FOG_AGENT_UPDATE_MODE replaces "an empty version means off". A server
+    // that already named a version keeps it as pinned. Every other server
+    // stays off, so nothing starts updating because the server was upgraded.
+    //
+    // Latest is resolved here, not in the agent. The agent still receives
+    // an exact version, so every agent already in the field follows latest
+    // with no change of its own. The server learns which versions exist from
+    // the signed manifest that FOGAgentReleaseSync downloads, and it records
+    // when it first saw each one. A ring's delay counts from that time.
+    //
+    // hostAgentUpdateRing is on the host, not the group. A host holds one
+    // ring, so two groups that name different rings means one loses: the
+    // imperative half of ADR 0038. A rollout selects hosts with a group
+    // filter and sets the ring by mass edit. Empty means the last ring, so a
+    // new host is never among the first to update.
+    //
+    // agentReleaseArtifacts is the sync's index: one row for each file of
+    // each version in the manifest. araInManifest drops to 0 when a version
+    // is withdrawn (its key deleted from the manifest), and that takes it
+    // out of latest. araCachedPath is set only after the file on disk hashed
+    // to araSHA256.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN IF NOT EXISTS `hostAgentUpdateRing` varchar(4) NOT NULL DEFAULT ''",
+    "CREATE TABLE IF NOT EXISTS `agentReleaseArtifacts` ( "
+    . "`araID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`araVersion` varchar(50) NOT NULL DEFAULT '', "
+    . "`araOS` varchar(16) NOT NULL DEFAULT '', "
+    . "`araArch` varchar(16) NOT NULL DEFAULT '', "
+    . "`araSHA256` varchar(64) NOT NULL DEFAULT '', "
+    . "`araSize` bigint(20) NOT NULL DEFAULT 0, "
+    . "`araURL` varchar(1024) NOT NULL DEFAULT '', "
+    . "`araSecurity` tinyint(1) NOT NULL DEFAULT 0, "
+    . "`araInManifest` tinyint(1) NOT NULL DEFAULT 1, "
+    . "`araFirstSeen` datetime DEFAULT NULL, "
+    . "`araCachedPath` varchar(255) NOT NULL DEFAULT '', "
+    . "`araCachedAt` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`araID`), "
+    . "UNIQUE KEY `araFile` (`araVersion`,`araOS`,`araArch`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // Before the plain INSERT below: a server that named a version gets
+    // pinned here, and the IGNORE below then leaves that row alone.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) "
+    . "SELECT 'FOG_AGENT_UPDATE_MODE', '', "
+    . "IF(TRIM(`settingValue`) <> '', 'pinned', 'off'), 'FOG Agent' "
+    . "FROM `globalSettings` WHERE `settingKey` = 'FOG_AGENT_DESIRED_VERSION'",
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_UPDATE_MODE','','off','FOG Agent'),"
+    . "('FOG_AGENT_UPDATE_RINGS','Update rings for Latest mode: delays in "
+    . "days, separated by commas, for example 0,3,7. Ring 0 gets a release "
+    . "the first delay after this server first saw it, ring 1 the second "
+    . "delay, and so on. Set a host''s ring in Agent Update Ring on the host, "
+    . "or by mass edit. A host with no ring uses the last one, so a new host "
+    . "is never among the first to update. (Default 0,3,7)','0,3,7',"
+    . "'FOG Agent'),"
+    . "('FOG_AGENT_MIN_VERSION','The lowest fog-agent version any enrolled "
+    . "host may run, for example 0.1.8. No host is told a version below it, "
+    . "whatever the mode: a pinned version, a host''s own Desired Agent "
+    . "Version, or a ring delay below it is raised to it. A host that runs a "
+    . "release below it is updated to it, even when FOG_AGENT_UPDATE_MODE is "
+    . "Off. It must be a version in the release manifest. Empty means no "
+    . "minimum. (Default empty)','','FOG Agent'),"
+    . "('FOG_AGENT_KEEP_VERSIONS','How many of the newest fog-agent releases "
+    . "this server keeps in /opt/fog/agent/versions after hosts stop needing "
+    . "them, so a rollback works when the release source cannot be reached. "
+    . "Every version a host runs or is told to run is kept as well. "
+    . "(Default 3)','3','FOG Agent'),"
+    // The daemon's four keys, in the categories of the other services, as
+    // step 358 did for the retention runner.
+    . "('AGENTRELEASESYNCGLOBALENABLED','This setting defines if the "
+    . "fog-agent release sync is enabled. It downloads the release manifest "
+    . "and the agent files this server''s hosts need, so agents update from "
+    . "this server. It stays idle while FOG_AGENT_UPDATE_MODE is Off, no host "
+    . "has its own Desired Agent Version, and FOG_AGENT_MIN_VERSION is empty. "
+    . "(Default is enabled)','1','FOG Linux Service Enabled'),"
+    . "('AGENTRELEASESYNCSLEEPTIME','The amount of time between fog-agent "
+    . "release syncs. It is also the longest a new release waits before this "
+    . "server sees it. Value is in seconds. (Default 3600)','3600',"
+    . "'FOG Linux Service Sleep Times'),"
+    . "('AGENTRELEASESYNCLOGFILENAME','Filename to store the fog-agent "
+    . "release sync log file to. It is written to an agentreleasesync/ "
+    . "subdirectory of the service log path, because this service runs as the "
+    . "web user rather than root. (Default fogagentreleasesync.log)',"
+    . "'fogagentreleasesync.log','FOG Linux Service Logs'),"
+    . "('AGENTRELEASESYNCDEVICEOUTPUT','The tty to output to for the "
+    . "fog-agent release sync service. (Default /dev/tty3)','/dev/tty3',"
+    . "'FOG Linux Service TTY Output')",
+    "UPDATE `globalSettings` SET `settingDesc` = 'How enrolled fog-agent "
+    . "hosts update themselves. Off: no host updates, except a host with its "
+    . "own Desired Agent Version. Pinned: every host runs "
+    . "FOG_AGENT_DESIRED_VERSION. Latest: every host runs the newest release, "
+    . "after the delay of its update ring in FOG_AGENT_UPDATE_RINGS, and "
+    . "never moves below the version it runs unless that version is "
+    . "withdrawn. A host''s own Desired Agent Version overrides all three. "
+    . "(Default Off)' WHERE `settingKey` = 'FOG_AGENT_UPDATE_MODE'",
+    "UPDATE `globalSettings` SET `settingDesc` = 'The fog-agent version "
+    . "every enrolled host runs when FOG_AGENT_UPDATE_MODE is Pinned, for "
+    . "example 0.4.2. Only an exact version is accepted. A host''s own "
+    . "Desired Agent Version overrides this.' "
+    . "WHERE `settingKey` = 'FOG_AGENT_DESIRED_VERSION'",
+    // The old text said a mirror serves a site with no internet access. It
+    // did not, and it still does not: each file is downloaded from the
+    // address inside the signed manifest, which is GitHub, and a mirror
+    // cannot change that address without breaking the signature. What a
+    // mirror changes is where the manifest comes from, so that is all the
+    // text now says.
+    "UPDATE `globalSettings` SET `settingDesc` = 'Where this server "
+    . "downloads the signed fog-agent release manifest. Empty means "
+    . "https://fogproject.org/version/agent-stable.json. FOGAgentReleaseSync "
+    . "downloads the manifest, then each agent file this server''s hosts need "
+    . "from the address inside the manifest, and agents fetch both from this "
+    . "server. Nothing a mirror serves is trusted: every agent checks FOG "
+    . "Project''s signature and each file''s hash itself. Agents older than "
+    . "0.1.8 fetch the manifest from this address and each file from the "
+    . "address inside the manifest themselves.' "
+    . "WHERE `settingKey` = 'FOG_AGENT_UPDATE_MANIFEST_URL'",
+    // Every setting only fog-agent reads goes in one place, FOG Agent. They
+    // were spread over General Settings, FOG Client and FOG Directory, so
+    // an admin looking for the agent's settings found one of eleven.
+    //
+    // Directory placement keeps a group of its own, named the way the FOG
+    // Client module groups are, so its six LDAP settings sort next to FOG
+    // Agent without burying it.
+    //
+    // A setting both clients read stays where it is. The settings page
+    // names each input by the setting, so one setting drawn in two panels
+    // posts twice and the unchanged copy overwrites the edit. Its text says
+    // the agent reads it instead, and the settings search matches text.
+    //
+    // The four AGENTRELEASESYNC keys stay with the other services, where
+    // every daemon's switch, sleep, log and tty already are.
+    "UPDATE `globalSettings` SET `settingCategory` = 'FOG Agent' "
+    . "WHERE `settingKey` IN ('FOG_AGENT_DESIRED_VERSION',"
+    . "'FOG_AGENT_UPDATE_MANIFEST_URL','FOG_AGENT_ENROLL_DEPLOY_WINDOW',"
+    . "'FOG_AGENT_INVENTORY_ENABLED','FOG_AGENT_WAKE_RELAY_ENABLED',"
+    . "'FOG_USERTRACKING_COMPAT_WRITE','FOG_SOFTWARE_CHOCO_BOOTSTRAP_URL',"
+    . "'FOG_SOFTWARE_CHOCO_NUPKG_URL','FOG_SOFTWARE_DRIFT_INTERVAL')",
+    "UPDATE `globalSettings` "
+    . "SET `settingCategory` = 'FOG Agent - Directory Placement' "
+    . "WHERE `settingKey` IN ('FOG_DIRECTORY_PLACEMENT_ENABLED',"
+    . "'FOG_DIRECTORY_LDAP_URI','FOG_DIRECTORY_BIND_DN',"
+    . "'FOG_DIRECTORY_BIND_PASSWORD','FOG_DIRECTORY_BASE_DN',"
+    . "'FOG_DIRECTORY_CA_CERT')",
+    "UPDATE `globalSettings` SET `settingDesc` = CONCAT(TRIM(`settingDesc`), "
+    . "' fog-agent reads this setting too.') "
+    . "WHERE `settingKey` IN ('FOG_GRACE_TIMEOUT','FOG_TASK_FORCE_REBOOT')",
+];

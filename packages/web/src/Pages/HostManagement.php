@@ -222,6 +222,10 @@ class HostManagement extends FOGPage
             // means no version has been asked of this host at all, which is
             // the shipped default and is not the same as healthy.
             _('Agent Update State'),
+            // The host's update ring for Latest mode (schema 438). Blank is
+            // the last ring, which is the stored value, so a filter on blank
+            // finds the hosts nobody has placed.
+            _('Agent Update Ring'),
             _('Description')
         );
         array_push(
@@ -236,6 +240,7 @@ class HostManagement extends FOGPage
             ['data-col' => 'agentVersion'],
             ['data-col' => 'agentDesiredVersion'],
             ['data-col' => 'agentUpdateState'],
+            ['data-col' => 'agentUpdateRing'],
             ['data-col' => 'description']
         );
     }
@@ -1643,6 +1648,14 @@ class HostManagement extends FOGPage
             filter_input(INPUT_POST, 'agentdesiredversion') ?:
             ($this->obj->get('agentDesiredVersion') ?: '')
         );
+        // The update ring from schema 438. Not read with ?: like the field
+        // above, because ring 0 is the string '0', and ?: would show ring 0
+        // as blank, which means the last ring.
+        $agentUpdateRing = (
+            filter_has_var(INPUT_POST, 'agentupdatering') ?
+            (string)filter_input(INPUT_POST, 'agentupdatering') :
+            (string)$this->obj->get('agentUpdateRing')
+        );
         $enforce = (int)filter_input(INPUT_POST, 'enforce')
             ?: $this->obj->get('enforce');
         // Server-owned, never posted back -- see the disabled inputs below.
@@ -1986,6 +1999,22 @@ class HostManagement extends FOGPage
                 true,
                 true
             ),
+            // EDITABLE. The host's ring for FOG_AGENT_UPDATE_MODE Latest
+            // (schema 438): 0 updates first, blank is the last ring. After
+            // the state field, not between it and Desired Agent Version,
+            // which it answers.
+            self::makeLabel(
+                $labelClass,
+                'agentupdatering',
+                _('Agent Update Ring')
+            ) => self::makeInput(
+                'form-control hostagentupdatering-input',
+                'agentupdatering',
+                _('Last ring'),
+                'text',
+                'agentupdatering',
+                $agentUpdateRing
+            ),
             // OBSERVED -- disabled, for the same reason and in the same way
             // as the two above. This is the field ADR 0029's hard constraint
             // is about: it is a report of what a machine said, not a claim
@@ -2209,6 +2238,37 @@ class HostManagement extends FOGPage
         $agentDesiredVersion = \FOG\Agent\Update::normalize(
             filter_input(INPUT_POST, 'agentdesiredversion')
         );
+        // FOG_AGENT_MIN_VERSION (schema 438) raises a version below it, so
+        // an override below it would be stored and never obeyed. Refused,
+        // so the form never shows a version the host will not run.
+        if (\FOG\Agent\Update::belowMinimum($agentDesiredVersion)) {
+            throw new \Exception(
+                sprintf(
+                    '%s %s %s %s',
+                    _('Desired Agent Version'),
+                    $agentDesiredVersion,
+                    _('is below FOG_AGENT_MIN_VERSION'),
+                    \FOG\Agent\Update::normalize(
+                        self::getSetting('FOG_AGENT_MIN_VERSION')
+                    )
+                )
+            );
+        }
+        // A ring number, or blank for the last ring. Stored without leading
+        // zeros so a filter on 1 finds every ring 1 host.
+        $agentUpdateRing = trim(
+            (string)filter_input(INPUT_POST, 'agentupdatering')
+        );
+        if ('' !== $agentUpdateRing
+            && (!ctype_digit($agentUpdateRing) || strlen($agentUpdateRing) > 3)
+        ) {
+            throw new \Exception(
+                _('Agent Update Ring must be a ring number, such as 0, or blank')
+            );
+        }
+        if ('' !== $agentUpdateRing) {
+            $agentUpdateRing = (string)(int)$agentUpdateRing;
+        }
         $bte = trim(
             (string)filter_input(INPUT_POST, 'bootTypeExit')
         );
@@ -2254,6 +2314,7 @@ class HostManagement extends FOGPage
             ->set('kernelDevice', $dev)
             ->set('init', $init)
             ->set('agentDesiredVersion', $agentDesiredVersion)
+            ->set('agentUpdateRing', $agentUpdateRing)
             ->set('biosexit', $bte)
             ->set('efiexit', $ebte)
             ->set('enforce', $enforce)
@@ -5029,6 +5090,17 @@ class HostManagement extends FOGPage
                 'kind' => 'efiexit',
                 'tab' => 'general'
             ],
+            // The update ring for FOG_AGENT_UPDATE_MODE Latest (schema 438).
+            // A host column, so it is set here and not on a group (ADR 0038
+            // decision 1). A rollout selects hosts with a filter and sets
+            // their ring. Clear means the last ring.
+            'agentUpdateRing' => [
+                'field' => 'agentUpdateRing',
+                'empty' => '',
+                'label' => _('Agent Update Ring'),
+                'kind' => 'ring',
+                'tab' => 'general'
+            ],
             'productKey' => [
                 'field' => 'productKey',
                 'empty' => '',
@@ -5490,6 +5562,23 @@ class HostManagement extends FOGPage
                     $id,
                     ['1' => _('Yes'), '0' => _('No')]
                 );
+            case 'ring':
+                // A picker of the rings FOG_AGENT_UPDATE_RINGS defines, with
+                // each delay, so a mass edit cannot store a ring by typo.
+                $rings = [];
+                $delays = \FOG\Agent\Releases::ringDelays(
+                    self::getSetting('FOG_AGENT_UPDATE_RINGS')
+                );
+                foreach ($delays as $ring => $days) {
+                    $rings[(string)$ring] = sprintf(
+                        '%s %d (%d %s)',
+                        _('Ring'),
+                        $ring,
+                        $days,
+                        _('days')
+                    );
+                }
+                return self::massEditSelect($name, $id, $rings);
             case 'password':
                 // autocomplete off and no value: the browser must not offer
                 // to fill a field that writes to four hundred hosts.
@@ -5888,6 +5977,16 @@ class HostManagement extends FOGPage
                 $posted['action'] ?? null,
                 $posted['value'] ?? null
             );
+            // The ring control is a picker, but the value still comes from
+            // the browser, and columnUpdates() writes whatever SET carries.
+            $ring = $resolved['agentUpdateRing'] ?? [];
+            if (MassEdit::SET === ($ring['action'] ?? null)
+                && !preg_match('/^(0|[1-9][0-9]{0,2})$/', (string)($ring['value'] ?? ''))
+            ) {
+                throw new \Exception(
+                    _('Agent Update Ring must be a ring number, such as 0')
+                );
+            }
             $touched = array_merge(
                 MassEdit::touched($resolved),
                 MassEdit::touched($resolvedRows)

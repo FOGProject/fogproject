@@ -1,0 +1,38 @@
+#!/usr/bin/php -q
+<?php
+/**
+ * FOGAgentReleaseSync service to download the fog-agent release this
+ * server's enrolled hosts need
+ *
+ * PHP version 5
+ *
+ * @category FOGAgentReleaseSync
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+
+/**
+ * FOGAgentReleaseSync service to download the fog-agent release this
+ * server's enrolled hosts need
+ *
+ * Downloads the signed fog-agent release manifest and the agent binaries
+ * this server's enrolled hosts need, so agents update from their FOG server
+ * instead of each downloading from GitHub.
+ *
+ * Like FOGPluginRunner and FOGRetentionRunner this runs as the web user, not
+ * root: it writes into a place the web tier serves. The User=/Group= lines
+ * in the unit file are what enforce that, and installInitScript() fills
+ * them in.
+ *
+ * @category FOGAgentReleaseSync
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+require dirname(realpath(__FILE__)).'/../etc/config.php';
+require dirname(realpath(__FILE__)).'/../lib/service_lib.php';
+service_persist('FOGAgentReleaseSync');
+\FOG\Base\FOGCore::getClass('AgentReleaseSync')->run();

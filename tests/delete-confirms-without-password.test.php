@@ -134,9 +134,13 @@ $t->check('$.reAuth is gone', false === strpos($common, '$.reAuth'));
 // 5. Both settings are retired.
 // ---------------------------------------------------------------------------
 $schema = (string)file_get_contents($web . '/commons/schema.php');
-$lastStep = (string)substr($schema, (int)strrpos($schema, '$this->schema[] = ['));
+// Step 437 by its number. This read "the newest step" until 438 landed, and
+// every later step would have failed it for a reason unrelated to deletes.
+$from = (int)strpos($schema, "\n// 437\n");
+$to = strpos($schema, "\n// 438\n", $from);
+$lastStep = (string)substr($schema, $from, false === $to ? null : $to - $from);
 $t->check(
-    'the newest schema step deletes both settings',
+    'schema step 437 deletes both settings',
     (bool)preg_match('/DELETE FROM `globalSettings`/', $lastStep)
     && false !== strpos($lastStep, "'FOG_REAUTH_ON_DELETE'")
     && false !== strpos($lastStep, "'FOG_REAUTH_ON_EXPORT'")

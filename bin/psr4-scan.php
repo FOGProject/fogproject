@@ -251,6 +251,11 @@ const TABLE = [
     // desired state -- and not Items, because it is not a row: it reads a
     // host column and a global setting and decides which of the two wins.
     'Update' => 'Agent',
+    // The server's copy of fog-agent releases (design 0015): the signed
+    // manifest, the files hosts need, and which versions to keep. Agent for
+    // the same reason as Update, which it serves; FOGAgentReleaseSync only
+    // calls its sync().
+    'Releases' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',
