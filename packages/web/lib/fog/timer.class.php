@@ -3,7 +3,7 @@
  * Creates the timer item so we know when
  * something is supposed to occur.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Timer
  * @package  FOGProject

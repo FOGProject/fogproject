@@ -4,7 +4,7 @@
  * Because of the similarities of use for events and hooks
  * the event class here is the hook base model as well.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Event
  * @package  FOGProject

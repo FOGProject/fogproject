@@ -2,7 +2,7 @@
 /**
  * Alters the boot task to make a custom entry.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category BootTask
  * @package  FOGProject

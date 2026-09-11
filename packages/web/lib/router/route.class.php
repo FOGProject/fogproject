@@ -2,7 +2,7 @@
 /**
  * Creates our routes for api configuration.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category Route
  * @package  FOGProject
@@ -118,6 +118,70 @@ class Route extends FOGBase
         'virus'
     );
     /**
+     * globalSettings rows whose VALUE is a credential.
+     *
+     * Settings are the odd one out: they are key/value rows, so the secret
+     * is the value of a particular *row* rather than a column present on
+     * every row. A setting matched here has its 'value' removed from API
+     * output while its name, description and category stay, so a consumer
+     * can still see that the setting exists.
+     *
+     * Matching is a pattern plus a short explicit list rather than a hand
+     * maintained enumeration of every key, so a credential setting added
+     * later is masked by default instead of leaking silently until someone
+     * remembers to add it.
+     *
+     * The pattern deliberately requires PASSWORD/PASSWD/PWD and not a bare
+     * "PASS": FOG_USER_MINPASSLENGTH is password *policy* and the UI has to
+     * be able to describe its own rules. KEY is deliberately absent for the
+     * same reason -- FOG_KEYMAP, FOG_KEY_SEQUENCE, FOG_HOSTKEY_ALLOWED_
+     * SOURCES and FOG_QUICKREG_PROD_KEY_BIOS are all configuration.
+     *
+     * Checked against a real 1.5.10 install: the five keys this pattern
+     * catches (FOG_AD_DEFAULT_PASSWORD, _LEGACY, FOG_API_TOKEN,
+     * FOG_PROXY_PASSWORD, FOG_TFTP_FTP_PASSWORD) are all genuine
+     * credentials, and nothing it catches is not one.
+     *
+     * @var string
+     */
+    const SENSITIVE_SETTING_PATTERN = '#(PASSWORD|PASSWD|PWD|SECRET|TOKEN)#i';
+    /**
+     * Credential settings the pattern does not catch.
+     *
+     * @var array
+     */
+    public static $sensitiveSettings = array(
+        // "PASS", not "PASSWORD" -- outside the pattern by one word.
+        'FOG_STORAGENODE_MYSQLPASS',
+        // The shared HMAC secret FOG signs its own server-to-server
+        // requests with. See FOGBase::nodeApiKey().
+        'FOG_NODE_API_KEY',
+    );
+    /**
+     * Settings the pattern matches that are NOT credentials.
+     *
+     * Empty on this branch -- verified against a real 1.5.10 install, the
+     * pattern has no false positives here. Kept so the predicate has the
+     * same three parts it has on working-1.6: this is the one function that
+     * decides whether something is a secret, and a shape that differs
+     * between the branches is a port waiting to go wrong.
+     *
+     * @var array
+     */
+    public static $sensitiveSettingsExempt = array();
+    /**
+     * True once api/index.php has constructed this class.
+     *
+     * The seam between "FOG is answering an HTTP API request" and "a page is
+     * calling Route as a library". Nothing but api/index.php does `new
+     * Route`, and 116 in-tree call sites reach listem()/indiv()/getData()
+     * statically without ever constructing it -- FOG Configuration among
+     * them, which is why credential masking cannot simply be unconditional.
+     *
+     * @var bool
+     */
+    private static $_isApiRequest = false;
+    /**
      * Valid Tasking classes.
      *
      * @var array
@@ -214,6 +278,9 @@ class Route extends FOGBase
      */
     public function __construct()
     {
+        // Everything below this point is serving an HTTP API request. See
+        // the property's docblock for why that has to be distinguishable.
+        self::$_isApiRequest = true;
         list(
             self::$_enabled,
             self::$_token
@@ -343,47 +410,47 @@ class Route extends FOGBase
                 'export'
             )
             ->get(
-                "${expandeda}/[current|active]",
+                "{$expandeda}/[current|active]",
                 array(__CLASS__, 'active'),
                 'active'
             )
             ->get(
-                "${expanded}/search/[*:item]",
+                "{$expanded}/search/[*:item]",
                 array(__CLASS__, 'search'),
                 'search'
             )
             ->get(
-                "${expanded}/[list|all]?",
+                "{$expanded}/[list|all]?",
                 array(__CLASS__, 'listem'),
                 'list'
             )
             ->get(
-                "${expanded}/[details]/?[*:item]?",
+                "{$expanded}/[details]/?[*:item]?",
                 array(__CLASS__, 'listdetails'),
                 'listdetails'
             )
             ->get(
-                "${expanded}/[i:id]/?[*:item]?",
+                "{$expanded}/[i:id]/?[*:item]?",
                 array(__CLASS__, 'indiv'),
                 'indiv'
             )
             ->get(
-                "${expanded}/names/[*:whereItems]?",
+                "{$expanded}/names/[*:whereItems]?",
                 array(__CLASS__, 'names'),
                 'names'
             )
             ->get(
-                "${expanded}/ids/[*:whereItems]?/[*:getField]?",
+                "{$expanded}/ids/[*:whereItems]?/[*:getField]?",
                 array(__CLASS__, 'ids'),
                 'ids'
             )
             ->put(
-                "${expanded}/[i:id]/[update|edit]?",
+                "{$expanded}/[i:id]/[update|edit]?",
                 array(__CLASS__, 'edit'),
                 'update'
             )
             ->post(
-                "${expandedt}/[i:id]/[task]",
+                "{$expandedt}/[i:id]/[task]",
                 array(__CLASS__, 'task'),
                 'task'
             )
@@ -398,17 +465,17 @@ class Route extends FOGBase
                 'uploadSnapinFiles'
             )
             ->post(
-                "${expanded}/[create|new]?",
+                "{$expanded}/[create|new]?",
                 array(__CLASS__, 'create'),
                 'create'
             )
             ->delete(
-                "${expandedt}/[i:id]?/[cancel]",
+                "{$expandedt}/[i:id]?/[cancel]",
                 array(__CLASS__, 'cancel'),
                 'cancel'
             )
             ->delete(
-                "${expanded}/[i:id]/[delete|remove]?",
+                "{$expanded}/[i:id]/[delete|remove]?",
                 array(__CLASS__, 'delete'),
                 'delete'
             );
@@ -446,6 +513,18 @@ class Route extends FOGBase
                 isset(self::$matches['params']['class'])
                 ? self::$matches['params']['class']
                 : ''
+            );
+            /**
+             * Object boundary for a per-object route. Inert unless a
+             * plugin answers API_SCOPE_IDS.
+             */
+            self::_requireObjectScope(
+                isset(self::$matches['params']['class'])
+                ? self::$matches['params']['class']
+                : '',
+                isset(self::$matches['params']['id'])
+                ? self::$matches['params']['id']
+                : 0
             );
             call_user_func_array(
                 self::$matches['target'],
@@ -513,6 +592,301 @@ class Route extends FOGBase
         );
     }
     /**
+     * The object ids the acting user may see for this class, or null when
+     * no boundary applies.
+     *
+     * THE RETURN IS A TRI-STATE and every caller below depends on it:
+     *
+     *   null          no boundary -- leave the result set alone
+     *   array(...)    narrow to exactly these ids
+     *   array()       a real answer meaning "nothing"
+     *
+     * null is the ONLY value meaning unbounded. `if (!$ids)` is true for
+     * both null and array(), so a caller written that way shows every
+     * object to the one user entitled to none. Test `null ===`.
+     *
+     * Inert in core: nothing here knows what a site is. The site plugin
+     * answers the event; with the plugin absent or the user unrestricted
+     * the value stays null and the read behaves exactly as it always did.
+     *
+     * @param string $classname The class being read.
+     *
+     * @return array|null
+     */
+    private static function _scopeIDs($classname)
+    {
+        $ids = null;
+        self::$HookManager
+            ->processEvent(
+                'API_SCOPE_IDS',
+                array(
+                    'classname' => &$classname,
+                    'ids' => &$ids
+                )
+            );
+        return is_array($ids) ? array_values($ids) : null;
+    }
+    /**
+     * The object boundary as a SQL fragment, or null when none applies.
+     *
+     * Tried BEFORE _scopeIDs(). A boundary expressed as SQL costs one
+     * expression whatever the fleet size, where an id list costs a lookup of
+     * every object the user may see, materialised into PHP, on every request
+     * -- and then has to be spliced into a query or compared against every
+     * row. On a server with thousands of hosts that is the whole cost of the
+     * feature.
+     *
+     * THE RETURN IS A TRI-STATE, and it is NOT the same tri-state as
+     * _scopeIDs():
+     *
+     *   null              no answer -- fall through to the id list
+     *   '<sql>'           narrow with this expression
+     *   '1=0' (or similar) a real answer meaning "nothing"
+     *
+     * There is deliberately no empty-string state. An empty fragment is
+     * indistinguishable from silence, so it is read as silence: a listener
+     * that means "you may see nothing" must say so in SQL, and '1=0' is how.
+     * If '' were treated as deny-all, a listener that returned '' by accident
+     * would deny; if it were treated as a boundary, it would ALSO produce
+     * `WHERE ()`, which is a syntax error. Reading it as no-answer is the
+     * only option that fails towards the existing id-list path rather than
+     * towards either a broken query or a silent policy change.
+     *
+     * $idExpr is the caller's own id column, already quoted and qualified, so
+     * a listener can write `EXISTS (... WHERE assoc.hostID = <idExpr>)` and
+     * not have to know the table name or guess at ambiguity in a joined
+     * query.
+     *
+     * Inert in core: nothing here knows what a site is.
+     *
+     * NO REENTRANCY GUARD HERE, AND THAT IS NOT AN OVERSIGHT.
+     *
+     * 1.6 fires this same event from Authorization and has to guard against
+     * asking a plugin for a boundary while already asking a plugin for a
+     * boundary, because there its HookManager primes its known-event cache
+     * with Route::getIds('hookevent') -- a scoped read, which arrives straight
+     * back here, with the cache assigned only AFTER that call returns, so the
+     * recursion has no floor. It exhausts memory rather than erroring, which
+     * is why it presents as a hung request rather than a stack trace.
+     *
+     * Neither half of that exists on this branch. HookManager primes from
+     * getSubObjectIDs('HookEvent', ...), a direct model read that never enters
+     * Route; and the site plugin's listener reads through getSubObjectIDs too,
+     * not getIds()/getNames(). So there is nothing to guard against today.
+     *
+     * What WOULD reintroduce it: a listener that computes its boundary by
+     * reading through Route::getIds()/getNames(), which is the obvious way to
+     * write one. If that ever lands, this needs the same in-progress flag
+     * Authorization carries on 1.6 -- set in a try/finally, so a listener that
+     * throws cannot leave the guard set and silently disable every plugin
+     * boundary for the rest of the request -- and the nested read is answered
+     * with core's boundary alone. That is the safe direction: the outer call
+     * still applies the plugin's, and a boundary only ever narrows, so the
+     * inner read is wider than the caller's answer and never wider than core
+     * allows.
+     *
+     * @param string $classname The class being read.
+     * @param string $idExpr    The object-id column, quoted and qualified.
+     *
+     * @return string|null
+     */
+    private static function _scopeWhere($classname, $idExpr)
+    {
+        $where = null;
+        self::$HookManager
+            ->processEvent(
+                'API_SCOPE_WHERE',
+                array(
+                    'classname' => &$classname,
+                    'idExpr' => &$idExpr,
+                    'where' => &$where
+                )
+            );
+        if (!is_string($where)) {
+            return null;
+        }
+        $where = trim($where);
+        return '' === $where ? null : $where;
+    }
+    /**
+     * The boundary fragment for a class, with the id expression worked out.
+     *
+     * Every caller needs the same `\`table\`.\`idcol\`` expression, and
+     * every caller getting it right separately is the sort of duplication
+     * that stays correct until one of them is edited.
+     *
+     * @param string $classname The class being read.
+     *
+     * @return string|null
+     */
+    private static function _scopeWhereFor($classname)
+    {
+        $classVars = self::getClass($classname, '', true);
+        if (!isset($classVars['databaseTable'], $classVars['databaseFields']['id'])) {
+            return null;
+        }
+        return self::_scopeWhere(
+            $classname,
+            sprintf(
+                '`%s`.`%s`',
+                $classVars['databaseTable'],
+                $classVars['databaseFields']['id']
+            )
+        );
+    }
+    /**
+     * ANDs a boundary fragment onto a WHERE clause _buildWhere() produced.
+     *
+     * _buildWhere() returns either '' or a complete ' WHERE ...' whose own
+     * terms are joined with AND, so appending is safe without parentheses
+     * around what is already there -- but they are added anyway, because
+     * "the other function only ever emits AND" is a property a later edit
+     * can remove without anything here noticing.
+     *
+     * @param string $where The clause so far, '' or ' WHERE ...'.
+     * @param string $frag  The boundary fragment.
+     *
+     * @return string
+     */
+    private static function _andScopeWhere($where, $frag)
+    {
+        if (null === $frag || '' === (string)$frag) {
+            return $where;
+        }
+        $where = (string)$where;
+        if ('' === trim($where)) {
+            return ' WHERE (' . $frag . ')';
+        }
+        return ' WHERE ('
+            . preg_replace('#^\s*WHERE\s+#i', '', trim($where))
+            . ') AND (' . $frag . ')';
+    }
+    /**
+     * Narrows a filter set to the ids the acting user may see.
+     *
+     * Folded into the WHERE rather than applied to the rows afterwards, so
+     * a route that only ever produces ids -- names() and ids() -- is
+     * bounded by the query itself. An intersection that comes out empty is
+     * passed through as an empty array on purpose: _buildWhere() compiles
+     * that to `WHERE 1=0` rather than dropping the term, which is the
+     * difference between "you may see nothing" and "here is everything".
+     *
+     * @param string $classname  The class being read.
+     * @param array  $whereItems The caller's filter.
+     *
+     * @return array
+     */
+    private static function _scopeWhereItems($classname, $whereItems)
+    {
+        $scope = self::_scopeIDs($classname);
+        if (null === $scope) {
+            return $whereItems;
+        }
+        $whereItems = (array)$whereItems;
+        if (isset($whereItems['id'])) {
+            $whereItems['id'] = array_values(
+                array_intersect(
+                    array_map('intval', (array)$whereItems['id']),
+                    $scope
+                )
+            );
+            return $whereItems;
+        }
+        $whereItems['id'] = $scope;
+        return $whereItems;
+    }
+    /**
+     * Denies a per-object route whose target is outside the acting user's
+     * scope.
+     *
+     * At dispatch rather than in each handler, for the same reason
+     * _requireAuthorized() is: one place to audit, and it covers indiv,
+     * update, delete, task and cancel without each of them remembering.
+     * Routes carrying no id are unaffected.
+     *
+     * @param string $class The class the route is acting on, if any.
+     * @param int    $id    The target object id, if any.
+     *
+     * @return void
+     */
+    private static function _requireObjectScope($class, $id)
+    {
+        $id = (int)$id;
+        if ($id < 1) {
+            return;
+        }
+        $classname = strtolower((string)$class);
+        // The fragment answers this as a bounded existence check -- one row
+        // at most, and the id list is never materialised. It is also the SAME
+        // expression the list routes narrow with, which is the property that
+        // matters: a 403 that disagreed with what the list showed would be
+        // two statements of who may see what, and the second one to be edited
+        // would make the boundary decorative.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        if (null !== $scopeWhere) {
+            if (self::_objectInScopeWhere($classname, $id, $scopeWhere)) {
+                return;
+            }
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_FORBIDDEN
+            );
+            return;
+        }
+        $scope = self::_scopeIDs($classname);
+        if (null === $scope || in_array($id, $scope, true)) {
+            return;
+        }
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_FORBIDDEN
+        );
+    }
+    /**
+     * Does this one object satisfy the boundary fragment?
+     *
+     * Deliberately not `SELECT ... LIMIT 1` over the scoped set followed by a
+     * comparison -- the id is bound as a parameter and the database answers
+     * yes or no, so the cost does not move with how many objects the user can
+     * see.
+     *
+     * A query that cannot run answers NO. That is the safe direction here:
+     * this decides whether to serve a single object, and refusing one the
+     * user was entitled to is a visible, reportable failure, where serving
+     * one they were not is silent.
+     *
+     * @param string $classname The class the route is acting on.
+     * @param int    $id        The target object id.
+     * @param string $frag      The boundary fragment.
+     *
+     * @return bool
+     */
+    private static function _objectInScopeWhere($classname, $id, $frag)
+    {
+        $classVars = self::getClass($classname, '', true);
+        if (!isset($classVars['databaseTable'], $classVars['databaseFields']['id'])) {
+            return false;
+        }
+        $sql = sprintf(
+            'SELECT `%s`.`%s` FROM `%s` WHERE `%s`.`%s` = :scope_id'
+            . ' AND (%s) LIMIT 1',
+            $classVars['databaseTable'],
+            $classVars['databaseFields']['id'],
+            $classVars['databaseTable'],
+            $classVars['databaseTable'],
+            $classVars['databaseFields']['id'],
+            $frag
+        );
+        $rows = self::$DB
+            ->query($sql, array(), array('scope_id' => (int)$id))
+            ->fetch()
+            ->get();
+        // is_array(), not count((array)$rows). PDODB::get() answers a query
+        // that matched nothing with `false`, and `count((array)false)` is 1 --
+        // so the obvious test reads "no such row" as "in scope" and the gate
+        // allows everything it was built to refuse. It reported allowed for
+        // an object outside the boundary until a behavioural test drove it.
+        return is_array($rows) && count($rows) > 0;
+    }
+    /**
      * Test token information.
      *
      * @return void
@@ -520,7 +894,7 @@ class Route extends FOGBase
     private static function _testToken()
     {
         $passtoken = base64_decode(
-            filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
+            (string)filter_input(INPUT_SERVER, 'HTTP_FOG_API_TOKEN')
         );
         if ($passtoken !== self::$_token) {
             self::sendResponse(
@@ -536,7 +910,7 @@ class Route extends FOGBase
     private static function _testAuth()
     {
         $usertoken = base64_decode(
-            filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
+            (string)filter_input(INPUT_SERVER, 'HTTP_FOG_USER_TOKEN')
         );
         $pwtoken = self::getClass('User')
             ->set('token', $usertoken)
@@ -607,7 +981,7 @@ class Route extends FOGBase
     {
         $backup_name = sprintf(
             'fog_backup_%s.sql',
-            self::formatTime('', 'Ymd_His')
+            self::formatTime('now', 'Ymd_His')
         );
         self::getClass('Schema')->exportdb($backup_name);
         exit;
@@ -638,6 +1012,18 @@ class Route extends FOGBase
             $find,
             self::getsearchbody($classname)
         );
+        // Object boundary, preferring SQL.
+        //
+        // A fragment is pushed into the query, so the rows the boundary
+        // excludes are never built at all. Nothing answering the fragment
+        // event falls through to the id list, which is applied to the rows
+        // instead -- unchanged, because a third-party plugin that only knows
+        // API_SCOPE_IDS has to keep working exactly as it did.
+        //
+        // Either way 'count' stays honest: it counts what is emitted, and
+        // this route has no LIMIT, so every match is built and returned.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        $scope = null === $scopeWhere ? self::_scopeIDs($classname) : null;
         switch ($classname) {
             case 'plugin':
                 self::$data['count_active'] = 0;
@@ -663,12 +1049,30 @@ class Route extends FOGBase
                 }
                 break;
             default:
-                foreach ((array)$classman->find($find, 'AND', $sortby) as &$class) {
+                $found = $classman->find(
+                    $find,
+                    'AND',
+                    $sortby,
+                    'ASC',
+                    '=',
+                    false,
+                    false,
+                    false,
+                    true,
+                    'array_unique',
+                    (string)$scopeWhere
+                );
+                foreach ((array)$found as &$class) {
                     $test = stripos(
                         $class->get('name'),
                         '_api_'
                     );
                     if (!$bypass && false != $test) {
+                        continue;
+                    }
+                    if (null !== $scope
+                        && !in_array((int)$class->get('id'), $scope, true)
+                    ) {
                         continue;
                     }
                     self::$data[$classname.'s'][] = self::getter(
@@ -726,14 +1130,29 @@ class Route extends FOGBase
         self::$data = array();
         self::$data['count'] = 0;
         self::$data[$classname.'s'] = array();
-        foreach ($classman->search($item, true) as &$class) {
+        // Same two-path boundary as listem(): SQL when a listener supplies
+        // it, the id list when none does.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        $scope = null === $scopeWhere ? self::_scopeIDs($classname) : null;
+        foreach ($classman->search($item, true, (string)$scopeWhere) as &$class) {
             if (false != stripos($class->get('name'), '_api_')) {
                 continue;
             }
-            self::$data[$classname.'s'][] = self::getter(
+            if (null !== $scope
+                && !in_array((int)$class->get('id'), $scope, true)
+            ) {
+                continue;
+            }
+            $row = self::getter(
                 $classname,
                 $class
             );
+            // A hit on a masked credential is itself the disclosure.
+            if (!self::_settingHitIsVisible($classname, $row, $item)) {
+                unset($class, $row);
+                continue;
+            }
+            self::$data[$classname.'s'][] = $row;
             self::$data['count']++;
             unset($class);
         }
@@ -832,15 +1251,25 @@ class Route extends FOGBase
         }
         foreach ($classVars['databaseFields'] as &$key) {
             $key = $class->key($key);
-            if (!isset($vars->$key)) {
-                $val = $class->get($key);
-            } else {
-                $val = $vars->$key;
-            }
             if ($key == 'id') {
+                unset($key);
                 continue;
             }
-            $class->set($key, $val);
+            // A field the body did not mention is left exactly as loaded.
+            // It used to be re-set to its own current value, which reads
+            // as a no-op and is not: set() may transform, and User::set()
+            // hashes any non-override write to 'password'. So every PUT to
+            // a user re-hashed the stored hash -- password_verify() then
+            // fails against the real password and that account is locked
+            // out permanently, with the request answering 200. save()
+            // builds its statement from $this->data for every
+            // databaseField regardless of what was set(), so skipping is
+            // otherwise byte-identical.
+            if (!isset($vars->$key)) {
+                unset($key);
+                continue;
+            }
+            $class->set($key, $vars->$key);
             unset($key);
         }
         switch ($classname) {
@@ -1373,6 +1802,13 @@ class Route extends FOGBase
     {
         $classname = strtolower($class);
         $class = new $class($id);
+        // The states a task can be cancelled FROM. The same allowlist every
+        // "is this task live" test uses, so anything outside it -- Complete
+        // or Cancelled -- is already finished.
+        $states = self::fastmerge(
+            (array)self::getQueuedStates(),
+            (array)self::getProgressState()
+        );
         switch ($classname) {
             case 'group':
                 if (!$class->isValid()) {
@@ -1380,13 +1816,32 @@ class Route extends FOGBase
                         HTTPResponseCodes::HTTP_NOT_FOUND
                     );
                 }
+                // isValid(), not instanceof. Host::loadTask() sets this field
+                // to `new Task(null)` when the host has nothing running and
+                // that IS instanceof Task, so the test was true for every
+                // host in the group. Task::cancel() then opens with
+                // getHost()->get('snapinjob'), and getHost() on an empty task
+                // returns the empty STRING -- "Call to a member function
+                // get() on string", an Error rather than an Exception. This
+                // method has no catch at all, so one idle member killed the
+                // request outright: every host after it in the loop kept its
+                // task running, under a bodyless 500. Reproduced on the 1.6
+                // copy of this code, whose Task::cancel() is identical here.
+                $cancelled = 0;
                 foreach (self::getClass('HostManager')
                     ->find(array('id' => $class->get('hosts'))) as &$Host
                 ) {
-                    if ($Host->get('task') instanceof Task) {
-                        $Host->get('task')->cancel();
+                    $Task = $Host->get('task');
+                    if ($Task instanceof Task && $Task->isValid()) {
+                        $Task->cancel();
+                        $cancelled++;
                     }
                     unset($Host);
+                }
+                if ($cancelled < 1) {
+                    self::_notCancellable(
+                        _('No active tasks to cancel for this group')
+                    );
                 }
                 break;
             case 'host':
@@ -1395,15 +1850,31 @@ class Route extends FOGBase
                         HTTPResponseCodes::HTTP_NOT_FOUND
                     );
                 }
-                if ($class->get('task') instanceof Task) {
-                    $class->get('task')->cancel();
+                // Same empty-Task trap as the group arm above, reached one
+                // host at a time: an idle host answered a bodyless 500
+                // instead of saying it had nothing running.
+                $Task = $class->get('task');
+                if (!($Task instanceof Task) || !$Task->isValid()) {
+                    self::_notCancellable(
+                        _('Host has no active task to cancel')
+                    );
                 }
+                $Task->cancel();
+                break;
+            case 'scheduledtask':
+                // Carries isActive, not stateID, so it fell into the default
+                // arm and failed a state test it could never pass: the
+                // endpoint returned 200 and cancelled nothing, every time.
+                // Its cancel() is a destroy(), which is what the management
+                // page does, and there is no state to be wrong about.
+                if (!$class->isValid()) {
+                    self::sendResponse(
+                        HTTPResponseCodes::HTTP_NOT_FOUND
+                    );
+                }
+                $class->cancel();
                 break;
             default:
-                $states = self::fastmerge(
-                    (array)self::getQueuedStates(),
-                    (array)self::getProgressState()
-                );
                 if (!$class->isValid()) {
                     $classman = $class->getManager();
                     $find = self::getsearchbody($classname, $class);
@@ -1412,13 +1883,52 @@ class Route extends FOGBase
                         $classname,
                         $find
                     );
+                    // A search that matches nothing stays a 200. This arm is
+                    // a bulk filter and an empty result is a legitimate
+                    // outcome for one; the 409s here are for a caller who
+                    // named a specific resource.
                     $classman->cancel($ids);
                 } else {
-                    if (in_array($class->get('stateID'), $states)) {
-                        $class->cancel();
+                    // Falling out of this test used to be silent -- the
+                    // method returned normally and the caller was told the
+                    // task had been cancelled while its state sat untouched.
+                    if (!in_array($class->get('stateID'), $states)) {
+                        $stateName = self::getClass(
+                            'TaskState',
+                            $class->get('stateID')
+                        )->get('name');
+                        self::_notCancellable(
+                            sprintf(
+                                '%s: %s',
+                                _('Task is not active and cannot be cancelled'),
+                                ($stateName ? $stateName : $class->get('stateID'))
+                            )
+                        );
                     }
+                    $class->cancel();
                 }
         }
+    }
+    /**
+     * Refuses a cancel the named resource is not in a state to accept.
+     *
+     * The body is a JSON object rather than the bare reason string the older
+     * non-2xx paths here emit: breakHead() has always declared
+     * `Content-Type: application/json` and then echoed whatever it was given,
+     * so those replies claim a type they are not. 409 is a status no caller
+     * receives today, so it can start out matching its own header without
+     * breaking anyone.
+     *
+     * @param string $msg Why the resource cannot be cancelled.
+     *
+     * @return void
+     */
+    private static function _notCancellable($msg)
+    {
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_CONFLICT,
+            json_encode(array('msg' => $msg))
+        );
     }
     /**
      * Gets the json body and sets our vars.
@@ -1429,6 +1939,8 @@ class Route extends FOGBase
      */
     public static function getsearchbody($class)
     {
+        // Captured before $class is reassigned to an instance below.
+        $classname = strtolower((string)$class);
         $classVars = self::getClass(
             $class,
             '',
@@ -1446,6 +1958,7 @@ class Route extends FOGBase
             }
             unset($key);
         }
+        self::_refuseSettingValueFilter($classname, array_keys($find));
         return $find;
     }
     /**
@@ -1567,6 +2080,155 @@ class Route extends FOGBase
      *
      * @return object|array
      */
+    /**
+     * Refuses a filter that would probe a masked setting value.
+     *
+     * Masking the value in the response is only half a fix. `value` is a
+     * declared field of Service, so /service/ids/value=guess and a
+     * {"value":"guess"} body were both exact-match oracles: the value never
+     * appears in the answer, but whether a row comes back tells you whether
+     * the guess was right, one guess at a time and with no rate limit.
+     *
+     * Refused with a 400 that names the field rather than silently dropped.
+     * A dropped term is the worse failure -- the filter vanishes, the whole
+     * table comes back, and the caller reads that as "no such value".
+     *
+     * @param string $classname The lowercase class being filtered.
+     * @param array  $keys      The filter keys the caller supplied.
+     *
+     * @return void
+     */
+    private static function _refuseSettingValueFilter($classname, $keys)
+    {
+        if (!self::$_isApiRequest || 'service' !== strtolower((string)$classname)) {
+            return;
+        }
+        if (!in_array('value', (array)$keys, true)) {
+            return;
+        }
+        self::sendResponse(
+            HTTPResponseCodes::HTTP_BAD_REQUEST,
+            json_encode(
+                array(
+                    'error' => 'Filtering settings by value is not permitted: '
+                        . 'it would confirm the credential values that are '
+                        . 'masked out of the response.'
+                )
+            )
+        );
+    }
+    /**
+     * Should this search hit be shown, given what it matched on?
+     *
+     * FOGManagerController::search() fills its WHERE from EVERY declared
+     * field -- array_fill_keys(array_keys($this->databaseFields), $keyword)
+     * -- so a substring of a masked credential brings its row back. The row
+     * carries no value, but its arrival is the answer.
+     *
+     * A sensitive setting is therefore kept only when the term is visible in
+     * something the caller is allowed to read. Every field except the value,
+     * rather than a list of the four this class has today, so a field added
+     * later is covered by default instead of by remembering.
+     *
+     * @param string $classname The lowercase class searched.
+     * @param mixed  $row       The serialized row.
+     * @param string $term      The search keyword.
+     *
+     * @return bool
+     */
+    private static function _settingHitIsVisible($classname, $row, $term)
+    {
+        if (!self::$_isApiRequest
+            || 'service' !== strtolower((string)$classname)
+            || !is_array($row)
+        ) {
+            return true;
+        }
+        if (!self::isSensitiveSetting((string)($row['name'] ?? ''))) {
+            return true;
+        }
+        $term = trim((string)$term);
+        if ('' === $term) {
+            return true;
+        }
+        foreach ($row as $field => $cell) {
+            if ('value' === $field || !is_scalar($cell)) {
+                continue;
+            }
+            if (false !== stripos((string)$cell, $term)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * Is this globalSettings key's value a credential?
+     *
+     * @param string $key The setting name.
+     *
+     * @return bool
+     */
+    public static function isSensitiveSetting($key)
+    {
+        if (in_array($key, self::$sensitiveSettingsExempt, true)) {
+            return false;
+        }
+        if (in_array($key, self::$sensitiveSettings, true)) {
+            return true;
+        }
+        return 1 === preg_match(self::SENSITIVE_SETTING_PATTERN, $key);
+    }
+    /**
+     * Strips a storage node's credentials from an outbound payload.
+     *
+     * ngmPass is the node's FTP credential. It reaches the root-running
+     * replicator's lftp invocation and the SSH helpers in Snapin and
+     * TaskQueue, so holding it is holding the node -- the same credential
+     * class as GHSA-2hqx-5ffg-w4c3. It was being returned in full by
+     * GET /storagenode/{id} and, less obviously, embedded in every task
+     * payload, to any caller the API let in.
+     *
+     * ngmKey joins it now that nodeSigningKeyFor() gives that column a
+     * meaning: it is the secret a peer FOG server verifies signed requests
+     * with, so publishing it would hand over the thing the signature
+     * proves.
+     *
+     * Nothing reads either back over the API. Every consumer is server-side
+     * PHP with the object already in hand -- snapin.class.php,
+     * taskqueue.class.php, snapinclient.class.php, logviewerhook and the
+     * node edit page all call $StorageNode->get('pass') directly -- so
+     * there is no legitimate reader to carve out for.
+     *
+     * @param array $data The payload about to be emitted.
+     *
+     * @return array
+     */
+    public static function stripNodeSecrets($data)
+    {
+        $data = (array)$data;
+        unset($data['pass'], $data['key']);
+        return $data;
+    }
+    /**
+     * Drops the value of a globalSettings row that holds a credential.
+     *
+     * The name, description and category stay -- only the value goes -- so
+     * a consumer can still see the setting exists and what it is for.
+     *
+     * @param mixed $data A serialized setting row.
+     *
+     * @return mixed
+     */
+    public static function maskSensitiveSetting($data)
+    {
+        if (!is_array($data) || !isset($data['name'])) {
+            return $data;
+        }
+        if (self::isSensitiveSetting((string)$data['name'])) {
+            unset($data['value']);
+        }
+        return $data;
+    }
     public static function getter($classname, $class, $item = '')
     {
         if (!$class instanceof $classname) {
@@ -1683,7 +2345,7 @@ class Route extends FOGBase
                     );
                 }
                 $data = FOGCore::fastmerge(
-                    $class->get(),
+                    self::stripNodeSecrets($class->get()),
                     $extra,
                     array(
                         'storagegroup' => self::getter(
@@ -1716,7 +2378,9 @@ class Route extends FOGBase
                         ),
                         'type' => $class->get('type')->get(),
                         'state' => $class->get('state')->get(),
-                        'storagenode' => $class->get('storagenode')->get(),
+                        'storagenode' => self::stripNodeSecrets(
+                            $class->get('storagenode')->get()
+                        ),
                         'storagegroup' => $class->get('storagegroup')->get()
                     )
                 );
@@ -1840,6 +2504,29 @@ class Route extends FOGBase
                     'class' => &$class
                 )
             );
+        /*
+         * A credential setting's value never leaves over the API.
+         *
+         * GET /service returned every globalSettings row with its value, so
+         * any authenticated API caller read FOG_API_TOKEN, the AD default
+         * password, the proxy password, the TFTP FTP password, the storage
+         * node MySQL password and (as of GH-1312) the node signing key. A
+         * uType 1 mobile user could do it too.
+         *
+         * Gated on this being an actual API request, which is the whole
+         * reason it is here rather than unconditional: FOG Configuration
+         * builds its own form from Route::listem('service', ...) and reads
+         * $Service->value back out to render and to save. Masking that would
+         * blank every credential field in the UI and then write the blank
+         * back. Only api/index.php constructs this class, so the flag it
+         * sets is exactly "the answer is going to an HTTP client".
+         *
+         * After API_GETTER, not before: a listener may legitimately want the
+         * real value in process, and none of them may put it back.
+         */
+        if (self::$_isApiRequest && 'service' === $classname) {
+            $data = self::maskSensitiveSetting($data);
+        }
         return $data;
     }
     /**
@@ -1902,6 +2589,7 @@ class Route extends FOGBase
                 )
             );
         }
+        self::_refuseSettingValueFilter($class, array_keys($whereItems));
         return $whereItems;
     }
     /**
@@ -2010,6 +2698,13 @@ class Route extends FOGBase
         );
 
         $whereItems = self::handleWhereItems($whereItems, $class);
+        // Object boundary. The fragment is preferred and the id list is the
+        // fallback; only one of the two is ever applied, so a boundary is
+        // never counted twice and never half-applied.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        if (null === $scopeWhere) {
+            $whereItems = self::_scopeWhereItems($classname, $whereItems);
+        }
 
         $sql = 'SELECT `'
             . $classVars['databaseFields']['id']
@@ -2019,7 +2714,10 @@ class Route extends FOGBase
             . $classVars['databaseTable']
             . '`';
 
-        $sql .= self::_buildWhere($classVars, $whereItems, $params);
+        $sql .= self::_andScopeWhere(
+            self::_buildWhere($classVars, $whereItems, $params),
+            $scopeWhere
+        );
         $sql .= ' ORDER BY `'
             . (
                 $classVars['databaseFields']['name'] ?:
@@ -2098,13 +2796,22 @@ class Route extends FOGBase
             }
         }
 
+        // Object boundary; see names() for why only one of the two applies.
+        $scopeWhere = self::_scopeWhereFor($classname);
+        if (null === $scopeWhere) {
+            $whereItems = self::_scopeWhereItems($classname, $whereItems);
+        }
+
         $sql = 'SELECT `'
             . $classVars['databaseFields'][$getField]
             . '` FROM `'
             . $classVars['databaseTable']
             . '`';
 
-        $sql .= self::_buildWhere($classVars, $whereItems, $params);
+        $sql .= self::_andScopeWhere(
+            self::_buildWhere($classVars, $whereItems, $params),
+            $scopeWhere
+        );
         $sql .= ' ORDER BY `'
             . (
                 (isset($classVars['databaseFields']['name']) && $classVars['databaseFields']['name']) ?

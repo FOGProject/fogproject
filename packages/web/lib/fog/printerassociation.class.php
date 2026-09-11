@@ -2,7 +2,7 @@
 /**
  * The printer association class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category PrinterAssociation
  * @package  FOGProject

@@ -97,19 +97,109 @@ checkDatabaseConnection() {
     fi
     errorStat $connected
 }
+# Reports one node<->master maintenance POST that did not land, and says how.
+#
+# GH-575: the two calls below post to this node's own web tier, and what
+# actually reaches that web tier is not always what the installer aimed at.
+# Three things intercept it, and none of them is a connection failure -- curl
+# exits 0 every time:
+#
+#   * an inline filtering proxy answering for the address (the reporter's was
+#     an iboss appliance returning ERR_CONNECT_FAIL as an HTML block page),
+#   * this node's own web tier bouncing every request to ?node=schema when it
+#     cannot read the master's database,
+#   * anything else in front of the server that answers 200 with markup.
+#
+# So both a status check and a body check are needed, and they catch different
+# halves: a 3xx has no markup in it, and an interception answering 200 has no
+# bad status. create_update_node.php outputs nothing at all on success -- it
+# has no echo in it, and base.inc.php emits headers only -- so a '<' in the
+# body is the response of something that is not it.
+#
+# Not fatal, in either caller. By this point the node's shares, services and
+# FTP are configured, and both operations have a normal by-hand recovery in
+# Storage Management: say plainly what failed, then carry on.
+#
+# $1 status, $2 response body, $3 what the caller was trying to do.
+_reportNodePostFailure() {
+    local status="${1:-000}" body="$2" what="$3"
+    echo "Failed"
+    echo " * ${httpproto}://${ipaddress}${webroot}maintenance/create_update_node.php"
+    case $status in
+        000)
+            # curl's own placeholder when no HTTP response arrived at all --
+            # refused, timed out, TLS handshake failed. Not an interception.
+            echo "   could not be reached, so ${what}."
+            ;;
+        *)
+            echo "   answered HTTP ${status}, so ${what}."
+            ;;
+    esac
+    case $status in
+        3*)
+            echo " * A redirect here usually means this node's own web tier cannot"
+            echo "   reach the master's database and is bouncing every request to"
+            echo "   the schema page -- check for SELinux denials with:"
+            echo "     ausearch -m avc -ts recent"
+            ;;
+    esac
+    if [[ $body == *'<'* ]]; then
+        echo " * The reply was markup, not this server's answer, so something on"
+        echo "   the network answered in its place. A filtering proxy in front of"
+        echo "   ${ipaddress} is the usual cause; exempt this server from it."
+    fi
+    echo " * Fix the cause and re-run this installer, or set it by hand under"
+    echo "   Storage Management in the web UI."
+}
 registerStorageNode() {
     # GH-529: this defaulted to "/" while installfog.sh defaults to "/fog/", so
     # the two disagreed about where the app lives whenever webroot arrived
     # unset. Every fallback in this file now matches the installer's.
     [[ -z $webroot ]] && webroot="/fog/"
     dots "Checking if this node is registered"
-    storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://${ipaddress}${webroot}/maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
+    # --no-check-certificate stays here, and in the two calls below, ON PURPOSE.
+    # Every other unverified call in this installer has been removed; these
+    # three are the genuine chicken-and-egg. On a fresh storage node
+    # installfog.sh runs registerStorageNode -> updateStorageNodeCredentials
+    # -> _installCATrustAnchor in that order, so at this moment the node holds
+    # no anchor for anything and verification cannot succeed -- the thing that
+    # would make it possible is what registering is a precondition of.
+    #
+    # What that costs is bounded and worth stating: an attacker on the path
+    # between this node and its own web tier sees the node's storage
+    # credentials. It does NOT see the database password, which never travels
+    # this way. Closing it properly needs the master to hand a node its anchor
+    # out of band, which is a design change, not a flag change.
+    storageNodeExists=$(wget --no-check-certificate -qO - ${httpproto}://${ipaddress}${webroot}maintenance/check_node_exists.php --post-data="ip=${ipaddress}")
     echo "Done"
     if [[ $storageNodeExists != exists ]]; then
         [[ -z $maxClients ]] && maxClients=10
         dots "Node being registered"
-        curl -s -k -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}/maintenance/create_update_node.php
-        echo "Done"
+        # A status check and a body check, neither of which this call had. Both
+        # matter and they catch different halves -- see _reportNodePostFailure.
+        #
+        # Deliberately NOT -L. curl reports %{http_code} for the LAST transfer
+        # it made, so following a 308 to the schema page would report that
+        # page's 200 and turn the failure back into a green "Done". There is no
+        # legitimate redirect to lose: the URL is built from ${httpproto} and
+        # ${webroot}, both of which this installer set itself.
+        regbody=$(curl -s --noproxy '*' -k -w '\n%{http_code}' -X POST -d "newNode" -d "name=$(echo -n $ipaddress|base64)" -d "path=$(echo -n $storageLocation|base64)" -d "ftppath=$(echo -n $storageLocation|base64)" -d "snapinpath=$(echo -n $snapindir|base64)" -d "sslpath=$(echo -n $sslpath|base64)" -d "ip=$(echo -n $ipaddress|base64)" -d "maxClients=$(echo -n $maxClients|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "interface=$(echo -n $interface|base64)" -d "bandwidth=1" -d "webroot=$(echo -n $webroot|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}maintenance/create_update_node.php)
+        regstatus=${regbody##*$'\n'}
+        regbody=${regbody%$'\n'*}
+        case $regstatus in
+            2*)
+                if [[ $regbody == *'<'* ]]; then
+                    _reportNodePostFailure "$regstatus" "$regbody" \
+                        "this node did not register itself with the master and will not appear in Storage Management"
+                else
+                    echo "Done"
+                fi
+                ;;
+            *)
+                _reportNodePostFailure "$regstatus" "$regbody" \
+                    "this node did not register itself with the master and will not appear in Storage Management"
+                ;;
+        esac
     else
         echo " * Node is registered"
     fi
@@ -117,8 +207,34 @@ registerStorageNode() {
 updateStorageNodeCredentials() {
     [[ -z $webroot ]] && webroot="/fog/"   # see registerStorageNode, GH-529
     dots "Ensuring node username and passwords match"
-    curl -s -k -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" $httpproto://$ipaddress${webroot}maintenance/create_update_node.php
-    echo "Done"
+    # -k on purpose -- see registerStorageNode. This is called from the node
+    # path before any anchor exists, and from the master path after one does;
+    # the shared function has to work in the earlier of the two.
+    # GH-575: this call had no -o, so whatever answered was written STRAIGHT to
+    # the installer's stdout, in the middle of the dotted line -- which is why
+    # the reporter's console read
+    #
+    #   Node being registered.....................<!doctype html>
+    #
+    # followed by a proxy's block page. Then it echoed "Done" regardless,
+    # because nothing looked at the status or at what came back.
+    credbody=$(curl -s --noproxy '*' -k -w '\n%{http_code}' -X POST -d "nodePass" -d "ip=$(echo -n $ipaddress|base64)" -d "user=$(echo -n $username|base64)" --data-urlencode "pass=$(echo -n $password|base64)" -d "fogverified" ${httpproto}://${ipaddress}${webroot}maintenance/create_update_node.php)
+    credstatus=${credbody##*$'\n'}
+    credbody=${credbody%$'\n'*}
+    case $credstatus in
+        2*)
+            if [[ $credbody == *'<'* ]]; then
+                _reportNodePostFailure "$credstatus" "$credbody" \
+                    "this node's storage credentials were not written to the master"
+            else
+                echo "Done"
+            fi
+            ;;
+        *)
+            _reportNodePostFailure "$credstatus" "$credbody" \
+                "this node's storage credentials were not written to the master"
+            ;;
+    esac
 }
 backupDB() {
     # ---------------------------------------------------------
@@ -143,10 +259,32 @@ backupDB() {
     # backup is the worst outcome available here.
     local dbbackupstat=0
     local dbbackupfile=""
-    if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
+    # Ask the database whether there is anything to dump, rather than asking
+    # the filesystem whether configureHttpd happened to leave a
+    # fog_web_<ver>.BACKUP behind. That directory was only ever a proxy for
+    # "this is an upgrade", and it is a broken one: configureHttpd removes
+    # ${docroot}fog when it is a SYMLINK and then tests `-d $webdirdest` --
+    # the same path -- to decide whether to make the backup, so on any
+    # install whose web root is a symlink the directory never appears and the
+    # pre-upgrade dump was silently skipped on every run.
+    #
+    # SHOW TABLES is also the honest question. The dump has nothing to do with
+    # the web tree, and a leftover .fogsettings pointing at a database that
+    # does not exist yet would make an $doupdate-based gate report a failure
+    # it did not have. configureMySql has run by here, so $sqloptionsuser and
+    # $snmysqlpass are settled; a fresh install has no tables and still skips.
+    local dbhastables=""
+    dbhastables=$(mysql $sqloptionsuser --password="${snmysqlpass}" --skip-column-names --execute="SHOW TABLES" $mysqldbname 2>>$error_log | head -n 1)
+    if [[ -n $dbhastables ]]; then
         [[ ! -d $backupPath/fogDBbackups ]] && mkdir -p $backupPath/fogDBbackups >>$error_log 2>&1
-        dbbackupfile="$backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%I%M%S").sql"
-        wget --no-check-certificate -O "$dbbackupfile" "${httpproto}://${ipaddress}${webroot}/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$error_log 2>&1 || dbbackupstat=1
+        # %H, not %I: %I is the 12-hour clock with no AM/PM marker, so an
+        # update run at 05:57 and one at 17:57 on the same day produced the
+        # same filename and the second silently overwrote the first.
+        dbbackupfile="$backupPath/fogDBbackups/fog_sql_${version}_$(date +"%Y%m%d_%H%M%S").sql"
+        # Verified, not --no-check-certificate: this is an HTTPS call to this
+        # server, and _resolveSelfCacert names the CA it is serving under.
+        _resolveSelfCacert
+        wget "${selfCacertOpts[@]}" -O "$dbbackupfile" "${httpproto}://${ipaddress}${webroot}/maintenance/backup_db.php" --post-data="type=sql&fogajaxonly=1" >>$error_log 2>&1 || dbbackupstat=1
         [[ ! -s $dbbackupfile ]] && dbbackupstat=1
     fi
     if [[ -z $dbbackupfile ]]; then
@@ -181,7 +319,8 @@ checkWebTier() {
     local probeBody=$(mktemp)
     # No -q on the body: we care whether bytes came back at all, not just about
     # the status code, because that is exactly what a pre-output fatal loses.
-    wget --no-check-certificate -q -O "$probeBody" --no-proxy "$probeUrl" >>$error_log 2>&1
+    _resolveSelfCacert
+    wget "${selfCacertOpts[@]}" -q -O "$probeBody" --no-proxy "$probeUrl" >>$error_log 2>&1
     local probeStat=$?
     local probeSize=$(stat -c %s "$probeBody" 2>/dev/null)
     [[ -z $probeSize ]] && probeSize=0
@@ -279,8 +418,40 @@ updateDB() {
     case $dbupdate in
         [Yy]|[Yy][Ee][Ss])
             dots "Updating Database"
-            wget --no-check-certificate -qO - --header="X-Fog-Install-Token: ${installToken}" --post-data="schemaupdate=1" --no-proxy ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema >>$error_log 2>&1
-            errorStat $?
+            # Verified. This request carries X-Fog-Install-Token, which grants
+            # a schema deploy on a server that has no users yet;
+            # --no-check-certificate handed that to whoever answered on
+            # $ipaddress.
+            _resolveSelfCacert
+            wget "${selfCacertOpts[@]}" -qO - --header="X-Fog-Install-Token: ${installToken}" --post-data="schemaupdate=1" --no-proxy ${httpproto}://${ipaddress}${webroot}management/index.php?node=schema >>$error_log 2>&1
+            local schemarc=$?
+            # errorStat tails $error_log, so wget's own certificate error is
+            # already visible -- but it does not say what to do about it, and
+            # this is the one place where verifying instead of skipping can
+            # stop an upgrade that used to finish. wget reports every TLS
+            # failure as exit 5.
+            if [[ $schemarc -eq 5 ]]; then
+                echo "Failed!"
+                echo
+                echo " * TLS verification failed talking to this server's own web tier at"
+                echo "   ${httpproto}://${ipaddress}${webroot} -- so the schema was NOT deployed."
+                echo " * This step used to skip verification, which handed the schema"
+                echo "   install token to whatever answered on that address. It no longer"
+                echo "   does, so a certificate this host cannot verify now stops here."
+                echo " * Two causes, both fixable:"
+                echo "     - the web certificate was replaced by hand, so ${rootCAPem:-the FOG CA}"
+                echo "       is no longer what signed it"
+                echo "     - the certificate does not cover the address ${ipaddress}"
+                echo " * Full error in $error_log"
+                echo
+                tail -n 5 $error_log
+                # Exit rather than fall through to errorStat: the schema not
+                # deploying has always been fatal here, and errorStat would
+                # reprint a generic banner over a message that has already
+                # said more than it can.
+                exit $schemarc
+            fi
+            errorStat $schemarc
             ;;
         *)
             echo
@@ -342,7 +513,23 @@ updateDB() {
     mysql $sqloptionsuser --password="${snmysqlpass}" --execute="INSERT INTO globalSettings (settingKey, settingDesc, settingValue, settingCategory) VALUES ('FOG_STORAGENODE_MYSQLPASS', 'This setting defines the password the storage nodes should use to connect to the fog server.', \"$snmysqlstoragepass\", 'FOG Storage Nodes') ON DUPLICATE KEY UPDATE settingValue=\"$snmysqlstoragepass\"" $mysqldbname >>$error_log 2>&1
     errorStat $?
     dots "Granting access to fogstorage database user"
-    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog VALUES ( 0, '999test', 3, '127.0.0.1', NOW(), 'fog');" >/dev/null 2>&1
+    # The probe writes a throwaway row to find out whether fogstorage still
+    # holds INSERT; a failure here is read as "the grants need redoing", which
+    # is what sends the installer off to ask for the database root password.
+    #
+    # NAME THE COLUMNS. This was a positional INSERT, and schema 280 adds
+    # logType and logText to taskLog -- six values into an eight column table
+    # is error 1136, "Column count doesn't match value count", and the symptom
+    # is an upgrade demanding a database root password on a server whose
+    # grants are perfectly correct. 1.6 hit exactly this twice (schema 336,
+    # then 338) before naming the columns; see fogproject#1209. A named list
+    # cannot break that way -- a column added later takes its default and this
+    # INSERT does not care.
+    #
+    # id is AUTO_INCREMENT so it is omitted. The '999test' marker stays in
+    # taskID, which on 1.5 is still mediumtext, and the DELETE still keys on
+    # it -- this change is about the column list, not the marker.
+    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="INSERT INTO $mysqldbname.taskLog (taskID, taskStateID, ip, createTime, createdBy) VALUES ('999test', 3, '127.0.0.1', NOW(), 'fog');" >/dev/null 2>&1
     connect_as_fogstorage=$?
     if [[ $connect_as_fogstorage -eq 0 ]]; then
         mysql $sqloptionsuser --password="${snmysqlpass}" --execute="DELETE FROM $mysqldbname.taskLog WHERE taskID='999test' AND ip='127.0.0.1';" >/dev/null 2>&1
@@ -411,9 +598,21 @@ validip() {
     echo $stat
 }
 getCidr() {
-    local cidr
-    cidr=$(ip -f inet -o addr | grep $1 | awk -F'[ /]+' '/global/ {print $5}' | head -n2 | tail -n1)
-    echo $cidr
+    # Prefix length of address $2 on interface $1. When $2 is not given, or is
+    # not on that interface, the prefix of the interface's first global address.
+    #
+    # GH-1747: this grepped the whole address table for the interface name and
+    # printed the SECOND global match (head -n2 | tail -n1). On an interface
+    # with more than one address that is another address's prefix: a stray
+    # 169.254.x.x/16 turned a /24 into 255.255.0.0. The unanchored grep also
+    # let eth1 read eth10.
+    [[ -n $1 ]] || return 0
+    ip -4 -o addr show dev "$1" 2>/dev/null | awk -v want="$2" '
+        $3 != "inet" { next }
+        { split($4, addr, "/") }
+        want != "" && addr[1] == want { print addr[2]; found = 1; exit }
+        first == "" && / scope global / { first = addr[2] }
+        END { if (!found && first != "") print first }'
 }
 mask2cidr() {
     local submask=$1
@@ -442,8 +641,7 @@ mask2cidr() {
                 break
                 ;;
             224)
-                let
-                nbits+=3
+                let nbits+=3
                 break
                 ;;
             192)
@@ -457,7 +655,8 @@ mask2cidr() {
             0)
                 ;;
             *)
-                echo "Error: $dec is not recognized"
+                # stderr: every caller takes stdout as the prefix length.
+                echo "Error: $dec is not recognized" >&2
                 exit 1
                 ;;
         esac
@@ -466,6 +665,10 @@ mask2cidr() {
     echo "$nbits"
 }
 cidr2mask() {
+    # No prefix means no mask. "$((/8))" put an arithmetic syntax error on the
+    # screen instead (GH-1747), and every caller already treats an empty mask
+    # as unknown.
+    [[ $1 =~ ^[0-9]+$ && $1 -le 32 ]] || return 1
     local i=""
     local mask=""
     local full_octets=$(($1/8))
@@ -514,11 +717,19 @@ interface2broadcast() {
         echo "No interface passed" >&2
         return 1
     fi
-    # One address per line means one brd per line, so an interface carrying a
-    # second address returned two. Take the first, matching the $ipaddress /
-    # $ipaddresses contract from GH-954. Empty is a legitimate answer -- a /32
-    # or a point-to-point link has no broadcast -- and the caller falls back.
-    ip -4 addr show $interface | grep -oP 'brd \K\S+' | head -1
+    # The brd of address $2 on that interface. Without $2, or when $2 is not
+    # there, the first brd on the interface. Empty is a legitimate answer -- a
+    # /32 or a point-to-point link has no broadcast -- and the caller falls back.
+    #
+    # GH-1747: this always took the first brd, which belongs to whichever
+    # address is listed first. A link-local 169.254.x.x listed ahead of the
+    # real address ended the DHCP pool at 169.254.255.254.
+    ip -4 -o addr show dev "$interface" 2>/dev/null | awk -v want="$2" '
+        $3 != "inet" { next }
+        { split($4, addr, "/"); brd = ""; for (i = 5; i < NF; i++) if ($i == "brd") brd = $(i + 1) }
+        want != "" && addr[1] == want { print brd; found = 1; exit }
+        first == "" && brd != "" { first = brd }
+        END { if (!found) print first }'
 }
 subtract1fromAddress() {
     local ip=$1
@@ -649,67 +860,136 @@ getAllNetworkInterfaces() {
     fi
     echo -n $interfaces
 }
+# One bounded reachability probe against a single host. Returns curl's exit
+# status so the caller can name the cause without running three separate tests
+# to find it out.
+#
+# Both bounds matter. Without --connect-timeout, curl inherits libcurl's 300
+# second default, which is exactly what a firewall that DROPs rather than
+# REJECTs outbound traffic costs -- per host, per address family. Without
+# --max-time, a connection that opens and then stalls never returns at all.
+#
+# Deliberately no -k. A proxy presenting its own CA passes an unverified probe
+# and then fails the git clone that follows, and predicting that clone is the
+# entire point of the check. Equally deliberately no -f: a host that answers 404
+# at "/" is still a reachable host, and reachability is what is being measured.
+inetProbe() {
+    local host="$1"
+    if command -v curl >/dev/null 2>&1; then
+        curl -sS --connect-timeout $inetConnectTimeout --max-time $inetMaxTime \
+            -o /dev/null "https://${host}/" >>$error_log 2>&1
+        return $?
+    fi
+    # curl is in every distro's package list, but installPackages has not run
+    # yet at this point, so a minimal image can legitimately reach here without
+    # it. bash's own /dev/tcp keeps the fallback dependency free. It sees only
+    # the TCP handshake -- not TLS, and not a proxy -- so it reports the generic
+    # connect failure (7) rather than claiming to know more than it does.
+    #
+    # Bounded by the connect timeout rather than the total: a handshake is all
+    # this does, so there is no transfer phase for $inetMaxTime to govern.
+    timeout $inetConnectTimeout bash -c "exec 3<>/dev/tcp/${host}/443" >>$error_log 2>&1
+    [[ $? -eq 0 ]] && return 0
+    return 7
+}
+# Probe the hosts this install is actually going to pull from, and record the
+# answer somewhere the code that downloads can read it.
+#
+# This used to test DNS, then plain HTTP, then HTTPS, against httpbin.org,
+# neverssl.com, github.com and fogproject.org -- none of them with a timeout,
+# and none of them a host FOG needs. Worse, it opened by running
+# `$packageinstaller curl`, so a connectivity check's first act was a package
+# transaction that needed the very connectivity it was about to test: metadata
+# refresh against every configured mirror, unbounded on Debian/Ubuntu whenever
+# unattended-upgrades holds the dpkg lock (apt has no lock timeout), and on Arch
+# a full system upgrade, because $packageinstaller there is `pacman -Syu`. All
+# of it redirected to the error log, so the screen showed "Testing internet
+# connection" and nothing else for minutes at a time.
+#
+# Nothing read the result either. dns_ok/http_ok/https_ok were set and never
+# looked at, both failure paths returned rather than exited, and the caller
+# ignored the status -- so the install proceeded identically either way and the
+# stall bought a message and nothing more.
+#
+# What the install genuinely needs from the internet is the distro's package
+# repositories -- which installPackages reports on for itself -- and the host
+# behind $ipxegit/$ipxeurl, for the iPXE sources and the iPXE and Secure Boot
+# release assets. Those are what is probed, so pointing them at an internal
+# mirror tests the mirror instead of github.com rather than as well as it. One
+# HTTPS request per host settles DNS, TCP and TLS together, and curl's exit
+# status says which of the three failed, so the old three-stage ladder is not
+# needed to produce a specific message.
+#
+# Failure stays non-fatal, as before: offline installs are supported and
+# documented (pre-placed iPXE sources, a pre-placed release tarball), so the
+# output is advice plus $internet_ok, not an exit. $internet_ok is what
+# fetchipxeasset, downloadfiles and prepareiPXEsource read to avoid
+# re-attempting a fetch that has already been shown to be unreachable.
 checkInternetConnection() {
     dots "Testing internet connection"
-    DEBIAN_FRONTEND=noninteractive $packageinstaller curl >>$error_log 2>&1
-
-    http_sites=("httpbin.org" "neverssl.com")
-    https_sites=("github.com" "fogproject.org")
-    dns_ok=0
-    http_ok=0
-    https_ok=0
-
-    for dnsname in "${http_sites[@]}" "${https_sites[@]}"; do
-        echo -n "Testing DNS name resolution (${dnsname})... " >> $error_log
-        getent hosts ${dnsname} >/dev/null 2>&1
-        if [[ $? -ne 0 ]]; then
-            echo "Failed" >> $error_log
+    internet_ok=0
+    local url host rc failhost="" failrc=0
+    # Deduplicated because $ipxeurl is derived from $ipxegit, so the stock
+    # configuration is one host probed once rather than github.com probed twice.
+    local hosts=$(
+        for url in "$ipxegit" "$ipxeurl"; do
+            host="${url#*://}"
+            echo "${host%%/*}"
+        done | grep . | sort -u
+    )
+    for host in $hosts; do
+        echo -n "Testing connection to ${host}... " >> $error_log
+        inetProbe "$host"
+        rc=$?
+        if [[ $rc -eq 0 ]]; then
+            echo "OK" >> $error_log
             continue
         fi
-        dns_ok=1
-        echo "OK" >> $error_log
-        break
+        echo "Failed (curl exit ${rc})" >> $error_log
+        failhost="$host"
+        failrc=$rc
     done
-    if [[ $dns_ok -eq 0 ]]; then
-        echo "Failed"
-        echo
-        echo "There seems to be a DNS problem. Check the contents of /etc/resolv.conf" | tee -a $error_log
-        echo "If this is CentOS, RHEL, or Fedora or an other RH variant, also check" | tee -a $error_log
-        echo "the DNS entries in /etc/sysconfig/network-scripts/ifcfg-*" | tee -a $error_log
-        echo
-        return
+    if [[ -z $failhost ]]; then
+        internet_ok=1
+        echo "Done"
+        return 0
     fi
-    for url in "${http_sites[@]}"; do
-        echo -n "Testing HTTP connection (http://${url})... " >> $error_log
-        curl --silent http://${url} >/dev/null 2>>$error_log
-        if [[ $? -ne 0 ]]; then
-            echo "Failed" >> $error_log
-            continue
-        fi
-        http_ok=1
-        echo "OK" >> $error_log
-        break
-    done
-    for url in "${https_sites[@]}"; do
-        echo -n "Testing HTTPS connection (https://${url})... " >> $error_log
-        curl --silent -k https://${url} >/dev/null 2>>$error_log
-        if [[ $? -ne 0 ]]; then
-            echo "Failed" >> $error_log
-            continue
-        fi
-        https_ok=1
-        echo "OK" >> $error_log
-        break
-    done
-    if [[ $http_ok -eq 0 && $https_ok -eq 0 ]]; then
-        echo "Failed"
-        echo
-        echo "There was no interface with an active internet connection found." | tee -a $error_log
-        echo "If you are using a proxy server, please export http_proxy and https_proxy or use .curlrc" | tee -a $error_log
-        echo
-        return
-    fi
-    echo "Done"
+    echo "Failed"
+    echo
+    case $failrc in
+        6)
+            echo "Could not resolve ${failhost}. Check the contents of /etc/resolv.conf," | tee -a $error_log
+            echo "and on RHEL, CentOS, Fedora or another RH variant also the DNS settings" | tee -a $error_log
+            echo "on the connection itself (nmcli con show <name> | grep ipv4.dns)." | tee -a $error_log
+            ;;
+        # 7 and 28 share a message on purpose. A firewall that DROPs outbound
+        # traffic -- the usual cause on an isolated or corporate network --
+        # produces 28 (the connect timeout expiring), not 7; 7 is what an
+        # explicit REJECT or "network unreachable" gives. Naming only $inetMaxTime
+        # against a 28 would report the wrong bound, since it is almost always
+        # $inetConnectTimeout that fired.
+        7|28)
+            echo "Could not reach ${failhost} on port 443 within ${inetConnectTimeout}s to connect" | tee -a $error_log
+            echo "or ${inetMaxTime}s in total. A firewall that drops outbound traffic rather than" | tee -a $error_log
+            echo "rejecting it looks exactly like this." | tee -a $error_log
+            ;;
+        35|60|77)
+            echo "TLS to ${failhost} failed. If a proxy or filter is intercepting HTTPS," | tee -a $error_log
+            echo "its CA has to be trusted by this machine -- git and curl will both fail" | tee -a $error_log
+            echo "the same way until it is." | tee -a $error_log
+            ;;
+        *)
+            echo "Could not reach ${failhost} (curl exit ${failrc})." | tee -a $error_log
+            ;;
+    esac
+    echo
+    echo "The install will continue. FOG needs ${failhost} for the iPXE sources and" | tee -a $error_log
+    echo "the iPXE release binaries, so those steps are the ones expected to fail." | tee -a $error_log
+    echo "If you are using a proxy server, please export http_proxy and https_proxy or use .curlrc" | tee -a $error_log
+    echo "For a deliberate offline install, pre-place those sources -- each download" | tee -a $error_log
+    echo "step below prints the exact path it looks in." | tee -a $error_log
+    echo
+    return 0
 }
 join() {
     local IFS="$1"
@@ -732,6 +1012,67 @@ installFOGServices() {
     chmod +x -R $servicedst/
     mkdir -p $servicelogs
     errorStat $?
+    # Where the web tier records what FOS told it (service/taskerror.php).
+    # Its own subdirectory rather than group-write on $servicelogs: that
+    # directory is root's and holds the daemons' logs, and rotation renames
+    # and unlinks, so shared write would let the web user delete them.
+    dots "Creating FOS report log directory"
+    mkdir -p $servicelogs/fos >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $servicelogs/fos >>$error_log 2>&1
+    errorStat $?
+    # Outside the dots/errorStat pair, like every other caller:
+    # setSELinuxContext prints its own line. The _rw_ type is not optional --
+    # /opt/fog inherits usr_t and httpd_t may READ usr_t but not write it, so
+    # without this the directory exists, looks right, and every report is
+    # dropped with nothing but an AVC to say so.
+    setSELinuxContext "$servicelogs/fos" httpd_sys_rw_content_t
+    # Where FOGBase::logFault() records database operations that did not
+    # happen. Its own subdirectory for the same reason the one above has its.
+    #
+    # Unlike that one, BOTH tiers write here -- the web user, and root for the
+    # daemons -- so logFault() writes faults-web.log and faults-service.log
+    # rather than one shared file, whose owner would be whichever tier hit a
+    # failure first. The directory is the web user's; root writes into it
+    # regardless of mode.
+    dots "Creating FOG fault log directory"
+    mkdir -p $servicelogs/faults >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $servicelogs/faults >>$error_log 2>&1
+    # 0750, not the 0755 the other log directories carry. A fault line names
+    # the class, the table and the shape of the statement that failed, which
+    # is more than any local account needs; #1261 already cut the bound
+    # values out of it, and this stops the rest being world-readable. The web
+    # user owns the directory and root ignores the mode, so both writers are
+    # unaffected.
+    chmod 0750 $servicelogs/faults >>$error_log 2>&1
+    errorStat $?
+    # Outside the dots/errorStat pair, like every other caller, and the _rw_
+    # label is as load-bearing here as it is for fos above (GH-964).
+    setSELinuxContext "$servicelogs/faults" httpd_sys_rw_content_t
+    # FOG's own PHP session store (FOG_SESSION_DIR in commons/init.php, which
+    # points session.save_path here at runtime). FOG used to share the distro's
+    # session directory, where session.gc_maxlifetime is 1440 -- 24 minutes on
+    # every distro we support -- so PHP reaped the session file long before
+    # FOG_INACTIVITY_TIMEOUT said to, and the user was silently bounced to the
+    # login page. gc_maxlifetime applies to the whole save_path, so FOG cannot
+    # raise it without imposing its retention on every other PHP application on
+    # the box. Hence a private directory.
+    dots "Creating FOG session directory"
+    mkdir -p $fogprogramdir/sessions >>$error_log 2>&1
+    # 0700 and owned by the pool user -- stricter than the 0750 above, because
+    # a session file IS an authentication token: anything that can read this
+    # directory can resume an admin session, and unlike the fault log there is
+    # no second writer to accommodate. Safe as a single-owner directory because
+    # the php-fpm pool is pinned to $apacheuser further down this same install
+    # (the `user = ${apacheuser}` rewrite in the pool file), which is the same
+    # variable used here.
+    chown ${apacheuser}:${apacheuser} $fogprogramdir/sessions >>$error_log 2>&1
+    chmod 0700 $fogprogramdir/sessions >>$error_log 2>&1
+    errorStat $?
+    # Same GH-964 reasoning as the fault log above: /opt/fog inherits usr_t and
+    # httpd_t may read but not write it. Unlabelled, PHP cannot write a session
+    # file on an enforcing host -- which does not degrade, it means nobody can
+    # log in at all, with only an AVC denial to say so.
+    setSELinuxContext "$fogprogramdir/sessions" httpd_sys_rw_content_t
 }
 configureUDPCast() {
     dots "Setting up UDPCast"
@@ -743,8 +1084,15 @@ configureUDPCast() {
     cd $udpcastout
     grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$error_log 2>&1
     if [[ $? -eq 0 ]]; then
-        wget -qO config.guess "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$error_log 2>&1
-        wget -qO config.sub "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$error_log 2>&1
+        # Bounded, and the retry count cut right down. wget defaults to
+        # --tries=20 with no connect timeout at all, so on a Pi that cannot
+        # reach savannah this sat here for twenty full SYN retry cycles, twice,
+        # silently. Both files are a few KB, so a 30 second read timeout cannot
+        # cut a legitimate transfer short.
+        wget -qO config.guess --connect-timeout=$inetConnectTimeout --read-timeout=30 --tries=2 \
+            "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" >>$error_log 2>&1
+        wget -qO config.sub --connect-timeout=$inetConnectTimeout --read-timeout=30 --tries=2 \
+            "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" >>$error_log 2>&1
         chmod +x config.guess config.sub >>$error_log 2>&1
     fi
     errorStat $?
@@ -821,7 +1169,23 @@ configureFTP() {
 configureDefaultiPXEfile() {
     dots 'Configuring default iPXE file'
     [[ -z $webroot ]] && webroot='/fog/'   # see registerStorageNode, GH-529
-    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${product}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    # param manufacturer took ${product} for years, so every ipxeTable row
+    # recorded the model twice and the vendor never once. iPXE exposes the two
+    # as separate SMBIOS settings.
+    #
+    # macboot is ${netX/mac}, iPXE's alias for the device it booted from. It is
+    # NOT a replacement for mac0: netX is a pointer at one of net0..netN, so
+    # swapping it in would drop net0 from the set on a machine that booted off
+    # net1. boot.php unions every mac* field and array_unique()s the result, so
+    # sending both costs nothing when they are the same NIC and guarantees the
+    # booting NIC is present however many NICs the box has. It sits above the
+    # net1..net7 chain because that chain short-circuits to :bootme on the first
+    # absent interface, which on a single-NIC machine is net1.
+    #
+    # The enumeration used to stop at net2. Anything past three NICs was
+    # invisible to the host lookup, so a machine registered under only its
+    # fourth NIC could not be found at all.
+    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${manufacturer}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nisset \${netX/mac} && param macboot \${netX/mac} ||\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\nisset \${net3/mac} && param mac3 \${net3/mac} || goto bootme\nisset \${net4/mac} && param mac4 \${net4/mac} || goto bootme\nisset \${net5/mac} && param mac5 \${net5/mac} || goto bootme\nisset \${net6/mac} && param mac6 \${net6/mac} || goto bootme\nisset \${net7/mac} && param mac7 \${net7/mac} || goto bootme\n:bootme\nchain ${httpproto}://$ipaddress${webroot}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {
@@ -837,6 +1201,15 @@ prepareiPXEsource() {
     # subdirectory of upstream clones) and nothing here needs the network.
     dots "Preparing iPXE build sources"
     if [[ -d $buildipxesrc/.git ]]; then
+        # git has no connect timeout of its own, so an unreachable host stalls
+        # here for as long as the kernel retries the SYN. The fetch is only ever
+        # an update to a checkout that already works, so when the host is known
+        # to be unreachable, skip straight to using what is on disk -- the same
+        # outcome the failed-checkout branch below produces, minus the wait.
+        if [[ $internet_ok -ne 1 ]]; then
+            echo "Skipped (using existing checkout)"
+            return 0
+        fi
         git -C "$buildipxesrc" fetch --tags --force "$ipxegit" >>$error_log 2>&1
         if ! git -C "$buildipxesrc" checkout -q "$ipxeVer" >>$error_log 2>&1; then
             # Offline, or the tag does not exist yet. A usable checkout is
@@ -885,12 +1258,32 @@ fetchipxeasset() {
     cd ../tmp/
     local checksum=1
     local cnt=0
-    while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
+    # Ten rounds of two timeout-less curls is the most expensive stall in the
+    # whole installer: on a network that drops outbound traffic each of those
+    # twenty connects sat at libcurl's 300 second default before returning, all
+    # of it silent under one "Downloading iPXE binaries" line. When
+    # checkInternetConnection has already established the host is unreachable
+    # there is nothing to retry FOR, so make the one attempt and report.
+    local tries=10
+    [[ $internet_ok -ne 1 ]] && tries=1
+    while [[ $checksum -ne 0 && $cnt -lt $tries ]]; do
         [[ -f ${tarball}.sha256 ]] && sha256sum -c ${tarball}.sha256 >>$error_log 2>&1
         checksum=$?
         if [[ $checksum -ne 0 ]]; then
-            curl --silent -fkOL "$url" >>$error_log 2>&1
-            curl --silent -fkOL "${url}.sha256" >>$error_log 2>&1
+            # --connect-timeout bounds an unreachable host; --speed-time/-limit
+            # bounds a connection that opens and then stalls. --max-time is
+            # deliberately NOT used here -- these are multi-megabyte tarballs
+            # and a slow but working link must be allowed to finish.
+            # No -k. This is an ordinary internet download from a host with a
+            # perfectly good certificate, and the sha256 below does not save
+            # us -- it is fetched over the same unverified connection, so
+            # whoever could substitute the tarball could substitute the hash
+            # with it. checkInternetConnection() already explains a TLS
+            # failure here as an untrusted intercepting proxy.
+            curl --silent -fOL --connect-timeout $inetConnectTimeout \
+                --speed-time 30 --speed-limit 1024 "$url" >>$error_log 2>&1
+            curl --silent -fOL --connect-timeout $inetConnectTimeout \
+                --speed-time 30 --speed-limit 1024 "${url}.sha256" >>$error_log 2>&1
         fi
         let cnt+=1
     done
@@ -994,7 +1387,32 @@ configureTFTPandPXE() {
         # staging tree the copy loop below already reads, so a locally built
         # binary lands exactly where a downloaded one would.
         "${buildipxesrc}/buildipxe.sh" "${sslpath}CA/.fogCA.pem" "$(readlink -f $tftpdirsrc)" >>$workingdir/error_logs/fog_ipxe-build_${version}.log 2>&1
-        errorStat $?
+        local buildstat=$?
+        local ipxebuildlog="$workingdir/error_logs/fog_ipxe-build_${version}.log"
+        # errorStat tails $error_log, and this build does not write there -- its
+        # output goes to the file above. Tailing the wrong log printed five lines
+        # of unrelated noise from earlier steps (a DB backup line, the HTML body
+        # of the schema POST) and threw away the exit status, which is the one
+        # value that identifies the failure: buildipxe.sh returns a distinct
+        # status per stage -- 39/41 upstream checkout and patching, 40/48 BIOS,
+        # 79/80/91/95 x86 EFI, 82/93/97 the arm64 cross-compile. Report both, so
+        # a failed build can be diagnosed from what the installer prints instead
+        # of from a file nobody is told to look at.
+        if [[ $buildstat -ne 0 ]]; then
+            echo "Failed! (buildipxe.sh exit $buildstat)"
+            if [[ -z $exitFail ]]; then
+                echo
+                echo " * The iPXE build writes its own log, separate from $error_log."
+                echo " * Full build output: $ipxebuildlog"
+                echo " * Please include that file, and the exit status above, when"
+                echo "   reporting this."
+                echo
+                tail -n 20 "$ipxebuildlog"
+                exit $buildstat
+            fi
+        else
+            errorStat 0
+        fi
         cd $workingdir
     fi
     cd $tftpdirsrc
@@ -1177,14 +1595,18 @@ addOndrejRepo() {
 }
 resolveDHCPEngine() {
     # Decide between Kea and ISC-DHCP for the optional FOG-hosted DHCP service.
-    # Only relevant when FOG is actually building DHCP and the ISC package is
+    # Only relevant when FOG is actually building DHCP and a DHCP package is
     # still in the install set (the storage-node and bldhcp=0 paths strip it in
     # doOSSpecificIncludes before we ever get here). Must run after repo setup
     # so the Kea availability probe sees enabled repos (e.g. EPEL on RHEL).
     [[ -z $keaconfig ]] && keaconfig="/etc/kea/kea-dhcp4.conf"
     [[ $bldhcp -eq 1 ]] || return 0
     local iscpkg="$dhcpname"
-    [[ -n $iscpkg && $packages == *"$iscpkg"* ]] || return 0
+    # Accept the Kea package as well. The swap below is saved with the package
+    # list, but $dhcpname and $dhcpconfig are re-seeded from the distro config
+    # on every run. Matching only the ISC name returned here on every re-run of
+    # a Kea install, which left the ISC config path for the Kea JSON (GH-1747).
+    [[ -n $iscpkg && ( $packages == *"$iscpkg"* || ( -n $keapackage && $packages == *"$keapackage"* ) ) ]] || return 0
     # Honor an explicit/persisted choice; an existing install is never switched.
     dhcpengine="${dhcpengine,,}"
     if [[ -z $dhcpengine ]]; then
@@ -2067,15 +2489,29 @@ doOSSpecificIncludes() {
             ;;
     esac
     currentdir=$(pwd)
-    case $currentdir in
-        *$webdirdest*|*$tftpdirdst*)
-            echo "Please change installation directory."
-            echo "Running from here will fail."
-            echo "You are in $currentdir which is a folder that will"
-            echo "be moved during installation."
-            exit 1
-            ;;
-    esac
+    # Both variables are tested for non-emptiness FIRST, and that is the whole
+    # point rather than defensive noise: in a glob, `*$webdirdest*` with an
+    # empty $webdirdest is `**`, which matches EVERY path. So whenever this
+    # function reaches here without having sourced a distro config -- the `*)`
+    # arm above blanks osid and RETURNS rather than exiting -- the old form
+    # refused to run from any directory at all, and said so in a message about
+    # the install layout that had nothing to do with the real problem.
+    #
+    # Ported from working-1.6, where a .fogsettings key rename made this easy
+    # to hit: an unset id took the `*)` arm and the admin got "Sorry, answer
+    # not recognized" followed by "Please change installation directory" about
+    # a path that was fine. That rename is not on this branch and is not being
+    # ported, but the amplifier here never depended on it -- ANY route to this
+    # guard without a sourced distro config produces the same false message,
+    # and on a 1.5 server a hand-edited or truncated .fogsettings is the way in.
+    if { [[ -n $webdirdest ]] && [[ $currentdir == *"$webdirdest"* ]]; } \
+        || { [[ -n $tftpdirdst ]] && [[ $currentdir == *"$tftpdirdst"* ]]; }; then
+        echo "Please change installation directory."
+        echo "Running from here will fail."
+        echo "You are in $currentdir which is a folder that will"
+        echo "be moved during installation."
+        exit 1
+    fi
 }
 errorStat() {
     local status=$1
@@ -3511,6 +3947,18 @@ EOF
     chmod 0644 "${outdir}/${certfile}" >>$error_log 2>&1
     return $st
 }
+# Did $rootCAPem actually issue $sslcapem?
+#
+# The one question that separates a FOG-generated Web CA from one imported with
+# --web-ca-cert, which no comparison of PATHS can answer -- the import lands on
+# the same canonical filenames the generator uses. See the call site in
+# createWebIntermediateCA for what regenerating the chain from the wrong root
+# costs.
+_rootIssuedWebCA() {
+    [[ -n $rootCAPem && -s $rootCAPem ]] || return 1
+    [[ -n $sslcapem && -s $sslcapem ]] || return 1
+    openssl verify -trusted "$rootCAPem" "$sslcapem" >/dev/null 2>&1
+}
 # The Web zone: an intermediate whose leaf is what the vhost serves. Replacing
 # this zone has zero endpoint impact -- browsers just need the root trusted,
 # and fog-client already trusts it, because the root is what it pins.
@@ -3552,8 +4000,29 @@ $(_nameConstraints)" "FOG Web UI"
     # sslprivkey/sslpubcert.
     if [[ -z $sslcachain || $sslcachain == "${cadir}/.fogWebCAchain.pem" || $sslcachain == "$rootCAPem" ]]; then
         sslcachain="${cadir}/.fogWebCAchain.pem"
-        cat "$sslcapem" "$rootCAPem" > "$sslcachain" 2>>$error_log
-        chmod 0644 "$sslcachain" >>$error_log 2>&1
+        # The root appended has to be the one that actually ISSUED $sslcapem,
+        # and the path guard above cannot tell. Under
+        # --web-ca-cert/--web-ca-key/--web-ca-root the Web CA was issued by
+        # ANOTHER server's root, validateExternalCA imports to this exact
+        # canonical path, and it deliberately leaves $rootCAPem pointing at
+        # THIS server's own root (see the comment there -- fog-client pins
+        # $rootCAPem, so it must not move). Every path test therefore says
+        # "FOG-managed default, safe to regenerate", and the cat then replaces
+        # the imported root with one that does not sign the intermediate above
+        # it.
+        #
+        # Nothing complains at the time; the file is only read on later runs.
+        # Checked as a property, not a path, because the import and the
+        # generator write the same filename and no path test can separate
+        # them.
+        #
+        # The -s fallback keeps a fresh install working when there is no chain
+        # on disk yet: a chain built from the wrong root is still better than
+        # no chain at all, and that is the pre-existing behaviour.
+        if _rootIssuedWebCA || [[ ! -s $sslcachain ]]; then
+            cat "$sslcapem" "$rootCAPem" > "$sslcachain" 2>>$error_log
+            chmod 0644 "$sslcachain" >>$error_log 2>&1
+        fi
     fi
 }
 # The client communication certificate: the public half of the keypair
@@ -3711,7 +4180,16 @@ _createWebLeaf() {
     # The name set, hashed. ca.cnf is rewritten from $ipaddresses/$hostname/
     # $extraServerNames on every run, so a changed hostname or a new
     # --extra-server-name changes this and nothing else has to notice.
-    want=$(openssl md5 < "$sslpath/ca.cnf" 2>/dev/null)
+    # The signing CA is part of the stamp, not just the name set. It used to be
+    # ca.cnf alone, which meant switching the Web CA -- --web-ca-cert/-key/-root
+    # pointing this server at a CA another FOG server issued -- imported the new
+    # CA and then returned right here without re-signing anything, because the
+    # NAMES had not changed. The install reported success and the vhost went on
+    # serving a certificate signed by the CA that had just been replaced, with
+    # nothing anywhere saying so.
+    want=$( { cat "$sslpath/ca.cnf" 2>/dev/null
+              openssl x509 -in "$sslcapem" -noout -fingerprint -sha256 2>/dev/null
+            } | openssl md5 2>/dev/null)
     if [[ -e $sslpubcert && -e $stamp && "$(cat "$stamp" 2>/dev/null)" == "$want" ]]; then
         return 0
     fi
@@ -3738,23 +4216,52 @@ _createWebLeaf() {
     # well-formed certificate that no client will accept. Left undetected it
     # surfaces as a browser error days later with nothing connecting it to the
     # rename.
-    if [[ -n $sslcachain && -e $sslcachain ]] && \
-        ! openssl verify -CAfile "$rootCAPem" -untrusted "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
+    #
+    # Verified against the root the CHAIN terminates in, not against
+    # $rootCAPem. Under --web-ca-* the leaf chains to the OTHER server's root
+    # while $rootCAPem is still this server's own -- validateExternalCA never
+    # reassigns it -- so the old form failed on every external-CA install and
+    # printed the box below unconditionally, telling the admin to delete a Web
+    # zone that was working correctly.
+    local vtmp vroot=""
+    vtmp=$(mktemp -d 2>>$error_log)
+    if [[ -n $vtmp && -n $sslcachain && -e $sslcachain ]]; then
+        _rootFromChain "$sslcachain" > "${vtmp}/root.pem" 2>>$error_log
+        if [[ -s ${vtmp}/root.pem ]]; then
+            vroot="${vtmp}/root.pem"
+        elif [[ -n $rootCAPem && -f $rootCAPem ]]; then
+            # A chain carrying no root of its own. FOG's is the only anchor
+            # available, and for a FOG-issued leaf it is also the right one.
+            vroot="$rootCAPem"
+        fi
+    fi
+    if [[ -n $vroot ]] && \
+        ! openssl verify -CAfile "$vroot" -untrusted "$sslcachain" "$sslpubcert" >>$error_log 2>&1; then
         echo
         echo "  ###################################################################"
         echo "  # WARNING: the web certificate does not verify against the CA     #"
-        echo "  # that issued it. The usual cause is a name outside that CA's     #"
-        echo "  # name constraints -- this server was renamed, or gained an       #"
-        echo "  # --extra-server-name, after the CA was created.                  #"
-        echo "  #                                                                 #"
-        echo "  # Re-run with the name permitted:                                 #"
-        echo "  #   --internal-domain <domain>                                    #"
-        echo "  # A CA is never re-issued once it exists, so also remove it so    #"
-        echo "  # the new constraints take effect:                                #"
-        echo "  #   rm -rf $(_pkiZoneDir web)"
+        echo "  # that issued it.                                                 #"
+        if [[ $externalca == yes ]]; then
+            echo "  #                                                                 #"
+            echo "  # This server uses an external CA, so check that the leaf, the    #"
+            echo "  # intermediate and the root you supplied really belong together:  #"
+            echo "  #   --web-ca-cert / --web-ca-key / --web-ca-root                  #"
+            echo "  # Nothing under the FOG PKI tree needs removing for this.         #"
+        else
+            echo "  # The usual cause is a name outside that CA's name constraints    #"
+            echo "  # -- this server was renamed, or gained an --extra-server-name,   #"
+            echo "  # after the CA was created.                                       #"
+            echo "  #                                                                 #"
+            echo "  # Re-run with the name permitted:                                 #"
+            echo "  #   --internal-domain <domain>                                    #"
+            echo "  # A CA is never re-issued once it exists, so also remove it so    #"
+            echo "  # the new constraints take effect:                                #"
+            echo "  #   rm -rf $(_pkiZoneDir web)"
+        fi
         echo "  ###################################################################"
         echo
     fi
+    [[ -n $vtmp ]] && rm -rf "$vtmp" >>$error_log 2>&1
     return 0
 }
 # Put the PKI private keys back under root's control, and keep them there.
@@ -3836,6 +4343,128 @@ _caTrustLayout() {
 #
 # Reads only the certificate, never a key, so it is deliberately placed on the
 # far side of _hardenPkiPermissions.
+# The certificate-authority argument for an HTTPS call this server makes to
+# ITSELF.
+#
+# Sets $selfCacertOpts, which callers splice in as "${selfCacertOpts[@]}". Empty
+# when there is nothing to anchor, or when the install is serving plain HTTP --
+# which is the default here, so on most installs this is a no-op and the calls
+# Split a PEM bundle into one file per certificate, c1.pem upward, in $2.
+_splitPemBundle() {
+    local src="$1" dir="$2" f found=1
+    [[ -n $src && -f $src && -n $dir && -d $dir ]] || return 1
+    awk -v d="$dir" '/-----BEGIN CERTIFICATE-----/{n++} n{print > (d "/c" n ".pem")}' \
+        "$src" 2>>$error_log
+    for f in "$dir"/c*.pem; do
+        [[ -f $f ]] && { found=0; break; }
+    done
+    return $found
+}
+# The self-signed certificate in a chain file, on stdout. That is the root, and
+# it is the only member of the bundle whose identity does not depend on the
+# file's ORDER -- the writers disagree about order (validateExternalCA writes
+# the root first, createWebIntermediateCA appends it last), so selecting on the
+# property is the only way to read either.
+_rootFromChain() {
+    local bundle="$1" tmpd f subj issuer st=1
+    [[ -n $bundle && -f $bundle ]] || return 1
+    tmpd=$(mktemp -d) || return 1
+    if _splitPemBundle "$bundle" "$tmpd"; then
+        for f in "$tmpd"/c*.pem; do
+            [[ -f $f ]] || continue
+            subj=$(openssl x509 -in "$f" -noout -subject 2>/dev/null)
+            issuer=$(openssl x509 -in "$f" -noout -issuer 2>/dev/null)
+            [[ -z $subj ]] && continue
+            # -subject prints "subject=..." and -issuer "issuer=...", so compare
+            # the values rather than the whole line.
+            if [[ ${subj#subject=} == "${issuer#issuer=}" ]]; then
+                cat "$f"
+                st=0
+                break
+            fi
+        done
+    fi
+    rm -rf "$tmpd" >>$error_log 2>&1
+    return $st
+}
+# Every root this server should accept for its OWN web certificate, in one
+# file, and $trustAnchorPem naming it.
+#
+# Both roots, not one: $rootCAPem is what _installCATrustAnchor puts in the
+# system store and what fog-client pins, while the root the served leaf
+# actually chains to may be a DIFFERENT one entirely -- that is exactly the
+# case under --web-ca-cert/--web-ca-key/--web-ca-root, where another server's
+# root issued this server's Web CA and $rootCAPem is deliberately left alone.
+# Anchoring on $rootCAPem by itself was therefore wrong on every external-CA
+# install, and wrong in the silent direction: wget's --ca-certificate REPLACES
+# the default bundle, so naming the local root does not add trust, it removes
+# the only trust that would have worked.
+#
+# Deduplicated on fingerprint, not on path: on an ordinary FOG install these
+# are the same certificate reached two ways, and appending it twice is
+# pointless noise in a file an admin may well end up reading.
+_resolveTrustAnchor() {
+    trustAnchorPem=""
+    local out="$(_pkiZoneDir web)/ca/.trustAnchor.pem"
+    local chainroot fp seen=""
+    mkdir -p "$(dirname "$out")" >>$error_log 2>&1
+    : > "$out" 2>>$error_log || return 1
+
+    if [[ -n $rootCAPem && -f $rootCAPem ]]; then
+        fp=$(openssl x509 -in "$rootCAPem" -noout -fingerprint -sha256 2>/dev/null)
+        if [[ -n $fp ]]; then
+            cat "$rootCAPem" >> "$out" 2>>$error_log
+            seen="$fp"
+        fi
+    fi
+    if [[ -n $sslcachain && -f $sslcachain ]]; then
+        chainroot=$(_rootFromChain "$sslcachain")
+        if [[ -n $chainroot ]]; then
+            fp=$(printf '%s\n' "$chainroot" \
+                | openssl x509 -noout -fingerprint -sha256 2>/dev/null)
+            if [[ -n $fp && $fp != "$seen" ]]; then
+                printf '%s\n' "$chainroot" >> "$out" 2>>$error_log
+            fi
+        fi
+    fi
+    [[ -s $out ]] || return 1
+    trustAnchorPem="$out"
+    return 0
+}
+# are unchanged. When it is empty the tool verifies against the system store,
+# which is the right answer for a certificate from a public CA.
+#
+# Why a helper and not just the system store: _installCATrustAnchor() writes
+# $rootCAPem there, but it runs at installfog.sh:805 -- AFTER configureHttpd,
+# checkWebTier, backupDB and updateDB, which are the calls that need it. On a
+# fresh install the store therefore does not know FOG's CA yet at the moment
+# those fire. The file exists by then, so naming it explicitly is correct
+# whatever the store happens to contain.
+#
+# $rootCAPem deliberately, not the chain: it is exactly what
+# _installCATrustAnchor would have anchored, so the two agree by construction,
+# and the leaf's issuing intermediate is served by the web server itself.
+#
+# Both callers are wget, whose flag is --ca-certificate. It REPLACES the
+# default bundle rather than adding to it, and these calls address the server
+# by $ipaddress, so both halves have to hold: the served chain must terminate
+# in $rootCAPem, and the leaf must cover that address. FOG-issued certificates
+# satisfy both by construction. An admin who hand-replaced the certificate has
+# satisfied neither, and updateDB says so rather than failing blankly.
+#
+# These calls used to pass --no-check-certificate. That mattered more than it
+# looks: the schema update carries X-Fog-Install-Token, a secret that grants a
+# schema deploy on a server with no users yet, and it was being handed to
+# whoever answered.
+_resolveSelfCacert() {
+    selfCacertOpts=()
+    [[ $httpproto == https ]] || return 0
+    # The chain's own root as well as $rootCAPem -- see _resolveTrustAnchor for
+    # why naming $rootCAPem alone broke every --web-ca-* install.
+    _resolveTrustAnchor >>$error_log 2>&1 || return 0
+    [[ -s $trustAnchorPem ]] || return 0
+    selfCacertOpts=(--ca-certificate="$trustAnchorPem")
+}
 _installCATrustAnchor() {
     local anchor="$rootCAPem" st=0
     # Default-on, --no-ca-trust to decline, persisted in .fogsettings -- the
@@ -4198,6 +4827,53 @@ EOF
                 echo "    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)" >> "$etcconf"
                 echo "    RewriteRule .* - [F]" >> "$etcconf"
                 echo "    RewriteRule /management/other/ca.cert.der$ - [L]" >> "$etcconf"
+                # GH-978: every path a BOOTLOADER itself fetches must not be
+                # redirected to an HTTPS it cannot validate. On this line that
+                # is one directory -- service/ipxe/ -- holding boot.php and
+                # advanced.php, the menu artwork, refind, grub and memtest.
+                #
+                # This RESTORES the redirect's original scope rather than
+                # punching a new hole in it. It was written in 2017 as
+                #
+                #   RewriteRule /management/ https://%{HTTP_HOST}%{REQUEST_URI}...
+                #
+                # and 2b8bacfed ("Make sure query string is passed properly",
+                # 2017-04-29) replaced the whole rule with `(.*)` to fix how the
+                # query string was carried. Widening it from the management UI
+                # to the entire site was collateral of that fix, not a decision;
+                # nothing in the commit or its message mentions scope.
+                #
+                # Why it cannot simply be "rebuild iPXE with the CA": the
+                # binaries that need this most are the ones FOG must NOT build.
+                # downloadipxesecureboot() stages upstream's Microsoft-signed
+                # shim and iPXE's signed loader, and those are built with no
+                # TRUST=/CERT= at all -- they can never trust a private CA, by
+                # construction. With $httpproto=https, default.ipxe chains over
+                # https and they fail validation; point one at http instead and
+                # the redirect below returned them to the same untrusted TLS.
+                # Either way the client prints "Permission denied" and stops,
+                # which is what GH-978 reported. Secure Boot and --force-https
+                # were mutually exclusive on this line until this condition.
+                #
+                # The cost, stated plainly because it is real: boot.php accepts
+                # a FOG admin username/password (bootmenu.class.php -- advanced
+                # menu access, host deletion, quick-image, debug access), so
+                # that POST becomes possible in cleartext for a client that
+                # chains over http. What bounds it is that the PXE chain has no
+                # confidentiality at its root anyway: DHCP hands out the next
+                # server and default.ipxe arrives over TFTP, both unencrypted.
+                # Anyone positioned to downgrade a client to http already
+                # controls the boot chain and can serve their own iPXE. The
+                # management UI, the API and fog-client are untouched and stay
+                # redirected.
+                #
+                # Conditions guard only the NEXT RewriteRule, and multiple
+                # RewriteConds are ANDed -- so this pair means "redirect only
+                # when the request is not for the netboot directory and is not
+                # already HTTPS". working-1.6 carries the same guard over three
+                # directories; service/secureboot/ and service/uboot/ do not
+                # exist on this line.
+                echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/ipxe/" >> "$etcconf"
                 echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
                 # GH-978: ^/?(.*)$ rather than (.*). In vhost context a
                 # RewriteRule pattern is matched against the URL-path WITH its
@@ -4354,6 +5030,37 @@ EOF
                 if [[ -n $phpsessdir && $phpsessdir == /* && $phpsessdir != "/" && -d $phpsessdir && $phpsessdir == *session* ]]; then
                     chown -R ${apacheuser}:${apacheuser} "$phpsessdir" >>$error_log 2>&1
                 fi
+                # The pool's error log is orphaned by the same user change,
+                # and it fails more quietly than the session directory: the
+                # pool cannot open it, so every error_log() call from FOG's
+                # PHP is discarded and the file stays zero bytes forever.
+                # Nothing reports it -- not the browser, not the master's own
+                # error.log -- so it reads as an install with no errors.
+                #
+                # Measured on a Fedora nginx install: the RPM ships
+                # /var/log/php-fpm owned apache:root and www-error.log owned
+                # apache:apache, the pool runs as $apacheuser after the
+                # rewrite above, and `test -w` says no to both.
+                #
+                # The file is chowned unconditionally; the directory only when
+                # its own name marks it as php-fpm's. On Debian the log sits
+                # directly in /var/log, and chowning that to the web user
+                # would be a far worse bug than the one being fixed.
+                #
+                # logrotate keeps the ownership: the packaged php-fpm rule
+                # carries no `create` line, so a rotated file inherits the
+                # attributes of the one it replaced.
+                phpfpmlog=$(sed -n "s/^[;[:space:]]*php_admin_value\[error_log\][[:space:]]*=[[:space:]]*//p" $phpfpmconf | tail -1 | tr -d '"')
+                if [[ -n $phpfpmlog && $phpfpmlog == /* && $phpfpmlog != "/" && -d $(dirname "$phpfpmlog") ]]; then
+                    [[ -f $phpfpmlog ]] || touch "$phpfpmlog" >>$error_log 2>&1
+                    chown ${apacheuser}:${apacheuser} "$phpfpmlog" >>$error_log 2>&1
+                    phpfpmlogdir=$(dirname "$phpfpmlog")
+                    case "$(basename "$phpfpmlogdir")" in
+                        *fpm*|*php*)
+                            chown ${apacheuser}:${apacheuser} "$phpfpmlogdir" >>$error_log 2>&1
+                            ;;
+                    esac
+                fi
                 sed -i 's/listen = .*/listen = 127.0.0.1:9000/g' $phpfpmconf >>$error_log 2>&1
                 sed -i 's/^[;]pm\.max_requests = .*/pm.max_requests = 2000/g' $phpfpmconf >>$error_log 2>&1
                 sed -i 's/^[;]php_admin_value\[memory_limit\] = .*/php_admin_value[memory_limit] = 256M/g' $phpfpmconf >>$error_log 2>&1
@@ -4506,21 +5213,57 @@ configureHttpd() {
     sed -i 's/.*max_input_vars\ \=.*$/max_input_vars\ \=\ 250000/g' $phpini >>$error_log 2>&1
     errorStat $?
     dots "Testing and removing symbolic links if found"
+    # GH-1146: $webdirdest IS ${docroot}fog/, so unlinking it here left the
+    # "Backing up old data" test below with nothing to find. No
+    # fog_web_<ver>.BACKUP was written, and the management/other/ carry-forward
+    # further down -- which reads that directory -- silently did nothing, on
+    # every install whose web root is a symlink. The only trace was a find(1)
+    # complaint in the error log. Remember where the link pointed so the tree
+    # is still reachable once the link itself is gone.
+    priorwebdir=""
     if [[ -h ${docroot}fog ]]; then
+        priorwebdir=$(readlink -f "${docroot}fog" 2>>$error_log)
         rm -f ${docroot}fog >>$error_log 2>&1
     fi
     if [[ -h ${docroot}${webroot} ]]; then
+        [[ -z $priorwebdir ]] && priorwebdir=$(readlink -f "${docroot}${webroot}" 2>>$error_log)
         rm -f ${docroot}${webroot} >>$error_log 2>&1
+    fi
+    # A link pointing at the document root itself, or at one of its parents,
+    # is not a FOG tree to copy aside -- it is somebody's whole web server.
+    # GH-953 is the standing reminder of what taking a path like that at face
+    # value costs. Nothing below reads $priorwebdir once it is cleared.
+    if [[ -n $priorwebdir ]]; then
+        case "${docroot%/}/" in
+            "${priorwebdir%/}/"*)
+                priorwebdir=""
+                ;;
+        esac
     fi
     errorStat $?
     dots "Backing up old data"
+    # Whether either branch below actually copied anything. Both can be false:
+    # $webdirdest may not exist at all, and $priorwebdir is only set when
+    # ${docroot}fog was a symlink this run removed. See the report at the end
+    # of this step for why that has to be said out loud.
+    webbackedup=""
     if [[ -d $backupPath/fog_web_${version}.BACKUP ]]; then
         rm -rf $backupPath/fog_web_${version}.BACKUP >>$error_log 2>&1
     fi
     if [[ -d $webdirdest ]]; then
         cp -RT "$webdirdest" "${backupPath}/fog_web_${version}.BACKUP" >>$error_log 2>&1
+        webbackedup=1
         rm -rf ${backupPath}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
         rm -rf "$webdirdest" >>$error_log 2>&1
+    elif [[ -n $priorwebdir && -d $priorwebdir ]]; then
+        # Copy only, no removal. The branch above deletes $webdirdest because
+        # the new tree is about to be written over that exact path.
+        # $priorwebdir is somewhere else the admin chose, and it was already
+        # being left behind before this fix -- backing it up is the gain here,
+        # and deleting it would be a new behaviour nobody asked for.
+        cp -RT "$priorwebdir" "${backupPath}/fog_web_${version}.BACKUP" >>$error_log 2>&1
+        webbackedup=1
+        rm -rf ${backupPath}/fog_web_${version}.BACKUP/lib/plugins/accesscontrol
     fi
     if [[ $osid -eq 2 ]]; then
         # GH-953: this removed ${docroot} -- the whole document root, taking any
@@ -4543,7 +5286,21 @@ configureHttpd() {
     if [[ ${docroot%/}/${webrootbare} != ${webdirdest%/} && -n $webrootbare ]]; then
         linkIfAbsent "${webdirdest%/}" "${docroot%/}/${webrootbare}"
     fi
-    errorStat $?
+    # This step printed "OK" whether or not a fog_web_<ver>.BACKUP was written.
+    # errorStat is reached forty lines after the copy and reports the status of
+    # the link work above it, so an install that found nothing to preserve
+    # still told the admin their web root had been backed up. It is reachable
+    # on any server whose webroot is moved aside between installs -- the tree
+    # is neither at $webdirdest nor behind a symlink this run removed, so both
+    # branches are skipped -- and the only trace was the absence of a directory
+    # nobody looks for until they need it.
+    webbackupstat=$?
+    errorStat $webbackupstat skip
+    if [[ -n $webbackedup ]]; then
+        echo "OK"
+    else
+        echo "Skipped"
+    fi
     if [[ $copybackold -gt 0 ]]; then
         if [[ -d ${backupPath}/fog_web_${version}.BACKUP ]]; then
             dots "Copying back old web folder as is";
@@ -4673,7 +5430,7 @@ class Config
         define('PXE_KERNEL', 'bzImage');
         define('PXE_KERNEL_RAMDISK', 275000);
         define('USE_SLOPPY_NAME_LOOKUPS', true);
-        define('MEMTEST_KERNEL', 'memtest.bin');
+        define('MEMTEST_KERNEL', 'mt86plus_x86_64');
         define('PXE_IMAGE', 'init.xz');
         define('STORAGE_HOST', \"${confighostip}\");
         define('STORAGE_FTP_USERNAME', \"${username}\");
@@ -4703,6 +5460,34 @@ class Config
         define('FOG_THEME', 'default/fog.css');
     }
 }" > "${webdirdest}/lib/fog/config.class.php"
+    # "skipOk", because this step is not finished until the permissions below
+    # are set: the OK belongs to the errorStat after them, not to this one.
+    # A failure here still aborts loudly -- that is the half skipOk does not
+    # touch.
+    errorStat $? "skipOk"
+    # This file holds ${DB_password}, both FTP passwords (${SVC_password}, and
+    # the storage node account the same value backs) and the schema bootstrap
+    # token. It is written by a plain redirect, so without this it lands at
+    # whatever umask root is carrying -- 0644 on every distro we support -- and
+    # every local account on the server can read all of them. The FTP
+    # credential is fleet-wide, not per-server.
+    #
+    # Same reasoning as .fogsettings, which is 0600 for two of the same
+    # secrets. This one is not 0600 because it is read by PHP rather than by
+    # the installer: the web tier includes it on every request, and the chown
+    # below hands it to ${apacheuser}.
+    #
+    # Kept at 0640 to match the 1.6 line rather than tightened to 0600, which
+    # would also work here -- every 1.5 daemon runs as root, so the web user is
+    # the only non-root reader. Divergence between the two installers over one
+    # bit is not worth an unnoticed reader (a site script, a plugin's cron)
+    # breaking on the line people actually run in production.
+    #
+    # Set here rather than left to the chown -R at the end of this function: a
+    # mode is only meaningful once the group is right, and a failure between
+    # the two should not leave a window where it is neither.
+    chown ${apacheuser}:${apacheuser} "${webdirdest}/lib/fog/config.class.php" >>$error_log 2>&1
+    chmod 0640 "${webdirdest}/lib/fog/config.class.php" >>$error_log 2>&1
     errorStat $?
     dots "Creating paths file"
     # GH-850: hand the installer's $fogprogramdir to the PHP runtime so
@@ -4813,14 +5598,31 @@ downloadfiles() {
         # make sure we download the most recent hash file to start with
         if [[ -f $hashfile ]]; then
             rm -f $hashfile
-            curl --silent -kOL $hashurl >>$error_log 2>&1
+            curl --silent -OL --connect-timeout $inetConnectTimeout \
+                --speed-time 30 --speed-limit 1024 $hashurl >>$error_log 2>&1
         fi
-        while [[ $checksum -ne 0 && $cnt -lt 10 ]]; do
+        # Eight URLs, ten rounds, two curls each: 160 connects, none of them
+        # bounded, all of them silent under one "Downloading kernel, init and
+        # fog-client binaries" line. On a host with no route out that was the
+        # single longest stall the installer could produce. --connect-timeout
+        # bounds an unreachable host and --speed-time/--speed-limit a transfer
+        # that opens and then stops; --max-time is deliberately absent, because
+        # these are multi-megabyte kernels and a slow link must still finish.
+        # When checkInternetConnection has already established the host is
+        # unreachable there is nothing to retry FOR, so make one attempt.
+        tries=10
+        [[ $internet_ok -ne 1 ]] && tries=1
+        while [[ $checksum -ne 0 && $cnt -lt $tries ]]; do
             [[ -f $hashfile ]] && sha256sum --check $hashfile >>$error_log 2>&1
             checksum=$?
             if [[ $checksum -ne 0 ]]; then
-                curl --silent -kOL $url >>$error_log
-                curl --silent -kOL $hashurl >>$error_log
+                # No -k, same reasoning as fetchipxeasset(): the hash file
+                # travels the same connection as the payload, so skipping
+                # verification here voids the checksum too.
+                curl --silent -OL --connect-timeout $inetConnectTimeout \
+                    --speed-time 30 --speed-limit 1024 $url >>$error_log
+                curl --silent -OL --connect-timeout $inetConnectTimeout \
+                    --speed-time 30 --speed-limit 1024 $hashurl >>$error_log
             fi
             let cnt+=1
         done
@@ -5350,7 +6152,7 @@ _resignKernels() {
         echo "   and re-run the installer, or Secure Boot clients will not boot."
         return 0
     fi
-    dots "Signing FOS kernels for Secure Boot"
+    dots "Signing FOS kernels and Memtest86+ for Secure Boot"
     local kernel kpath failed=0 certpem
     # sbsign/sbverify take PEM only; the admin may well have handed us the DER
     # copy that mokutil wanted. See _secureBootCertPem().
@@ -5360,7 +6162,10 @@ _resignKernels() {
         echo "   Secure Boot clients will not boot until this is fixed."
         return 0
     }
-    for kernel in bzImage bzImage32 arm_Image; do
+    # The two Memtest86+ binaries ride along: each is a bzImage that is also
+    # a PE, and on a UEFI client iPXE chains it as a PE, which under Secure
+    # Boot needs the same countersignature the kernels get (#321).
+    for kernel in bzImage bzImage32 arm_Image mt86plus_x86_64 mt86plus_i586; do
         kpath="${webdirdest}/service/ipxe/${kernel}"
         [[ -f $kpath ]] || continue
         # Already carrying our signature means nothing was re-downloaded since
@@ -5488,6 +6293,42 @@ _keaAppleClass() {
         }
 EOFAPL
 }
+_keaRunAs() {
+    # Print the account "kea-dhcp4 -t" must run as to read $1, or nothing for root.
+    #
+    # Debian/Ubuntu ship /etc/kea as 0750 owned by the service account (_kea),
+    # and their AppArmor profile grants kea-dhcp4 "/etc/kea/** r" while
+    # deliberately withholding cap_dac_read_search and cap_dac_override. Root is
+    # neither the directory's owner nor in its group, so a root-run validation
+    # cannot even traverse the directory: Kea reports "Unable to open file
+    # <path>" for a file that plainly exists, and the install aborts (#1039).
+    # The daemon itself was never affected because systemd runs it as _kea.
+    #
+    # Validating as the directory's owner needs no DAC bypass at all, so it
+    # succeeds with the AppArmor profile intact. Do NOT "fix" this by putting the
+    # profile into complain mode or deleting it -- that disables a protection the
+    # distro shipped on purpose, on a box the admin did not ask us to weaken.
+    # Where /etc/kea is root-owned (RedHat, Arch, Alpine) this returns nothing
+    # and the validation runs as root exactly as before.
+    local owner
+    owner=$(stat -c '%U' "$(dirname "$1")" 2>/dev/null)
+    [[ -z $owner || $owner == root || $owner == UNKNOWN ]] && return 0
+    id -u "$owner" >/dev/null 2>&1 || return 0
+    printf '%s' "$owner"
+}
+_keaValidate() {
+    # Syntax-check $1, dropping to the config directory's owner when root cannot
+    # read it (see _keaRunAs). Returns kea-dhcp4's exit status.
+    local runas
+    runas=$(_keaRunAs "$1")
+    if [[ -z $runas ]]; then
+        kea-dhcp4 -t "$1" >>$error_log 2>&1
+    elif command -v runuser >/dev/null 2>&1; then
+        runuser -u "$runas" -- kea-dhcp4 -t "$1" >>$error_log 2>&1
+    else
+        su -s /bin/sh -c "kea-dhcp4 -t '$1'" "$runas" >>$error_log 2>&1
+    fi
+}
 _writeKeaConfig() {
     # $1 = target file, $2 = client-classes block. Reads $interface, $ipaddress,
     # $network, $cidr, $startrange, $endrange and $optdata from the caller's scope.
@@ -5518,6 +6359,12 @@ $2
     }
 }
 EOFKEA
+    # The service account has to be able to read this, and a hardened root umask
+    # (027/077) would otherwise leave it unreadable to anyone but root -- which
+    # breaks the daemon, not just the syntax check. 0644 is the mode the distro
+    # packages ship this file with; the generated config holds no credentials
+    # (the lease database is memfile).
+    chmod 0644 "$1" >>$error_log 2>&1
 }
 configureKeaDHCP() {
     local cidr=$(mask2cidr $submask)
@@ -5542,15 +6389,28 @@ configureKeaDHCP() {
         return 1
     fi
     if command -v kea-dhcp4 >/dev/null 2>&1; then
-        if ! kea-dhcp4 -t "$target" >>$error_log 2>&1; then
+        if ! _keaValidate "$target"; then
             echo "Failed"
             echo "Kea base configuration failed validation (kea-dhcp4 -t); see $error_log"
+            # "Unable to open file" against a file we just wrote and can stat is
+            # never a syntax error -- it is a mandatory access control denial
+            # (AppArmor on Debian/Ubuntu, SELinux on RedHat) stopping kea-dhcp4
+            # from reading it. Say so, because the generic message sends people
+            # hunting for a JSON typo that isn't there (#1039).
+            if [[ -s $target ]] && tail -n 20 "$error_log" 2>/dev/null | grep -q 'Unable to open file'; then
+                echo ""
+                echo " * $target exists and is readable, so this is not a syntax error."
+                echo "   Something is denying kea-dhcp4 access to it. Check:"
+                echo "     dmesg | grep -i 'apparmor.*kea'      (Debian/Ubuntu)"
+                echo "     ausearch -m avc -c kea-dhcp4         (RedHat/Rocky)"
+                echo "   Please report this with that output rather than disabling AppArmor."
+            fi
             return 1
         fi
         # Tier 2: best-effort Apple BSDP; drop if Kea rejects it.
         _writeKeaConfig "$tmp" "${baseclasses},
 ${appleclass}"
-        if kea-dhcp4 -t "$tmp" >>$error_log 2>&1; then
+        if _keaValidate "$tmp"; then
             mv -f "$tmp" "$target"
         else
             rm -f "$tmp"
@@ -5571,18 +6431,18 @@ writeKeaSample() {
     local target="${webdirdest%/}/kea-dhcp4.conf.fog-sample"
     [[ -z $webdirdest ]] && target="/etc/kea/kea-dhcp4.conf.fog-sample"
     [[ -d $(dirname "$target") ]] || return 0
-    local sampleip
-    sampleip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
-    [[ -z $sampleip ]] && sampleip="$ipaddress"
-    [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
-    local network=$(mask2network $sampleip $submask)
+    # GH-1747: the subnet comes from $ipaddress, the address FOG advertises.
+    # Every global address on the interface used to land here, unquoted, so a
+    # second address became the mask.
+    [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface $ipaddress))
+    local network=$(mask2network $ipaddress $submask)
     local cidr=$(mask2cidr $submask)
     local startrange=$(addToAddress $network 10)
     # GH-667: an interface with no brd flag, or any failure inside these
     # helpers, used to leave endrange holding an error string that went
     # straight into the generated config. Fall back to the broadcast computed
     # from the network and mask we already have.
-    local broadcast=$(interface2broadcast $interface)
+    local broadcast=$(interface2broadcast $interface $ipaddress)
     [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network $submask)
     local endrange=$(subtract1fromAddress $broadcast)
     [[ $(validip $endrange) -ne 0 ]] && endrange=$(subtract1fromAddress $(mask2broadcast $network $submask))
@@ -5625,15 +6485,16 @@ configureDHCP() {
     fi
     case $bldhcp in
         1)
-            serverip=$(ip -4 -o addr show $interface | awk -F'([ /])+' '/global/ {print $4}')
-            [[ -z $serverip ]] && serverip=$(/sbin/ifconfig $interface | grep -oE 'inet[:]? addr[:]?([0-9]{1,3}\.){3}[0-9]{1,3}' | awk -F'(inet[:]? ?addr[:]?)' '{print $2}')
-            [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface))
-            network=$(mask2network $serverip $submask)
+            # GH-1747: the subnet comes from $ipaddress, the address handed out
+            # as next-server. Every global address on the interface used to land
+            # here, unquoted, so a second address became the mask.
+            [[ -z $submask ]] && submask=$(cidr2mask $(getCidr $interface $ipaddress))
+            network=$(mask2network $ipaddress $submask)
             [[ -z $startrange ]] && startrange=$(addToAddress $network 10)
             # GH-667: same guard -- never let a helper's failure become the
             # value that lands in dhcpd.conf.
             if [[ -z $endrange ]]; then
-                broadcast=$(interface2broadcast $interface)
+                broadcast=$(interface2broadcast $interface $ipaddress)
                 [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network $submask)
                 endrange=$(subtract1fromAddress $broadcast)
                 [[ $(validip $endrange) -ne 0 ]] && endrange=$(subtract1fromAddress $(mask2broadcast $network $submask))

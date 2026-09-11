@@ -2,7 +2,7 @@
 /**
  * Index/handler for api subsystem.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category APIHandler
  * @package  FOGProject

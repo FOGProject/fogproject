@@ -2,7 +2,7 @@
 /**
  * Slack page edit/add.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category SlackManagementPage
  * @package  FOGProject

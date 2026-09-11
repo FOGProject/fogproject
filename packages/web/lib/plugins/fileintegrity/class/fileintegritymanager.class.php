@@ -2,7 +2,7 @@
 /**
  * FileIntegrity Manager class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FileIntegrityManager
  * @package  FOGProject
@@ -35,7 +35,7 @@ class FileIntegrityManager extends FOGManagerController
     public function install()
     {
         $this->uninstall();
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             array(

@@ -2,7 +2,7 @@
 /**
  * Location manager mass management class
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category LocationManager
  * @package  FOGProject
@@ -35,7 +35,7 @@ class LocationManager extends FOGManagerController
     public function install()
     {
         $this->uninstall();
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             array(

@@ -11,8 +11,17 @@
 # (locally or in CI) without leaving a dirty working tree behind. Pair with
 # apply-fog-version.sh to actually write the result somewhere.
 #
-# Usage: fog-version.sh [branch-name]
+# Usage: fog-version.sh [branch-name] [mode]
 #   branch-name defaults to the currently checked out branch.
+#   mode  0     (default) report honestly; if drifted, print the version the
+#               next commit should carry.
+#         1     a commit is being written right now - always print the
+#               version that commit should carry. Used by pre-commit.
+#         head  print what the commit that ALREADY EXISTS should carry, with
+#               no +1 - i.e. verify rather than write.
+#
+#   No local hook calls this any more: FOG_VERSION is written only on a base
+#   branch, after a merge, by CI. See the header of .githooks/pre-commit.
 
 set -e
 
@@ -20,9 +29,13 @@ project_dir=$(git rev-parse --show-toplevel)
 system_file="$project_dir/packages/web/lib/fog/system.class.php"
 
 gitbranch="${1:-$(git branch --show-current)}"
-local="${2:-0}"
+mode="${2:-0}"
 
-gitcom=$(git rev-list --tags --no-walk --max-count=1)
+# Release tags only. A release tag is the version string itself (1.5.10.2253),
+# so it starts with a digit. Any other tag -- archive/feature-fog2-gui, pushed
+# on 2026-09-06 -- would otherwise become the base version whenever it is the
+# newest tag, and its slash then breaks the sed in apply-fog-version.sh.
+gitcom=$(git rev-list --tags='[0-9]*' --no-walk --max-count=1)
 
 git fetch origin master:master 2>/dev/null || true
 gitcount=$(git rev-list master..HEAD --count)
@@ -46,13 +59,13 @@ compute_version() {
 
     case "$branchon" in
         dev)
-            tagversion=$(git describe --tags "$gitcom")
+            tagversion=$(git describe --tags --match '[0-9]*' "$gitcom")
             baseversion=${tagversion%.*}
             trunkversion="${baseversion}.${count}"
             channel="Patches"
             ;;
         stable)
-            tagversion=$(git describe --tags "$gitcom")
+            tagversion=$(git describe --tags --match '[0-9]*' "$gitcom")
             baseversion=${tagversion%.*}
             count=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
             trunkversion="${baseversion}.${count}"
@@ -85,6 +98,16 @@ compute_version() {
 # new commit right now.
 compute_version "$gitcount"
 
+# rc is the one branch type with no count-verifiable answer: it increments
+# off whatever suffix is already committed rather than off a commit count,
+# so the pass above always returns "one more than what is there". For the
+# modes that are about to write a commit that is exactly right. For head
+# mode, which asks whether the committed value is already correct, it would
+# be a permanent false positive - so there, the committed value stands.
+if [ "$mode" = "head" ] && [ "$branchon" = "rc" ]; then
+    trunkversion="$current_version"
+fi
+
 drifted=false
 [ "$trunkversion" != "$current_version" ] && drifted=true
 # dev-branch and stable deliberately carry no FOG_CHANNEL line at all (a
@@ -94,17 +117,26 @@ drifted=false
 if { [ -n "$current_channel" ] && [ "$channel" != "$current_channel" ]; }; then
     drifted=true
 fi
-if [ "$local" -eq 1 ]; then
+if [ "$mode" = "1" ]; then
     drifted=true
 fi
 
-if [ "$drifted" = true ] || [ "$local" -eq 1 ]; then
+# head mode stops here. Every other mode answers "what should the NEXT
+# commit say"; head answers "what should the commit that already exists
+# say", so adding 1 for a commit nobody is writing would defeat the whole
+# point of it.
+if [ "$mode" != "head" ] && [ "$drifted" = true ]; then
     # What's committed disagrees, so whatever calls this script is about
     # to add one more real commit to this branch to fix it. Recompute with
     # gitcount+1 - the count that will actually be true once that commit
     # exists - so the fix is correct the instant it lands instead of being
     # wrong by exactly the commit that made it. Without this, the very next
     # check finds "drift" again and fixes it again, forever.
+    #
+    # This is also why mode=1 lands one too high on an --amend: an amend
+    # REPLACES HEAD rather than extending it, so the +1 counts a commit that
+    # will never exist. That was the standing hazard of stamping a version
+    # from a local hook, and is one of the reasons no local hook does it now.
     compute_version "$((gitcount + 1))"
 fi
 

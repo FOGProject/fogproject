@@ -2,7 +2,7 @@
 /**
  * Check out download task.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Download_Complete
  * @package  FOGProject

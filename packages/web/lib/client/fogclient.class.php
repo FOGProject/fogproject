@@ -2,7 +2,7 @@
 /**
  * Base element for client services
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGClient
  * @package  FOGProject

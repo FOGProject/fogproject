@@ -2,7 +2,7 @@
 /**
  * Multicast task generator/finder
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category MulticastTask
  * @package  FOGProject
@@ -1002,13 +1002,31 @@ class MulticastTask extends FOGService
             }
             $streams[] = $chunks;
         }
+        // GH-536: the first stream is the partition every machine reaches
+        // at the same moment, straight off the wire; the ones after it are
+        // reached only once each machine has finished writing the one
+        // before, and identical hardware does not finish together. A single
+        // wait covering both cases has to be long enough for the slowest
+        // machine on the LAST partition, which makes a machine that never
+        // shows up for the FIRST one hold the whole session open for that
+        // long as well. So the configured wait applies to the first stream
+        // and a longer one to the rest.
+        //
+        // This is one token different from working-1.6, which uses a flat
+        // 600 for the later streams. It can, because there the first value
+        // is per-session -- the admin sets it on the task in front of them.
+        // Here it is FOG_UDPCAST_MAXWAIT, a global, so an admin who raised
+        // it raised it as policy for every partition, and shortening the
+        // later ones to 600 would quietly undo that. Taking the larger of
+        // the two gives the improvement to anyone who lowered the setting
+        // and changes nothing for anyone who raised it.
+        $firstwait = $maxwait * 60;
+        $laterwait = max(600, $firstwait);
         ob_start();
-        // $i is gone with the sprintf: both arms of the max-wait
-        // ternary it fed were already identical ($maxwait * 60).
-        foreach ($streams as $stream) {
+        foreach ($streams as $i => $stream) {
             $cmd = str_replace(
                 '{MAXWAIT}',
-                (string)($maxwait * 60),
+                (string)(0 === $i ? $firstwait : $laterwait),
                 implode($buildcmd)
             );
             $paths = array();
@@ -1074,12 +1092,16 @@ class MulticastTask extends FOGService
      */
     public function killTask()
     {
-        $this->killTasking();
+        $gone = $this->killTasking();
         if (file_exists($this->getUDPCastLogFile())) {
             unlink($this->getUDPCastLogFile());
         }
+        // clearSenderRef() self-guards on liveness, so this stays
+        // unconditional: on a successful kill it releases the row, and on a
+        // sender that survived it deliberately does nothing, leaving the
+        // reference for _reconcileOrphanedSenders() to find.
         $this->clearSenderRef();
-        return true;
+        return $gone;
     }
     /**
      * Clears the persisted sender ownership for this session.
@@ -1096,10 +1118,24 @@ class MulticastTask extends FOGService
      * name and client count back and hand the session straight back to the
      * daemon to start again.
      *
-     * @return void
+     * @return bool True when the reference was released.
      */
     public function clearSenderRef()
     {
+        // Refuse while the sender is still alive. Zeroing senderpid is
+        // precisely what makes a session invisible to
+        // _reconcileOrphanedSenders(), so doing it to a sender that
+        // survived killTask() strands a udp-sender holding its portbase
+        // with nothing left that would ever clean it up. The pid tested is
+        // the pre-kill one still held on the in-memory session object,
+        // which is the whole reason the manager clears AFTER cancel() and
+        // complete() rather than inside them.
+        $pid = (int)$this->_MultiSess->get('senderpid');
+        if ($pid > 0
+            && $this->isPidAlive($pid, basename(UDPSENDERPATH))
+        ) {
+            return false;
+        }
         self::getClass('MulticastSessionManager')->update(
             array('id' => $this->_intID),
             '',
@@ -1108,6 +1144,7 @@ class MulticastTask extends FOGService
                 'sendernode' => 0
             )
         );
+        return true;
     }
     /**
      * Updates the stats of the tasking

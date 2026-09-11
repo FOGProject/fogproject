@@ -2,7 +2,7 @@
 /**
  * FOGBase, the base class for pretty much all of fog.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * This gives all the rest of the classes a common frame to work from.
  *
@@ -534,7 +534,7 @@ abstract class FOGBase
                     file_get_contents('php://input'),
                     $vars
                 );
-                $mac = $vars['mac'];
+                $mac = $vars['mac'] ?? '';
             }
         }
         // disabling sysuuid detection code for now as it is causing
@@ -545,11 +545,12 @@ abstract class FOGBase
                     $sysuuid = filter_input(INPUT_GET, 'sysuuid');
                 }
          */
-        // If encoded decode and store value
-        if ($encoded === true) {
-            $mac = base64_decode($mac);
-            //            $sysuuid = base64_decode($sysuuid);
-        }
+        // Normalize the mac. stripAndDecode() rewrites $_REQUEST, but the mac
+        // is read here from the raw request via filter_input() (or passed in
+        // explicitly), which that rewrite never touches, so the encoding has
+        // to be resolved here. The legacy $encoded flag is now redundant but
+        // kept for call-signature compatibility.
+        $mac = self::stripAndDecodeMac($mac);
         // See if we can find the host by system uuid rather than by mac's first.
         /*        if ($sysuuid) {
                     $Inventory = self::getClass('Inventory')
@@ -765,6 +766,212 @@ abstract class FOGBase
             $data
         );
         printf('<div class="debug debug-error">%s</div>', $string);
+    }
+    /**
+     * FOG's log directory.
+     *
+     * 1.5 has no FOG_LOG_DIR constant -- every service spells this path out
+     * -- so this one does too, matching TaskError::LOG_DIR and the
+     * installer's $servicelogs default. FOG_LOG_DIR is still preferred when
+     * something HAS defined it, which costs nothing, keeps this method the
+     * same shape as the 1.6 original it was ported from, and is what lets a
+     * test point it somewhere writable.
+     *
+     * @var string
+     */
+    const FAULT_LOG_DIR = '/opt/fog/log';
+    /**
+     * The subdirectory of that directory fault lines are written to.
+     *
+     * Its own subdirectory rather than the top level, for the reason
+     * TaskError gives for the FOS report log: rotation renames and unlinks,
+     * and the top level is root's -- the eight daemons' logs live there and
+     * nothing running as the web user should be able to remove them.
+     *
+     * @var string
+     */
+    const FAULT_LOG_SUBDIR = 'faults';
+    /**
+     * How big a fault log may get before one old copy is kept, in bytes.
+     *
+     * A literal, NOT the SERVICE_LOG_SIZE setting the daemons rotate on, and
+     * that is the whole point: getSetting() issues a query, and the thing
+     * being reported here is a query that just failed.
+     *
+     * @var int
+     */
+    const FAULT_LOG_MAX = 10485760;
+    /**
+     * How long a single fault line may get, in bytes, before it is cut.
+     *
+     * A backstop, not the main defence: logFault() drops PDODB's debug tail
+     * outright (see there). This catches what has no tail to drop -- a
+     * driver message that is itself enormous, or a caller that built its
+     * own. One fault stays one readable line either way.
+     *
+     * @var int
+     */
+    const FAULT_LINE_MAX = 2048;
+    /**
+     * Records that something FOG needed to write or read did not happen.
+     *
+     * The failure sink of last resort, and deliberately the only logger here
+     * that asks nobody's permission to run.
+     *
+     * WHY THIS EXISTS AT ALL. FOGController::save(), destroy() and load()
+     * recorded a failure by calling logHistory(), which returns without doing
+     * anything unless self::$FOGUser is a valid User. Nothing on a machine
+     * -facing path ever sets one -- packages/web/service/, lib/reg-task/ and
+     * the daemons are matched to a HOST by MAC or token, and the daemons have
+     * no request at all -- so on every one of those paths the failure branch
+     * ran and wrote nowhere.
+     *
+     * debug() was not a second chance. On this branch it writes to no file at
+     * ALL -- it printf()s into the page and returns immediately when
+     * self::$service or self::$ajax is set, which on a machine endpoint is
+     * always. So a failed write on a service path had literally no possible
+     * output. (1.6's debug() at least reaches a file, behind a globalSetting
+     * that ships off.)
+     *
+     * WHY A FILE AND NOT A TABLE. logHistory() writes a row, so it shares its
+     * failure mode with the thing it is reporting on: a lost connection, a
+     * locked table or a full disk takes out the report along with the write.
+     * A sink for a failed database operation cannot itself be a database
+     * write. That -- not the user gate -- is the structural reason this is
+     * not simply logHistory() with the gate widened. The user gate is correct
+     * where it is: `history` is the audit trail, "who did what", and nobody
+     * did this.
+     *
+     * IT MUST NOT call getSetting(), for the path or the rotation size or
+     * anything else: getSetting() issues a query, and a logger that queries
+     * in order to report a failed query is the recursion that has already
+     * cost this project a silently dying worker. FAULT_LOG_MAX is a literal
+     * for exactly that reason.
+     *
+     * error_log() is the fallback, not the destination, and it is
+     * load-bearing rather than tidiness. The directory is the installer's, so
+     * a server whose web tree has been updated but which has not been
+     * re-installed has nowhere to write yet -- and PHP's own channel is
+     * already pointed somewhere useful in both tiers.
+     *
+     * @param string $message what did not happen, and why
+     *
+     * @return void
+     */
+    public static function logFault($message)
+    {
+        // Nothing here can re-enter through the database; this covers the one
+        // real case, which is logFault() failing on its own file write.
+        static $inFault = false;
+        if ($inFault) {
+            return;
+        }
+        $inFault = true;
+
+        try {
+            /*
+             * Drop PDODB's debug tail BEFORE anything else looks at the
+             * message. Its error text always appends
+             * "\nSQL: ...\nParams: ...\nErrorInfo: ...\nDebug: ..."
+             * (pdodb.class.php, both sqlerror() formats), and the Params and
+             * Debug sections print every BOUND VALUE of the statement that
+             * failed. On `users` that is the password hash, on `hosts` the
+             * client security token, on `nfsGroupMembers` the storage node's
+             * FTP password -- the credential GHSA-2hqx turns into root.
+             *
+             * That was survivable while this text only ever reached
+             * logHistory(), which is user-gated and so dropped it on exactly
+             * the machine paths that fail most, and debug(), which ships
+             * off. It is NOT survivable in a file written unconditionally on
+             * every failed write, and readable by any local account. What an
+             * operator actually needs is the part before the tail: the
+             * driver, the SQLSTATE and the message.
+             */
+            $raw = (string) $message;
+            foreach (array("\nSQL: ", "\nParams: ", "\nErrorInfo: ", "\nDebug: ") as $marker) {
+                $tail = strpos($raw, $marker);
+                if (false !== $tail) {
+                    $raw = substr($raw, 0, $tail);
+                }
+            }
+            // One line per fault, so `tail -f` stays readable and a
+            // multi-line message cannot be mistaken for several faults.
+            $flat = preg_replace('#\s+#', ' ', $raw);
+            // Never let a message become an empty one. preg_replace returns
+            // null when it gives up, and a (string) cast of that is '', which
+            // the guard below would then throw away -- losing the one record
+            // this method exists to keep.
+            $line = trim(null === $flat ? $raw : $flat);
+            if ('' === $line) {
+                return;
+            }
+            if (strlen($line) > self::FAULT_LINE_MAX) {
+                $line = substr($line, 0, self::FAULT_LINE_MAX) . ' [truncated]';
+            }
+            $stamped = sprintf(
+                '[%s] %s%s',
+                date('Y-m-d H:i:s'),
+                $line,
+                PHP_EOL
+            );
+            $file = self::_faultLogPath();
+            if ('' !== $file) {
+                self::_rotateFaultLog($file);
+                if (false !== @file_put_contents($file, $stamped, FILE_APPEND)) {
+                    return;
+                }
+            }
+            error_log($line);
+        } finally {
+            $inFault = false;
+        }
+    }
+    /**
+     * The fault log's path, or '' if there is nowhere to write.
+     *
+     * Split by SAPI, into faults-web.log and faults-service.log. This is the
+     * one FOG log directory written by BOTH tiers -- the web user, and root
+     * for the daemons -- and a single shared file would be owned by whichever
+     * wrote first. A root-owned file appears the moment any daemon hits a
+     * failed write, and from then on every web-tier fault would fall silently
+     * to error_log(). Silently diverting to a worse destination is the exact
+     * failure this whole path exists to end, so the two writers get two files.
+     *
+     * The directory is never created here. It is the installer's, which gives
+     * it to the web user with the right SELinux label (GH-964: /opt/fog
+     * inherits usr_t and httpd_t may read it but not write it, so an
+     * unlabelled mkdir would produce a directory that looks right and
+     * silently swallows every write on an enforcing host).
+     *
+     * @return string
+     */
+    private static function _faultLogPath()
+    {
+        $base = defined('FOG_LOG_DIR') ? FOG_LOG_DIR : self::FAULT_LOG_DIR;
+        $dir = rtrim($base, DS) . DS . self::FAULT_LOG_SUBDIR;
+        if (!is_dir($dir) || !is_writable($dir)) {
+            return '';
+        }
+
+        return $dir . DS . sprintf(
+            'faults-%s.log',
+            'cli' === PHP_SAPI ? 'service' : 'web'
+        );
+    }
+    /**
+     * Keeps one old copy once the fault log passes FAULT_LOG_MAX.
+     *
+     * @param string $file the fault log
+     *
+     * @return void
+     */
+    private static function _rotateFaultLog($file)
+    {
+        $size = @filesize($file);
+        if (false === $size || $size < self::FAULT_LOG_MAX) {
+            return;
+        }
+        @rename($file, $file . '.1');
     }
     /**
      * Prints info.
@@ -1210,6 +1417,31 @@ abstract class FOGBase
      */
     public static function niceDate($date = 'now', $utc = false)
     {
+        /*
+         * GH-1245: an empty value means "this never happened", not "now".
+         *
+         * new DateTime('') and new DateTime(null) both return the CURRENT
+         * time, so a date column holding no value renders as a real
+         * timestamp. That has stayed hidden because FOGController::save()
+         * writes '' into date columns and PDODB clears sql_mode on every
+         * connection, so the server coerces it to '0000-00-00 00:00:00' --
+         * and THAT parses to year -0001, which validDate() rejects and
+         * formatTime() renders as "No Data". The empty case is only reached
+         * by the columns that are already nullable, where it is wrong today.
+         *
+         * Mapping empty onto the same zero date makes the two spellings of
+         * "no value" render identically, which is also what lets the columns
+         * move to NULL without the display changing -- FOGController::get()
+         * hands back null for a NULL column.
+         *
+         * Callers that genuinely want the current time pass 'now', which is
+         * this method's own default. The ten call sites in this branch that
+         * relied on '' meaning now were changed to say 'now' in the same
+         * commit.
+         */
+        if (null === $date || (is_string($date) && '' === trim($date))) {
+            $date = '0000-00-00 00:00:00';
+        }
         if ($utc || empty(self::$TimeZone)) {
             $tz = new DateTimeZone('UTC');
         } else {
@@ -2330,6 +2562,15 @@ abstract class FOGBase
         return TaskState::getCancelledState();
     }
     /**
+     * Get failed state id.
+     *
+     * @return int
+     */
+    public static function getFailedState()
+    {
+        return TaskState::getFailedState();
+    }
+    /**
      * Safe min() over a collection that may be empty.
      *
      * PHP 8's min()/max() throw an uncaught ValueError on an empty array
@@ -2382,6 +2623,55 @@ abstract class FOGBase
         return substr($string, $ini, $len);
     }
     /**
+     * Decodes a credential FOS sent base64-encoded.
+     *
+     * NOT stripAndDecode(), which is what the registration path used to use.
+     * That helper finishes with Initiator::e() -- HTML escaping, which is
+     * right for a value about to be rendered into a page and wrong for one
+     * about to be compared against a password hash. A password containing
+     * & < > " or ' arrived at password_verify() as its entity form and could
+     * never match, so those accounts could not register-with-deploy while
+     * working perfectly in the web UI, which does not go through that helper.
+     * Forums topic 18228.
+     *
+     * STRICT decoding, unlike stripAndDecode()'s. base64_decode() without
+     * $strict silently drops every character outside the alphabet and always
+     * "succeeds", so a corrupted field became a plausible wrong credential
+     * rather than a refused one.
+     *
+     * Shared rather than written out twice because service/checkcredentials.php
+     * validates the SAME credential for the SAME caller. The two disagreeing is
+     * the bug: that endpoint answered '#!ok' for a password registration then
+     * rejected.
+     *
+     * @param mixed $value the raw request value
+     *
+     * @return string|bool the decoded credential, or false if it was not
+     *                     valid base64
+     */
+    public static function decodeCredential($value)
+    {
+        /*
+         * Restore '+' from ' ' before decoding, exactly as stripAndDecode()
+         * has always done. '+' is in the base64 alphabet and a bare '+' in a
+         * urlencoded body decodes back to a space, so a credential whose
+         * encoding contains one arrives corrupted. A space is never valid
+         * base64, so the swap is lossless -- and without it the strict decode
+         * below would REFUSE those credentials rather than mangle them, which
+         * is a worse failure than the one being fixed.
+         */
+        $value = str_replace(' ', '+', trim((string) ($value ?? '')));
+        $decoded = base64_decode($value, true);
+        if (!is_string($decoded)) {
+            return false;
+        }
+
+        // Trimmed to match checkcredentials.php. Both ends must agree, and a
+        // credential that differs only by surrounding whitespace is not one
+        // anybody can type reliably at the FOS prompt anyway.
+        return trim($decoded);
+    }
+    /**
      * Strips and decodes items.
      *
      * @param mixed $item the item to strip and decode
@@ -2403,6 +2693,65 @@ abstract class FOGBase
         }
 
         return $item;
+    }
+    /**
+     * Strips and decodes a mac, or a '|' separated list of macs.
+     *
+     * FOS base64-encodes the mac on some paths (registration, deploy) and
+     * sends it plain on others (checkin, the standalone inventory task), so
+     * the encoding has to be sniffed. The sniff cannot be the one
+     * stripAndDecode() uses -- "do the decoded bytes happen to be valid
+     * UTF-8" -- because a hex mac is built entirely out of base64 alphabet
+     * characters, so a plain mac decodes to accidentally-valid UTF-8 roughly
+     * once in every few hundred (measured: 0.26% lowercase, 0.84% upper) and
+     * that host would then silently fail to resolve, intermittently and per
+     * mac. Sniff on shape instead: keep the plain value when it is already a
+     * well formed mac list, and accept the decoded value only when it is one.
+     *
+     * @param mixed $mac the raw mac value
+     *
+     * @return string
+     */
+    public static function stripAndDecodeMac($mac)
+    {
+        $mac = trim((string) ($mac ?? ''));
+        if ($mac === '' || self::isMacList($mac)) {
+            return Initiator::e($mac);
+        }
+        $decoded = trim(base64_decode(str_replace(' ', '+', $mac)));
+        if (self::isMacList($decoded)) {
+            return Initiator::e($decoded);
+        }
+
+        // Neither shape matched; hand back the plain value so the caller
+        // reports the mac it was actually sent.
+        return Initiator::e($mac);
+    }
+    /**
+     * Tests whether a string is a '|' separated list of mac addresses.
+     *
+     * @param string $macs the string to test
+     *
+     * @return bool
+     */
+    private static function isMacList($macs)
+    {
+        $parts = array_filter(
+            array_map(
+                'trim',
+                explode('|', $macs)
+            )
+        );
+        if (count($parts) < 1) {
+            return false;
+        }
+        foreach ($parts as $part) {
+            if (!preg_match(MACAddress::PATTERN, $part)) {
+                return false;
+            }
+        }
+
+        return true;
     }
     /**
      * Gets the master interface based on the ip found.
@@ -2704,6 +3053,27 @@ abstract class FOGBase
             ->validatePw($username, $password);
     }
     /**
+     * Proves a credential without establishing a session.
+     *
+     * For callers with no browser to carry one -- the iPXE boot menu and
+     * service/ipxe/advanced.php -- where attemptLogin() would otherwise
+     * stamp $_SESSION['FOG_USER'] for a request that can never present the
+     * cookie back.
+     *
+     * Returns a User either way, exactly like attemptLogin(), so callers
+     * MUST test isValid(). A returned object is never itself the answer.
+     *
+     * @param string $username the username to attempt
+     * @param string $password the password to attempt
+     *
+     * @return object
+     */
+    public static function authenticateOnly($username, $password)
+    {
+        return self::getClass('User')
+            ->authenticate($username, $password);
+    }
+    /**
      * Clears the mac lookup table
      *
      * @return bool
@@ -2939,6 +3309,333 @@ abstract class FOGBase
             || (self::schemaNeedsDeploy() && self::installTokenParam());
     }
     /**
+     * The globalSettings key holding the shared node-signing secret.
+     *
+     * Deliberately NOT a config.class.php constant like
+     * FOG_SCHEMA_INSTALL_TOKEN: every storage node's installer generates its
+     * own config.class.php with its own random values, so a constant would
+     * differ on every machine and never verify. globalSettings is the one
+     * store master and node genuinely share -- functions.sh points a node's
+     * DATABASE_HOST at the master (see `[[ -z ${DB_host} ]] &&
+     * DB_host="$snmysqlhost"`), so a row written once is readable everywhere
+     * with nothing to distribute.
+     *
+     * That last clause holds for a TRUE storage node and only for one. A
+     * peer that is itself a full FOG server -- its own DATABASE_HOST, its
+     * own globalSettings -- shares no row with the master, mints its own
+     * key here, and cannot verify anything the master signs. Nothing in the
+     * installer distributes this value, and validNodeSignature() must never
+     * mint one, so a pure receiver cannot heal itself either.
+     *
+     * nodeSigningKeyFor() is the answer for that topology: a per-peer key
+     * on the master's storage node record, which the administrator also
+     * sets as that peer's own FOG_NODE_API_KEY. Same model as ngmUser and
+     * ngmPass, which have always had to be kept in step with the account
+     * that actually exists on the node.
+     *
+     * @var string
+     */
+    const NODE_API_KEY_SETTING = 'FOG_NODE_API_KEY';
+    /**
+     * How far, in seconds, a signed request's timestamp may be from ours.
+     *
+     * This is the property service/nodecert.php does NOT have: its HMAC
+     * covers only the payload, so a captured request is replayable forever.
+     * Node traffic runs with CURLOPT_SSL_VERIFYPEER off (NODE_TLS_OPTIONS in
+     * FOGURLRequests -- a node's certificate is self-signed and there is no
+     * chain to check), so a capture is a realistic thing to defend against.
+     *
+     * Five minutes rather than something tighter because master and node
+     * clocks are not disciplined to each other by anything FOG installs, and
+     * the failure mode of too-tight is a node that silently serves nothing.
+     * It bounds replay to the same method on the same path -- for the reads
+     * this authenticates, that is a re-read of a directory listing.
+     *
+     * @var int
+     */
+    const NODE_SIGNATURE_WINDOW = 300;
+    /**
+     * The shared secret FOG's own components sign inter-node requests with,
+     * created on first use if it is not there yet.
+     *
+     * Purpose-scoped on purpose. The obvious existing secret to reuse was
+     * FOG_STORAGENODE_MYSQLPASS, which is what service/nodecert.php signs
+     * with -- but that password is direct database access. Leaking it during
+     * transport hands an attacker the whole schema; leaking this hands them
+     * the ability to list directories on a node, which is all it authorises.
+     *
+     * INSERT IGNORE rather than setSetting(), for two reasons. setSetting()
+     * is an UPDATE through ServiceManager and does nothing at all when the
+     * row is absent, which is exactly the case being healed here. And the
+     * UNIQUE INDEX schema step 225 put on settingKey makes the INSERT the
+     * arbiter when two processes race -- both then re-read and agree,
+     * instead of the loser signing with a key the verifier has replaced.
+     *
+     * @return string The key, or '' if one could not be established.
+     */
+    public static function nodeApiKey()
+    {
+        $key = trim((string)self::getSetting(self::NODE_API_KEY_SETTING));
+        if ($key !== '') {
+            return $key;
+        }
+        try {
+            $candidate = bin2hex(random_bytes(32));
+        } catch (Exception $e) {
+            // No CSPRNG means no key. Returning '' leaves callers
+            // unauthenticated, which is the safe direction: an unsigned
+            // request is refused, a weakly signed one would not be.
+            return '';
+        }
+        self::$DB->query(
+            sprintf(
+                "INSERT IGNORE INTO `globalSettings` (`settingKey`, "
+                . "`settingDesc`, `settingValue`, `settingCategory`) "
+                . "VALUES (%s, %s, %s, %s)",
+                self::$DB->escape(self::NODE_API_KEY_SETTING),
+                self::$DB->escape(
+                    'Shared secret FOG signs its own server-to-server '
+                    . 'requests with. Generated automatically; there is '
+                    . 'nothing to set here, and the FOG Configuration page '
+                    . 'does not show it. Delete the row to rotate the key -- '
+                    . 'every component reads it from this table, so the next '
+                    . 'request regenerates one and they agree again.'
+                ),
+                self::$DB->escape($candidate),
+                self::$DB->escape('FOG Storage Nodes')
+            )
+        );
+        // Re-read rather than trusting $candidate: on a race the INSERT was
+        // ignored and the row holds the other process's value.
+        return trim((string)self::getSetting(self::NODE_API_KEY_SETTING));
+    }
+    /**
+     * The exact bytes both ends run through hash_hmac().
+     *
+     * Method and path are in the signed material so a captured signature
+     * cannot be lifted onto a different request -- a GET of a directory
+     * listing must not become a POST of anything. The timestamp is in it so
+     * it cannot be adjusted to widen the window it was issued for.
+     *
+     * @param string $method    The HTTP method, upper case.
+     * @param string $uri       Path plus query string, exactly as sent.
+     * @param string $timestamp Unix seconds, as a decimal string.
+     *
+     * @return string
+     */
+    /**
+     * The signing key for one peer, or '' to fall back to the shared one.
+     *
+     * A storage node that shares the master's database verifies with the
+     * global key and needs nothing here. A peer that is a full FOG server
+     * has its own globalSettings and cannot see the master's row at all, so
+     * the two ends have to be given a value in common by hand.
+     *
+     * nfsGroupMembers.ngmKey is where it goes. The column has existed since
+     * 1.5, is declared on StorageNode as `key`, and has never been read or
+     * written by anything.
+     *
+     * Matched on ngmHostname because that is what the caller has: signing
+     * happens in FOGURLRequests, which knows a URL and not which node it
+     * belongs to. A host that matches no node, or a node with an empty key,
+     * returns '' and the caller signs with the installation-wide key --
+     * which is what every existing shared-database install keeps doing.
+     *
+     * @param string $host The host part of the URL about to be requested.
+     *
+     * @return string The peer's key, or '' if it has none.
+     */
+    public static function nodeSigningKeyFor($host)
+    {
+        $host = trim((string)$host);
+        if ($host === '') {
+            return '';
+        }
+        // fetch_all rather than fetch()->get('ngmKey'): on a host that
+        // matches no node the single-row form hands back the empty result
+        // set itself, which casts to the string 'Array' -- a non-empty
+        // "key" that signs every request to an unknown host with a
+        // constant nobody can verify. Indexing a list makes "no row" and
+        // "no key" the same, empty, answer.
+        $rows = self::$DB->query(
+            sprintf(
+                'SELECT `ngmKey` FROM `nfsGroupMembers` '
+                . 'WHERE `ngmHostname` = %s AND `ngmKey` <> %s LIMIT 1',
+                self::$DB->escape($host),
+                self::$DB->escape('')
+            )
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $rows = (array)$rows;
+        if (count($rows) < 1) {
+            return '';
+        }
+        return trim((string)(isset($rows[0]['ngmKey']) ? $rows[0]['ngmKey'] : ''));
+    }
+    /**
+     * Every key a signature reaching THIS server could legitimately carry.
+     *
+     * The global key first, because on a shared-database install that is
+     * the one the master signed with and the common case should cost one
+     * comparison.
+     *
+     * Then every non-empty ngmKey this server can see. Two topologies need
+     * it and they need it for opposite reasons:
+     *
+     *   - Shared database. The master signed with the target node's own
+     *     ngmKey; the node reads the same table, so the key is right there.
+     *   - Standalone peer. The administrator set this server's
+     *     FOG_NODE_API_KEY to match, so the global key already covers it --
+     *     but this server's OWN node rows are also legitimate signers if it
+     *     is a master in its own right.
+     *
+     * The candidate set is bounded by the number of storage nodes and each
+     * miss is one hash_hmac, so the cost is not worth a cache that could
+     * then go stale against a rotated key.
+     *
+     * @return array Distinct non-empty keys.
+     */
+    private static function _nodeVerificationKeys()
+    {
+        $keys = array();
+        $global = trim((string)self::getSetting(self::NODE_API_KEY_SETTING));
+        if ($global !== '') {
+            $keys[] = $global;
+        }
+        $rows = self::$DB->query(
+            'SELECT `ngmKey` FROM `nfsGroupMembers` '
+            . "WHERE `ngmKey` <> ''"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        foreach ((array)$rows as $row) {
+            $candidate = trim(
+                (string)(isset($row['ngmKey']) ? $row['ngmKey'] : '')
+            );
+            if ($candidate !== '') {
+                $keys[] = $candidate;
+            }
+        }
+        return array_values(array_unique($keys));
+    }
+    private static function _nodeSignaturePayload($method, $uri, $timestamp)
+    {
+        return $timestamp . "\n" . $method . "\n" . $uri;
+    }
+    /**
+     * Headers proving a request came from this FOG installation.
+     *
+     * Header-only, for the reason installTokenHeader() already sets out: a
+     * header cannot be set by a cross-site form, a link or an <img>, and it
+     * never lands in browser history, a bookmark, a Referer or an access
+     * log. A query parameter would put a long-lived shared secret in every
+     * one of those.
+     *
+     * The signature covers path-and-query rather than the whole URL, so the
+     * http -> https redirect FOG's own vhost issues does not invalidate it.
+     *
+     * @param string $url    The URL about to be requested.
+     * @param string $method The HTTP method that will be used.
+     *
+     * @return array Header lines, or an empty array when unavailable.
+     */
+    public static function nodeSignatureHeaders($url, $method = 'GET')
+    {
+        $parts = parse_url((string)$url);
+        if ($parts === false) {
+            return array();
+        }
+        // The peer's own key if it has one, otherwise the installation-wide
+        // key. Ordered this way round so a shared-database install -- where
+        // no ngmKey is ever set -- signs exactly as it did before, and a
+        // full FOG server registered as a peer gets a secret that is only
+        // good for talking to it.
+        $key = self::nodeSigningKeyFor(
+            isset($parts['host']) ? $parts['host'] : ''
+        );
+        if ($key === '') {
+            $key = self::nodeApiKey();
+        }
+        if ($key === '') {
+            return array();
+        }
+        $uri = isset($parts['path']) ? $parts['path'] : '/';
+        if (isset($parts['query']) && $parts['query'] !== '') {
+            $uri .= '?' . $parts['query'];
+        }
+        $timestamp = (string)time();
+        $signature = hash_hmac(
+            'sha256',
+            self::_nodeSignaturePayload(
+                strtoupper((string)$method),
+                $uri,
+                $timestamp
+            ),
+            $key
+        );
+        return array(
+            'X-Fog-Node-Timestamp: ' . $timestamp,
+            'X-Fog-Node-Signature: ' . $signature
+        );
+    }
+    /**
+     * Is this request signed by a FOG component that holds the node key?
+     *
+     * Authentication, not authorisation: it says the caller is part of this
+     * installation, and nothing about what it may do. Endpoints accepting it
+     * must still be ones a node is entitled to reach -- the same split
+     * service/nodecert.php makes when it checks the HMAC and then separately
+     * matches the source IP against a registered node.
+     *
+     * getSetting() rather than nodeApiKey() deliberately: verification must
+     * never mint a key. If no key exists there is nothing this request can
+     * have signed with, and the answer is no.
+     *
+     * @return bool
+     */
+    public static function validNodeSignature()
+    {
+        $timestamp = isset($_SERVER['HTTP_X_FOG_NODE_TIMESTAMP'])
+            ? $_SERVER['HTTP_X_FOG_NODE_TIMESTAMP']
+            : null;
+        $signature = isset($_SERVER['HTTP_X_FOG_NODE_SIGNATURE'])
+            ? $_SERVER['HTTP_X_FOG_NODE_SIGNATURE']
+            : null;
+        if (!is_string($timestamp)
+            || !is_string($signature)
+            || $signature === ''
+            || !ctype_digit($timestamp)
+        ) {
+            return false;
+        }
+        if (abs(time() - (int)$timestamp) > self::NODE_SIGNATURE_WINDOW) {
+            return false;
+        }
+        $keys = self::_nodeVerificationKeys();
+        if (count($keys) < 1) {
+            return false;
+        }
+        $method = isset($_SERVER['REQUEST_METHOD'])
+            ? $_SERVER['REQUEST_METHOD']
+            : 'GET';
+        $uri = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+        $payload = self::_nodeSignaturePayload(
+            strtoupper((string)$method),
+            (string)$uri,
+            $timestamp
+        );
+        // Every candidate is compared, and the result is accumulated rather
+        // than returned early, so the time taken does not depend on WHICH
+        // key matched -- an early return would let a caller learn a node's
+        // position in the list by timing it. hash_equals is already constant
+        // time for the comparison itself; this keeps the loop from undoing
+        // that.
+        $matched = false;
+        foreach ($keys as $key) {
+            if (hash_equals(hash_hmac('sha256', $payload, $key), $signature)) {
+                $matched = true;
+            }
+        }
+        return $matched;
+    }
+    /**
      * Is the acting user a FOG administrator (uType 0)?
      *
      * Deliberately not is_authorized(), which is true for any valid user --
@@ -3038,6 +3735,242 @@ abstract class FOGBase
             exit;
         }
     }
+    /**
+     * Column type and nullability per table, read once per request.
+     *
+     * Lives on FOGBase rather than FOGController because the two write
+     * paths that need it are SIBLINGS, not parent and child:
+     * FOGController::save() writes one row, FOGManagerController::
+     * insertBatch() writes many, and both extend FOGBase directly. It
+     * started on FOGController because save() was its only caller, and
+     * the cost of leaving it there was that GH-1245's fix reached one of
+     * the two paths -- which is how a strict server came to reject saving
+     * FOG settings while saving a host worked fine.
+     *
+     * Null until first asked for.
+     *
+     * @var array|null
+     */
+    private static $columnTypes = null;
+
+    /**
+     * Loads the column map from the server's own catalog.
+     *
+     * Read from information_schema rather than from a committed manifest:
+     * this branch has no commons/schema-expected.php and no SchemaReconciler,
+     * so the database itself is the only description of the current schema
+     * there is. One query per request, and only if something actually asks --
+     * a save that supplies every field never gets here.
+     *
+     * A failure leaves the map empty, which makes emptyValueFor() answer ''
+     * for everything. That is exactly the behaviour that shipped before this
+     * change, so a server that will not answer the catalog query degrades to
+     * the old code path rather than to a broken one.
+     *
+     * @return void
+     */
+    private static function _loadColumnTypes()
+    {
+        self::$columnTypes = array();
+        try {
+            $rows = self::$DB->query(
+                "SELECT `TABLE_NAME` AS `t`, `COLUMN_NAME` AS `c`, "
+                . "`COLUMN_TYPE` AS `ty`, `IS_NULLABLE` AS `n`, "
+                . "`COLUMN_DEFAULT` AS `d`, `EXTRA` AS `e` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE()"
+            )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        } catch (Exception $e) {
+            $rows = array();
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s',
+                    _('Column type lookup failed'),
+                    _('Error'),
+                    $e->getMessage(),
+                    _('every column will be treated as untyped')
+                )
+            );
+        }
+        /*
+         * The degradation is deliberate, the SILENCE was not. PDODB swallows
+         * a rejected statement, so this never reached the catch above on a
+         * real error -- it cached an empty type map and every column went
+         * back to being untyped, which is exactly the bug this method exists
+         * to prevent, reappearing with nothing said.
+         *
+         * Behaviour is unchanged: still an empty map. Only now it is written
+         * down.
+         */
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s',
+                    _('Column type lookup failed'),
+                    _('Error'),
+                    self::$DB->error,
+                    _('every column will be treated as untyped')
+                )
+            );
+            $rows = array();
+        }
+        foreach ((array)$rows as $row) {
+            if (!isset($row['t'], $row['c'], $row['ty'])) {
+                continue;
+            }
+            $nullable = isset($row['n']) && strtoupper($row['n']) === 'YES';
+            $auto = isset($row['e'])
+                && false !== stripos($row['e'], 'auto_increment');
+            self::$columnTypes[strtolower($row['t'])][strtolower($row['c'])] = array(
+                'type' => trim($row['ty']),
+                'nullable' => $nullable,
+                /*
+                 * "An INSERT must name this column or the server rejects the
+                 * row." True when it is NOT NULL, carries no DEFAULT, and is
+                 * not AUTO_INCREMENT -- see columnsRequiringValue() below for
+                 * why all three parts matter. Carried here rather than asked
+                 * for separately because this query already visits every
+                 * column of every table exactly once.
+                 */
+                'required' => !$nullable
+                    && !$auto
+                    && (!isset($row['d']) || null === $row['d']),
+            );
+        }
+    }
+
+    /**
+     * The declared SQL type of a column, or '' when it is not known.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return string
+     */
+    protected static function columnType($table, $column)
+    {
+        if (null === self::$columnTypes) {
+            self::_loadColumnTypes();
+        }
+        $t = strtolower($table);
+        $c = strtolower($column);
+        return isset(self::$columnTypes[$t][$c])
+            ? self::$columnTypes[$t][$c]['type']
+            : '';
+    }
+
+    /**
+     * Can this column hold NULL?
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return bool
+     */
+    protected static function columnIsNullable($table, $column)
+    {
+        if (null === self::$columnTypes) {
+            self::_loadColumnTypes();
+        }
+        $t = strtolower($table);
+        $c = strtolower($column);
+        return isset(self::$columnTypes[$t][$c])
+            && self::$columnTypes[$t][$c]['nullable'];
+    }
+
+    /**
+     * What an unset optional field should actually be written as.
+     *
+     * GH-1245. save() used to write '' for every unset optional field whose
+     * key does not end in "id". '' is a value only a string column can hold.
+     * Everywhere else the server either refuses it under a strict sql_mode or
+     * coerces it without one, and FOG only ever saw the second, because
+     * PDODB::_connect() cleared sql_mode on every connection. So this is not
+     * new behaviour being introduced -- it is the coercion the server was
+     * already performing, written down and made legal:
+     *
+     *   date/time  ->  NULL          (was '0000-00-00 00:00:00')
+     *   integer    ->  0             (was 0, via error 1366 downgraded)
+     *   enum/set   ->  first member  (was '', the error value at index 0)
+     *   anything   ->  ''            (unchanged; '' is a real value here)
+     *
+     * The integer and enum choices deliberately match the coercion rather
+     * than the column's DEFAULT. `hosts.hostEnforce` is declared
+     * DEFAULT '1' and rows across the field hold '' -- so honouring the
+     * default would silently turn enforcement ON for those hosts as a side
+     * effect of a storage fix. '' and '0' are both falsey in PHP, so the
+     * first enum member behaves as the error value already did.
+     *
+     * The column's TYPE is the only reliable way to tell these apart; the
+     * key's name is not, which is the lesson $databaseFieldsNotInt already
+     * exists for.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return mixed the value to write; null means a real SQL NULL
+     */
+    protected static function emptyValueFor($table, $column)
+    {
+        $type = self::columnType($table, $column);
+        if ('' === $type) {
+            return '';
+        }
+        if (preg_match('/^(datetime|timestamp|date)\b/i', $type)) {
+            return null;
+        }
+        if (preg_match('/^(tiny|small|medium|big)?int\b/i', $type)) {
+            return 0;
+        }
+        if (preg_match("/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i", $type, $match)) {
+            return str_replace("''", "'", $match[2]);
+        }
+
+        return '';
+    }
+    /**
+     * Columns this table will not accept an INSERT without.
+     *
+     * A column qualifies when it is NOT NULL, carries no DEFAULT, and is not
+     * AUTO_INCREMENT. Under a strict sql_mode, omitting one of those from an
+     * INSERT is error 1364 -- "Field 'x' doesn't have a default value" -- and
+     * the row is rejected outright. Without a strict mode the server invents
+     * a zero value and says nothing, which is what FOG saw for nine years
+     * because PDODB cleared sql_mode on every connection.
+     *
+     * All three parts matter. NOT NULL alone is not enough: a column with a
+     * DEFAULT is happily omitted, and filling it would override the default
+     * the schema chose. Nor is "NOT NULL and no DEFAULT" enough: that also
+     * describes an AUTO_INCREMENT primary key, and filling `stID` with 0
+     * would write over the value the server was about to generate.
+     *
+     * Answered from the map _loadColumnTypes() already builds, so this costs
+     * no extra query. A catalog that could not be read leaves the map empty,
+     * which reports nothing required -- the caller then builds exactly the
+     * statement it built before this existed, rather than a different one.
+     *
+     * @param string $table the database table
+     *
+     * @return array column name (lowercased) => declared SQL type
+     */
+    protected static function columnsRequiringValue($table)
+    {
+        if (null === self::$columnTypes) {
+            self::_loadColumnTypes();
+        }
+        $t = strtolower((string)$table);
+        $out = array();
+        if (!isset(self::$columnTypes[$t])) {
+            return $out;
+        }
+        foreach (self::$columnTypes[$t] as $column => $meta) {
+            if (!empty($meta['required'])) {
+                $out[$column] = isset($meta['type']) ? $meta['type'] : '';
+            }
+        }
+        return $out;
+    }
+
     /**
      * Output var_dump for logging
      *

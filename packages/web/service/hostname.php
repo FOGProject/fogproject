@@ -3,7 +3,7 @@
  * This is used by the client to determine
  * domain joining and changing hostname.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Hostname
  * @package  FOGProject

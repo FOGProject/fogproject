@@ -3,7 +3,7 @@
  * Updates client files
  * NOTE: Only for legacy client relations
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category UpdateClient
  * @package  FOGProject

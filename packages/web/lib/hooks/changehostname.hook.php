@@ -2,7 +2,7 @@
 /**
  * Change host name hook.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ChangeHostname
  * @package  FOGProject

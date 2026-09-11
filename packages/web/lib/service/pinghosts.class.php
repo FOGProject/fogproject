@@ -3,7 +3,7 @@
  * Gets the current ping code of each host and
  * updates the hosts related to them.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category PingHosts
  * @package  FOGProject

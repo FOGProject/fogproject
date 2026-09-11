@@ -3,7 +3,7 @@
  * Legacy client uses this to find out
  * if the module checked is usable.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ServiceModule_Active
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * Add' the host model to the list.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddHostModel
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * Sends the printer information for the FOG Client
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category PrinterClient
  * @package  FOGProject

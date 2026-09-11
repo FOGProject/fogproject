@@ -2,7 +2,7 @@
 /**
  * User cleanup manager class used for legacy client.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category UserCleanupManager
  * @package  FOGProject

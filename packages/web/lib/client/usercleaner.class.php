@@ -2,7 +2,7 @@
 /**
  * Legacy client use only just returns the users to cleanup
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category UserCleaner
  * @package  FOGProject

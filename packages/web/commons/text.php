@@ -10,7 +10,7 @@
  * then be translated just the one time for all the languages.
  * Then the element Host or Printer could be translated later.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Redirect
  * @package  FOGProject

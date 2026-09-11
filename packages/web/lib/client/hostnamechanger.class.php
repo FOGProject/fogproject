@@ -3,7 +3,7 @@
  * Sends the client with the hostname and domain
  * information needed to perform the client actions.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category HostnameChanger
  * @package  FOGProject

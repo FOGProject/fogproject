@@ -2,7 +2,7 @@
 /**
  * Access Control plugin
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AccessControlAssociationManager
  * @package  FOGProject
@@ -35,7 +35,7 @@ class AccessControlAssociationManager extends FOGManagerController
     public function install()
     {
         $this->uninstall();
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             array(

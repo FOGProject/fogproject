@@ -41,10 +41,6 @@ msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
 #, fuzzy
-msgid " Name"
-msgstr "Name"
-
-#, fuzzy
 msgid " No open slots "
 msgstr "No open slots"
 
@@ -62,6 +58,10 @@ msgid "$_POST variable is empty, check apache error log."
 msgstr "$_POST variable is empty, check apache error log."
 
 #, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "Advanced Actions"
+
+#, fuzzy, php-format
 msgid "%s ID %d is not valid"
 msgstr "%s ID %s is not valid"
 
@@ -77,9 +77,21 @@ msgstr "%s Manager"
 msgid "%s Menu"
 msgstr "%s Menu"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr "Name"
+
+#, php-format
+msgid "%s can only be run on one host at a time"
+msgstr ""
+
 #, php-format
 msgid "%s is required"
 msgstr "%s is required"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "has been successfully updated"
 
 #, fuzzy
 msgid "1 Hour"
@@ -200,6 +212,10 @@ msgstr "An image already exists with this name!"
 #, fuzzy
 msgid "A rule already exists with this name"
 msgstr "An image already exists with this name!"
+
+#, fuzzy
+msgid "A scheduled time is required"
+msgstr "An image name is required!"
 
 #, fuzzy
 msgid "A site already exists with this name!"
@@ -472,6 +488,10 @@ msgstr "Add snapin failed!"
 msgid "Add rule failed!"
 msgstr "Add snapin failed!"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "Remove selected printers"
+
 #, fuzzy
 msgid "Add selected hosts"
 msgstr "Remove selected printers"
@@ -578,6 +598,10 @@ msgstr ""
 
 msgid "All"
 msgstr "All"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "List All %s"
 
 msgid "All Groups"
 msgstr "All Groups"
@@ -945,6 +969,10 @@ msgstr "Chassis Version"
 msgid "Chat is also available on the forums for more realtime help"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "Check here to see what %s can be added"
+msgstr "Check here to see what printers can be added"
+
 #, fuzzy
 msgid "Check here to see what hosts can be added"
 msgstr "Check here to see what printers can be added"
@@ -977,12 +1005,19 @@ msgstr "Check that database is running"
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "No FOGPage Class found for this node"
+
 msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 #, fuzzy
 msgid "Checkin Time"
 msgstr "Task Checkin Time"
+
+msgid "Checking for tasks that can never run..."
+msgstr ""
 
 msgid "Checking if I am the group manager"
 msgstr ""
@@ -1062,6 +1097,9 @@ msgstr "CPU Version"
 
 msgid "Clients"
 msgstr "Clients"
+
+msgid "Column type lookup failed"
+msgstr ""
 
 #, fuzzy
 msgid "Command"
@@ -1151,6 +1189,10 @@ msgstr "Could not read tmp file."
 msgid "Could not register"
 msgstr "Could not create printer"
 
+#, fuzzy
+msgid "Count failed"
+msgstr "Load failed: %s"
+
 msgid "Create"
 msgstr "Create"
 
@@ -1167,6 +1209,18 @@ msgid "Create New Access Control Role"
 msgstr "All Access Controls"
 
 #, fuzzy
+msgid "Create New Group"
+msgstr "Create new group"
+
+#, fuzzy
+msgid "Create New Host"
+msgstr "Create New %s"
+
+#, fuzzy
+msgid "Create New Image"
+msgstr "Create Date"
+
+#, fuzzy
 msgid "Create New Key"
 msgstr "Create New %s"
 
@@ -1178,17 +1232,27 @@ msgstr "Create New %s"
 msgid "Create New Location"
 msgstr "Create New %s"
 
-#, fuzzy
 msgid "Create New Printer"
-msgstr "Create New %s"
+msgstr ""
+
+msgid "Create New Snapin"
+msgstr ""
 
 #, fuzzy
-msgid "Create New Snapin"
-msgstr "Create New %s"
+msgid "Create New Storage Group"
+msgstr "Storage Node"
+
+#, fuzzy
+msgid "Create New Storage Node"
+msgstr "Storage Node"
 
 #, fuzzy
 msgid "Create New SubnetGroup?"
 msgstr "Create new group"
+
+#, fuzzy
+msgid "Create New User"
+msgstr "Create New %s"
 
 msgid "Create New iPXE Menu Entry"
 msgstr "Create New iPXE Menu Entry"
@@ -1331,6 +1395,10 @@ msgstr "Database changes reverted"
 #, fuzzy
 msgid "Database imported and added successfully!"
 msgstr "Database Imported and added successfully"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "Database update failed"
 
 #, fuzzy
 msgid "Database not available"
@@ -1743,6 +1811,10 @@ msgstr "Event must be a string"
 msgid "Every configured multicast port is already in use"
 msgstr ""
 
+#, fuzzy
+msgid "Existence check failed"
+msgstr "Private key failed"
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -1993,6 +2065,9 @@ msgstr "FTP Path"
 msgid "FTP connection failed"
 msgstr "FTP Connection failed"
 
+msgid "FTP login rejected by"
+msgstr ""
+
 #, fuzzy
 msgid "Fail to destroy"
 msgstr "Failed to destroy"
@@ -2072,6 +2147,14 @@ msgstr "Failed to destroy Storage Node"
 
 msgid "Failed to install plugin"
 msgstr "Failed to install plugin"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "Failed to create task"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "Failed to decrypt data"
 
 msgid "Failed to save assignment"
 msgstr "Failed to save assignment"
@@ -2181,6 +2264,10 @@ msgid "Filter"
 msgstr "File"
 
 #, fuzzy
+msgid "Find failed"
+msgstr "Load failed: %s"
+
+#, fuzzy
 msgid "Finding any images associated"
 msgstr "No snapins associated"
 
@@ -2268,6 +2355,14 @@ msgstr "Group Product Key"
 
 #, fuzzy
 msgid "GPU Vendors"
+msgstr "BIOS Vendor"
+
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "Group Product Key"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
 msgstr "BIOS Vendor"
 
 msgid "General"
@@ -2510,6 +2605,10 @@ msgstr "Home Phone"
 msgid "Host"
 msgstr "Host"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 #, fuzzy
 msgid "Host AD Domain"
 msgstr "AD Domain"
@@ -2707,6 +2806,9 @@ msgstr "Host Description"
 #, fuzzy
 msgid "Host general"
 msgstr "Host Kernel"
+
+msgid "Host has no active task to cancel"
+msgstr ""
 
 msgid "Host is already a member of an active task"
 msgstr "Host is already a member of an active task"
@@ -3045,6 +3147,10 @@ msgstr "after task completion"
 msgid "Imaging Duration"
 msgstr "Imaging Log"
 
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "Load failed: %s"
+
 msgid "Imaging Log"
 msgstr "Imaging Log"
 
@@ -3228,11 +3334,19 @@ msgstr "Settings"
 msgid "Interface"
 msgstr "Interface"
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 #, fuzzy
 msgid "Invalid"
+msgstr "Invalid ID"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "Invalid ID"
 
 msgid "Invalid Class"
@@ -3630,6 +3744,9 @@ msgstr "Latest Version"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave empty unless this node is its own FOG server"
+msgstr ""
+
 #, fuzzy
 msgid "Level must be an integer"
 msgstr "Event must be a string"
@@ -3682,6 +3799,38 @@ msgstr "Host List"
 
 #, php-format
 msgid "List All %s"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Groups"
+msgstr "All Groups"
+
+#, fuzzy
+msgid "List All Hosts"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Images"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Printers"
+msgstr "Export Printers"
+
+#, fuzzy
+msgid "List All Snapins"
+msgstr "List All %s"
+
+#, fuzzy
+msgid "List All Storage Groups"
+msgstr "All Storage Groups"
+
+#, fuzzy
+msgid "List All Storage Nodes"
+msgstr "All Storage Nodes"
+
+#, fuzzy
+msgid "List All Users"
 msgstr "List All %s"
 
 #, fuzzy, php-format
@@ -3823,6 +3972,14 @@ msgstr "MAC Format is invalid"
 msgid "MAC address is already in use by another host"
 msgstr "MAC address is already in use by another host"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "saved successfully"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "Install / Update Successful!"
+
 msgid "MB Asset"
 msgstr "MB Asset"
 
@@ -3892,6 +4049,18 @@ msgstr "Management Password"
 
 msgid "Management Username"
 msgstr "Management Username"
+
+#, fuzzy
+msgid "Marked failed, task"
+msgstr "Cancelled task"
+
+#, fuzzy
+msgid "Mass destroy failed"
+msgstr "Destroy failed: %s"
+
+#, fuzzy
+msgid "Mass update failed"
+msgstr "User update failed"
 
 msgid "Master Node"
 msgstr "Master Node"
@@ -4231,6 +4400,14 @@ msgstr "Not Set"
 msgid "No access is allowed"
 msgstr ""
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "No Active Task found for Host"
+
+#, fuzzy
+msgid "No active tasks to cancel for this group"
+msgstr "No Active Task found for Host"
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -4347,6 +4524,9 @@ msgstr "No query result, use query() first"
 msgid "No query sent"
 msgstr "No query sent"
 
+msgid "No report text supplied"
+msgstr ""
+
 msgid "No results found"
 msgstr "No results found"
 
@@ -4368,6 +4548,10 @@ msgstr "There are no snapins associated with this host"
 
 msgid "No token passed to authenticate this host"
 msgstr ""
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "No valid class sent"
 
 #, fuzzy
 msgid "No valid Image defined for this host"
@@ -4400,6 +4584,9 @@ msgstr ""
 
 msgid "Node"
 msgstr "Node"
+
+msgid "Node API Signing Key"
+msgstr ""
 
 msgid "Node Offline"
 msgstr ""
@@ -4511,6 +4698,9 @@ msgstr "Only Assigned Printers"
 #, fuzzy
 msgid "Only allowed to have"
 msgstr "You are only allowed to assign"
+
+msgid "Only for a peer running its own FOG database. On that peer run bin/fog-node-key.php --set with this same value, or it cannot verify requests this server signs."
+msgstr ""
 
 msgid "Open Source Computer Cloning Solution"
 msgstr "Open Source Computer Cloning Solution"
@@ -5074,8 +5264,8 @@ msgstr ""
 msgid "Remove"
 msgstr "Remove"
 
-#, fuzzy
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "Remove"
 
 #, fuzzy
@@ -5109,8 +5299,8 @@ msgstr "Remove"
 msgid "Remove failed"
 msgstr "Removed"
 
-#, fuzzy
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "Remove selected snapins"
 
 #, fuzzy
@@ -6219,8 +6409,16 @@ msgid "TX"
 msgstr "TX"
 
 #, fuzzy
+msgid "Table"
+msgstr "Enabled"
+
+#, fuzzy
 msgid "Table not defined for this class"
 msgstr "No database table defined for this class"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "Database update failed"
 
 #, fuzzy
 msgid "Tag Name"
@@ -6335,8 +6533,15 @@ msgstr "Task Type is not valid"
 msgid "Task Types"
 msgstr "Task Types"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
 msgstr "Task forced to start"
+
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "Image is protected and cannot be deleted"
 
 msgid "Task not created as there are no associated tasks"
 msgstr ""
@@ -6406,6 +6611,13 @@ msgid "The below items are only used for the old client."
 msgstr "This setting defines the username used for the ssh client."
 
 msgid "The clients will checkin with the server from time"
+msgstr ""
+
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "All Pending MACs approved."
+
+msgid "The following MACs have been deleted."
 msgstr ""
 
 msgid "The following errors occured"
@@ -6522,6 +6734,10 @@ msgstr ""
 
 #, fuzzy
 msgid "This host already exists"
+msgstr "Printer already exists"
+
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
 msgstr "Printer already exists"
 
 msgid "This installation process may take a few minutes"
@@ -7273,6 +7489,10 @@ msgstr " ago"
 msgid "all current storage nodes"
 msgstr "Invalid storage node"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "Invalid image"
+
 msgid "and Mac OS X"
 msgstr ""
 
@@ -7305,6 +7525,15 @@ msgid "and the equivalent module for what Green"
 msgstr ""
 
 msgid "and the location of the file on that"
+msgstr ""
+
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
 msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
@@ -7437,6 +7666,9 @@ msgstr ""
 msgid "either because you have updated"
 msgstr ""
 
+msgid "every column will be treated as untyped"
+msgstr ""
+
 #, fuzzy
 msgid "failed to execute, image file: "
 msgstr "Failed to delete image files"
@@ -7471,6 +7703,10 @@ msgid "for the menu background"
 msgstr ""
 
 #, fuzzy
+msgid "for user"
+msgstr "Create User"
+
+#, fuzzy
 msgid "found"
 msgstr "Not found"
 
@@ -7480,6 +7716,10 @@ msgstr "From"
 
 msgid "function on client computers."
 msgstr ""
+
+#, fuzzy
+msgid "got"
+msgstr " ago"
 
 msgid "group"
 msgstr "group"
@@ -7525,6 +7765,10 @@ msgstr "here"
 
 msgid "host"
 msgstr "host"
+
+#, fuzzy
+msgid "host no longer exists"
+msgstr " no longer exists"
 
 #, fuzzy
 msgid "hosts"
@@ -7613,6 +7857,10 @@ msgid "image file found, file: "
 msgstr ""
 
 #, fuzzy
+msgid "image no longer exists"
+msgstr " no longer exists"
+
+#, fuzzy
 msgid "image replication"
 msgstr "Image Replicator"
 
@@ -7624,9 +7872,8 @@ msgstr "Images"
 msgid "images to a storage group"
 msgstr "Primary Storage Group"
 
-#, fuzzy
-msgid "imaging failed."
-msgstr "Load failed: %s"
+msgid "in batch row"
+msgstr ""
 
 msgid "in seconds"
 msgstr ""
@@ -7772,6 +8019,9 @@ msgstr "n/a"
 msgid "no login will appear"
 msgstr ""
 
+msgid "no reason was reported"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr ""
 
@@ -7907,6 +8157,9 @@ msgstr "successfully removed"
 
 msgid "task found"
 msgstr "task found"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, php-format
 msgid "terminating so it can be restarted"
@@ -8108,15 +8361,8 @@ msgstr ""
 #~ msgid "Add ou failed!"
 #~ msgstr "Add snapin failed!"
 
-#~ msgid "All Pending MACs approved."
-#~ msgstr "All Pending MACs approved."
-
 #~ msgid "Could not read temp file"
 #~ msgstr "Could not read temp file"
-
-#, fuzzy
-#~ msgid "Create New Host Ext"
-#~ msgstr "Create New %s"
 
 #, fuzzy
 #~ msgid "Database connection unavailable"

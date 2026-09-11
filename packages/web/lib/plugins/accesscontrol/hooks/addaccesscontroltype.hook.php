@@ -2,7 +2,7 @@
 /**
  * Adds the access control report type.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddAccessControlType
  * @package  FOGProject

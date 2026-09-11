@@ -2,7 +2,7 @@
 /**
  * The association between images and windows keys.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category WindowsKeyAssociation
  * @package  FOGProject

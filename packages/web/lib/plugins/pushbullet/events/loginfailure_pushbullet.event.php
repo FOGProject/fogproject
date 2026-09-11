@@ -2,7 +2,7 @@
 /**
  * Pushes notification on login failure.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category LogonFailure_PushBullet
  * @package  FOGProject

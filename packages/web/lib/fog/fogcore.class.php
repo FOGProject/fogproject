@@ -2,7 +2,7 @@
 /**
  * The core elements accessible for all else
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGCore
  * @package  FOGProject

@@ -4,7 +4,7 @@
  * If using the new client can also register new hosts
  * into a pending status.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category RegisterClient
  * @package  FOGProject

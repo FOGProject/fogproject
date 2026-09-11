@@ -2,7 +2,7 @@
 /**
  * User tracking report.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category User_Tracking
  * @package  FOGProject
@@ -268,7 +268,7 @@ class User_Tracking extends ReportManagementPage
             ->addCSVCell(_('Description'))
             ->endCSVLine();
         $userID = base64_decode(
-            filter_input(INPUT_GET, 'userID')
+            (string)filter_input(INPUT_GET, 'userID')
         );
         $hostID = filter_input(INPUT_GET, 'hostID');
         if (!$userID) {

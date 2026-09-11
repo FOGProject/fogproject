@@ -2,7 +2,7 @@
 /**
  * Logtoview handles reading files
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Logtoview
  * @package  FOGProject
@@ -66,9 +66,21 @@ function vals($reverse, $HookManager, $lines, $file)
         '#^%s$#',
         $folder
     );
+    // Anchored and exact against the requested file's dirname, so every
+    // path needs its trailing separator and BOTH spellings of FOG's log
+    // directory -- the viewer reaches a file through the symlink while
+    // /opt/fog/log is the real path. Keep in step with the two enumeration
+    // lists; see the note in StorageNode::_getData().
     $folders = array(
         '/var/log/fog/',
+        '/var/log/fog/fos/',
+        // FOGBase::logFault()'s, both spellings. This list is matched
+        // ANCHORED and EXACT against a requested file's dirname, so the
+        // trailing separator is not decoration.
+        '/var/log/fog/faults/',
         '/opt/fog/log/',
+        '/opt/fog/log/fos/',
+        '/opt/fog/log/faults/',
         '/var/log/httpd/',
         '/var/log/apache2/',
         '/var/log/nginx/',
@@ -162,7 +174,7 @@ $ip = trim($ip);
 if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
     return print json_encode(_('IP Passed is incorrect'));
 }
-if (false !== strpos(filter_input(INPUT_SERVER, 'HTTP_HOST'), $ip)) {
+if (false !== strpos((string)filter_input(INPUT_SERVER, 'HTTP_HOST'), $ip)) {
     $str = vals(
         $reverse,
         $HookManager,

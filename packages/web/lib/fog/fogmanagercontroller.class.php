@@ -2,7 +2,7 @@
 /**
  * FOG Manager Controller, main object mass getter.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGManagerController
  * @package  FOGProject
@@ -57,6 +57,17 @@ abstract class FOGManagerController extends FOGBase
      * @var array
      */
     protected $databaseFieldClassRelationships = array();
+    /**
+     * Fields whose name ends in "id" but which are not foreign keys.
+     *
+     * Mirrored from the model for the same reason isValid() carries its own
+     * copy of the rule save() uses: both write paths infer "ends in id, so it
+     * is a foreign key", so both need the model's opt-out or one of them
+     * refuses a string identifier the other accepts.
+     *
+     * @var array
+     */
+    protected $databaseFieldsNotInt = array();
     /**
      * The additional fields.
      *
@@ -129,12 +140,14 @@ abstract class FOGManagerController extends FOGBase
             'additionalFields',
             'databaseFieldsRequired',
             'databaseFieldClassRelationships',
+            'databaseFieldsNotInt',
         );
         $this->databaseTable = &$classVars[$classGet[0]];
         $this->databaseFields = &$classVars[$classGet[1]];
         $this->additionalFields = &$classVars[$classGet[2]];
         $this->databaseFieldsRequired = &$classVars[$classGet[3]];
         $this->databaseFieldClassRelationships = &$classVars[$classGet[4]];
+        $this->databaseFieldsNotInt = &$classVars[$classGet[5]];
         $this->databaseFieldsFlipped = array_flip($this->databaseFields);
         unset($classGet);
     }
@@ -151,6 +164,7 @@ abstract class FOGManagerController extends FOGBase
      * @param mixed  $idField       what fields to get
      * @param bool   $onecompare    second where uses AND
      * @param string $filter        array function for filter
+     * @param string $scopeWhere    an object-boundary SQL fragment to AND on
      *
      * @return array
      */
@@ -164,7 +178,8 @@ abstract class FOGManagerController extends FOGBase
         $not = false,
         $idField = false,
         $onecompare = true,
-        $filter = 'array_unique'
+        $filter = 'array_unique',
+        $scopeWhere = ''
     ) {
         // Fail safe defaults
         if (empty($findWhere)) {
@@ -191,7 +206,27 @@ abstract class FOGManagerController extends FOGBase
             $count = 0;
             foreach ($findWhere as $field => &$value) {
                 $key = trim($field);
-                if (!$value) {
+                /*
+                 * GH-1245 gave find() the `null === $value` branch below, but
+                 * left this expansion above it -- and `!null` is true, so an
+                 * explicit null was turned into the array first and that
+                 * branch could never run. The emitted term was
+                 * `col IN ('0',0,NULL,'')`, which is never TRUE for a column
+                 * holding NULL: SQL evaluates `NULL IN (...)` to unknown. So
+                 * every `find()` filtering on null silently matched nothing.
+                 *
+                 * TaskingElement::imageLog() is where it showed: it looks up
+                 * the open imaging log by `finish => null`, missed it on every
+                 * single deployment, and the caller reported "Failed to update
+                 * imaging log" for a machine that had imaged perfectly (forums
+                 * topic 18228).
+                 *
+                 * Only the null case is taken out of the expansion. A filter
+                 * holding 0, '' or false keeps matching the falsey stored
+                 * representations exactly as before -- that list has hundreds
+                 * of callers and this is not the change to alter them in.
+                 */
+                if (null !== $value && !$value) {
                     $value = array(
                         '0',
                         0,
@@ -201,9 +236,7 @@ abstract class FOGManagerController extends FOGBase
                 }
                 if (is_array($value) && count($value) > 0) {
                     foreach ($value as $i => &$val) {
-                        if (is_string($val)) {
-                            $val = trim($val);
-                        }
+                        $val = self::_trimValue($val);
                         // Define the key
                         $k = sprintf(
                             '%s_%d',
@@ -227,11 +260,30 @@ abstract class FOGManagerController extends FOGBase
                         implode(',', $findKeys)
                     );
                     unset($findKeys);
+                } elseif (null === $value) {
+                    /*
+                     * GH-1245: a null filter asks for rows where the column
+                     * holds nothing. Bound as a placeholder it becomes
+                     * `col = NULL`, which is never true, so the query
+                     * silently returns nothing -- and it now has callers,
+                     * because the date columns that used to carry
+                     * '0000-00-00 00:00:00' as their "not yet" sentinel hold
+                     * NULL from schema step 284 on.
+                     */
+                    $whereArray[] = sprintf(
+                        '`%s`.`%s` IS%sNULL',
+                        $this->databaseTable,
+                        $this->databaseFields[$field],
+                        (trim($not) ? ' NOT ' : ' ')
+                    );
                 } else {
                     if (is_array($value)) {
                         $value = '';
                     }
-                    $value = trim($value);
+                    // Read side, same rule as the write side: a filter
+                    // holding false has to bind the same literal the column
+                    // now stores, or it silently matches nothing.
+                    $value = self::_trimValue($value);
                     $k = sprintf(
                         '%s',
                         $key
@@ -349,6 +401,64 @@ abstract class FOGManagerController extends FOGBase
         $idFields = array_filter($idFields);
         $idField = $idFields;
         unset($idFields);
+        $whereClause = (
+            count($whereArray) > 0 ?
+            sprintf(
+                ' WHERE %s%s',
+                implode(" $whereOperator ", (array) $whereArray),
+                (
+                    $isEnabled ?
+                    sprintf(' AND %s', $isEnabled) :
+                    ''
+                )
+            ) :
+            (
+                $isEnabled ?
+                sprintf(' WHERE %s', $isEnabled) :
+                ''
+            )
+        );
+        $andClause = (
+            count($whereArrayAnd) > 0 ?
+            (
+                count($whereArray) > 0 ?
+                sprintf(
+                    'AND %s',
+                    implode(" $whereOperator ", (array) $whereArrayAnd)
+                ) :
+                sprintf(
+                    ' WHERE %s',
+                    implode(" $whereOperator ", (array) $whereArrayAnd)
+                )
+            ) :
+            ''
+        );
+        // The object boundary, when the caller was given one to apply.
+        //
+        // Two properties this has to hold that the obvious splice does not.
+        // It is ANDed on LAST, after everything the caller asked for, with
+        // the caller's own terms parenthesised: $whereOperator is a parameter
+        // and 'OR' is a value it takes, so a term merged in beside the
+        // caller's could be satisfied INSTEAD of the boundary rather than as
+        // well as it. And it is joined with a literal ' AND ', never through
+        // $whereOperator, for the same reason. An OR that can reach outside
+        // the boundary is not a boundary.
+        //
+        // Empty means no boundary, which is every caller that does not pass
+        // this argument. A caller that means "you may see nothing" passes a
+        // fragment saying so, such as '1=0' -- NOT an empty string, which
+        // reads here as unrestricted and would hand back the whole table.
+        $scopeWhere = trim((string)$scopeWhere);
+        if ('' !== $scopeWhere) {
+            $inner = trim($whereClause . ' ' . $andClause);
+            $inner = preg_replace('#^WHERE\s+#i', '', $inner);
+            $whereClause = (
+                '' === $inner ?
+                sprintf(' WHERE %s', $scopeWhere) :
+                sprintf(' WHERE (%s) AND (%s)', $inner, $scopeWhere)
+            );
+            $andClause = '';
+        }
         $query = sprintf(
             $this->loadQueryTemplate,
             (
@@ -358,38 +468,8 @@ abstract class FOGManagerController extends FOGBase
             ),
             $this->databaseTable,
             $join,
-            (
-                count($whereArray) > 0 ?
-                sprintf(
-                    ' WHERE %s%s',
-                    implode(" $whereOperator ", (array) $whereArray),
-                    (
-                        $isEnabled ?
-                        sprintf(' AND %s', $isEnabled) :
-                        ''
-                    )
-                ) :
-                (
-                    $isEnabled ?
-                    sprintf(' WHERE %s', $isEnabled) :
-                    ''
-                )
-            ),
-            (
-                count($whereArrayAnd) > 0 ?
-                (
-                    count($whereArray) > 0 ?
-                    sprintf(
-                        'AND %s',
-                        implode(" $whereOperator ", (array) $whereArrayAnd)
-                    ) :
-                    sprintf(
-                        ' WHERE %s',
-                        implode(" $whereOperator ", (array) $whereArrayAnd)
-                    )
-                ) :
-                ''
-            ),
+            $whereClause,
+            $andClause,
             $groupBy,
             $orderBy
         );
@@ -402,6 +482,23 @@ abstract class FOGManagerController extends FOGBase
             PDO::FETCH_ASSOC,
             'fetch_all'
         );
+        // A rejected read answers an EMPTY set, which every caller reads as
+        // "there are none" rather than "the question was not asked". The
+        // return contract is left alone -- there is no catch here and callers
+        // expect an array -- so the fault line is the whole of the fix.
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s, %s',
+                    _('Find failed'),
+                    _('Table'),
+                    $this->databaseTable,
+                    _('Error'),
+                    self::$DB->error,
+                    _('answering an empty set for a read that never ran')
+                )
+            );
+        }
         if ($idField) {
             $data = (array)self::$DB->get($idField);
             if ($filter) {
@@ -468,6 +565,20 @@ abstract class FOGManagerController extends FOGBase
                         );
                     }
                     unset($countKeys);
+                } elseif (null === $value) {
+                    /*
+                     * GH-1245: a null filter asks for rows where the column
+                     * holds nothing. Bound as a placeholder it becomes
+                     * `col = NULL`, which is never true, so the query
+                     * silently returns nothing -- and it now has callers,
+                     * because the date columns that used to carry
+                     * '0000-00-00 00:00:00' as their "not yet" sentinel hold
+                     * NULL from schema step 284 on.
+                     */
+                    $whereArray[] = sprintf(
+                        '`%s` IS NULL',
+                        $this->databaseFields[$field]
+                    );
                 } else {
                     if (is_array($value)) {
                         $value = '';
@@ -542,10 +653,147 @@ abstract class FOGManagerController extends FOGBase
             )
         );
 
-        return (int)self::$DB
-            ->query($query, array(), $countVals)
-            ->fetch()
-            ->get('total');
+        self::$DB->query($query, array(), $countVals);
+        $total = self::$DB->fetch()->get('total');
+        // A rejected count answers 0, which reads as "there are none" rather
+        // than "nobody asked". After the fetch, so one check covers both
+        // halves. Contract unchanged; the fault line is the fix.
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s, %s',
+                    _('Count failed'),
+                    _('Table'),
+                    $this->databaseTable,
+                    _('Error'),
+                    self::$DB->error,
+                    _('answering 0 for a read that never ran')
+                )
+            );
+        }
+
+        return (int)$total;
+    }
+    /**
+     * Trims a value on its way into a bound parameter, and leaves anything
+     * that is not a string alone.
+     *
+     * Trimming is a string operation, but `trim()` casts first, and the cast
+     * is where the information goes. trim(null) is '' -- and a PHP 8.1
+     * deprecation -- which would put the zero date back into a column being
+     * cleared. trim(false) is also '', which is not how any column in the
+     * schema spells false: enum('0','1') rejects it outright under
+     * STRICT_TRANS_TABLES, and so does the tinyint(1) `hosts`.`hostInfoLock`
+     * that ends every imaging task via ->set('tokenlock', false). And an
+     * array -- a nested IN () list is one -- is a TypeError on PHP 8.
+     *
+     * A boolean is left as a boolean and normalised once, in PDODB::_bind(),
+     * so save() and the builders here cannot disagree about what false
+     * stores. See GH-1245 and forum topic 18227.
+     *
+     * @param mixed $value the value being bound
+     *
+     * @return mixed
+     */
+    private static function _trimValue($value)
+    {
+        return is_string($value) ? trim($value) : $value;
+    }
+    /**
+     * Refuses a batch row whose required foreign key points at nothing.
+     *
+     * FOGController::save() will not write a row whose required *ID field is
+     * not an integer >= 1 -- see its "Required *id must be integer >= 1"
+     * branch. insertBatch() enforced nothing, so the same model validated
+     * itself when written one row at a time and did not when written a
+     * hundred at a time.
+     *
+     * What gets through is a 0. Since GH-1245 the server's own sql_mode
+     * rejects a null or an '' bound into a NOT NULL int, but 0 is a perfectly
+     * legal integer and no layer has an opinion about it -- and a caller
+     * indexing a positional list past its end, or reading an id off an object
+     * that did not load, produces exactly that.
+     *
+     * In `tasks` such a row is permanent and invisible at the same time.
+     * taskStateID still resolves, so the task counts as active for every
+     * "is this live" test in the tree; taskHostID/taskImageID/taskTypeID
+     * match nothing, and because the Active Tasks list renders from
+     * buildQuery()'s LEFT OUTER JOINs those columns come back NULL. The row
+     * shows as "() -" for host and image with no type icon, cannot be
+     * completed by any host, and nothing ever reaps it. Reported as "null
+     * tasks" in forum topics 18228 and 18230.
+     *
+     * Deliberately narrow, because this is a write path with many call sites:
+     *
+     *  - Only columns the caller NAMED. A required column the batch is silent
+     *    about is left to columnsRequiringValue() below, which is the
+     *    behaviour every one of those call sites already relies on; turning
+     *    silence into an error is a different change with a different blast
+     *    radius.
+     *  - Only *ID columns. They are the ones whose zero is indistinguishable
+     *    from a value; a required string is caught by the server or by the
+     *    reader either way.
+     *  - Never the model's own primary key. No batch caller supplies it, and
+     *    save() skips it for the same reason.
+     *  - Never a key the model has declared is a string via
+     *    $databaseFieldsNotInt.
+     *
+     * @param array $fields the friendly field names the caller named
+     * @param array $values the rows, positional against $fields
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    private function _assertBatchForeignKeys($fields, $values)
+    {
+        $notInt = array_map(
+            'strtolower',
+            (array)$this->databaseFieldsNotInt
+        );
+        $positions = array();
+        foreach ((array)$this->databaseFieldsRequired as $friendly) {
+            $lower = strtolower($friendly);
+            if ('id' === $lower
+                || 'id' !== substr($lower, -2)
+                || in_array($lower, $notInt, true)
+            ) {
+                continue;
+            }
+            foreach ((array)$fields as $i => $named) {
+                if (strtolower($named) === $lower) {
+                    $positions[$i] = $friendly;
+                }
+            }
+        }
+        if (count($positions) < 1) {
+            return;
+        }
+        foreach ((array)$values as $rowIndex => $row) {
+            foreach ($positions as $i => $friendly) {
+                $val = isset($row[$i]) ? $row[$i] : null;
+                $valid = filter_var(
+                    $val,
+                    FILTER_VALIDATE_INT,
+                    array('options' => array('min_range' => 1))
+                );
+                if (false !== $valid) {
+                    continue;
+                }
+                throw new Exception(
+                    sprintf(
+                        '%s: `%s`.%s %s %d, %s: %s',
+                        self::$foglang['RequiredDB'],
+                        $this->databaseTable,
+                        $friendly,
+                        _('in batch row'),
+                        $rowIndex,
+                        _('got'),
+                        var_export($val, true)
+                    )
+                );
+            }
+        }
     }
     /**
      * Inserts data in mass to the database.
@@ -565,6 +813,9 @@ abstract class FOGManagerController extends FOGBase
         if ($valuelength < 1) {
             throw new Exception(_('No values passed'));
         }
+        // Before the loop below, which rewrites $fields from friendly names
+        // to column names in place.
+        $this->_assertBatchForeignKeys($fields, $values);
         $keys = array();
         foreach ((array) $fields as &$key) {
             $key = $this->databaseFields[$key];
@@ -576,11 +827,62 @@ abstract class FOGManagerController extends FOGBase
             );
             unset($key);
         }
+        /*
+         * GH-1245 again, on the other write path.
+         *
+         * A caller names the columns it has a value for, which is not the
+         * same set as the columns the server will accept an INSERT without.
+         * Under a strict sql_mode a NOT NULL column with no DEFAULT that the
+         * statement does not name is error 1364 and the whole batch is
+         * rejected; without one the server invents a zero value and says
+         * nothing. PDODB cleared sql_mode until GH-1245, so every such call
+         * site had been relying on the second behaviour without knowing it --
+         * saving FOG settings omits settingDesc and settingCategory, and
+         * tasking a group's snapins omits stReturnCode and stReturnDetails.
+         *
+         * So write the coercion down instead of relying on it, exactly as
+         * FOGController::save() now does for a single row. The values come
+         * from the same emptyValueFor(), which is why it moved to FOGBase.
+         *
+         * They are deliberately NOT added to the ON DUPLICATE KEY UPDATE
+         * list: this fills a column the caller had nothing to say about, so
+         * on a row that already exists the stored value must stand. Filling
+         * settingDesc into the update list would blank the description of
+         * every setting on the page the moment anyone pressed save.
+         *
+         * The filled columns and their values are worked out ONCE here; the
+         * placeholders that carry them are named PER ROW, down in the loop.
+         * They were named once too, and the single `:_fill_0` was then
+         * repeated in every VALUES tuple -- which one row survives and two do
+         * not: PDODB sets PDO::ATTR_EMULATE_PREPARES => false, and a real
+         * server-side prepare answers SQLSTATE[HY093] "Invalid parameter
+         * number" to a named parameter used twice. So every batch of two or
+         * more rows into a table with an unnamed NOT NULL column failed
+         * outright, silently to the user: tasking a GROUP of two hosts with
+         * anything that is not a deploy or a multicast (wipe, virus scan,
+         * hardware inventory, password reset, snapins) names none of
+         * `tasks`' NFS/image columns and so hit this every time.
+         * See background_scripts/prove_batch_fill_duplicate_bind.php.
+         */
+        $fillCols = array();
+        $named = array_map('strtolower', $keys);
+        foreach ((array) self::columnsRequiringValue(
+            $this->databaseTable
+        ) as $column => $type) {
+            if (in_array(strtolower($column), $named, true)) {
+                continue;
+            }
+            $keys[] = $column;
+            $fillCols[] = self::emptyValueFor(
+                $this->databaseTable,
+                $column
+            );
+        }
         $affectedRows = 0;
         $vals = array();
-        $insertVals = array();
         $values = array_chunk($values, 500);
         foreach ((array) $values as $ind => &$v) {
+            $insertVals = array();
             foreach ((array) $v as $index => &$value) {
                 $insertKeys = array();
                 foreach ((array) $value as $i => &$val) {
@@ -593,11 +895,26 @@ abstract class FOGManagerController extends FOGBase
                         ':%s',
                         $key
                     );
-                    $val = trim($val);
+                    $val = self::_trimValue($val);
                     $insertVals[$key] = $val;
                     unset($val);
                 }
-                $vals[] = sprintf('(%s)', implode(',', (array) $insertKeys));
+                foreach ($fillCols as $fillIndex => $fillVal) {
+                    $key = sprintf(
+                        '_fill_%d_%d',
+                        $fillIndex,
+                        $index
+                    );
+                    $insertKeys[] = sprintf(
+                        ':%s',
+                        $key
+                    );
+                    $insertVals[$key] = $fillVal;
+                }
+                $vals[] = sprintf(
+                    '(%s)',
+                    implode(',', (array) $insertKeys)
+                );
                 unset($value);
             }
             if (count($vals) < 1) {
@@ -611,6 +928,12 @@ abstract class FOGManagerController extends FOGBase
                 implode(',', $dups)
             );
             self::$DB->query($query, array(), $insertVals);
+            // Same swallowed-error seam as FOGController::save(): without
+            // this the loop went on to report affectedRows for a batch the
+            // server rejected.
+            if (self::$DB->error) {
+                throw new Exception((string) self::$DB->error);
+            }
             if ($ind === 0) {
                 $insertID = (int) self::$DB->insertId();
             }
@@ -672,7 +995,10 @@ abstract class FOGManagerController extends FOGBase
         $updateVals = array();
         foreach ((array) $insertData as $field => &$value) {
             $field = trim($field);
-            $value = trim($value);
+            // GH-1245: null is a value to write, not a string to trim.
+            // trim(null) is '' -- and a PHP 8.1 deprecation -- which would
+            // put the zero date back into a column being cleared.
+            $value = self::_trimValue($value);
             $updateKey = sprintf(
                 ':update_%s',
                 $field
@@ -697,7 +1023,7 @@ abstract class FOGManagerController extends FOGBase
                 $key = trim($field);
                 if (is_array($value) && count($value) > 0) {
                     foreach ($value as $i => &$val) {
-                        $val = trim($val);
+                        $val = self::_trimValue($val);
                         // Define the key
                         $k = sprintf(
                             '%s_%d',
@@ -720,11 +1046,29 @@ abstract class FOGManagerController extends FOGBase
                         implode(',', $findKeys)
                     );
                     unset($findKeys);
+                } elseif (null === $value) {
+                    /*
+                     * GH-1245: a null filter asks for rows where the column
+                     * holds nothing. Bound as a placeholder it becomes
+                     * `col = NULL`, which is never true, so the query
+                     * silently returns nothing -- and it now has callers,
+                     * because the date columns that used to carry
+                     * '0000-00-00 00:00:00' as their "not yet" sentinel hold
+                     * NULL from schema step 284 on.
+                     */
+                    $whereArray[] = sprintf(
+                        '`%s`.`%s` IS NULL',
+                        $this->databaseTable,
+                        $this->databaseFields[$field]
+                    );
                 } else {
                     if (is_array($value)) {
                         $value = '';
                     }
-                    $value = trim($value);
+                    // Read side, same rule as the write side: a filter
+                    // holding false has to bind the same literal the column
+                    // now stores, or it silently matches nothing.
+                    $value = self::_trimValue($value);
                     $k = sprintf(
                         '%s',
                         $key
@@ -770,7 +1114,33 @@ abstract class FOGManagerController extends FOGBase
             (array) $findVals
         );
 
-        return (bool) self::$DB->query($query, array(), $queryVals);
+        self::$DB->query($query, array(), $queryVals);
+        /*
+         * `(bool) self::$DB->query(...)` was ALWAYS true: query() returns
+         * $this, and an object casts to true whatever the server said. So
+         * this reported success for every rejected mass update.
+         *
+         * Faulted here rather than thrown: this method has no catch and its
+         * callers expect a bool, so throwing would turn a silently-failed
+         * bulk edit into an uncaught 500. False is the honest answer they
+         * were already written to read.
+         */
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s',
+                    _('Mass update failed'),
+                    _('Table'),
+                    $this->databaseTable,
+                    _('Error'),
+                    self::$DB->error
+                )
+            );
+
+            return false;
+        }
+
+        return true;
     }
     /**
      * Destroys items related to the main object.
@@ -839,6 +1209,24 @@ abstract class FOGManagerController extends FOGBase
             );
             unset($destroyKeys);
             self::$DB->query($query, array(), $destroyVals);
+            // Returned true unconditionally, so a rejected DELETE reported
+            // every row removed. Faulted and answered false rather than
+            // thrown, for the same reason update() is: no catch here, and
+            // callers expect a bool.
+            if (self::$DB->error) {
+                self::logFault(
+                    sprintf(
+                        '%s: %s: %s, %s: %s',
+                        _('Mass destroy failed'),
+                        _('Table'),
+                        $this->databaseTable,
+                        _('Error'),
+                        self::$DB->error
+                    )
+                );
+
+                return false;
+            }
             unset($destroyVals, $destroyKeys);
         }
 
@@ -989,10 +1377,37 @@ abstract class FOGManagerController extends FOGBase
             ':id'
         );
 
-        return (bool)self::$DB
-            ->query($query, array(), $existVals)
-            ->fetch()
-            ->get('total') > 0;
+        self::$DB->query($query, array(), $existVals);
+        $total = self::$DB->fetch()->get('total');
+        /*
+         * After the fetch, so one check covers both halves of the read --
+         * fetch() records its own failure on ->error and never clears one.
+         *
+         * A rejected read here answers "no, it does not exist", which is the
+         * most expensive wrong answer this class can give: callers use
+         * exists() to decide whether to CREATE, so an unreadable database
+         * turns into a duplicate rather than an error.
+         *
+         * The contract is left alone -- callers expect a bool and there is no
+         * catch here -- so the fault line is the whole of the fix. Making
+         * this throw is a real change to a read contract and belongs in its
+         * own decision, not smuggled into a logging fix.
+         */
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s, %s',
+                    _('Existence check failed'),
+                    _('Table'),
+                    $this->databaseTable,
+                    _('Error'),
+                    self::$DB->error,
+                    _('answering "does not exist" for a read that never ran')
+                )
+            );
+        }
+
+        return (bool)$total > 0;
     }
     /**
      * Search for items passed to keyword.
@@ -1002,7 +1417,7 @@ abstract class FOGManagerController extends FOGBase
      *
      * @return mixe
      */
-    public function search($keyword = '', $returnObjects = false)
+    public function search($keyword = '', $returnObjects = false, $scopeWhere = '')
     {
         $keyword = trim($keyword);
         if (!$keyword) {
@@ -1030,7 +1445,19 @@ abstract class FOGManagerController extends FOGBase
             )
         );
         if (empty($keyword) || $keyword === '%') {
-            return $this->find();
+            return $this->find(
+                array(),
+                'AND',
+                'name',
+                'ASC',
+                '=',
+                false,
+                false,
+                false,
+                true,
+                'array_unique',
+                $scopeWhere
+            );
         }
         $keyword = preg_replace(
             '#[%\+\s\+]#',
@@ -1330,7 +1757,19 @@ abstract class FOGManagerController extends FOGBase
             array('id' => $itemIDs)
         );
         if ($returnObjects) {
-            return $this->find(array('id' => $itemIDs));
+            return $this->find(
+                array('id' => $itemIDs),
+                'AND',
+                'name',
+                'ASC',
+                '=',
+                false,
+                false,
+                false,
+                true,
+                'array_unique',
+                $scopeWhere
+            );
         }
 
         return $itemIDs;
@@ -1393,6 +1832,15 @@ abstract class FOGManagerController extends FOGBase
                             $this->databaseFields[$field],
                             implode(',', $inKeys)
                         );
+                    } elseif (null === $value) {
+                        // GH-1245: as in find() above -- a null filter means
+                        // "the column holds nothing", which is `IS NULL`, not
+                        // a bound `= NULL` that matches no row at all.
+                        $whereArray[] = sprintf(
+                            '`%s`.`%s` IS NULL',
+                            $this->databaseTable,
+                            $this->databaseFields[$field]
+                        );
                     } else {
                         if (is_array($value)) {
                             $value = '';
@@ -1439,10 +1887,138 @@ abstract class FOGManagerController extends FOGBase
             )
         );
 
-        return (int)self::$DB
-            ->query($query, array(), $countVals)
-            ->fetch()
-            ->get('total');
+        self::$DB->query($query, array(), $countVals);
+        $total = self::$DB->fetch()->get('total');
+        // Same as exists(): a rejected distinct count answers 0. After the
+        // fetch, so one check covers both halves.
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s, %s',
+                    _('Count failed'),
+                    _('Table'),
+                    $this->databaseTable,
+                    _('Error'),
+                    self::$DB->error,
+                    _('answering 0 for a read that never ran')
+                )
+            );
+        }
+
+        return (int)$total;
+    }
+    /**
+     * Builds the CREATE TABLE for this manager's table, with a default on
+     * every column that is optional.
+     *
+     * GH-1245. Schema::createTable() emits `NOT NULL` with no DEFAULT for
+     * almost everything a caller does not spell out, which is the same defect
+     * schema step 286 repairs on an existing install -- except that install()
+     * calls uninstall() first, and uninstall() DROPS the table. So a plugin
+     * being installed, or reinstalled, put the bare columns straight back and
+     * the step could not help: 72 of the 99 columns across the plugin tables
+     * came back mandatory, and under the server's own sql_mode any INSERT
+     * omitting one fails with error 1364.
+     *
+     * WHICH COLUMNS KEEP THEIR TEETH. Not a judgement call, and not a list
+     * kept by hand -- FOG already states it, and this class already holds the
+     * statement: $databaseFieldsRequired, resolved up the model's inheritance
+     * chain by the constructor. Three kinds of column are left bare:
+     *
+     *   - the primary key and the auto-increment column;
+     *   - anything the model declares required;
+     *   - anything whose name ends in ID, because an INSERT that forgets the
+     *     row it hangs off should fail rather than make a silent orphan.
+     *     Deliberately not gated on an integer type: taskLog.taskID is a
+     *     mediumtext and is no less a foreign key for it.
+     *
+     * That is deliberately the SAME rule schema step 286 applies, so a table
+     * created by a plugin install and a table migrated by the step say the
+     * same thing. Two installs of the same FOG should not have two different
+     * schemas.
+     *
+     * A default the caller passed explicitly always wins; this only fills in
+     * where there was nothing.
+     *
+     * The signature mirrors Schema::createTable() exactly so a call site
+     * changes by one token.
+     *
+     * @param string $name    What are we calling the table?
+     * @param bool   $exists  If not exists?
+     * @param array  $fields  The fields and names.
+     * @param array  $types   The types for the fields.
+     * @param array  $nulls   Which fields to have null or not.
+     * @param array  $default Default values for field(s).
+     * @param array  $unique  The unique fields.
+     * @param string $engine  The db engine for the table.
+     * @param string $charset The charset to use for the table.
+     * @param string $prime   The primary field, if one.
+     * @param string $autoin  The auto increment field.
+     *
+     * @return string
+     */
+    public function createTableSql(
+        $name,
+        $exists,
+        $fields,
+        $types,
+        $nulls,
+        $default,
+        $unique,
+        $engine = 'InnoDB',
+        $charset = 'utf8',
+        $prime = '',
+        $autoin = ''
+    ) {
+        $keep = array();
+        foreach ((array)$this->databaseFieldsRequired as $friendly) {
+            if (isset($this->databaseFields[$friendly])) {
+                $keep[strtolower($this->databaseFields[$friendly])] = true;
+            }
+        }
+        if ($prime) {
+            $keep[strtolower($prime)] = true;
+        }
+        if ($autoin) {
+            $keep[strtolower($autoin)] = true;
+        }
+        foreach ((array)$fields as $i => $field) {
+            $notNull = isset($nulls[$i]) && $nulls[$i] === false;
+            $hasDefault = isset($default[$i])
+                && false !== $default[$i]
+                && null !== $default[$i]
+                && '' !== $default[$i];
+            if (!$notNull
+                || $hasDefault
+                || isset($keep[strtolower($field)])
+                || preg_match('/ID$/', $field)
+            ) {
+                continue;
+            }
+            $fill = Schema::emptyDefaultFor($types[$i]);
+            if (null === $fill) {
+                // A TEXT or BLOB column on a server too old to carry a
+                // default for one. Nothing to do and nothing broken by
+                // leaving it: save() writes the column explicitly and
+                // insertBatch() backfills it.
+                continue;
+            }
+            $default[$i] = $fill;
+        }
+
+        return Schema::createTable(
+            $name,
+            $exists,
+            $fields,
+            $types,
+            $nulls,
+            $default,
+            $unique,
+            $engine,
+            $charset,
+            $prime,
+            $autoin
+        );
     }
     /**
      * Uninstalls the table.
@@ -1452,6 +2028,25 @@ abstract class FOGManagerController extends FOGBase
     public function uninstall()
     {
         $sql = Schema::dropTable($this->tablename);
-        return self::$DB->query($sql);
+        self::$DB->query($sql);
+        // Declared @return bool and returned the PDODB object, which is
+        // truthy however the DROP went. A plugin uninstall that left its
+        // table in place reported success.
+        if (self::$DB->error) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s, %s: %s',
+                    _('Table uninstall failed'),
+                    _('Table'),
+                    $this->tablename,
+                    _('Error'),
+                    self::$DB->error
+                )
+            );
+
+            return false;
+        }
+
+        return true;
     }
 }

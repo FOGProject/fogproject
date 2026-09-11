@@ -2,7 +2,7 @@
 /**
  * The FOG Configuration Page display.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGConfigurationPage
  * @package  FOGProject
@@ -1486,7 +1486,7 @@ class FOGConfigurationPage extends FOGPage
                     'hostCpairs'
                 );
                 $timeout = trim(
-                    filter_input(INPUT_POST, 'timeout')
+                    (string)filter_input(INPUT_POST, 'timeout')
                 );
                 $timeoutt = (is_numeric($timeout) &&  $timeout >= 0);
                 if (!$timeoutt) {
@@ -1511,7 +1511,7 @@ class FOGConfigurationPage extends FOGPage
                 $noMenu = (int)isset($_POST['nomenu']);
                 $hideMenu = (int)isset($_POST['hidemenu']);
                 $hidetimeout = trim(
-                    filter_input(INPUT_POST, 'hidetimeout')
+                    (string)filter_input(INPUT_POST, 'hidetimeout')
                 );
                 $hidetimeoutt = (is_numeric($hidetimeout) && $hidetimeout >= 0);
                 if (!$hidetimeoutt) {
@@ -1918,7 +1918,10 @@ class FOGConfigurationPage extends FOGPage
             unset($DefMenuIDs);
             $msg = json_encode(
                 array(
-                    'msg' => _("$menu_item successfully updated!"),
+                    'msg' => sprintf(
+                        _('%s successfully updated!'),
+                        $menu_item
+                    ),
                     'title' => _('iPXE Item Update Success')
                 )
             );
@@ -2717,6 +2720,17 @@ class FOGConfigurationPage extends FOGPage
         $Services = $Services->services;
         $divTab = false;
         foreach ((array)$Services as &$Service) {
+            // Never shown, to anyone. FOG generates and consumes this key
+            // itself (FOGBase::nodeApiKey(), inherited here); there is no
+            // value an admin could usefully type, and printing a shared
+            // secret into a form field is a leak with no upside -- support
+            // threads are full of screenshots of this page. Rotation is
+            // deleting the row; the next request regenerates one. Skipped
+            // before $curcat is read so it cannot open a panel of its own.
+            if ($Service->name === self::NODE_API_KEY_SETTING) {
+                unset($Service);
+                continue;
+            }
             $curcat = $Service->category;
             if (!$divTab) {
                 $divTab = preg_replace(
@@ -3408,6 +3422,18 @@ class FOGConfigurationPage extends FOGPage
                         break;
                     case 'FOG_CLIENT_BANNER_SHA':
                         continue 2;
+                    case self::NODE_API_KEY_SETTING:
+                        /*
+                         * This saver walks every setting rather than the
+                         * posted ones, and $set falls back to 0 for anything
+                         * absent from $_POST. The node key is deliberately
+                         * not rendered, so saving any panel in its category
+                         * would replace a working shared secret with the
+                         * string "0" -- and both ends would then agree on
+                         * "0", so nothing would look broken until someone
+                         * guessed it. Same shape as the banner SHA above.
+                         */
+                        continue 2;
                     case 'FOG_CLIENT_BANNER_IMAGE':
                         $banner = filter_input(INPUT_POST, 'banner');
                         $set = $banner;
@@ -3476,16 +3502,44 @@ class FOGConfigurationPage extends FOGPage
                         }
                         break;
                 }
-                $items[] = array($key, $name, $set);
+                $items[] = array(
+                    $key,
+                    $name,
+                    $set,
+                    trim((string)$Service->description),
+                    trim((string)$Service->category)
+                );
                 unset($Service, $index);
             }
             if (count($items) > 0) {
+                /*
+                 * settingDesc and settingCategory are named even though this
+                 * saver never changes them, and the values are the ones just
+                 * read back. globalSettings declares both longtext NOT NULL
+                 * with no DEFAULT -- a longtext could not carry one on the
+                 * MySQL versions FOG supports -- so an INSERT that leaves
+                 * them out is error 1364 on a strict server, which is what
+                 * saving any setting became once GH-1245 stopped PDODB
+                 * clearing sql_mode.
+                 *
+                 * insertBatch() now backfills a column like this on its own,
+                 * so this is belt and braces rather than the fix. It is worth
+                 * having anyway: the backfill can only supply '', and if a
+                 * setting row is ever genuinely absent this writes the real
+                 * description and category instead of blanking them.
+                 *
+                 * The iPXE saver above cannot do the same -- it works from a
+                 * name/value map and never loads the row -- so that one is
+                 * left to the backfill.
+                 */
                 self::getClass('ServiceManager')
                     ->insertBatch(
                         array(
                             'id',
                             'name',
-                            'value'
+                            'value',
+                            'description',
+                            'category'
                         ),
                         $items
                     );

@@ -2,7 +2,7 @@
 /**
  * Adds the Site menu item.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddSiteMenuItem
  * @package  FOGProject

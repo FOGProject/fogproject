@@ -2,7 +2,7 @@
 /**
  * Template for others to work from.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Template
  * @package  FOGProject

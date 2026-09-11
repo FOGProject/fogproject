@@ -2,7 +2,7 @@
 /**
  * Generates a new token on ajax request.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category NewToken
  * @package  FOGProject
@@ -13,7 +13,7 @@
 /**
  * Generates a new token on ajax request.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category NewToken
  * @package  FOGProject

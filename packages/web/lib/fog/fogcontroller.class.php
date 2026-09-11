@@ -2,7 +2,7 @@
 /**
  * FOGController, individual SQL getters/setters.
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * Gets and sets data for an individual object.
  * Generates the SQL Statements more specifically.
@@ -57,6 +57,19 @@ abstract class FOGController extends FOGBase
      * @var array
      */
     protected $databaseFieldsRequired = array();
+    /**
+     * Keys that end in "id" but do not hold a foreign key.
+     *
+     * save() and isValid() both infer "this is an integer id" from the key's
+     * name, which is right for every real foreign key in the tree and wrong
+     * for a string identifier that happens to end the same way -- a system
+     * UUID, a task id kept in a text column. The name is a proxy for the
+     * column's type, and the model is the only thing that knows the actual
+     * type, so it says so here.
+     *
+     * @var array
+     */
+    protected $databaseFieldsNotInt = array();
     /**
      * Additional elements unrelated to DB side directly for object.
      *
@@ -406,6 +419,13 @@ abstract class FOGController extends FOGBase
                 $required[$reqKeyNorm] = true;
             }
 
+            // Keys the model has declared are NOT foreign keys, normalized the
+            // same way, so the branch below can ask about $key directly.
+            $notInt = [];
+            foreach ($this->databaseFieldsNotInt as $strKey) {
+                $notInt[$this->key($strKey)] = true;
+            }
+
             foreach ($this->databaseFields as $rawKey => $column) {
                 $key = $this->key($rawKey);
                 $column = trim($column);
@@ -416,6 +436,10 @@ abstract class FOGController extends FOGBase
 
                 $eColumn = sprintf('`%s`', $column);
                 $paramInsert = sprintf(':%s_insert', $column);
+
+                // GH-1245: set when the column is to be written as a real
+                // SQL NULL rather than left out of the statement.
+                $writeNull = false;
 
                 $val = $this->get($key);
 
@@ -429,8 +453,11 @@ abstract class FOGController extends FOGBase
                     $val = (int)$validId;
                 }
 
-                // Keys ending with "id" (case-insensitive)
-                elseif (strtolower(substr($key, -2)) === 'id') {
+                // Keys ending with "id" (case-insensitive), unless the model
+                // has said this one is a string rather than a foreign key.
+                elseif (strtolower(substr($key, -2)) === 'id'
+                    && !isset($notInt[$key])
+                ) {
                     $isRequired = isset($required[$key]);
                     $isEmpty = ($val === null) || (is_string($val) && trim($val) === '');
 
@@ -460,7 +487,22 @@ abstract class FOGController extends FOGBase
                         if ($isRequired) {
                             throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
                         }
-                        $val = '';
+                        // GH-1245: '' is a value only a string column can
+                        // hold. Everywhere else the server was coercing it;
+                        // emptyValueFor() writes down what to.
+                        $val = self::emptyValueFor($this->databaseTable, $column);
+                        /*
+                         * A NULL for a column that cannot hold one means
+                         * "leave it out and let the server's DEFAULT apply".
+                         * Binding it is error 1048 -- snapinTasks
+                         * .stCheckinDate and userTracking.utDateTime are
+                         * NOT NULL DEFAULT current_timestamp(), which is why
+                         * schema step 284 leaves them alone, and MySQL 8 ships
+                         * explicit_defaults_for_timestamp=ON so an explicit
+                         * NULL is refused rather than turned into "now".
+                         */
+                        $writeNull = (null === $val)
+                            && self::columnIsNullable($this->databaseTable, $column);
                     }
                 }
 
@@ -490,7 +532,13 @@ abstract class FOGController extends FOGBase
 
                 // Don't make an entry if the value isn't set (null = truly unset).
                 // Empty string is a valid user-supplied value and must be written.
-                if ($val === null) {
+                //
+                // GH-1245: an emptied DATE column is the exception. Omitting
+                // it would leave ON DUPLICATE KEY UPDATE with nothing to say
+                // about that column, so an existing date could never be
+                // cleared -- the write would report success and change
+                // nothing. It is bound as a real NULL instead.
+                if ($val === null && !$writeNull) {
                     continue;
                 }
 
@@ -521,6 +569,31 @@ abstract class FOGController extends FOGBase
             self::info($msg);
 
             self::$DB->query($query, [], $queryArray);
+            /*
+             * PDODB swallows a rejected statement, so ASK it.
+             *
+             * PDO runs in ERRMODE_EXCEPTION, but PDODB::query() catches the
+             * PDOException, records the message on ->error and returns
+             * normally; it rethrows only when $throwOnQueryError is true,
+             * which nothing sets and which must not be set globally -- it
+             * would turn every already-tolerated failure across the codebase
+             * into an uncaught 500 at once.
+             *
+             * So without this check the catch below never runs on a real SQL
+             * error. For a NEW row that was survivable by accident: insertId()
+             * comes back 0 and the "no valid ID was assigned" throw further
+             * down catches it. For an EXISTING row -- every progress update,
+             * every task state change, every inventory write against a known
+             * host -- there was nothing to catch on, so save() went on to log
+             * the SUCCESS message and return $this. `if (!$obj->save())` was
+             * not merely unrecorded on those paths, it was answered "fine".
+             *
+             * Truthy rather than `false !== ...`: PDODB declares $error with
+             * no default, so it is null until the first statement runs.
+             */
+            if (self::$DB->error) {
+                throw new Exception((string) self::$DB->error);
+            }
             $lastInsertID = self::$DB->insertId();
 
             // Force ID correctness: if we still don't have a valid ID, this wasn't created properly.
@@ -588,14 +661,26 @@ abstract class FOGController extends FOGBase
             }
 
             $msg = sprintf(
-                '%s: %s: %s, %s: %s',
+                '%s: %s: %s, %s: %s, %s: %s, %s: %s',
                 _('Database save failed'),
+                _('Class'),
+                get_class($this),
+                _('Table'),
+                $this->databaseTable,
                 _('ID'),
                 $this->get('id'),
                 _('Error'),
                 $e->getMessage()
             );
             self::debug($msg);
+            /*
+             * The line that actually gets written. debug() on this branch
+             * writes to no file at all and returns immediately on a service
+             * or ajax request, and logHistory() needs somebody signed in --
+             * neither is true on the paths that generate most of these.
+             * See FOGBase::logFault().
+             */
+            self::logFault($msg);
 
             return false;
         }
@@ -675,6 +760,51 @@ abstract class FOGController extends FOGBase
                 $queryArray
             );
             $vals = self::$DB->fetch()->get();
+            /*
+             * A rejected SELECT is swallowed the same way a rejected INSERT
+             * is -- see save(). fetch()->get() then hands back nothing, and
+             * an object that could not be read is indistinguishable from a
+             * row that genuinely holds no data. That is the read half of the
+             * same defect: not a wrong answer anybody can see, a plausible
+             * empty one.
+             *
+             * AFTER the fetch, not between it and the query, so that ONE
+             * check covers both halves of the read. fetch() records its own
+             * failure on ->error and never clears one, and query() always
+             * sets ->error immediately before -- so a fetch that failed
+             * because the query did still reports the query's message here,
+             * not "No query result, use query() first".
+             *
+             * Recorded HERE rather than in the catch below, and that split is
+             * the point. This catch also handles the method's ORDINARY
+             * control flow -- "Operation field not set" fires on every
+             * `new Host()` built without an id, which is constant traffic --
+             * so faulting the whole catch would bury the one line that
+             * matters under thousands that do not.
+             *
+             * Throwing after logging costs nothing and buys the debug line
+             * below: setQuery() merges (fastmerge, never clears), so skipping
+             * it with nothing to merge leaves the object exactly as it was.
+             * load() still returns $this either way -- `new Host(42)` must
+             * not become fatal because a read failed.
+             */
+            if (self::$DB->error) {
+                self::logFault(
+                    sprintf(
+                        '%s: %s: %s, %s: %s, %s: %s, %s: %s',
+                        _('Database load failed'),
+                        _('Class'),
+                        get_class($this),
+                        _('Table'),
+                        $this->databaseTable,
+                        _('Key'),
+                        $key,
+                        _('Error'),
+                        self::$DB->error
+                    )
+                );
+                throw new Exception((string) self::$DB->error);
+            }
             $this->setQuery($vals);
         } catch (Exception $e) {
             $str = sprintf(
@@ -772,6 +902,13 @@ abstract class FOGController extends FOGBase
                 (array) $val
             );
             self::$DB->query($query, array(), $queryArray);
+            // Same reason as save()'s, above: a rejected DELETE is swallowed
+            // by PDODB, so destroy() reported success for a row still there.
+            // A DELETE matching nothing is not an error and does not land
+            // here -- only a statement the server actually rejected does.
+            if (self::$DB->error) {
+                throw new Exception((string) self::$DB->error);
+            }
             if (!$this instanceof History) {
                 if ($this->get('name')) {
                     $msg = sprintf(
@@ -822,14 +959,26 @@ abstract class FOGController extends FOGBase
                 self::logHistory($msg);
             }
             $msg = sprintf(
-                '%s: %s: %s, %s: %s',
+                '%s: %s: %s, %s: %s, %s: %s, %s: %s',
                 _('Destroy failed'),
+                _('Class'),
+                get_class($this),
+                _('Table'),
+                $this->databaseTable,
                 _('ID'),
                 $this->get('id'),
                 _('Error'),
                 $e->getMessage()
             );
             self::debug($msg);
+            /*
+             * The line that actually gets written. debug() on this branch
+             * writes to no file at all and returns immediately on a service
+             * or ajax request, and logHistory() needs somebody signed in --
+             * neither is true on the paths that generate most of these.
+             * See FOGBase::logFault().
+             */
+            self::logFault($msg);
 
             return false;
         }
@@ -947,12 +1096,23 @@ abstract class FOGController extends FOGBase
     public function isValid()
     {
         try {
+            // The same opt-out save() honors. Both methods carry their own
+            // copy of the "ends in id, so it is a foreign key" inference, so
+            // both need the exclusion: fixing only save() lets an object save
+            // its string identifier and then fail validation forever after.
+            $notInt = [];
+            foreach ($this->databaseFieldsNotInt as $strKey) {
+                $notInt[$this->key($strKey)] = true;
+            }
+
             foreach ($this->databaseFieldsRequired as $reqKey) {
                 $key = $this->key($reqKey);
                 $val = $this->get($key);
 
                 // If key ends with ID (case-insensitive), require integer >= 1
-                if (strtolower(substr($key, -2)) === 'id') {
+                if (strtolower(substr($key, -2)) === 'id'
+                    && !isset($notInt[$key])
+                ) {
                     if (filter_var($val, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]) === false) {
                         throw new Exception(self::$foglang['RequiredDB'] . ": " . $key);
                     }
@@ -1002,42 +1162,6 @@ abstract class FOGController extends FOGBase
         $compare = '='
     ) {
         /**
-         * Lambda function to build the where array additionals.
-         *
-         * @param string $field the field to work from
-         * @param mixed  $value the value of the field
-         */
-        $whereInfo = function (
-            &$value,
-            $field
-        ) use (
-            &$whereArrayAnd,
-            &$c,
-            $not,
-            $compare
-        ) {
-            if (is_array($value)) {
-                $whereArrayAnd[] = sprintf(
-                    "`%s`.`%s` IN ('%s')",
-                    $c->databaseTable,
-                    $field,
-                    implode("','", $value)
-                );
-            } else {
-                if (strpos($value, '%')) {
-                    $compare = 'LIKE';
-                }
-                $whereArrayAnd[] = sprintf(
-                    "`%s`.`%s` %s '%s'",
-                    $c->databaseTable,
-                    $c->databaseFields[$field],
-                    $compare,
-                    $value
-                );
-            }
-            unset($value, $field);
-        };
-        /**
          * Lambda function to build the join of a query.
          *
          * @param string $class  the class to work from
@@ -1050,24 +1174,47 @@ abstract class FOGController extends FOGBase
             &$join,
             &$whereArrayAnd,
             &$c,
-            $whereInfo,
             $not,
             $compare
         ) {
             $className = strtolower($class);
             $c = self::getClass($class);
             if (!array_key_exists($className, $join)) {
+                // The relationship's optional 4th element is a filter on the
+                // joined (optional) table. It must live in the JOIN ON clause,
+                // not in WHERE: a WHERE condition on the right-hand table of a
+                // LEFT JOIN silently degrades it to an INNER JOIN, dropping the
+                // base row entirely when there is no matching joined row (e.g.
+                // a host with no primary MAC would fail to load at all).
+                $onExtra = '';
+                if (isset($fields[3]) && $fields[3]) {
+                    foreach ((array) $fields[3] as $filterField => $filterValue) {
+                        if (is_array($filterValue)) {
+                            $onExtra .= sprintf(
+                                " AND `%s`.`%s` IN ('%s')",
+                                $c->databaseTable,
+                                $c->databaseFields[$filterField],
+                                implode("','", $filterValue)
+                            );
+                        } else {
+                            $onExtra .= sprintf(
+                                " AND `%s`.`%s` = '%s'",
+                                $c->databaseTable,
+                                $c->databaseFields[$filterField],
+                                $filterValue
+                            );
+                        }
+                    }
+                }
                 $join[$className] = sprintf(
-                    ' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s` ',
+                    ' LEFT OUTER JOIN `%s` ON `%s`.`%s`=`%s`.`%s`%s ',
                     $c->databaseTable,
                     $c->databaseTable,
                     $c->databaseFields[$fields[0]],
                     $this->databaseTable,
-                    $this->databaseFields[$fields[1]]
+                    $this->databaseFields[$fields[1]],
+                    $onExtra
                 );
-            }
-            if (isset($fields[3])) {
-                array_walk($fields[3], $whereInfo);
             }
             $c->buildQuery($join, $whereArrayAnd, $c, $not, $compare);
             unset($class, $fields, $c);

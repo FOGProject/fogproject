@@ -2,7 +2,7 @@
 /**
  * Gets free space of disk/partition holding images from server
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Freespace
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * The pushbullet database and object definer
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Pushbullet
  * @package  FOGProject

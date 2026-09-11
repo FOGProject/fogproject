@@ -3,7 +3,7 @@
  * The event to call to slack plugin on login
  * failure
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category LoginFailure_Slack
  * @package  FOGProject

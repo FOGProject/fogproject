@@ -2,7 +2,7 @@
 /**
  * Host management page
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * The host represented to the GUI
  *
@@ -577,33 +577,33 @@ class HostManagementPage extends FOGPage
     {
         self::$HookManager->processEvent('HOST_ADD_POST');
         $name = trim(
-            filter_input(INPUT_POST, 'host')
+            (string)filter_input(INPUT_POST, 'host')
         );
         $mac = trim(
-            filter_input(INPUT_POST, 'mac')
+            (string)filter_input(INPUT_POST, 'mac')
         );
         $desc = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $password = trim(
-            filter_input(INPUT_POST, 'domainpassword')
+            (string)filter_input(INPUT_POST, 'domainpassword')
         );
         $useAD = (int)isset($_POST['domain']);
         $domain = trim(
-            filter_input(INPUT_POST, 'domainname')
+            (string)filter_input(INPUT_POST, 'domainname')
         );
         $ou = trim(
-            filter_input(INPUT_POST, 'ou')
+            (string)filter_input(INPUT_POST, 'ou')
         );
         $user = trim(
-            filter_input(INPUT_POST, 'domainuser')
+            (string)filter_input(INPUT_POST, 'domainuser')
         );
         $pass = $password;
         $passlegacy = trim(
-            filter_input(INPUT_POST, 'domainpasswordlegacy')
+            (string)filter_input(INPUT_POST, 'domainpasswordlegacy')
         );
         $key = trim(
-            filter_input(INPUT_POST, 'key')
+            (string)filter_input(INPUT_POST, 'key')
         );
         $productKey = preg_replace(
             '/([\w+]{5})/',
@@ -618,22 +618,22 @@ class HostManagementPage extends FOGPage
         $enforce = (int)isset($_POST['enforcesel']);
         $image = (int)filter_input(INPUT_POST, 'image');
         $kernel = trim(
-            filter_input(INPUT_POST, 'kern')
+            (string)filter_input(INPUT_POST, 'kern')
         );
         $kernelArgs = trim(
-            filter_input(INPUT_POST, 'args')
+            (string)filter_input(INPUT_POST, 'args')
         );
         $kernelDevice = trim(
-            filter_input(INPUT_POST, 'dev')
+            (string)filter_input(INPUT_POST, 'dev')
         );
         $init = trim(
-            filter_input(INPUT_POST, 'init')
+            (string)filter_input(INPUT_POST, 'init')
         );
         $bootTypeExit = trim(
-            filter_input(INPUT_POST, 'bootTypeExit')
+            (string)filter_input(INPUT_POST, 'bootTypeExit')
         );
         $efiBootTypeExit = trim(
-            filter_input(INPUT_POST, 'efiBootTypeExit')
+            (string)filter_input(INPUT_POST, 'efiBootTypeExit')
         );
         try {
             if (!$name) {
@@ -1316,20 +1316,20 @@ class HostManagementPage extends FOGPage
     public function hostGeneralPost()
     {
         $name = trim(
-            filter_input(INPUT_POST, 'host')
+            (string)filter_input(INPUT_POST, 'host')
         );
         $mac = trim(
-            filter_input(INPUT_POST, 'mac')
+            (string)filter_input(INPUT_POST, 'mac')
         );
         $desc = trim(
-            filter_input(INPUT_POST, 'description')
+            (string)filter_input(INPUT_POST, 'description')
         );
         $imageID = trim(
-            filter_input(INPUT_POST, 'image')
+            (string)filter_input(INPUT_POST, 'image')
         );
         $key = strtoupper(
             trim(
-                filter_input(INPUT_POST, 'key')
+                (string)filter_input(INPUT_POST, 'key')
             )
         );
         $productKey = preg_replace(
@@ -1343,22 +1343,22 @@ class HostManagementPage extends FOGPage
         );
         $productKey = substr($productKey, 0, 29);
         $kern = trim(
-            filter_input(INPUT_POST, 'kern')
+            (string)filter_input(INPUT_POST, 'kern')
         );
         $args = trim(
-            filter_input(INPUT_POST, 'args')
+            (string)filter_input(INPUT_POST, 'args')
         );
         $dev = trim(
-            filter_input(INPUT_POST, 'dev')
+            (string)filter_input(INPUT_POST, 'dev')
         );
         $init = trim(
-            filter_input(INPUT_POST, 'init')
+            (string)filter_input(INPUT_POST, 'init')
         );
         $bte = trim(
-            filter_input(INPUT_POST, 'bootTypeExit')
+            (string)filter_input(INPUT_POST, 'bootTypeExit')
         );
         $ebte = trim(
-            filter_input(INPUT_POST, 'efiBootTypeExit')
+            (string)filter_input(INPUT_POST, 'efiBootTypeExit')
         );
         if (empty($name)) {
             throw new Exception(_('Please enter a hostname'));
@@ -2551,8 +2551,8 @@ class HostManagementPage extends FOGPage
             _('Chassis Asset') => $caseast
         );
         for ($i = 0; $i < count($gpuvendorsArray); $i++) {
-            $fields[_("GPU-$i Vendor")] = $gpuvendorsArray[$i];
-            $fields[_("GPU-$i Product")] = $gpuproductsArray[$i];
+            $fields[sprintf(_('GPU-%d Vendor'), $i)] = $gpuvendorsArray[$i];
+            $fields[sprintf(_('GPU-%d Product'), $i)] = $gpuproductsArray[$i];
         }
         if ($this->obj->get('inventory')->isValid()) {
             array_walk($fields, $this->fieldsToData);
@@ -2973,7 +2973,13 @@ class HostManagementPage extends FOGPage
         foreach ((array)$Logs as &$Log) {
             $start = $Log->start;
             $finish = $Log->finish;
-            if ($Log->finish === '0000-00-00 00:00:00') {
+            // GH-1245: an unfinished log now holds NULL rather than the
+            // zero date. Both spellings still mean "not finished", and rows
+            // written before schema step 284 keep the old one.
+            if (null === $Log->finish
+                || '' === $Log->finish
+                || $Log->finish === '0000-00-00 00:00:00'
+            ) {
                 $finish = $start;
             }
             if (!self::validDate($start)
@@ -3129,7 +3135,12 @@ class HostManagementPage extends FOGPage
         foreach ((array)$SnapinTasks as &$SnapinTask) {
             $Snapin = $SnapinTask->snapin;
             $start = self::niceDate($SnapinTask->checkin);
-            if ($SnapinTask->complete === '0000-00-00 00:00:00') {
+            // GH-1245: as above -- an incomplete snapin task holds NULL
+            // from schema step 284 on, the zero date before it.
+            if (null === $SnapinTask->complete
+                || '' === $SnapinTask->complete
+                || $SnapinTask->complete === '0000-00-00 00:00:00'
+            ) {
                 $end = $start;
             } else {
                 $end = self::niceDate($SnapinTask->complete);
@@ -3340,37 +3351,37 @@ class HostManagementPage extends FOGPage
     {
         $useAD = isset($_POST['domain']);
         $domain = trim(
-            filter_input(
+            (string)filter_input(
                 INPUT_POST,
                 'domainname'
             )
         );
         $ou = trim(
-            filter_input(
+            (string)filter_input(
                 INPUT_POST,
                 'ou'
             )
         );
         $user = trim(
-            filter_input(
+            (string)filter_input(
                 INPUT_POST,
                 'domainuser'
             )
         );
         $pass = trim(
-            filter_input(
+            (string)filter_input(
                 INPUT_POST,
                 'domainpassword'
             )
         );
         $passlegacy = trim(
-            filter_input(
+            (string)filter_input(
                 INPUT_POST,
                 'domainpasswordlegacy'
             )
         );
         $productKey = trim(
-            filter_input(
+            (string)filter_input(
                 INPUT_POST,
                 'productkey'
             )
@@ -3451,37 +3462,37 @@ class HostManagementPage extends FOGPage
         }
         if (isset($_POST['pmsubmit'])) {
             $min = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronMin'
                 )
             );
             $hour = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronHour'
                 )
             );
             $dom = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronDOM'
                 )
             );
             $month = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronMonth'
                 )
             );
             $dow = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'scheduleCronDOW'
                 )
             );
             $action = trim(
-                filter_input(
+                (string)filter_input(
                     INPUT_POST,
                     'action'
                 )

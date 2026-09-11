@@ -3,7 +3,7 @@
  * If a node fails with a host we write the information
  * into the db using this script.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Blame
  * @package  FOGProject

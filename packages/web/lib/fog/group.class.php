@@ -2,7 +2,7 @@
 /**
  * Main class for group objects.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Group
  * @package  FOGProject
@@ -590,23 +590,47 @@ class Group extends FOGController
                     $multicastsessionassocs
                 );
                 $this->_createSnapinTasking($now, -1);
-            } elseif ($TaskType->isDeploy()) {
+            } elseif ($TaskType->isDeploy() || $TaskType->isCapture()) {
+                // Capture shares the deploy insert: the two differ only by
+                // typeID, which is already a parameter. There used to be no
+                // capture arm at all, so a capture arrived here, matched
+                // nothing, and left without a row -- and the caller then
+                // reported success over an empty tasks table (#1677). On
+                // this branch it is reachable from POST /group/{id}/task,
+                // which takes any task type.
+                //
+                // Capture is a one-host task type (ttIsAccess='host'):
+                // several hosts writing the same image at once would corrupt
+                // it. Refuse it here rather than silently create the race.
+                if ($TaskType->isCapture() && count($hostids ?: []) > 1) {
+                    throw new Exception(
+                        sprintf(
+                            _('%s can only be run on one host at a time'),
+                            $TaskType->get('name')
+                        )
+                    );
+                }
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
-                $imageIDs = self::getSubObjectIDs(
-                    'Host',
-                    array(
-                        'id' => $hostIDs,
-                    ),
-                    'imageID',
-                    false,
-                    'AND',
-                    'name',
-                    false,
-                    ''
-                );
-                if (!is_array($imageIDs)) {
-                    $imageIDs = array($imageIDs);
+                /**
+                 * Map each host to ITS OWN image.
+                 *
+                 * $hostIDs is the group's membership in id order; the image
+                 * list was a separate lookup ordered by host NAME, and the
+                 * two were then zipped positionally. So unless the group's
+                 * hosts happened to sort the same way both times, every task
+                 * got somebody else's image -- and a host without an image
+                 * shortened the list, which made $imageIDs[$i] undefined for
+                 * the tail of the group and wrote a 0 into tasks.taskImageID.
+                 * A task pointing at image 0 shows as "() -" in Active Tasks
+                 * and can never complete. Forum topics 18228 and 18230.
+                 */
+                $imageMap = array();
+                foreach ((array)self::getClass('HostManager')->find(
+                    array('id' => $hostIDs)
+                ) as &$Host) {
+                    $imageMap[$Host->get('id')] = $Host->get('imageID');
+                    unset($Host);
                 }
                 $batchFields = array(
                     'name',
@@ -633,7 +657,9 @@ class Group extends FOGController
                         $TaskType->get('id'),
                         $StorageNode->get('id'),
                         $wol,
-                        $imageIDs[$i],
+                        isset($imageMap[$hostIDs[$i]])
+                            ? $imageMap[$hostIDs[$i]]
+                            : 0,
                         $shutdown,
                         $debug,
                         $passreset,

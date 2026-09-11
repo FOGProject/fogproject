@@ -2,7 +2,7 @@
 /**
  * Task State Edit plugin
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category TaskStateEdit
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * The example mass manager class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ExampleManager
  * @package  FOGProject
@@ -35,7 +35,7 @@ class ExampleManager extends FOGManagerController
          * This is commented out so we don't actually
          * create anything.
          *
-         * $sql = Schema::createTable(
+         * $sql = $this->createTableSql(
          *     'example',
          *     true,
          *     array(

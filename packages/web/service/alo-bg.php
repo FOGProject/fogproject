@@ -3,7 +3,7 @@
  * Legacy client only, gives the background image
  * to use.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ALO-BG
  * @package  FOGProject

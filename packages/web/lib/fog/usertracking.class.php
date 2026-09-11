@@ -2,7 +2,7 @@
 /**
  * UserTracking handles tracking users from client to client
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category UserTracking
  * @package  FOGProject

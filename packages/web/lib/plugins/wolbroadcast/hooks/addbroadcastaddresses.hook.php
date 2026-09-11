@@ -2,7 +2,7 @@
 /**
  * Adds Broadcast addresses to wol info.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddBroadCastAddresses
  * @package  FOGProject

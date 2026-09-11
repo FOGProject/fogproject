@@ -39,9 +39,6 @@ msgstr "Snapin 复制已全局禁用"
 msgid " * Task Scheduler is globally disabled"
 msgstr "任务调度器已全局禁用"
 
-msgid " Name"
-msgstr "名称"
-
 msgid " No open slots "
 msgstr "没有开放位置"
 
@@ -56,6 +53,10 @@ msgstr "|找不到镜像路径"
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr "$ _POST变量为空，检查apache错误日志。"
+
+#, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "高级操作"
 
 #, php-format
 msgid "%s ID %d is not valid"
@@ -73,9 +74,21 @@ msgstr "%s管理器"
 msgid "%s Menu"
 msgstr "%s菜单"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr "名称"
+
+#, php-format
+msgid "%s can only be run on one host at a time"
+msgstr ""
+
 #, php-format
 msgid "%s is required"
 msgstr "%s是必需的"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "已成功更新"
 
 msgid "1 Hour"
 msgstr "1小时"
@@ -173,6 +186,10 @@ msgstr "已有同名规则!"
 #, fuzzy
 msgid "A rule already exists with this name"
 msgstr "已有同名规则."
+
+#, fuzzy
+msgid "A scheduled time is required"
+msgstr "请输入用户名"
 
 msgid "A site already exists with this name!"
 msgstr "已有同名站点!"
@@ -406,6 +423,10 @@ msgstr "添加角色失败!"
 msgid "Add rule failed!"
 msgstr "添加规则失败!"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "添加选定的主机"
+
 msgid "Add selected hosts"
 msgstr "添加选定的主机"
 
@@ -496,6 +517,10 @@ msgstr "Ago必须是布尔值"
 
 msgid "All"
 msgstr "所有"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "列出所有%s"
 
 msgid "All Groups"
 msgstr "所有组"
@@ -821,6 +846,10 @@ msgstr "机箱版本"
 msgid "Chat is also available on the forums for more realtime help"
 msgstr "访问论坛以获取帮助"
 
+#, fuzzy, php-format
+msgid "Check here to see what %s can be added"
+msgstr "点击以查看可添加主机"
+
 msgid "Check here to see what hosts can be added"
 msgstr "点击以查看可添加主机"
 
@@ -848,11 +877,18 @@ msgstr "检查数据库运行状态"
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "在FOGPage类中找不到此节点"
+
 msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
 msgstr "登录时间"
+
+msgid "Checking for tasks that can never run..."
+msgstr ""
 
 msgid "Checking if I am the group manager"
 msgstr "请组管理员检查"
@@ -925,6 +961,9 @@ msgstr "CPU版本"
 
 msgid "Clients"
 msgstr "客户端"
+
+msgid "Column type lookup failed"
+msgstr ""
 
 msgid "Command"
 msgstr "命令"
@@ -1001,6 +1040,10 @@ msgstr "无法读取临时文件"
 msgid "Could not register"
 msgstr "无法注册"
 
+#, fuzzy
+msgid "Count failed"
+msgstr "加载失败"
+
 msgid "Create"
 msgstr "创建"
 
@@ -1013,6 +1056,15 @@ msgstr "新建%s"
 
 msgid "Create New Access Control Role"
 msgstr "创建新访问控制规则"
+
+msgid "Create New Group"
+msgstr "新建组"
+
+msgid "Create New Host"
+msgstr "新建主机"
+
+msgid "Create New Image"
+msgstr "新建镜像"
 
 msgid "Create New Key"
 msgstr "创建新密钥"
@@ -1029,8 +1081,17 @@ msgstr "新建打印机"
 msgid "Create New Snapin"
 msgstr "新建插件"
 
+msgid "Create New Storage Group"
+msgstr "新建Storage Group"
+
+msgid "Create New Storage Node"
+msgstr "新建Storage Node"
+
 msgid "Create New SubnetGroup?"
 msgstr "创建新子网组?"
+
+msgid "Create New User"
+msgstr "新建用户"
 
 msgid "Create New iPXE Menu Entry"
 msgstr "新建iPXE菜单项"
@@ -1151,6 +1212,10 @@ msgstr "数据库更改已还原!"
 
 msgid "Database imported and added successfully!"
 msgstr "数据库已导入成功!"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "数据库保存失败"
 
 msgid "Database not available"
 msgstr "数据库不可达"
@@ -1521,6 +1586,10 @@ msgstr "事件必须是字符串"
 msgid "Every configured multicast port is already in use"
 msgstr ""
 
+#, fuzzy
+msgid "Existence check failed"
+msgstr "私钥失效"
+
 msgid "Exists item must be boolean"
 msgstr "现存物品必须是布尔值"
 
@@ -1746,6 +1815,9 @@ msgstr "FTP路径"
 msgid "FTP connection failed"
 msgstr "FTP连接失败"
 
+msgid "FTP login rejected by"
+msgstr ""
+
 msgid "Fail to destroy"
 msgstr "未能摧毁"
 
@@ -1819,6 +1891,14 @@ msgstr "未能摧毁存储节点"
 
 msgid "Failed to install plugin"
 msgstr "无法安装插件"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "无法创建任务"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "数据解密失败"
 
 msgid "Failed to save assignment"
 msgstr "无法保存分配"
@@ -1914,6 +1994,10 @@ msgstr "文件大小"
 msgid "Filter"
 msgstr "文件"
 
+#, fuzzy
+msgid "Find failed"
+msgstr "加载失败"
+
 msgid "Finding any images associated"
 msgstr "找到关联镜像"
 
@@ -1990,6 +2074,14 @@ msgid "GPU Products"
 msgstr "GPU产品"
 
 msgid "GPU Vendors"
+msgstr "GPU供应商"
+
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "GPU产品"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
 msgstr "GPU供应商"
 
 msgid "General"
@@ -2207,6 +2299,10 @@ msgstr "主页电话"
 msgid "Host"
 msgstr "主机"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 msgid "Host AD Domain"
 msgstr "主机AD域"
 
@@ -2377,6 +2473,9 @@ msgstr "主机描述"
 
 msgid "Host general"
 msgstr "主机通用"
+
+msgid "Host has no active task to cancel"
+msgstr ""
 
 msgid "Host is already a member of an active task"
 msgstr "主机已经是一个活动任务中的一员"
@@ -2678,6 +2777,10 @@ msgstr "映像已完成"
 msgid "Imaging Duration"
 msgstr "映像期间"
 
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "映像失败"
+
 msgid "Imaging Log"
 msgstr "映像日志"
 
@@ -2828,10 +2931,18 @@ msgstr "完整性设置"
 msgid "Interface"
 msgstr "接口"
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr "接口未准备好，正在等待其启动"
 
 msgid "Invalid"
+msgstr "无效"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "无效"
 
 msgid "Invalid Class"
@@ -3182,6 +3293,9 @@ msgstr "最新版本"
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave empty unless this node is its own FOG server"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "等级必须是整数"
 
@@ -3227,6 +3341,30 @@ msgstr "列表"
 #, php-format
 msgid "List All %s"
 msgstr "列出所有%s"
+
+msgid "List All Groups"
+msgstr "列出所有组s"
+
+msgid "List All Hosts"
+msgstr "列出所有主机s"
+
+msgid "List All Images"
+msgstr "列出所有镜像s"
+
+msgid "List All Printers"
+msgstr "列出所有打印机s"
+
+msgid "List All Snapins"
+msgstr "列出所有Snapins"
+
+msgid "List All Storage Groups"
+msgstr "列出所有Storage Groups"
+
+msgid "List All Storage Nodes"
+msgstr "列出所有Storage Nodes"
+
+msgid "List All Users"
+msgstr "列出所有用户s"
 
 #, php-format
 msgid "List all roles"
@@ -3350,6 +3488,14 @@ msgstr "MAC格式无效"
 msgid "MAC address is already in use by another host"
 msgstr "MAC地址已被其他主机使用"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "已批准所选主机"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "规则删除成功！"
+
 msgid "MB Asset"
 msgstr "主板资产"
 
@@ -3413,6 +3559,18 @@ msgstr "管理密码"
 
 msgid "Management Username"
 msgstr "管理用户名"
+
+#, fuzzy
+msgid "Marked failed, task"
+msgstr "取消任务"
+
+#, fuzzy
+msgid "Mass destroy failed"
+msgstr "销毁失败"
+
+#, fuzzy
+msgid "Mass update failed"
+msgstr "用户更新失败!"
 
 msgid "Master Node"
 msgstr "主节点"
@@ -3723,6 +3881,14 @@ msgstr "没有站点"
 msgid "No access is allowed"
 msgstr "不允许访问"
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "主机没有活动任务"
+
+#, fuzzy
+msgid "No active tasks to cancel for this group"
+msgstr "主机没有活动任务"
+
 msgid "No activity information available for this group"
 msgstr "该群组暂无活动信息"
 
@@ -3829,6 +3995,9 @@ msgstr "没有查询结果，请先使用 query()"
 msgid "No query sent"
 msgstr "无查询发送"
 
+msgid "No report text supplied"
+msgstr ""
+
 msgid "No results found"
 msgstr "无结果"
 
@@ -3846,6 +4015,10 @@ msgstr "无主Snapin与此群组关联"
 
 msgid "No token passed to authenticate this host"
 msgstr "未传递令牌以验证此主机"
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "无新任务"
 
 msgid "No valid Image defined for this host"
 msgstr "此主机未定义有效镜像"
@@ -3873,6 +4046,9 @@ msgstr "找不到可用的存储组"
 
 msgid "Node"
 msgstr "节点"
+
+msgid "Node API Signing Key"
+msgstr ""
 
 msgid "Node Offline"
 msgstr "节点已下线"
@@ -3972,6 +4148,9 @@ msgstr "只分配打印机"
 
 msgid "Only allowed to have"
 msgstr "您只能拥有"
+
+msgid "Only for a peer running its own FOG database. On that peer run bin/fog-node-key.php --set with this same value, or it cannot verify requests this server signs."
+msgstr ""
 
 msgid "Open Source Computer Cloning Solution"
 msgstr "开源计算机克隆解决方案"
@@ -4480,7 +4659,8 @@ msgstr "远程地址尝试登录"
 msgid "Remove"
 msgstr "去掉"
 
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "去掉"
 
 msgid "Remove Accesscontrol Rules"
@@ -4507,7 +4687,8 @@ msgstr "移除用户"
 msgid "Remove failed"
 msgstr "移除失败"
 
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "删除选定"
 
 msgid "Remove selected groups"
@@ -5458,8 +5639,16 @@ msgstr "TCP / IP端口打印机"
 msgid "TX"
 msgstr "TX"
 
+#, fuzzy
+msgid "Table"
+msgstr "启用"
+
 msgid "Table not defined for this class"
 msgstr "该类定义没有数据库表"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "数据库保存失败"
 
 #, fuzzy
 msgid "Tag Name"
@@ -5555,8 +5744,15 @@ msgstr "任务状态无效"
 msgid "Task Types"
 msgstr "任务类型"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
 msgstr "任务强行启动"
+
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "镜像被保护，不能被删除"
 
 msgid "Task not created as there are no associated tasks"
 msgstr "未创建任务，由于没有相关任务"
@@ -5618,6 +5814,13 @@ msgstr "以下选项仅适用于旧版客户端"
 
 msgid "The clients will checkin with the server from time"
 msgstr "客户会不时与服务器进行签到"
+
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "所有待定的MAC批准"
+
+msgid "The following MACs have been deleted."
+msgstr ""
 
 msgid "The following errors occured"
 msgstr "出现以下错误"
@@ -5722,6 +5925,10 @@ msgid "This file will only work on Windows"
 msgstr "这个文件只能在Windows上使用"
 
 msgid "This host already exists"
+msgstr "主机已经存在"
+
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
 msgstr "主机已经存在"
 
 msgid "This installation process may take a few minutes"
@@ -6375,6 +6582,10 @@ msgstr "前"
 msgid "all current storage nodes"
 msgstr "所有目前的存储节点"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "镜像无效"
+
 msgid "and Mac OS X"
 msgstr "和MAC OS X"
 
@@ -6407,6 +6618,15 @@ msgstr "以及 Green 的相应模块"
 
 msgid "and the location of the file on that"
 msgstr "以及该文件在那里的位置"
+
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
+msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr "因为 FOG 将尝试连接到互联网"
@@ -6525,6 +6745,9 @@ msgstr "已经选中或上传"
 msgid "either because you have updated"
 msgstr "要么是因为你已经更新了"
 
+msgid "every column will be treated as untyped"
+msgstr ""
+
 msgid "failed to execute, image file: "
 msgstr "执行失败，镜像文件："
 
@@ -6555,6 +6778,10 @@ msgstr "用于高级菜单参数"
 msgid "for the menu background"
 msgstr "用于菜单背景"
 
+#, fuzzy
+msgid "for user"
+msgstr "创建用户?"
+
 msgid "found"
 msgstr "找到"
 
@@ -6563,6 +6790,10 @@ msgstr "从"
 
 msgid "function on client computers."
 msgstr "在客户端计算机上运行的功能."
+
+#, fuzzy
+msgid "got"
+msgstr "前"
 
 msgid "group"
 msgstr "群组"
@@ -6602,6 +6833,10 @@ msgstr "这里"
 
 msgid "host"
 msgstr "主机"
+
+#, fuzzy
+msgid "host no longer exists"
+msgstr "不再运行"
 
 msgid "hosts"
 msgstr "主机"
@@ -6672,6 +6907,10 @@ msgstr "镜像"
 msgid "image file found, file: "
 msgstr "镜像文件检索结果："
 
+#, fuzzy
+msgid "image no longer exists"
+msgstr "不再运行"
+
 msgid "image replication"
 msgstr "镜像复制"
 
@@ -6681,8 +6920,8 @@ msgstr "镜像"
 msgid "images to a storage group"
 msgstr "存储组镜像"
 
-msgid "imaging failed."
-msgstr "映像失败"
+msgid "in batch row"
+msgstr ""
 
 msgid "in seconds"
 msgstr "几秒钟内"
@@ -6810,6 +7049,9 @@ msgstr "N/A"
 msgid "no login will appear"
 msgstr "不会出现登录"
 
+msgid "no reason was reported"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr "节点是镜像的分发器"
 
@@ -6928,6 +7170,9 @@ msgstr "成功移除!"
 
 msgid "task found"
 msgstr "发现任务"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, php-format
 msgid "terminating so it can be restarted"
@@ -7107,9 +7352,6 @@ msgstr "你将该节点的带宽字段设置为1000"
 #, fuzzy
 #~ msgid "Add ou failed!"
 #~ msgstr "添加管理单元失败！"
-
-#~ msgid "All Pending MACs approved."
-#~ msgstr "所有待定的MAC批准"
 
 #~ msgid "Could not read temp file"
 #~ msgstr "无法读取临时文件"

@@ -2,7 +2,7 @@
 /**
  * Windows keys association manager class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category WindowsKeyAssociationManager
  * @package  FOGProject
@@ -37,7 +37,7 @@ class WindowsKeyAssociationManager extends FOGManagerController
     public function install()
     {
         $this->uninstall();
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             array(

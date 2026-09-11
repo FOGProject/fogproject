@@ -2,7 +2,7 @@
 /**
  * Boot menu for the fog pxe system
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category Bootmenu
  * @package  FOGProject
@@ -118,6 +118,196 @@ class BootMenu extends FOGBase
      */
     private static $_exitTypes = array();
     /**
+     * Lines to show the operator about how this boot was resolved
+     *
+     * @var array
+     */
+    private $_notices = array();
+    /**
+     * Is the booting machine an ARM one?
+     *
+     * iPXE tells us: default.ipxe posts "param arch ${arch}", derived from
+     * ${buildarch}, and every chain this class emits carries it forward.
+     * The value is the architecture of the iPXE binary DHCP handed the
+     * machine, not a guess.
+     *
+     * One place rather than the four open-coded stripos() tests, so the
+     * kernel selection, the loader selection and the two new guards below
+     * cannot answer it differently.
+     *
+     * @return bool
+     */
+    private static function _archIsArm()
+    {
+        return false !== stripos(
+            isset($_REQUEST['arch']) ? $_REQUEST['arch'] : '',
+            'arm'
+        );
+    }
+    /**
+     * Makes a value safe to interpolate into an iPXE `echo` line.
+     *
+     * boot.php is unauthenticated by necessity -- a booting NIC has no
+     * credential to present -- and iPXE scripts are newline-delimited
+     * commands. Initiator::sanitizeOutput() collapses a RUN of whitespace
+     * to its first character rather than removing newlines, so a lone
+     * "\n" in a request or stored value survives into the emitted script
+     * as a command separator and anything past it would be executed.
+     *
+     * Whitelist rather than escape: these values are kernel and init
+     * filenames, so the safe set is small and known, and iPXE's tokenizer
+     * strips quotes outright so there is no escaping mechanism to lean on.
+     *
+     * @param string $value the value to render
+     *
+     * @return string
+     */
+    private static function _echoSafe($value)
+    {
+        return substr(
+            preg_replace('/[^A-Za-z0-9._-]/', '', (string)$value),
+            0,
+            64
+        );
+    }
+    /**
+     * Applies a host's kernel/init override to the arch-selected default.
+     *
+     * A host (or the group that wrote to it) can name its own kernel and
+     * init, and that override deliberately wins over the arch default --
+     * but only where it CAN win. The override is a bare filename with no
+     * architecture in it, and `hosts` stores no architecture at all, so
+     * nothing at edit time can warn an admin that the kernel they picked
+     * is wrong for some of the machines it will reach. Setting a kernel on
+     * a mixed group therefore handed an x86 bzImage to every ARM member,
+     * silently discarding the arch selection made moments earlier.
+     *
+     * Only the arm/non-arm split is policed. i386 code runs on x86_64, so a
+     * deliberate 32-bit override is a legitimate choice and is left alone;
+     * aarch64 and x86 are not the same instruction set in either direction,
+     * so an override across that line can only ever fail to boot.
+     *
+     * The test is the `arm` filename prefix -- the convention every kernel
+     * and init FOG ships follows (arm_Image, arm_init.cpio.gz).
+     *
+     * @param string $field   'kernel' or 'init'
+     * @param string $default what the architecture selected
+     *
+     * @return string the filename to boot
+     */
+    private function _hostOverride($field, $default)
+    {
+        $override = trim((string)self::$Host->get($field));
+        if ('' === $override) {
+            return $default;
+        }
+        $isArmFile = 0 === stripos(basename($override), 'arm');
+        if ($isArmFile === self::_archIsArm()) {
+            return $override;
+        }
+        // Say so on screen rather than just ignoring it: from the
+        // operator's side an ignored override and an honoured one look
+        // identical, and the machine that is misconfigured is the one
+        // that needs telling.
+        $this->_notices[] = sprintf(
+            'echo Ignoring host %s %s -- this machine is %s. Using %s.',
+            $field,
+            self::_echoSafe($override),
+            self::_archIsArm() ? '64-bit ARM' : 'x86',
+            self::_echoSafe($default)
+        );
+
+        return $default;
+    }
+    /**
+     * The memtest boot lines, or a refusal on an architecture that has no
+     * Memtest86+ build.
+     *
+     * Memtest86+ 6.0 and later is a single file that boots two ways: a
+     * legacy BIOS loads it through the Linux boot protocol, so iPXE boots
+     * it with `kernel`; UEFI firmware loads it as a PE, so iPXE boots it
+     * with `chain`. Which one this client needs is what ${platform} says.
+     * The memdisk chain this replaced (memdisk + a Memtest86+ 5.01 ISO)
+     * was a 16-bit loader that UEFI clients refused with "Exec format
+     * error" (#321).
+     *
+     * `chain` does not return on success, so on UEFI the lines after it
+     * are only reached on failure. The BIOS branch is jumped over rather
+     * than left to `||` fall-through, because `iseq ... && chain ... ||
+     * kernel ...` would run the BIOS loader on a UEFI client whose chain
+     * had just failed.
+     *
+     * Upstream publishes no aarch64 build, so on ARM the menu entry and
+     * the scheduled task could only ever fail -- the entry dropping the
+     * machine back to the menu with an iPXE error, the task leaving it at
+     * a bare prompt with nothing said about why.
+     *
+     * @param string $onFail what to append when the boot fails or is refused
+     *
+     * @return array
+     */
+    private function _memtestChoice($onFail = ' || goto MENU')
+    {
+        if (self::_archIsArm()) {
+            return array(
+                'echo Memtest86+ publishes no build for 64-bit ARM, so it '
+                . 'cannot run here.',
+                'sleep 5' . $onFail,
+            );
+        }
+
+        return array(
+            'iseq ${platform} efi && goto fog.memtest.efi ||',
+            "kernel $this->_memtest",
+            'boot' . $onFail,
+            ':fog.memtest.efi',
+            "chain $this->_memtest" . $onFail,
+        );
+    }
+    /**
+     * Whether a kernel-argument string asks for a shutdown when the task
+     * ends.
+     *
+     * stripos()'s arguments were the wrong way round at every call site
+     * this replaces: stripos('shutdown=1', $args) searches for the
+     * ARGUMENTS inside the literal, not the other way about. Two silent
+     * consequences, in opposite directions.
+     *
+     * A real 'shutdown=1 mode=debug' was never detected -- the
+     * ten-character literal cannot contain it -- so a custom iPXE menu
+     * entry that asks for a shutdown never produced one. Only an extraargs
+     * of EXACTLY 'shutdown=1' worked, by accident.
+     *
+     * And an empty string matches at offset 0, so the
+     * `false !== stripos(...)` spelling reported a shutdown for any task
+     * type with no kernel arguments at all.
+     *
+     * @param string $args the argument string to test
+     *
+     * @return bool
+     */
+    private static function _wantsShutdown($args)
+    {
+        $args = trim((string)$args);
+
+        return '' !== $args && false !== stripos($args, 'shutdown=1');
+    }
+    /**
+     * The extraargs the chain arrived with, '' when there were none.
+     *
+     * Not every chain back into a flow carries them, and passing an unset
+     * key to stripos() emits a PHP warning straight into the iPXE script
+     * this class is building.
+     *
+     * @return string
+     */
+    private static function _extraArgs()
+    {
+        return isset($_REQUEST['extraargs'])
+            ? (string)$_REQUEST['extraargs']
+            : '';
+    }
+    /**
      * Initializes the boot menu class
      *
      * @return void
@@ -133,10 +323,7 @@ class BootMenu extends FOGBase
             . 'chain -ar ${boot-url}/service/ipxe/refind_x64.efi',
             "\n"
         );
-        $reboot = sprintf(
-            'reboot',
-            "\n"
-        );
+        $reboot = 'reboot';
 
         if (isset($_REQUEST['arch']) && stripos($_REQUEST['arch'], 'i386') !== false) {
             //user i386 boot loaders instead
@@ -213,7 +400,26 @@ class BootMenu extends FOGBase
          */
         $bootroot = trim((string)$curroot, '/');
         $curroot = '/' . ($bootroot === '' ? '' : $bootroot . '/');
+        /**
+         * BOOT_ITEM_NEW_SETTINGS passes 'webroot' by reference, but no
+         * $webroot was ever assigned, so PHP created it at the call and
+         * every plugin reading it saw NULL. Bind it to the bare form that
+         * accompanies 'webserver' in the same payload -- the value
+         * 'set fog-webroot' emits -- so the argument means what its name
+         * says.
+         */
+        $webroot = $bootroot;
         $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
+        /**
+         * setmacto is the MAC FOS forces onto whichever interface it manages
+         * to reach us on, so it has to be the MAC iPXE actually booted with.
+         * ${net0/mac} was wrong on any machine whose first enumerated NIC has
+         * no link: iPXE gets its lease over the NIC that does, FOS then
+         * rewrites that NIC to the unplugged one's MAC and the re-DHCP fails.
+         * ${netX} is iPXE's alias for the last opened network device, so it
+         * follows the interface that got us here and still resolves to net0
+         * on a single-NIC machine.
+         */
         $Send['booturl'] = array(
             '#!ipxe',
             "set fog-ip $webserver",
@@ -221,7 +427,7 @@ class BootMenu extends FOGBase
             'set boot-url '
             . self::$httpproto
             . '://${fog-ip}/${fog-webroot}',
-            'set setmacto ${net0/mac}',
+            'set setmacto ${netX/mac}',
         );
         if (self::$Host->isValid()) {
             $sysuuid = filter_input(INPUT_POST, 'sysuuid')
@@ -331,24 +537,38 @@ class BootMenu extends FOGBase
             $keySequence :
             ''
         );
-        if (($_REQUEST['arch'] ?? '') == 'i386') {
+        $rawArch = (string)($_REQUEST['arch'] ?? '');
+        $archId = 'x86_64';
+        if ('i386' === $rawArch) {
+            $archId = 'i386';
             $bzImage = $bzImage32;
+            // The 32-bit Memtest86+ build. Set before HOST_EDIT_SETTINGS so
+            // a plugin that repoints $memtest at its own node (Location
+            // does) repoints the right file. Not a setting: nothing else
+            // about the i386 profile is configurable either (#321).
+            $memtest = 'mt86plus_i586';
             $imagefile = $init_32;
-        } elseif (false !== stripos(($_REQUEST['arch'] ?? ''), 'arm')) {
+        } elseif (false !== stripos($rawArch, 'arm')) {
+            $archId = 'arm64';
             $bzImage = $bzImageArm;
             $imagefile = $init_arm;
         }
-        $kernel = $bzImage;
-        if (self::$Host->get('kernel')) {
-            $bzImage = trim(
-                self::$Host->get('kernel')
+        // Anything that is not one of the three FOG builds a kernel for.
+        // arm32 lands here too: it matches on 'arm' and so is handed the
+        // aarch64 files, which is the same thing that used to happen
+        // silently -- the difference is that the operator is now told, on
+        // screen, why the boot is about to fail.
+        if ('' !== $rawArch
+            && !in_array($rawArch, array('x86_64', 'i386', 'arm64'), true)
+        ) {
+            $this->_notices[] = sprintf(
+                'echo FOG ships no boot kernel for %s -- trying the %s one.',
+                self::_echoSafe($rawArch),
+                $archId
             );
         }
-        if (self::$Host->get('init')) {
-            $imagefile = trim(
-                self::$Host->get('init')
-            );
-        }
+        $bzImage = $this->_hostOverride('kernel', $bzImage);
+        $imagefile = $this->_hostOverride('init', $imagefile);
         $StorageGroup = $StorageNode->getStorageGroup();
         $exit = trim(
             (
@@ -360,6 +580,7 @@ class BootMenu extends FOGBase
             $exit = 'sanboot';
         }
         $initrd = $imagefile;
+        $hookInitrd = $initrd;
         if (self::$Host->isValid()) {
             self::$HookManager->processEvent(
                 'BOOT_ITEM_NEW_SETTINGS',
@@ -382,8 +603,22 @@ class BootMenu extends FOGBase
                 )
             );
         }
-        $kernel = $bzImage;
-        $initrd = $imagefile;
+        /**
+         * 'initrd' and 'imagefile' are both passed to the hook by
+         * reference, and this used to reassign $initrd = $imagefile
+         * unconditionally -- so a plugin that set 'initrd' had its value
+         * discarded on the very next line, while one that set 'imagefile'
+         * was honoured. Nothing said which of the two to write to, and
+         * the one named after the thing being chosen was the dead one.
+         *
+         * Follow 'imagefile' only when the hook left 'initrd' alone, so
+         * the working argument keeps working and the documented one
+         * starts to. With no plugin listening both are equal here and
+         * this is a no-op, which is what the golden file pins.
+         */
+        if ($initrd === $hookInitrd) {
+            $initrd = $imagefile;
+        }
         $this->_timeout = $timeout;
         $this->_hiddenmenu = ($hiddenmenu && !(isset($_REQUEST['menuAccess']) && $_REQUEST['menuAccess']));
         $this->_bootexittype = self::$_exitTypes[$exit];
@@ -392,7 +627,11 @@ class BootMenu extends FOGBase
         $this->_booturl = self::$httpproto
             . "://{$webserver}/fog/service";
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
-        $this->_memtest = "initrd $memtest";
+        // The bare file, not "initrd $memtest": _memtestChoice() boots it
+        // with kernel or chain, and memdisk is no longer part of that path.
+        // _memdisk is still built and still handed to IPXE_EDIT because a
+        // custom entry may chain a floppy or ISO image through it.
+        $this->_memtest = $memtest;
         $StorageNodes = (array)self::getClass('StorageNodeManager')
             ->find(
                 array(
@@ -479,7 +718,7 @@ class BootMenu extends FOGBase
             ),
             $this->_storage
         );
-        $this->_initrd = "imgfetch $imagefile";
+        $this->_initrd = "imgfetch $initrd";
         self::$HookManager
             ->processEvent('BOOT_MENU_ITEM');
         $PXEMenuID = self::maxId(
@@ -511,7 +750,9 @@ class BootMenu extends FOGBase
             'ALTERNATE_BOOT_CHECKS'
         );
         if (isset($_REQUEST['username']) && isset($_REQUEST['password'])) {
-            $tmpUser = self::attemptLogin(
+            // authenticateOnly: iPXE holds no cookie, so a session
+            // established here could never be presented back.
+            $tmpUser = self::authenticateOnly(
                 $_REQUEST['username'],
                 $_REQUEST['password']
             );
@@ -591,20 +832,29 @@ class BootMenu extends FOGBase
      */
     private function _chainBoot($debug = false, $shortCircuit = false)
     {
-        $debug = $debug;
         if (!(isset($this->_hiddenmenu) && $this->_hiddenmenu) || $shortCircuit) {
             $Send['chainnohide'] = array(
                 'set arch ${buildarch}',
                 'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
                 'params',
                 'param mac0 ${net0/mac}',
+                'param product ${product}',
+                'param manufacturer ${manufacturer}',
+                'param ipxever ${version}',
+                'param filename ${filename}',
                 'param arch ${arch}',
                 'param platform ${platform}',
                 'param menuAccess 1',
                 "param debug $debug",
                 'param sysuuid ${uuid}',
+                'isset ${netX/mac} && param macboot ${netX/mac} ||',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+                'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+                'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+                'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+                'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
                 ':bootme',
                 "chain -ar $this->_booturl/ipxe/boot.php##params",
             );
@@ -632,6 +882,10 @@ class BootMenu extends FOGBase
                 'login',
                 'params',
                 'param mac0 ${net0/mac}',
+                'param product ${product}',
+                'param manufacturer ${manufacturer}',
+                'param ipxever ${version}',
+                'param filename ${filename}',
                 'param arch ${arch}',
                 'param platform ${platform}',
                 'param username ${username}',
@@ -639,8 +893,14 @@ class BootMenu extends FOGBase
                 'param menuaccess 1',
                 "param debug $debug",
                 'param sysuuid ${uuid}',
+                'isset ${netX/mac} && param macboot ${netX/mac} ||',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+                'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+                'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+                'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+                'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
                 ':bootme',
                 "chain -ar $this->_booturl/ipxe/boot.php##params",
             );
@@ -694,10 +954,7 @@ class BootMenu extends FOGBase
                 'echo Host approved successfully',
                 'sleep 3'
             );
-            $shutdown = stripos(
-                'shutdown=1',
-                isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
-            );
+            $shutdown = self::_wantsShutdown(self::_extraArgs());
             $isdebug = preg_match(
                 '#isdebug=yes|mode=debug|mode=onlydebug#i',
                 isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
@@ -786,13 +1043,23 @@ class BootMenu extends FOGBase
             'param delconf 1',
             ':deleteno',
             'param mac0 ${net0/mac}',
+            'param product ${product}',
+            'param manufacturer ${manufacturer}',
+            'param ipxever ${version}',
+            'param filename ${filename}',
             'param arch ${arch}',
             'param platform ${platform}',
             'param sysuuid ${uuid}',
             'param username ${username}',
             'param password ${password}',
+            'isset ${netX/mac} && param macboot ${netX/mac} ||',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+            'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+            'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+            'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+            'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+            'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
             ':bootme',
             "chain -ar $this->_booturl/ipxe/boot.php##params",
         );
@@ -814,13 +1081,23 @@ class BootMenu extends FOGBase
             'param aprvconf 1',
             ':answerno',
             'param mac0 ${net0/mac}',
+            'param product ${product}',
+            'param manufacturer ${manufacturer}',
+            'param ipxever ${version}',
+            'param filename ${filename}',
             'param arch ${arch}',
             'param platform ${platform}',
             'param sysuuid ${uuid}',
             'param username ${username}',
             'param password ${password}',
+            'isset ${netX/mac} && param macboot ${netX/mac} ||',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+            'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+            'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+            'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+            'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+            'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
             ':bootme',
             "chain -ar $this->_booturl/ipxe/boot.php##params",
         );
@@ -840,14 +1117,24 @@ class BootMenu extends FOGBase
             'read key',
             'params',
             'param mac0 ${net0/mac}',
+            'param product ${product}',
+            'param manufacturer ${manufacturer}',
+            'param ipxever ${version}',
+            'param filename ${filename}',
             'param arch ${arch}',
             'param platform ${platform}',
             'param key ${key}',
             'param sysuuid ${uuid}',
             'param username ${username}',
             'param password ${password}',
+            'isset ${netX/mac} && param macboot ${netX/mac} ||',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+            'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+            'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+            'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+            'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+            'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
             ':bootme',
             "chain -ar $this->_booturl/ipxe/boot.php##params",
         );
@@ -893,12 +1180,22 @@ class BootMenu extends FOGBase
                 'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
                 'params',
                 'param mac0 ${net0/mac}',
+                'param product ${product}',
+                'param manufacturer ${manufacturer}',
+                'param ipxever ${version}',
+                'param filename ${filename}',
                 'param arch ${arch}',
                 'param platform ${platform}',
                 'param sessionJoin 1',
                 'param sysuuid ${uuid}',
+                'isset ${netX/mac} && param macboot ${netX/mac} ||',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+                'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+                'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+                'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+                'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
                 ':bootme',
                 "chain -ar $this->_booturl/ipxe/boot.php##params",
             );
@@ -919,12 +1216,22 @@ class BootMenu extends FOGBase
                 'iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||',
                 'params',
                 'param mac0 ${net0/mac}',
+                'param product ${product}',
+                'param manufacturer ${manufacturer}',
+                'param ipxever ${version}',
+                'param filename ${filename}',
                 'param arch ${arch}',
                 'param platform ${platform}',
                 'param sessionJoin 1',
                 'param sysuuid ${uuid}',
+                'isset ${netX/mac} && param macboot ${netX/mac} ||',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+                'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+                'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+                'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+                'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
                 ':bootme',
                 "chain -ar $this->_booturl/ipxe/boot.php##params",
             );
@@ -947,14 +1254,24 @@ class BootMenu extends FOGBase
             'read sessname',
             'params',
             'param mac0 ${net0/mac}',
+            'param product ${product}',
+            'param manufacturer ${manufacturer}',
+            'param ipxever ${version}',
+            'param filename ${filename}',
             'param arch ${arch}',
             'param platform ${platform}',
             'param sessname ${sessname}',
             'param sysuuid ${uuid}',
             'param username ${username}',
             'param password ${password}',
+            'isset ${netX/mac} && param macboot ${netX/mac} ||',
             'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
             'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+            'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+            'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+            'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+            'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+            'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
             ':bootme',
             "chain -ar $this->_booturl/ipxe/boot.php##params",
         );
@@ -1009,16 +1326,8 @@ class BootMenu extends FOGBase
             false,
             ''
         );
-        $shutdown = false !== stripos(
-            'shutdown=1',
-            $TaskType->get('kernelArgs')
-        );
-        if (!$shutdown && isset($_REQUEST['extraargs'])) {
-            $shutdown = false !== stripos(
-                'shutdown=1',
-                $_REQUEST['extraargs']
-            );
-        }
+        $shutdown = self::_wantsShutdown($TaskType->get('kernelArgs'))
+            || self::_wantsShutdown(self::_extraArgs());
         if (!is_numeric($mcastmaxwait)) {
             $mcastmaxwait = 10;
         }
@@ -1183,14 +1492,25 @@ class BootMenu extends FOGBase
                         ),
                         'params',
                         'param mac0 ${net0/mac}',
+                        'param product ${product}',
+                        'param manufacturer ${manufacturer}',
+                        'param ipxever ${version}',
+                        'param filename ${filename}',
                         'param arch ${arch}',
+                        'param platform ${platform}',
                         'param imageID ${imageID}',
                         'param qihost 1',
                         'param username ${username}',
                         'param password ${password}',
                         'param sysuuid ${uuid}',
+                        'isset ${netX/mac} && param macboot ${netX/mac} ||',
                         'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                         'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                        'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+                        'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+                        'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+                        'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+                        'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
                         'goto bootme',
                     );
                     unset($Image);
@@ -1201,10 +1521,21 @@ class BootMenu extends FOGBase
                 ':return',
                 'params',
                 'param mac0 ${net0/mac}',
+                'param product ${product}',
+                'param manufacturer ${manufacturer}',
+                'param ipxever ${version}',
+                'param filename ${filename}',
                 'param arch ${arch}',
+                'param platform ${platform}',
                 'param sysuuid ${uuid}',
+                'isset ${netX/mac} && param macboot ${netX/mac} ||',
                 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme',
                 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme',
+                'isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme',
+                'isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme',
+                'isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme',
+                'isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme',
+                'isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme',
                 'goto bootme',
             );
             $Send['bootmefunc'] = array(
@@ -1241,10 +1572,7 @@ class BootMenu extends FOGBase
                     ->set('imageID', $msImage);
             }
         }
-        $shutdown = stripos(
-            'shutdown=1',
-            isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
-        );
+        $shutdown = self::_wantsShutdown(self::_extraArgs());
         $isdebug = preg_match(
             '#isdebug=yes|mode=debug|mode=onlydebug#i',
             isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
@@ -1308,6 +1636,17 @@ class BootMenu extends FOGBase
      */
     private function _parseMe($Send)
     {
+        /**
+         * Anything _hostOverride() decided the operator needs to know,
+         * emitted once, on whichever path actually runs. Appended rather
+         * than prepended because the very first batch through here opens
+         * with '#!ipxe', which has to stay the first line of the script;
+         * and drained so a later batch does not repeat them.
+         */
+        if (count($this->_notices) > 0) {
+            $Send['archnotices'] = $this->_notices;
+            $this->_notices = array();
+        }
         self::$HookManager->processEvent(
             'IPXE_EDIT',
             array(
@@ -1389,9 +1728,12 @@ class BootMenu extends FOGBase
         if ($noMenu) {
             $this->noMenu();
         }
-        $tmpUser = self::attemptLogin(
-            $_REQUEST['username'],
-            $_REQUEST['password']
+        // authenticateOnly: iPXE holds no cookie, so a session established
+        // here could never be presented back -- it would just be an
+        // authenticated session nobody owns. isValid() below is the point.
+        $tmpUser = self::authenticateOnly(
+            $_REQUEST['username'] ?? '',
+            $_REQUEST['password'] ?? ''
         );
         if ($tmpUser->isValid()) {
             self::$HookManager
@@ -1437,10 +1779,7 @@ class BootMenu extends FOGBase
      */
     public function setTasking($imgID = '')
     {
-        $shutdown = stripos(
-            'shutdown=1',
-            isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
-        );
+        $shutdown = self::_wantsShutdown(self::_extraArgs());
         $isdebug = preg_match(
             '#isdebug=yes|mode=debug|mode=onlydebug#i',
             isset($_REQUEST['extraargs']) ? $_REQUEST['extraargs'] : ''
@@ -1618,16 +1957,8 @@ class BootMenu extends FOGBase
                     false,
                     ''
                 );
-                $shutdown = false !== stripos(
-                    'shutdown=1',
-                    $TaskType->get('kernelArgs')
-                );
-                if (!$shutdown && isset($_REQUEST['extraargs'])) {
-                    $shutdown = false !== stripos(
-                        'shutdown=1',
-                        $_REQUEST['extraargs']
-                    );
-                }
+                $shutdown = self::_wantsShutdown($TaskType->get('kernelArgs'))
+                    || self::_wantsShutdown(self::_extraArgs());
                 if (!is_numeric($mcastmaxwait)) {
                     $mcastmaxwait = 10;
                 }
@@ -1849,11 +2180,11 @@ class BootMenu extends FOGBase
                 self::$Host->get('kernelArgs'),
             );
             if ($Task->get('typeID') == 4) {
-                $Send['memtest'] = array(
-                    "$this->_memdisk iso raw",
-                    "$this->_memtest",
-                    "boot",
-                );
+                // No '|| goto MENU' tail: a tasked boot has no menu to
+                // return to. On an architecture without memdisk this says
+                // why and stops, rather than dropping the machine to a
+                // bare iPXE prompt with no explanation.
+                $Send['memtest'] = $this->_memtestChoice('');
                 $this->_parseMe($Send);
             } else {
                 $this->_printTasking($kernelArgsArray);
@@ -1880,7 +2211,7 @@ class BootMenu extends FOGBase
                 );
             }
         }
-        return array("item${hotkey}${name} ${desc}");
+        return array("item{$hotkey}{$name} {$desc}");
     }
     /**
      * The options of the menu
@@ -1930,14 +2261,7 @@ class BootMenu extends FOGBase
                 );
                 break;
             case 2:
-                $Send = self::fastmerge(
-                    $Send,
-                    array(
-                        "$this->_memdisk iso raw",
-                        $this->_memtest,
-                        'boot || goto MENU'
-                    )
-                );
+                $Send = self::fastmerge($Send, $this->_memtestChoice());
                 break;
             case 11:
                 $Send = self::fastmerge(
@@ -2051,7 +2375,6 @@ class BootMenu extends FOGBase
             $this->_chainBoot(true);
             return;
         }
-        $Menus = self::getClass('PXEMenuOptionsManager')->find('', '', 'id');
         $ipxeGrabs = array(
             'FOG_ADVANCED_MENU_LOGIN',
             'FOG_IPXE_BG_FILE',

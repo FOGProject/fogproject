@@ -2,7 +2,7 @@
 /**
  * Checks if the host exists.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Hostexists
  * @package  FOGProject

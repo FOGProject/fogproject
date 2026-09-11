@@ -3,7 +3,7 @@
  * Sends the auto logout background image
  * NOTE: Only used on legacy client
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ALOGB
  * @package  FOGProject

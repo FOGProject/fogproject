@@ -2,7 +2,7 @@
 /**
  * Returns a listing of all images in the system.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Imagelisting
  * @package  FOGProject

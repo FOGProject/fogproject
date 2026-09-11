@@ -2,7 +2,7 @@
 /**
  * Check in tasks.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Check_In
  * @package  FOGProject

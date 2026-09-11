@@ -2,7 +2,7 @@
 /**
  * Hostgetkey returns the host token for hostinfo getting
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Hostgetkey
  * @package  FOGProject

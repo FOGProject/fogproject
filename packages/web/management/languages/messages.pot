@@ -19,9 +19,6 @@ msgstr ""
 msgid " * Task Scheduler is globally disabled"
 msgstr ""
 
-msgid " Name"
-msgstr ""
-
 msgid " No open slots "
 msgstr ""
 
@@ -35,6 +32,10 @@ msgid " | Unable to find image path"
 msgstr ""
 
 msgid "$_POST variable is empty, check apache error log."
+msgstr ""
+
+#, php-format
+msgid "%s Advanced Actions"
 msgstr ""
 
 #, php-format
@@ -54,7 +55,19 @@ msgid "%s Menu"
 msgstr ""
 
 #, php-format
+msgid "%s Name"
+msgstr ""
+
+#, php-format
+msgid "%s can only be run on one host at a time"
+msgstr ""
+
+#, php-format
 msgid "%s is required"
+msgstr ""
+
+#, php-format
+msgid "%s successfully updated!"
 msgstr ""
 
 msgid "1 Hour"
@@ -151,6 +164,9 @@ msgid "A role already exists with this name!"
 msgstr ""
 
 msgid "A rule already exists with this name"
+msgstr ""
+
+msgid "A scheduled time is required"
 msgstr ""
 
 msgid "A site already exists with this name!"
@@ -383,6 +399,10 @@ msgstr ""
 msgid "Add rule failed!"
 msgstr ""
 
+#, php-format
+msgid "Add selected %s"
+msgstr ""
+
 msgid "Add selected hosts"
 msgstr ""
 
@@ -472,6 +492,10 @@ msgid "Ago must be boolean"
 msgstr ""
 
 msgid "All"
+msgstr ""
+
+#, php-format
+msgid "All %s"
 msgstr ""
 
 msgid "All Groups"
@@ -798,6 +822,10 @@ msgstr ""
 msgid "Chat is also available on the forums for more realtime help"
 msgstr ""
 
+#, php-format
+msgid "Check here to see what %s can be added"
+msgstr ""
+
 msgid "Check here to see what hosts can be added"
 msgstr ""
 
@@ -825,10 +853,16 @@ msgstr ""
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+msgid "Check the password stored for this node"
+msgstr ""
+
 msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
+msgstr ""
+
+msgid "Checking for tasks that can never run..."
 msgstr ""
 
 msgid "Checking if I am the group manager"
@@ -901,6 +935,9 @@ msgid "Client Version"
 msgstr ""
 
 msgid "Clients"
+msgstr ""
+
+msgid "Column type lookup failed"
 msgstr ""
 
 msgid "Command"
@@ -978,6 +1015,9 @@ msgstr ""
 msgid "Could not register"
 msgstr ""
 
+msgid "Count failed"
+msgstr ""
+
 msgid "Create"
 msgstr ""
 
@@ -989,6 +1029,15 @@ msgid "Create New %s"
 msgstr ""
 
 msgid "Create New Access Control Role"
+msgstr ""
+
+msgid "Create New Group"
+msgstr ""
+
+msgid "Create New Host"
+msgstr ""
+
+msgid "Create New Image"
 msgstr ""
 
 msgid "Create New Key"
@@ -1006,7 +1055,16 @@ msgstr ""
 msgid "Create New Snapin"
 msgstr ""
 
+msgid "Create New Storage Group"
+msgstr ""
+
+msgid "Create New Storage Node"
+msgstr ""
+
 msgid "Create New SubnetGroup?"
+msgstr ""
+
+msgid "Create New User"
 msgstr ""
 
 msgid "Create New iPXE Menu Entry"
@@ -1127,6 +1185,9 @@ msgid "Database changes reverted!"
 msgstr ""
 
 msgid "Database imported and added successfully!"
+msgstr ""
+
+msgid "Database load failed"
 msgstr ""
 
 msgid "Database not available"
@@ -1495,6 +1556,9 @@ msgstr ""
 msgid "Every configured multicast port is already in use"
 msgstr ""
 
+msgid "Existence check failed"
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -1720,6 +1784,9 @@ msgstr ""
 msgid "FTP connection failed"
 msgstr ""
 
+msgid "FTP login rejected by"
+msgstr ""
+
 msgid "Fail to destroy"
 msgstr ""
 
@@ -1791,6 +1858,12 @@ msgid "Failed to destroy Storage Node"
 msgstr ""
 
 msgid "Failed to install plugin"
+msgstr ""
+
+msgid "Failed to record task state changes"
+msgstr ""
+
+msgid "Failed to record why tasks were reaped"
 msgstr ""
 
 msgid "Failed to save assignment"
@@ -1885,6 +1958,9 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
+msgid "Find failed"
+msgstr ""
+
 msgid "Finding any images associated"
 msgstr ""
 
@@ -1961,6 +2037,14 @@ msgid "GPU Products"
 msgstr ""
 
 msgid "GPU Vendors"
+msgstr ""
+
+#, php-format
+msgid "GPU-%d Product"
+msgstr ""
+
+#, php-format
+msgid "GPU-%d Vendor"
 msgstr ""
 
 msgid "General"
@@ -2176,6 +2260,10 @@ msgstr ""
 msgid "Host"
 msgstr ""
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 msgid "Host AD Domain"
 msgstr ""
 
@@ -2345,6 +2433,9 @@ msgid "Host description"
 msgstr ""
 
 msgid "Host general"
+msgstr ""
+
+msgid "Host has no active task to cancel"
 msgstr ""
 
 msgid "Host is already a member of an active task"
@@ -2643,6 +2734,9 @@ msgstr ""
 msgid "Imaging Duration"
 msgstr ""
 
+msgid "Imaging Failed"
+msgstr ""
+
 msgid "Imaging Log"
 msgstr ""
 
@@ -2793,10 +2887,18 @@ msgstr ""
 msgid "Interface"
 msgstr ""
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr ""
 
 msgid "Invalid"
+msgstr ""
+
+#, php-format
+msgid "Invalid %s"
 msgstr ""
 
 msgid "Invalid Class"
@@ -3141,6 +3243,9 @@ msgstr ""
 msgid "Leave a field blank to keep each host's current value."
 msgstr ""
 
+msgid "Leave empty unless this node is its own FOG server"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr ""
 
@@ -3185,6 +3290,30 @@ msgstr ""
 
 #, php-format
 msgid "List All %s"
+msgstr ""
+
+msgid "List All Groups"
+msgstr ""
+
+msgid "List All Hosts"
+msgstr ""
+
+msgid "List All Images"
+msgstr ""
+
+msgid "List All Printers"
+msgstr ""
+
+msgid "List All Snapins"
+msgstr ""
+
+msgid "List All Storage Groups"
+msgstr ""
+
+msgid "List All Storage Nodes"
+msgstr ""
+
+msgid "List All Users"
 msgstr ""
 
 #, php-format
@@ -3309,6 +3438,12 @@ msgstr ""
 msgid "MAC address is already in use by another host"
 msgstr ""
 
+msgid "MACs approved successfully"
+msgstr ""
+
+msgid "MACs deleted successfully"
+msgstr ""
+
 msgid "MB Asset"
 msgstr ""
 
@@ -3371,6 +3506,15 @@ msgid "Management Password"
 msgstr ""
 
 msgid "Management Username"
+msgstr ""
+
+msgid "Marked failed, task"
+msgstr ""
+
+msgid "Mass destroy failed"
+msgstr ""
+
+msgid "Mass update failed"
 msgstr ""
 
 msgid "Master Node"
@@ -3682,6 +3826,12 @@ msgstr ""
 msgid "No access is allowed"
 msgstr ""
 
+msgid "No active task found for this host"
+msgstr ""
+
+msgid "No active tasks to cancel for this group"
+msgstr ""
+
 msgid "No activity information available for this group"
 msgstr ""
 
@@ -3787,6 +3937,9 @@ msgstr ""
 msgid "No query sent"
 msgstr ""
 
+msgid "No report text supplied"
+msgstr ""
+
 msgid "No results found"
 msgstr ""
 
@@ -3803,6 +3956,9 @@ msgid "No snapins associated with this group as master"
 msgstr ""
 
 msgid "No token passed to authenticate this host"
+msgstr ""
+
+msgid "No unrunnable tasks found."
 msgstr ""
 
 msgid "No valid Image defined for this host"
@@ -3830,6 +3986,9 @@ msgid "No viable storage groups found"
 msgstr ""
 
 msgid "Node"
+msgstr ""
+
+msgid "Node API Signing Key"
 msgstr ""
 
 msgid "Node Offline"
@@ -3929,6 +4088,9 @@ msgid "Only Assigned Printers"
 msgstr ""
 
 msgid "Only allowed to have"
+msgstr ""
+
+msgid "Only for a peer running its own FOG database. On that peer run bin/fog-node-key.php --set with this same value, or it cannot verify requests this server signs."
 msgstr ""
 
 msgid "Open Source Computer Cloning Solution"
@@ -4435,7 +4597,8 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-msgid "Remove "
+#, php-format
+msgid "Remove %s"
 msgstr ""
 
 msgid "Remove Accesscontrol Rules"
@@ -4462,7 +4625,8 @@ msgstr ""
 msgid "Remove failed"
 msgstr ""
 
-msgid "Remove selected "
+#, php-format
+msgid "Remove selected %s"
 msgstr ""
 
 msgid "Remove selected groups"
@@ -5409,7 +5573,13 @@ msgstr ""
 msgid "TX"
 msgstr ""
 
+msgid "Table"
+msgstr ""
+
 msgid "Table not defined for this class"
+msgstr ""
+
+msgid "Table uninstall failed"
 msgstr ""
 
 msgid "Tag Name"
@@ -5505,7 +5675,13 @@ msgstr ""
 msgid "Task Types"
 msgstr ""
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
+msgstr ""
+
+msgid "Task is not active and cannot be cancelled"
 msgstr ""
 
 msgid "Task not created as there are no associated tasks"
@@ -5566,6 +5742,12 @@ msgid "The below items are only used for the old client."
 msgstr ""
 
 msgid "The clients will checkin with the server from time"
+msgstr ""
+
+msgid "The following MACs have been approved."
+msgstr ""
+
+msgid "The following MACs have been deleted."
 msgstr ""
 
 msgid "The following errors occured"
@@ -5671,6 +5853,10 @@ msgid "This file will only work on Windows"
 msgstr ""
 
 msgid "This host already exists"
+msgstr ""
+
+#, php-format
+msgid "This host failed imaging %1$s: %2$s"
 msgstr ""
 
 msgid "This installation process may take a few minutes"
@@ -6323,6 +6509,9 @@ msgstr ""
 msgid "all current storage nodes"
 msgstr ""
 
+msgid "an unnamed image"
+msgstr ""
+
 msgid "and Mac OS X"
 msgstr ""
 
@@ -6354,6 +6543,15 @@ msgid "and the equivalent module for what Green"
 msgstr ""
 
 msgid "and the location of the file on that"
+msgstr ""
+
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
 msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
@@ -6473,6 +6671,9 @@ msgstr ""
 msgid "either because you have updated"
 msgstr ""
 
+msgid "every column will be treated as untyped"
+msgstr ""
+
 msgid "failed to execute, image file: "
 msgstr ""
 
@@ -6503,6 +6704,9 @@ msgstr ""
 msgid "for the menu background"
 msgstr ""
 
+msgid "for user"
+msgstr ""
+
 msgid "found"
 msgstr ""
 
@@ -6510,6 +6714,9 @@ msgid "from"
 msgstr ""
 
 msgid "function on client computers."
+msgstr ""
+
+msgid "got"
 msgstr ""
 
 msgid "group"
@@ -6549,6 +6756,9 @@ msgid "here"
 msgstr ""
 
 msgid "host"
+msgstr ""
+
+msgid "host no longer exists"
 msgstr ""
 
 msgid "hosts"
@@ -6620,6 +6830,9 @@ msgstr ""
 msgid "image file found, file: "
 msgstr ""
 
+msgid "image no longer exists"
+msgstr ""
+
 msgid "image replication"
 msgstr ""
 
@@ -6629,7 +6842,7 @@ msgstr ""
 msgid "images to a storage group"
 msgstr ""
 
-msgid "imaging failed."
+msgid "in batch row"
 msgstr ""
 
 msgid "in seconds"
@@ -6758,6 +6971,9 @@ msgstr ""
 msgid "no login will appear"
 msgstr ""
 
+msgid "no reason was reported"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr ""
 
@@ -6875,6 +7091,9 @@ msgid "successfully removed!"
 msgstr ""
 
 msgid "task found"
+msgstr ""
+
+msgid "task type no longer exists"
 msgstr ""
 
 #, php-format

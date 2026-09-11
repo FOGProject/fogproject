@@ -32,9 +32,6 @@ msgstr "* スナップインレプリケーションは全体設定で無効に�
 msgid " * Task Scheduler is globally disabled"
 msgstr "* タスクスケジューラは全体設定で無効になっています"
 
-msgid " Name"
-msgstr "名前"
-
 msgid " No open slots "
 msgstr "空きスロットがありません"
 
@@ -49,6 +46,10 @@ msgstr "| イメージパスが見つかりません"
 
 msgid "$_POST variable is empty, check apache error log."
 msgstr "$_POST 変数が空です。Apache のエラーログを確認してください。"
+
+#, fuzzy, php-format
+msgid "%s Advanced Actions"
+msgstr "詳細操作"
 
 #, php-format
 msgid "%s ID %d is not valid"
@@ -66,9 +67,21 @@ msgstr "%s 管理"
 msgid "%s Menu"
 msgstr "%s メニュー"
 
+#, fuzzy, php-format
+msgid "%s Name"
+msgstr "名前"
+
+#, php-format
+msgid "%s can only be run on one host at a time"
+msgstr ""
+
 #, php-format
 msgid "%s is required"
 msgstr "%s は必須です"
+
+#, fuzzy, php-format
+msgid "%s successfully updated!"
+msgstr "正常に更新されました"
 
 msgid "1 Hour"
 msgstr "1時間"
@@ -165,6 +178,10 @@ msgstr "この名前のロールは既に存在します！"
 
 msgid "A rule already exists with this name"
 msgstr "この名前のルールは既に存在します"
+
+#, fuzzy
+msgid "A scheduled time is required"
+msgstr "ユーザー名は必須です！"
 
 msgid "A site already exists with this name!"
 msgstr "この名前のサイトは既に存在します！"
@@ -396,6 +413,10 @@ msgstr "ロールの追加に失敗しました！"
 msgid "Add rule failed!"
 msgstr "ルールの追加に失敗しました！"
 
+#, fuzzy, php-format
+msgid "Add selected %s"
+msgstr "選択したホストを追加"
+
 msgid "Add selected hosts"
 msgstr "選択したホストを追加"
 
@@ -486,6 +507,10 @@ msgstr "Ago はブール値である必要があります"
 
 msgid "All"
 msgstr "すべて"
+
+#, fuzzy, php-format
+msgid "All %s"
+msgstr "すべての %s を一覧表示"
 
 msgid "All Groups"
 msgstr "すべてのグループ"
@@ -811,6 +836,10 @@ msgstr "シャーシバージョン"
 msgid "Chat is also available on the forums for more realtime help"
 msgstr "よりリアルタイムな支援が必要な場合はフォーラムのチャットも利用できます"
 
+#, fuzzy, php-format
+msgid "Check here to see what %s can be added"
+msgstr "追加可能なホストを確認するにはここをクリックしてください"
+
 msgid "Check here to see what hosts can be added"
 msgstr "追加可能なホストを確認するにはここをクリックしてください"
 
@@ -838,11 +867,18 @@ msgstr "データベースが稼働していることを確認してください
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+#, fuzzy
+msgid "Check the password stored for this node"
+msgstr "このノードの FOGPage クラスが見つかりません"
+
 msgid "Check this value matches what the enrolment script prints before confirming. That comparison is what stops the wrong key being trusted."
 msgstr ""
 
 msgid "Checkin Time"
 msgstr "チェックイン時刻"
+
+msgid "Checking for tasks that can never run..."
+msgstr ""
 
 msgid "Checking if I am the group manager"
 msgstr "自身がグループマネージャーか確認しています"
@@ -915,6 +951,9 @@ msgstr "クライアントバージョン"
 
 msgid "Clients"
 msgstr "クライアント"
+
+msgid "Column type lookup failed"
+msgstr ""
 
 msgid "Command"
 msgstr "コマンド"
@@ -991,6 +1030,10 @@ msgstr "一時ファイルを読み取れませんでした。"
 msgid "Could not register"
 msgstr "登録できませんでした"
 
+#, fuzzy
+msgid "Count failed"
+msgstr "ログインに失敗しました"
+
 msgid "Create"
 msgstr "作成"
 
@@ -1003,6 +1046,15 @@ msgstr "新しい %s を作成"
 
 msgid "Create New Access Control Role"
 msgstr "新しいアクセス制御ロールを作成"
+
+msgid "Create New Group"
+msgstr "新しい グループ を作成"
+
+msgid "Create New Host"
+msgstr "新しい ホスト を作成"
+
+msgid "Create New Image"
+msgstr "新しい イメージ を作成"
 
 msgid "Create New Key"
 msgstr "新しいキーを作成"
@@ -1019,8 +1071,17 @@ msgstr "新しいプリンターを作成"
 msgid "Create New Snapin"
 msgstr "新しいスナップインを作成"
 
+msgid "Create New Storage Group"
+msgstr "新しい Storage Group を作成"
+
+msgid "Create New Storage Node"
+msgstr "新しい Storage Node を作成"
+
 msgid "Create New SubnetGroup?"
 msgstr "新しいサブネットグループを作成しますか？"
+
+msgid "Create New User"
+msgstr "新しい ユーザー を作成"
 
 msgid "Create New iPXE Menu Entry"
 msgstr "新しい iPXE メニューエントリを作成"
@@ -1141,6 +1202,10 @@ msgstr "データベースの変更を元に戻しました！"
 
 msgid "Database imported and added successfully!"
 msgstr "データベースを正常にインポートして追加しました！"
+
+#, fuzzy
+msgid "Database load failed"
+msgstr "データベースの保存に失敗しました"
 
 msgid "Database not available"
 msgstr "データベースを利用できません"
@@ -1511,6 +1576,10 @@ msgstr "イベントは文字列で指定してください"
 msgid "Every configured multicast port is already in use"
 msgstr ""
 
+#, fuzzy
+msgid "Existence check failed"
+msgstr "秘密鍵の処理に失敗しました"
+
 msgid "Exists item must be boolean"
 msgstr "Exists 項目はブール値である必要があります"
 
@@ -1736,6 +1805,9 @@ msgstr "FTP パス"
 msgid "FTP connection failed"
 msgstr "FTP 接続に失敗しました"
 
+msgid "FTP login rejected by"
+msgstr ""
+
 msgid "Fail to destroy"
 msgstr "破棄に失敗しました"
 
@@ -1808,6 +1880,14 @@ msgstr "ストレージノードの破棄に失敗しました"
 
 msgid "Failed to install plugin"
 msgstr "プラグインのインストールに失敗しました"
+
+#, fuzzy
+msgid "Failed to record task state changes"
+msgstr "タスクの作成に失敗しました"
+
+#, fuzzy
+msgid "Failed to record why tasks were reaped"
+msgstr "サーバー上のデータ復号に失敗しました"
 
 msgid "Failed to save assignment"
 msgstr "割り当ての保存に失敗しました"
@@ -1901,6 +1981,10 @@ msgstr "ファイルサイズ"
 msgid "Filter"
 msgstr "フィルター"
 
+#, fuzzy
+msgid "Find failed"
+msgstr "ログインに失敗しました"
+
 msgid "Finding any images associated"
 msgstr "関連付けられたイメージを検索しています"
 
@@ -1977,6 +2061,14 @@ msgid "GPU Products"
 msgstr "GPU 製品"
 
 msgid "GPU Vendors"
+msgstr "GPU ベンダー"
+
+#, fuzzy, php-format
+msgid "GPU-%d Product"
+msgstr "GPU 製品"
+
+#, fuzzy, php-format
+msgid "GPU-%d Vendor"
 msgstr "GPU ベンダー"
 
 msgid "General"
@@ -2193,6 +2285,10 @@ msgstr "自宅電話番号"
 msgid "Host"
 msgstr "ホスト"
 
+#, php-format
+msgid "Host %1$s failed imaging %2$s: %3$s"
+msgstr ""
+
 msgid "Host AD Domain"
 msgstr "ホスト AD ドメイン"
 
@@ -2363,6 +2459,9 @@ msgstr "ホストの説明"
 
 msgid "Host general"
 msgstr "ホスト全般"
+
+msgid "Host has no active task to cancel"
+msgstr ""
 
 msgid "Host is already a member of an active task"
 msgstr "ホストは既に実行中のタスクに含まれています"
@@ -2663,6 +2762,10 @@ msgstr "イメージ処理が完了しました"
 msgid "Imaging Duration"
 msgstr "イメージ処理時間"
 
+#, fuzzy
+msgid "Imaging Failed"
+msgstr "イメージ処理に失敗しました。"
+
 msgid "Imaging Log"
 msgstr "イメージログ"
 
@@ -2813,10 +2916,18 @@ msgstr "整合性設定"
 msgid "Interface"
 msgstr "インターフェイス"
 
+#, php-format
+msgid "Interface Ready with IP Address: %s"
+msgstr ""
+
 msgid "Interface not ready, waiting for it to come up"
 msgstr "インターフェイスの準備ができていません。起動を待機しています"
 
 msgid "Invalid"
+msgstr "無効"
+
+#, fuzzy, php-format
+msgid "Invalid %s"
 msgstr "無効"
 
 msgid "Invalid Class"
@@ -3162,6 +3273,9 @@ msgstr "最新バージョン"
 msgid "Leave a field blank to keep each host's current value."
 msgstr "各ホストの現在の値を維持する場合は、フィールドを空欄にしてください。"
 
+msgid "Leave empty unless this node is its own FOG server"
+msgstr ""
+
 msgid "Level must be an integer"
 msgstr "レベルは整数である必要があります"
 
@@ -3207,6 +3321,30 @@ msgstr "一覧"
 #, php-format
 msgid "List All %s"
 msgstr "すべての %s を一覧表示"
+
+msgid "List All Groups"
+msgstr "すべての グループs を一覧表示"
+
+msgid "List All Hosts"
+msgstr "すべての ホストs を一覧表示"
+
+msgid "List All Images"
+msgstr "すべての イメージs を一覧表示"
+
+msgid "List All Printers"
+msgstr "すべての プリンターs を一覧表示"
+
+msgid "List All Snapins"
+msgstr "すべての スナップインs を一覧表示"
+
+msgid "List All Storage Groups"
+msgstr "すべての Storage Groups を一覧表示"
+
+msgid "List All Storage Nodes"
+msgstr "すべての Storage Nodes を一覧表示"
+
+msgid "List All Users"
+msgstr "すべての ユーザーs を一覧表示"
 
 #, php-format
 msgid "List all roles"
@@ -3330,6 +3468,14 @@ msgstr "MAC アドレス形式が無効です"
 msgid "MAC address is already in use by another host"
 msgstr "MAC アドレスは別のホストで既に使用されています"
 
+#, fuzzy
+msgid "MACs approved successfully"
+msgstr "選択したホストを承認しました"
+
+#, fuzzy
+msgid "MACs deleted successfully"
+msgstr "ルールを削除しました！"
+
 msgid "MB Asset"
 msgstr "MB 資産タグ"
 
@@ -3393,6 +3539,18 @@ msgstr "管理パスワード"
 
 msgid "Management Username"
 msgstr "管理ユーザー名"
+
+#, fuzzy
+msgid "Marked failed, task"
+msgstr "キャンセルされたタスク"
+
+#, fuzzy
+msgid "Mass destroy failed"
+msgstr "解除に失敗しました"
+
+#, fuzzy
+msgid "Mass update failed"
+msgstr "ユーザーの更新に失敗しました！"
 
 msgid "Master Node"
 msgstr "マスターノード"
@@ -3703,6 +3861,14 @@ msgstr "サイトなし"
 msgid "No access is allowed"
 msgstr "アクセスは許可されていません"
 
+#, fuzzy
+msgid "No active task found for this host"
+msgstr "このホストの実行中タスクは見つかりません"
+
+#, fuzzy
+msgid "No active tasks to cancel for this group"
+msgstr "このホストの実行中タスクは見つかりません"
+
 msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
 
@@ -3808,6 +3974,9 @@ msgstr "クエリ結果がありません。先に query() を使用してくだ
 msgid "No query sent"
 msgstr "クエリが送信されていません"
 
+msgid "No report text supplied"
+msgstr ""
+
 msgid "No results found"
 msgstr "結果が見つかりません"
 
@@ -3825,6 +3994,10 @@ msgstr "このグループにマスターとして関連付けられたスナッ
 
 msgid "No token passed to authenticate this host"
 msgstr "このホストを認証するためのトークンが渡されていません"
+
+#, fuzzy
+msgid "No unrunnable tasks found."
+msgstr "新しいタスクは見つかりません"
 
 msgid "No valid Image defined for this host"
 msgstr "このホストに有効なイメージが定義されていません"
@@ -3852,6 +4025,9 @@ msgstr "使用可能なストレージグループが見つかりません"
 
 msgid "Node"
 msgstr "ノード"
+
+msgid "Node API Signing Key"
+msgstr ""
 
 msgid "Node Offline"
 msgstr "ノードはオフラインです"
@@ -3951,6 +4127,9 @@ msgstr "割り当てられたプリンターのみ"
 
 msgid "Only allowed to have"
 msgstr "使用できるのは次のみです"
+
+msgid "Only for a peer running its own FOG database. On that peer run bin/fog-node-key.php --set with this same value, or it cannot verify requests this server signs."
+msgstr ""
 
 msgid "Open Source Computer Cloning Solution"
 msgstr "オープンソースのコンピュータークローニングソリューション"
@@ -4456,7 +4635,8 @@ msgstr "ログインを試行したリモートアドレス"
 msgid "Remove"
 msgstr "削除"
 
-msgid "Remove "
+#, fuzzy, php-format
+msgid "Remove %s"
 msgstr "削除 "
 
 msgid "Remove Accesscontrol Rules"
@@ -4483,7 +4663,8 @@ msgstr "ユーザーを削除"
 msgid "Remove failed"
 msgstr "削除に失敗しました"
 
-msgid "Remove selected "
+#, fuzzy, php-format
+msgid "Remove selected %s"
 msgstr "選択した項目を削除"
 
 msgid "Remove selected groups"
@@ -5431,8 +5612,16 @@ msgstr "TCP/IP ポートプリンター"
 msgid "TX"
 msgstr "TX"
 
+#, fuzzy
+msgid "Table"
+msgstr "有効"
+
 msgid "Table not defined for this class"
 msgstr "このクラスにテーブルが定義されていません"
+
+#, fuzzy
+msgid "Table uninstall failed"
+msgstr "データベースの保存に失敗しました"
 
 #, fuzzy
 msgid "Tag Name"
@@ -5528,8 +5717,15 @@ msgstr "タスクタイプが無効です"
 msgid "Task Types"
 msgstr "タスクタイプ"
 
+msgid "Task can never run and was marked failed"
+msgstr ""
+
 msgid "Task forced to start"
 msgstr "タスクを強制開始しました"
+
+#, fuzzy
+msgid "Task is not active and cannot be cancelled"
+msgstr "イメージは保護されているため削除できません"
 
 msgid "Task not created as there are no associated tasks"
 msgstr "関連付けられたタスクがないため、タスクは作成されませんでした"
@@ -5591,6 +5787,13 @@ msgstr "以下の項目は旧クライアントでのみ使用されます。"
 
 msgid "The clients will checkin with the server from time"
 msgstr "クライアントは一定時間ごとにサーバーへチェックインします"
+
+#, fuzzy
+msgid "The following MACs have been approved."
+msgstr "保留中のすべての MAC アドレスを承認しました"
+
+msgid "The following MACs have been deleted."
+msgstr ""
 
 msgid "The following errors occured"
 msgstr "次のエラーが発生しました"
@@ -5695,6 +5898,10 @@ msgid "This file will only work on Windows"
 msgstr "このファイルは Windows でのみ使用できます"
 
 msgid "This host already exists"
+msgstr "このホストは既に存在します"
+
+#, fuzzy, php-format
+msgid "This host failed imaging %1$s: %2$s"
 msgstr "このホストは既に存在します"
 
 msgid "This installation process may take a few minutes"
@@ -6347,6 +6554,10 @@ msgstr "前"
 msgid "all current storage nodes"
 msgstr "現在のすべてのストレージノード"
 
+#, fuzzy
+msgid "an unnamed image"
+msgstr "無効なイメージ"
+
 msgid "and Mac OS X"
 msgstr "および Mac OS X"
 
@@ -6379,6 +6590,15 @@ msgstr "および Green FOG の同等機能を持つモジュール"
 
 msgid "and the location of the file on that"
 msgstr "および、その上のファイルの保存場所"
+
+msgid "answering \"does not exist\" for a read that never ran"
+msgstr ""
+
+msgid "answering 0 for a read that never ran"
+msgstr ""
+
+msgid "answering an empty set for a read that never ran"
+msgstr ""
 
 msgid "as FOG will attempt to go out to the internet"
 msgstr "FOG がインターネットへ接続を試みるため"
@@ -6497,6 +6717,9 @@ msgstr "既に選択済み、またはアップロード済み"
 msgid "either because you have updated"
 msgstr "更新したため、または"
 
+msgid "every column will be treated as untyped"
+msgstr ""
+
 msgid "failed to execute, image file: "
 msgstr "実行に失敗しました。イメージファイル: "
 
@@ -6527,6 +6750,10 @@ msgstr "詳細メニューパラメーター用"
 msgid "for the menu background"
 msgstr "メニュー背景用"
 
+#, fuzzy
+msgid "for user"
+msgstr "ユーザーを作成しますか？"
+
 msgid "found"
 msgstr "見つかりました"
 
@@ -6535,6 +6762,10 @@ msgstr "送信元"
 
 msgid "function on client computers."
 msgstr "クライアントコンピューター上の機能。"
+
+#, fuzzy
+msgid "got"
+msgstr "前"
 
 msgid "group"
 msgstr "グループ"
@@ -6574,6 +6805,10 @@ msgstr "ここ"
 
 msgid "host"
 msgstr "ホスト"
+
+#, fuzzy
+msgid "host no longer exists"
+msgstr "現在は実行されていません"
 
 msgid "hosts"
 msgstr "ホスト"
@@ -6644,6 +6879,10 @@ msgstr "イメージ"
 msgid "image file found, file: "
 msgstr "イメージファイルが見つかりました。ファイル: "
 
+#, fuzzy
+msgid "image no longer exists"
+msgstr "現在は実行されていません"
+
 msgid "image replication"
 msgstr "イメージレプリケーション"
 
@@ -6653,8 +6892,8 @@ msgstr "イメージ"
 msgid "images to a storage group"
 msgstr "イメージをストレージグループへ"
 
-msgid "imaging failed."
-msgstr "イメージ処理に失敗しました。"
+msgid "in batch row"
+msgstr ""
 
 msgid "in seconds"
 msgstr "秒単位"
@@ -6782,6 +7021,9 @@ msgstr "N/A"
 msgid "no login will appear"
 msgstr "ログイン画面は表示されません"
 
+msgid "no reason was reported"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr "ノードがイメージの配布元になります"
 
@@ -6900,6 +7142,9 @@ msgstr "正常に削除しました！"
 
 msgid "task found"
 msgstr "タスクが見つかりました"
+
+msgid "task type no longer exists"
+msgstr ""
 
 #, php-format
 msgid "terminating so it can be restarted"

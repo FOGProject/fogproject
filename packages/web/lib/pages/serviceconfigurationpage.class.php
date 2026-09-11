@@ -3,7 +3,7 @@
  * Configure global level module/services.
  * These are things like hostname changer, display, etc...
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category ServiceConfigurationPage
  * @package  FOGProject

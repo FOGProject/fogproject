@@ -2,7 +2,7 @@
 /**
  * Adds the subnetgroup host to group.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddSubnetGroupHost
  * @package  FOGProject

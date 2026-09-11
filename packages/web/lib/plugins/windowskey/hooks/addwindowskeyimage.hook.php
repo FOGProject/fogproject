@@ -2,7 +2,7 @@
 /**
  * Adds the windows keys choice to image.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddWindowsKeyImage
  * @package  FOGProject

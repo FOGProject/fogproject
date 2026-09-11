@@ -2,7 +2,7 @@
 /**
  * Manager class for wolbroadcast
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category WolbroadcastManager
  * @package  FOGProject
@@ -35,7 +35,7 @@ class WolbroadcastManager extends FOGManagerController
     public function install()
     {
         $this->uninstall();
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             array(

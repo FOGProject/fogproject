@@ -2,7 +2,7 @@
 /**
  * Taskstateeedit Class Handler.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Taskstateedit
  * @package  FOGProject

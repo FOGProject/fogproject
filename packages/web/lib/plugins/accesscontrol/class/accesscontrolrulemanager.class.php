@@ -2,7 +2,7 @@
 /**
  * Access Control plugin
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AccessControlRuleManager
  * @package  FOGProject
@@ -40,7 +40,7 @@ class AccessControlRuleManager extends FOGManagerController
          * create anything.
          */
         $this->uninstall();
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             array(

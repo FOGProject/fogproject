@@ -2,7 +2,7 @@
 /**
  * Adds service configuration with locations.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddServiceConfiguration
  * @package  FOGProject

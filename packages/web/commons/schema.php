@@ -2,7 +2,7 @@
 /**
  * Schema layout for creating the database.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Redirect
  * @package  FOGProject
@@ -3967,4 +3967,696 @@ $this->schema[] = array(
     . "(`pxeID`,`pxeName`,`pxeDesc`,`pxeDefault`,`pxeRegOnly`,`pxeArgs`) "
     . "VALUES "
     . "(14, 'fog.enrollsecureboot', 'Enroll Secure Boot Key', '0', '2', NULL)",
+);
+// 280
+$this->schema[] = array(
+    // taskLog gains a type and a body, so a task can log something that is
+    // not a state change. Ported from 1.6 schema 338 (GH-1206/#1208), which
+    // is where the feature this serves lives.
+    //
+    // Every row in this table so far is one state transition: taskID,
+    // taskStateID, who, when, from where. There has never been anywhere to
+    // put WHAT happened, which is why FOS reporting a failure had nowhere to
+    // land -- and on 1.5 that gap is not academic: FOS is shared between the
+    // two lines, so a FOS carrying FOGProject/fos#152 posts a failure report
+    // to every server it boots from, 1.5 included.
+    //
+    // `logType` defaults to 'state' and the ALTER backfills every existing
+    // row with it, which is what those rows are. TaskingElement::taskLog() is
+    // deliberately left alone: the default is the correct value for it, so a
+    // state row costs no extra column.
+    //
+    // `logText` is NULL, not '', so "no body" and "an empty body" stay
+    // distinguishable -- a state row has no body at all.
+    //
+    // A closure rather than a bare ALTER because ADD COLUMN has no
+    // IF NOT EXISTS below MariaDB 10.0.2/MySQL 8.0.29, so a re-run has to
+    // converge on its own rather than error.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'taskLog' "
+            . "AND `COLUMN_NAME` IN ('logType','logText')"
+        )->fetch(PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = array();
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        $adds = array();
+        if (!in_array('logType', $cols)) {
+            $adds[] = "ADD `logType` VARCHAR(16) NOT NULL DEFAULT 'state'";
+        }
+        if (!in_array('logText', $cols)) {
+            $adds[] = "ADD `logText` TEXT NULL DEFAULT NULL";
+        }
+        if (count($adds) < 1) {
+            return true;
+        }
+        self::$DB->query(
+            "ALTER TABLE `taskLog` " . implode(', ', $adds)
+        );
+
+        return true;
+    },
+);
+// 281
+$this->schema[] = array(
+    // A task the host reported dead on gets a state of its own. Ported from
+    // 1.6 schema 339 (GH-1206/#1211), following step 280 which gave taskLog
+    // somewhere to record the report in the first place.
+    //
+    // Until now such a task stayed Queued or In-Progress forever: the report
+    // was recorded, but the task list still said the machine was working on
+    // it, and the host could not be re-tasked because it still held an
+    // active task. Somebody had to notice and cancel it by hand.
+    //
+    // Not reusing Cancelled (5), which was the alternative. Cancelled means
+    // an administrator stopped it; losing the difference between "somebody
+    // stopped this" and "this broke" costs the operator the one fact they are
+    // looking at the task list to find.
+    //
+    // INSERT IGNORE, so a re-run converges and a server that somehow already
+    // has a row 6 keeps whatever it has rather than having it rewritten.
+    "INSERT IGNORE INTO `taskStates` "
+    . "(`tsID`,`tsName`,`tsDescription`,`tsOrder`,`tsIcon`) "
+    . "VALUES "
+    . "(6,'Failed','Host reported that the task could not be completed.',"
+    . "6,'exclamation-triangle')",
+);
+// 282
+$this->schema[] = array(
+    // Retype the rows that landed untyped between step 280 and the model
+    // learning to type them. Ported from 1.6 schema 340 (#1213).
+    //
+    // Step 280 gave `logType` a DEFAULT of 'state', which reads as though a
+    // writer that sets no type gets one. It does not: a column default
+    // applies only when the column is absent from the INSERT, and
+    // FOGController::save() writes every declared field -- so
+    // TaskingElement::taskLog(), which has recorded state changes since long
+    // before this column existed, has been writing '' ever since the field
+    // was declared. TaskLog::__construct() now supplies the type, and this
+    // repairs what the gap produced.
+    "UPDATE `taskLog` "
+    . "SET `logType` = 'state' "
+    . "WHERE `logType` = '' OR `logType` IS NULL",
+);
+// 283
+$this->schema[] = array(
+    // A report keeps enough identity to be read after its task is gone.
+    // Ported from 1.6 schema 341 (#1236).
+    //
+    // taskLog stores no host and no task type of its own, and reaches both
+    // through `tasks`. Nothing deletes taskLog rows -- but Host::destroy()
+    // calls TaskManager->destroy() and taskLog is in no cascade at all, so
+    // deleting a host destroys its tasks and leaves the reports behind with
+    // nothing to join to, losing the host name at the same moment the host
+    // row that could supply it goes.
+    //
+    // Host name is the first thing anyone searches a failure by, and this
+    // branch has no Task Management log pane, so the REST API is the only
+    // reader there is -- it hands back a report whose taskID points at
+    // nothing and no way at all to learn which machine it came from. The
+    // point of GH-1206 is that a failure message is findable later instead
+    // of arriving as a phone photo of a wrapped console, and a foreign key
+    // to a routinely-deleted row cannot deliver that.
+    //
+    // Blocking deletion of a task that has reports was the alternative. It
+    // inverts the dependency -- a diagnostic artifact would then constrain
+    // operational cleanup -- and to be consistent it would have to block
+    // HOST deletion too, since that is the path that actually removes tasks.
+    //
+    // The state a row records is NOT copied: taskLog already stores
+    // taskStateID itself, so that lookup survives the task.
+    //
+    // Written only by the FOS report endpoint. Every other row in this table
+    // is a state transition written by TaskingElement::taskLog() on every
+    // transition; they are meaningless without their task anyway, and making
+    // that path do three extra lookups buys nothing. Same reasoning that
+    // gave logText no value on a state row in step 280.
+    //
+    // Two column shapes on purpose, and they follow what the writer can
+    // actually produce. FOGController::save() omits an unset OPTIONAL column
+    // whose key ends in "id" -- so logHostID gets its DEFAULT of NULL -- but
+    // for every other key an unset value is written as '', never NULL (the
+    // trap step 282 had to repair for logType). Declaring logHostName NOT
+    // NULL DEFAULT '' says what the ORM will really store rather than
+    // describing a NULL the writer cannot produce.
+    //
+    // A closure rather than a bare ALTER for the same reason step 280 is:
+    // ADD COLUMN has no IF NOT EXISTS below MariaDB 10.0.2/MySQL 8.0.29, so
+    // a re-run has to converge on its own rather than error.
+    function () {
+        $have = self::$DB->query(
+            "SELECT `COLUMN_NAME` AS `c` FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() AND `TABLE_NAME` = 'taskLog' "
+            . "AND `COLUMN_NAME` IN "
+            . "('logHostID','logHostName','logTaskTypeName')"
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $cols = array();
+        foreach ((array)$have as $row) {
+            if (isset($row['c'])) {
+                $cols[] = $row['c'];
+            }
+        }
+        $adds = array();
+        if (!in_array('logHostID', $cols)) {
+            $adds[] = "ADD `logHostID` INT(11) NULL DEFAULT NULL";
+        }
+        if (!in_array('logHostName', $cols)) {
+            // varchar(16) matches hosts.hostName, which is capped at the
+            // NetBIOS limit and cannot outgrow this copy.
+            $adds[] = "ADD `logHostName` VARCHAR(16) NOT NULL DEFAULT ''";
+        }
+        if (!in_array('logTaskTypeName', $cols)) {
+            // varchar(30) matches taskTypes.ttName.
+            $adds[] = "ADD `logTaskTypeName` VARCHAR(30) NOT NULL DEFAULT ''";
+        }
+        if (count($adds) > 0) {
+            self::$DB->query(
+                "ALTER TABLE `taskLog` " . implode(', ', $adds)
+            );
+        }
+
+        // Backfill the reports whose task is still there, so the history is
+        // not split between rows that know their host and rows that do not.
+        // Restricted to report rows and to rows not already filled, so a
+        // re-run is a no-op and a later hand-correction is not overwritten.
+        self::$DB->query(
+            "UPDATE `taskLog` "
+            . "JOIN `tasks` ON `tasks`.`taskID` = `taskLog`.`taskID` "
+            . "LEFT JOIN `hosts` "
+            . "ON `hosts`.`hostID` = `tasks`.`taskHostID` "
+            . "LEFT JOIN `taskTypes` "
+            . "ON `taskTypes`.`ttID` = `tasks`.`taskTypeID` "
+            . "SET `taskLog`.`logHostID` = `tasks`.`taskHostID`, "
+            . "`taskLog`.`logHostName` = COALESCE(`hosts`.`hostName`, ''), "
+            . "`taskLog`.`logTaskTypeName` = COALESCE(`taskTypes`.`ttName`, '') "
+            . "WHERE `taskLog`.`logType` <> 'state' "
+            . "AND `taskLog`.`logHostID` IS NULL"
+        );
+
+        return true;
+    },
+);
+// 284
+$this->schema[] = array(
+    // GH-1245: "this never happened" is NULL, not a zero date.
+    //
+    // FOGController::save() writes '' for any unset optional field whose key
+    // does not end in "id". A date column cannot hold '': the server either
+    // refuses it or coerces it to '0000-00-00 00:00:00', and FOG only ever
+    // sees the second because PDODB::_connect() has issued
+    // `SET SESSION sql_mode=''` on every connection since 13661edb (May 2016).
+    // That clear is removed in the same change as this step, so from here the
+    // server's own checks apply and '' into a date column is an error.
+    //
+    // save() now writes a real NULL for an empty date, which these columns
+    // have to be able to hold. Without this step it is worse than a no-op:
+    // an explicit NULL into a NOT NULL column errors under a strict mode and
+    // is coerced straight back to the zero date without one.
+    //
+    // Eleven columns, being every date column that is optional, not
+    // auto-filled by save()'s switch, and without a server-side default --
+    // which is exactly the set that can reach the '' arm and keep the result.
+    // The list was derived from a replay of this branch's own schema.php into
+    // an empty server, not from reading the file: nine years of ALTERs mean
+    // the CREATE TABLE a column first appeared in is not its current type.
+    // See scripts/background_scripts/replay_15_schema_1245.sh.
+    //
+    // Two reachable columns are deliberately left NOT NULL. snapinTasks
+    // .stCheckinDate and userTracking.utDateTime both declare
+    // DEFAULT current_timestamp(), so the server supplies a real value rather
+    // than a zero date; save() omits them and that default applies.
+    //
+    // No historical step is edited. `DATETIME NOT NULL` is legal DDL on every
+    // server, so the steps that created these columns still replay cleanly and
+    // a fresh install simply arrives here and is corrected.
+    //
+    // ALTER before UPDATE: the rows cannot be set NULL until the column can
+    // hold it. YEAR() rather than the literal '0000-00-00 00:00:00', because a
+    // strict server rejects that literal in the comparison too.
+    "ALTER TABLE `hosts` "
+    . "MODIFY COLUMN `hostLastDeploy` DATETIME NULL DEFAULT NULL",
+    "UPDATE `hosts` SET `hostLastDeploy` = NULL "
+    . "WHERE `hostLastDeploy` IS NOT NULL AND YEAR(`hostLastDeploy`) = 0",
+    "ALTER TABLE `hosts` "
+    . "MODIFY COLUMN `hostSecTime` TIMESTAMP NULL DEFAULT NULL",
+    "UPDATE `hosts` SET `hostSecTime` = NULL "
+    . "WHERE `hostSecTime` IS NOT NULL AND YEAR(`hostSecTime`) = 0",
+    "ALTER TABLE `images` "
+    . "MODIFY COLUMN `imageLastDeploy` DATETIME NULL DEFAULT NULL",
+    "UPDATE `images` SET `imageLastDeploy` = NULL "
+    . "WHERE `imageLastDeploy` IS NOT NULL AND YEAR(`imageLastDeploy`) = 0",
+    "ALTER TABLE `imagingLog` "
+    . "MODIFY COLUMN `ilFinishTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `imagingLog` SET `ilFinishTime` = NULL "
+    . "WHERE `ilFinishTime` IS NOT NULL AND YEAR(`ilFinishTime`) = 0",
+    "ALTER TABLE `inventory` "
+    . "MODIFY COLUMN `iDeleteDate` DATETIME NULL DEFAULT NULL",
+    "UPDATE `inventory` SET `iDeleteDate` = NULL "
+    . "WHERE `iDeleteDate` IS NOT NULL AND YEAR(`iDeleteDate`) = 0",
+    "ALTER TABLE `multicastSessions` "
+    . "MODIFY COLUMN `msStartDateTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `multicastSessions` SET `msStartDateTime` = NULL "
+    . "WHERE `msStartDateTime` IS NOT NULL AND YEAR(`msStartDateTime`) = 0",
+    "ALTER TABLE `multicastSessions` "
+    . "MODIFY COLUMN `msCompleteDateTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `multicastSessions` SET `msCompleteDateTime` = NULL "
+    . "WHERE `msCompleteDateTime` IS NOT NULL AND YEAR(`msCompleteDateTime`) = 0",
+    "ALTER TABLE `snapinTasks` "
+    . "MODIFY COLUMN `stCompleteDate` DATETIME NULL DEFAULT NULL",
+    "UPDATE `snapinTasks` SET `stCompleteDate` = NULL "
+    . "WHERE `stCompleteDate` IS NOT NULL AND YEAR(`stCompleteDate`) = 0",
+    "ALTER TABLE `tasks` "
+    . "MODIFY COLUMN `taskCheckIn` DATETIME NULL DEFAULT NULL",
+    "UPDATE `tasks` SET `taskCheckIn` = NULL "
+    . "WHERE `taskCheckIn` IS NOT NULL AND YEAR(`taskCheckIn`) = 0",
+    "ALTER TABLE `tasks` "
+    . "MODIFY COLUMN `taskScheduledStartTime` DATETIME NULL DEFAULT NULL",
+    "UPDATE `tasks` SET `taskScheduledStartTime` = NULL "
+    . "WHERE `taskScheduledStartTime` IS NOT NULL AND YEAR(`taskScheduledStartTime`) = 0",
+    "ALTER TABLE `userTracking` "
+    . "MODIFY COLUMN `utDate` DATE NULL DEFAULT NULL",
+    "UPDATE `userTracking` SET `utDate` = NULL "
+    . "WHERE `utDate` IS NOT NULL AND YEAR(`utDate`) = 0",
+);
+// 285
+$this->schema[] = array(
+    // GH-1245: repair the ENUM error value.
+    //
+    // save() wrote '' for every unset optional field whose key does not end
+    // in "id". Into an ENUM that is not a member, so the server stored the
+    // special error value at index 0 -- which reads back as '' and is illegal
+    // to write under any strict sql_mode. FOG never saw the error because
+    // PDODB::_connect() cleared sql_mode on every connection.
+    //
+    // Each column lands on its FIRST member, which is what save() now writes
+    // for an empty value and what MySQL uses as a NOT NULL enum's implicit
+    // default. Deliberately not the column's declared DEFAULT: `hostEnforce`
+    // declares DEFAULT '1', so honouring it here would silently turn
+    // enforcement ON for every host holding the error value, as a side effect
+    // of a storage repair. '' and '0' are both falsey in PHP, so every
+    // consumer sees what it saw before.
+    //
+    // Every enum column in the schema, not only the ones a model can leave
+    // empty today: the error value is illegal wherever it got in, and a
+    // column that stops being written by one path may still hold it.
+    "UPDATE `hostMAC` SET `hmPrimary` = '0' WHERE `hmPrimary` = ''",
+    "UPDATE `hostMAC` SET `hmPending` = '0' WHERE `hmPending` = ''",
+    "UPDATE `hostMAC` SET `hmIgnoreClient` = '0' WHERE `hmIgnoreClient` = ''",
+    "UPDATE `hostMAC` SET `hmIgnoreImaging` = '0' WHERE `hmIgnoreImaging` = ''",
+    "UPDATE `hosts` SET `hostPending` = '0' WHERE `hostPending` = ''",
+    "UPDATE `hosts` SET `hostEnforce` = '0' WHERE `hostEnforce` = ''",
+    "UPDATE `imageGroupAssoc` SET `igaPrimary` = '0' WHERE `igaPrimary` = ''",
+    "UPDATE `images` SET `imageEnabled` = '0' WHERE `imageEnabled` = ''",
+    "UPDATE `images` SET `imageReplicate` = '0' WHERE `imageReplicate` = ''",
+    "UPDATE `nfsGroupMembers` SET `ngmGraphEnabled` = '0' WHERE `ngmGraphEnabled` = ''",
+    "UPDATE `powerManagement` SET `pmAction` = 'shutdown' WHERE `pmAction` = ''",
+    "UPDATE `powerManagement` SET `pmOndemand` = '0' WHERE `pmOndemand` = ''",
+    "UPDATE `pxeMenu` SET `pxeHotKeyEnable` = '0' WHERE `pxeHotKeyEnable` = ''",
+    "UPDATE `snapinGroupAssoc` SET `sgaPrimary` = '0' WHERE `sgaPrimary` = ''",
+    "UPDATE `snapins` SET `sEnabled` = '0' WHERE `sEnabled` = ''",
+    "UPDATE `snapins` SET `sReplicate` = '0' WHERE `sReplicate` = ''",
+    "UPDATE `snapins` SET `sShutdown` = '0' WHERE `sShutdown` = ''",
+    "UPDATE `snapins` SET `sHideLog` = '0' WHERE `sHideLog` = ''",
+    "UPDATE `snapins` SET `sPackType` = '0' WHERE `sPackType` = ''",
+    "UPDATE `tasks` SET `taskWOL` = '0' WHERE `taskWOL` = ''",
+    "UPDATE `taskTypes` SET `ttType` = 'fog' WHERE `ttType` = ''",
+    "UPDATE `taskTypes` SET `ttIsAdvanced` = '0' WHERE `ttIsAdvanced` = ''",
+    "UPDATE `taskTypes` SET `ttIsAccess` = 'both' WHERE `ttIsAccess` = ''",
+    "UPDATE `users` SET `uAllowAPI` = '0' WHERE `uAllowAPI` = ''",
+);
+
+// 286
+$this->schema[] = array(
+    // GH-1245, the third instalment: make the schema SAY which columns are
+    // optional, instead of leaving it to be inferred.
+    //
+    // A column declared NOT NULL with no DEFAULT is only mandatory if
+    // something enforces it. Under a non-strict sql_mode the server does not
+    // -- it downgrades the error to a warning and substitutes an implicit
+    // zero value -- so for the nine years PDODB cleared sql_mode, the
+    // declaration was a comment rather than a constraint. Removing the clear
+    // turned every one of those columns into a real constraint at once, which
+    // is how saving FOG settings started failing with error 1364.
+    //
+    // For the TEXT columns it was never even a decision: MySQL could not
+    // attach a DEFAULT to a TEXT or BLOB column until 8.0.13, MariaDB until
+    // 10.2.1. `longtext NOT NULL` was the only phrasing the schema language
+    // offered, so those columns are mandatory by accident of syntax.
+    //
+    // WHICH COLUMNS. Not a judgement call: FOG already states its intent in
+    // each model's $databaseFieldsRequired, and this is that statement made
+    // true in the database. Of the 312 core columns that are NOT NULL, carry
+    // no DEFAULT and are not AUTO_INCREMENT, 97 stay exactly as they are --
+    // the ones the models declare required, plus every column whose name ends
+    // in ID, because an INSERT that forgets the row it hangs off should fail
+    // rather than make a silent orphan. The 215 below are the rest.
+    //
+    // WHY THIS CANNOT BREAK A WORKING WRITE. An INSERT that names the column
+    // is unaffected; a default applies only to an omitted column. An INSERT
+    // that omits it currently FAILS outright on a strict server, so there is
+    // no working behaviour to change. On a non-strict server it currently
+    // gets the server's implicit coercion -- and the defaults chosen here are
+    // exactly that coercion ('' for text, 0 for integers, the first member
+    // for an enum), which is the same rule save() applies for an empty value.
+    // So both kinds of server end up where they already were, with the
+    // difference that the schema now says so.
+    //
+    // users.uCreateDate is the one column given a live default rather than a
+    // zero: a user record created without a date wants now, and writing a
+    // zero date is the GH-1245 bug in a different costume. Existing rows are
+    // untouched either way -- a DEFAULT never rewrites stored data.
+    //
+    // PLUGIN TABLES ARE DELIBERATELY ABSENT. A plugin's table is not built
+    // here: it is built by Schema::createTable() when the plugin installs,
+    // with every column NOT NULL and no defaults at all, and install() calls
+    // uninstall() first -- which DROPS the table. An ALTER applied here would
+    // therefore be erased by the next plugin install, so it would be false
+    // comfort rather than a fix. The runtime paths still cover those tables:
+    // save() writes an empty value explicitly and insertBatch() backfills the
+    // columns the caller omitted.
+    function () {
+        $optional = array(
+            'clientUpdates' => array(
+                'cuMD5', 'cuType'
+            ),
+            'globalSettings' => array(
+                'settingCategory', 'settingDesc', 'settingValue'
+            ),
+            'greenFog' => array(
+                'gfAction', 'gfDays', 'gfHour', 'gfMin'
+            ),
+            'groups' => array(
+                'groupBuilding', 'groupCreateBy', 'groupDesc',
+                'groupKernel', 'groupKernelArgs', 'groupPrimaryDisk'
+            ),
+            'history' => array(
+                'hIP', 'hText', 'hUser'
+            ),
+            'hostMAC' => array(
+                'hmDesc', 'hmIgnoreClient', 'hmIgnoreImaging',
+                'hmPending', 'hmPrimary'
+            ),
+            'hosts' => array(
+                'hostADDomain', 'hostADOU', 'hostADPass',
+                'hostADPassLegacy', 'hostADUser', 'hostBuilding',
+                'hostCreateBy', 'hostDesc', 'hostDevice', 'hostImage',
+                'hostIP', 'hostKernel', 'hostKernelArgs',
+                'hostPending', 'hostPrinterLevel', 'hostPubKey',
+                'hostSecToken', 'hostSecTokenPrev', 'hostUseAD'
+            ),
+            'hostScreenSettings' => array(
+                'hssHeight', 'hssOrientation', 'hssOther1',
+                'hssOther2', 'hssRefresh', 'hssWidth'
+            ),
+            'imageGroupAssoc' => array(
+                'igaPrimary'
+            ),
+            'images' => array(
+                'imageBuilding', 'imageCreateBy', 'imageDesc',
+                'imageMagnetUri', 'imageProtect', 'imageSize'
+            ),
+            'imagingLog' => array(
+                'ilCreatedBy', 'ilType'
+            ),
+            'inventory' => array(
+                'iBiosdate', 'iBiosvendor', 'iBiosversion',
+                'iCaseasset', 'iCaseman', 'iCaseserial', 'iCasever',
+                'iCpucurrent', 'iCpuman', 'iCpumax', 'iCpuversion',
+                'iGpuproducts', 'iGpuvendors', 'iHdfirmware',
+                'iHdmodel', 'iHdserial', 'iMbasset', 'iMbman',
+                'iMbproductname', 'iMbserial', 'iMbversion', 'iMem',
+                'iOtherTag', 'iOtherTag1', 'iPrimaryUser', 'iSysman',
+                'iSysproduct', 'iSysserial', 'iSystype', 'iSysversion'
+            ),
+            'ipxeTable' => array(
+                'ipxeFailure', 'ipxeFilename', 'ipxeMAC',
+                'ipxeManufacturer', 'ipxeProduct', 'ipxeSuccess',
+                'ipxeVersion'
+            ),
+            'modules' => array(
+                'description'
+            ),
+            'moduleStatusByHost' => array(
+                'msState'
+            ),
+            'multicastSessions' => array(
+                'msAnon3', 'msAnon4', 'msAnon5', 'msBasePort',
+                'msClients', 'msImage', 'msInterface', 'msIsDD',
+                'msLogPath', 'msName', 'msPercent', 'msSessClients',
+                'msState'
+            ),
+            'nfsGroupMembers' => array(
+                'ngmBandwidthLimit', 'ngmIsEnabled', 'ngmIsMasterNode',
+                'ngmKey', 'ngmMaxClients', 'ngmMemberDescription',
+                'ngmMemberName', 'ngmSnapinPath', 'ngmSSLPath',
+                'ngmWebroot'
+            ),
+            'nfsGroups' => array(
+                'ngDesc'
+            ),
+            'os' => array(
+                'osDescription'
+            ),
+            'plugins' => array(
+                'pAnon1', 'pAnon2', 'pAnon3', 'pAnon4', 'pAnon5',
+                'pInstalled', 'pState', 'pVersion'
+            ),
+            'powerManagement' => array(
+                'pmDom', 'pmDow', 'pmHour', 'pmMin', 'pmMonth',
+                'pmOndemand'
+            ),
+            'printerAssoc' => array(
+                'paAnon1', 'paAnon2', 'paAnon3', 'paAnon4', 'paAnon5',
+                'paIsDefault'
+            ),
+            'printers' => array(
+                'pAnon2', 'pAnon3', 'pAnon4', 'pAnon5', 'pConfig',
+                'pConfigFile', 'pDefFile', 'pIP', 'pModel', 'pPort'
+            ),
+            'pxeMenu' => array(
+                'pxeDesc', 'pxeHotKeyEnable', 'pxeKeySequence',
+                'pxeParams'
+            ),
+            'scheduledTasks' => array(
+                'stDesc', 'stDOM', 'stDOW', 'stHour', 'stMinute',
+                'stMonth', 'stName', 'stOther1', 'stOther2',
+                'stOther3', 'stOther4', 'stOther5', 'stShutDown'
+            ),
+            'schemaVersion' => array(
+                'vValue'
+            ),
+            'snapinGroupAssoc' => array(
+                'sgaPrimary'
+            ),
+            'snapins' => array(
+                'sAnon3', 'sArgs', 'sCreator', 'sDesc',
+                'snapinProtect', 'sReboot', 'sRunWith', 'sRunWithArgs'
+            ),
+            'snapinTasks' => array(
+                'stReturnCode', 'stReturnDetails', 'stState'
+            ),
+            'supportedOS' => array(
+                'osName', 'osValue'
+            ),
+            'taskLog' => array(
+                'createdBy', 'ip'
+            ),
+            'tasks' => array(
+                'taskBPM', 'taskCreateBy', 'taskDataCopied',
+                'taskDataTotal', 'taskForce', 'taskIsDebug',
+                'taskNFSFailures', 'taskPassreset', 'taskPCT',
+                'taskPercentText', 'taskShutdown', 'taskTimeElapsed',
+                'taskTimeRemaining', 'taskWOL'
+            ),
+            'taskStates' => array(
+                'tsDescription', 'tsIcon'
+            ),
+            'taskTypes' => array(
+                'ttDescription', 'ttInitrd', 'ttKernel', 'ttKernelArgs'
+            ),
+            'users' => array(
+                'uAPIToken', 'uCreateBy', 'uCreateDate', 'uDisplay',
+                'uType'
+            ),
+            'userTracking' => array(
+                'utAction', 'utAnon3', 'utDesc'
+            ),
+            'virus' => array(
+                'vAnon2', 'vMode'
+            ),
+        );
+
+        // MySQL and MariaDB spell a TEXT/BLOB default differently: MariaDB
+        // takes the literal, MySQL requires it parenthesised as an
+        // expression and rejects it outright below 8.0.13.
+        $version = (string)self::$DB->query('SELECT VERSION() AS `v`')
+            ->fetch()->get('v');
+        $maria = false !== stripos($version, 'mariadb');
+        $lobDefaults = $maria;
+        if (!$maria) {
+            preg_match('/^(\d+)\.(\d+)\.(\d+)/', $version, $m);
+            $lobDefaults = count($m) === 4
+                && (int)$m[1] * 10000 + (int)$m[2] * 100 + (int)$m[3]
+                    >= 80013;
+        }
+
+        foreach ($optional as $table => $columns) {
+            // Only columns that are actually still missing a default, so a
+            // re-run is a read and nothing else. A table that does not exist
+            // on this install returns nothing and is skipped rather than
+            // erroring.
+            $rows = self::$DB->query(
+                "SELECT `COLUMN_NAME` AS `c`, `COLUMN_TYPE` AS `ty` "
+                . "FROM `information_schema`.`COLUMNS` "
+                . "WHERE `TABLE_SCHEMA` = DATABASE() "
+                . "AND LOWER(`TABLE_NAME`) = :table "
+                . "AND `IS_NULLABLE` = 'NO' "
+                . "AND `COLUMN_DEFAULT` IS NULL "
+                . "AND `EXTRA` NOT LIKE '%auto_increment%'",
+                array(),
+                array(':table' => strtolower($table))
+            )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+            $want = array_map('strtolower', $columns);
+            foreach ((array)$rows as $row) {
+                if (!isset($row['c'], $row['ty'])
+                    || !in_array(strtolower($row['c']), $want, true)
+                ) {
+                    continue;
+                }
+                $type = trim($row['ty']);
+                $lob = (bool)preg_match(
+                    '/^(tiny|medium|long)?(text|blob)\b/i',
+                    $type
+                );
+                if ($lob && !$lobDefaults) {
+                    // Nothing sensible to do on MySQL below 8.0.13, and
+                    // nothing broken by skipping: insertBatch() backfills
+                    // the column and save() writes it explicitly.
+                    continue;
+                }
+                if (preg_match('/^datetime\b/i', $type)) {
+                    $default = 'current_timestamp()';
+                } elseif (preg_match(
+                    '/^(tiny|small|medium|big)?int\b/i',
+                    $type
+                )) {
+                    $default = '0';
+                } elseif (preg_match(
+                    "/^(enum|set)\\s*\\(\\s*'((?:[^']|'')*)'/i",
+                    $type,
+                    $member
+                )) {
+                    $default = "'" . $member[2] . "'";
+                } elseif ($lob) {
+                    $default = $maria ? "''" : "('')";
+                } else {
+                    $default = "''";
+                }
+                self::$DB->query(
+                    sprintf(
+                        'ALTER TABLE `%s` MODIFY COLUMN `%s` %s NOT NULL '
+                        . 'DEFAULT %s',
+                        $table,
+                        $row['c'],
+                        $type,
+                        $default
+                    )
+                );
+            }
+        }
+
+        return true;
+    },
+);
+
+// 287
+$this->schema[] = array(
+    // Widen the stored pxeMenu param blocks past three NICs.
+    //
+    // The mac0/mac1/mac2 enumeration is not only in code -- six of these
+    // blocks ship as `pxeMenu`.`pxeParams` DATA, and _menuOpt() emits whatever
+    // the row says verbatim. So fixing bootmenu.class.php and the installer's
+    // default.ipxe leaves every existing site's menu items still posting at
+    // most three MACs, which is what made a host registered under only its
+    // fourth NIC unfindable.
+    //
+    // Two additions per row, matching bootmenu.class.php:
+    //   - macboot, ${netX/mac}, the NIC iPXE actually booted from. An
+    //     ADDITION to mac0, not a replacement: netX is a pointer at one of
+    //     net0..netN, so substituting it would drop net0 on a machine that
+    //     booted off net1. boot.php unions every mac* field and array_unique()s
+    //     the result, so the overlap costs nothing. It goes ABOVE the chain
+    //     because the chain short-circuits to :bootme on the first absent
+    //     interface, which on a single-NIC machine is net1.
+    //   - net3..net7, so the enumeration reaches eight interfaces.
+    //
+    // Guarded on the row still matching what we shipped, byte for byte. These
+    // rows are user-writable from iPXE Menu Customization, and a site that has
+    // edited one has made a deliberate choice; an untouched row provably has
+    // not. A customized row keeps its three NICs rather than losing the edit,
+    // and re-running is a no-op because the old value no longer matches.
+    //
+    // A closure rather than seven literal statements: the old and the new
+    // value differ by one line in the middle of a nine-line blob, and writing
+    // both out per menu entry is fourteen near-identical paragraphs in which a
+    // single wrong character silently means "match nothing, change nothing".
+    function () {
+        // pxeName => the boolean flag that row's params block carries.
+        $menus = array(
+            'fog.deployimage' => 'qihost',
+            'fog.quickdel' => 'delhost',
+            'fog.keyreg' => 'keyreg',
+            'fog.debug' => 'debugAccess',
+            'fog.multijoin' => 'sessionJoin',
+            'fog.advancedlogin' => 'advLog',
+            'fog.approvehost' => 'approveHost'
+        );
+        $head = "login\n"
+            . "params\n"
+            . 'param mac0 ${net0/mac}' . "\n"
+            . 'param arch ${arch}' . "\n"
+            . 'param username ${username}' . "\n"
+            . 'param password ${password}' . "\n";
+        $oldTail = 'isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme'
+            . "\n"
+            . 'isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme';
+        $newTail = 'isset ${netX/mac} && param macboot ${netX/mac} ||';
+        for ($nic = 1; $nic <= 7; $nic++) {
+            $newTail .= "\n" . sprintf(
+                'isset ${net%1$d/mac} && param mac%1$d ${net%1$d/mac}'
+                . ' || goto bootme',
+                $nic
+            );
+        }
+        foreach ($menus as $pxeName => $flag) {
+            $body = $head . sprintf('param %s 1', $flag) . "\n";
+            self::$DB->query(
+                'UPDATE `pxeMenu` SET `pxeParams` = :new '
+                . 'WHERE `pxeName` = :name AND `pxeParams` = :old',
+                array(),
+                array(
+                    ':new' => $body . $newTail,
+                    ':name' => $pxeName,
+                    ':old' => $body . $oldTail
+                )
+            );
+        }
+
+        return true;
+    }
+);
+// 288
+$this->schema[] = array(
+    // Memtest86+ 8.10 replaces the 2013 Memtest86+ 5.01 ISO that memdisk
+    // loaded. The new file boots on both legacy BIOS and UEFI, which the
+    // memdisk chain never could (#321). Only a value still at the old
+    // default is moved: a site that pointed this at its own file keeps it.
+    "UPDATE `globalSettings` SET `settingValue`='mt86plus_x86_64' "
+    . "WHERE `settingKey`='FOG_MEMTEST_KERNEL' "
+    . "AND `settingValue`='memtest.bin'",
 );

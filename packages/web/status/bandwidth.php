@@ -5,7 +5,7 @@
  * If interface cannot be found it will try to get it more
  * directly from within linux.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Bandwidth
  * @package  FOGProject

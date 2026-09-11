@@ -2,7 +2,7 @@
 /**
  * Manager class for pushbullet
  *
- * PHP Version 5
+ * PHP version 7.4+
  *
  * @category PushbulletManager
  * @package  FOGProject
@@ -65,7 +65,7 @@ class PushbulletManager extends FOGManagerController
             'pID',
             'pToken'
         );
-        $sql = Schema::createTable(
+        $sql = $this->createTableSql(
             $this->tablename,
             true,
             $fields,

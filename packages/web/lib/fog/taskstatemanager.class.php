@@ -2,7 +2,7 @@
 /**
  * The task state manager class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category TaskStateManager
  * @package  FOGProject

@@ -2,7 +2,7 @@
 /**
  * The inventory class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Inventory
  * @package  FOGProject
@@ -76,6 +76,19 @@ class Inventory extends FOGController
      */
     protected $databaseFieldsRequired = array(
         'hostID',
+    );
+    /**
+     * sysuuid ends in "id" without being a foreign key.
+     *
+     * iSystemUUID is a VARCHAR(255) holding the SMBIOS system UUID, which is
+     * a hyphenated hex string. Without this, save() read the key's name as a
+     * foreign key, failed FILTER_VALIDATE_INT and wrote 0 -- so the UUID was
+     * silently lost on every inventory write, with no error anywhere.
+     *
+     * @var array
+     */
+    protected $databaseFieldsNotInt = array(
+        'sysuuid',
     );
     /**
      * Additional fields

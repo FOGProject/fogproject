@@ -2,7 +2,7 @@
 /**
  * Pushes notification on snapin completion.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SnapinComplete_PushBullet
  * @package  FOGProject

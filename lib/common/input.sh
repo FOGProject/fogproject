@@ -125,19 +125,26 @@ while [[ -z $interface ]]; do
     # want every address -- the certificate SANs and the apache ServerAlias --
     # and normalizeIpAddress() then reduces $ipaddress to the primary, which is
     # what every other consumer has always assumed it was.
-    ipaddress=$(ip -4 addr show $interface | awk '$1 == "inet" {gsub(/\/.*$/, "", $2); print $2}')
+    #
+    # GH-1747: global addresses only, and never link-local 169.254.0.0/16. A
+    # link-local address appears when DHCP gets no answer on the deployment NIC.
+    # No client can reach FOG there, and listed first it became the primary.
+    ipaddress=$(ip -4 addr show $interface | awk '$1 == "inet" && / scope global / && $2 !~ /^169\.254\./ {gsub(/\/.*$/, "", $2); print $2}')
     ipaddresses="$ipaddress"
     if [[ $(validip $ipaddress) -ne 0 ]]; then
         echo
         echo "   * The interface $interface does not seem to have a valid IP configured to it."
+        # With -y nothing can pick another interface, so this loop would
+        # repeat the same answer forever.
+        [[ -n $autoaccept ]] && exit 1
         interface=""
         continue
     fi
-    submask=$(cidr2mask $(getCidr $interface))
-    if [[ -z $submask ]]; then
-        submask=$(/sbin/ifconfig -a | grep $ipaddress -B1 | awk -F'[netmask ]+' '{print $4}' | head -n2)
-        submask=$(mask2cidr $submask)
-    fi
+    # The mask of the primary address (the first one listed), not of whichever
+    # address getCidr found. The ifconfig fallback that followed stored
+    # mask2cidr's prefix length in $submask, and ifconfig is not installed
+    # before the package step. An empty mask is derived again in configureDHCP.
+    submask=$(cidr2mask $(getCidr $interface ${ipaddress%%[[:space:]]*}))
 done
 if [[ $strSuggestedHostname == $ipaddress ]]; then
     strSuggestedHostname=$(hostnamectl --static)

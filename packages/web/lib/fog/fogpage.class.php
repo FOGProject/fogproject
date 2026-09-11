@@ -3,7 +3,7 @@
  * Presents many defaults for the pages and is
  * the calling point by all other page items.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category FOGPage
  * @package  FOGProject
@@ -245,6 +245,112 @@ abstract class FOGPage extends FOGBase
      */
     protected static $returnData;
     /**
+     * The "List All X" / "Create New X" pair for one node, written out.
+     *
+     * GH-435. These used to be built by sprintf()ing a translated noun into a
+     * translated format string -- `List All %s` and `Create New %s` -- and
+     * that cannot be translated correctly, in any language that inflects.
+     *
+     * French was the report: `Creer un nouveau %s` is masculine, so `machine`
+     * and `image` (both feminine) need `une nouvelle`, and `utilisateur` needs
+     * `nouvel` before its vowel. One format string cannot be all three. German
+     * inflects the adjective the same way -- `Neue %s erstellen` should be
+     * `Neuen Benutzer erstellen` for a masculine noun.
+     *
+     * The plural was broken independently of gender, and worse here than on
+     * working-1.6: the list label appended a literal `s` to $this->childClass,
+     * which was never translated at all, so every locale read a half-English
+     * label like "Alle Hosts auflisten". Japanese marks no plural, German
+     * `Rechner` is its own plural, and French nouns in -al take -aux.
+     *
+     * Whole phrases fix both at once and cost nothing anywhere else: each is
+     * an ordinary literal xgettext extracts, and a translator sees the entire
+     * sentence rather than a fragment with a hole in it.
+     *
+     * Keyed on childClass rather than on the node, because that is the value
+     * the composed form used and it already folds the storage special cases
+     * (node `storage` becomes StorageNode or StorageGroup above).
+     *
+     * Nodes NOT listed here fall back to the composed form, which is what
+     * plugins get: a plugin's class name is not knowable from here, and a
+     * plugin can ship its own catalog. The fallback is no worse for them than
+     * it was before this change.
+     *
+     * @param string $childClass the page's child class name
+     *
+     * @return array empty when the class has no written-out pair
+     */
+    private static function _nodeMenuStrings($childClass)
+    {
+        switch ($childClass) {
+            case 'Group':
+                return array('list' => _('List All Groups'),
+                             'add' => _('Create New Group'));
+            case 'Host':
+                return array('list' => _('List All Hosts'),
+                             'add' => _('Create New Host'));
+            case 'Image':
+                return array('list' => _('List All Images'),
+                             'add' => _('Create New Image'));
+            case 'Printer':
+                return array('list' => _('List All Printers'),
+                             'add' => _('Create New Printer'));
+            case 'Snapin':
+                return array('list' => _('List All Snapins'),
+                             'add' => _('Create New Snapin'));
+            case 'StorageGroup':
+                return array('list' => _('List All Storage Groups'),
+                             'add' => _('Create New Storage Group'));
+            case 'StorageNode':
+                return array('list' => _('List All Storage Nodes'),
+                             'add' => _('Create New Storage Node'));
+            case 'User':
+                return array('list' => _('List All Users'),
+                             'add' => _('Create New User'));
+        }
+        return array();
+    }
+
+    /**
+     * sprintf() for a format string that came out of a translation catalog.
+     *
+     * The catalog is edited by translators, so this format string is not under
+     * the codebase's control -- and a bad one fails DIFFERENTLY depending on
+     * the PHP version, which is why both arms below are needed:
+     *
+     *   PHP 8    sprintf('Lister 100% des %s', $n)   ArgumentCountError
+     *            sprintf('List %q of %s', $n)        ValueError
+     *   PHP 7    both of the above                   warning, returns false
+     *
+     * So on 8 an uncaught one takes the whole navigation menu out with a 500
+     * on every page, and on 7 nothing throws at all and `false` flows on to be
+     * rendered as an empty menu label. A Throwable catch alone would silently
+     * leave the 7.x half broken.
+     *
+     * Falling back to the untranslated argument keeps the menu rendering. It
+     * is not a good label, but it is a legible one, and it degrades in the one
+     * language whose catalog is at fault rather than everywhere.
+     *
+     * @param string $format translated format string
+     * @param string $value  already-translated noun to substitute
+     *
+     * @return string
+     */
+    private static function _composeMenuLabel($format, $value)
+    {
+        try {
+            $out = sprintf((string)$format, $value);
+        } catch (\Throwable $e) {
+            return (string)$value;
+        }
+        // The cast is the PHP 7 arm, not decoration: there sprintf() returns
+        // FALSE rather than throwing, and (string)false is ''. Comparing to ''
+        // rather than to false covers both that and a catalog entry that is
+        // simply empty.
+        return '' === (string)$out ? (string)$value : (string)$out;
+    }
+
+    /**
      * Initializes the page class
      *
      * @param mixed $name name of the page to initialize
@@ -435,20 +541,29 @@ abstract class FOGPage extends FOGBase
         );
         $exportMenu = sprintf('Export%s', $this->childClass);
         $importMenu = sprintf('Import%s', $this->childClass);
+        $pair = self::_nodeMenuStrings($this->childClass);
+        if (!count($pair)) {
+            $pair = array(
+                /**
+                 * No _() around the sprintf: a msgid built at runtime can
+                 * never match the literal xgettext extracted, so the outer
+                 * call was a guaranteed miss that returned its own argument.
+                 * Dropping it changes nothing at runtime and stops the line
+                 * claiming to be translatable.
+                 */
+                'list' => self::_composeMenuLabel(
+                    self::$foglang['ListAll'],
+                    sprintf('%ss', $this->childClass)
+                ),
+                'add' => self::_composeMenuLabel(
+                    self::$foglang['CreateNew'],
+                    _($this->childClass)
+                ),
+            );
+        }
         $this->menu = array(
-            'list' => sprintf(
-                self::$foglang['ListAll'],
-                _(
-                    sprintf(
-                        '%ss',
-                        $this->childClass
-                    )
-                )
-            ),
-            'add' => sprintf(
-                self::$foglang['CreateNew'],
-                _($this->childClass)
-            ),
+            'list' => $pair['list'],
+            'add' => $pair['add'],
             'export' => isset(self::$foglang[$exportMenu]) ? sprintf(self::$foglang[$exportMenu]) : '',
             'import' => isset(self::$foglang[$importMenu]) ? sprintf(self::$foglang[$importMenu]) : '',
         );
@@ -516,9 +631,8 @@ abstract class FOGPage extends FOGBase
         $this->title = _('Search');
         if (in_array($this->node, self::$searchPages)) {
             $this->title = sprintf(
-                '%s %s',
-                _('All'),
-                _("{$this->childClass}s")
+                _('All %s'),
+                $this->childClass . 's'
             );
             global $node;
             global $sub;
@@ -1564,8 +1678,29 @@ abstract class FOGPage extends FOGBase
             $TaskType = new TaskType($type);
             /**
              * Account Setup.
+             *
+             * Cast, because filter_input() answers NULL for a POST key that
+             * is not there -- and only a password reset task's form carries
+             * `account`. That NULL used to be harmless: PDODB cleared
+             * sql_mode on every connection, so the server quietly coerced it
+             * to '' on the way into `tasks`.`taskPassreset`, which is
+             * varchar(250) NOT NULL. GH-1245 removed the clear, so the same
+             * NULL is now
+             *
+             *   SQLSTATE[23000]: 1048 Column 'taskPassreset' cannot be null
+             *
+             * and the whole statement is refused. It bites a GROUP task and
+             * not a single-host one because Group::createImagePackage()
+             * batch-inserts a fixed column list that always names passreset,
+             * while Host::createImagePackage() only sets it when it holds
+             * something. Reported on forum topic 18232 against group
+             * multicast; group deploy takes the same path.
+             *
+             * trim() as well, so an account of nothing but spaces is caught
+             * by the emptiness check below rather than stored. Same
+             * expression working-1.6 already uses.
              */
-            $passreset = filter_input(INPUT_POST, 'account');
+            $passreset = trim((string)filter_input(INPUT_POST, 'account'));
             /**
              * Snapin Setup.
              */
@@ -1614,7 +1749,7 @@ abstract class FOGPage extends FOGBase
              * Schedule Type Setup.
              */
             $scheduleType = strtolower(
-                filter_input(INPUT_POST, 'scheduleType')
+                (string)filter_input(INPUT_POST, 'scheduleType')
             );
             $scheduleTypes = array(
                 'cron',
@@ -1642,9 +1777,23 @@ abstract class FOGPage extends FOGBase
             /**
              * Schedule delayed/cron checks.
              */
-            $scheduleDeployTime = self::niceDate(
-                filter_input(INPUT_POST, 'scheduleSingleTime')
-            );
+            $scheduleSingleTime = filter_input(INPUT_POST, 'scheduleSingleTime');
+            /*
+             * GH-1245: reject the missing time instead of scheduling now.
+             *
+             * niceDate() used to read an absent or empty value as the current
+             * time, so a single schedule with no time silently became "run
+             * immediately". It now reads empty as "no value", which would
+             * trip the past-time check below with a message that does not
+             * describe what happened.
+             */
+            if ('single' === $scheduleType
+                && (null === $scheduleSingleTime
+                || '' === trim((string) $scheduleSingleTime))
+            ) {
+                throw new Exception(_('A scheduled time is required'));
+            }
+            $scheduleDeployTime = self::niceDate($scheduleSingleTime);
             switch ($scheduleType) {
                 case 'single':
                     if ($scheduleDeployTime < self::niceDate()) {
@@ -2767,7 +2916,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     list(
                         $tftpPass,
@@ -3072,7 +3221,7 @@ abstract class FOGPage extends FOGBase
                         '%s%s_%s',
                         $backuppath,
                         $destfile,
-                        self::formatTime('', 'Ymd_His')
+                        self::formatTime('now', 'Ymd_His')
                     );
                     list(
                         $tftpPass,
@@ -3718,7 +3867,8 @@ abstract class FOGPage extends FOGBase
                     // Reset must leave nothing behind that authorize() would
                     // still accept, grace token included.
                     'prev_sec_tok' => '',
-                    'sec_time' => '0000-00-00 00:00:00'
+                    // GH-1245: no expiry, not an expiry in the year zero.
+                    'sec_time' => null
                 )
             );
     }
@@ -3958,7 +4108,7 @@ abstract class FOGPage extends FOGBase
             . $this->node
             . '1" class="toggle-checkbox1" id="toggler"/>'
             . '</label>',
-            _(ucfirst($objType) . ' Name')
+            sprintf(_('%s Name'), ucfirst($objType))
         );
         $this->templates = array(
             '<label for="host-${host_id}">'
@@ -4039,7 +4189,7 @@ abstract class FOGPage extends FOGBase
                 . '" id="'
                 . $meShow
                 . '"/>';
-            echo _("Check here to see what $getType can be added");
+            printf(_('Check here to see what %s can be added'), $getType);
             echo '</label>';
             echo '</div>';
             echo '</div>';
@@ -4060,7 +4210,7 @@ abstract class FOGPage extends FOGBase
             echo '<label for="update'
                 . $getType
                 . '" class="control-label col-xs-4">';
-            echo _("Add selected $getType");
+            printf(_('Add selected %s'), $getType);
             echo '</label>';
             echo '<div class="col-xs-8">';
             echo '<button type="submit" name="addHosts" '
@@ -4084,7 +4234,7 @@ abstract class FOGPage extends FOGBase
             '<label for="toggler1">'
             . '<input type="checkbox" name="toggle-checkbox" '
             . 'class="toggle-checkboxAction" id="toggler1"/></label>',
-            _(ucfirst($objType) . ' Name')
+            sprintf(_('%s Name'), ucfirst($objType))
         );
         $this->templates = array(
             '<label for="hostrm-${host_id}">'
@@ -4108,14 +4258,14 @@ abstract class FOGPage extends FOGBase
             echo '<div class="panel panel-warning">';
             echo '<div class="panel-heading text-center">';
             echo '<h4 class="title">';
-            echo _('Remove ' . ucfirst($getType));
+            printf(_('Remove %s'), ucfirst($getType));
             echo '</h4>';
             echo '</div>';
             echo '<div class="panel-body">';
             $this->render(12);
             echo '<div class="form-group">';
             echo '<label for="remhosts" class="control-label col-xs-4">';
-            echo _('Remove selected ' . $getType);
+            printf(_('Remove selected %s'), $getType);
             echo '</label>';
             echo '<div class="col-xs-8">';
             echo '<button type="submit" name="remhosts" class='

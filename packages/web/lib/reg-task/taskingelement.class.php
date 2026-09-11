@@ -2,7 +2,7 @@
 /**
  * The tasking element base class.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category TaskingElement
  * @package  FOGProject
@@ -243,12 +243,17 @@ abstract class TaskingElement extends FOGBase
      */
     protected function taskLog()
     {
-        return self::getClass('TaskLog', $this->Task)
-            ->set('taskID', $this->Task->get('id'))
-            ->set('taskStateID', $this->Task->get('stateID'))
-            ->set('createdTime', $this->Task->get('createdTime'))
-            ->set('createdBy', $this->Task->get('createdBy'))
-            ->save();
+        // The row is built by TaskLog::recordState() rather than here, because
+        // a state transition is not something only a TaskingElement can cause.
+        // Cancellation reaches the tasks table through Task::cancel() and
+        // TaskManager::cancel(), neither of which has a TaskingElement, and so
+        // wrote no row at all -- leaving In-Progress as the last thing the log
+        // ever said about a cancelled task.
+        //
+        // It also stamps the row with the moment of the transition rather than
+        // the task's createdTime, which is what this line used to pass. See
+        // recordState() for why that made the log unorderable.
+        return TaskLog::recordState($this->Task);
     }
     /**
      * Creates the image log record for the task/host.
@@ -264,12 +269,15 @@ abstract class TaskingElement extends FOGBase
                 ->destroy(
                     array(
                         'hostID' => self::$Host->get('id'),
-                        'finish' => '0000-00-00 00:00:00'
+                        // GH-1245: an unfinished log has no finish time.
+                        // Reads as `ilFinishTime IS NULL` -- see
+                        // FOGManagerController::find().
+                        'finish' => null
                     )
                 );
             return self::getClass('ImagingLog')
                 ->set('hostID', self::$Host->get('id'))
-                ->set('start', self::formatTime('', 'Y-m-d H:i:s'))
+                ->set('start', self::formatTime('now', 'Y-m-d H:i:s'))
                 ->set('image', $this->Image->get('name'))
                 ->set('type', $_REQUEST['type'])
                 ->set('createdBy', $this->Task->get('createdBy'))
@@ -279,7 +287,9 @@ abstract class TaskingElement extends FOGBase
             'ImagingLog',
             array(
                 'hostID' => self::$Host->get('id'),
-                'finish' => '0000-00-00 00:00:00',
+                // GH-1245: as above -- the row this is looking for is the one
+                // that has not finished.
+                'finish' => null,
                 'image' => $this->Image->get('name'),
             )
         );
@@ -288,8 +298,31 @@ abstract class TaskingElement extends FOGBase
         // uncaught ValueError on that (@ cannot suppress an Error). maxId()
         // yields 0, which makes the ImagingLog below a new row as intended.
         $ilID = self::maxId($ilID);
-        return self::getClass('ImagingLog', $ilID)
-            ->set('finish', self::formatTime('', 'Y-m-d H:i:s'))
-            ->save();
+        $ImagingLog = self::getClass('ImagingLog', $ilID)
+            ->set('finish', self::formatTime('now', 'Y-m-d H:i:s'));
+        // A new row needs the three fields ImagingLog declares required --
+        // hostID, start and image -- or save() refuses it and the caller
+        // reports "Failed to update imaging log" for a machine that imaged
+        // fine. Setting only `finish`, as this did, could therefore only ever
+        // fail on the no-open-log path the maxId() note above describes.
+        // The start time is the task's own check-in, not now: the imaging
+        // began then, and a start equal to the finish would read as a
+        // zero-length deployment in the imaging report.
+        if (!$ImagingLog->isValid()) {
+            $checkInTime = $this->Task->get('checkInTime');
+            if (!self::validDate($checkInTime)) {
+                $checkInTime = self::formatTime('now', 'Y-m-d H:i:s');
+            }
+            $ImagingLog
+                ->set('hostID', self::$Host->get('id'))
+                ->set('start', $checkInTime)
+                ->set('image', $this->Image->get('name'))
+                // 'up'/'down' are the two values the imaging report maps to
+                // Capture and Deploy; check-in reads them off the request,
+                // which is not available here.
+                ->set('type', $this->Task->isCapture() ? 'up' : 'down')
+                ->set('createdBy', $this->Task->get('createdBy'));
+        }
+        return $ImagingLog->save();
     }
 }

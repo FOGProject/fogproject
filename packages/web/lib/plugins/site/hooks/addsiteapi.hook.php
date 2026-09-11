@@ -2,7 +2,7 @@
 /**
  * Injects access control stuff into the api system.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AddSiteAPI
  * @package  FOGProject
@@ -80,6 +80,20 @@ class AddSiteAPI extends Hook
                 array(
                     $this,
                     'adjustMassInfo'
+                )
+            )
+            ->register(
+                'API_SCOPE_IDS',
+                array(
+                    $this,
+                    'scopeIDs'
+                )
+            )
+            ->register(
+                'API_SCOPE_WHERE',
+                array(
+                    $this,
+                    'scopeWhere'
                 )
             );
     }
@@ -188,6 +202,99 @@ class AddSiteAPI extends Hook
                 
                 break;
         }
+    }
+    /**
+     * Narrows an API read to the acting user's sites.
+     *
+     * Until this existed the plugin's boundary was a management-page
+     * feature: the only filtering hook is AddSiteFilterSearch, registered
+     * on HOST_DATA and GROUP_DATA, and both handlers switch on the global
+     * $node/$sub the pages set. Nothing under api/ fires those events, so
+     * a site-restricted user saw their site in the grid and every host on
+     * the server through /fog/host/list -- on the same credentials, and
+     * without an API token, because Route skips API auth entirely when a
+     * management session is already valid.
+     *
+     * Sets $arguments['ids'] only when a boundary actually applies. Left
+     * alone it stays null, which is the caller's "no narrowing" value; an
+     * EMPTY array set here is a real answer meaning the user may see
+     * nothing. See Site::scopedObjectIDs() for why those must not be
+     * collapsed.
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function scopeIDs($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        // No acting user means no boundary to apply -- the service daemons
+        // and the status endpoints reach Route::ids()/names() with nobody
+        // logged in, and narrowing those to a site would break imaging
+        // rather than protect anything.
+        if (!self::$FOGUser || !self::$FOGUser->isValid()) {
+            return;
+        }
+        $scope = Site::scopedObjectIDs(
+            $arguments['classname'],
+            self::$FOGUser->get('id')
+        );
+        if (null === $scope) {
+            return;
+        }
+        $arguments['ids'] = array_values(
+            array_unique(
+                array_map('intval', (array)$scope)
+            )
+        );
+    }
+    /**
+     * The same boundary as scopeIDs(), as a SQL fragment.
+     *
+     * Answered in preference to the id list, and the reason is cost: scopeIDs()
+     * reads every host the user may see into PHP on every request, which on a
+     * server with thousands of them is the whole expense of the feature. A
+     * fragment is one expression whatever the fleet size.
+     *
+     * Both handlers stay registered. Core tries this one and falls back to the
+     * id list when nothing answers, so a third-party plugin that knows only
+     * API_SCOPE_IDS keeps bounding reads exactly as it did.
+     *
+     * Sets $arguments['where'] only when a boundary applies. Left alone it
+     * stays null, which is the caller's "nobody answered" value. Note this
+     * tri-state is NOT the id list's: an empty string is read as silence, so
+     * "you may see nothing" is the literal fragment '1=0'. See
+     * Site::scopedObjectWhere().
+     *
+     * @param mixed $arguments The arguments to modify.
+     *
+     * @return void
+     */
+    public function scopeWhere($arguments)
+    {
+        if (!in_array($this->node, (array)self::$pluginsinstalled)) {
+            return;
+        }
+        // No acting user means no boundary to apply -- the service daemons
+        // and the status endpoints reach Route::ids()/names() with nobody
+        // logged in, and narrowing those to a site would break imaging
+        // rather than protect anything. Same guard as scopeIDs(), and it has
+        // to be here too: this handler is consulted FIRST, so a boundary it
+        // emitted would apply before the id list was ever asked.
+        if (!self::$FOGUser || !self::$FOGUser->isValid()) {
+            return;
+        }
+        $where = Site::scopedObjectWhere(
+            $arguments['classname'],
+            $arguments['idExpr'],
+            self::$FOGUser->get('id')
+        );
+        if (null === $where) {
+            return;
+        }
+        $arguments['where'] = $where;
     }
     /**
      * This function changes the getter to enact on this particular item.

@@ -2,7 +2,7 @@
 /**
  * Prints equipment loan.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category Equipment_Loan
  * @package  FOGProject
@@ -150,7 +150,7 @@ class Equipment_Loan extends ReportManagementPage
                 . '<h4><b>%s: </b>%s</h4><h4><b>%s: </b>%s</h4>',
                 _('of'),
                 _('Printed'),
-                self::formatTime('', 'D M j G:i:s T Y'),
+                self::formatTime('now', 'D M j G:i:s T Y'),
                 _('Equipment Loan'),
                 $coname,
                 $subname,
@@ -235,7 +235,7 @@ class Equipment_Loan extends ReportManagementPage
                 str_repeat('_', 65),
                 _('of'),
                 _('Printed'),
-                self::formatTime('', 'D M j G:i:s T Y'),
+                self::formatTime('now', 'D M j G:i:s T Y'),
                 _('Terms and Conditions'),
                 $tos,
                 str_pad(_('Signed'), 25),

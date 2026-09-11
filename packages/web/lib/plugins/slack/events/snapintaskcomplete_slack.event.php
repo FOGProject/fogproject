@@ -2,7 +2,7 @@
 /**
  * Sends notification when snapin task completes.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category SnapinTaskComplete_Slack
  * @package  FOGProject

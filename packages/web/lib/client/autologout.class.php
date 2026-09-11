@@ -2,7 +2,7 @@
 /**
  * Handles auto log information as requested.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * @category AutoLogout
  * @package  FOGProject

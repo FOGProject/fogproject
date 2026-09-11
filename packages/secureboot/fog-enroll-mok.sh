@@ -69,9 +69,24 @@ case "$answer" in
     *) echo; echo " Aborted -- nothing was changed."; pause; exit 1 ;;
 esac
 
+# --test-key interrogates MokList -- shim's trust store -- and nothing else. The
+# check is right for what this script does: it IS the MOK enroller, and
+# re-enrolling a MOK genuinely is a no-op. The MESSAGE used to be wrong, drawing
+# a machine-wide "nothing to do" from a store-specific test (GH-1266). It is not
+# the same question: a MOK only helps where shim is in the boot chain -- firmware
+# never reads MokList -- so booting a FOG-signed binary DIRECTLY needs the
+# certificate in db, which this script neither reads nor writes. An admin setting
+# up the shim-less route was being told to stop.
 if mokutil --test-key "$cert" 2>/dev/null | grep -qi "already enrolled"; then
     echo
-    echo " This key is already enrolled on this machine. Nothing to do."
+    echo " This key is already enrolled in MokList, so this script has nothing"
+    echo " left to do. MokList is shim's own trust store: it covers anything"
+    echo " booted through shim, which is the normal FOG PXE path."
+    echo
+    echo " It does NOT cover the firmware's db. This script does not look at db"
+    echo " and does not write to it. If you are setting up a shim-less boot --"
+    echo " firmware loading a FOG-signed binary directly -- MOK.der still has to"
+    echo " go into db, which is a separate step in the Secure Boot guide."
     pause
     exit 0
 fi

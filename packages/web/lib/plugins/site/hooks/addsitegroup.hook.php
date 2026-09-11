@@ -2,7 +2,7 @@
 /**
  * Associate host of a group to a Site.
  *
- * PHP version 7
+ * PHP version 7.4+
  *
  * @category AddSiteGroup
  * @package  FOGProject

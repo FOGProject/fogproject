@@ -2,7 +2,7 @@
 /**
  * PDODB, the database connector.
  *
- * PHP version 5
+ * PHP version 7.4+
  *
  * This is what communicates between FOG and the Database.
  *
@@ -291,7 +291,29 @@ class PDODB extends DatabaseManager
                     self::redirect('../management/index.php?node=schema');
                 }
             }
-            self::query("SET SESSION sql_mode=''");
+            /*
+             * GH-1245: no `SET SESSION sql_mode=''` here.
+             *
+             * That line arrived in 13661edb (May 2016) as "try to set sql_mode
+             * to non-strict which should allow 5.7 mysql to operate", and it
+             * shipped with a TARGETED mode commented out one line above it --
+             * one that kept STRICT_TRANS_TABLES. So even then the intent was
+             * not to disable validation; the blanket clear was the fallback.
+             *
+             * It stayed for nine years and meant every statement FOG issued
+             * ran with the server's checks off: truncations, out-of-range
+             * numerics and invalid enum members were all silently coerced and
+             * reported only as warnings nothing reads. That is how a zero
+             * `hostLastDeploy` came to sit on servers whose own configuration
+             * forbids one, and how the ENUM error value got into 24 columns.
+             *
+             * What actually needed fixing was FOGController::save(), which
+             * wrote '' for every unset optional field regardless of the
+             * column's type. emptyValueFor() now writes the value the server
+             * was coercing to anyway, so nothing here depends on the checks
+             * being off. Schema steps 284 and 285 repair the rows that were
+             * written while they were.
+             */
         } catch (PDOException $e) {
             if ($dbexists) {
                 self::$_link = false;
@@ -534,6 +556,28 @@ class PDODB extends DatabaseManager
                 $this->sqlerror()
             );
             self::$_result = false;
+            /*
+             * $msg used to be built here and dropped on the floor: a failed
+             * fetch set no ->error, logged nothing, and left $_result false
+             * -- so get() answered an empty set and the caller could not tell
+             * "the read failed" from "there are no rows". That is the same
+             * defect FOGController::save() and load() were carrying, one
+             * layer down, and it is why those checks alone were not enough.
+             *
+             * Only ever ADDS a failure, never overwrites one. query() owns
+             * clearing ->error -- it runs immediately before every fetch()
+             * and always sets it to false or to a message -- so when a fetch
+             * fails BECAUSE the query did ("No query result, use query()
+             * first"), the guard keeps the original cause rather than
+             * replacing it with the symptom.
+             *
+             * Not logged from here. The callers know which class and table
+             * they were reading, and this does not; a line naming neither is
+             * worse than the caller's, and two lines per failure is noise.
+             */
+            if (!$this->error) {
+                $this->error = $msg;
+            }
 
             if (self::$throwOnQueryError) {
                 throw $e;
@@ -901,6 +945,38 @@ class PDODB extends DatabaseManager
     {
         if (is_null($type)) {
             $type = PDO::PARAM_STR;
+        }
+        /*
+         * A PHP boolean bound as a string is the string cast of it, and
+         * (string)false is ''. Every caller reaches this method with the
+         * default PDO::PARAM_STR, so `->set('shutdown', $action ==
+         * 'shutdown')` -- an ordinary comparison, and how Snapin::save() has
+         * always spelled it -- stored '' into `snapins`.`sShutdown`, an
+         * enum('0','1'). That is error 1265, "Data truncated for column
+         * 'sShutdown' at row 1", on any server with STRICT_TRANS_TABLES.
+         *
+         * It is the same defect as GH-1245 arriving by a different door.
+         * save()'s emptyValueFor() only recognises null and '' as empty, so
+         * a boolean walks straight past it, and the manager UPDATE path
+         * (HostManager::update() writing `hosts`.`hostInfoLock` from
+         * ->set('tokenlock', false) at the end of every imaging task) never
+         * went through save() at all. Normalising here is the only place
+         * that covers save(), insertBatch(), the manager builders and
+         * hand-written queries at once.
+         *
+         * '0'/'1' rather than PDO::PARAM_BOOL: bound as an integer, 0
+         * against an ENUM is an *index*, and index 0 is the error value.
+         * As strings they are literal enum members, and a numeric column
+         * coerces them to 0/1. Readers are unaffected either way; '0' is
+         * falsey in PHP exactly as '' was.
+         *
+         * A caller that passes an explicit type is left alone -- it has
+         * said what it means.
+         *
+         * See forum topic 18227.
+         */
+        if (is_bool($value) && $type === PDO::PARAM_STR) {
+            $value = $value ? '1' : '0';
         }
         self::$_queryResult->bindParam($param, $value, $type);
     }
