@@ -1033,9 +1033,22 @@ msgstr "プラグインをインストールしました！"
 msgid "Agent Enrollment Tokens"
 msgstr "強制終了されました"
 
+msgid "Agent Release Sync"
+msgstr ""
+
 #, fuzzy
 msgid "Agent Tokens"
 msgstr "ユーザー API トークン"
+
+#, fuzzy
+msgid "Agent Update Ring"
+msgstr "モジュールを更新しました"
+
+msgid "Agent Update Ring must be a ring number, such as 0"
+msgstr ""
+
+msgid "Agent Update Ring must be a ring number, such as 0, or blank"
+msgstr ""
 
 #, fuzzy
 msgid "Agent Update State"
@@ -1052,6 +1065,20 @@ msgstr "クライアントバージョン"
 #, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "強制終了されました"
+
+msgid "Agent release sync failed"
+msgstr ""
+
+#, fuzzy
+msgid "Agent release sync is globally disabled"
+msgstr "* イメージレプリケーションは全体設定で無効になっています"
+
+#, fuzzy
+msgid "Agent releases are current"
+msgstr "現在"
+
+msgid "Agent updates are off, and no host or minimum version needs a release"
+msgstr ""
 
 msgid "Ago must be boolean"
 msgstr "Ago はブール値である必要があります"
@@ -1668,6 +1695,10 @@ msgstr "接続できません:"
 msgid "Cannot connect to database"
 msgstr "データベースに接続できません"
 
+#, fuzzy
+msgid "Cannot create"
+msgstr "接続できません:"
+
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
 msgstr ""
@@ -1691,8 +1722,16 @@ msgid "Cannot select %s field(s): %s"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot store"
+msgstr "アイコンファイルが見つかりません"
+
+#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "保留中のホストにタスクを設定できません"
+
+#, fuzzy
+msgid "Cannot write"
+msgstr "アイコンファイルが見つかりません"
 
 msgid "Capability"
 msgstr ""
@@ -2837,6 +2876,10 @@ msgstr "ダウンロードに失敗しました"
 
 #, fuzzy
 msgid "Download the request"
+msgstr "ダウンロードに失敗しました"
+
+#, fuzzy
+msgid "Downloaded"
 msgstr "ダウンロードに失敗しました"
 
 msgid "Downloaded file is not a bootable kernel image"
@@ -5391,7 +5434,14 @@ msgstr ""
 msgid "Last imaged"
 msgstr "イメージ"
 
+#, fuzzy
+msgid "Last ring"
+msgstr "イメージ"
+
 msgid "Latest (upgrade at each check)"
+msgstr ""
+
+msgid "Latest - newest release, by update ring"
 msgstr ""
 
 #, fuzzy
@@ -6720,6 +6770,9 @@ msgstr "MAC アドレス"
 msgid "Off - direct membership only"
 msgstr ""
 
+msgid "Off - hosts do not update"
+msgstr ""
+
 msgid "Off by default on purpose. Trust in FOG's CA reaches a client when fog-client installs it there, so on a server whose clients are not enrolled yet a forced redirect breaks exactly the machines that cannot fix themselves. Turn it on once trust is in place. It does NOT affect netboot -- that is the separate setting below. Turning it on is not fully reversible: it also sends HSTS, and a browser that has seen that header refuses plain HTTP to this host for six months out of its own cache, whatever this server later says."
 msgstr ""
 
@@ -7085,6 +7138,9 @@ msgid "Ping cycle complete"
 msgstr "完了しました"
 
 msgid "Pinned"
+msgstr ""
+
+msgid "Pinned - every host runs FOG_AGENT_DESIRED_VERSION"
 msgstr ""
 
 #, fuzzy
@@ -7986,6 +8042,9 @@ msgstr "選択したルールを削除"
 msgid "Revoked."
 msgstr ""
 
+msgid "Ring"
+msgstr ""
+
 #, fuzzy
 msgid "Role"
 msgstr "ロール"
@@ -8677,6 +8736,10 @@ msgstr "サイズ"
 #, fuzzy
 msgid "Size on Server"
 msgstr "サーバー"
+
+#, fuzzy
+msgid "Size or hash does not match the manifest"
+msgstr "ファイルまたはパスが存在しません"
 
 msgid "Sizes are what each group is configured to hold, not current node usage. The range selects images added inside it, and marks an image stale if it has not been deployed since it opened."
 msgstr ""
@@ -10004,6 +10067,17 @@ msgstr ""
 msgid "The record could not be written."
 msgstr "強制終了できませんでした"
 
+msgid "The release manifest is empty or too large"
+msgstr ""
+
+#, fuzzy
+msgid "The release manifest is not readable"
+msgstr "秘密鍵を読み取れません"
+
+#, fuzzy
+msgid "The release signature is not readable"
+msgstr "秘密鍵を読み取れません"
+
 #, fuzzy
 msgid "The renewed certificate, leaf then chain."
 msgstr "新しいロケーションを作成"
@@ -10083,7 +10157,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11624,6 +11697,9 @@ msgstr ""
 msgid "day"
 msgstr "日"
 
+msgid "days"
+msgstr ""
+
 msgid "deploy task occurs for it"
 msgstr "展開タスクが実行されたとき"
 
@@ -11712,6 +11788,10 @@ msgstr "開始に失敗しました"
 #, fuzzy
 msgid "file to"
 msgstr "ファイル"
+
+#, fuzzy
+msgid "files in the manifest"
+msgstr "スナップインジョブの作成に失敗しました"
 
 msgid "filesize"
 msgstr "ファイルサイズ"
@@ -11928,6 +12008,9 @@ msgstr "MAC アドレスは別のホストで既に使用されています"
 msgid "is already running with pid"
 msgstr "は既に次の PID で実行中です: "
 
+msgid "is below FOG_AGENT_MIN_VERSION"
+msgstr ""
+
 msgid "is missing -- a UNIQUE index the manifest declares"
 msgstr ""
 
@@ -11939,6 +12022,9 @@ msgstr ""
 
 msgid "is no longer running"
 msgstr "現在は実行されていません"
+
+msgid "is not a version in the release manifest"
+msgstr ""
 
 #, fuzzy
 msgid "is not currently online"
@@ -12032,6 +12118,18 @@ msgstr ""
 
 msgid "multiple places to get your image"
 msgstr "イメージの取得元が複数ある"
+
+msgid "must be a whole number from 0 to 100"
+msgstr ""
+
+msgid "must be an exact version, for example 0.1.8"
+msgstr ""
+
+msgid "must be delays in days from 0 to 365, separated by commas, for example 0,3,7"
+msgstr ""
+
+msgid "must be off, pinned or latest"
+msgstr ""
 
 msgid "must be specified"
 msgstr "指定する必要があります"
@@ -14527,9 +14625,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "The task was already closed."
 #~ msgstr "このホストは既に存在します"
-
-#~ msgid "There are currently"
-#~ msgstr "現在"
 
 #, fuzzy
 #~ msgid "There are no "

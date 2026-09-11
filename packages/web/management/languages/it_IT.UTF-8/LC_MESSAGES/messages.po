@@ -1052,9 +1052,22 @@ msgstr "Aggiornamento stampante riuscito"
 msgid "Agent Enrollment Tokens"
 msgstr "è stato cancellato"
 
+msgid "Agent Release Sync"
+msgstr ""
+
 #, fuzzy
 msgid "Agent Tokens"
 msgstr "API Utente Token"
+
+#, fuzzy
+msgid "Agent Update Ring"
+msgstr "Aggiornamento del modulo completato"
+
+msgid "Agent Update Ring must be a ring number, such as 0"
+msgstr ""
+
+msgid "Agent Update Ring must be a ring number, such as 0, or blank"
+msgstr ""
 
 #, fuzzy
 msgid "Agent Update State"
@@ -1071,6 +1084,20 @@ msgstr "Versione client"
 #, fuzzy
 msgid "Agent enrollment tokens"
 msgstr "è stato cancellato"
+
+msgid "Agent release sync failed"
+msgstr ""
+
+#, fuzzy
+msgid "Agent release sync is globally disabled"
+msgstr "* La replica di immagini è globalmente disattivata"
+
+#, fuzzy
+msgid "Agent releases are current"
+msgstr "Se le credenziali sono corrette"
+
+msgid "Agent updates are off, and no host or minimum version needs a release"
+msgstr ""
 
 msgid "Ago must be boolean"
 msgstr "Fa deve essere boolean"
@@ -1686,6 +1713,10 @@ msgstr "Impossibile connettersi"
 msgid "Cannot connect to database"
 msgstr "Non è possibile connettersi al database"
 
+#, fuzzy
+msgid "Cannot create"
+msgstr "Impossibile connettersi"
+
 #, php-format
 msgid "Cannot delete %1$s because a %2$s still refers to it. Reassign or remove it first."
 msgstr ""
@@ -1709,8 +1740,16 @@ msgid "Cannot select %s field(s): %s"
 msgstr ""
 
 #, fuzzy
+msgid "Cannot store"
+msgstr "Record non trovato"
+
+#, fuzzy
 msgid "Cannot task pending hosts"
 msgstr "Impossibile affidare attività ad host in attesa"
+
+#, fuzzy
+msgid "Cannot write"
+msgstr "Record non trovato"
 
 msgid "Capability"
 msgstr ""
@@ -2849,6 +2888,10 @@ msgstr "Scaricamento fallito"
 
 #, fuzzy
 msgid "Download the request"
+msgstr "Scaricamento fallito"
+
+#, fuzzy
+msgid "Downloaded"
 msgstr "Scaricamento fallito"
 
 msgid "Downloaded file is not a bootable kernel image"
@@ -5419,7 +5462,14 @@ msgstr ""
 msgid "Last imaged"
 msgstr "immagini"
 
+#, fuzzy
+msgid "Last ring"
+msgstr "immagini"
+
 msgid "Latest (upgrade at each check)"
+msgstr ""
+
+msgid "Latest - newest release, by update ring"
 msgstr ""
 
 #, fuzzy
@@ -6745,6 +6795,9 @@ msgstr "Indirizzo MAC"
 msgid "Off - direct membership only"
 msgstr ""
 
+msgid "Off - hosts do not update"
+msgstr ""
+
 msgid "Off by default on purpose. Trust in FOG's CA reaches a client when fog-client installs it there, so on a server whose clients are not enrolled yet a forced redirect breaks exactly the machines that cannot fix themselves. Turn it on once trust is in place. It does NOT affect netboot -- that is the separate setting below. Turning it on is not fully reversible: it also sends HSTS, and a browser that has seen that header refuses plain HTTP to this host for six months out of its own cache, whatever this server later says."
 msgstr ""
 
@@ -7105,6 +7158,9 @@ msgid "Ping cycle complete"
 msgstr "è stato completato"
 
 msgid "Pinned"
+msgstr ""
+
+msgid "Pinned - every host runs FOG_AGENT_DESIRED_VERSION"
 msgstr ""
 
 #, fuzzy
@@ -8006,6 +8062,9 @@ msgstr "Approvare MAC selezionati"
 msgid "Revoked."
 msgstr ""
 
+msgid "Ring"
+msgstr ""
+
 #, fuzzy
 msgid "Role"
 msgstr "Nome regola"
@@ -8714,6 +8773,10 @@ msgstr "Dimensione"
 #, fuzzy
 msgid "Size on Server"
 msgstr "Server web"
+
+#, fuzzy
+msgid "Size or hash does not match the manifest"
+msgstr "Metodo non esiste"
 
 msgid "Sizes are what each group is configured to hold, not current node usage. The range selects images added inside it, and marks an image stale if it has not been deployed since it opened."
 msgstr ""
@@ -10048,6 +10111,17 @@ msgstr ""
 msgid "The record could not be written."
 msgstr "Impossibile leggere il file temporaneo"
 
+msgid "The release manifest is empty or too large"
+msgstr ""
+
+#, fuzzy
+msgid "The release manifest is not readable"
+msgstr "chiave privata non leggibile"
+
+#, fuzzy
+msgid "The release signature is not readable"
+msgstr "chiave privata non leggibile"
+
 #, fuzzy
 msgid "The renewed certificate, leaf then chain."
 msgstr "Crea nuova posizione"
@@ -10126,7 +10200,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -11670,6 +11743,9 @@ msgstr ""
 msgid "day"
 msgstr "giorno"
 
+msgid "days"
+msgstr ""
+
 msgid "deploy task occurs for it"
 msgstr "attività di distribuzione avviene per esso"
 
@@ -11756,6 +11832,10 @@ msgstr "non è riuscito a iniziare"
 
 msgid "file to"
 msgstr "File con"
+
+#, fuzzy
+msgid "files in the manifest"
+msgstr "Impossibile creare Snapin lavoro"
 
 msgid "filesize"
 msgstr "dimensione del file"
@@ -11968,6 +12048,9 @@ msgstr "L'indirizzo MAC è già in uso da un altro host"
 msgid "is already running with pid"
 msgstr "è già in esecuzione con pid"
 
+msgid "is below FOG_AGENT_MIN_VERSION"
+msgstr ""
+
 msgid "is missing -- a UNIQUE index the manifest declares"
 msgstr ""
 
@@ -11979,6 +12062,9 @@ msgstr ""
 
 msgid "is no longer running"
 msgstr "non è più in esecuzione"
+
+msgid "is not a version in the release manifest"
+msgstr ""
 
 msgid "is not currently online"
 msgstr ""
@@ -12072,6 +12158,18 @@ msgstr ""
 
 msgid "multiple places to get your image"
 msgstr "più posti per ottenere l'immagine"
+
+msgid "must be a whole number from 0 to 100"
+msgstr ""
+
+msgid "must be an exact version, for example 0.1.8"
+msgstr ""
+
+msgid "must be delays in days from 0 to 365, separated by commas, for example 0,3,7"
+msgstr ""
+
+msgid "must be off, pinned or latest"
+msgstr ""
 
 msgid "must be specified"
 msgstr "deve essere specificato"

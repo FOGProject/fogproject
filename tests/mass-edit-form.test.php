@@ -227,6 +227,101 @@ $check(
         && false !== strpos($level, 'value="2"')
 );
 
+// --- The host-form fields mass edit was missing ---------------------------
+//
+// Mass edit began as the group page's replacement and carried only what that
+// page pushed, so six settings a single host's General tab changes had no
+// bulk path. Each is checked through the control it draws and the value it
+// saves: a field that saves differently here than on the host form is two
+// definitions of one setting.
+
+$desc = $call(
+    'massEditValueControl',
+    ['description', $core['description'] ?? []]
+);
+$check(
+    'the description is a textarea, as on the host form',
+    0 === strpos($desc, '<textarea')
+        && false !== strpos($desc, 'name="value[description]"')
+);
+
+// Enrolled Via is a closed vocabulary, and the save refuses any other word. A
+// text box would let one typo fail the edit for every selected host, so the
+// control is a picker built from the same list the validator reads.
+$reflected = new \ReflectionClass($class);
+$vocabulary = $reflected->hasConstant('SB_ENROLL_VIA')
+    ? $reflected->getConstant('SB_ENROLL_VIA')
+    : [];
+$via = $call(
+    'massEditValueControl',
+    ['sbenrollvia', $core['sbenrollvia'] ?? []]
+);
+preg_match_all('/<option value="([^"]*)"/', $via, $offered);
+$check(
+    'Enrolled Via is a picker offering exactly the words the save accepts',
+    0 === strpos($via, '<select')
+        && is_array($vocabulary)
+        && count($vocabulary) > 0
+        && $vocabulary === $offered[1]
+);
+
+// The save half. Every normalizer is the host form's own rule, reached
+// through the spec, so each check names the host-form behavior it matches.
+$save = static function ($key, $value) use ($core) {
+    $normalize = $core[$key]['normalize'] ?? null;
+    return is_callable($normalize) ? $normalize($value) : $value;
+};
+$refuses = static function ($key, $value) use ($save) {
+    try {
+        $save($key, $value);
+    } catch (\Exception $e) {
+        return true;
+    }
+    return false;
+};
+$check(
+    'a desired agent version loses a leading v, as on the host form',
+    '1.2.3' === $save('agentDesiredVersion', 'v1.2.3')
+);
+$check(
+    'Enrolled Via is stored lower-case',
+    'mok-pending' === $save('sbenrollvia', 'MOK-Pending')
+);
+$check(
+    'Enrolled Via refuses a word outside the vocabulary',
+    $refuses('sbenrollvia', 'usb stick')
+);
+$check(
+    'a blank Enrolled Via stores NULL',
+    null === $save('sbenrollvia', '')
+);
+$check(
+    'an enrolled certificate that is not a SHA-256 is refused',
+    $refuses('sbenrollcert', 'not-a-fingerprint')
+);
+$hex = str_repeat('AB', 32);
+$colon = \FOG\Boot\SecureBootState::normalizeFingerprint($hex);
+$check(
+    'a bare-hex certificate is stored in the colon form',
+    false !== strpos($colon, ':') && $colon === $save('sbenrollcert', $hex)
+);
+$check(
+    'a blank enrollment date stores NULL',
+    null === $save('sbenrolled', '')
+);
+$check(
+    'an enrollment date that is not a date is refused',
+    $refuses('sbenrolled', 'not a date')
+);
+$check(
+    'a blank architecture stores NULL',
+    null === $save('archID', '')
+);
+$check(
+    'an architecture id is stored as an integer',
+    3 === $save('archID', '3')
+);
+
 // --- Control ids ----------------------------------------------------------
 
 $check(
@@ -551,6 +646,14 @@ $where = [
     'useAD' => 'ad',
     'ADPass' => 'ad',
     'autologout' => 'client',
+    // The rest of hostGeneral()'s settable fields. General, for the same
+    // reason: that is where a single host's page draws them.
+    'description' => 'general',
+    'archID' => 'general',
+    'agentDesiredVersion' => 'general',
+    'sbenrolled' => 'general',
+    'sbenrollvia' => 'general',
+    'sbenrollcert' => 'general',
 ];
 $wrong = [];
 foreach ($where as $key => $tab) {
@@ -568,7 +671,7 @@ $check(
 // reason the value-control checks above drop them -- standing a schema up to
 // watch ImageManager build a select would make this an install rehearsal --
 // and the tab question is unaffected by which control a pane contains.
-$needsDb = ['image' => 1, 'biosexit' => 1, 'efiexit' => 1, 'ring' => 1];
+$needsDb = ['image' => 1, 'arch' => 1, 'biosexit' => 1, 'efiexit' => 1, 'ring' => 1];
 // The ring picker reads FOG_AGENT_UPDATE_RINGS, so it is pinned at the spec
 // level instead: a picker, never free text, because a typed ring reaches
 // every selected host.

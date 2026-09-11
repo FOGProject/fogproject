@@ -239,6 +239,50 @@ $check(
         && ['kernel' => ''] === MassEdit::columnUpdates($resolved, $spec)
 );
 
+// A spec may carry `normalize`: it turns a SET value into what the column
+// stores, and throws on a value the save must refuse. It runs on SET only.
+// CLEAR writes the spec's own empty value, and a validator in front of it
+// would refuse the one action that carries no value at all.
+$normSpec = [
+    'v' => [
+        'field' => 'v',
+        'empty' => null,
+        'normalize' => static function ($value) {
+            if ('bad' === $value) {
+                throw new \Exception('refused');
+            }
+            return strtoupper($value);
+        },
+    ],
+];
+$check(
+    'SET runs the value through the spec normalizer',
+    ['v' => 'ABC'] === MassEdit::columnUpdates(
+        MassEdit::resolve(['v'], ['v' => MassEdit::SET], ['v' => 'abc']),
+        $normSpec
+    )
+);
+$check(
+    'CLEAR does not run the normalizer',
+    ['v' => null] === MassEdit::columnUpdates(
+        MassEdit::resolve(['v'], ['v' => MassEdit::CLEAR], []),
+        $normSpec
+    )
+);
+$threw = false;
+try {
+    MassEdit::columnUpdates(
+        MassEdit::resolve(['v'], ['v' => MassEdit::SET], ['v' => 'bad']),
+        $normSpec
+    );
+} catch (\Exception $e) {
+    $threw = true;
+}
+$check(
+    'a value the normalizer refuses throws before any column map exists',
+    $threw
+);
+
 if (count($failures)) {
     fwrite(STDERR, "FAIL: the mass edit does not fail closed:\n");
     foreach ($failures as $f) {

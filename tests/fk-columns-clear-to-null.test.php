@@ -224,6 +224,24 @@ $check(
     array_key_exists('lvl', $zero) && 0 === $zero['lvl']
 );
 
+// --- SET to the blank option must write NULL too --------------------------
+//
+// The image and architecture pickers both start with "- Please select -",
+// whose value is empty, and SET is a legitimate choice beside it. SET wrote
+// that '' into `hostImage`, an int column stores it as 0, and the constraint
+// refuses 0 -- so the edit failed with "the database refused the update" and
+// no clue why. Blank through SET means the same thing as CLEAR here.
+foreach (['image' => 'imageID', 'archID' => 'archID'] as $key => $field) {
+    $set = MassEdit::columnUpdates(
+        MassEdit::resolve([$key], [$key => MassEdit::SET], [$key => '']),
+        $core
+    );
+    $check(
+        "SET to the blank option writes NULL for $key",
+        array_key_exists($field, $set) && null === $set[$field]
+    );
+}
+
 // --- The write must not report success when the database refused ----------
 
 $source = (string)file_get_contents($webroot . '/src/Pages/HostManagement.php');
