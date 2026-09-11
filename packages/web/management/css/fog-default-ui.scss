@@ -940,6 +940,30 @@ body:not(.login-page) .select2-container--default .select2-dropdown {
 // NOT yet themed (intentionally — first pass; tune/extend after live review):
 // pNotify toasts, Chart.js/Flot canvases, and per-plugin CSS.
 // ===========================================================================
+// -- DataTables toolbar -------------------------------------------------
+// Length menu, buttons and search share one flex row (the `dom` string in
+// fogDefaults(), fog.common.js). The search box gives way first: it starts
+// from a 10rem basis, grows to 20rem where there is room, and the input
+// inside it absorbs the shrink. Without this the box keeps its intrinsic
+// ~280px, and beside a wide button bar (the host list's) it wraps onto a line
+// of its own -- the same wasted line the one-row layout exists to remove.
+.fog-dt-toolbar .fog-dt-search {
+  flex: 1 1 10rem;
+  // Explicit, because the default (auto) is the content's min-content width,
+  // which is the input's intrinsic ~280px. That, not the 10rem basis, is what
+  // decides whether the box fits on the line, so it would still wrap.
+  min-width: 10rem;
+  max-width: 20rem;
+
+  div.dt-search {
+    display: flex;
+    align-items: center;
+  }
+  div.dt-search input {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
 // -- Per-column search row ---------------------------------------------
 // A second header row of boxes, one per filterable column, built by
 // fogColumnSearchRow() in fog.common.js and revealed by the Column search

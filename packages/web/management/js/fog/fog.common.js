@@ -4348,7 +4348,13 @@ $.fn.registerTable = function(onSelect, opts) {
     select: {
       style: 'multi+shift'
     },
-    dom: "<'row'<'col-sm-6'l><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
+    // Length menu, buttons and search share ONE flex row, search pushed right.
+    // Search used to sit on a row of its own above the buttons, which spent a
+    // full line of height on one input and left the rest of that line blank.
+    // .fog-dt-search lets the search box shrink to fit beside the buttons
+    // (fog-default-ui.scss); flex-wrap drops it to its own line only when
+    // even the shrunk box has no room.
+    dom: "<'fog-dt-toolbar d-flex flex-wrap align-items-center gap-2'lB<'fog-dt-search ms-auto'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-5'i><'col-sm-7'p>>",
     retrieve: true,
     // Bootstrap tooltips bind to elements present at init time; rows drawn by
     // DataTables (incl. Scroller redraws) arrive later, so re-init any tooltip
@@ -4376,7 +4382,7 @@ $.fn.registerTable = function(onSelect, opts) {
     defaults.scrollY = '55vh';
     defaults.scrollCollapse = true;
     defaults.lengthChange = false;
-    defaults.dom = "<'row'<'col-sm-6'><'col-sm-6'f>>B<'row'<'col-sm-12'tr>><'row'<'col-sm-12'i>>";
+    defaults.dom = "<'fog-dt-toolbar d-flex flex-wrap align-items-center gap-2'B<'fog-dt-search ms-auto'f>><'row'<'col-sm-12'tr>><'row'<'col-sm-12'i>>";
   }
 
   // Page-specific buttons, APPENDED to the shared set rather than replacing
