@@ -62,6 +62,35 @@ class HostManagement extends FOGPage
      */
     public $node = 'host';
     /**
+     * The words `hostSbEnrollVia` may hold.
+     *
+     * The same five words fog.enrollsb and the host form document. A free-text
+     * provenance column is a column that ends up holding 'usb', 'USB stick'
+     * and 'Dave did it', none of which anything can read back.
+     *
+     * 'trusted' is its own value rather than a synonym for 'db' because it
+     * records something FOG did NOT do: the machine already trusted this
+     * certificate when the task ran, and nothing here observed how it got
+     * there -- db, a MOK confirmed months ago, or an image that shipped with
+     * it. Folding it into 'db' would assert a mechanism nobody watched happen,
+     * which is the same mistake as recording a staged MOK as an enrollment,
+     * just quieter.
+     *
+     * One list for the host form's save, the mass edit's save and the mass
+     * edit's picker, so the picker cannot offer a word the save refuses.
+     * tests/secureboot-enrolvia-vocabulary.test.php reads it to check that
+     * every word the server itself writes is here.
+     *
+     * @var string[]
+     */
+    private const SB_ENROLL_VIA = [
+        'db',
+        'trusted',
+        'mok',
+        'mok-pending',
+        'manual',
+    ];
+    /**
      * Initializes the host page
      *
      * @param string $name the name to construct with
@@ -1563,24 +1592,11 @@ class HostManagement extends FOGPage
         );
         $imageSelector = (new ImageManager())
             ->buildSelectBox($image);
-        // The architectures an admin may pick on a HOST, which is what
-        // `architectures.archIsAccess` is for -- the same flag taskTypes uses
-        // to say a task type belongs to hosts, to groups, or to both. An
-        // architecture flagged image-only never appears here.
-        //
-        // buildSelectBox() treats an empty filter as "no filter" and would
-        // then offer every row, so an empty pick list has to be spelled as an
-        // id that matches nothing rather than as nothing.
         $archID = (
             filter_input(INPUT_POST, 'archID') ?:
             ($this->obj->get('archID') ?: '')
         );
-        $archIds = array_keys(Architecture::pickable('host'));
-        if (count($archIds) < 1) {
-            $archIds = [0];
-        }
-        $archSelector = (new ArchitectureManager())
-            ->buildSelectBox($archID, 'archID', 'name', $archIds);
+        $archSelector = self::hostArchSelector($archID, 'archID');
         // Either use the passed in or get the objects info.
         $host = (
             filter_input(INPUT_POST, 'host') ?:
@@ -1696,23 +1712,29 @@ class HostManagement extends FOGPage
         // from a USB stick is the only source for it and has to be able to
         // type it. filter_input first, object second, exactly like every
         // other editable value on this form.
-        $sbEnrolled = (
-            filter_input(INPUT_POST, 'sbenrolled') ?:
-            ($this->obj->get('sbenrolled') ?: '')
-        );
-        // Rendered as the stored datetime rather than through dateOrNever(),
-        // because this one round-trips: whatever is shown is what posts back
-        // and is written to a DATETIME column, and "Never" is not a date. An
-        // empty box is how "not enrolled" is both displayed and cleared.
+        $sbEnrolled = (string)filter_input(INPUT_POST, 'sbenrolled');
+        if ('' === $sbEnrolled && $this->obj->get('sbenrolled')) {
+            $sbEnrolled = self::toDisplayStored($this->obj->get('sbenrolled'))
+                ->format('Y-m-d H:i:s');
+        }
+        // Not through dateOrNever(), because this one round-trips: whatever
+        // is shown is what posts back and is written to a DATETIME column, and
+        // "Never" is not a date. An empty box is how "not enrolled" is both
+        // displayed and cleared.
         //
-        // Deliberately NOT re-parsed, and deliberately carrying no zero-date
-        // guard. hostSbEnrolled is NULL-able from birth (schema step 377), so
-        // the zero date is not a value it can hold -- that guard belongs to
-        // columns that predate the NULL convention, and writing one here would
-        // put a 0000-00-00 literal back into the page layer that
+        // But in the VIEWER's zone, through the same toDisplayStored()
+        // dateOrNever() uses, because the save reads what comes back in the
+        // viewer's zone (sbEnrolledResolve()). It was shown raw -- the storage
+        // zone -- so every Update by a viewer with a zone preference moved the
+        // date by the difference between the two zones.
+        //
+        // Deliberately carrying no zero-date guard. hostSbEnrolled is
+        // NULL-able from birth (schema step 377), so the zero date is not a
+        // value it can hold -- that guard belongs to columns that predate the
+        // NULL convention, and writing one here would put a 0000-00-00
+        // literal back into the page layer that
         // tests/date-columns-nullable.test.php exists to keep out. NULL
-        // becomes '' through the coalesce above; anything else came out of a
-        // DATETIME and is already in this box's format.
+        // arrives as '' and skips the conversion.
         //
         // A value straight off a rejected POST is echoed back unchanged and
         // deliberately: the administrator needs to see what they typed in
@@ -2194,101 +2216,21 @@ class HostManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'efiBootTypeExit')
         );
         $enforce = filter_has_var(INPUT_POST, 'enforce') ? 1 : 0;
-        // The blank "- Please select -" option means "not recorded", which is
-        // a real value here and not the absence of one: Architecture::canRun()
-        // reads it as "nothing to contradict" and allows the deploy. Stored
-        // as NULL rather than 0 so it reads the same as a host that has never
-        // been touched.
-        $archID = trim(
-            (string)filter_input(INPUT_POST, 'archID')
+        // Each of these saves through the helper the host mass edit uses, so
+        // one setting is never validated two ways. The enrollment record
+        // (schema step 377) is editable, unlike the reported state above it
+        // on the form, because a technician who enrolled from a USB stick is
+        // the only source for it.
+        $archID = self::archIDResolve(filter_input(INPUT_POST, 'archID'));
+        $sbEnrolled = self::sbEnrolledResolve(
+            filter_input(INPUT_POST, 'sbenrolled')
         );
-        $archID = '' === $archID ? null : (int)$archID;
-        // The enrollment record (schema step 377). Editable, unlike the
-        // reported state above it on the form, because a technician who
-        // enrolled from a USB stick is the only source for it.
-        //
-        // Validated rather than trusted, even though the writer is an
-        // authenticated admin: these three land in a DATETIME and two
-        // VARCHARs, and an unparseable date written to a DATETIME is the
-        // GH-1243/GH-1245 family -- it stores as the zero date and the
-        // display layer then reads "never enrolled" as "enrolled in year
-        // zero". An empty box is how an enrollment is cleared, and must stay
-        // distinguishable from a bad one: '' stores NULL, garbage is
-        // refused out loud.
-        $sbEnrolled = trim(
-            (string)filter_input(INPUT_POST, 'sbenrolled')
+        $sbEnrollVia = self::sbEnrollViaResolve(
+            filter_input(INPUT_POST, 'sbenrollvia')
         );
-        if ('' === $sbEnrolled) {
-            $sbEnrolled = null;
-        } elseif (self::validDate($sbEnrolled)) {
-            // Typed into the form, so read in the viewer's zone.
-            $sbEnrolled = self::viewerDate($sbEnrolled)
-                ->format('Y-m-d H:i:s');
-        } else {
-            throw new \Exception(
-                _('Secure Boot enrollment date is not a valid date')
-            );
-        }
-        // Whitelisted against the same five words fog.enrollsb and the host
-        // form document, lower-cased on the way in. A free-text provenance
-        // column is a column that ends up holding 'usb', 'USB stick' and
-        // 'Dave did it', none of which anything can read back.
-        //
-        // 'trusted' is its own value rather than a synonym for 'db' because
-        // it records something FOG did NOT do: the machine already trusted
-        // this certificate when the task ran, and nothing here observed how
-        // it got there -- db, a MOK confirmed months ago, or an image that
-        // shipped with it. Folding it into 'db' would assert a mechanism
-        // nobody watched happen, which is the same mistake as recording a
-        // staged MOK as an enrollment, just quieter.
-        $sbEnrollVia = strtolower(
-            trim((string)filter_input(INPUT_POST, 'sbenrollvia'))
+        $sbEnrollCert = self::sbEnrollCertResolve(
+            filter_input(INPUT_POST, 'sbenrollcert')
         );
-        if ('' === $sbEnrollVia) {
-            $sbEnrollVia = null;
-        } elseif (
-            !in_array(
-                $sbEnrollVia,
-                ['db', 'trusted', 'mok', 'mok-pending', 'manual'],
-                true
-            )
-        ) {
-            throw new \Exception(
-                _(
-                    'Enrolled Via must be one of: db, trusted, mok, '
-                    . 'mok-pending, manual'
-                )
-            );
-        }
-        // Shape-checked, not merely trimmed, and through the same
-        // normalizer service/secureboot.report.php uses -- this format was
-        // written out longhand in four files, which is three places for it
-        // to drift. Accepts the colon-formatted form the Secure Boot page
-        // displays and the bare hex a copy-paste tends to produce, and
-        // stores the former.
-        //
-        // Rejecting rather than storing whatever arrived matters because
-        // this column's only use is an equality test: a comparison against
-        // something that is not a SHA-256 can only ever be false, silently,
-        // and looking exactly like "this host trusts an older certificate".
-        $sbEnrollCert = trim(
-            (string)filter_input(INPUT_POST, 'sbenrollcert')
-        );
-        if ('' === $sbEnrollCert) {
-            $sbEnrollCert = null;
-        } else {
-            $sbEnrollCert = SecureBootState::normalizeFingerprint(
-                $sbEnrollCert
-            );
-            if ('' === $sbEnrollCert) {
-                throw new \Exception(
-                    _(
-                        'Enrolled certificate must be a SHA-256 fingerprint '
-                        . '(64 hex characters)'
-                    )
-                );
-            }
-        }
         if (strtolower($host) != strtolower($this->obj->get('name'))) {
             if (!$this->obj->isHostnameSafe($host)) {
                 throw new \Exception(_('Please enter a valid hostname'));
@@ -2320,6 +2262,154 @@ class HostManagement extends FOGPage
             ->set('sbenrollvia', $sbEnrollVia)
             ->set('sbenrollcert', $sbEnrollCert)
             ->set('productKey', $productKey);
+    }
+    /**
+     * The architectures an admin may pick on a host, as a select.
+     *
+     * The architectures an admin may pick on a HOST, which is what
+     * `architectures.archIsAccess` is for -- the same flag taskTypes uses to
+     * say a task type belongs to hosts, to groups, or to both. An architecture
+     * flagged image-only never appears here. Shared by the host form and the
+     * host mass edit, so the two offer the same list.
+     *
+     * buildSelectBox() treats an empty filter as "no filter" and would then
+     * offer every row, so an empty pick list has to be spelled as an id that
+     * matches nothing rather than as nothing.
+     *
+     * @param mixed  $matchID the selected architecture id, '' for none
+     * @param string $name    the control name
+     * @param string $id      the control id, '' to use the name
+     *
+     * @return string
+     */
+    private static function hostArchSelector($matchID, $name, $id = '')
+    {
+        $archIds = array_keys(Architecture::pickable('host'));
+        if (count($archIds) < 1) {
+            $archIds = [0];
+        }
+
+        return (new ArchitectureManager())
+            ->buildSelectBox($matchID, $name, 'name', $archIds, false, 'id', $id);
+    }
+    /**
+     * A posted architecture, as `hostArchID` stores it.
+     *
+     * The blank "- Please select -" option means "not recorded", which is a
+     * real value here and not the absence of one: Architecture::canRun()
+     * reads it as "nothing to contradict" and allows the deploy. Stored as
+     * NULL rather than 0 so it reads the same as a host that has never been
+     * touched -- and because the column's foreign key refuses 0.
+     *
+     * @param mixed $value the posted value
+     *
+     * @return int|null
+     */
+    private static function archIDResolve($value)
+    {
+        $value = trim((string)$value);
+
+        return '' === $value ? null : (int)$value;
+    }
+    /**
+     * A posted Secure Boot enrollment date, as `hostSbEnrolled` stores it.
+     *
+     * Validated rather than trusted, even though the writer is an
+     * authenticated admin: an unparseable date written to a DATETIME is the
+     * GH-1243/GH-1245 family -- it stores as the zero date and the display
+     * layer then reads "never enrolled" as "enrolled in year zero". An empty
+     * box is how an enrollment is cleared, and must stay distinguishable from
+     * a bad one: '' stores NULL, garbage is refused out loud.
+     *
+     * @param mixed $sbEnrolled the posted value, as the viewer typed it
+     *
+     * @throws \Exception when the value is not a date
+     *
+     * @return string|null
+     */
+    private static function sbEnrolledResolve($sbEnrolled)
+    {
+        $sbEnrolled = trim((string)$sbEnrolled);
+        if ('' === $sbEnrolled) {
+            return null;
+        }
+        if (!self::validDate($sbEnrolled)) {
+            throw new \Exception(
+                _('Secure Boot enrollment date is not a valid date')
+            );
+        }
+        // Typed into the form, so read in the viewer's zone.
+        $sbEnrolled = self::viewerDate($sbEnrolled)
+            ->format('Y-m-d H:i:s');
+
+        return $sbEnrolled;
+    }
+    /**
+     * A posted enrollment provenance, as `hostSbEnrollVia` stores it.
+     *
+     * Lower-cased on the way in, then checked against SB_ENROLL_VIA.
+     *
+     * @param mixed $sbEnrollVia the posted value
+     *
+     * @throws \Exception when the word is not in the vocabulary
+     *
+     * @return string|null
+     */
+    private static function sbEnrollViaResolve($sbEnrollVia)
+    {
+        $sbEnrollVia = strtolower(trim((string)$sbEnrollVia));
+        if ('' === $sbEnrollVia) {
+            return null;
+        }
+        if (!in_array($sbEnrollVia, self::SB_ENROLL_VIA, true)) {
+            throw new \Exception(
+                _(
+                    'Enrolled Via must be one of: db, trusted, mok, '
+                    . 'mok-pending, manual'
+                )
+            );
+        }
+
+        return $sbEnrollVia;
+    }
+    /**
+     * A posted enrolled-certificate fingerprint, as `hostSbEnrollCert` stores
+     * it.
+     *
+     * Shape-checked, not merely trimmed, and through the same normalizer
+     * service/secureboot.report.php uses -- this format was written out
+     * longhand in four files, which is three places for it to drift. Accepts
+     * the colon-formatted form the Secure Boot page displays and the bare hex
+     * a copy-paste tends to produce, and stores the former.
+     *
+     * Rejecting rather than storing whatever arrived matters because this
+     * column's only use is an equality test: a comparison against something
+     * that is not a SHA-256 can only ever be false, silently, and looking
+     * exactly like "this host trusts an older certificate".
+     *
+     * @param mixed $sbEnrollCert the posted value
+     *
+     * @throws \Exception when the value is not a SHA-256 fingerprint
+     *
+     * @return string|null
+     */
+    private static function sbEnrollCertResolve($sbEnrollCert)
+    {
+        $sbEnrollCert = trim((string)$sbEnrollCert);
+        if ('' === $sbEnrollCert) {
+            return null;
+        }
+        $sbEnrollCert = SecureBootState::normalizeFingerprint($sbEnrollCert);
+        if ('' === $sbEnrollCert) {
+            throw new \Exception(
+                _(
+                    'Enrolled certificate must be a SHA-256 fingerprint '
+                    . '(64 hex characters)'
+                )
+            );
+        }
+
+        return $sbEnrollCert;
     }
     /**
      * Host MAC Address listing.
@@ -4796,12 +4886,20 @@ class HostManagement extends FOGPage
     /**
      * The core host fields a mass edit may change.
      *
-     * The set is every `hosts` column ADR 0038's disposition table sends to
-     * mass edit -- the General tab's fields, the AD tab's, the Enforce tab's
-     * and the printer level. Those are the ones the group page pushes today
-     * through its in-band `NULL` sentinel and its tri-state selects, so they
-     * are the ones the three-state replacement has to cover before anything
-     * can be taken away from the group page (ADR 0038 decision 10).
+     * The set started as every `hosts` column ADR 0038's disposition table
+     * sends to mass edit -- the General tab's fields, the AD tab's, the
+     * Enforce tab's and the printer level. Those are the ones the group page
+     * pushes today through its in-band `NULL` sentinel and its tri-state
+     * selects, so they are the ones the three-state replacement has to cover
+     * before anything can be taken away from the group page (ADR 0038
+     * decision 10).
+     *
+     * It also carries the rest of what a single host's General tab can set:
+     * description, architecture, desired agent version and the Secure Boot
+     * enrollment record. The group page never pushed those, so ADR 0038 did
+     * not size them, and a setting you could change on one host had no bulk
+     * path at all. The hostname is the one General field left out: it is
+     * unique, so no single value fits two hosts.
      *
      * `hostBuilding` is deliberately NOT here. The `persistentgroups` trigger
      * copies it and both field maps declare it, but nothing in the tree ever
@@ -4810,13 +4908,19 @@ class HostManagement extends FOGPage
      * alive.
      *
      * `empty` is per field because "empty" is not one value: a varchar
-     * clears to '', an image reference clears to 0. Writing '' into an int
-     * column stores 0 on a permissive server and errors on a strict one, so
-     * the answer belongs here rather than in a cast at the write.
+     * clears to '', a foreign key to NULL. Writing '' into an int column
+     * stores 0 on a permissive server and errors on a strict one, so the
+     * answer belongs here rather than in a cast at the write.
+     *
+     * `normalize`, where present, is what SET writes instead of the posted
+     * text, and it throws on a value the save must refuse. It is the helper
+     * the single-host form saves through, so one setting is never validated
+     * two ways. CLEAR never runs it.
      *
      * `kind` tells the form which control to draw. It carries no authority --
-     * the apply path reads `field` and `empty` only -- but it lives here so
-     * that the form and the whitelist cannot disagree about which fields
+     * the apply path reads `field`, `empty` and `normalize` only -- but it
+     * lives here so that the form and the whitelist cannot disagree about
+     * which fields
      * exist. `secret` marks a field the form must render EMPTY with no read
      * path: ADR 0038 decision 11 rejects the 32-asterisk placeholder the
      * group page uses, because a fake value rendered into a form has to be
@@ -4836,11 +4940,18 @@ class HostManagement extends FOGPage
      * appearing on the wrong tab. massEditTabGroups() names the tabs.
      *
      * @return array key => ['field', 'empty', 'label', 'kind', 'secret',
-     *               'tab']
+     *               'normalize', 'tab']
      */
     private function massEditCoreFields()
     {
         return [
+            'description' => [
+                'field' => 'description',
+                'empty' => '',
+                'label' => _('Host Description'),
+                'kind' => 'textarea',
+                'tab' => 'general'
+            ],
             // NULL, not 0. `hosts`.`hostImage` carries a foreign key to
             // `images`.`imageID` (ADR 0031, schema-constraints.php:145) and
             // 0 is not exempt from a constraint just because it looks like
@@ -4850,11 +4961,30 @@ class HostManagement extends FOGPage
             // NULL, so NULL is what "no image" actually IS on any 1.6
             // database. Verified against a live install: 77 hosts hold NULL
             // and none holds 0.
+            //
+            // SET to the picker's blank "- Please select -" is NULL for the
+            // same reason. It wrote '', which the column stores as the 0 the
+            // constraint refuses, so the edit failed with no clue why.
             'image' => [
                 'field' => 'imageID',
                 'empty' => null,
                 'label' => _('Image'),
                 'kind' => 'image',
+                'normalize' => static function ($value) {
+                    return '' === $value ? null : $value;
+                },
+                'tab' => 'general'
+            ],
+            // A foreign key too, so it clears to NULL. The blank option is
+            // "not recorded", and archIDResolve() stores that as NULL.
+            'archID' => [
+                'field' => 'archID',
+                'empty' => null,
+                'label' => _('Architecture'),
+                'kind' => 'arch',
+                'normalize' => static function ($value) {
+                    return self::archIDResolve($value);
+                },
                 'tab' => 'general'
             ],
             'kernel' => [
@@ -4945,6 +5075,50 @@ class HostManagement extends FOGPage
                 'empty' => 0,
                 'label' => _('Host Enforce Hostname Changes'),
                 'kind' => 'bool',
+                'tab' => 'general'
+            ],
+            // '' is "follow the global setting", which is what CLEAR means.
+            'agentDesiredVersion' => [
+                'field' => 'agentDesiredVersion',
+                'empty' => '',
+                'label' => _('Desired Agent Version'),
+                'kind' => 'text',
+                'normalize' => static function ($value) {
+                    return \FOG\Agent\Update::normalize($value);
+                },
+                'tab' => 'general'
+            ],
+            // The asserted Secure Boot record. All three columns are
+            // NULL-able from birth (schema step 377), so they clear to NULL,
+            // and each saves through the host form's own validator.
+            'sbenrolled' => [
+                'field' => 'sbenrolled',
+                'empty' => null,
+                'label' => _('Secure Boot Enrolled'),
+                'kind' => 'datetime',
+                'normalize' => static function ($value) {
+                    return self::sbEnrolledResolve($value);
+                },
+                'tab' => 'general'
+            ],
+            'sbenrollvia' => [
+                'field' => 'sbenrollvia',
+                'empty' => null,
+                'label' => _('Enrolled Via'),
+                'kind' => 'sbenrollvia',
+                'normalize' => static function ($value) {
+                    return self::sbEnrollViaResolve($value);
+                },
+                'tab' => 'general'
+            ],
+            'sbenrollcert' => [
+                'field' => 'sbenrollcert',
+                'empty' => null,
+                'label' => _('Enrolled Certificate (SHA-256)'),
+                'kind' => 'text',
+                'normalize' => static function ($value) {
+                    return self::sbEnrollCertResolve($value);
+                },
                 'tab' => 'general'
             ],
             'ADDomain' => [
@@ -5279,6 +5453,27 @@ class HostManagement extends FOGPage
             case 'biosexit':
             case 'efiexit':
                 return Setting::buildExitSelector($name, '', true, $id);
+            case 'arch':
+                return self::hostArchSelector('', $name, $id);
+            case 'textarea':
+                return self::makeTextarea('form-control', $name, '', $id);
+            case 'datetime':
+                return self::makeInput(
+                    'form-control',
+                    $name,
+                    'YYYY-MM-DD HH:MM:SS',
+                    'text',
+                    $id
+                );
+            case 'sbenrollvia':
+                // A picker, where the host form has a text box: the save
+                // refuses any other word, and here one typo would fail the
+                // edit for every selected host.
+                return self::massEditSelect(
+                    $name,
+                    $id,
+                    array_combine(self::SB_ENROLL_VIA, self::SB_ENROLL_VIA)
+                );
             case 'printerlevel':
                 return self::massEditSelect(
                     $name,
@@ -5389,6 +5584,17 @@ class HostManagement extends FOGPage
         foreach ($core as $key => $spec) {
             if (!isset($shared[$key])) {
                 continue;
+            }
+            // A stored date is shown in the viewer's zone, the zone the save
+            // reads a typed date in. Shown raw, the hint and the value typed
+            // beside it would disagree by the offset between the two.
+            if ('datetime' === ($spec['kind'] ?? '')
+                && !empty($shared[$key]['uniform'])
+                && '' !== $shared[$key]['value']
+            ) {
+                $shared[$key]['value'] = self::toDisplayStored(
+                    $shared[$key]['value']
+                )->format('Y-m-d H:i:s');
             }
             // A credential reports agreement and not the value. Both
             // secrets here match Redaction::CREDENTIAL_PATTERN, and a form
