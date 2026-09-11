@@ -158,6 +158,11 @@ class MassEdit extends FOGBase
      *                        what a column with a foreign key needs. A key
      *                        absent from the spec is skipped: the spec is
      *                        what says a key may touch a column at all.
+     *                        `normalize`, when callable, turns a SET value
+     *                        into what the column stores.
+     *
+     * @throws \Exception when a normalizer refuses a SET value. Nothing is
+     *                    written, because no column map is returned.
      *
      * @return array field name => value, ready for a manager update(). EMPTY
      *               when nothing was set or cleared -- and an empty map must
@@ -182,7 +187,17 @@ class MassEdit extends FOGBase
                 if (is_array($instruction['value'])) {
                     continue;
                 }
-                $updates[$spec[$key]['field']] = $instruction['value'];
+                $value = $instruction['value'];
+                // The spec's normalizer is the same rule the single-host form
+                // saves through, so one setting is not validated two ways. It
+                // runs here, before any update exists, so a value it refuses
+                // throws and nothing is written on any host.
+                if (isset($spec[$key]['normalize'])
+                    && is_callable($spec[$key]['normalize'])
+                ) {
+                    $value = ($spec[$key]['normalize'])($value);
+                }
+                $updates[$spec[$key]['field']] = $value;
             } elseif (self::CLEAR === $action) {
                 // Per field, because "empty" is not one value. A varchar
                 // column clears to '', a plain int to 0, and a column

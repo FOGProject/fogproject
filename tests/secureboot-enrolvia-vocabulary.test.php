@@ -90,11 +90,11 @@ if (count($stored) < 1) {
         . ' this test rather than deleting it';
 }
 
-// The form's whitelist, read off the in_array() the POST handler validates
-// against.
+// The form's whitelist, read off the constant that both the host form and
+// the host mass edit validate against.
 $allowed = [];
 $src = (string)file_get_contents($page);
-if (preg_match('/\$sbEnrollVia,\s*\[(.*?)\],/s', $src, $m)) {
+if (preg_match('/const SB_ENROLL_VIA\s*=\s*\[(.*?)\];/s', $src, $m)) {
     if (preg_match_all("/'([^']+)'/", $m[1], $vals)) {
         $allowed = $vals[1];
     }

@@ -221,6 +221,30 @@ $check(
     0 === count($missing)
 );
 
+// The rest of what a single host's General tab can set. Mass edit started as
+// the group page's replacement and carried only what that page pushed, so a
+// setting you could change on one host had no bulk path at all. The hostname
+// is deliberately absent: it is unique, so no one value fits two hosts.
+$parity = [
+    'description', 'archID', 'agentDesiredVersion', 'sbenrolled',
+    'sbenrollvia', 'sbenrollcert',
+];
+$missing = [];
+foreach ($parity as $key) {
+    if (false === strpos($spec, "'" . $key . "' => [")) {
+        $missing[] = $key;
+    }
+}
+$check(
+    'the whitelist carries every other setting on the host General tab ('
+    . implode(', ', $missing) . ')',
+    0 === count($missing)
+);
+$check(
+    'the hostname is not in the whitelist -- it is unique per host',
+    false === strpos($spec, "'name' => [")
+);
+
 // hostBuilding is copied by the persistentgroups trigger and written by
 // nothing. It must not be revived by being listed in a new form.
 $check(
