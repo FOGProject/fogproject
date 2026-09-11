@@ -1,0 +1,75 @@
+#!/bin/sh
+#   chkconfig: 2345 95 13
+#   description: Startup/shutdown script for the FOG Agent Release Sync \
+#                service.
+
+# Source function library.
+. /etc/init.d/functions
+
+# Like FOGPluginRunner and FOGRetentionRunner, this daemon runs as the web
+# user rather than root: it downloads the signed fog-agent release manifest
+# and the agent binaries this server's enrolled hosts need into a place the
+# web tier serves, so agents update from their FOG server instead of each
+# downloading from GitHub. FOGWEBUSER is rewritten to $apacheuser in the
+# installed copy by installInitScript(); the init script itself still runs
+# as root so it can write the lock file.
+RUNASUSER=FOGWEBUSER
+
+DAEMONSTART="/opt/fog/service/FOGAgentReleaseSync/FOGAgentReleaseSync &"
+DAEMONKILL=FOGAgentReleaseSync
+
+prog=FOGAgentReleaseSync
+
+start () {
+	echo -n $"Starting $prog: "
+
+	# start daemon
+	daemon --user=$RUNASUSER $DAEMONSTART
+        RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && touch /var/lock/subsys/fogagentreleasesync
+	return $RETVAL
+}
+
+stop () {
+	# stop daemon
+	echo -n $"Stopping $prog: "
+	killproc $DAEMONKILL
+	RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && rm -f /var/lock/subsys/fogagentreleasesync
+}
+
+restart() {
+	echo -n $"Restarting $prog: "
+	killproc $DAEMONKILL
+	RETVAL=$?
+	[ $RETVAL = 0 ] && rm -f /var/lock/subsys/fogagentreleasesync
+	daemon --user=$RUNASUSER $DAEMONSTART
+	RETVAL=$?
+	echo
+	[ $RETVAL = 0 ] && touch /var/lock/subsys/fogagentreleasesync
+	return $RETVAL
+}
+
+case $1 in
+	start)
+		start
+	;;
+	stop)
+		stop
+	;;
+	restart)
+		restart
+	;;
+	status)
+		status $DAEMONKILL
+		RETVAL=$?
+	;;
+	*)
+
+	echo $"Usage: $prog {start|stop|restart|status}"
+	exit 3
+esac
+
+exit $RETVAL

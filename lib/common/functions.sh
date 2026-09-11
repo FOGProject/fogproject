@@ -2646,6 +2646,21 @@ installFOGServices() {
     # Outside the dots/errorStat pair, like every other caller -- see the note
     # on the plugins directory above.
     setSELinuxContext "$servicelogs/retention" httpd_sys_rw_content_t
+    # FOGAgentReleaseSync is the third non-root daemon and needs the same
+    # thing for the same reason -- rotation renames and unlinks, so it needs
+    # write on the DIRECTORY, and $servicelogs itself is root's.
+    #
+    # Its own directory rather than sharing plugins/ or retention/. There is
+    # no privilege boundary to defend between the three (all run as
+    # $apacheuser), but a release-sync log filed under either would suggest
+    # it is a plugin, or a retention, concern, which it is not.
+    dots "Creating FOG agent release sync log directory"
+    mkdir -p $servicelogs/agentreleasesync >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $servicelogs/agentreleasesync >>$error_log 2>&1
+    errorStat $?
+    # Outside the dots/errorStat pair, like every other caller -- see the note
+    # on the plugins directory above.
+    setSELinuxContext "$servicelogs/agentreleasesync" httpd_sys_rw_content_t
     # Where the web tier records what FOS told it (fogproject#1206). Its own
     # subdirectory for the same reason the plugin runner's is: the writer is
     # the web user, rotation renames and unlinks, and $servicelogs itself is
@@ -2713,6 +2728,34 @@ installFOGServices() {
     # Labeled where the directory is created rather than in a sweep at the end,
     # so a relocated $fogprogramdir (GH-850) is labeled wherever it landed.
     setSELinuxContext "$fogprogramdir/cache" httpd_sys_rw_content_t
+    # Where FOGAgentReleaseSync stores the signed fog-agent release manifest
+    # and the agent binaries this server's enrolled hosts need, so agents
+    # update from their own FOG server instead of each downloading from
+    # GitHub. mkdir -p rather than a recreate, and chown/chmod on the
+    # directory only, never -R: an admin's already-downloaded releases have
+    # to survive every re-run of this function, on a fresh install exactly
+    # as much as an upgrade, and a recursive chown would re-root files the
+    # daemon still has open to serve.
+    dots "Creating FOG agent directory"
+    mkdir -p $fogprogramdir/agent >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $fogprogramdir/agent >>$error_log 2>&1
+    chmod 0755 $fogprogramdir/agent >>$error_log 2>&1
+    errorStat $?
+    # Outside the dots/errorStat pair, like every other caller. Same GH-964
+    # reasoning as the cache directory above: /opt/fog inherits usr_t, which
+    # httpd_t may read but not write, so without this label the daemon's own
+    # writes here fail silently on an enforcing host.
+    setSELinuxContext "$fogprogramdir/agent" httpd_sys_rw_content_t
+    # versions/ is the actual download target; agent/ itself is only ever a
+    # parent. Kept as two directories, not one, so a future release asset
+    # that is not a version-keyed binary (the manifest itself, a signature)
+    # has somewhere to live beside versions/ rather than inside it.
+    dots "Creating FOG agent versions directory"
+    mkdir -p $fogprogramdir/agent/versions >>$error_log 2>&1
+    chown ${apacheuser}:${apacheuser} $fogprogramdir/agent/versions >>$error_log 2>&1
+    chmod 0755 $fogprogramdir/agent/versions >>$error_log 2>&1
+    errorStat $?
+    setSELinuxContext "$fogprogramdir/agent/versions" httpd_sys_rw_content_t
     # FOG's own PHP session store (FOG_SESSION_DIR in commons/init.php, which
     # points session.save_path here at runtime). FOG used to share the distro's
     # session directory, where session.gc_maxlifetime is 1440 -- 24 minutes on
@@ -5290,21 +5333,23 @@ installInitScript() {
                 "$initdpath/$(basename $unitfile)" >>$error_log 2>&1
         done
     fi
-    # ADR 0010: FOGPluginRunner and FOGRetentionRunner are the two daemons that
-    # do NOT run as root. The plugin runner executes third-party plugin code,
-    # which runs as the web user everywhere else; the retention runner needs a
-    # database connection and nothing else. Their shipped unit/init scripts
-    # carry the literal FOGWEBUSER, rewritten here to the real account in the
-    # INSTALLED copy only, on the same "cp -f restores the source every run"
-    # reasoning as the path substitution above.
+    # ADR 0010: FOGPluginRunner, FOGRetentionRunner and FOGAgentReleaseSync are
+    # the three daemons that do NOT run as root. The plugin runner executes
+    # third-party plugin code, which runs as the web user everywhere else; the
+    # retention runner needs a database connection and nothing else; the
+    # release sync runner downloads into a directory the web tier serves.
+    # Their shipped unit/init scripts carry the literal FOGWEBUSER, rewritten
+    # here to the real account in the INSTALLED copy only, on the same "cp -f
+    # restores the source every run" reasoning as the path substitution above.
     #
-    # The loop is over every unit file rather than those two by name, which is
-    # why adding the second one needed no change here.
+    # The loop is over every unit file rather than those three by name, which
+    # is why adding the third one needed no change here.
     #
     # Unconditional, unlike that one. A placeholder left in place is not a
     # cosmetic default: systemd refuses to start a unit whose User= does not
     # resolve, which is the intended failure -- loud, rather than quietly
-    # running plugin code, or a sweep that issues DELETEs, as root.
+    # running plugin code, a sweep that issues DELETEs, or a release download,
+    # as root.
     for unitfile in $initdsrc/*; do
         sed -i "s|FOGWEBUSER|${apacheuser}|g" \
             "$initdpath/$(basename $unitfile)" >>$error_log 2>&1

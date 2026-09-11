@@ -3044,6 +3044,11 @@ class Route extends FOGBase
         $fields = ['agentCheckin' => self::niceDate()->format('Y-m-d H:i:s')];
         if ('' !== $version) {
             $fields['agentVersion'] = $version;
+            // In memory as well. The update below writes the row, not this
+            // object, and Latest mode resolves from the running version: on
+            // the poll right after an update, a stale one could name a
+            // version below the one the agent now runs.
+            $Host->set('agentVersion', $version);
         }
         // Close the update loop on the poll rather than only on a result
         // report (design 0015 section 12). Arrival is the common case and it

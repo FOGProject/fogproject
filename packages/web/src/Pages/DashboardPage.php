@@ -879,14 +879,35 @@ class DashboardPage extends FOGPage
             json_encode(
                 [
                     'total' => $total,
-                    'desired' => \FOG\Agent\Update::normalize(
-                        self::getSetting('FOG_AGENT_DESIRED_VERSION')
-                    ),
+                    'desired' => self::_agentTarget(),
                     'versions' => $out,
                     'states' => $states
                 ]
             )
         );
+    }
+    /**
+     * The version the dashboard marks as the fleet's target (schema 438).
+     *
+     * Pinned: the pinned version. Latest: the newest release, which ring 0
+     * gets first. Off: none. FOG_AGENT_MIN_VERSION raises each, and in Off
+     * mode it is the target itself, because hosts below it are raised to it.
+     *
+     * @return string
+     */
+    private static function _agentTarget()
+    {
+        $fleet = \FOG\Agent\Update::fleet();
+        $target = '';
+        if (\FOG\Agent\Update::MODE_PINNED === $fleet['mode']) {
+            $target = $fleet['pinned'];
+        } elseif (\FOG\Agent\Update::MODE_LATEST === $fleet['mode']) {
+            $target = \FOG\Agent\Releases::latest($fleet['firstSeen'], 0, '', $fleet['now']);
+        }
+        if ('' === $target || \FOG\Agent\Update::belowMinimum($target, $fleet['min'])) {
+            $target = \FOG\Agent\Releases::isVersion($fleet['min']) ? $fleet['min'] : $target;
+        }
+        return $target;
     }
     /**
      * Returns the running FOG version of each graph-enabled storage node,

@@ -119,6 +119,10 @@ class State extends FOGBase
      */
     const PAYLOADS = [
         'snapin' => Snapins::class,
+        // A release file from this server's cache (schema 438). The id is
+        // an agentReleaseArtifacts row; payload() serves only the file for
+        // the version the host is told to run.
+        'update' => Update::class,
     ];
 
     /**

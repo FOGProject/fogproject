@@ -4777,6 +4777,21 @@ class FOGConfigurationPage extends FOGPage
                     $vals
                 );
                 break;
+            case 'FOG_AGENT_UPDATE_MODE':
+                // Schema 438. The stored words are the ones Agent\Update
+                // switches on, so the labels carry the explanation.
+                $vals = [
+                    _('Off - hosts do not update') => \FOG\Agent\Update::MODE_OFF,
+                    _('Pinned - every host runs FOG_AGENT_DESIRED_VERSION') => \FOG\Agent\Update::MODE_PINNED,
+                    _('Latest - newest release, by update ring') => \FOG\Agent\Update::MODE_LATEST
+                ];
+                $input = self::_selectInput(
+                    $row['settingID'],
+                    $row['settingKey'],
+                    $row['settingValue'],
+                    $vals
+                );
+                break;
             case 'FOG_HOST_IDENTIFY_SMBIOS':
                 $vals = [
                     _('Off - MAC address only') => 'off',
@@ -5282,6 +5297,57 @@ class FOGConfigurationPage extends FOGPage
                             );
                         }
                         break;
+                        // fog-agent updates (schema 438). Each is refused rather
+                        // than stored when Agent\Update cannot read it, because
+                        // it falls back silently: a broken ring list becomes
+                        // 0,3,7 and a bad mode becomes Off or Pinned.
+                    case 'FOG_AGENT_UPDATE_MODE':
+                        // $set is unset when the key came as a file upload.
+                        if (!in_array($set ?? '', \FOG\Agent\Update::MODES, true)) {
+                            throw new \Exception(
+                                $name . ' ' . _('must be off, pinned or latest')
+                            );
+                        }
+                        break;
+                    case 'FOG_AGENT_UPDATE_RINGS':
+                        $rings = \FOG\Agent\Releases::parseRings($set ?? '');
+                        if (null === $rings) {
+                            throw new \Exception(
+                                $name . ' ' . _('must be delays in days from 0 to 365, separated by commas, for example 0,3,7')
+                            );
+                        }
+                        $set = implode(',', $rings);
+                        break;
+                    case 'FOG_AGENT_KEEP_VERSIONS':
+                        $set = $set ?? '';
+                        if (!ctype_digit($set) || (int)$set > 100) {
+                            throw new \Exception(
+                                $name . ' ' . _('must be a whole number from 0 to 100')
+                            );
+                        }
+                        $set = (string)(int)$set;
+                        break;
+                    case 'FOG_AGENT_DESIRED_VERSION':
+                    case 'FOG_AGENT_MIN_VERSION':
+                        $set = \FOG\Agent\Update::normalize($set ?? '');
+                        if ('' !== $set && !\FOG\Agent\Releases::isVersion($set)) {
+                            throw new \Exception(
+                                $name . ' ' . _('must be an exact version, for example 0.1.8')
+                            );
+                        }
+                        // The minimum must be a real release. Checked only
+                        // once the sync has read a manifest: the sync stays
+                        // idle in Off mode until a minimum is set, so a
+                        // first minimum can only be checked afterward.
+                        if ('FOG_AGENT_MIN_VERSION' === $name && '' !== $set) {
+                            $listed = \FOG\Agent\Releases::firstSeen();
+                            if (count($listed) > 0 && !isset($listed[$set])) {
+                                throw new \Exception(
+                                    $name . ' ' . $set . ' ' . _('is not a version in the release manifest')
+                                );
+                            }
+                        }
+                        break;
                     case 'FOG_CLIENT_BANNER_SHA':
                         continue 2;
                     case 'FOG_CLIENT_BANNER_IMAGE':
@@ -5384,6 +5450,24 @@ class FOGConfigurationPage extends FOGPage
                     trim((string) $Setting->category)
                 ];
                 unset($Setting);
+            }
+            // The pinned version may not be below the minimum. Checked after
+            // the loop, against the value this post saves or else the stored
+            // one, so raising the minimum past the pin is refused too.
+            $saving = array_column($items, 2, 1);
+            $pin = $saving['FOG_AGENT_DESIRED_VERSION']
+                ?? self::getSetting('FOG_AGENT_DESIRED_VERSION');
+            $min = $saving['FOG_AGENT_MIN_VERSION']
+                ?? self::getSetting('FOG_AGENT_MIN_VERSION');
+            if (\FOG\Agent\Update::belowMinimum($pin, (string)$min)) {
+                throw new \Exception(
+                    sprintf(
+                        'FOG_AGENT_DESIRED_VERSION %s %s %s',
+                        \FOG\Agent\Update::normalize($pin),
+                        _('is below FOG_AGENT_MIN_VERSION'),
+                        \FOG\Agent\Update::normalize($min)
+                    )
+                );
             }
             if (count($items) > 0) {
                 $SettingMan = new SettingManager();

@@ -178,6 +178,23 @@ return [
                 'atCreated' => 'datetime DEFAULT NULL',
             ],
         ],
+        'agentReleaseArtifacts' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `agentReleaseArtifacts` ( `araID` int(11) NOT NULL AUTO_INCREMENT, `araVersion` varchar(50) NOT NULL DEFAULT \'\', `araOS` varchar(16) NOT NULL DEFAULT \'\', `araArch` varchar(16) NOT NULL DEFAULT \'\', `araSHA256` varchar(64) NOT NULL DEFAULT \'\', `araSize` bigint(20) NOT NULL DEFAULT 0, `araURL` varchar(1024) NOT NULL DEFAULT \'\', `araSecurity` tinyint(1) NOT NULL DEFAULT 0, `araInManifest` tinyint(1) NOT NULL DEFAULT 1, `araFirstSeen` datetime DEFAULT NULL, `araCachedPath` varchar(255) NOT NULL DEFAULT \'\', `araCachedAt` datetime DEFAULT NULL, PRIMARY KEY (`araID`), UNIQUE KEY `araFile` (`araVersion`,`araOS`,`araArch`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'araID' => 'int(11) NOT NULL',
+                'araVersion' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'araOS' => 'varchar(16) NOT NULL DEFAULT \'\'',
+                'araArch' => 'varchar(16) NOT NULL DEFAULT \'\'',
+                'araSHA256' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'araSize' => 'bigint(20) NOT NULL DEFAULT 0',
+                'araURL' => 'varchar(1024) NOT NULL DEFAULT \'\'',
+                'araSecurity' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'araInManifest' => 'tinyint(1) NOT NULL DEFAULT 1',
+                'araFirstSeen' => 'datetime DEFAULT NULL',
+                'araCachedPath' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'araCachedAt' => 'datetime DEFAULT NULL',
+            ],
+        ],
         'agentWake' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `agentWake` ( `awID` int(11) NOT NULL AUTO_INCREMENT, `awTargetID` int(11) NOT NULL, `awSenderID` int(11) NOT NULL, `awRequestedAt` datetime DEFAULT NULL, `awExpiresAt` datetime DEFAULT NULL, `awStatus` varchar(16) NOT NULL DEFAULT \'pending\', `awPackets` int(11) NOT NULL DEFAULT 0, `awDetail` varchar(255) NOT NULL DEFAULT \'\', `awReportedAt` datetime DEFAULT NULL, `awRequestedBy` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`awID`), KEY `awSenderStatus` (`awSenderID`,`awStatus`), KEY `awTargetID` (`awTargetID`), KEY `awExpiresAt` (`awExpiresAt`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -469,7 +486,7 @@ return [
             ],
         ],
         'hosts' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) DEFAULT NULL, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` tinyint(1) NOT NULL DEFAULT 0, `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` tinyint(1) NOT NULL DEFAULT 1, `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, `hostArchID` mediumint(9) DEFAULT NULL, `hostSbState` varchar(16) DEFAULT NULL, `hostSbStateTime` datetime DEFAULT NULL, `hostSbEnrolled` datetime DEFAULT NULL, `hostSbEnrollCert` varchar(95) DEFAULT NULL, `hostSbEnrollVia` varchar(16) DEFAULT NULL, `hostAgentFingerprint` varchar(64) NOT NULL DEFAULT \'\', `hostAgentNotAfter` datetime DEFAULT NULL, `hostAgentVersion` varchar(50) NOT NULL DEFAULT \'\', `hostAgentCheckin` datetime DEFAULT NULL, `hostAgentDesiredVersion` varchar(50) NOT NULL DEFAULT \'\', `hostAgentUpdateState` varchar(16) NOT NULL DEFAULT \'\', PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`), KEY `fk_hosts_hostImage` (`hostImage`), KEY `fk_hosts_hostArchID` (`hostArchID`), KEY `hostAgentFingerprint` (`hostAgentFingerprint`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) DEFAULT NULL, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` tinyint(1) NOT NULL DEFAULT 0, `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` tinyint(1) NOT NULL DEFAULT 1, `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, `hostArchID` mediumint(9) DEFAULT NULL, `hostSbState` varchar(16) DEFAULT NULL, `hostSbStateTime` datetime DEFAULT NULL, `hostSbEnrolled` datetime DEFAULT NULL, `hostSbEnrollCert` varchar(95) DEFAULT NULL, `hostSbEnrollVia` varchar(16) DEFAULT NULL, `hostAgentFingerprint` varchar(64) NOT NULL DEFAULT \'\', `hostAgentNotAfter` datetime DEFAULT NULL, `hostAgentVersion` varchar(50) NOT NULL DEFAULT \'\', `hostAgentCheckin` datetime DEFAULT NULL, `hostAgentDesiredVersion` varchar(50) NOT NULL DEFAULT \'\', `hostAgentUpdateState` varchar(16) NOT NULL DEFAULT \'\', `hostAgentUpdateRing` varchar(4) NOT NULL DEFAULT \'\', PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`), KEY `fk_hosts_hostImage` (`hostImage`), KEY `fk_hosts_hostArchID` (`hostArchID`), KEY `hostAgentFingerprint` (`hostAgentFingerprint`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hostID' => 'int(11) NOT NULL',
                 'hostName' => 'varchar(16) NOT NULL',
@@ -515,9 +532,10 @@ return [
                 'hostAgentFingerprint' => 'varchar(64) NOT NULL DEFAULT \'\'',
                 'hostAgentNotAfter' => 'datetime DEFAULT NULL',
                 'hostAgentVersion' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'hostAgentCheckin' => 'datetime DEFAULT NULL',
                 'hostAgentDesiredVersion' => 'varchar(50) NOT NULL DEFAULT \'\'',
                 'hostAgentUpdateState' => 'varchar(16) NOT NULL DEFAULT \'\'',
-                'hostAgentCheckin' => 'datetime DEFAULT NULL',
+                'hostAgentUpdateRing' => 'varchar(4) NOT NULL DEFAULT \'\'',
             ],
         ],
         'hostSoftware' => [

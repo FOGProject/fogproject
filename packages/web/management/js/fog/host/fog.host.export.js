@@ -37,6 +37,7 @@
         {data: 'agentNotAfter', visible: false},
         {data: 'agentVersion', visible: false},
         {data: 'agentDesiredVersion', visible: false},
+        {data: 'agentUpdateRing', visible: false},
         {data: 'agentCheckin', visible: false},
         {data: 'agentUpdateState', visible: false},
         {data: 'associations', visible: false}

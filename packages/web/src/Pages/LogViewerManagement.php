@@ -144,6 +144,7 @@ class LogViewerManagement extends FOGPage
                     $fogfiles
                 );
                 list(
+                    $agentreleasesynclogname,
                     $filedeletelogname,
                     $imagereplicatorlogname,
                     $imagesizelogname,
@@ -156,6 +157,7 @@ class LogViewerManagement extends FOGPage
                     $snapinhashlogname,
                     $snapinreplicatorlogname,
                 ) = self::getSetting([
+                    'AGENTRELEASESYNCLOGFILENAME',
                     'FILEDELETEQUEUELOGFILENAME',
                     'IMAGEREPLICATORLOGFILENAME',
                     'IMAGESIZELOGFILENAME',
@@ -218,6 +220,11 @@ class LogViewerManagement extends FOGPage
                     $fogfiles
                 );
                 $retentionrunnerlog = array_shift($retentionrunnerlog);
+                $agentreleasesynclog = preg_grep(
+                    '#('.$agentreleasesynclogname.'$)#i',
+                    $fogfiles
+                );
+                $agentreleasesynclog = array_shift($agentreleasesynclog);
                 $svcmasterlog = preg_grep(
                     '#('.$servicelogname.'$)#i',
                     $fogfiles
@@ -329,6 +336,15 @@ class LogViewerManagement extends FOGPage
                     ) => (
                         $retentionrunnerlog ?
                         $retentionrunnerlog :
+                        null
+                    ),
+                    (
+                        $agentreleasesynclog ?
+                        _('Agent Release Sync') :
+                        null
+                    ) => (
+                        $agentreleasesynclog ?
+                        $agentreleasesynclog :
                         null
                     ),
                 ];
