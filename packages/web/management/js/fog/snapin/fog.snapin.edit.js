@@ -12,12 +12,40 @@
         opts = {andFile: 1};
     });
 
+    // The "Snapin File (exists)" selector. Its row stays hidden while the
+    // storage node holds no snapin files, as the page drew it before.
+    var snapinFileSelector = $('#snapinfileexist'),
+        snapinFileSelectorShow = function(count) {
+            snapinFileSelector.closest('.row').toggleClass('d-none', count < 1);
+        },
+        snapinFileSelectorUpdate = function() {
+            var url = '../management/index.php?node='
+                + Common.node
+                + '&sub=getSnapinFileSelector&id='
+                + Common.id;
+            $.get(url, function(data) {
+                // change lets select2 redraw and the command preview follow.
+                snapinFileSelector.html(data.content).trigger('change');
+                snapinFileSelectorShow(data.count);
+            }, 'json');
+        };
+
+    snapinFileSelectorShow(snapinFileSelector.find('option[value!=""]').length);
+
     $.registerGeneralTab({
         nameInputSel: '#snapin',
         formSel: '#snapin-general-form',
         deleteOpts: function() {
             $('#andFile').trigger('change');
             return opts;
+        },
+        onSuccess: function() {
+            // A saved upload is now on the storage node and is this snapin's
+            // file. Clear the file input so the next Update does not send it
+            // again, then re-read the list so the new file shows as selected.
+            $('#snapinfile').val('');
+            $('#snapin-general-form .filedisp').val('');
+            snapinFileSelectorUpdate();
         }
     });
 

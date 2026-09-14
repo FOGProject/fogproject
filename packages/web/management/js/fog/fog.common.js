@@ -1435,6 +1435,8 @@ $.registerListPage = function(opts) {
 // opts.onRenameSuccess  - function(newName, oldName) called after a successful
 //                         save, before originalName advances, for page-specific
 //                         follow-up (user display name, printer #printercopy).
+// opts.onSuccess        - function() called after every successful save, for
+//                         page state the save changed (snapin file selector).
 $.registerGeneralTab = function(opts) {
   opts = opts || {};
   var nameInput = opts.nameInputSel ? $(opts.nameInputSel) : null,
@@ -1480,6 +1482,9 @@ $.registerGeneralTab = function(opts) {
           opts.onRenameSuccess(newName, originalName);
         }
         originalName = newName;
+      }
+      if (typeof opts.onSuccess === 'function') {
+        opts.onSuccess();
       }
     }, opts.processTarget);
   });

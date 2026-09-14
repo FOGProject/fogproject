@@ -800,27 +800,10 @@ class SnapinManagement extends FOGPage
             $this->obj->get('returnCodes')
         );
 
-        self::$selected = $snapinfileexists;
-        $StorageGroup = $this->obj->getStorageGroup();
-        $StorageNode = $StorageGroup->getMasterStorageNode();
-        $filelist = $StorageNode->get('snapinfiles');
-        $filelist = array_values(
-            array_unique(
-                array_filter(
-                    $filelist
-                )
-            )
-        );
-        natcasesort($filelist);
-        ob_start();
-        array_map(self::$buildSelectBox, $filelist);
         $selectFiles = '<select class='
             . '"snapinfileexist-input cmdlet3 form-control fog-select2" '
             . 'name="snapinfileexist" id="snapinfileexist">'
-            . '<option value="">- '
-            . _('Please select an option')
-            . ' -</option>'
-            . ob_get_clean()
+            . $this->_snapinFileOptions($snapinfileexists)[0]
             . '</select>';
 
         $packtypes = '<select class="form-control" '
@@ -954,19 +937,13 @@ class SnapinManagement extends FOGPage
                 true
             )
             . '</div>',
-            (
-                count($filelist) > 0 ?
-                self::makeLabel(
-                    $labelClass,
-                    'snapinfileexist',
-                    _('Snapin File (exists)')
-                ) :
-                ''
-            ) => (
-                count($filelist) > 0 ?
-                $selectFiles :
-                ''
-            ),
+            // Always rendered, so a refresh after an upload has a selector to
+            // fill. fog.snapin.edit.js hides the row while it holds no files.
+            self::makeLabel(
+                $labelClass,
+                'snapinfileexist',
+                _('Snapin File (exists)')
+            ) => $selectFiles,
             self::makeLabel(
                 $labelClass . ' packnotemplate d-none',
                 'args',
@@ -1711,5 +1688,62 @@ class SnapinManagement extends FOGPage
                 'disablebtn' => false
             ]
         ));
+    }
+    /**
+     * Gets the "Snapin File (exists)" options, re-read from the storage node.
+     *
+     * The general tab calls this after a save, so a file it just uploaded
+     * shows in the list, selected, without a page reload.
+     *
+     * @return void
+     */
+    public function getSnapinFileSelector()
+    {
+        header('Content-type: application/json');
+        list($options, $count) = $this->_snapinFileOptions(
+            basename((string)$this->obj->get('file'))
+        );
+        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(
+            [
+                'content' => $options,
+                'count' => $count
+            ]
+        ));
+    }
+    /**
+     * Builds the "Snapin File (exists)" options from the master storage node.
+     *
+     * Shared by the general tab and getSnapinFileSelector(), so the list the
+     * page draws and the list it refreshes after an upload cannot drift.
+     *
+     * @param string $selected The file name to mark selected.
+     *
+     * @return array [string $options, int $count]
+     */
+    private function _snapinFileOptions($selected)
+    {
+        self::$selected = $selected;
+        $filelist = $this
+            ->obj
+            ->getStorageGroup()
+            ->getMasterStorageNode()
+            ->get('snapinfiles');
+        $filelist = array_values(
+            array_unique(
+                array_filter(
+                    $filelist
+                )
+            )
+        );
+        natcasesort($filelist);
+        ob_start();
+        array_map(self::$buildSelectBox, $filelist);
+        return [
+            '<option value="">- '
+            . _('Please select an option')
+            . ' -</option>'
+            . ob_get_clean(),
+            count($filelist)
+        ];
     }
 }
