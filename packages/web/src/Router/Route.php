@@ -3984,6 +3984,11 @@ class Route extends FOGBase
                     // click its header.
                 case 'lastping':
                 case 'lastcheckin':
+                    // fog-agent's check-in is stamped by agentPoll() with the
+                    // same niceDate() writer as lastcheckin, so it takes the
+                    // same formatter. Without it the host list showed the raw
+                    // stored UTC value beside a converted legacy one.
+                case 'agentCheckin':
                     // The two Secure Boot datetimes ride the same formatter.
                     // sbstatetime is server-stamped, sbenrolled is
                     // hand-editable, and neither needs its own rendering --

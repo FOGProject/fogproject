@@ -181,8 +181,17 @@ class HostManagement extends FOGPage
             // of when the host was last actually reached -- and a check-in
             // is the FOG client talking to us, which has nothing to do with
             // host lookup at all.
+            //
+            // Two check-in columns, because the two clients write two
+            // columns: hostLastCheckin by the legacy FOG Client,
+            // hostAgentCheckin by fog-agent's poll. With only the legacy one
+            // listed, every agent host read blank here, and a host that ran
+            // the legacy client before its agent showed that client's last
+            // date -- which looked like the only host checking in. Both are
+            // named for the client, as the host edit form already does.
             _('Last Ping'),
-            _('Last Check-In'),
+            _('Last Client Check-In'),
+            _('Last Agent Check-In'),
             _('Imaged'),
             _('Assigned Image'),
             // Next to the assigned image on purpose: those two cells together
@@ -232,6 +241,7 @@ class HostManagement extends FOGPage
             $this->attributes,
             ['data-col' => 'lastping'],
             ['data-col' => 'lastcheckin'],
+            ['data-col' => 'agentCheckin'],
             ['data-col' => 'deployed'],
             ['data-col' => 'imageLink'],
             ['data-col' => 'arch'],
