@@ -154,6 +154,45 @@ else
     echo "  SKIP: openssl absent, rebuild-stamp CA cases not run"
 fi
 
+# --- hard-linked autoexec.ipxe ------------------------------------------------
+# configureTFTPandPXE hard-links every autoexec.ipxe path to the root copy, so
+# the destination holds ONE file under several names. The first cp in the loop
+# rewrote all of them at once, and the loop then read each later name as
+# "changed since FOG wrote it" and reported it as the admin's own copy. That
+# happened on every re-run, and deleting the file only hid it for one run.
+tftpdirsrc="$WORK/linksrc"
+tftpdirdst="$WORK/linkdst"
+mkdir -p "$tftpdirsrc/i386-efi" "$tftpdirsrc/secureboot" "$tftpdirdst"
+for p in autoexec.ipxe i386-efi/autoexec.ipxe secureboot/autoexec.ipxe; do
+    echo "fog-boot-script" > "$tftpdirsrc/$p"
+done
+# Replays the post-copy steps of configureTFTPandPXE: delay block, links, stamp.
+installRun() {
+    _copyIpxeTree
+    _applyBootDelay >/dev/null
+    ln -f "$tftpdirdst/autoexec.ipxe" "$tftpdirdst/i386-efi/autoexec.ipxe"
+    ln -f "$tftpdirdst/autoexec.ipxe" "$tftpdirdst/secureboot/autoexec.ipxe"
+    _restampIpxeManifest "$tftpdirdst" \
+        autoexec.ipxe i386-efi/autoexec.ipxe secureboot/autoexec.ipxe
+}
+installRun
+installRun
+is "$ipxeSkipped" "" "a re-run does not report FOG's own linked boot script as the admin's"
+installRun
+is "$ipxeSkipped" "" "and still does not on the run after that"
+
+# The linked script really edited by the admin is still kept, under every name.
+echo "ADMIN SCRIPT" >> "$tftpdirdst/autoexec.ipxe"
+_copyIpxeTree
+is "$(echo "$ipxeSkipped" | tr ' ' '\n' | sort | tr '\n' ' ')" \
+   "autoexec.ipxe i386-efi/autoexec.ipxe secureboot/autoexec.ipxe " \
+   "an admin edit to the linked script is kept under every name"
+if grep -q "ADMIN SCRIPT" "$tftpdirdst/secureboot/autoexec.ipxe"; then
+    ok "the admin's edit survives the copy"
+else
+    bad "the admin's edit was overwritten through a hard link"
+fi
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || { echo "  (see $error_log)"; exit 1; }
 exit 0

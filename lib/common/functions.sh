@@ -3597,6 +3597,16 @@ _copyIpxeTree() {
         [[ -z $rel || $rel == "." ]] && continue
         mkdir -p "${dst}/${rel}" >>$error_log 2>&1
     done < <(cd "$src" && find . -type d 2>>$error_log)
+    # Hash every recorded destination BEFORE the first cp. configureTFTPandPXE
+    # hard-links the autoexec.ipxe paths into one file, and cp -f writes through
+    # a link. Hashing inside the copy loop saw the first name's fresh copy under
+    # every later name, and reported each of those as the admin's own file on
+    # every re-run. The decision is about the tree as this run found it.
+    declare -A havesums=()
+    for rel in "${!fogsums[@]}"; do
+        [[ -f ${dst}/${rel} ]] || continue
+        havesums["$rel"]=$(sha256sum "${dst}/${rel}" 2>/dev/null | cut -d' ' -f1)
+    done
     local staging="${manifest}.new"
     : > "$staging" 2>>$error_log
     while IFS= read -r rel; do
@@ -3609,7 +3619,7 @@ _copyIpxeTree() {
         target="${dst}/${rel}"
         recorded="${fogsums[$rel]:-}"
         if [[ -f $target && -n $recorded ]]; then
-            have=$(sha256sum "$target" 2>/dev/null | cut -d' ' -f1)
+            have="${havesums[$rel]:-}"
             if [[ -n $have && $have != "$recorded" ]]; then
                 ipxeSkipped="${ipxeSkipped}${ipxeSkipped:+ }${rel}"
                 # Carry the ORIGINAL sum forward, not the admin's. Recording
