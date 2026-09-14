@@ -5664,6 +5664,9 @@ msgstr ""
 msgid "Last Check-In"
 msgstr ""
 
+msgid "Last Client Check-In"
+msgstr ""
+
 msgid "Last Deployed"
 msgstr "última Desplegado"
 

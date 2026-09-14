@@ -5397,6 +5397,10 @@ msgstr "タスクチェックイン日"
 msgid "Last Check-In"
 msgstr "タスクチェックイン日"
 
+#, fuzzy
+msgid "Last Client Check-In"
+msgstr "タスクチェックイン日"
+
 msgid "Last Deployed"
 msgstr "最終展開"
 
