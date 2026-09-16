@@ -1351,6 +1351,30 @@ class BootMenu extends FOGBase
         $chkdsk = $chkdsk == 1 ? 0 : 1;
         $ftp = $StorageNode->get('ip');
         $port = ($mc ? $mc->get('port') : null);
+        // $mac was never assigned in this method, so every false tasking
+        // booted FOS with an empty mac= kernel argument (GH-1767). A false
+        // tasking is by definition a machine that may not be registered, and
+        // getHostItem() leaves an invalid Host(0) rather than null, so
+        // isValid() is the test for which side to take.
+        //
+        // The unregistered side is the one that matters here, because it is
+        // the ONLY side setTasking() reaches -- it calls falseTasking()
+        // precisely when the host is invalid. It reads self::$requestMacs
+        // rather than a 'mac' request field: the iPXE menu posts
+        // mac0/macboot/mac1..mac7 and NEVER a field spelt 'mac', so reading
+        // one would leave the argument just as empty as the missing
+        // assignment does. getHostItem() has already merged and normalised
+        // every one of those fields, which makes it the only place the
+        // address is actually available here.
+        //
+        // One address, not the merged list: FOS parses /proc/cmdline with
+        // `eval "export ${var}"` (funcs.sh), so a '|'-joined value would be
+        // read as a pipeline rather than as a value.
+        $mac = self::$Host->isValid()
+            ? (string) self::$Host->get('mac')
+            : (string) (
+                isset(self::$requestMacs[0]) ? self::$requestMacs[0] : ''
+            );
         $kernelArgsArray = array(
             "mac=$mac",
             "ftp=$ftp",
@@ -2033,7 +2057,13 @@ class BootMenu extends FOGBase
             if (self::$Host->isValid()) {
                 $mac = self::$Host->get('mac');
             } else {
-                $mac = isset($_REQUEST['mac']) ? $_REQUEST['mac'] : '';
+                // Same correction as falseTasking(): there is no 'mac'
+                // request field to read -- the iPXE menu posts mac0,
+                // macboot and mac1..mac7 -- so this arm always produced an
+                // empty argument.
+                $mac = isset(self::$requestMacs[0])
+                    ? self::$requestMacs[0]
+                    : '';
             }
             $clamav = '';
             if (in_array($TaskType->get('id'), array(21, 22))) {
