@@ -262,7 +262,11 @@ abstract class BootMenuBase extends FOGBase
             if (self::$Host->isValid()) {
                 $mac = self::$Host->get('mac');
             } else {
-                $mac = $_REQUEST['mac'];
+                // Same correction as falseTasking(): there is no 'mac'
+                // request field to read -- the iPXE menu posts mac0,
+                // macboot and mac1..mac7 -- so this arm warned on an
+                // undefined index and produced an empty argument.
+                $mac = self::$requestMacs[0] ?? '';
             }
             $chkdsk = !isset($chkdsk) || $chkdsk == 1 ? 0 : 1;
             $MACs = self::$Host->getMyMacs();

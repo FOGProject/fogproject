@@ -720,6 +720,18 @@ class FOGBase
      */
     public static $settings = [];
     /**
+     * The MAC addresses the request identified itself with.
+     *
+     * Populated by the real getHostItem() from the mac0/macboot/mac1..mac7
+     * fields the iPXE menu posts. A scenario sets it directly, because
+     * filter_input() reads the SAPI's own request and has nothing to read
+     * under the CLI -- which is also why the boot menu must not go back to
+     * the request for this itself.
+     *
+     * @var array
+     */
+    public static $requestMacs = [];
+    /**
      * Base constructor; nothing to bootstrap.
      */
     public function __construct()
