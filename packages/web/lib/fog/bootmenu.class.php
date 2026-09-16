@@ -1363,7 +1363,7 @@ class BootMenu extends FOGBase
         // rather than a 'mac' request field: the iPXE menu posts
         // mac0/macboot/mac1..mac7 and NEVER a field spelt 'mac', so reading
         // one would leave the argument just as empty as the missing
-        // assignment does. getHostItem() has already merged and normalised
+        // assignment does. getHostItem() has already merged and normalized
         // every one of those fields, which makes it the only place the
         // address is actually available here.
         //

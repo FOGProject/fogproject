@@ -330,11 +330,11 @@ abstract class FOGBase
      * getHostItem() resolves these out of the request to find the host, and
      * this is the only place they survive: a request from an UNREGISTERED
      * machine leaves self::$Host invalid, so there is no host to read them
-     * back from afterwards. The boot menu needs exactly that -- a machine
+     * back from afterward. The boot menu needs exactly that -- a machine
      * with no host row still has to be handed its own MAC on the FOS kernel
      * line, because FOS reports back to the server with it.
      *
-     * Normalised and validated, in the order getHostItem() was given them.
+     * Normalized and validated, in the order getHostItem() was given them.
      *
      * @var array
      */
