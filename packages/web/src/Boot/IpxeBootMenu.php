@@ -1692,18 +1692,26 @@ class IpxeBootMenu extends BootMenuBase
         $chkdsk = $chkdsk == 1 ? 0 : 1;
         $ftp = $StorageNode->get('ip');
         $port = ($mc ? $mc->get('port') : null);
-        // $mac was never assigned in this method, so every false tasking
-        // booted FOS with an empty mac= kernel argument. Resolved the same
-        // way getTasking() does it: a false tasking is by definition a host
-        // that may not be registered, and getHostItem() leaves an invalid
-        // Host(0) rather than null, so isValid() is the test.
+        // A false tasking is by definition a machine that may not be
+        // registered, and getHostItem() leaves an invalid Host(0) rather
+        // than null, so isValid() is the test for which side to take.
+        //
+        // The unregistered side is the one that matters here, because it is
+        // the ONLY side setTasking() reaches -- it calls falseTasking()
+        // precisely when the host is invalid. It reads self::$requestMacs
+        // rather than a 'mac' request field: the iPXE menu posts
+        // mac0/macboot/mac1..mac7 and NEVER a field spelt 'mac', so reading
+        // one left the argument just as empty as the missing assignment this
+        // replaced (GH-1767). getHostItem() has already merged and
+        // normalized every one of those fields, which makes it the only
+        // place the address is actually available here.
+        //
+        // One address, not the merged list: FOS parses /proc/cmdline with
+        // `eval "export ${var}"` (funcs.sh), so a '|'-joined value would be
+        // read as a pipeline rather than as a value.
         $mac = self::$Host->isValid()
-            ? self::$Host->get('mac')
-            : (string) (
-                filter_input(INPUT_GET, 'mac')
-                ?: filter_input(INPUT_POST, 'mac')
-                ?: ''
-            );
+            ? (string) self::$Host->get('mac')
+            : (string) (self::$requestMacs[0] ?? '');
         $kernelArgsArray = [
             "mac=$mac",
             "ftp=$ftp",
