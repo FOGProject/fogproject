@@ -1703,7 +1703,7 @@ class IpxeBootMenu extends BootMenuBase
         // mac0/macboot/mac1..mac7 and NEVER a field spelt 'mac', so reading
         // one left the argument just as empty as the missing assignment this
         // replaced (GH-1767). getHostItem() has already merged and
-        // normalised every one of those fields, which makes it the only
+        // normalized every one of those fields, which makes it the only
         // place the address is actually available here.
         //
         // One address, not the merged list: FOS parses /proc/cmdline with

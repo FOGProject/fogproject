@@ -270,7 +270,7 @@ $scenarios = [
      * a host. It comes from FOGBase::$requestMacs, which getHostItem() fills
      * from the mac0/macboot/mac1..mac7 fields the menu posts -- there is no
      * 'mac' field in that request, which is exactly why reading one produced
-     * an empty argument and left FOS unable to identify itself afterwards.
+     * an empty argument and left FOS unable to identify itself afterward.
      */
     'falsetasking-unregistered' => [
         'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
