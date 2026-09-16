@@ -92,6 +92,15 @@ FOGBase::$settings = array_merge(
         'FOG_PXE_BOOT_IMAGE_ARM' => 'arm_init.cpio.gz',
         'FOG_PXE_HIDDENMENU_TIMEOUT' => '3',
         'FOG_PXE_MENU_HIDDEN' => '0',
+        // The six falseTasking() destructures positionally; stock values
+        // from commons/schema.php. Absent, the harness throws rather than
+        // shifting every later list() variable by one.
+        'FOG_DISABLE_CHKDSK' => '1',
+        'FOG_KERNEL_ARGS' => '',
+        'FOG_KERNEL_DEBUG' => '0',
+        'FOG_MULTICAST_RENDEZVOUS' => '',
+        'FOG_NONREG_DEVICE' => '',
+        'FOG_UDPCAST_MAXWAIT' => '10',
         'FOG_PXE_MENU_TIMEOUT' => '3',
         'FOG_REGISTRATION_ENABLED' => '1',
         'FOG_TFTP_PXE_KERNEL' => 'bzImage',
@@ -190,6 +199,15 @@ FOGBase::$HookManager = new StubHookManager(
 $_REQUEST = (array)($scenario['request'] ?? array());
 $_GET = $_REQUEST;
 
+/*
+ * What getHostItem() resolved out of the request's mac0/macboot/mac1..mac7
+ * fields. Set here rather than derived from 'request' because that is what
+ * the real boot.php does -- it merges those fields itself and never writes a
+ * 'mac' one back -- and because filter_input() has no request to read under
+ * the CLI SAPI.
+ */
+FOGBase::$requestMacs = (array)($scenario['requestMacs'] ?? array());
+
 require_once $classFile;
 
 if (!empty($scenario['hooks'])) {
@@ -205,4 +223,24 @@ if (!empty($scenario['hooks'])) {
     exit(0);
 }
 
-new BootMenu();
+/*
+ * False-tasking mode. falseTasking() is not reachable from the constructor
+ * without a valid login -- the menu item that leads to it posts credentials
+ * and authenticateOnly() is stubbed to refuse -- so a scenario names it
+ * directly. It is worth reaching: it is the ONLY path that boots FOS with no
+ * task row behind it, and the reason it had never been rendered here is the
+ * reason GH-1767 survived in it.
+ *
+ * The constructor's own render stays in the golden ahead of it. In the real
+ * request the constructor flushes the '#!ipxe' header and then dispatches,
+ * so the leading menu here is scaffolding rather than what the wire carries;
+ * the subject of these two scenarios is the `kernel ... mac=` line at the end.
+ */
+$menu = new BootMenu();
+$falseTasking = (array)($scenario['falseTasking'] ?? array());
+if ($falseTasking) {
+    // Built through StubTask rather than `new Image` directly: Image is
+    // declared in the harness, so only a call site INSIDE the harness
+    // resolves to the stub -- from here the name reaches the real model.
+    $menu->falseTasking('', (new StubTask(array('image' => $falseTasking)))->getImage());
+}
