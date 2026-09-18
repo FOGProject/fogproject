@@ -554,9 +554,15 @@ abstract class FOGService extends FOGBase
                 $testip = $StorageNode->ip;
                 $sizeurl = sprintf('%s://%s/fog/status/getsize.php', self::$httpproto, $testip);
                 $hashurl = sprintf('%s://%s/fog/status/gethash.php', self::$httpproto, $testip);
+                // Route::stripNodeSecrets() removes the node password from
+                // every storagenode payload, including this in-process one,
+                // so read it from the model instead.
                 self::$FOGFTP
                     ->set('username', $StorageNode->user)
-                    ->set('password', $StorageNode->pass)
+                    ->set(
+                        'password',
+                        (new StorageNode($StorageNode->id))->get('pass')
+                    )
                     ->set('host', $StorageNode->ip);
                 try {
                     self::$FOGFTP->connect();

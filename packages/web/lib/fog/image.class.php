@@ -271,7 +271,9 @@ class Image extends FOGController
             );
             $ip = $StorageNode->ip;
             $user = $StorageNode->user;
-            $pass = $StorageNode->pass;
+            // The storagenode payload carries no password (see
+            // Route::stripNodeSecrets()), so read it from the model.
+            $pass = (new StorageNode($StorageNode->id))->get('pass');
             self::$FOGFTP
                 ->set('host', $ip)
                 ->set('username', $user)
