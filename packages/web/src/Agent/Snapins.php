@@ -138,7 +138,11 @@ class Snapins extends FOGBase
                 'run_with_args' => (string)$Snapin->get('runWithArgs'),
                 'timeout' => (int)$Snapin->get('timeout'),
                 'action' => $action,
-                'abort_on_fail' => (bool)$SnapinJob->get('abortOnFail')
+                'abort_on_fail' => (bool)$SnapinJob->get('abortOnFail'),
+                // A snapin pack: the agent unzips it and replaces
+                // [FOG_SNAPIN_PATH] in run_with and run_with_args, as
+                // the legacy client did from the same flag.
+                'pack' => (bool)$Snapin->get('packtype')
             ];
         }
         return $out;
