@@ -4196,6 +4196,30 @@ pkgFirstInstalled() {
     done
     return 1
 }
+# True when EPEL is already set up on this box -- asked as a PROVIDES query,
+# deliberately, not as a query for the name "epel-release".
+#
+# EPEL ships under more than one package name. AlmaLinux's x86-64-v2 builds
+# carry epel-release-almalinux-altarch, which "Provides: epel-release" and
+# "Conflicts: epel-release" -- it IS EPEL, and it refuses to coexist with the
+# Fedora-built package of that name. So `rpm -q epel-release` answers "not
+# installed" on a host whose EPEL repository is present and enabled, the
+# installer then tries to lay Fedora's epel-release on top, and dnf rejects
+# the whole transaction:
+#
+#   package epel-release-almalinux-altarch-10-6.el10.alma_altarch.noarch from
+#   extras conflicts with epel-release provided by epel-release-10-8.el10_2
+#
+# That is fatal, not cosmetic: the "skipOk" passed to errorStat() at the call
+# site only suppresses the "OK" line, so the rejected transaction ends the
+# install at "Adjusting repository" (GH-1772).
+#
+# --whatprovides asks the question the installer actually has -- is EPEL
+# configured? -- so any rebuild or rename answers it, and a host with no EPEL
+# at all still returns non-zero and gets Fedora's package as before.
+epelIsConfigured() {
+    rpm -q --whatprovides epel-release
+}
 installPackages() {
     [[ ${FOG_install_lang} == yes ]] && FOG_packages="${FOG_packages} gettext"
     FOG_packages="${FOG_packages} jq"
@@ -4254,9 +4278,7 @@ installPackages() {
                     FOG_packages="${FOG_packages// dhcp / dhcp-server }" >>$error_log 2>&1
                     ;;
                 *)
-                    x="epel-release"
-                    eval $packageQuery >>$error_log 2>&1
-                    if [[ ! $? -eq 0 ]]; then
+                    if ! epelIsConfigured >>$error_log 2>&1; then
                         y="https://dl.fedoraproject.org/pub/epel/epel-release-latest-${OSVersion}.noarch.rpm"
                         $packageinstaller $y >>$error_log 2>&1
                         errorStat $? "skipOk"
