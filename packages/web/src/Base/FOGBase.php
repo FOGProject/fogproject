@@ -2742,11 +2742,22 @@ abstract class FOGBase
         return rtrim(chunk_split($stripped, 5, '-'), '-');
     }
     /**
-     * Validates a Windows product key as true Base24.
+     * Validates a Windows product key against the key-entry alphabet.
      *
-     * A valid key is exactly 25 characters drawn only from the Base24
-     * alphabet (BCDFGHJKMPQRTVWXY2346789). This is the tightest definition
-     * -- it excludes A E I O U L N S Z and 0 1.
+     * A valid key is exactly 25 characters drawn only from the alphabet
+     * Microsoft prints on a key: BCDFGHJKMNPQRTVWXY2346789. It excludes the
+     * characters that are easy to misread -- A E I O U L S Z and 0 1 -- and
+     * nothing else.
+     *
+     * N IS PART OF IT. The 24-character set this used to check is the Base24
+     * alphabet used to DECODE a pre-Windows-8 key into its binary form, where
+     * N is not a digit of the encoding. It is not the set of characters a key
+     * can be typed with: Windows 8 and later carry N in the key itself, so
+     * every modern key that has one was rejected at entry. Microsoft's own
+     * published KMS client keys show it -- Windows 10/11 Pro is
+     * W269N-WFGWX-YVC9B-4J6C9-T83GX and Enterprise is
+     * NPPR9-FWDCX-D2C8J-H872K-2YT43. Reported on the forums against
+     * 1.6.0-beta.5384 (topic 18252).
      *
      * @param mixed $val the value to validate
      *
@@ -2755,7 +2766,7 @@ abstract class FOGBase
     public static function productKeyIsValid($val)
     {
         return (bool)preg_match(
-            '/^[BCDFGHJKMPQRTVWXY2346789]{25}$/',
+            '/^[BCDFGHJKMNPQRTVWXY2346789]{25}$/',
             self::productKeyStrip($val)
         );
     }
