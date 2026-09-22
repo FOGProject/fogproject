@@ -1060,9 +1060,11 @@ $.escapedColumn = function(field) {
 }
 // Windows product-key display mask (mirror of FOGBase::productKeyMask).
 // Empty -> ''. Already-masked (contains a bullet) -> returned unchanged so
-// re-masking a redisplayed value is idempotent. A well-formed Base24 key
-// (25 chars, tight charset) keeps its first and last group and bullets the
-// middle three; anything else is fully bulleted.
+// re-masking a redisplayed value is idempotent. A well-formed key (25 chars
+// from the key-entry alphabet, N included) keeps its first and last group and
+// bullets the middle three; anything else is fully bulleted. The charset has
+// to match FOGBase::productKeyIsValid exactly, or a key the server stores is
+// shown here as an unrecognized blob.
 $.productKeyMask = function(value) {
   var str = String(value == null ? '' : value);
   if (str.indexOf('•') !== -1) {
@@ -1073,7 +1075,7 @@ $.productKeyMask = function(value) {
     return '';
   }
   var bullets = '•••••';
-  if (/^[BCDFGHJKMPQRTVWXY2346789]{25}$/.test(stripped)) {
+  if (/^[BCDFGHJKMNPQRTVWXY2346789]{25}$/.test(stripped)) {
     return [
       stripped.slice(0, 5),
       bullets,
