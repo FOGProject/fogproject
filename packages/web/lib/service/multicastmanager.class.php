@@ -252,7 +252,7 @@ class MulticastManager extends FOGService
         $queueTasks = [];
         while (true) {
             // Ensure we have a fresh complete and cancel variable.
-            $completeTasks = $cancelTasks = [];
+            $completeTasks = $cancelTasks = $awaitCheckout = [];
 
             // Handles the sleep timer for us.
             $date = self::niceDate();
@@ -663,10 +663,12 @@ class MulticastManager extends FOGService
                                     $Session->set('clients', 0)->save();
                                 }
                                 // The udp-sender process exited on its own, so the
-                                // session is finished even if the per-host tasks were
-                                // never marked complete (e.g. hosts rebooted/shut down
-                                // after imaging). Queue it for completion so its state
-                                // is cleared and it stops blocking new group sessions.
+                                // session is finished. Queue it for completion so its
+                                // state is cleared and it stops blocking new group
+                                // sessions. The clients have only just received the
+                                // last partition and are still post-processing, so
+                                // their tasks are left for their own checkout.
+                                $awaitCheckout[$runningTask->getID()] = true;
                                 $completeTasks[] = $runningTask;
                             }
                         } else {
@@ -771,7 +773,9 @@ class MulticastManager extends FOGService
                             $Task->getID(),
                             $Task->getName(),
                             (
-                                $Session->complete() ?
+                                $Session->complete(
+                                    isset($awaitCheckout[$Task->getID()])
+                                ) ?
                                 _('is now completed') :
                                 _('could not be completed')
                             )
