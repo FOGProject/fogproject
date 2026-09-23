@@ -473,14 +473,25 @@ class TaskQueue extends TaskingElement
                         $this->Task->get('id')
                     )->load('taskID');
                 $MulticastSession = $MCTask->getMulticastSession();
-                if ($MulticastSession->get('clients') < 0) {
-                    $clients = 1;
-                } else {
-                    $clients = $MulticastSession->get('clients') - 1;
+                // The manager closes a session as soon as udp-sender exits
+                // and leaves this task and its association row for us (see
+                // MulticastSession::complete()). The session no longer counts
+                // clients, so release the row instead. A missing session is
+                // left alone: save() on it would insert an empty row.
+                if ($MulticastSession->isValid()
+                    && $MulticastSession->get('stateID') == self::getCompleteState()
+                ) {
+                    $MCTask->destroy();
+                } elseif ($MulticastSession->isValid()) {
+                    if ($MulticastSession->get('clients') < 0) {
+                        $clients = 1;
+                    } else {
+                        $clients = $MulticastSession->get('clients') - 1;
+                    }
+                    $MulticastSession
+                        ->set('clients', $clients)
+                        ->save();
                 }
-                $MulticastSession
-                    ->set('clients', $clients)
-                    ->save();
             }
             self::$Host
                 ->set('pub_key', '')
