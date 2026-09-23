@@ -283,7 +283,7 @@ class MulticastManager extends FOGService
             $this->waitDbReady();
 
             // Ensure we have a fresh complete and cancel variable.
-            $completeTasks = $cancelTasks = [];
+            $completeTasks = $cancelTasks = $awaitCheckout = [];
 
             // Handles the sleep timer for us.
             $date = self::niceDate();
@@ -709,6 +709,11 @@ class MulticastManager extends FOGService
                                     );
                                     $cancelTasks[] = $runningTask;
                                 } else {
+                                    // The clients have only just received the
+                                    // last partition and are still
+                                    // post-processing, so their tasks are left
+                                    // for their own checkout.
+                                    $awaitCheckout[$runningTask->getID()] = true;
                                     $completeTasks[] = $runningTask;
                                 }
                             }
@@ -809,7 +814,9 @@ class MulticastManager extends FOGService
                             $Task->getID(),
                             $Task->getName(),
                             (
-                                $Session->complete() ?
+                                $Session->complete(
+                                    isset($awaitCheckout[$Task->getID()])
+                                ) ?
                                 _('is now completed') :
                                 _('could not be completed')
                             )
