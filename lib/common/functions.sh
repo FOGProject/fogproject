@@ -9675,6 +9675,19 @@ _rootIssuedWebCA() {
     [[ -n ${PKI_web_ca_cert} && -s ${PKI_web_ca_cert} ]] || return 1
     openssl verify -trusted "${PKI_root_ca_cert}" "${PKI_web_ca_cert}" >/dev/null 2>&1
 }
+# Do $1 and $2 name the same file? Symlinks and repeated slashes resolved,
+# and neither file has to exist. Portable to busybox, which has no
+# `readlink -m`: the directory is resolved with `cd -P`, the name appended.
+_canonPath() {
+    local d
+    d=$(cd -P -- "$(dirname -- "$1")" 2>/dev/null && pwd -P) \
+        || { printf '%s\n' "$1" | tr -s /; return 0; }
+    printf '%s/%s\n' "${d%/}" "$(basename -- "$1")"
+}
+_samePath() {
+    [[ -n $1 && -n $2 ]] || return 1
+    [[ "$(_canonPath "$1")" == "$(_canonPath "$2")" ]]
+}
 # The Web zone: an intermediate whose leaf is what the vhost serves. Replacing
 # this zone has zero endpoint impact -- browsers just need the root trusted,
 # and fog-client already trusts it, because the root is what it pins.
@@ -9718,8 +9731,17 @@ $(_nameConstraints)" "FOG Web UI"
     # client's --ca-file, say) has that choice honored on every later run,
     # the same guarantee _resolveWebLeafPaths already gives
     # sslprivkey/sslpubcert.
-    if [[ -z ${PKI_web_trust_chain} || ${PKI_web_trust_chain} == "${cadir}/.fogWebCAchain.pem" \
-        || ${PKI_web_trust_chain} == "${webdir}/.fogWebCAchain.pem" || ${PKI_web_trust_chain} == "${PKI_root_ca_cert}" ]]; then
+    #
+    # Compared as canonical paths, not strings. A value persisted before the
+    # pki tree moved to /etc/fog/pki still reads /opt/fog/pki/..., which is
+    # now a symlink to the same file, and PKI_client_cert_dir's trailing slash
+    # spells the root .../ssl//CA/.fogCA.pem. Both are FOG's own defaults; as
+    # strings they read as an admin override, so the chain was never written
+    # and the vhost served the leaf alone.
+    if [[ -z ${PKI_web_trust_chain} ]] \
+        || _samePath "${PKI_web_trust_chain}" "${cadir}/.fogWebCAchain.pem" \
+        || _samePath "${PKI_web_trust_chain}" "${webdir}/.fogWebCAchain.pem" \
+        || _samePath "${PKI_web_trust_chain}" "${PKI_root_ca_cert}"; then
         PKI_web_trust_chain="${cadir}/.fogWebCAchain.pem"
         # The root appended has to be the one that actually ISSUED
         # ${PKI_web_ca_cert}, and the path guard above cannot tell. Under
@@ -10129,6 +10151,12 @@ _webChainCandidates() {
     # exactly the path it always has, and this function needs no branch for it.
     [[ -n ${PKI_web_trust_chain} && -s ${PKI_web_trust_chain} ]] && \
         cat "${PKI_web_trust_chain}" 2>>$error_log
+    # And the CA FOG signed the leaf with. The chain file above normally
+    # carries it, but a missing chain file left the pool empty and the leaf
+    # served alone while this certificate sat on disk. The walk checks
+    # signatures, so a CA that did not sign this leaf costs nothing.
+    [[ -n ${PKI_web_ca_cert} && -s ${PKI_web_ca_cert} ]] && \
+        cat "${PKI_web_ca_cert}" 2>>$error_log
     # Everything below is about a leaf FOG did not issue. For FOG's own leaf
     # the chain file above is the whole truth, and reading the admin's vhost or
     # scanning ACME trees could only add candidates the walk has to reject.
@@ -11191,9 +11219,10 @@ EOF
         # Same override guard as createWebIntermediateCA's chain assignment,
         # mirrored here so a switch between the two branches across runs
         # still recognizes either FOG-managed default as "not an override".
-        if [[ -z ${PKI_web_trust_chain} || ${PKI_web_trust_chain} == "${PKI_root_ca_cert}" \
-            || ${PKI_web_trust_chain} == "$(_pkiZoneDir web)/ca/.fogWebCAchain.pem" \
-            || ${PKI_web_trust_chain} == "$(_pkiZoneDir web)/.fogWebCAchain.pem" ]]; then
+        if [[ -z ${PKI_web_trust_chain} ]] \
+            || _samePath "${PKI_web_trust_chain}" "${PKI_root_ca_cert}" \
+            || _samePath "${PKI_web_trust_chain}" "$(_pkiZoneDir web)/ca/.fogWebCAchain.pem" \
+            || _samePath "${PKI_web_trust_chain}" "$(_pkiZoneDir web)/.fogWebCAchain.pem"; then
             PKI_web_trust_chain="${PKI_root_ca_cert}"
         fi
     fi
