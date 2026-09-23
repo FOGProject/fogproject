@@ -39,13 +39,13 @@ class TaskQueue extends TaskingElement
      * Idempotent completion ack.
      *
      * A client may post its completion (Post_Stage2/Post_Stage3) after the
-     * server has already moved the task to Complete. This happens most often
-     * with multicast: MulticastManager completes the session the moment
-     * udp-sender exits, while the clients are still flushing disk and running
-     * post-image fixups (e.g. NTFS hostname change). By the time a client
-     * checks out there is no longer an active task, so the normal flow throws
-     * "No Active Task found" and the client loops on that error even though
-     * imaging actually succeeded.
+     * server has already moved the task to Complete: a retry whose first
+     * checkout succeeded but whose reply was lost, or a task closed from the
+     * UI. With no active task the normal flow throws "No Active Task found"
+     * and the client loops on that error even though imaging actually
+     * succeeded. (MulticastManager used to cause this on every multicast by
+     * completing the tasks the moment udp-sender exited. It now leaves them
+     * for the client's own checkout -- see MulticastSession::complete().)
      *
      * If the host's most recent matching-type task is already in the Complete
      * state and was checked in recently, reply with '##' (the success token
@@ -675,14 +675,25 @@ class TaskQueue extends TaskingElement
                         $this->Task->get('id')
                     )->load('taskID');
                 $MulticastSession = $MCTask->getMulticastSession();
-                if ($MulticastSession->get('clients') < 0) {
-                    $clients = 1;
-                } else {
-                    $clients = $MulticastSession->get('clients') - 1;
+                // The manager closes a session as soon as udp-sender exits
+                // and leaves this task and its association row for us (see
+                // MulticastSession::complete()). The session no longer counts
+                // clients, so release the row instead. A missing session is
+                // left alone: save() on it would insert an empty row.
+                if ($MulticastSession->isValid()
+                    && $MulticastSession->get('stateID') == self::getCompleteState()
+                ) {
+                    $MCTask->destroy();
+                } elseif ($MulticastSession->isValid()) {
+                    if ($MulticastSession->get('clients') < 0) {
+                        $clients = 1;
+                    } else {
+                        $clients = $MulticastSession->get('clients') - 1;
+                    }
+                    $MulticastSession
+                        ->set('clients', $clients)
+                        ->save();
                 }
-                $MulticastSession
-                    ->set('clients', $clients)
-                    ->save();
             }
             self::$Host
                 ->set('pub_key', '')
