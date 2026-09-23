@@ -10224,7 +10224,13 @@ _webChainCandidates() {
 # -partial_chain treats the candidate as an anchor, which reduces the question
 # to the only one that matters: did this key sign the certificate below it?
 _walkChainFromLeaf() {
-    local leaf="$1" pool="$2" tmpd cur want found f subj issuer hop st=1
+    local leaf="$1" pool="$2" tmpd cur want found f subj issuer hop why st=1
+    # Why the last candidate NAMED as the issuer was refused, or empty. A
+    # global, because the caller has to tell "nothing here issued this leaf"
+    # from "the issuer is here and openssl rejected it" -- a name-constraint
+    # violation on FOG's own Web CA is the second, and the advice for the
+    # first (go find an intermediate) sends the admin the wrong way.
+    webChainRejectWhy=""
     [[ -n $leaf && -s $leaf && -n $pool && -s $pool ]] || return 1
     command -v openssl >/dev/null 2>&1 || return 1
     tmpd=$(mktemp -d) || return 1
@@ -10245,7 +10251,13 @@ _walkChainFromLeaf() {
             [[ -f $f ]] || continue
             subj=$(openssl x509 -in "$f" -noout -subject -nameopt RFC2253 2>/dev/null)
             [[ -n $subj && ${subj#subject=} == "$want" ]] || continue
-            openssl verify -partial_chain -trusted "$f" "$cur" >/dev/null 2>&1 || continue
+            if ! why=$(openssl verify -partial_chain -trusted "$f" "$cur" 2>&1); then
+                # "error 47 at 0 depth lookup: permitted subtree violation" --
+                # the line that says what, not the "verification failed" after it.
+                why=$(printf '%s\n' "$why" | grep -m1 '^error [0-9]')
+                webChainRejectWhy="${why:-verification failed}"
+                continue
+            fi
             found="$f"
             break
         done
@@ -10285,6 +10297,29 @@ _warnNoWebIntermediate() {
     echo "     - SSLCertificateChainFile / ssl_trusted_certificate in your vhost"
     echo "   Your ACME client already has it: certbot keeps it as chain.pem in"
     echo "   /etc/letsencrypt/live/<name>/, acme.sh as ca.cer."
+}
+# The issuer WAS found, and openssl refused it. Separate from
+# _warnNoWebIntermediate because the cause and the remedy both differ: nothing
+# is missing, so pointing the admin at ACME chain files is wrong. For FOG's own
+# Web CA the usual cause is its name constraints, fixed when it was minted and
+# never re-issued, against a leaf that now carries a new name or address.
+_warnWebIssuerRejected() {
+    local issuer
+    issuer=$(openssl x509 -in "${PKI_web_vhost_cert}" -noout -issuer -nameopt RFC2253 2>/dev/null)
+    echo " * WARNING: the web leaf's issuer was found but does not verify it."
+    echo "   Leaf:   ${PKI_web_vhost_cert}"
+    echo "   Issuer: ${issuer#issuer=}"
+    echo "   openssl: ${webChainRejectWhy}"
+    echo "   FOG is serving the leaf ALONE, and this installer's own calls,"
+    echo "   the schema deploy included, will refuse it."
+    if [[ $webChainRejectWhy == *"subtree violation"* ]]; then
+        echo "   The leaf carries a name or address outside the CA's name"
+        echo "   constraints -- this server was renamed, changed address, or"
+        echo "   gained an --extra-server-name after the CA was created."
+        echo "   A CA is never re-issued once it exists, so remove it and re-run"
+        echo "   (add --internal-domain <domain> if the name needs permitting):"
+        echo "     rm -rf $(_pkiZoneDir web)"
+    fi
 }
 _writeWebChainFiles() {
     local leafdir
@@ -10335,7 +10370,11 @@ _writeWebChainFiles() {
         # two silences apply -- it returns 0 when it found the leaf's issuer
         # (as a root, so nothing to send) and 1 when it found nothing at all,
         # which is a server about to serve an unverifiable leaf.
-        [[ $located -ne 0 ]] && _warnNoWebIntermediate
+        if [[ $located -ne 0 && -n $webChainRejectWhy ]]; then
+            _warnWebIssuerRejected
+        elif [[ $located -ne 0 ]]; then
+            _warnNoWebIntermediate
+        fi
         return 0
     fi
     # Assemble beside the live file, not over it. This bundle is what the web
