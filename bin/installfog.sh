@@ -1502,6 +1502,15 @@ while [[ -z $blGo ]]; do
                     # into that package, so they have to be there first.
                     downloadplugins
                     configureHttpd
+                    # Straight after configureHttpd, not beside
+                    # configureFOGService. The daemons require the web root's
+                    # commons/base.inc.php, so /opt/fog/service and the web
+                    # root are one program. updateDB and the steps after it can
+                    # exit the installer; when the copy came late, that left a
+                    # new web root under old daemon code, and every daemon then
+                    # died at startup on a class the new tree no longer
+                    # provides (a bare FOGCore after ADR 0013's aliases went).
+                    installFOGServices
                     # GH-1580: straight after the rm -rf/rebuild that removed
                     # them. Unlike restorePreservedCustomizations, this has no
                     # reason to wait for configureTFTPandPXE -- nothing between
@@ -1595,7 +1604,6 @@ while [[ -z $blGo ]]; do
                     _installCATrustAnchor
                     configureUDPCast
                     installInitScript
-                    installFOGServices
                     configureFOGService
                     configureNFS
                     # GH-964 sibling: after every service is configured, so
