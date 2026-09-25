@@ -2375,7 +2375,7 @@ listPackages() {
     # here -- _publishLocalBootFiles() builds the local ESP boot archives with
     # it. Named "zip" identically on apt/dnf/pacman/apk, so it needs no
     # per-distro alternatives list.
-    FOG_packages="${FOG_packages} jq unzip zip attr ${WEB_server_engine}"
+    FOG_packages="${FOG_packages} jq unzip zip attr sudo ${WEB_server_engine}"
     case ${FOG_os_id} in
         1)
             FOG_packages="${FOG_packages} php-bcmath bc"
@@ -4225,6 +4225,14 @@ installPackages() {
     FOG_packages="${FOG_packages} jq"
     FOG_packages="${FOG_packages} unzip"
     FOG_packages="${FOG_packages} attr"
+    # sudo, because three helpers install /etc/sudoers.d drop-ins and the web
+    # tier reaches them through sudo. Added here and not only in the distro
+    # lists: an upgrade reuses the FOG_packages its .fogsettings recorded, so
+    # a server first installed before sudo was needed never gained it. /etc/
+    # sudoers.d did not exist there, every drop-in write failed, and the
+    # kernel signing, node certificate and Certificates page helpers were
+    # left uninstalled. Named "sudo" on every supported distro.
+    FOG_packages="${FOG_packages} sudo"
     # Secure Boot kernel signing is on by default, so sbsign/sbverify are a
     # baseline requirement rather than something the admin installs first.
     # The name splits by distro (sbsigntool on Debian/Alpine, sbsigntools on
@@ -9515,7 +9523,12 @@ _resolveNetbootProto() {
 # that runs from configureDefaultiPXEfile() in the middle of writing a file and
 # has no business owning several lines of output.
 _reportNetbootProto() {
+    local leaf
     if [[ ${BOOT_url_proto} == https ]]; then
+        # The leaf the vhost serves, else FOG's canonical path -- the same
+        # choice _detectExternalCertManagement makes.
+        leaf="$(_vhostCertPath)"
+        [[ -n $leaf && -f $leaf ]] || leaf="${PKI_web_vhost_cert}"
         # Legal, and worth saying: forcing HTTPS netboot with neither of the
         # two things that make it work is the one combination that produces a
         # server which looks configured and cannot boot a client. Warned, not
@@ -9532,6 +9545,25 @@ _reportNetbootProto() {
             echo " # fail at the TLS handshake with nothing logged on the server.    #"
             echo " #                                                                 #"
             echo " # If that is not what you meant: --netboot-proto http             #"
+            echo " ###################################################################"
+            echo
+        # The declaration is persisted, never measured -- but one case CAN be
+        # measured: a leaf that chains to this server's own root is FOG's, and
+        # FOG's root is not public. Reported from a live server: an admin ran
+        # --public-web-cert once on a FOG-issued certificate, the first upgrade
+        # that completed switched netboot to HTTPS, and every PXE client
+        # stopped at "Permission denied". Warned, not overridden: the setting
+        # is the admin's.
+        elif [[ ${PKI_web_cert_publicly_trusted} == yes && ${BOOT_rebuild_ipxe_with_my_ca} != yes ]] \
+            && _leafChainsToFogRoot "$leaf"; then
+            echo
+            echo " ###################################################################"
+            echo " # WARNING: netboot is set to HTTPS because --public-web-cert is   #"
+            echo " # set, but this server's web certificate was issued by FOG's own  #"
+            echo " # CA. That CA is not public, so iPXE cannot verify it, and every  #"
+            echo " # PXE client will stop at \"Permission denied\".                    #"
+            echo " #                                                                 #"
+            echo " # Re-run the installer with: --no-public-web-cert                 #"
             echo " ###################################################################"
             echo
         fi
@@ -10852,6 +10884,36 @@ _resolveVhostNames() {
 # reported by _warnExternalCertTooling() instead, which advises and changes
 # nothing. Vhost drift is likewise only advisory: an admin may have edited the
 # vhost for reasons that have nothing to do with the certificate.
+# Does the leaf in $1 chain to this server's own root?
+# 0 = it does, 1 = it does not, 2 = cannot tell (no leaf, no root, no openssl).
+#
+# The Web CA is offered as well, from wherever FOG keeps it. The detector runs
+# before createWebIntermediateCA settles ${PKI_web_trust_chain}, so on an
+# upgrade that variable still holds its persisted value -- on a server that
+# came from 1.5, the root itself. The intermediate that signed FOG's own leaf
+# was then missing from the check, the leaf read as foreign, and the canonical
+# path was pointed outside the zone. Only files that exist are passed: openssl
+# refuses to run on a missing -untrusted file. Signatures are still checked, so
+# a CA that did not sign the leaf adds nothing. The zone path is spelled out
+# rather than asked of _pkiZoneDir, which can migrate the PKI tree as a side
+# effect.
+#
+# -trusted, not -CAfile, and the leaf passed as its own -untrusted source: see
+# arm 3 of _detectExternalCertManagement for both.
+_leafChainsToFogRoot() {
+    local leaf="$1" webca webzone="${PKI_root_dir:-/etc/fog/pki}"
+    local -a webcas=()
+    [[ -n $leaf && -f $leaf && -n ${PKI_root_ca_cert} && -f ${PKI_root_ca_cert} ]] || return 2
+    command -v openssl >/dev/null 2>&1 || return 2
+    webzone="${webzone%/}/web"
+    for webca in "${PKI_web_ca_cert}" "${webzone}/ca/.fogWebCA.pem" "${webzone}/.fogWebCA.pem"; do
+        [[ -n $webca && -s $webca ]] && webcas+=(-untrusted "$webca")
+    done
+    openssl verify -trusted "${PKI_root_ca_cert}" \
+        ${PKI_web_trust_chain:+-untrusted "${PKI_web_trust_chain}"} "${webcas[@]}" \
+        -untrusted "$leaf" "$leaf" >/dev/null 2>&1 && return 0
+    return 1
+}
 _detectExternalCertManagement() {
     local p leaf vhostcert customdir
     # 0. A leaf and its key dropped into the customizations tree, under the two
@@ -10936,14 +10998,13 @@ _detectExternalCertManagement() {
     #    re-issuing or re-keying its own web certificate. Found while getting
     #    an Alpine install to complete (#863); nothing about it is Alpine
     #    specific.
-    if [[ -n $leaf && -f $leaf && -n ${PKI_root_ca_cert} && -f ${PKI_root_ca_cert} ]] \
-        && command -v openssl >/dev/null 2>&1; then
-        if ! openssl verify -trusted "${PKI_root_ca_cert}" \
-            ${PKI_web_trust_chain:+-untrusted "${PKI_web_trust_chain}"} -untrusted "$leaf" \
-            "$leaf" >/dev/null 2>&1; then
-            echo "$leaf does not chain to this server's own CA"
-            return 0
-        fi
+    #    The chain test itself is _leafChainsToFogRoot, shared with the
+    #    netboot report. Only a definite "does not chain" counts here; a test
+    #    that could not run is not evidence.
+    _leafChainsToFogRoot "$leaf"
+    if [[ $? -eq 1 ]]; then
+        echo "$leaf does not chain to this server's own CA"
+        return 0
     fi
     return 1
 }
