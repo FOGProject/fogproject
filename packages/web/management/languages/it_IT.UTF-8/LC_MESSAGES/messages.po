@@ -2887,6 +2887,10 @@ msgid "Download Starting"
 msgstr "Scaricamento fallito"
 
 #, fuzzy
+msgid "Download the FOG Agent"
+msgstr "Scaricamento fallito"
+
+#, fuzzy
 msgid "Download the request"
 msgstr "Scaricamento fallito"
 

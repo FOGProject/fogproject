@@ -2540,6 +2540,9 @@ msgstr ""
 msgid "Download Starting"
 msgstr ""
 
+msgid "Download the FOG Agent"
+msgstr ""
+
 msgid "Download the request"
 msgstr ""
 
