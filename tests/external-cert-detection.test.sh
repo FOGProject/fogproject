@@ -52,7 +52,9 @@ openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=fog.example.org" \
 reset_env() {
     etcconf=""; PKI_client_cert_dir="$WORK/ssl"; PKI_root_ca_cert="$WORK/ssl/ca.pem"; PKI_web_trust_chain=""
     PKI_web_vhost_cert="$WORK/ssl/leaf.pem"; PKI_web_vhost_key="$WORK/ssl/leaf.key"
-    PKI_web_cert_publicly_trusted=""
+    PKI_web_cert_publicly_trusted=""; PKI_web_ca_cert=""
+    # Never the real /etc/fog/pki either: the detector looks there for the Web CA.
+    PKI_root_dir="$WORK/no-pki"
     # Never the real /etc/fog/customizations/pki: signal 0 of the detector
     # reads this directory, so an unset value would have every case below
     # answer out of the host filesystem.
@@ -98,6 +100,42 @@ cp "$WORK/foreign/fullchain.pem" "$WORK/ssl/leaf-foreign.pem"
 PKI_web_vhost_cert="$WORK/ssl/leaf-foreign.pem"
 out=$(_detectExternalCertManagement) && ok "D: fires on a leaf that does not chain to FOG's CA" \
     || bad "D: missed a foreign leaf sitting at FOG's own path"
+
+# D3/D4: FOG's own leaf, issued by the Web CA intermediate, on an upgrade from
+# 1.5. The detector runs before createWebIntermediateCA settles
+# ${PKI_web_trust_chain}, which still holds the persisted root path -- so the
+# intermediate is nowhere in the check unless the detector finds it itself.
+# Reported from a live server: the leaf read as foreign and was adopted.
+mkdir -p "$WORK/webca/pki/web/ca"
+openssl req -newkey rsa:2048 -nodes -subj "/CN=FOG Web CA" \
+    -keyout "$WORK/webca/int.key" -out "$WORK/webca/int.csr" >/dev/null 2>&1
+printf 'basicConstraints=critical,CA:TRUE\nkeyUsage=critical,keyCertSign,cRLSign\n' > "$WORK/webca/int.ext"
+openssl x509 -req -in "$WORK/webca/int.csr" -CA "$WORK/ssl/ca.pem" -CAkey "$WORK/ssl/ca.key" \
+    -extfile "$WORK/webca/int.ext" -days 1 -out "$WORK/webca/pki/web/ca/.fogWebCA.pem" >/dev/null 2>&1
+openssl req -newkey rsa:2048 -nodes -subj "/CN=fog.example.org" \
+    -keyout "$WORK/ssl/webleaf.key" -out "$WORK/webca/leaf.csr" >/dev/null 2>&1
+openssl x509 -req -in "$WORK/webca/leaf.csr" -CA "$WORK/webca/pki/web/ca/.fogWebCA.pem" \
+    -CAkey "$WORK/webca/int.key" -days 1 -out "$WORK/ssl/webleaf.pem" >/dev/null 2>&1
+
+reset_env
+PKI_web_vhost_cert="$WORK/ssl/webleaf.pem"; PKI_web_vhost_key="$WORK/ssl/webleaf.key"
+PKI_web_trust_chain="$WORK/ssl/ca.pem"
+PKI_web_ca_cert="$WORK/webca/pki/web/ca/.fogWebCA.pem"
+if out=$(_detectExternalCertManagement); then
+    bad "D3: fired on FOG's Web-CA-issued leaf with a stale chain setting ($out)"
+else
+    ok "D3: stays quiet on a Web-CA-issued leaf when \${PKI_web_trust_chain} is the root"
+fi
+
+reset_env
+PKI_web_vhost_cert="$WORK/ssl/webleaf.pem"; PKI_web_vhost_key="$WORK/ssl/webleaf.key"
+PKI_web_trust_chain="$WORK/ssl/ca.pem"
+PKI_root_dir="$WORK/webca/pki"
+if out=$(_detectExternalCertManagement); then
+    bad "D4: fired when only the zone's .fogWebCA.pem names the intermediate ($out)"
+else
+    ok "D4: finds the Web CA in the zone when \${PKI_web_ca_cert} is unset"
+fi
 
 # E. Already pointed elsewhere -- the caller skips detection entirely, so an
 #    admin who already aimed the canonical path at their own certificate is

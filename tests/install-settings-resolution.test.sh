@@ -269,6 +269,47 @@ else
     bad "publicWebCert https netboot printed a warning it should not"
 fi
 
+# --public-web-cert on a leaf FOG itself issued: provably not public. Reported
+# from a live server, where every PXE client then stopped at "Permission
+# denied". The leaf is FOG's when it chains to ${PKI_root_ca_cert}.
+if command -v openssl >/dev/null 2>&1; then
+    PWC="$(mktemp -d)"
+    openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=FOG Server CA" \
+        -keyout "$PWC/ca.key" -out "$PWC/ca.pem" >/dev/null 2>&1
+    openssl req -newkey rsa:2048 -nodes -subj "/CN=fog.example.org" \
+        -keyout "$PWC/leaf.key" -out "$PWC/leaf.csr" >/dev/null 2>&1
+    openssl x509 -req -in "$PWC/leaf.csr" -CA "$PWC/ca.pem" -CAkey "$PWC/ca.key" \
+        -days 1 -out "$PWC/leaf.pem" >/dev/null 2>&1
+    openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj "/CN=fog.example.org" \
+        -keyout "$PWC/pub.key" -out "$PWC/pub.pem" >/dev/null 2>&1
+    etcconf="$PWC/none.conf"; PKI_root_dir="$PWC/pki"; PKI_web_trust_chain=""; PKI_web_ca_cert=""
+    PKI_root_ca_cert="$PWC/ca.pem"
+
+    PKI_web_vhost_cert="$PWC/leaf.pem"
+    out="$(report https yes no)"
+    if [[ $out == *"issued by FOG's own"* && $out == *"--no-public-web-cert"* ]]; then
+        ok "--public-web-cert on a FOG-issued leaf warns and names the undo flag"
+    else
+        bad "--public-web-cert on a FOG-issued leaf was not warned about (got '$out')"
+    fi
+
+    PKI_web_vhost_cert="$PWC/pub.pem"
+    if [[ "$(report https yes no)" == "" ]]; then
+        ok "--public-web-cert on a leaf FOG did not issue says nothing"
+    else
+        bad "--public-web-cert on a foreign leaf printed a warning it should not"
+    fi
+
+    PKI_web_vhost_cert="$PWC/leaf.pem"
+    if [[ "$(report https yes yes)" == "" ]]; then
+        ok "--rebuild-ipxe-with-my-ca makes a FOG-issued leaf fine for https netboot"
+    else
+        bad "a FOG leaf with --rebuild-ipxe-with-my-ca was warned about"
+    fi
+    rm -rf "$PWC"
+    etcconf=""; PKI_root_dir=""; PKI_root_ca_cert=""; PKI_web_vhost_cert=""
+fi
+
 # --- persistence and the GH-1120 key model -----------------------------------
 # Every key has to survive a round trip through .fogsettings, or the migration
 # re-fires and the admin's choice is lost.
