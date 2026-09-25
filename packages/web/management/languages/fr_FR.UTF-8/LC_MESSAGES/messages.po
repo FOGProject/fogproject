@@ -2951,6 +2951,10 @@ msgid "Download Starting"
 msgstr "Échec du téléchargement"
 
 #, fuzzy
+msgid "Download the FOG Agent"
+msgstr "Échec du téléchargement"
+
+#, fuzzy
 msgid "Download the request"
 msgstr "Échec du téléchargement"
 

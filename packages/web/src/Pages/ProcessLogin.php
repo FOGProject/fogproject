@@ -276,6 +276,14 @@ class ProcessLogin extends FOGPage
         );
         echo '</form>';
         echo self::loginProviders();
+        // 1.5 linked the legacy FOG Client here; 1.6 hosts are meant to run
+        // the FOG Agent, so point new installs at its latest release instead.
+        echo '<p class="mb-0 mt-3 text-center">';
+        echo '<a href="https://github.com/FOGProject/fog-agent/releases/latest"'
+            . ' target="_blank" rel="noopener noreferrer">';
+        echo _('Download the FOG Agent');
+        echo '</a>';
+        echo '</p>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
