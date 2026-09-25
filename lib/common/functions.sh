@@ -13968,6 +13968,44 @@ _publishSecureBootKit() {
 #
 # Pinned to 1.9.2 from the canonical upstream, git.kernel.org's jejb tree --
 # not a GitHub mirror -- the same source Fedora/AlmaLinux package.
+#
+# Make efitools 1.9.2 build on EL10 (GH-1786). Two source defects, both
+# harmless on the older toolchains it was confirmed on (Rocky 9):
+#
+# 1. EL10 defines OPENSSL_NO_ENGINE and ships no openssl-devel-engine package,
+#    so lib/openssl_sign.c fails on its ENGINE/UI code. That code serves only
+#    the -e/--engine option. fog-build-sb-authvars signs with PEM key files and
+#    never passes it. So the ENGINE path compiles only when OpenSSL has ENGINE,
+#    and otherwise an -e request fails with a message. Where ENGINE exists the
+#    #ifndef is true and the compiled code is unchanged.
+# 2. sign-efi-sig-list.c and two others call strptime() without _GNU_SOURCE,
+#    so glibc does not declare it. GCC 14 makes an implicit declaration an
+#    error. -D_GNU_SOURCE goes on the Makefile's own CPPFLAGS, because a
+#    CPPFLAGS on the make command line would replace its -DCONFIG_$(ARCH).
+#
+# Unconditional: each change is a no-op where the defect cannot fire.
+_patchEfitoolsSource() {
+    local dir="$1" src
+    src="${dir}/lib/openssl_sign.c"
+    [[ -f $src ]] || return 0
+    sed -i 's/^CPPFLAGS[[:space:]]*= -DCONFIG_$(ARCH)$/& -D_GNU_SOURCE/' "${dir}/Make.rules" >>$error_log 2>&1
+    awk '
+        /^static int ui_read\(/ { print "#ifndef OPENSSL_NO_ENGINE" }
+        { print }
+        /^ out_free:/ { tail = 1 }
+        tail && /^}/ {
+            print "#else"
+            print "static EVP_PKEY *"
+            print "read_engine_private_key(char *engine, char *keyfile)"
+            print "{"
+            print "\tfprintf(stderr, \"OpenSSL has no ENGINE support; cannot use engine %s\\n\", engine);"
+            print "\treturn NULL;"
+            print "}"
+            print "#endif"
+            tail = 0
+        }
+    ' "$src" > "${src}.fog" && mv -f "${src}.fog" "$src"
+}
 _ensureEfitools() {
     command -v cert-to-efi-sig-list >/dev/null 2>&1 && \
         command -v sign-efi-sig-list >/dev/null 2>&1 && return 0
@@ -13996,6 +14034,7 @@ _ensureEfitools() {
         return 1
     fi
     tar -xzf "${work}/efitools.tar.gz" -C "$work" >>$error_log 2>&1
+    _patchEfitoolsSource "${work}/efitools-${ver}"
     if ! (cd "${work}/efitools-${ver}" && make && make install) >>$error_log 2>&1 ||
        ! command -v cert-to-efi-sig-list >/dev/null 2>&1 ||
        ! command -v sign-efi-sig-list >/dev/null 2>&1; then
