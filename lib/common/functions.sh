@@ -12158,6 +12158,14 @@ EOF
                     # on ${FOG_os_id}: apache2ctl on Debian/Ubuntu, apachectl on
                     # RHEL/Arch/Alpine, httpd where only the daemon is on PATH.
                     # None present means nothing to test and nothing to report.
+                    # RHEL-family mod_ssl ships ssl.conf naming localhost.crt,
+                    # but httpd-init.service only creates that pair when httpd
+                    # first STARTS. On a fresh install nothing has started it
+                    # yet, so the test below failed on the distro's own vhost
+                    # (GH-1785). Run the same helper now. It exits 0 without
+                    # writing when the pair exists or ssl.conf was changed.
+                    [[ -x /usr/libexec/httpd-ssl-gencerts ]] && \
+                        /usr/libexec/httpd-ssl-gencerts >> $workingdir/error_logs/fog_error_${version}.log 2>&1
                     dots "Testing Apache configuration"
                     local httpdtest=0 httpdtool="" httpdcandidate=""
                     for httpdcandidate in apache2ctl apachectl httpd; do
