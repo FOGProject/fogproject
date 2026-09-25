@@ -451,6 +451,43 @@ if [[ -f $WORK/ssl/ca.pem && -f $WORK/zoned/int.pem ]]; then
 else
     echo "  SKIP  Q: the openssl fixtures for a chain were not built"
 fi
+
+echo "== GH-1784: a drop-in pair is linked on a FRESH install =="
+
+# R. On a fresh install ${PKI_web_vhost_cert}/${PKI_web_vhost_key} are empty
+#    when the detect-then-link block runs, and _linkCanonical is a no-op for an
+#    empty target. The pair was announced and never linked, and Apache then
+#    failed on a missing .webLeaf.pem. Structural for the same reason as E:
+#    the defect is the ORDER inside createSSLCA, which cannot run here.
+block="$(awk '/Detect-then-LINK/,/_warnExternalCertTooling/' "$FUNCS")"
+resolveAt="$(echo "$block" | grep -n '^[[:space:]]*_resolveWebLeafPaths' | head -1 | cut -d: -f1)"
+linkAt="$(echo "$block" | grep -n '^[[:space:]]*_linkCanonical' | head -1 | cut -d: -f1)"
+if [[ -n $resolveAt && -n $linkAt && $resolveAt -lt $linkAt ]]; then
+    ok "R: the canonical leaf paths are resolved before the drop-in is linked"
+else
+    bad "R: _linkCanonical runs before _resolveWebLeafPaths (resolve=${resolveAt:-none}, link=${linkAt:-none})"
+fi
+
+# R2. And that order is enough: from empty settings, resolve-then-link leaves
+#     both canonical names pointing at the dropped-in pair.
+reset_env
+fogprogramdir="$WORK/fresh/opt/fog"
+PKI_root_dir="$fogprogramdir/pki"
+PKI_web_vhost_cert=""; PKI_web_vhost_key=""
+mkdir -p "$WORK/custom-pki"
+openssl req -x509 -newkey rsa:2048 -nodes -subj "/CN=fog.example.org" \
+    -keyout "$WORK/custom-pki/web-leaf.key" -out "$WORK/custom-pki/web-leaf.pem" \
+    -days 1 >/dev/null 2>&1
+_resolveWebLeafPaths
+_linkCanonical "$WORK/custom-pki/web-leaf.pem" "$PKI_web_vhost_cert"
+_linkCanonical "$WORK/custom-pki/web-leaf.key" "$PKI_web_vhost_key"
+if [[ $(readlink "$PKI_web_vhost_cert") == "$WORK/custom-pki/web-leaf.pem" \
+    && $(readlink "$PKI_web_vhost_key") == "$WORK/custom-pki/web-leaf.key" ]] \
+    && _externallyManagedLeaf; then
+    ok "R2: from empty settings, both canonical paths link to the drop-in pair"
+else
+    bad "R2: the drop-in pair was not linked (cert=$PKI_web_vhost_cert key=$PKI_web_vhost_key)"
+fi
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
 exit 0
