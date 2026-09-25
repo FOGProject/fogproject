@@ -11066,6 +11066,13 @@ createSSLCA() {
     # that used to do the damage silently, so the safe behavior has to be the
     # DEFAULT rather than an answer. Everything needed is already on disk: the
     # vhost names the files and the certificate names itself.
+    #
+    # The canonical paths are settled FIRST. On a fresh install they are still
+    # empty here, and _linkCanonical is a no-op for an empty target -- so a
+    # drop-in pair was detected, announced, and never linked, and the vhost
+    # then named a .webLeaf.pem that did not exist (GH-1784). Idempotent, so
+    # the later call before _createWebLeaf is unchanged.
+    _resolveWebLeafPaths
     if ! _externallyManagedLeaf; then
         local extReason="" extCert="" extKey="" customPair="" customChain=""
         if extReason=$(_detectExternalCertManagement); then
