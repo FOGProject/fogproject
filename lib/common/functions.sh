@@ -7186,10 +7186,7 @@ configureUsers() {
         sed -i -e "s|^\(${SVC_user}.*:\)[^:]*$|\1/bin/bash|g" /etc/passwd >>$error_log 2>&1
     fi
     textmessage="You seem to be using the '${SVC_user}' system account to logon and work \non your FOG Server system.\n\nIt's NOT recommended to use this account! Please create a new\naccount for administrative tasks.\n\nIf you re-run the installer it would reset the '${SVC_user}' account\npassword and therefore lock you out of the system!\n\nTake care,\nyour FOGProject team"
-    grep -q "#exit 1" /home/${SVC_user}/.bashrc >/dev/null 2>&1 || cat >>/home/${SVC_user}/.bashrc <<EOF
-echo -e "$textmessage"
-#exit 1
-EOF
+    _svcUserBashrc "/home/${SVC_user}/.bashrc" "$textmessage"
     mkdir -p /home/${SVC_user}/.config/autostart/
     cat >/home/${SVC_user}/.config/autostart/warnfogaccount.desktop <<EOF
 [Desktop Entry]
@@ -8389,6 +8386,29 @@ _linkCanonical() {
     [[ ! -e $real ]] && return 0
     [[ "$(readlink -f "$real" 2>/dev/null)" == "$(readlink -f "$canon" 2>/dev/null)" ]] && return 0
     ln -sf "$real" "$canon" >>$error_log 2>&1
+}
+# Write the "do not use this account" warning into the service user's .bashrc.
+#
+# The echo runs only in an interactive shell (GH-1781). The storage node user
+# is also the SFTP login that moves a capture out of /images/dev. OpenSSH
+# starts an external sftp-server through the user's shell, and bash reads
+# .bashrc for a command that sshd starts. So an unguarded echo put the warning
+# text into the SFTP stream: the client fails with "Received message too long
+# 1500476704", which is "You " read as a length, and the capture stays in dev.
+# The installer's internal-sftp rewrite only hid this where it took effect.
+#
+# An install from before this change already has the unguarded line, and the
+# "#exit 1" marker stops the block being written again. So that line is
+# repaired in place. The sed matches only an unguarded line, so a second run
+# changes nothing.
+_svcUserBashrc() {
+    local rc="$1" text="$2"
+    sed -i 's/^echo -e "You seem to be using/[[ $- == *i* ]] \&\& &/' "$rc" >>$error_log 2>&1
+    grep -q "#exit 1" "$rc" >/dev/null 2>&1 && return 0
+    cat >>"$rc" <<EOF
+[[ \$- == *i* ]] && echo -e "$text"
+#exit 1
+EOF
 }
 # Where FOG's own PKI tree physically lives: /etc/fog/pki, not $fogprogramdir/pki.
 #
