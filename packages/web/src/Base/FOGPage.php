@@ -5044,11 +5044,14 @@ abstract class FOGPage extends FOGBase
                 'module',
                 ['isDefault' => [1]]
             );
-            $totalRows = 0;
+            // The CSV record number, header included, so an error names the
+            // row a spreadsheet shows rather than the count of rows imported.
+            $rowNum = $headerMode ? 1 : 0;
             // When the first row was a header we consumed it above; otherwise
             // it is the first data row and must still be processed.
             $data = $headerMode ? fgetcsv($fh, 1000, ',') : $firstRow;
             while ($data !== false) {
+                $rowNum++;
                 $importCount = count($data ?: []);
                 if ($importCount > 0
                     && (
@@ -5062,6 +5065,11 @@ abstract class FOGPage extends FOGBase
                     );
                 }
                 try {
+                    // Start every row with a fresh object. Reusing one lets a
+                    // failed row's fields reach the next row, and a row that
+                    // saved but then threw would leave its id behind, so the
+                    // next row's save() updated that host instead of adding one.
+                    $Item = new $childClass();
                     // Resolve each field's value by name, unifying the header
                     // and positional paths. Fields absent from a header file
                     // are simply left at their defaults.
@@ -5182,7 +5190,6 @@ abstract class FOGPage extends FOGBase
                         if ($isHost && count($macs ?: [])) {
                             $Item->addMAC($macs);
                         }
-                        $totalRows++;
                         // Apply any associations (lenient: warn and skip
                         // unresolved references rather than failing the row).
                         // The item already has an id at this point.
@@ -5205,7 +5212,7 @@ abstract class FOGPage extends FOGBase
                                 $uploadErrors .= sprintf(
                                     '%s #%s: %s<br/>',
                                     _('Row'),
-                                    $totalRows,
+                                    $rowNum,
                                     $assocWarning
                                 );
                                 unset($assocWarning);
@@ -5238,7 +5245,7 @@ abstract class FOGPage extends FOGBase
                             $uploadErrors .= sprintf(
                                 '%s #%s: %s<br/>',
                                 _('Row'),
-                                $totalRows,
+                                $rowNum,
                                 $fkWarning
                             );
                             unset($fkWarning);
@@ -5257,8 +5264,6 @@ abstract class FOGPage extends FOGBase
                             $arr
                         );
                         $numSuccess++;
-                        $childClass = self::qualify($this->childClass);
-                        $Item = new $childClass();
                     } else {
                         $numFailed++;
                     }
@@ -5267,7 +5272,7 @@ abstract class FOGPage extends FOGBase
                     $uploadErrors .= sprintf(
                         '%s #%s: %s<br/>',
                         _('Row'),
-                        $totalRows,
+                        $rowNum,
                         $e->getMessage()
                     );
                 }
