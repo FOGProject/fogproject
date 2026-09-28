@@ -4394,9 +4394,18 @@ abstract class FOGPage extends FOGBase
         $Items = $Items->$items;
         foreach ((array)$Items as &$Item) {
             if ($this->node == 'host') {
+                // importPost() takes the first MAC as the primary one, so
+                // write the primary first instead of in database order.
+                $macs = (array)$Item->macs;
+                if (!empty($Item->primac)) {
+                    $macs = array_merge(
+                        array($Item->primac),
+                        array_diff($macs, array($Item->primac))
+                    );
+                }
                 $macs = implode(
                     '|',
-                    $Item->macs
+                    $macs
                 );
                 $report->addCSVCell($macs);
                 unset($macs);
@@ -4581,6 +4590,11 @@ abstract class FOGPage extends FOGBase
                 'id',
                 $this->databaseFields
             );
+            // export() leaves pingstatus out of the host CSV, so it must be
+            // skipped here as well or every later column shifts by one.
+            if ($this->node == 'host') {
+                self::arrayRemove('pingstatus', $this->databaseFields);
+            }
             $comma_count = count(array_keys($this->databaseFields));
             $iterator = 0;
             if ($Item instanceof Host) {
@@ -4594,7 +4608,9 @@ abstract class FOGPage extends FOGBase
             );
             $totalRows = 0;
             $uploadErrors = '';
+            $rowNum = 0;
             while (($data = fgetcsv($fh, 1000, ',')) !== false) {
+                $rowNum++;
                 $importCount = count($data);
                 if ($importCount > 0
                     && $importCount > $comma_count
@@ -4604,6 +4620,9 @@ abstract class FOGPage extends FOGBase
                     );
                 }
                 try {
+                    // Start every row with a fresh object so that fields and
+                    // MACs set on a previously failed row are not carried over.
+                    $Item = new $this->childClass();
                     $dbkeys = array_keys($this->databaseFields);
                     if ($Item instanceof Host) {
                         $macs = self::parseMacList($data[0]);
@@ -4672,7 +4691,6 @@ abstract class FOGPage extends FOGBase
                             $arr
                         );
                         $numSuccess++;
-                        $Item = new $this->childClass();
                     } else {
                         $numFailed++;
                     }
@@ -4681,7 +4699,7 @@ abstract class FOGPage extends FOGBase
                     $uploadErrors .= sprintf(
                         '%s #%s: %s<br/>',
                         _('Row'),
-                        $totalRows,
+                        $rowNum,
                         $e->getMessage()
                     );
                 }
