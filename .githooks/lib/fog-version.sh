@@ -43,11 +43,20 @@ mode="${2:-0}"
 #     belong to another line. Taken repo-wide, 1.6.0-RC-1 turned dev-branch
 #     and stable into 1.6.<count>.
 #
+# A HEAD that reaches no release tag -- CI's pull-request merge ref, with the
+# dev arm run against it -- falls back to the newest release tag in the
+# repository, as this used to do for every HEAD. dev-branch and stable always
+# reach one, so the fallback never decides their version.
+#
 # Resolved only in the dev and stable arms, which are the only ones that use
 # it: a checkout with no tags at all (CI clones without them) must still
-# compute the working, rc and feature versions.
+# compute the working, rc and feature versions. With no release tag anywhere
+# it fails, rather than hand back an empty base.
 release_tag() {
-    git describe --tags --abbrev=0 --match '[0-9]*' --exclude '*-*' HEAD
+    t=$(git describe --tags --abbrev=0 --match '[0-9]*' --exclude '*-*' HEAD 2>/dev/null) \
+        || t=$(git tag -l '[0-9]*' --sort=-creatordate | grep -v -- - | head -n1)
+    [ -n "$t" ] || return 1
+    printf '%s\n' "$t"
 }
 
 git fetch origin master:master 2>/dev/null || true
