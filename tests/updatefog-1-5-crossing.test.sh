@@ -345,6 +345,11 @@ rcpublish rc-1.6.10
 check "rc-1.6.10 beats rc-1.6.2 and the decoy (version order, not lexical)" \
     "$([[ $(rcBranch) == rc-1.6.10 ]]; echo $?)"
 
+# A remote that refuses the question -- no network -- proves nothing about
+# what is published, so it must not report "none published".
+check "an unreachable remote returns 3, not 1" \
+    "$(repo="$work/no-such-remote.git" rcBranch >/dev/null 2>&1; [[ $? -eq 3 ]]; echo $?)"
+
 # ---------------------------------------------------------------------------
 # It stays standalone. The moment it sources the installer library it stops
 # being portable to a branch that does not have the same one.
