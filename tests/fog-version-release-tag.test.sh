@@ -82,4 +82,23 @@ for arm in dev-branch stable; do
     [ "$got" = "$want" ] || bad "$arm computed '$got', expected '$want'. A non-release or pre-release tag newer than the last release must not become the base version."
 done
 
+# A checkout with NO tags -- CI clones without them. The arms that do not use a
+# release tag must still compute. Looking the tag up at the top of the script
+# made this exit 129 before any arm ran.
+bare="$tmp/notags"
+git init -q -b master "$bare"
+git -C "$bare" config user.email t@example.invalid
+git -C "$bare" config user.name t
+git -C "$bare" config commit.gpgsign false
+mkdir -p "$bare/.githooks/lib" "$bare/packages/web/src/Base" "$bare/packages/web/lib/fog"
+cp "$script" "$bare/.githooks/lib/fog-version.sh"
+for f in packages/web/src/Base/System.php packages/web/lib/fog/system.class.php; do
+    printf "<?php\ndefine('FOG_VERSION', '1.6.0-beta');\n" > "$bare/$f"
+done
+git -C "$bare" add -A
+GIT_COMMITTER_DATE='2020-01-01T00:00:00Z' GIT_AUTHOR_DATE='2020-01-01T00:00:00Z' \
+    git -C "$bare" commit -q -m seed
+(cd "$bare" && sh .githooks/lib/fog-version.sh working-1.6 head >/dev/null 2>&1) \
+    || bad "working-1.6 arm failed in a checkout with no tags."
+
 exit $rc
