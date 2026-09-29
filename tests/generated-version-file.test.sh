@@ -80,9 +80,15 @@ else
         # fetched, so the generator correctly resolves nothing and falls back
         # -- the two coinciding there is right, not a regression. Same for a
         # checkout with no master ref, where the count is not computable.
+        #
+        # An rc-* branch is the exception: in head mode fog-version.sh keeps
+        # the committed 1.6.0-RC-<n> on purpose, so there the generated value
+        # MUST equal the fallback. Without this skip the check failed on every
+        # rc-1.6.0 checkout, RC-1 and RC-2 alike.
         resolvable=no
         case "$(git -C "$repo" branch --show-current 2>/dev/null)" in
-            working-*|dev-*|stable|rc-*|feature-*) resolvable=yes ;;
+            rc-*) resolvable=rc ;;
+            working-*|dev-*|stable|feature-*) resolvable=yes ;;
         esac
         if [ "$resolvable" = "no" ]; then
             for candidate in working-1.6 dev-branch stable; do
