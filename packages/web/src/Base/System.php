@@ -95,10 +95,10 @@ class System
             include_once $generated;
         }
         if (!defined('FOG_VERSION')) {
-            define('FOG_VERSION', '1.6.0-beta');
+            define('FOG_VERSION', '1.6.0-RC-1');
         }
         if (!defined('FOG_CHANNEL')) {
-            define('FOG_CHANNEL', 'Beta');
+            define('FOG_CHANNEL', 'Release Candidate');
         }
         // Bumped by one for every element added to $this->schema in
         // commons/schema.php, and it must never fall BELOW that element
