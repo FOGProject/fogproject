@@ -65,6 +65,13 @@ commit '2020-01-03T00:00:00Z' 'patch'
 git -C "$fx" checkout -q -b feature-x master
 commit '2020-02-01T00:00:00Z' 'feature work'
 git -C "$fx" tag -a archive/feature-x -m 'archive'
+
+# A release-candidate tag of the NEXT line. It starts with a digit, so the
+# '[0-9]*' filter alone lets it through, and the dev arm then reported 1.6.<count>
+# on the 1.5 line. A pre-release tag carries a '-'; a release tag never does.
+git -C "$fx" checkout -q -b rc-1.6.0 master
+commit '2020-03-01T00:00:00Z' 'rc'
+git -C "$fx" tag 1.6.0-RC-1
 git -C "$fx" checkout -q dev-branch
 
 count=$(git -C "$fx" rev-list master..dev-branch --count)
@@ -72,7 +79,7 @@ want="1.5.10.$count"
 
 for arm in dev-branch stable; do
     got=$(cd "$fx" && sh .githooks/lib/fog-version.sh "$arm" head 2>/dev/null | sed -n '1p')
-    [ "$got" = "$want" ] || bad "$arm computed '$got', expected '$want'. A non-release tag newer than the last release must not become the base version."
+    [ "$got" = "$want" ] || bad "$arm computed '$got', expected '$want'. A non-release or pre-release tag newer than the last release must not become the base version."
 done
 
 exit $rc
