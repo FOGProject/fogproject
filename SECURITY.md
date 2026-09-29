@@ -20,7 +20,7 @@ ensure responsible handling of critical issues.
 find it — but it will not be fixed, and there will be no further 1.5 release.
 If the same issue affects 1.6, it is fixed in 1.6. Nothing is being deleted:
 `dev-branch`, `stable` and every 1.5 tag remain in this repository. See the
-[1.5 support statement](docs/release/1.5-support-statement.DRAFT.md) for the
+[1.5 support statement](docs/release/1.5-support-statement.md) for the
 full wording.
 
 ## Reporting a Vulnerability - Private Disclosure Process
