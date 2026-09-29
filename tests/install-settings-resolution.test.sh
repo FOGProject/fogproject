@@ -228,6 +228,21 @@ is "$(nb no no '' https '')"   "http"  "a persisted derived https is re-derived 
 # ...but a value the admin actually forced does survive, which is the whole
 # reason the marker exists rather than the persisted value simply being ignored.
 is "$(nb yes no '' http yes)"  "http"  "a FORCED http survives PKI_web_cert_publicly_trusted=yes"
+
+# The pre-install summary must print the RESOLVED value, not the persisted one.
+# Reported from a live server: the previous run derived https and persisted it;
+# the admin re-ran with --no-public-web-cert, and the summary still said
+# "Netboot (PXE) protocol: https" while the run then wrote chain http://. The
+# resolver only ran later, in configureHttpd. Asserted on the source because
+# the summary is inline in bin/installfog.sh: the resolver call has to sit
+# after the last flag is applied and before the summary line.
+flags=$(grep -n 'BOOT_url_proto=\${sBOOT_url_proto}' "$INSTALLER" | head -n1 | cut -d: -f1)
+summary=$(grep -n 'Netboot (PXE) protocol:' "$INSTALLER" | head -n1 | cut -d: -f1)
+resolve=$(awk -v a="${flags:-0}" -v b="${summary:-0}" \
+    'NR > a && NR < b && /^_resolveNetbootProto$/ { print NR; exit }' "$INSTALLER")
+[[ -n $flags && -n $summary && -n $resolve ]] \
+    && ok "the summary prints the netboot protocol after resolving it" \
+    || bad "the summary prints a persisted netboot protocol (no _resolveNetbootProto between the flags and the summary)"
 is "$(nb no no '' https yes)"  "https" "a FORCED https survives with neither trigger set"
 
 # The old resolver keyed on $caCreated, a PERSISTED key that was "yes" on every

@@ -1307,8 +1307,14 @@ case ${FOG_send_reports} in
 esac
 # Echoed for unattended runs too, so `installfog.sh -y` leaves a record of what
 # it resolved rather than only what was passed.
+#
+# Resolve netboot here, not only in configureHttpd: without this the summary
+# printed the protocol persisted by the PREVIOUS run, so a re-run with
+# --no-public-web-cert announced https and then wrote chain http://.
+# configureHttpd resolves again, which covers a mode chosen at the prompt below.
+_resolveNetbootProto
 echo " * Web protocol: ${WEB_url_proto}"
-echo " * Netboot (PXE) protocol: ${BOOT_url_proto:-http (resolved during install)}"
+echo " * Netboot (PXE) protocol: ${BOOT_url_proto}"
 echo -n " * Force HTTP->HTTPS redirect: "; [[ ${WEB_https_redirect} == yes ]] && echo "Yes" || echo "No"
 echo -n " * Web certificate chains to a public root: "; [[ ${PKI_web_cert_publicly_trusted} == yes ]] && echo "Yes" || echo "No"
 echo -n " * Rebuild iPXE with your CA: "; [[ ${BOOT_rebuild_ipxe_with_my_ca} == yes ]] && echo "Yes (adds 10-25 min)" || echo "No"

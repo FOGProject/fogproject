@@ -195,6 +195,24 @@ check "a checkout cloned from a fork resolves against THAT fork"     "$([[ $(FOG
 
 check "and the built-in constant does not override it"     "$([[ $(FOG_git_path="$forkco" FOG_git_remote="$FOG_git_remote" channelToBranch rc) == rc-1.5.99 ]]; echo $?)"
 
+# ---------------------------------------------------------------------------
+# A remote that cannot be asked is not a remote with no release candidate.
+#
+# Seen on a server whose checkout has an SSH origin: root holds no key for it,
+# ls-remote fails with "Permission denied (publickey)", and the updater told
+# the admin "No release candidate is currently published" while rc-1.6.0 was
+# on origin. The same holds for a network outage. channelToBranch returns 3
+# for it, so the caller can say the remote was unreachable.
+# ---------------------------------------------------------------------------
+deadco="$work/deadco"
+git clone -q "$FOG_git_remote" "$deadco" 2>/dev/null
+git -C "$deadco" remote set-url origin "$work/no-such-remote.git"
+FOG_git_path="$deadco" channelToBranch rc >/dev/null 2>&1
+check "an unreachable remote returns 3, not the 'none published' 2" \
+    "$([[ $? -eq 3 ]]; echo $?)"
+check "and rcBranch itself reports it as 3, not 1" \
+    "$(FOG_git_path="$deadco" rcBranch >/dev/null 2>&1; [[ $? -eq 3 ]]; echo $?)"
+
 # No checkout at all -- bootstrap.sh's case -- falls back to the constant.
 check "with no checkout to ask, the configured remote is used"     "$([[ $(FOG_git_path="$work/nothing-here" channelToBranch rc) == rc-1.6.10 ]]; echo $?)"
 

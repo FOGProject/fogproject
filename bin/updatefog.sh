@@ -256,6 +256,18 @@ else
             echo " | specific branch with --branch."
             exit 1
             ;;
+        3)
+            # The remote refused the question, so nothing is known about what
+            # is published. Seen as root on a checkout with an SSH origin: root
+            # holds no key for it. Saying "none published" there is wrong.
+            rcremote=$(git -C "${FOG_git_path}" remote get-url origin 2>/dev/null)
+            echo " * Could not ask ${rcremote:-the remote} which release candidate is current."
+            echo " | git ls-remote failed: no network, or this user cannot authenticate"
+            echo " | to it. An SSH remote needs a key or an agent that root can use."
+            echo " |"
+            echo " | Check with: git ls-remote --heads ${rcremote:-<remote>}"
+            exit 1
+            ;;
         *)
             # Names the retired spellings too. They still WORK -- normalizeChannel
             # folds them -- so anyone who reaches this line has a genuine typo, and

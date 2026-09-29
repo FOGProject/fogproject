@@ -31,11 +31,33 @@ system_file="$project_dir/packages/web/src/Base/System.php"
 gitbranch="${1:-$(git branch --show-current)}"
 mode="${2:-0}"
 
-# Release tags only. A release tag is the version string itself (1.5.10.2253),
-# so it starts with a digit. Any other tag -- archive/feature-fog2-gui, pushed
-# on 2026-09-06 -- would otherwise become the base version whenever it is the
-# newest tag, and its slash then breaks the sed in apply-fog-version.sh.
-gitcom=$(git rev-list --tags='[0-9]*' --no-walk --max-count=1)
+# The base is the newest RELEASE tag reachable from this branch: 1.5.x.<y>
+# measures against 1.5.x.<y> releases, 1.6.x.<y> against 1.6.x.<y>.
+#
+#   * '[0-9]*' -- a release tag is the version string itself (1.5.10.2253).
+#     archive/feature-fog2-gui, pushed on 2026-09-06, is not, and its slash
+#     broke the sed in apply-fog-version.sh.
+#   * --exclude '*-*' -- a pre-release tag (1.6.0-RC-1) starts with a digit
+#     too. A release tag never carries a '-'.
+#   * REACHABLE, not newest anywhere -- the newest tag in the repository can
+#     belong to another line. Taken repo-wide, 1.6.0-RC-1 turned dev-branch
+#     and stable into 1.6.<count>.
+#
+# A HEAD that reaches no release tag -- CI's pull-request merge ref, with the
+# dev arm run against it -- falls back to the newest release tag in the
+# repository, as this used to do for every HEAD. dev-branch and stable always
+# reach one, so the fallback never decides their version.
+#
+# Resolved only in the dev and stable arms, which are the only ones that use
+# it: a checkout with no tags at all (CI clones without them) must still
+# compute the working, rc and feature versions. With no release tag anywhere
+# it fails, rather than hand back an empty base.
+release_tag() {
+    t=$(git describe --tags --abbrev=0 --match '[0-9]*' --exclude '*-*' HEAD 2>/dev/null) \
+        || t=$(git tag -l '[0-9]*' --sort=-creatordate | grep -v -- - | head -n1)
+    [ -n "$t" ] || return 1
+    printf '%s\n' "$t"
+}
 
 git fetch origin master:master 2>/dev/null || true
 gitcount=$(git rev-list master..HEAD --count)
@@ -74,13 +96,13 @@ compute_version() {
     # is. tests/update-channel-vocabulary.test.sh fails if the halves drift.
     case "$branchon" in
         dev)
-            tagversion=$(git describe --tags --match '[0-9]*' "$gitcom")
+            tagversion=$(release_tag)
             baseversion=${tagversion%.*}
             trunkversion="${baseversion}.${count}"
             channel="Patches"
             ;;
         stable)
-            tagversion=$(git describe --tags --match '[0-9]*' "$gitcom")
+            tagversion=$(release_tag)
             baseversion=${tagversion%.*}
             count=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
             trunkversion="${baseversion}.${count}"

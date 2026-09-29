@@ -326,10 +326,16 @@ rcBranch() {
     # No local origin to ask here, unlike functions.sh rcBranch: there is no
     # clone yet. $repo is the constant this script clones from anyway, so the
     # branch it resolves is one that remote definitely carries.
-    ref=$(git ls-remote --heads "$repo" 'rc-*' 2>/dev/null \
+    #
+    # ls-remote runs on its own, not at the head of the pipe, so a remote that
+    # could not be asked (no network) returns 3 rather than reading as an
+    # empty match -- "none published" would be a guess, not a finding.
+    local heads
+    heads=$(git ls-remote --heads "$repo" 'rc-*' 2>/dev/null) || return 3
+    ref=$(printf '%s\n' "$heads" \
         | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
         | sort -Vr \
-        | head -n1) || return 1
+        | head -n1)
     [[ -n $ref ]] || return 1
     echo "$ref"
 }
@@ -339,7 +345,14 @@ channelToBranch() {
         stable) echo "stable" ;;
         patches) echo "dev-branch" ;;
         beta) echo "working-1.6" ;;
-        rc) rcBranch || return 2 ;;
+        rc)
+            rcBranch
+            case $? in
+                0) ;;
+                3) return 3 ;;
+                *) return 2 ;;
+            esac
+            ;;
         *) return 1 ;;
     esac
 }
@@ -407,6 +420,11 @@ if [[ -z $branch ]]; then
                  "has nothing to install. This is normal between releases." \
                  "" \
                  "Install the beta line instead with --channel beta." 3
+            ;;
+        3)
+            fail "Could not ask ${repo} which release candidate is current." \
+                 "git ls-remote failed, so nothing is known about what is" \
+                 "published. Check this machine's network access to it." 3
             ;;
         *)
             fail "Unknown channel: ${channel}" \
