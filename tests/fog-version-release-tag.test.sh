@@ -82,6 +82,14 @@ for arm in dev-branch stable; do
     [ "$got" = "$want" ] || bad "$arm computed '$got', expected '$want'. A non-release or pre-release tag newer than the last release must not become the base version."
 done
 
+# A checkout whose HEAD reaches no release tag, while one exists elsewhere --
+# what CI tests: the pull request's merge ref, with the dev arm run against it.
+# That must still compute, from the newest release tag in the repository.
+fcount=$(git -C "$fx" rev-list master..feature-x --count)
+got=$(cd "$fx" && git checkout -q feature-x && sh .githooks/lib/fog-version.sh dev-branch head 2>/dev/null | sed -n '1p')
+git -C "$fx" checkout -q dev-branch
+[ "$got" = "1.5.10.$fcount" ] || bad "dev arm on a HEAD that reaches no release tag computed '$got', expected '1.5.10.$fcount'."
+
 # A checkout with NO tags -- CI clones without them. The arms that do not use a
 # release tag must still compute. Looking the tag up at the top of the script
 # made this exit 129 before any arm ran.
