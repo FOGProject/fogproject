@@ -7324,6 +7324,10 @@ linkOptFogDir() {
     # own location (`dirname(realpath(__FILE__)).'/../etc/config.php'`), never
     # via /etc. The symlink was only ever an admin convenience, so config.php is
     # re-linked inside the new directory to keep the path admins know working.
+    # The 1.5 link into $servicedst/etc, and anything already orphaned there,
+    # are handled by the helper, which carries pki/ and customizations/ across.
+    # The block below then converts only a link that points somewhere else.
+    _adoptServiceEtcDir /etc/fog/pki
     if [[ -L /etc/fog ]]; then
         dots "Converting /etc/fog to a real directory"
         rm -f /etc/fog >>$error_log 2>&1
@@ -8459,8 +8463,83 @@ _pkiRootDir() {
     # the target -- are checked once, inside _migratePkiTree, rather than
     # duplicated here. Two copies of the same guard means removing either one
     # is invisible, which is how a guard stops being one.
+    #
+    # _adoptServiceEtcDir first: on a server that came from 1.5 the target's
+    # parent is still a symlink into $servicedst/etc, and the migration would
+    # write the tree through it.
+    _adoptServiceEtcDir "$root"
     [[ -L ${fogprogramdir}/pki ]] || _migratePkiTree "$root"
     echo "$root"
+}
+# FOG 1.5 made /etc/fog a symlink to $servicedst/etc. GH-850 turns it into a
+# real directory, in linkOptFogDir, late in the install. The PKI migration runs
+# far earlier, inside configureHttpd, so on an upgrade from 1.5 it wrote
+# /etc/fog/pki THROUGH the link, into $servicedst/etc/pki. The conversion then
+# deleted the link and made an empty /etc/fog: the root CA key, both
+# intermediates and the web leaf were still on disk, and nothing could find
+# them. Apache ran on the certificate it had loaded until its next restart.
+# Reported from a live server; every 1.5 upgrade that completed was exposed.
+#
+# $1 is the PKI root. Its parent is the directory in question (/etc/fog by
+# default). Two jobs, both scoped to the 1.5 shape and nothing else:
+#
+#   1. The parent is a symlink that resolves to $servicedst/etc: make it a real
+#      directory before anything writes through it. A symlink pointing
+#      anywhere else is an admin's own arrangement and is left alone.
+#   2. The parent is real and $servicedst/etc still holds pki/ or
+#      customizations/: a run before this fix orphaned them. Copy them in with
+#      cp -n, so nothing already in the live tree is overwritten. The orphan is
+#      removed only when every file in it now has an identical copy in the live
+#      tree. Otherwise it is renamed aside and the admin is told, because a
+#      difference means a later run already minted something new there, and
+#      choosing between two CAs is not the installer's call.
+#
+# Everything is said on stderr: _pkiRootDir runs inside $(...), and stdout is
+# the path its callers read.
+_adoptServiceEtcDir() {
+    local parent svcetc sub orphan live f same
+    parent="$(dirname -- "$1")"
+    [[ -n ${fogprogramdir} ]] || return 0
+    svcetc="${servicedst:-${fogprogramdir%/}/service}"
+    svcetc="${svcetc%/}/etc"
+    [[ -d $svcetc ]] || return 0
+    if [[ -L $parent ]]; then
+        [[ "$(readlink -f -- "$parent")" == "$(readlink -f -- "$svcetc")" ]] || return 0
+        rm -f -- "$parent" >>$error_log 2>&1 || return 1
+        mkdir -p -- "$parent" >>$error_log 2>&1 || return 1
+        chmod 0755 "$parent" >>$error_log 2>&1
+        # config.php stays in $svcetc, where the daemons read it.
+        # linkOptFogDir links it back into $parent.
+    fi
+    [[ -d $parent ]] || return 0
+    for sub in pki customizations; do
+        orphan="${svcetc}/${sub}"
+        live="${parent}/${sub}"
+        [[ -d $orphan && ! -L $orphan ]] || continue
+        mkdir -p -- "$live" >>$error_log 2>&1 || continue
+        if ! cp -an -- "${orphan}/." "${live}/" >>$error_log 2>&1; then
+            echo " * Could not copy ${orphan} into ${live}; left in place." >&2
+            continue
+        fi
+        same=1
+        while IFS= read -r -d '' f; do
+            cmp -s -- "$f" "${live}/${f#"${orphan}"/}" || { same=0; break; }
+        done < <(find "$orphan" -type f -print0 2>>$error_log)
+        if [[ $same -eq 1 ]]; then
+            # Shredded first, as _migratePkiTree does: the orphan holds a copy
+            # of the root CA key.
+            command -v shred >/dev/null 2>&1 && \
+                find "$orphan" -type f -exec shred -u {} + >>$error_log 2>&1
+            rm -rf -- "$orphan" >>$error_log 2>&1
+            echo " * Restored ${live} from ${orphan}, where an earlier upgrade left it." >&2
+        else
+            mv -- "$orphan" "${orphan}.recovered-$(date +%Y%m%d%H%M%S)" >>$error_log 2>&1
+            echo " * Restored missing files into ${live} from ${orphan}, where an" >&2
+            echo "   earlier upgrade left them. Some files differ from the live copy;" >&2
+            echo "   the old tree is kept beside it as ${orphan}.recovered-*." >&2
+        fi
+    done
+    return 0
 }
 # Move an existing $fogprogramdir/pki to $1 and leave a symlink behind.
 #
