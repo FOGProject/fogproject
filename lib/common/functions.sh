@@ -85,7 +85,8 @@ linkIfAbsent() {
 #   * It can legitimately resolve to NOTHING, when no release candidate is
 #     published. That is not the same failure as a misspelled channel and does
 #     not deserve the same message, so channelToBranch returns 2 for it and 1
-#     for an unknown name.
+#     for an unknown name. It returns 3 when the remote could not be asked --
+#     an unreachable remote proves nothing about what is published.
 #   * "Current" is the highest VERSION, not the newest commit date. Version
 #     order is what an RC series means (rc-1.6.10 follows rc-1.6.2, which a
 #     lexical sort gets backwards), it survives someone pushing a fix to an
@@ -119,7 +120,14 @@ channelToBranch() {
         stable) echo "stable" ;;
         patches) echo "dev-branch" ;;
         beta) echo "working-1.6" ;;
-        rc) rcBranch || return 2 ;;
+        rc)
+            rcBranch
+            case $? in
+                0) ;;
+                3) return 3 ;;
+                *) return 2 ;;
+            esac
+            ;;
         *) return 1 ;;
     esac
 }
@@ -134,9 +142,10 @@ channelToBranch() {
 # Sorting by date is not an option here even if it were preferable: the remote
 # ref advertisement carries no commit dates.
 #
-# Returns 1 with no output when nothing matches. The caller is expected to say
-# "no release candidate is published" rather than "unknown channel"; those are
-# different problems for the admin.
+# Returns 1 with no output when nothing matches, and 3 when the remote could
+# not be asked at all. The caller is expected to say "no release candidate is
+# published" or "could not reach the remote" rather than "unknown channel";
+# those are three different problems for the admin.
 # refs/heads/rc-*, NOT a bare rc-*. ls-remote matches a pattern against the
 # TAIL of each ref at slash boundaries, so `rc-*` also matches
 # refs/heads/feat/rc-update-channel -- a feature branch, offered to an admin as
@@ -166,10 +175,16 @@ rcBranch() {
     local remote
     remote=$(git -C "${FOG_git_path}" remote get-url origin 2>/dev/null)
     [[ -n $remote ]] || remote="${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}"
-    ref=$(git ls-remote --heads "$remote" 'refs/heads/rc-*' 2>/dev/null \
+    # ls-remote runs on its own, not at the head of the pipe: a pipeline's
+    # status is its LAST command's, so a remote that refused us (root with no
+    # key for an SSH origin, or no network) came back as an empty match and
+    # read as "none published". Return 3 for it instead.
+    local heads
+    heads=$(git ls-remote --heads "$remote" 'refs/heads/rc-*' 2>/dev/null) || return 3
+    ref=$(printf '%s\n' "$heads" \
         | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
         | sort -Vr \
-        | head -n1) || return 1
+        | head -n1)
     [[ -n $ref ]] || return 1
     echo "$ref"
 }
