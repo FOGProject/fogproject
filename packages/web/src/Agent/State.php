@@ -16,6 +16,7 @@ namespace FOG\Agent;
 use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
+use FOG\Items\AgentEnrollment;
 use FOG\Items\Host;
 use FOG\Items\HostFactState;
 use FOG\Items\PowerManagement;
@@ -66,6 +67,11 @@ class State extends FOGBase
         // directory and carries a credential. An admin who has turned the
         // module off has turned off both, which is what they meant.
         'directory' => 'hostnamechanger',
+        // The legacy client activated Windows from inside HostnameChanger
+        // too, so the same switch keeps meaning the same thing (design
+        // 0016). A key is a license, not a directory credential, so it
+        // travels in its own block.
+        'activation' => 'hostnamechanger',
         // Gated on the EXISTING printermanager module, not a new switch:
         // admins have been turning that one off for a decade and know
         // where it is, so a host's current choice carries over untouched
@@ -200,6 +206,37 @@ class State extends FOGBase
     }
 
     /**
+     * The activation block (design 0016), or null when there is nothing
+     * to install.
+     *
+     * The key is sent only when it decodes to a valid key and the host
+     * enrolled as Windows. Legacy rows may be AES or base64 encoded, and
+     * decodeStored() is the one decoder for these legacy fields.
+     *
+     * @param Host $Host the principal
+     *
+     * @return array|null
+     */
+    private static function _activation(Host $Host)
+    {
+        $key = DirectoryPlacement::decodeStored($Host->get('productKey'));
+        if (!self::productKeyIsValid($key)) {
+            return null;
+        }
+        $os = Route::getIds(
+            'agentenrollment',
+            [
+                'hostID' => (int)$Host->get('id'),
+                'state' => AgentEnrollment::STATE_ISSUED
+            ],
+            'os'
+        );
+        if (!in_array('windows', (array)$os, true)) {
+            return null;
+        }
+        return ['key' => self::productKeyFormat($key)];
+    }
+    /**
      * The desired state, with its revision.
      *
      * @param Host $Host the principal
@@ -265,6 +302,16 @@ class State extends FOGBase
             $directory = DirectoryJoin::desired($Host);
             if (null !== $directory) {
                 $state['directory'] = $directory;
+            }
+        }
+        if (in_array('activation', $capabilities, true)) {
+            // Design 0016: the host's product key, for the agent to install
+            // and activate. Omitted, not sent empty, when there is nothing
+            // to install: absent means "do nothing", and the agent never
+            // uninstalls a key.
+            $activation = self::_activation($Host);
+            if (null !== $activation) {
+                $state['activation'] = $activation;
             }
         }
         if (in_array('wake', $capabilities, true)) {
