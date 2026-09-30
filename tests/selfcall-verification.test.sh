@@ -145,6 +145,35 @@ reset_env
 NET_fog_server_ip="10.0.0.5"
 check "$(_servedCertName)" "10.0.0.5" "F: falls back to \${NET_fog_server_ip} last"
 
+# W. A wildcard leaf (GH-1800). Its commonName is '*.example.org', which is not
+#    a host: it became the vhost ServerName (apache refused the config) and the
+#    self-call URLs (the DB dump fetch failed). The answer is a name the
+#    wildcard covers, built from --hostname, and never the literal pattern.
+openssl req -x509 -newkey rsa:2048 -nodes -days 1 \
+    -subj "/CN=*.example.org/O=FOG Project" \
+    -addext "subjectAltName=DNS:*.example.org,DNS:example.org" \
+    -keyout "$WORK/wild.key" -out "$WORK/wild.pem" >/dev/null 2>&1
+
+reset_env
+PKI_web_vhost_cert="$WORK/wild.pem"
+NET_hostname="fog.example.org"
+check "$(_servedCertName)" "fog.example.org" "W1: wildcard CN yields the --hostname it covers"
+
+reset_env
+PKI_web_vhost_cert="$WORK/wild.pem"
+NET_hostname="fog"
+check "$(_servedCertName)" "fog.example.org" "W2: a bare --hostname takes the wildcard's domain"
+
+reset_env
+PKI_web_vhost_cert="$WORK/wild.pem"
+NET_hostname="fog.other.org"
+check "$(_servedCertName)" "fog.other.org" "W3: an uncovered --hostname is still honored, not the pattern"
+
+reset_env
+PKI_web_vhost_cert="$WORK/wild.pem"
+NET_fog_server_ip="10.0.0.5"
+check "$(_servedCertName)" "10.0.0.5" "W4: wildcard CN and no hostname falls to the address"
+
 echo "== _resolveSelfCacert: when FOG's root is the wrong anchor =="
 
 printf 'not-a-real-anchor\n' > "$WORK/anchor.pem"

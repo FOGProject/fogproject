@@ -6505,6 +6505,19 @@ _servedCertName() {
         # split out of it reliably at all.
         cn=$(openssl x509 -noout -subject -nameopt multiline -in "$cert" 2>/dev/null \
             | awk -F' = ' '/commonName/{print $2; exit}')
+        # A wildcard commonName ('*.example.org') is a pattern, not a host.
+        # Returned as-is it became the vhost ServerName, which apache refuses,
+        # and the self-call URLs, which cannot resolve (GH-1800). Use the
+        # --hostname the wildcard covers: as given, or a bare label joined to
+        # the wildcard's domain. If it covers neither, --hostname still wins
+        # below, because the admin named it and the pattern names nothing.
+        if [[ $cn == '*.'* ]]; then
+            local n
+            for n in "${NET_hostname}" "${NET_hostname:+${NET_hostname}.${cn#\*.}}"; do
+                [[ -n $n ]] && _certServesName "$cert" "$n" >/dev/null && { echo "$n"; return 0; }
+            done
+            cn=""
+        fi
         [[ -n $cn ]] && { echo "$cn"; return 0; }
     fi
     [[ -n ${NET_hostname} ]] && { echo "${NET_hostname}"; return 0; }
