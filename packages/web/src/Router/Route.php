@@ -3081,7 +3081,11 @@ class Route extends FOGBase
             // agent: compared for equality with what it applied, never
             // parsed (protocol-v1.md), so how it is computed can change.
             'revision' => $desired['revision'],
-            'poll_interval' => 300,
+            // The same check-in setting the legacy client obeys, so an
+            // admin tunes both from one place. It was a fixed 300, which
+            // made a reboot task wait up to five minutes (fog-agent#22).
+            // The agent keeps its own default when this is not positive.
+            'poll_interval' => (int)self::getSetting('FOG_CLIENT_CHECKIN_TIME'),
             'server_time' => self::niceDate()->format('c'),
         ];
         // The state rides the answer only when what the agent applied is
