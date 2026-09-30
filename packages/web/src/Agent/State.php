@@ -67,11 +67,6 @@ class State extends FOGBase
         // directory and carries a credential. An admin who has turned the
         // module off has turned off both, which is what they meant.
         'directory' => 'hostnamechanger',
-        // The legacy client activated Windows from inside HostnameChanger
-        // too, so the same switch keeps meaning the same thing (design
-        // 0016). A key is a license, not a directory credential, so it
-        // travels in its own block.
-        'activation' => 'hostnamechanger',
         // Gated on the EXISTING printermanager module, not a new switch:
         // admins have been turning that one off for a decade and know
         // where it is, so a host's current choice carries over untouched
@@ -81,7 +76,12 @@ class State extends FOGBase
         // reason: that is the switch an admin already turns off to stop
         // FOG touching a machine's power, and relaying a wake is FOG using
         // this machine to touch another one's (design 0011 section 4).
-        'wake' => 'powermanagement'
+        'wake' => 'powermanagement',
+        // The legacy client activated Windows from inside HostnameChanger
+        // too, so the same switch keeps meaning the same thing (design
+        // 0016). A key is a license, not a directory credential, so it
+        // travels in its own block.
+        'activation' => 'hostnamechanger'
     ];
 
     /**

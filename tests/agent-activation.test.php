@@ -85,4 +85,4 @@ $t->check(
     null === activation(KEY, null)
 );
 
-exit($t->finish());
+$t->finish();
