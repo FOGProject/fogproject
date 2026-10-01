@@ -153,7 +153,15 @@ abstract class FOGService extends FOGBase
     protected function checkIfNodeMaster()
     {
         self::getIPAddress();
-        $StorageNodesFound = Route::getList(
+        // Ids and addresses first, full nodes only for the ones that are this
+        // machine. Route::getList() and getItem() serialize a node, and the
+        // serializer reads `online`, which opens a TCP connection to the
+        // node's ssh port. Serializing every enabled master here therefore
+        // probed every master in the estate on every call, and the multicast
+        // loop calls this two or more times a pass: sshd logged "Connection
+        // closed by <this server>" every few seconds (#1806). getIds()
+        // serializes nothing.
+        $MasterIDsFound = Route::getIds(
             'storagenode',
             [
                 'isMaster' => 1,
@@ -170,17 +178,23 @@ abstract class FOGService extends FOGBase
         // was re-forked straight back into it. That is every non-master node
         // running the multicast daemon with the Location plugin on (#815).
         $MasterIDs = [];
-        foreach ($StorageNodesFound as &$StorageNode) {
-            // getItem(), not indiv(): a node that vanished between the list
-            // and the fetch used to exit the daemon child here. Refs #907.
-            $StorageNode = Route::getItem('storagenode', $StorageNode->id);
-            if (!$StorageNode || !$StorageNode->online) {
-                continue;
-            }
+        foreach ($MasterIDsFound as $id) {
+            $nodeIP = Route::getIds('storagenode', ['id' => $id], 'ip');
             $ip = self::resolveHostname(
-                $StorageNode->ip
+                (string)array_shift($nodeIP)
             );
             if (!in_array($ip, self::$ips)) {
+                continue;
+            }
+            // getItem(), not indiv(): a node that vanished between the list
+            // and the fetch used to exit the daemon child here. Refs #907.
+            //
+            // No `online` check. This node is the machine running the daemon,
+            // so it is reachable by definition, and requiring an answer from
+            // its sshd let a stopped sshd switch off multicast, which needs
+            // no ssh at all. 1.5 never checked here.
+            $StorageNode = Route::getItem('storagenode', $id);
+            if (!$StorageNode) {
                 continue;
             }
             $StorageNodes[] = $StorageNode;

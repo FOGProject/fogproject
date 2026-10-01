@@ -225,6 +225,19 @@ class StorageNode extends FOGController
         // was answering "offline" for hosts that were merely unhurried. 1.5
         // used a second here and additionally floored anything below one.
         $ip = $this->get('ip');
+        // A node at one of this process's own addresses is this machine, so
+        // it is reachable without asking. Asking cost an sshd "Connection
+        // closed" line on every read, and the daemons read their own master
+        // node every pass (#1806). Only addresses already known are used:
+        // the daemons fill self::$ips at startup, while a web request
+        // usually has not and still probes, because working them out runs a
+        // reverse lookup per address.
+        if (count(self::$ips ?: []) > 0
+            && in_array(self::resolveHostname($ip), self::$ips, true)
+        ) {
+            $this->set('online', true);
+            return;
+        }
         $test = self::$FOGURLRequests->isAvailable($ip, 1, -1);
         $online = array_shift($test);
         if (!$online) {
