@@ -9806,6 +9806,24 @@ createAgentIntermediateCA() {
     chmod 0700 "$cadir" >>$error_log 2>&1
     PKI_agent_ca_key="${cadir}/.fogAgentCA.key"
     PKI_agent_ca_cert="${cadir}/.fogAgentCA.pem"
+    # An agent CA the current root did not issue is unusable, not long-lived:
+    # fog-sign-node-cert verifies every agent leaf against the root and refuses
+    # it, so enrollment fails for every host ("the issued certificate does not
+    # verify against .../.fogCA.pem"). That happens when the root is replaced
+    # under an existing install -- the usual case is restoring an older
+    # server's CA onto a fresh 1.6 build so registered fog-clients keep
+    # trusting it. No agent certificate issued under the old one can verify
+    # against the new root either, so re-minting loses nothing. The old pair
+    # is kept beside it, not deleted.
+    if [[ -f ${PKI_agent_ca_cert} && -s ${PKI_root_ca_cert} ]] \
+        && ! openssl verify -trusted "${PKI_root_ca_cert}" "${PKI_agent_ca_cert}" >/dev/null 2>&1; then
+        local stamp
+        stamp="$(date +%Y%m%d%H%M%S)"
+        echo " * The FOG Agent CA was not issued by ${PKI_root_ca_cert}; re-minting it."
+        echo "   The old one is kept as ${PKI_agent_ca_cert}.${stamp}."
+        mv -f "${PKI_agent_ca_cert}" "${PKI_agent_ca_cert}.${stamp}" >>$error_log 2>&1
+        [[ -f ${PKI_agent_ca_key} ]] && mv -f "${PKI_agent_ca_key}" "${PKI_agent_ca_key}.${stamp}" >>$error_log 2>&1
+    fi
     if [[ ! -f ${PKI_agent_ca_cert} ]]; then
         dots "Creating FOG Agent CA"
         _issueIntermediateCA "FOG Agent CA" "$cadir" ".fogAgentCA.key" ".fogAgentCA.pem" \
