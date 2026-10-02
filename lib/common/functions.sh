@@ -1827,8 +1827,32 @@ updateDB() {
             # grants a schema deploy on a server that has no users yet; -k
             # handed that to whoever answered on ${NET_fog_server_ip}.
             _resolveSelfCacert
-            curl -X POST -H "X-Fog-Install-Token: ${installToken}" -d "schemaupdate=1" --noproxy '*' "${selfCacertOpts[@]}" -fsL ${WEB_url_proto}://${selfName}${WEB_root}management/index.php?node=schema -o - >>$error_log 2>&1
+            # The schema page writes each failed step to this file and answers
+            # only "Unable to update schema". Note its size first, so only the
+            # lines THIS run adds are copied into $error_log below.
+            local schemaErrLog="${webdirdest%/}/fog_schema_update_error.log"
+            local schemaErrSize
+            schemaErrSize=$(stat -c %s "$schemaErrLog" 2>/dev/null || echo 0)
+            # -sS and -w, not -fsL. -f discarded the server's error reply and
+            # -s hid curl's own error line, so a failed deploy exited 22 with
+            # nothing in $error_log, and errorStat showed unrelated lines.
+            local schemacode schemabody
+            schemabody=$(mktemp)
+            schemacode=$(curl -X POST -H "X-Fog-Install-Token: ${installToken}" -d "schemaupdate=1" --noproxy '*' "${selfCacertOpts[@]}" -sSL -w '%{http_code}' -o "$schemabody" ${WEB_url_proto}://${selfName}${WEB_root}management/index.php?node=schema 2>>$error_log)
             local schemarc=$?
+            { cat "$schemabody"; echo; } >>$error_log 2>&1
+            rm -f "$schemabody"
+            if [[ $schemarc -eq 0 && ${schemacode:-0} -ge 400 ]]; then
+                {
+                    echo "Schema deploy failed: HTTP ${schemacode}."
+                    if [[ -f $schemaErrLog ]]; then
+                        echo "From ${schemaErrLog}:"
+                        tail -c +$((schemaErrSize + 1)) "$schemaErrLog"
+                    fi
+                } >>$error_log 2>&1
+                # The status -f gave, so callers see the same exit code.
+                schemarc=22
+            fi
             # errorStat tails $error_log, so curl's own "SSL certificate
             # problem" line is already visible -- but it does not say what to
             # do about it, and this is the one place where verifying instead
