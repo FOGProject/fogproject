@@ -95,7 +95,7 @@ class System
             include_once $generated;
         }
         if (!defined('FOG_VERSION')) {
-            define('FOG_VERSION', '1.6.0-RC-2');
+            define('FOG_VERSION', '1.6.0-RC-3');
         }
         if (!defined('FOG_CHANNEL')) {
             define('FOG_CHANNEL', 'Release Candidate');
