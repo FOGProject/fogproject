@@ -3926,7 +3926,10 @@ abstract class FOGPage extends FOGBase
                 throw new \Exception(_('Unable to remove protected items'));
             }
             if ($this->obj instanceof Group) {
-                if (isset($_POST['andHosts'])) {
+                // == 1, matching deletemulti() above: a caller that sends
+                // the field with 0 means no. $.deleteSelected posts the
+                // field either way, so bare isset() read its "no" as yes.
+                if (isset($_POST['andHosts']) && $_POST['andHosts'] == 1) {
                     $del = ['id' => $this->obj->get('hosts')];
                     Route::deletemass(
                         'host',
@@ -3943,7 +3946,10 @@ abstract class FOGPage extends FOGBase
                 }
             }
             if ($this->obj instanceof Image || $this->obj instanceof Snapin) {
-                if (isset($_POST['andFile'])) {
+                // == 1, for the reason given on andHosts above. This one
+                // queues the image or snapin file for deletion, so reading
+                // an explicit 0 as yes destroys data the operator kept.
+                if (isset($_POST['andFile']) && $_POST['andFile'] == 1) {
                     if (!$this->obj->deleteFile()) {
                         throw new \Exception(_('Unable to delete file data'));
                     }
