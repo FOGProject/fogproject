@@ -6,7 +6,13 @@
     // Should we delete the image files too?
     $('#andFile').on('change', function(e) {
         e.preventDefault();
+        // Clear it, don't just return. deleteOpts() hands registerGeneralTab
+        // whatever this variable holds, so returning early left a previous
+        // check's {andFile: 1} in place -- ticking the box, changing your
+        // mind and deleting still queued the file for deletion. There is no
+        // undo for that. fog.group.edit.js always got this right.
         if (!this.checked) {
+            opts = {};
             return;
         }
         opts = {andFile: 1};
