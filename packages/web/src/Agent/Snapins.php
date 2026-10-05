@@ -210,7 +210,7 @@ class Snapins extends FOGBase
     {
         $Snapin = $SnapinTask->getSnapin();
         if (!$Snapin->isValid()) {
-            throw new \RuntimeException('no such snapin', 404);
+            self::_fail('no such snapin', 404);
         }
         $StorageNode = self::_node($Host, $Snapin);
         $path = sprintf('/%s', trim((string)$StorageNode->get('snapinpath'), '/'));
@@ -223,12 +223,12 @@ class Snapins extends FOGBase
         self::$FOGFTP->password = $pass;
         self::$FOGFTP->host = $host;
         if (!self::$FOGFTP->connect()) {
-            throw new \RuntimeException('cannot connect to the storage node', 503);
+            self::_fail('cannot connect to the storage node', 503);
         }
         $SnapinFile = sprintf('ftp://%s:%s@%s%s', $user, urlencode($pass), $host, $filepath);
         $fh = fopen($SnapinFile, 'rb');
         if (false === $fh) {
-            throw new \RuntimeException('cannot read the snapin file', 503);
+            self::_fail('cannot read the snapin file', 503);
         }
         $date = self::niceDate()->format('Y-m-d H:i:s');
         $Task = $Host->get('task');
@@ -488,6 +488,35 @@ class Snapins extends FOGBase
     }
 
     /**
+     * Fails the payload download with an HTTP status, then throws.
+     *
+     * Everything else on this class answers through the REST router, which
+     * reads getCode() off the exception and sets the status itself. The
+     * payload does not: snapins.file.php reaches stream() through
+     * Client\SnapinClient, and FOGClient's constructor catches every
+     * exception and prints the message with no status at all. The legacy
+     * client saved that 200 body as the snapin, hashed it and reported
+     * "Hash does not match" with the same wrong SHA-512 on every retry, so
+     * a storage-node or FTP failure read as a permanently corrupt snapin
+     * (forum 18253, where a missing /home/fogproject broke vsftpd's chdir).
+     * A download has to fail as a download, so set the status here, before
+     * the body is written. The code still rides the exception, so the router
+     * path is unchanged.
+     *
+     * @param string $message what failed
+     * @param int    $status  the HTTP status to answer with
+     *
+     * @throws \RuntimeException always
+     *
+     * @return never
+     */
+    private static function _fail(string $message, int $status)
+    {
+        http_response_code($status);
+        throw new \RuntimeException($message, $status);
+    }
+
+    /**
      * The node that serves this snapin to this host: a hook's choice, else
      * the master of the snapin's storage group.
      *
@@ -523,13 +552,13 @@ class Snapins extends FOGBase
         if (!($StorageGroup instanceof StorageGroup && $StorageGroup->isValid())) {
             $StorageGroup = $Snapin->getStorageGroup();
             if (!$StorageGroup->isValid()) {
-                throw new \RuntimeException('no storage group for this snapin', 503);
+                self::_fail('no storage group for this snapin', 503);
             }
         }
         if (!($StorageNode instanceof StorageNode && $StorageNode->isValid())) {
             $StorageNode = $StorageGroup->getMasterStorageNode();
             if (!($StorageNode instanceof StorageNode && $StorageNode->isValid())) {
-                throw new \RuntimeException('no storage node for this snapin', 503);
+                self::_fail('no storage node for this snapin', 503);
             }
         }
         return $StorageNode;
