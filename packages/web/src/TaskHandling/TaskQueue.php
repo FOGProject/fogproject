@@ -614,11 +614,15 @@ class TaskQueue extends TaskingElement
         if ($sectorSize > 0) {
             $this->Image->set('sectorsize', $sectorSize);
         }
+        // Measured on the node, over the session already open. This used to
+        // happen only for format 1 (partimage), and with a local
+        // getFilesize() the node may not share. So every other capture showed
+        // "0 iB" on the server until the next FOGImageSize pass, up to
+        // IMAGESIZESLEEPTIME (3600s) later. Refs #1814.
+        $this->Image->set('srvsize', self::$FOGSSH->size($dest));
         self::$FOGSSH->disconnect();
         if ($this->Image->get('format') == 1) {
-            $this->Image
-                ->set('format', 0)
-                ->set('srvsize', self::getFilesize($dest));
+            $this->Image->set('format', 0);
         }
         // Stamp the image with the architecture of the machine that made it.
         //
