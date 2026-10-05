@@ -23,6 +23,8 @@ use FOG\Base\FOGCore;
  * @author   Tom Elliott <tommygunsster@gmail.com>
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
+ *
+ * @method array|false sftp_stat(string $path) ssh2_sftp_stat(), via __call
  */
 class FOGSSH
 {
@@ -483,6 +485,31 @@ class FOGSSH
         }
 
         return $tempArray;
+    }
+    /**
+     * Total bytes of a remote file, or of the files directly under a
+     * remote directory.
+     *
+     * TaskQueue measures a captured image with this while the session to the
+     * storage node is still open. The web server cannot measure it locally:
+     * the image is on the node, and the node may be a different machine.
+     *
+     * @param string $path The remote file or directory
+     *
+     * @return int The size in bytes, 0 when the path is not there
+     */
+    public function size($path)
+    {
+        if (!$this->exists($path)) {
+            return 0;
+        }
+        $files = $this->scanFilesystem($path) ?: [$path];
+        $size = 0;
+        foreach ($files as $file) {
+            $stat = $this->sftp_stat($file);
+            $size += (int)($stat['size'] ?? 0);
+        }
+        return $size;
     }
     /**
      * Removes a single regular file. Never recurses, and never falls
