@@ -7185,6 +7185,41 @@ _hardenPkiPermissions() {
             ;;
     esac
 }
+# The service account's home directory, ensured on EVERY install.
+#
+# mkdir and chown lived inside configureUsers()'s "account did not exist"
+# branch, so they ran only on the run that created the account. A home that is
+# later removed, or left owned by root, is therefore never repaired: `getent
+# passwd` still answers, the branch prints "Skipped", and the install reports
+# success having touched nothing.
+#
+# That is not hypothetical. vsftpd answers "cannot change directory" when the
+# account's home is missing, which breaks every snapin download and every
+# transfer the server makes through its own FTP -- and the installer's output
+# never mentioned the home at all, so a re-install was the obvious remedy and
+# did nothing (forums topic 18253, where it cost the reporter a day).
+#
+# It also makes the two writers below safe. _svcUserBashrc() seds and appends
+# to $home/.bashrc, and the autostart block cats into $home/.config, both
+# unconditionally. Before this they wrote into a path that might not exist,
+# with sed and cat reporting into the error log that nobody reads on an install
+# that otherwise succeeded.
+#
+# Deliberately no chmod: this repairs ownership and existence, which are what
+# break FTP, and leaves whatever mode the distro's adduser chose. Changing the
+# mode of an existing home is a different decision from fixing a missing one.
+_ensureSvcUserHome() {
+    local home="/home/${SVC_user}"
+    # A non-directory at that path is a different fault, and mkdir -p refuses
+    # it forever -- say so rather than retrying it on every install.
+    if [[ -e $home && ! -d $home ]]; then
+        echo "/home/${SVC_user} exists but is not a directory" >>$error_log 2>&1
+        return 1
+    fi
+    mkdir -p "$home" >>$error_log 2>&1 || return 1
+    chown "${SVC_user}:${SVC_user}" "$home" >>$error_log 2>&1 || return 1
+    return 0
+}
 configureUsers() {
     userexists=0
     [[ -z ${SVC_user} || "x${SVC_user}" == "xfog" ]] && SVC_user='fogproject'
@@ -7224,13 +7259,18 @@ configureUsers() {
         retVal=$?
         [[ $retVal -eq 0 ]] && usermod -g ${SVC_user} -G ${SVC_user} ${SVC_user} >>$error_log 2>&1 || errorStat $?
         retVal=$?
-        [[ $retVal -eq 0 ]] && mkdir -p /home/${SVC_user} >>$error_log 2>&1 || errorStat $?
+        # The home directory and its ownership are _ensureSvcUserHome()'s, just
+        # below the branch, so they are established on every install rather
+        # than only on this one. .bashrc still gets created here because
+        # _svcUserBashrc() seds it before it appends.
+        [[ $retVal -eq 0 ]] && _ensureSvcUserHome || errorStat $?
         retVal=$?
         [[ $retVal -eq 0 ]] && touch /home/${SVC_user}/.bashrc >>$error_log 2>&1 || errorStat $?
-        retVal=$?
-        [[ $retVal -eq 0 ]] && chown ${SVC_user}:${SVC_user} /home/${SVC_user} >>$error_log 2>&1 || errorStat $?
         errorStat $?
     fi
+    dots "Ensuring ${SVC_user} home directory"
+    _ensureSvcUserHome
+    errorStat $?
     dots "Locking ${SVC_user} as a system account"
     if [[ ${FOG_os_id} -ne 3 ]]; then
         chsh -s /bin/bash ${SVC_user} >>$error_log 2>&1
