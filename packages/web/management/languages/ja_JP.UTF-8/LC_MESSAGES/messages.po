@@ -1309,12 +1309,20 @@ msgstr "保留中ホスト"
 msgid "Approve Pending Hosts"
 msgstr "保留中ホスト"
 
+#, fuzzy
+msgid "Approve all matching"
+msgstr "保留中の項目をすべて承認しますか？ "
+
 msgid "Approve or deny an agent enrollment"
 msgstr ""
 
 #, fuzzy
 msgid "Approve selected"
 msgstr "選択したホストを承認"
+
+#, fuzzy, php-format
+msgid "Approved %d matching macs!"
+msgstr "保留中の MAC アドレスをすべて承認"
 
 msgid "Approved but the signer is unavailable; the agent retries."
 msgstr ""
@@ -12796,12 +12804,6 @@ msgstr ""
 
 #~ msgid "Approve Selected MACs"
 #~ msgstr "選択した MAC アドレスを承認"
-
-#~ msgid "Approve all pending macs"
-#~ msgstr "保留中の MAC アドレスをすべて承認"
-
-#~ msgid "Approve all pending? "
-#~ msgstr "保留中の項目をすべて承認しますか？ "
 
 #~ msgid "Approve this host?"
 #~ msgstr "このホストを承認しますか？"

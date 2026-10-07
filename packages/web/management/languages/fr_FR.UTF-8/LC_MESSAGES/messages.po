@@ -1355,11 +1355,19 @@ msgstr "Les hôtes en attente"
 msgid "Approve Pending Hosts"
 msgstr "Les hôtes en attente"
 
+#, fuzzy
+msgid "Approve all matching"
+msgstr "hôte approuvé"
+
 msgid "Approve or deny an agent enrollment"
 msgstr ""
 
 #, fuzzy
 msgid "Approve selected"
+msgstr "Approuver hôtes sélectionnés"
+
+#, fuzzy, php-format
+msgid "Approved %d matching macs!"
 msgstr "Approuver hôtes sélectionnés"
 
 msgid "Approved but the signer is unavailable; the agent retries."
