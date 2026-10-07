@@ -1309,12 +1309,20 @@ msgstr "保留中ホスト"
 msgid "Approve Pending Hosts"
 msgstr "保留中ホスト"
 
+#, fuzzy
+msgid "Approve all matching"
+msgstr "保留中の項目をすべて承認しますか？ "
+
 msgid "Approve or deny an agent enrollment"
 msgstr ""
 
 #, fuzzy
 msgid "Approve selected"
 msgstr "選択したホストを承認"
+
+#, fuzzy, php-format
+msgid "Approved %d matching macs!"
+msgstr "保留中の MAC アドレスをすべて承認"
 
 msgid "Approved but the signer is unavailable; the agent retries."
 msgstr ""
@@ -10165,7 +10173,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12796,12 +12803,6 @@ msgstr ""
 
 #~ msgid "Approve Selected MACs"
 #~ msgstr "選択した MAC アドレスを承認"
-
-#~ msgid "Approve all pending macs"
-#~ msgstr "保留中の MAC アドレスをすべて承認"
-
-#~ msgid "Approve all pending? "
-#~ msgstr "保留中の項目をすべて承認しますか？ "
 
 #~ msgid "Approve this host?"
 #~ msgstr "このホストを承認しますか？"
