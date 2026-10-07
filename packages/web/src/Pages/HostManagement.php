@@ -443,6 +443,13 @@ class HostManagement extends FOGPage
             _('Approve selected'),
             'btn btn-primary float-end'
         );
+        // Select All can only select the page the browser holds; this
+        // approves every row matching the grid's filter, on the server.
+        $buttons .= self::makeButton(
+            'approveAll',
+            _('Approve all matching'),
+            'btn btn-secondary float-end'
+        );
         $buttons .= self::makeButton(
             'delete',
             _('Delete selected'),
@@ -573,6 +580,38 @@ class HostManagement extends FOGPage
                 $msg = json_encode(
                     [
                         'msg' => _('Approved selected macs!'),
+                        'title' => _('MAC Approval Success')
+                    ]
+                );
+                $code = HTTPResponseCodes::HTTP_ACCEPTED;
+            }
+            if (isset($_POST['approveall'])) {
+                $errt = _('Approve MAC Fail');
+                // The body carries the grid's own DataTables request
+                // (search, column filters, SearchBuilder) with start=0 and
+                // length=-1, so listem() resolves exactly the rows the grid
+                // matches, under the same site scope, across every page.
+                // "All rows" is capped at FOGManagerController::MAX_ROWS;
+                // anything past the cap stays pending for the next click.
+                Route::listem('macaddressassociation', ['pending' => 1]);
+                $listed = json_decode(Route::getData(), true);
+                $ids = array_column($listed['data'] ?? [], 'id');
+                if (count($ids) > 0) {
+                    (new MACAddressAssociationManager())->update(
+                        [
+                            'id' => $ids,
+                            'pending' => 1
+                        ],
+                        '',
+                        ['pending' => 0]
+                    );
+                }
+                $msg = json_encode(
+                    [
+                        'msg' => sprintf(
+                            _('Approved %d matching macs!'),
+                            count($ids)
+                        ),
                         'title' => _('MAC Approval Success')
                     ]
                 );
