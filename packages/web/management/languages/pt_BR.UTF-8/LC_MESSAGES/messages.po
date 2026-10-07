@@ -1354,11 +1354,19 @@ msgstr "Anfitriões pendentes"
 msgid "Approve Pending Hosts"
 msgstr "Anfitriões pendentes"
 
+#, fuzzy
+msgid "Approve all matching"
+msgstr "hospedar aprovado"
+
 msgid "Approve or deny an agent enrollment"
 msgstr ""
 
 #, fuzzy
 msgid "Approve selected"
+msgstr "Aprovar Hosts selecionados"
+
+#, fuzzy, php-format
+msgid "Approved %d matching macs!"
 msgstr "Aprovar Hosts selecionados"
 
 msgid "Approved but the signer is unavailable; the agent retries."
