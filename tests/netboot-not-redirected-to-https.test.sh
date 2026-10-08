@@ -102,6 +102,15 @@ else
     bad "Apache netboot exemption missing or no longer anchored on \${webrootre}"
 fi
 
+# The reconstruction in section 3 hardcodes R=308, so pin the installer's own
+# line here; otherwise the emission could drift back to a bare [R] (a 302)
+# with every behavioral check still green.
+if src | grep -q 'RewriteRule ^/?(.\*)\\$ https://%{HTTP_HOST}/\\$1 \[R=308,L\]'; then
+    ok "Apache redirects with a 308, which keeps a POST's body"
+else
+    bad "Apache redirect is not [R=308,L] -- a bare [R] is a 302 and drops FOS's POST body"
+fi
+
 # ---------------------------------------------------------------- behavioral
 
 tmp=$(mktemp -d) || exit 1
@@ -165,6 +174,13 @@ assert_arm() {  # assert_arm <server-label> <base-url>
     else
         bad "$label: service/checkin.php answered $c -- the exemption is too wide"
     fi
+    # FOS POSTs to service/ over the http:// web= the boot menu gave it, and
+    # follows with curl -L. On a 301/302 curl resends as a GET with no body,
+    # so the server sees no mac= at all (GH-1829). Only 307/308 keep the POST.
+    case $c in
+        307|308) ok "$label: the service/ redirect keeps a POST's method and body (got $c)" ;;
+        *)       bad "$label: service/ redirect is $c -- curl -L turns FOS's POST into a bodiless GET" ;;
+    esac
 }
 
 echo
@@ -239,7 +255,7 @@ else
         echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/${nbdir}/" >> "$etcconf"
     done
     echo "    RewriteCond %{HTTPS} off" >> "$etcconf"
-    echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
+    echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R=308,L]" >> "$etcconf"
 
     aport=$(( 20000 + RANDOM % 20000 ))
     modline() { [[ -f $modroot/$2 ]] && echo "LoadModule $1 $modroot/$2"; }
