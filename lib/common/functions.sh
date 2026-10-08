@@ -10034,6 +10034,16 @@ $(_nameConstraints)" "FOG Web UI"
 #    recommends -- would fail on its next update. Names do not matter here
 #    (the client encrypts to the public key and never validates a hostname),
 #    so there is nothing a re-issue would fix.
+# Is ${PKI_client_encrypt_cert} FOG's own file, rather than a leaf the admin
+# keeps elsewhere and pointed FOG at? Only FOG's own is ever re-issued.
+_commLeafIsFogManaged() {
+    local real zone legacy
+    real="$(readlink -f "${PKI_client_encrypt_cert}" 2>/dev/null)"
+    zone="$(readlink -f "$(_pkiZoneDir client)" 2>/dev/null)"
+    legacy="$(readlink -f "${PKI_client_cert_dir}" 2>/dev/null)"
+    [[ -n $real ]] || return 1
+    [[ ( -n $zone && $real == "$zone"/* ) || ( -n $legacy && $real == "$legacy"/* ) ]]
+}
 _createCommLeaf() {
     # GH-1120 promoted these from locals to managed keys. The client zone was
     # the only one an admin could not point elsewhere, and it holds the one
@@ -10059,6 +10069,25 @@ _createCommLeaf() {
     # FOGBase::certDecrypt() reports it per client as a failed authorize with
     # nothing pointing back at the certificate. Silently keeping whatever was
     # there was the one path into this state.
+    #
+    # A FOG-managed leaf the current root did not issue is re-issued, the same
+    # way createAgentIntermediateCA re-mints its CA. That happens when the root
+    # is replaced under an existing install -- restoring an older server's CA
+    # onto a fresh 1.6 build so registered fog-clients keep trusting it. Every
+    # fog-client checks this certificate against the root it pinned and
+    # rejects it ("Thumbprints did not match"), so the whole fleet stops
+    # checking in. The KEY is kept: clients encrypt to the public half, so
+    # re-signing it under the right root is the fix and needs no re-pin. A
+    # leaf the admin keeps outside the client zone is theirs and is left alone.
+    if [[ -f ${PKI_client_encrypt_cert} && -s ${PKI_root_ca_cert} && ${rootCAKeyOffline:-0} -ne 1 ]] \
+        && _commLeafIsFogManaged \
+        && ! openssl verify -trusted "${PKI_root_ca_cert}" "${PKI_client_encrypt_cert}" >/dev/null 2>&1; then
+        local stamp
+        stamp="$(date +%Y%m%d%H%M%S)"
+        echo " * The client communication certificate was not issued by ${PKI_root_ca_cert}; re-issuing it."
+        echo "   The old one is kept as ${PKI_client_encrypt_cert}.${stamp}."
+        mv -f "${PKI_client_encrypt_cert}" "${PKI_client_encrypt_cert}.${stamp}" >>$error_log 2>&1
+    fi
     if [[ -f ${PKI_client_encrypt_cert} ]]; then
         local haveMod wantMod
         # Raw modulus, no `openssl md5` -- see _discardOrphanedCommLeaf.
@@ -10112,7 +10141,10 @@ _createCommLeaf() {
         # pair with this key is the web certificate of a server whose zones
         # were already separated some other way; copying it here would publish
         # a public key nothing on this server can decrypt against.
-        if [[ -n $certmod && -n $keymod && $certmod == "$keymod" ]]; then
+        # And it must chain to the current root, or this would re-adopt the
+        # very certificate the check above just moved aside.
+        if [[ -n $certmod && -n $keymod && $certmod == "$keymod" ]] \
+            && openssl verify -trusted "${PKI_root_ca_cert}" "$oldcert" >/dev/null 2>&1; then
             dots "Adopting existing client communication certificate"
             cp -f "$oldcert" "${PKI_client_encrypt_cert}" >>$error_log 2>&1
             errorStat $?
@@ -10125,6 +10157,16 @@ _createCommLeaf() {
         echo "     ${PKI_root_ca_key}"
         echo "   and re-run the installer."
         return 1
+    fi
+    # The CSR has to carry THIS key. A restored CA can arrive beside a CSR made
+    # from another key, and signing it would publish a certificate nothing on
+    # this server can decrypt against.
+    local csr
+    csr="$(_pkiZoneDir client)/leaf/fog.csr"
+    if [[ -f ${PKI_client_encrypt_key} ]] && [[ "$(openssl req -in "$csr" -noout -pubkey 2>/dev/null)" \
+        != "$(openssl pkey -in "${PKI_client_encrypt_key}" -pubout 2>/dev/null)" ]]; then
+        openssl req -new -sha512 -key "${PKI_client_encrypt_key}" -out "$csr" \
+            -config "$(_pkiConfDir)/req.cnf" >>$error_log 2>&1
     fi
     dots "Creating client communication certificate"
     local st=0
@@ -10213,7 +10255,11 @@ _warnClientRepin() {
     newfp=$(openssl x509 -noout -fingerprint -sha256 -in "$newcert" 2>/dev/null)
     # An unreadable copy is not evidence of a change; do not cry wolf over it.
     [[ -n $oldfp && -n $newfp ]] || return 0
-    [[ $oldfp == "$newfp" ]] && return 0
+    # Compared by PUBLIC KEY, not certificate: re-issuing over the same key (as
+    # _createCommLeaf does when the root changed) is not a break, as the
+    # comment above says, and must stay silent.
+    [[ "$(openssl x509 -noout -pubkey -in "$deployed" 2>/dev/null)" \
+        == "$(openssl x509 -noout -pubkey -in "$newcert" 2>/dev/null)" ]] && return 0
     echo
     echo "  ###################################################################"
     echo "  # WARNING: the client communication certificate has CHANGED.      #"
