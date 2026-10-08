@@ -12092,7 +12092,13 @@ EOF
                                 echo "    RewriteCond %{REQUEST_URI} !^${webrootre}service/${nbdir}/" >> "$etcconf"
                             done
                         fi
-                        echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
+                        # R=308, not a bare R (a 302). FOS is handed the
+                        # http:// web= that boot.php was fetched over, POSTs
+                        # check-in and registration to it, and follows with
+                        # curl -L -- which resends a 302'd POST as a GET with
+                        # no body, so the server sees no mac= (GH-1829). A 308
+                        # keeps the method and body, as nginx's arm does.
+                        echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R=308,L]" >> "$etcconf"
                         echo "</VirtualHost>" >> "$etcconf"
                         echo "<VirtualHost *:443>" >> "$etcconf"
                         echo "    KeepAlive Off" >> "$etcconf"
