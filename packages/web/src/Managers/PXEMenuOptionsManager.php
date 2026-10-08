@@ -53,8 +53,8 @@ class PXEMenuOptionsManager extends FOGManagerController
     /**
      * The menu select list item.
      *
-     * @param string $request Which item is currently selected.
-     * @param string $id      Should we send an id.
+     * @param int|string $request Which item is currently selected.
+     * @param string     $id      Should we send an id.
      *
      * @return string
      */

@@ -280,16 +280,12 @@ class IpxeManagement extends FOGPage
                     ->set('default', intval($default))
                     ->set('hotkey', intval($hotkey))
                     ->set('keysequence', $keysequence);
-                if ($default) {
-                    $iPXE->getManager()->update(
-                        ['default' => 1],
-                        '',
-                        ['default' => 0]
-                    );
-                }
                 if (!$iPXE->save()) {
                     $serverFault = true;
                     throw new \Exception(_('Add menu failed!'));
+                }
+                if ($default) {
+                    self::_makeSoleDefault($iPXE);
                 }
                 return $iPXE;
             }
@@ -320,7 +316,7 @@ class IpxeManagement extends FOGPage
         );
         $regmenu = (
             filter_input(INPUT_POST, 'regmenu') ?:
-            ($this->obj->get('regMenu') ?: '')
+            ($this->obj->get('regMenu') ?? '')
         );
         $default = (
             isset($_POST['default']) ?:
@@ -509,13 +505,22 @@ class IpxeManagement extends FOGPage
             ->set('default', intval($default))
             ->set('hotkey', intval($hotkey))
             ->set('keysequence', $keysequence);
-        if ($default) {
-            $this->obj->getManager()->update(
-                ['default' => 1],
-                '',
-                ['default' => 0]
-            );
-        }
+    }
+    /**
+     * Make this menu item the only default one.
+     *
+     * Runs after a successful save. Clearing the others first left the
+     * menu with no default when the save then failed (GH-1830).
+     *
+     * @param PXEMenuOptions $item The saved menu item.
+     *
+     * @return void
+     */
+    private static function _makeSoleDefault(PXEMenuOptions $item)
+    {
+        $manager = $item->getManager();
+        $manager->update(['default' => 1], '', ['default' => 0]);
+        $manager->update(['id' => $item->get('id')], '', ['default' => 1]);
     }
     /**
      * Edit this menu item.
@@ -557,6 +562,9 @@ class IpxeManagement extends FOGPage
                 if (!$this->obj->save()) {
                     $serverFault = true;
                     throw new \Exception(_('Menu update failed!'));
+                }
+                if ($this->obj->get('default')) {
+                    self::_makeSoleDefault($this->obj);
                 }
             }
         );
