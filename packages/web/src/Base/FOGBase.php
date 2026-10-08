@@ -558,7 +558,9 @@ abstract class FOGBase
          */
         self::$buildSelectBox = function ($option, $index = false) {
             $value = $option;
-            if ($index) {
+            // GH-1830: key 0 is a real value. A truthiness test made its
+            // label the submitted value, which an int column rejects.
+            if ($index !== false) {
                 $value = $index;
             }
             printf(
