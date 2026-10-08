@@ -4905,7 +4905,12 @@ EOF
                 # the leading slash is stripped for you; it has been wrong here
                 # since 2017. Apache's MergeSlashes normally hides it, which is
                 # why it went unreported for so long.
-                echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R,L]" >> "$etcconf"
+                # R=308, not a bare R (a 302). FOS is handed the http:// web=
+                # that boot.php was fetched over, POSTs check-in and
+                # registration to it, and follows with curl -L -- which
+                # resends a 302'd POST as a GET with no body, so the server
+                # sees no mac= (GH-1829). A 308 keeps the method and body.
+                echo "    RewriteRule ^/?(.*)\$ https://%{HTTP_HOST}/\$1 [R=308,L]" >> "$etcconf"
                 echo "</VirtualHost>" >> "$etcconf"
             else
                 echo "    <Directory $webdirdest>" >> "$etcconf"
