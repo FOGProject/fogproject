@@ -167,6 +167,24 @@ else
     bad "$nostall remote curl call(s) have neither a total cap nor --speed-time"
 fi
 
+# A remote curl that saves to a file with -O must carry -f. Without it an HTTP
+# error page is written in place of the asset. The kernel loop did this: a
+# GitHub error page landed as bzImage32 AND bzImage32.sha256, and the only
+# trace was "no properly formatted checksum lines found" ten times over.
+# Bundled short flags only (-sSfOL): that is how every -O call here is spelled.
+nofail=0
+while IFS= read -r line; do
+    printf '%s\n' "$line" | grep -qE -- ' -[[:alpha:]]*O' || continue
+    printf '%s\n' "$line" | grep -qE -- ' (-[[:alpha:]]*f|--fail)' && continue
+    nofail=$((nofail + 1))
+    printf '        no --fail:        %s\n' "$(printf '%s' "$line" | sed 's/^ *//;s/  */ /g' | cut -c1-96)"
+done < <(remotecurls "$FUNCS"; remotecurls "$PLUG")
+if [[ $nofail -eq 0 ]]; then
+    ok "every remote curl that saves with -O fails on an HTTP error"
+else
+    bad "$nofail remote curl call(s) save with -O but lack -f -- an error page becomes the file"
+fi
+
 # The asset downloads must NOT carry --max-time: these are multi-megabyte
 # tarballs and a slow but working link has to be allowed to finish. The stall
 # they need protecting from is a transfer that opens and then stops, which is
