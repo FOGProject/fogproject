@@ -2657,6 +2657,9 @@ msgstr ""
 msgid "Engineer"
 msgstr ""
 
+msgid "Enroll from the command line"
+msgstr ""
+
 msgid "Enrolled Certificate (SHA-256)"
 msgstr ""
 
@@ -2864,6 +2867,9 @@ msgid "Extra arguments"
 msgstr ""
 
 msgid "FOG"
+msgstr ""
+
+msgid "FOG Agent"
 msgstr ""
 
 msgid "FOG Agent capability result"
@@ -4836,6 +4842,9 @@ msgstr ""
 msgid "Leave empty unless this node is its own FOG server"
 msgstr ""
 
+msgid "Leave it out when the web UI uses a public or corporate certificate the host already trusts."
+msgstr ""
+
 msgid "Left as it is, FOG asks for the names it would put in its own certificate, under its own organization. Fill any of these in and the request carries yours instead. A field left empty is left out of the request rather than filled in with FOG's."
 msgstr ""
 
@@ -4888,6 +4897,9 @@ msgid "Link ntfy Topic Fail"
 msgstr ""
 
 msgid "Link ntfy Topic Success"
+msgstr ""
+
+msgid "Linux and macOS, as root:"
 msgstr ""
 
 msgid "List"
@@ -5373,6 +5385,9 @@ msgid "Month value is not valid"
 msgstr ""
 
 msgid "Monthly"
+msgstr ""
+
+msgid "More install examples"
 msgstr ""
 
 #, php-format
@@ -8652,6 +8667,9 @@ msgstr ""
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr ""
 
+msgid "The agent replaces the FOG Client. Installing it removes the legacy client."
+msgstr ""
+
 msgid "The agent speaks a protocol this server does not."
 msgstr ""
 
@@ -10137,10 +10155,19 @@ msgstr ""
 msgid "Windows keys is a plugin that associates product keys"
 msgstr ""
 
+msgid "Windows, from an administrator prompt (installs the service):"
+msgstr ""
+
+msgid "Windows: silent MSI install"
+msgstr ""
+
 msgid "Wipes"
 msgstr ""
 
 msgid "Within 30 days"
+msgstr ""
+
+msgid "Without one, the host waits under Hosts, Pending Agents for an admin to approve it."
 msgstr ""
 
 msgid "Y-m-d H:i:s, server time."
@@ -10498,6 +10525,9 @@ msgid "files in the manifest"
 msgstr ""
 
 msgid "filesize"
+msgstr ""
+
+msgid "fingerprint: the SHA-256 of the Root row under FOG Configuration, Certificates."
 msgstr ""
 
 msgid "fog-admins"
@@ -11144,6 +11174,9 @@ msgid "to update size values as needed"
 msgstr ""
 
 msgid "to your fog storage node."
+msgstr ""
+
+msgid "token: optional. Create one under Hosts, Agent Enrollment Tokens."
 msgstr ""
 
 msgid "unable to be updated"
