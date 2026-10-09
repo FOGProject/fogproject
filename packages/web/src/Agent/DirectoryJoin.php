@@ -382,17 +382,87 @@ class DirectoryJoin extends FOGBase
      */
     protected static function cooling(HostDirectory $Observed)
     {
+        return self::coolingUntil($Observed) > self::niceDate()->getTimestamp();
+    }
+
+    /**
+     * When the cooldown after the last attempt ends, as a Unix time, or 0
+     * when no attempt was ever stamped.
+     *
+     * @param HostDirectory $Observed the membership row
+     *
+     * @return int
+     */
+    protected static function coolingUntil(HostDirectory $Observed)
+    {
         $at = trim((string)$Observed->get('joinAt'));
         // validDate() rather than a literal: there stays one definition of
         // what an empty date is, and MySQL's zero date is only one of the
         // shapes an untouched column comes back as.
         if ('' === $at || !self::validDate($at)) {
-            return false;
+            return 0;
         }
 
-        return (self::niceDate()->getTimestamp()
-            - self::niceDate($at, self::storageTimeZone())->getTimestamp())
-            < self::RETRY_AFTER;
+        return self::niceDate($at, self::storageTimeZone())->getTimestamp()
+            + self::RETRY_AFTER;
+    }
+
+    /**
+     * When a rename that is due but held by the cooldown may go ahead, as
+     * an ISO 8601 UTC time, or an empty string when no rename is waiting.
+     *
+     * The agent cannot see the cooldown. Without this, a joined Windows
+     * host renamed in FOG within an hour of its last join or rename logs
+     * `hostname: failed` at every poll and gives no reason (design 0017).
+     * It rides the hostname block, not the directory block: an agent that
+     * predates it ignores the field, where a directory block with no
+     * credential would make it report `refused`, and that report stamps a
+     * new attempt and restarts the cooldown at every poll.
+     *
+     * @param Host $Host the host
+     *
+     * @return string
+     */
+    public static function renameWait(Host $Host)
+    {
+        // The two cheap checks first: this runs on every poll of every
+        // host with the hostname capability, and most hosts stop here.
+        if (!(bool)$Host->get('useAD')
+            || '' === trim((string)$Host->get('ADDomain'))
+        ) {
+            return '';
+        }
+
+        return self::waitFor($Host, self::observed($Host), self::isWindows($Host));
+    }
+
+    /**
+     * The decision behind renameWait(), given what the host last reported.
+     *
+     * @param Host               $Host     the host
+     * @param HostDirectory|null $Observed what it last reported, or null
+     * @param bool               $windows  whether its agent runs on Windows
+     *
+     * @return string
+     */
+    public static function waitFor(
+        Host $Host,
+        HostDirectory $Observed = null,
+        $windows = false
+    ) {
+        $domain = trim((string)$Host->get('ADDomain'));
+        if (!(bool)$Host->get('useAD') || '' === $domain || null === $Observed
+            || !(bool)$Observed->get('joined')
+            || '' === self::renameFor($Host, $Observed, $domain, $windows)
+        ) {
+            return '';
+        }
+        $until = self::coolingUntil($Observed);
+        if ($until <= self::niceDate()->getTimestamp()) {
+            return '';
+        }
+
+        return gmdate('Y-m-d\TH:i:s\Z', $until);
     }
 
     /**
