@@ -3081,6 +3081,9 @@ msgstr ""
 msgid "Engineer"
 msgstr "Engenheiro"
 
+msgid "Enroll from the command line"
+msgstr ""
+
 msgid "Enrolled Certificate (SHA-256)"
 msgstr ""
 
@@ -3319,6 +3322,10 @@ msgstr "Snapin Run com o argumento"
 
 msgid "FOG"
 msgstr "NÉVOA"
+
+#, fuzzy
+msgid "FOG Agent"
+msgstr "FOG Cliente Wiki"
 
 #, fuzzy
 msgid "FOG Agent capability result"
@@ -5650,6 +5657,9 @@ msgstr ""
 msgid "Leave empty unless this node is its own FOG server"
 msgstr ""
 
+msgid "Leave it out when the web UI uses a public or corporate certificate the host already trusts."
+msgstr ""
+
 msgid "Left as it is, FOG asks for the names it would put in its own certificate, under its own organization. Fill any of these in and the request carries yours instead. A field left empty is left out of the request rather than filled in with FOG's."
 msgstr ""
 
@@ -5713,6 +5723,9 @@ msgstr "Link Conta Slack"
 #, fuzzy
 msgid "Link ntfy Topic Success"
 msgstr "Link Conta Slack"
+
+msgid "Linux and macOS, as root:"
+msgstr ""
 
 #, fuzzy
 msgid "List"
@@ -6285,6 +6298,10 @@ msgstr "valor do mês não é válido"
 
 msgid "Monthly"
 msgstr "Por mês"
+
+#, fuzzy
+msgid "More install examples"
+msgstr "Falhou ao conectar"
 
 #, php-format
 msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
@@ -10120,6 +10137,9 @@ msgstr ""
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr ""
 
+msgid "The agent replaces the FOG Client. Installing it removes the legacy client."
+msgstr ""
+
 msgid "The agent speaks a protocol this server does not."
 msgstr ""
 
@@ -11785,10 +11805,19 @@ msgstr "Hospedar de Chave de Produto"
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Uma imagem já existe com este nome!"
 
+msgid "Windows, from an administrator prompt (installs the service):"
+msgstr ""
+
+msgid "Windows: silent MSI install"
+msgstr ""
+
 msgid "Wipes"
 msgstr ""
 
 msgid "Within 30 days"
+msgstr ""
+
+msgid "Without one, the host waits under Hosts, Pending Agents for an admin to approve it."
 msgstr ""
 
 msgid "Y-m-d H:i:s, server time."
@@ -12181,6 +12210,9 @@ msgstr "Falha ao criar Snapin Job"
 
 msgid "filesize"
 msgstr "tamanho do arquivo"
+
+msgid "fingerprint: the SHA-256 of the Root row under FOG Configuration, Certificates."
+msgstr ""
 
 #, fuzzy
 msgid "fog-admins"
@@ -12910,6 +12942,9 @@ msgstr ""
 #, fuzzy
 msgid "to your fog storage node."
 msgstr "nó de armazenamento inválido"
+
+msgid "token: optional. Create one under Hosts, Agent Enrollment Tokens."
+msgstr ""
 
 #, fuzzy
 msgid "unable to be updated"

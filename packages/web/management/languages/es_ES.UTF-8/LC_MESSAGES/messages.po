@@ -3111,6 +3111,9 @@ msgstr ""
 msgid "Engineer"
 msgstr ""
 
+msgid "Enroll from the command line"
+msgstr ""
+
 msgid "Enrolled Certificate (SHA-256)"
 msgstr ""
 
@@ -3352,6 +3355,10 @@ msgstr "Nombre snapin"
 #, fuzzy
 msgid "FOG"
 msgstr "En "
+
+#, fuzzy
+msgid "FOG Agent"
+msgstr "FOG Wiki Cliente"
 
 #, fuzzy
 msgid "FOG Agent capability result"
@@ -5743,6 +5750,9 @@ msgstr ""
 msgid "Leave empty unless this node is its own FOG server"
 msgstr ""
 
+msgid "Leave it out when the web UI uses a public or corporate certificate the host already trusts."
+msgstr ""
+
 msgid "Left as it is, FOG asks for the names it would put in its own certificate, under its own organization. Fill any of these in and the request carries yours instead. A field left empty is left out of the request rather than filled in with FOG's."
 msgstr ""
 
@@ -5809,6 +5819,9 @@ msgstr "actualización de servicio no pudo"
 #, fuzzy
 msgid "Link ntfy Topic Success"
 msgstr "actualización de servicio no pudo"
+
+msgid "Linux and macOS, as root:"
+msgstr ""
 
 #, fuzzy
 msgid "List"
@@ -6394,6 +6407,10 @@ msgstr "tipo de tarea no es válida"
 
 msgid "Monthly"
 msgstr "Mensual"
+
+#, fuzzy
+msgid "More install examples"
+msgstr "No se ha podido destruir"
 
 #, php-format
 msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
@@ -10290,6 +10307,9 @@ msgstr ""
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr ""
 
+msgid "The agent replaces the FOG Client. Installing it removes the legacy client."
+msgstr ""
+
 msgid "The agent speaks a protocol this server does not."
 msgstr ""
 
@@ -11956,10 +11976,19 @@ msgstr "Clave del producto Grupo"
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Una imagen ya existe con este nombre!"
 
+msgid "Windows, from an administrator prompt (installs the service):"
+msgstr ""
+
+msgid "Windows: silent MSI install"
+msgstr ""
+
 msgid "Wipes"
 msgstr ""
 
 msgid "Within 30 days"
+msgstr ""
+
+msgid "Without one, the host waits under Hosts, Pending Agents for an admin to approve it."
 msgstr ""
 
 msgid "Y-m-d H:i:s, server time."
@@ -12353,6 +12382,9 @@ msgstr "No se pudo crear Complemento de empleo"
 
 msgid "filesize"
 msgstr "tamaño del archivo"
+
+msgid "fingerprint: the SHA-256 of the Root row under FOG Configuration, Certificates."
+msgstr ""
 
 #, fuzzy
 msgid "fog-admins"
@@ -13078,6 +13110,9 @@ msgstr ""
 #, fuzzy
 msgid "to your fog storage node."
 msgstr "nodo de almacenamiento no válido"
+
+msgid "token: optional. Create one under Hosts, Agent Enrollment Tokens."
+msgstr ""
 
 #, fuzzy
 msgid "unable to be updated"
