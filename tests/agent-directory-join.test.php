@@ -303,6 +303,54 @@ $t->check(
         (array)djDesiredWindows(djHost($joinable), djObserved(['joined' => 0]))
     )
 );
+// ------------------------------------- a rename held by the cooldown
+
+$t->check(
+    'a rename held by the cooldown says when it may go ahead',
+    1 === preg_match(
+        '/^\\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\dZ$/',
+        \FOG\Agent\DirectoryJoin::waitFor(djHost($joinable), $cooling, true)
+    )
+);
+$t->check(
+    'a rename that is not held says nothing: the block carries it instead',
+    '' === \FOG\Agent\DirectoryJoin::waitFor(
+        djHost($joinable),
+        $inDomainAs('WS-OLD$'),
+        true
+    )
+);
+$t->check(
+    'a joined host already carrying its name has nothing waiting, even in '
+        . 'the cooldown',
+    '' === \FOG\Agent\DirectoryJoin::waitFor(
+        djHost($joinable),
+        (function () use ($inDomainAs) {
+            $o = $inDomainAs('WS-014$');
+            $o->set('joinAt', gmdate('Y-m-d H:i:s'));
+            return $o;
+        })(),
+        true
+    )
+);
+$t->check(
+    'an unjoined host in the cooldown is a held JOIN, not a held rename',
+    '' === \FOG\Agent\DirectoryJoin::waitFor(
+        djHost($joinable),
+        djObserved(['joined' => 0, 'joinAt' => gmdate('Y-m-d H:i:s')]),
+        true
+    )
+);
+$t->check(
+    'a Linux host never waits on a rename it will never be sent',
+    '' === \FOG\Agent\DirectoryJoin::waitFor(djHost($joinable), $cooling, false)
+);
+$resultStatuses2 = new \ReflectionClassConstant(\FOG\Agent\State::class, 'RESULT_STATUSES');
+$t->check(
+    'pending is a result status the agent may report',
+    in_array('pending', $resultStatuses2->getValue(), true)
+);
+
 $t->check(
     'renamed is a settled status: it clears a stale error',
     in_array('renamed', \FOG\Agent\DirectoryJoin::SETTLED_STATUSES, true)
