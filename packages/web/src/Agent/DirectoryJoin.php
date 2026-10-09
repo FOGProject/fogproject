@@ -15,6 +15,7 @@ namespace FOG\Agent;
 
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
+use FOG\Items\AgentEnrollment;
 use FOG\Items\Host;
 use FOG\Items\HostDirectory;
 use FOG\Router\Route;
@@ -38,7 +39,9 @@ use FOG\Router\Route;
  *
  * Here the credential is sent only to a host the server BELIEVES is not
  * joined, only while that is true, and not again for an hour after an
- * attempt. Most hosts in most estates never receive it at all.
+ * attempt. Most hosts in most estates never receive it at all. The one
+ * exception is a joined Windows host with a rename outstanding (design
+ * 0017), under the same cooldown.
  *
  * @category DirectoryMembership
  * @package  FOGProject
@@ -78,14 +81,23 @@ class DirectoryJoin extends FOGBase
     const STATUS_JOINED = 'joined';
     const STATUS_ALREADY_JOINED = 'already_joined';
     const STATUSES = [
-        'joined', 'already_joined', 'failed', 'unsupported', 'refused'
+        'joined', 'already_joined', 'renamed', 'failed', 'unsupported',
+        'refused'
     ];
 
     /**
      * The statuses that mean the machine is where it should be, so any
      * error recorded against it is stale.
      */
-    const SETTLED_STATUSES = ['joined', 'already_joined'];
+    const SETTLED_STATUSES = ['joined', 'already_joined', 'renamed'];
+
+    /**
+     * The longest NetBIOS computer name. A computer account is this much of
+     * the host name plus a dollar sign, so a longer host name never equals
+     * its account, and comparing the whole name would send the credential
+     * to that host every RETRY_AFTER forever.
+     */
+    const NETBIOS_MAX = 15;
 
     /**
      * Longest error kept: the column is a varchar(255) because this is a
@@ -112,13 +124,23 @@ class DirectoryJoin extends FOGBase
      *   Directory Membership report shows the mismatch instead.
      * - An attempt was made within RETRY_AFTER.
      *
+     * One exception sends it to a JOINED host (design 0017): a Windows host
+     * in the right domain whose computer account does not carry the host's
+     * name. The machine cannot rename its own object -- the lab measured
+     * access denied -- so the rename needs the join credential, and only
+     * for as long as the rename is outstanding.
+     *
      * @param Host $Host the principal
      *
      * @return array|null
      */
     public static function desired(Host $Host)
     {
-        return self::blockFor($Host, self::observed($Host));
+        return self::blockFor(
+            $Host,
+            self::observed($Host),
+            self::isWindows($Host)
+        );
     }
 
     /**
@@ -130,11 +152,17 @@ class DirectoryJoin extends FOGBase
      *
      * @param Host               $Host     the principal
      * @param HostDirectory|null $Observed what it last reported, or null
+     * @param bool               $windows  whether the host's agent runs on
+     *                                     Windows, the one platform that
+     *                                     renames through the directory
      *
      * @return array|null
      */
-    public static function blockFor(Host $Host, HostDirectory $Observed = null)
-    {
+    public static function blockFor(
+        Host $Host,
+        HostDirectory $Observed = null,
+        $windows = false
+    ) {
         if (!(bool)$Host->get('useAD')) {
             return null;
         }
@@ -147,11 +175,15 @@ class DirectoryJoin extends FOGBase
             // Never reported. Ask again next poll, when it has.
             return null;
         }
+        $renameTo = '';
         if ((bool)$Observed->get('joined')) {
-            // Joined to something. Either it is where it belongs, or it is
-            // somewhere else and the agent would refuse; neither is a
-            // reason to hand over a credential.
-            return null;
+            // Joined to something. Somewhere else, the agent would refuse;
+            // where it belongs, the only work left is a rename. Anything
+            // else is no reason to hand over a credential.
+            $renameTo = self::renameFor($Host, $Observed, $domain, $windows);
+            if ('' === $renameTo) {
+                return null;
+            }
         }
         if (self::cooling($Observed)) {
             return null;
@@ -167,7 +199,7 @@ class DirectoryJoin extends FOGBase
             $user = $pass = '';
         }
 
-        return [
+        $block = [
             'domain' => $domain,
             // The short name where the host's own report supplied it. Used
             // by the agent only to recognize that it is already in this
@@ -185,6 +217,84 @@ class DirectoryJoin extends FOGBase
             // reboot coordinator still owns the when.
             'reboot' => (bool)$Host->get('enforce')
         ];
+        if ('' !== $renameTo) {
+            // Present only for a rename. Its absence means "join", so an
+            // agent that predates the field reads the block as a join,
+            // finds itself already in the domain, and does nothing.
+            $block['rename_to'] = $renameTo;
+        }
+
+        return $block;
+    }
+
+    /**
+     * The name a joined host's computer object should be renamed to, or
+     * an empty string when there is no rename to do.
+     *
+     * Every condition is an observation, not an assumption. The machine
+     * account comes from the machine's own report; an empty one means the
+     * server cannot tell, and a credential is not sent on a guess.
+     *
+     * @param Host          $Host     the host
+     * @param HostDirectory $Observed what it last reported
+     * @param string        $domain   the domain it should be in
+     * @param bool          $windows  whether its agent runs on Windows
+     *
+     * @return string
+     */
+    protected static function renameFor(
+        Host $Host,
+        HostDirectory $Observed,
+        $domain,
+        $windows
+    ) {
+        if (!$windows) {
+            // Only Windows renames through the directory. A Linux host's
+            // account keeps its old name after hostnamectl (design 0017
+            // section 3.5), so the mismatch would send the credential to it
+            // every hour for nothing.
+            return '';
+        }
+        if ($Observed->domainDrifted($domain)) {
+            // In another domain: the agent refuses, and 0009 section 1.1
+            // says why it must.
+            return '';
+        }
+        $account = strtoupper(trim((string)$Observed->get('machineAccount')));
+        $name = trim((string)$Host->get('name'));
+        if ('' === $account || '' === $name) {
+            return '';
+        }
+        $want = strtoupper(substr($name, 0, self::NETBIOS_MAX)) . '$';
+        if ($want === $account) {
+            return '';
+        }
+
+        return $name;
+    }
+
+    /**
+     * Whether the host's issued agent runs on Windows.
+     *
+     * Read the way State reads it for product-key activation: the platform
+     * the agent declared when it enrolled.
+     *
+     * @param Host $Host the host
+     *
+     * @return bool
+     */
+    protected static function isWindows(Host $Host)
+    {
+        $os = Route::getIds(
+            'agentenrollment',
+            [
+                'hostID' => (int)$Host->get('id'),
+                'state' => AgentEnrollment::STATE_ISSUED
+            ],
+            'os'
+        );
+
+        return in_array('windows', (array)$os, true);
     }
 
     /**

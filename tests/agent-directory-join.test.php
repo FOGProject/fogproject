@@ -221,6 +221,93 @@ $t->check(
     )
 );
 
+// ------------------------------------------------ a rename (design 0017)
+
+/**
+ * blockFor() for a host whose agent runs on Windows.
+ *
+ * @param \FOG\Items\Host               $Host     the host
+ * @param \FOG\Items\HostDirectory|null $Observed what it last reported
+ *
+ * @return array|null
+ */
+function djDesiredWindows($Host, $Observed)
+{
+    return \FOG\Agent\DirectoryJoin::blockFor($Host, $Observed, true);
+}
+
+$inDomainAs = function ($account) {
+    return djObserved(
+        ['joined' => 1, 'domain' => 'corp.example.com',
+            'netbios' => 'CORP', 'machineAccount' => $account]
+    );
+};
+
+$rename = djDesiredWindows(djHost($joinable), $inDomainAs('WS-OLD$'));
+$t->check(
+    'a joined Windows host whose account carries an old name IS sent a '
+        . 'block: it cannot rename its own object without the credential',
+    is_array($rename)
+);
+$t->check(
+    'the rename block names the host\'s new name',
+    'WS-014' === ($rename['rename_to'] ?? null)
+);
+$t->check(
+    'the rename block carries the credential the rename needs',
+    'letmein' === ($rename['password'] ?? null)
+        && 'corp.example.com\\svc-join' === ($rename['username'] ?? null)
+);
+$t->check(
+    'a joined host whose account already carries its name is sent nothing, '
+        . 'in any case',
+    null === djDesiredWindows(djHost($joinable), $inDomainAs('ws-014$'))
+);
+$t->check(
+    'a name past fifteen characters compares as its NetBIOS account, or '
+        . 'the credential would go out every hour forever',
+    null === djDesiredWindows(
+        djHost(array_merge($joinable, ['name' => 'WORKSTATION-0001-LAB'])),
+        $inDomainAs('WORKSTATION-000$')
+    )
+);
+$t->check(
+    'a joined host that did not report its account is sent nothing: no '
+        . 'credential on a guess',
+    null === djDesiredWindows(djHost($joinable), $inDomainAs(''))
+);
+$t->check(
+    'a host in ANOTHER domain is still sent nothing for a rename',
+    null === djDesiredWindows(
+        djHost($joinable),
+        djObserved(['joined' => 1, 'domain' => 'other.example.com',
+            'machineAccount' => 'WS-OLD$'])
+    )
+);
+$t->check(
+    'a joined Linux host is sent nothing: it cannot rename its object, so '
+        . 'the credential would go out every hour for nothing',
+    null === djDesired(djHost($joinable), $inDomainAs('WS-OLD$'))
+);
+$cooling = $inDomainAs('WS-OLD$');
+$cooling->set('joinAt', gmdate('Y-m-d H:i:s'));
+$t->check(
+    'a rename attempt starts the same cooldown a join does',
+    null === djDesiredWindows(djHost($joinable), $cooling)
+);
+$t->check(
+    'a join block carries no rename_to, so an agent that predates it reads '
+        . 'a join',
+    !array_key_exists(
+        'rename_to',
+        (array)djDesiredWindows(djHost($joinable), djObserved(['joined' => 0]))
+    )
+);
+$t->check(
+    'renamed is a settled status: it clears a stale error',
+    in_array('renamed', \FOG\Agent\DirectoryJoin::SETTLED_STATUSES, true)
+);
+
 $block = djDesired(djHost($joinable), djObserved(['joined' => 0]));
 $t->check('an unjoined host IS sent a block', is_array($block));
 $t->check(
