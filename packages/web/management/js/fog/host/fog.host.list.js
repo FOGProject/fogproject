@@ -586,8 +586,24 @@
         };
     });
 
+    // Deep link from the dashboard's Agent Versions card:
+    // ?node=host&agentVersion=0.0.9 opens the grid filtered to hosts running
+    // exactly that version. Sent as an initial column search in the same
+    // "condition, separator, value" form the Column search row writes, so the
+    // server applies its exact-match condition rather than contains-anywhere
+    // (a plain search for 0.1.1 would also match 0.1.11).
+    var searchCols = [];
+    var agentVersion = $_GET['agentVersion'];
+    var linkedVersion = !!agentVersion && 'agentVersion' in colIndex;
+    if (linkedVersion) {
+        searchCols[colIndex.agentVersion] = {
+            search: '=' + columnSearchSeparator + agentVersion
+        };
+    }
+
     var table = $('#dataTable').registerTable(onSelect, {
         extraButtons: quickButtons,
+        searchCols: searchCols,
         // Sort on the host name. Named rather than numbered for the same
         // reason columnDefs is: the position moves when a column is added
         // or gated, and a stale index silently sorts the wrong column.
@@ -609,6 +625,29 @@
 
     if (Common.search && Common.search.length > 0) {
         table.search(Common.search).draw();
+    }
+
+    // A filter you cannot see reads as missing hosts. So the linked filter
+    // shows its column and opens the Column search row, where the condition
+    // and value appear and can be cleared. Done after init, because the saved
+    // layout (which may hide the column) loads asynchronously and would
+    // otherwise be applied over this.
+    if (linkedVersion) {
+        var showLinkedFilter = function() {
+            // Found by data source, not colIndex: a saved layout can have
+            // dragged the column, and colIndex is the header's own order.
+            table.columns().every(function() {
+                if (this.dataSrc() === 'agentVersion') {
+                    this.visible(true);
+                }
+            });
+            $(table.table().container()).addClass('fog-colsearch-on');
+        };
+        if (table.settings()[0]._bInitComplete) {
+            showLinkedFilter();
+        } else {
+            table.one('init', showLinkedFilter);
+        }
     }
 
     createnewModal.registerModal(Common.createModalShow, Common.createModalHide);
