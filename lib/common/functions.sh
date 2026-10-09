@@ -13522,7 +13522,7 @@ downloadfiles() {
         # make sure we download the most recent hash file to start with
         if [[ -f $hashfile && ! $version =~ ^[0-9]\.[0-9]\.[0-9]+$ ]]; then
             rm -f $hashfile
-            curl --silent -OL --connect-timeout $inetConnectTimeout \
+            curl -sSfOL --connect-timeout $inetConnectTimeout \
                 --speed-time 30 --speed-limit 1024 $hashurl >>$error_log 2>&1
         fi
         # Eight URLs, ten rounds, two curls each: 160 connects, none of them
@@ -13543,10 +13543,15 @@ downloadfiles() {
                 # No -k, same reasoning as fetchipxeasset(): the hash file
                 # travels the same connection as the payload, so skipping
                 # verification here voids the checksum too.
-                curl --silent -OL --connect-timeout $inetConnectTimeout \
-                    --speed-time 30 --speed-limit 1024 $url >>$error_log
-                curl --silent -OL --connect-timeout $inetConnectTimeout \
-                    --speed-time 30 --speed-limit 1024 $hashurl >>$error_log
+                #
+                # -f, as in fetchipxeasset(): without it an HTTP error page
+                # was saved as the kernel AND as its .sha256, and the log
+                # said only "no properly formatted checksum lines" ten times.
+                # -S puts curl's own reason, such as "error: 429", in the log.
+                curl -sSfOL --connect-timeout $inetConnectTimeout \
+                    --speed-time 30 --speed-limit 1024 $url >>$error_log 2>&1
+                curl -sSfOL --connect-timeout $inetConnectTimeout \
+                    --speed-time 30 --speed-limit 1024 $hashurl >>$error_log 2>&1
             fi
             let cnt+=1
         done
