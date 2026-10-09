@@ -363,9 +363,10 @@ class DashboardPage extends FOGPage
             echo '</h4>';
             echo '</div>';
             echo '<div class="card-body">';
-            echo '<a href="?node=host" id="agentversionslink">';
+            // Not wrapped in a link: each version row links to the host list
+            // filtered to that version (fog.dashboard.js), and an anchor
+            // cannot contain another anchor.
             echo '<div id="graph-agentversions"></div>';
-            echo '</a>';
             echo '</div>';
             echo '</div>';
             echo '</div>';

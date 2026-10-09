@@ -767,11 +767,22 @@
         // watched, so it is the one marked. Nothing is marked when no
         // desired version is set, which is the shipped default.
         var isTarget = data.desired && row.version === data.desired;
+        var text = (isTarget ? '<b>' : '') + esc(label) + (isTarget ? '</b>' : '');
+        // Each known version opens the host list filtered to exactly that
+        // version (fog.host.list.js reads ?agentVersion=). 'unknown' is not
+        // linked: the host list cannot tell an enrolled host with no version
+        // yet from a host with no agent at all, so that filter would show
+        // every agentless host rather than the count on this row.
+        if (row.version !== '') {
+          text =
+            '<a href="?node=host&agentVersion=' +
+              esc(encodeURIComponent(row.version)) + '">' +
+              text +
+            '</a>';
+        }
         html +=
           '<tr>' +
-            '<td class="text-nowrap">' +
-              (isTarget ? '<b>' : '') + esc(label) + (isTarget ? '</b>' : '') +
-            '</td>' +
+            '<td class="text-nowrap">' + text + '</td>' +
             '<td class="w-100 align-middle">' +
               '<div class="progress" style="height:6px;">' +
                 '<div class="progress-bar" role="progressbar" style="width:' +
