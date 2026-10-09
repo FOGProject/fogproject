@@ -13,20 +13,26 @@ parameters:
 			path: tests/activity-sources.test.php
 
 		-
-			message: '#^Call to function in_array\(\) with arguments ''already_joined''\|''joined''\|''refused''\|''unsupported'', array\{''joined'', ''already_joined'', ''failed'', ''unsupported'', ''refused''\} and true will always evaluate to true\.$#'
+			message: '#^Call to function in_array\(\) with arguments ''already_joined''\|''joined''\|''refused''\|''unsupported'', array\{''joined'', ''already_joined'', ''renamed'', ''failed'', ''unsupported'', ''refused''\} and true will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: tests/agent-directory-join.test.php
 
 		-
-			message: '#^Call to function in_array\(\) with arguments ''refused'', array\{''joined'', ''already_joined'', ''failed'', ''unsupported'', ''refused''\} and true will always evaluate to true\.$#'
+			message: '#^Call to function in_array\(\) with arguments ''refused'', array\{''joined'', ''already_joined'', ''renamed'', ''failed'', ''unsupported'', ''refused''\} and true will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: tests/agent-directory-join.test.php
 
 		-
-			message: '#^Call to function in_array\(\) with arguments ''refused'', array\{''joined'', ''already_joined''\} and true will always evaluate to false\.$#'
+			message: '#^Call to function in_array\(\) with arguments ''refused'', array\{''joined'', ''already_joined'', ''renamed''\} and true will always evaluate to false\.$#'
 			identifier: function.impossibleType
+			count: 1
+			path: tests/agent-directory-join.test.php
+
+		-
+			message: '#^Call to function in_array\(\) with arguments ''renamed'', array\{''joined'', ''already_joined'', ''renamed''\} and true will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
 			count: 1
 			path: tests/agent-directory-join.test.php
 
