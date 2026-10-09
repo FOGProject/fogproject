@@ -2711,7 +2711,7 @@ class OpenAPI extends FOGBase
                             'properties' => [
                                 'revision' => ['type' => 'string'],
                                 'capability' => ['type' => 'string'],
-                                'status' => ['type' => 'string', 'enum' => ['applied', 'unchanged', 'pending_reboot', 'failed']],
+                                'status' => ['type' => 'string', 'enum' => ['applied', 'unchanged', 'pending_reboot', 'pending', 'failed']],
                                 'detail' => ['type' => 'string'],
                                 'item' => [
                                     'type' => 'object',
