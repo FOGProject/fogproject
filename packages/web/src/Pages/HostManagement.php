@@ -907,7 +907,12 @@ class HostManagement extends FOGPage
             . self::makeInput('form-control font-monospace', 'mintedToken', '', 'text', 'mintedToken', '', false, false, -1, -1, 'readonly')
             . self::makeButton('copyMintedToken', _('Copy'), 'btn btn-outline-secondary')
             . '</div>'
-            . '<p class="mt-3 mb-0"><code>fog-agent enroll --server &lt;url&gt; --ca &lt;bundle&gt; --token &lt;token&gt;</code></p>';
+            . '<p class="mt-3 mb-0"><code>fog-agent enroll --server &lt;url&gt; --ca &lt;bundle&gt; --token &lt;token&gt;</code></p>'
+            // The command above is useless without the agent, and a signed-in
+            // admin has no other path to it. The client page has the MSI form.
+            . '<p class="mt-2 mb-0"><a href="https://github.com/FOGProject/fog-agent/releases/latest"'
+            . ' target="_blank" rel="noopener noreferrer">' . _('Download the FOG Agent') . '</a>'
+            . ' &middot; <a href="../management/index.php?node=client">' . _('More install examples') . '</a></p>';
         $showModal = self::makeModal(
             'showTokenModal',
             _('Enrollment Token'),
