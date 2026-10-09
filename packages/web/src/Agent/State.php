@@ -133,8 +133,14 @@ class State extends FOGBase
 
     /**
      * What the agent may report for one capability.
+     *
+     * `pending` is work that waits on something outside the agent, such as
+     * a rename held by the join cooldown (design 0017). Nothing failed, so
+     * it is not `failed`.
      */
-    const RESULT_STATUSES = ['applied', 'unchanged', 'pending_reboot', 'failed'];
+    const RESULT_STATUSES = [
+        'applied', 'unchanged', 'pending_reboot', 'pending', 'failed'
+    ];
 
     /**
      * Fact kinds an agent reports about its own host => the class that
@@ -255,6 +261,14 @@ class State extends FOGBase
                 // coordinator owns the when; this is only the permission.
                 'enforce' => (bool)$Host->get('enforce')
             ];
+            // A rename of a domain member held by the join cooldown says
+            // when it may go ahead, so the agent can report it as pending
+            // instead of failed (design 0017). Present only while it
+            // waits, so its appearing and going move the revision.
+            $wait = DirectoryJoin::renameWait($Host);
+            if ('' !== $wait) {
+                $state['hostname']['wait_until'] = $wait;
+            }
         }
         if (in_array('taskreboot', $capabilities, true)) {
             // What Client\Jobs answers the old client: a task in a state
