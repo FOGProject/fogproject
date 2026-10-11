@@ -63,6 +63,40 @@ if (!is_file($classFile)) {
  *  - the keymap special cases (Norwegian and Serbian get their own mapping).
  */
 $scenarios = [
+    /*
+     * The false-tasking pair (GH-1767). falseTasking() is what the "Deploy
+     * Image" menu item reaches when the machine in front of it has no host
+     * row, and it is the only tasking render whose mac= does NOT come from
+     * a host. It comes from FOGBase::$requestMacs, which getHostItem() fills
+     * from the mac0/macboot/mac1..mac7 fields the menu posts -- there is no
+     * 'mac' field in that request, which is exactly why reading one produced
+     * an empty argument and left FOS unable to identify itself afterward.
+     */
+    'falsetasking-unregistered' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+        'requestMacs' => ['aa:bb:cc:dd:ee:ff'],
+        'falseTasking' => [
+            'id' => 1,
+            'osID' => 50,
+            'path' => 'testimage',
+            'format' => 5,
+            'imagetype' => 'mps',
+            'partitiontype' => 'all',
+        ],
+    ],
+    'falsetasking-registered-pending' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+        'requestMacs' => ['aa:bb:cc:dd:ee:ff'],
+        'host' => ['id' => 1, 'name' => 'testhost'],
+        'falseTasking' => [
+            'id' => 1,
+            'osID' => 50,
+            'path' => 'testimage',
+            'format' => 5,
+            'imagetype' => 'mps',
+            'partitiontype' => 'all',
+        ],
+    ],
     'unregistered-bios-x86' => [
         'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
     ],

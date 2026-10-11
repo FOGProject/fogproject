@@ -235,6 +235,7 @@ class SchemaUpdaterPage extends FOGPage
                 true
             );
             $newSchema = self::getClass('Schema', 1);
+            $sqlMode = self::_relaxZeroDateChecks();
             foreach ((array)$items as $version => &$updates) {
                 foreach ((array)$updates as &$update) {
                     if (!$update) {
@@ -301,6 +302,7 @@ class SchemaUpdaterPage extends FOGPage
                 $newSchema->set('version', $version + 1);
                 unset($updates);
             }
+            self::_restoreSqlMode($sqlMode);
             if (!$newSchema->save()
                 || count($errors) > 0
             ) {
@@ -343,5 +345,60 @@ class SchemaUpdaterPage extends FOGPage
             printf('<p>%s</p>', $e->getMessage());
             http_response_code(404);
         }
+    }
+    /**
+     * Drop NO_ZERO_DATE and NO_ZERO_IN_DATE from this session's sql_mode.
+     *
+     * Forum 18266. Tables built before GH-1245 can carry a column whose
+     * DEFAULT is '0000-00-00 00:00:00' -- on MySQL a second TIMESTAMP NOT
+     * NULL column got one implicitly. Any ALTER TABLE re-checks EVERY
+     * column's default, not only the one it names. So under MySQL's stock
+     * sql_mode, step 284's MODIFY of hosts.hostLastDeploy fails with 1067
+     * "Invalid default value for 'hostSecTime'", and the update stops on the
+     * very step that removes that default.
+     *
+     * Which columns carry one depends on each server's history, so no step
+     * can list them. This covers the updater's own connection only, for the
+     * duration of the steps. STRICT_TRANS_TABLES stays on, and every other
+     * request still runs under the server's own sql_mode.
+     *
+     * @return string|false the sql_mode to restore, or false if unread
+     */
+    private static function _relaxZeroDateChecks()
+    {
+        $mode = self::$DB
+            ->query('SELECT @@SESSION.sql_mode AS `mode`')
+            ->fetch()
+            ->get('mode');
+        if (!is_string($mode)) {
+            return false;
+        }
+        $keep = array_diff(
+            explode(',', $mode),
+            array('NO_ZERO_DATE', 'NO_ZERO_IN_DATE')
+        );
+        self::$DB->query(
+            sprintf(
+                'SET SESSION sql_mode = %s',
+                self::$DB->escape(implode(',', $keep))
+            )
+        );
+        return $mode;
+    }
+    /**
+     * Put back the sql_mode _relaxZeroDateChecks() replaced.
+     *
+     * @param string|false $mode the sql_mode it returned
+     *
+     * @return void
+     */
+    private static function _restoreSqlMode($mode)
+    {
+        if (!is_string($mode)) {
+            return;
+        }
+        self::$DB->query(
+            sprintf('SET SESSION sql_mode = %s', self::$DB->escape($mode))
+        );
     }
 }

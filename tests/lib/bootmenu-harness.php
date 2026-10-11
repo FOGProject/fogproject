@@ -164,6 +164,101 @@ class StubTask extends StubModel
     {
         return (bool)$this->get('snapin');
     }
+    /**
+     * Returns the image being deployed or captured.
+     *
+     * The renderer's false-tasking mode builds its Image through here rather
+     * than with `new Image` at the call site: Image is declared in this file,
+     * so only a call site INSIDE the harness resolves to the stub.
+     *
+     * @return Image
+     */
+    public function getImage()
+    {
+        return new Image((array)($this->data['image'] ?? array()));
+    }
+}
+
+/**
+ * Task type stub.
+ *
+ * falseTasking() reads only kernelArgs off it; the predicates are here
+ * because a multicast false tasking swaps the type and asks the same
+ * questions of the replacement.
+ */
+class TaskType extends StubModel
+{
+    /**
+     * Looks the type up by id.
+     *
+     * Only the two falseTasking() constructs -- 1 (deploy) and 8 (multicast
+     * deploy) -- are modelled, and both carry the kernelArgs the real rows
+     * ship with.
+     *
+     * @param int $id the task type id
+     */
+    public function __construct($id = 0)
+    {
+        $rows = array(
+            1 => array('id' => 1, 'kernelArgs' => 'type=down'),
+            8 => array('id' => 8, 'kernelArgs' => 'type=down'),
+        );
+        parent::__construct($rows[(int)$id] ?? array('id' => (int)$id));
+    }
+}
+
+/**
+ * Image stub, with the two type lookups falseTasking() chains through.
+ */
+class Image extends StubModel
+{
+    /**
+     * Returns the image type (mps, mpa, n).
+     *
+     * @return StubModel
+     */
+    public function getImageType()
+    {
+        return new StubModel(array('id' => 1, 'type' => $this->get('imagetype')));
+    }
+    /**
+     * Returns the partition type (all, mbr, ...).
+     *
+     * A string, not an object: the real Image::getPartitionType() is
+     * getImagePartitionType()->get('type'), and falseTasking() concatenates
+     * the result straight into imgPartitionType=.
+     *
+     * @return string
+     */
+    public function getPartitionType()
+    {
+        return (string)$this->get('partitiontype');
+    }
+    /**
+     * Returns the group a deploy reads from.
+     *
+     * @return StorageGroup
+     */
+    public function getStorageGroup()
+    {
+        return new StorageGroup(array('id' => 1, 'name' => 'default'));
+    }
+}
+
+/**
+ * Storage group stub.
+ */
+class StorageGroup extends StubModel
+{
+    /**
+     * The node a deploy reads from.
+     *
+     * @return StorageNode
+     */
+    public function getOptimalStorageNode()
+    {
+        return new StorageNode(1);
+    }
 }
 
 /**
@@ -392,6 +487,18 @@ class FOGBase
      * @var array
      */
     public static $settings = array();
+    /**
+     * The MAC addresses the request identified itself with.
+     *
+     * Populated by the real getHostItem() from the mac0/macboot/mac1..mac7
+     * fields the iPXE menu posts. A scenario sets it directly, because
+     * filter_input() reads the SAPI's own request and has nothing to read
+     * under the CLI -- which is also why the boot menu must not go back to
+     * the request for this itself.
+     *
+     * @var array
+     */
+    public static $requestMacs = array();
     /**
      * PXE menu rows, as StubModel records.
      *

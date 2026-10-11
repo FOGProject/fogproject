@@ -185,9 +185,14 @@ normalizeChannel() {
 # answer decides what a major upgrade checks out.
 rcBranch() {
     local ref
-    ref=$(git ls-remote --heads --sort=-v:refname "$repo" 'refs/heads/rc-*' 2>/dev/null \
+    # ls-remote runs on its own, not at the head of the pipe: a pipeline's
+    # status is its last command's, so a remote that could not be asked (no
+    # network) read as an empty match and so as "none published". Return 3.
+    local heads
+    heads=$(git ls-remote --heads --sort=-v:refname "$repo" 'refs/heads/rc-*' 2>/dev/null) || return 3
+    ref=$(printf '%s\n' "$heads" \
         | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
-        | head -n1) || return 1
+        | head -n1)
     [[ -n $ref ]] || return 1
     echo "$ref"
 }
@@ -197,7 +202,14 @@ channelToBranch() {
         stable) echo "stable" ;;
         patches) echo "dev-branch" ;;
         beta) echo "working-1.6" ;;
-        rc) rcBranch || return 2 ;;
+        rc)
+            rcBranch
+            case $? in
+                0) ;;
+                3) return 3 ;;
+                *) return 2 ;;
+            esac
+            ;;
         *) return 1 ;;
     esac
 }
@@ -233,6 +245,9 @@ if [[ -z $branch ]]; then
                 "has nothing to check out. This is normal between releases." \
                 "" \
                 "Use --channel beta for the 1.6 development line, or wait." 3 ;;
+        3) fail "Could not ask ${repo} which release candidate is current." \
+                "git ls-remote failed, so nothing is known about what is" \
+                "published. Check this server's network access to it." 3 ;;
         *) fail "Unknown channel: ${channel}" \
                 "Expected rc, beta, stable or patches. The retired names staging" \
                 "and dev are also accepted, and mean patches and beta." 3 ;;

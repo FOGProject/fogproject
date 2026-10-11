@@ -197,6 +197,14 @@ else
     bad "service/checkin.php answered $c -- the exemption is wider than service/ipxe/"
 fi
 
+# FOS POSTs to service/ over the http:// web= the boot menu gave it, and
+# follows with curl -L. On a 301/302 curl resends as a GET with no body, so
+# the server sees no mac= at all (GH-1829). Only 307/308 keep the POST.
+case $c in
+    307|308) ok "the service/ redirect keeps a POST's method and body (got $c)" ;;
+    *)       bad "the service/ redirect is $c -- curl -L turns FOS's POST into a bodiless GET" ;;
+esac
+
 # The sibling half of GH-978, pinned here because this is the only place a real
 # Apache evaluates the rule: vhost context matches the URL-path WITH its
 # leading slash, so a bare (.*) emits a doubled slash in Location.

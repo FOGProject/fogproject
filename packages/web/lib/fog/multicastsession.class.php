@@ -358,11 +358,26 @@ class MulticastSession extends FOGController
     /**
      * Completes this particular session.
      *
+     * The multicast manager calls this with $awaitCheckout = true when
+     * udp-sender exits on its own. At that moment the clients have only
+     * received the last partition. They still run their post-download
+     * steps and then check out through Post_Stage2, which is what closes
+     * each task and its imaging log. Completing their tasks here took
+     * the task away before that call arrived, so every client got "No
+     * Active Task found for Host" and the imaging log was never closed
+     * (forum topic 18254). In that mode the session is still closed, so
+     * it does not block the group, but the tasks of hosts that received
+     * the image are left for their own checkout, and so are their
+     * association rows, which is how checkout finds the session.
+     *
+     * @param bool $awaitCheckout leave received tasks for the client.
+     *
      * @return void
      */
-    public function complete()
+    public function complete($awaitCheckout = false)
     {
         $taskIDs = $this->getAssociatedTaskIDs();
+        $awaiting = array();
         // An association row is not proof the host ever received anything.
         // A task that never even checked in was never on the wire, so
         // completing it reports a deployment that did not happen.
@@ -391,7 +406,19 @@ class MulticastSession extends FOGController
             $received = array_values(
                 array_diff($taskIDs, $neverStarted)
             );
-            if (count($received)) {
+            if ($awaitCheckout && count($received)) {
+                Route::ids(
+                    'task',
+                    array(
+                        'id' => $received,
+                        'stateID' => array(
+                            self::getCheckedInState(),
+                            self::getProgressState()
+                        )
+                    )
+                );
+                $awaiting = (array)json_decode(Route::getData(), true);
+            } elseif (count($received)) {
                 self::getClass('TaskManager')->update(
                     ['id' => $received],
                     '',
@@ -406,8 +433,14 @@ class MulticastSession extends FOGController
                 );
             }
         }
-        self::getClass('MulticastSessionAssociationManager')
-            ->destroy(['msID' => $this->get('id')]);
+        $find = ['msID' => $this->get('id')];
+        if (count($awaiting)) {
+            $find['taskID'] = array_values(array_diff($taskIDs, $awaiting));
+        }
+        if (!isset($find['taskID']) || count($find['taskID'])) {
+            self::getClass('MulticastSessionAssociationManager')
+                ->destroy($find);
+        }
         return $this
             ->set('stateID', self::getCompleteState())
             ->set('name', '')
