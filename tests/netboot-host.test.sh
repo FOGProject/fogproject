@@ -205,40 +205,23 @@ written=$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)
 has "$written" "http://10.0.0.1/fog/service/ipxe/boot.php" \
     "O: HTTP netboot still uses the address"
 
-# O2. The Secure Boot ledger's whole supply of data is these two lines. Nothing
-#     else asks a machine what its firmware state is, so if they are dropped --
-#     by a rebase, or by someone tidying the echo -- every host silently reads
-#     "never reported" for ever, the enrollment task's target check goes back to
-#     allowing everything, and there is no error anywhere to say so.
-#
-#     Asserted against the WRITTEN FILE and against the exact iPXE spelling,
-#     not against the source line. A grep of functions.sh for "secureboot"
-#     would pass on a commented-out line, and ${efi/SecureBoot} is
-#     case-sensitive to iPXE -- ${efi/secureboot} resolves to nothing at all
-#     and would fail open into "never reported" with the param still present.
-has "$written" 'param secureboot ${efi/SecureBoot}' \
-    "O2: default.ipxe reports the Secure Boot variable"
-has "$written" 'param setupmode ${efi/SetupMode}' \
-    "O2b: ...and Setup Mode, which is what says whether enrollment is unattended"
+# O2. No ${efi/...} setting may be read here. iPXE resolves one by walking the
+#     whole EFI variable store with GetNextVariableName(), with no guard
+#     against firmware that never ends the list, and that hung a Dell
+#     Latitude E7240 before the menu (forum topic 18271). This gate stays
+#     until the iPXE binaries read those variables directly.
+hasnt "$written" '${efi/' \
+    "O2: default.ipxe reads no EFI variable, so firmware cannot hang the walk"
 
-# O3. Order matters for one reason: the mac1..mac7 chain below short-circuits
-#     to :bootme on the first absent interface, so anything emitted after it is
-#     unreachable on a single-NIC machine -- which is most machines. These two
-#     must sit above it, beside sysuuid.
-sb_line=$(printf '%s\n' "$written" | grep -n 'param secureboot' | cut -d: -f1)
+# O4 checks its params against the first short-circuit of the NIC chain.
 bootme_line=$(printf '%s\n' "$written" | grep -n 'goto bootme' | head -1 | cut -d: -f1)
-if [[ -n $sb_line && -n $bootme_line && $sb_line -lt $bootme_line ]]; then
-    ok "O3: the report is emitted above the short-circuiting NIC chain"
-else
-    bad "O3: secureboot param is at line ${sb_line:-none}, first 'goto bootme' at ${bootme_line:-none} -- a single-NIC machine would never send it"
-fi
 
 # O4. The firmware identity (#198, ADR 0039). This file makes the FIRST
 #     boot.php request of every PXE boot, and that request is the one the
 #     host is identified on -- the script boot.php answers with carries the
 #     same four params, but only for the menu items chosen afterward. Drop
 #     one here and log mode has nothing to compare and enforce mode is MAC
-#     only, with no error anywhere to say so. Same rules as O2/O3: asserted
+#     only, with no error anywhere to say so. Asserted
 #     on the written file, with iPXE's exact setting names (`board-serial`
 #     is the BASEBOARD serial; `asset` is the CHASSIS tag), and above the
 #     short-circuiting NIC chain.

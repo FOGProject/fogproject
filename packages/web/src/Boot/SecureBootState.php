@@ -19,9 +19,10 @@ namespace FOG\Boot;
  * Two things report this and they must agree, so the vocabulary and the
  * comparison live here rather than at either reporting site:
  *
- *   - iPXE, on every PXE boot, via `${efi/SecureBoot}` and `${efi/SetupMode}`
- *     posted by default.ipxe. Cheap, early, and it happens whether or not
- *     FOS ever runs.
+ *   - iPXE, via `${efi/SecureBoot}` and `${efi/SetupMode}` posted to
+ *     boot.php. default.ipxe does not send them at present: the iPXE lookup
+ *     hung some firmware (ADR 0029, amendment), so nothing reports them
+ *     until fog-ipxe reads those variables directly.
  *   - FOS, when the enrollment task runs, via sbState() in
  *     usr/share/fog/lib/secureboot-funcs.sh.
  *
