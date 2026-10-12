@@ -4918,6 +4918,28 @@ abstract class FOGPage extends FOGBase
         return true;
     }
     /**
+     * Moves an open CSV handle past a leading UTF-8 byte-order mark.
+     *
+     * exportAll() writes a BOM so spreadsheet apps read accented text
+     * correctly, and Excel writes one on "CSV UTF-8" too. fgetcsv() does not
+     * strip it, so the first cell of the first row read as "\xEF\xBB\xBFprimac".
+     * That is not a header token, so header detection failed and the header
+     * row was imported as a host with no viable MAC (GH-1851).
+     *
+     * Skipped at the stream rather than trimmed from the first cell, so a
+     * quoted first cell still parses as quoted.
+     *
+     * @param resource $fh a handle at the start of the file
+     *
+     * @return void
+     */
+    protected static function skipUtf8Bom($fh)
+    {
+        if (fread($fh, 3) !== "\xEF\xBB\xBF") {
+            rewind($fh);
+        }
+    }
+    /**
      * Perform the import based on the uploaded file
      *
      * @return void
@@ -4967,6 +4989,7 @@ abstract class FOGPage extends FOGBase
             $numSuccess = $numFailed = $numAlreadExist = 0;
             $uploadErrors = '';
             $fh = fopen($file, 'rb');
+            self::skipUtf8Bom($fh);
             self::arrayRemove(
                 'id',
                 $this->databaseFields
@@ -5022,7 +5045,7 @@ abstract class FOGPage extends FOGBase
                     $headerCols = count($firstRow);
                     if (count($unknownHeaders) > 0) {
                         $uploadErrors .= sprintf(
-                            '%s: %s<br/>',
+                            "%s: %s\n",
                             _('Ignored unknown header columns'),
                             implode(', ', $unknownHeaders)
                         );
@@ -5216,7 +5239,7 @@ abstract class FOGPage extends FOGBase
                             }
                             foreach ($assocWarnings as &$assocWarning) {
                                 $uploadErrors .= sprintf(
-                                    '%s #%s: %s<br/>',
+                                    "%s #%s: %s\n",
                                     _('Row'),
                                     $rowNum,
                                     $assocWarning
@@ -5249,7 +5272,7 @@ abstract class FOGPage extends FOGBase
                         // Surface any lenient foreign-key warnings for this row.
                         foreach ($fkWarnings as &$fkWarning) {
                             $uploadErrors .= sprintf(
-                                '%s #%s: %s<br/>',
+                                "%s #%s: %s\n",
                                 _('Row'),
                                 $rowNum,
                                 $fkWarning
@@ -5276,7 +5299,7 @@ abstract class FOGPage extends FOGBase
                 } catch (\Exception $e) {
                     $numFailed++;
                     $uploadErrors .= sprintf(
-                        '%s #%s: %s<br/>',
+                        "%s #%s: %s\n",
                         _('Row'),
                         $rowNum,
                         $e->getMessage()
