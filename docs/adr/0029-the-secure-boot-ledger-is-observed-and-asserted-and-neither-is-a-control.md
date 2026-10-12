@@ -279,3 +279,22 @@ group path useless for the case it exists for. Both call the same
   half works on its own and the enrollment record is hand-entered only.
 - ADR 0008 is unchanged and remains the authority on what the task is for. This
   ADR is the record, not the task.
+
+## Amendment — default.ipxe no longer reads EFI variables (forum topic 18271)
+
+The two `${efi/...}` params hung a Dell Latitude E7240 (UEFI, Secure Boot off)
+before the menu. iPXE resolves an `${efi/<name>}` setting by walking the whole
+variable store with `GetNextVariableName()` (`efivars_find()` in
+`interface/efi/efi_settings.c`). That loop stops only on a match, the end of
+the list, or an error. Some older firmware never reports the end of the list,
+so the walk never returns.
+
+So the Context claim above, "two lines in a generated file and no change to
+fog-ipxe", did not hold. A hung PXE boot costs far more than a missing
+observation, so the lines are removed from `default.ipxe`, and
+`tests/netboot-host.test.sh` (O2) refuses any `${efi/` there.
+
+Until fog-ipxe reads `SecureBoot` and `SetupMode` directly with the
+`EFI_GLOBAL_VARIABLE` GUID, FOS is the only writer of the observed half. A host
+that has not run the enrollment task reads as "never reported". The decision
+itself, and boot.php's handling of both params, is unchanged.

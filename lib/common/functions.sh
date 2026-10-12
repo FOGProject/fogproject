@@ -3026,36 +3026,17 @@ configureDefaultiPXEfile() {
     # The enumeration used to stop at net2. Anything past three NICs was
     # invisible to the host lookup, so a machine registered under only its
     # fourth NIC could not be found at all.
-    # secureboot/setupmode are ${efi/SecureBoot} and ${efi/SetupMode}, the two
-    # EFI variables that say whether this machine is enforcing Secure Boot and
-    # whether its platform key has been cleared. iPXE exposes every EFI
-    # variable as a setting under the "efi" scope (interface/efi/efi_settings.c),
-    # so this needs no fog-ipxe change and no FOS change -- it is a read of
-    # something already there.
-    #
-    # SAFE ON LEGACY BIOS, and that was measured rather than assumed. The efi
-    # settings block is only registered on EFI builds (config/settings.h gates
-    # EFI_SETTINGS on PLATFORM_efi), and iPXE substitutes an empty string for a
-    # setting it cannot resolve rather than erroring, so a pcbios machine sends
-    # both params empty and the chain is unaffected. Verified 2026-08-28 by
-    # running FOG's own ipxe.lkrn under SeaBIOS through this exact script.
-    #
-    # BOTH are sent, because SecureBoot alone cannot tell the two enrollment
-    # routes apart. A machine with Secure Boot merely switched off still has a
-    # platform key and still refuses a db write; only Setup Mode accepts one.
-    # That is the difference between an enrollment that completes unattended and
-    # one that needs a human at the MokManager screen.
-    #
-    # An older default.ipxe sends neither param, and that is deliberately
-    # distinguishable from sending them empty: PHP sees NULL for an absent
-    # param and '' for a present-but-empty one, so a server that has not
-    # re-run the installer reads as "never reported" rather than as "legacy
-    # BIOS". This function runs on every install, so it clears itself.
-    #
-    # Advisory only. boot.php is unauthenticated, so what arrives here is
-    # attacker-controlled: it drives targeting, filtering and display, and
-    # nothing else. See ADR 0029.
-    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${manufacturer}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nparam sysserial \${serial}\nparam mbserial \${board-serial}\nparam caseasset \${asset}\nparam secureboot \${efi/SecureBoot}\nparam setupmode \${efi/SetupMode}\nisset \${netX/mac} && param macboot \${netX/mac} ||\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\nisset \${net3/mac} && param mac3 \${net3/mac} || goto bootme\nisset \${net4/mac} && param mac4 \${net4/mac} || goto bootme\nisset \${net5/mac} && param mac5 \${net5/mac} || goto bootme\nisset \${net6/mac} && param mac6 \${net6/mac} || goto bootme\nisset \${net7/mac} && param mac7 \${net7/mac} || goto bootme\n:bootme\nchain ${BOOT_url_proto}://${nbhost}${WEB_root}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    # No ${efi/...} setting is read here. default.ipxe used to send
+    # ${efi/SecureBoot} and ${efi/SetupMode} for the Secure Boot ledger, and
+    # that hung some UEFI machines before the menu (forum topic 18271, a Dell
+    # Latitude E7240 with Secure Boot off). iPXE resolves an ${efi/<name>}
+    # setting by walking the whole variable store with GetNextVariableName()
+    # (interface/efi/efi_settings.c, efivars_find()), and that loop has no
+    # guard against firmware that never reports the end of the list. A hung
+    # PXE boot costs far more than a missing observation, so hosts read as
+    # "never reported" until the iPXE binaries read those two variables
+    # directly. boot.php still accepts both params for when they come back.
+    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${manufacturer}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nparam sysserial \${serial}\nparam mbserial \${board-serial}\nparam caseasset \${asset}\nisset \${netX/mac} && param macboot \${netX/mac} ||\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\nisset \${net3/mac} && param mac3 \${net3/mac} || goto bootme\nisset \${net4/mac} && param mac4 \${net4/mac} || goto bootme\nisset \${net5/mac} && param mac5 \${net5/mac} || goto bootme\nisset \${net6/mac} && param mac6 \${net6/mac} || goto bootme\nisset \${net7/mac} && param mac7 \${net7/mac} || goto bootme\n:bootme\nchain ${BOOT_url_proto}://${nbhost}${WEB_root}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {
