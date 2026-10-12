@@ -2757,6 +2757,11 @@ $.notify = function(title, body, type) {
   var bodyEl = document.createElement('div');
   bodyEl.className = 'toast-body';
   bodyEl.textContent = body || '';
+  // textContent cannot carry <br/>, so a multi-line body (the importer's
+  // one-line-per-row report, GH-1851) uses "\n". pre-line shows those breaks
+  // and still collapses other whitespace. Inline for the same reason as the
+  // closer filter above.
+  bodyEl.style.whiteSpace = 'pre-line';
 
   el.appendChild(header);
   el.appendChild(bodyEl);
