@@ -7285,7 +7285,7 @@ abstract class FOGPage extends FOGBase
      * Stream the full export as a CSV download.
      *
      * Unlike getExportList(), which pages for the on-screen table, this
-     * replays the DataTables request (sent on the query string) with no row
+     * replays the DataTables request (POSTed in the body) with no row
      * limit, so every matching record is written. The active search and sort
      * are honored because the request is passed straight to
      * FOGManagerController::simple(); forcing length=-1 drops the SQL LIMIT.
@@ -7300,11 +7300,10 @@ abstract class FOGPage extends FOGBase
     {
         list($table, $tableID, $columns, $sqlstr, $filterstr, $totalstr)
             = $this->_buildExportColumns();
-        // The client sends its normal DataTables params (columns/search/order)
-        // on the query string; force a full, unpaged result set.
-        $request = $_GET;
-        $request['start'] = 0;
-        $request['length'] = -1;
+        $request = self::_exportRequest(
+            (string) file_get_contents('php://input'),
+            $_GET
+        );
         $result = FOGManagerController::simple(
             $request,
             $table,
@@ -7336,5 +7335,30 @@ abstract class FOGPage extends FOGBase
         }
         fclose($fh);
         exit;
+    }
+    /**
+     * The DataTables request exportAll() replays, forced to one full page.
+     *
+     * The client POSTs its normal DataTables params (columns/search/order)
+     * in the body, as getExportList() reads them. They used to ride on the
+     * query string, and a wide grid such as hosts made that URL longer than
+     * the web server accepts (GH-1861: about 11 KB against Apache's 8190).
+     * The query string stays as a fallback for a caller that still sends it.
+     *
+     * @param string $body  The raw request body.
+     * @param array  $query The query string parameters.
+     *
+     * @return array
+     */
+    private static function _exportRequest(string $body, array $query)
+    {
+        $request = [];
+        parse_str($body, $request);
+        if (!$request) {
+            $request = $query;
+        }
+        $request['start'] = 0;
+        $request['length'] = -1;
+        return $request;
     }
 }
