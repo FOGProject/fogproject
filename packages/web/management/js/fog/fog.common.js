@@ -668,6 +668,38 @@ if (document.readyState === 'loading') {
   fogBindTimezonePicker();
 }
 
+/**
+ * Starts a file download by POSTing `body` (a URLSearchParams) to `action`.
+ *
+ * A POST, not a navigation, because the DataTables request rides in the
+ * body. On a GET it rides on the URL, and a wide grid such as hosts makes
+ * that URL longer than the web server accepts (GH-1861: Apache answers 414).
+ *
+ * Submitted through the native form.submit(), which fires no submit event.
+ * That is deliberate on both sides: disableFormDefaults() preventDefaults
+ * every form on the page, and bootstrap-csrf.js hangs the _csrf field off
+ * that same event -- so the token is appended here by hand rather than
+ * relying on a listener that is deliberately not going to run.
+ */
+function fogPostDownload(action, body) {
+  var meta = document.querySelector('meta[name="csrf-token"]');
+  body.append('_csrf', meta ? meta.getAttribute('content') || '' : '');
+
+  var form = document.createElement('form');
+  form.method = 'post';
+  form.action = action;
+  body.forEach(function(value, key) {
+    var input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = value;
+    form.appendChild(input);
+  });
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+}
+
 var deleteConfirmModal,
   deleteConfirmButton,
   deleteLang,
@@ -797,13 +829,15 @@ var deleteConfirmModal,
       // the rows the browser currently holds. The header row it emits is the
       // friendly column keys, which import auto-detects.
       action: function(e, dt, node, config) {
-        var params = dt.ajax.params();
-        params.length = -1;
-        params.start = 0;
-        window.location = '../management/index.php?node='
-          + Common.node
-          + '&sub=exportAll&'
-          + $.param(params);
+        var body = new URLSearchParams($.param(dt.ajax.params() || {}));
+        body.set('start', '0');
+        body.set('length', '-1');
+        fogPostDownload(
+          '../management/index.php?node='
+            + encodeURIComponent(Common.node)
+            + '&sub=exportAll',
+          body
+        );
       }
     },
     {
@@ -887,13 +921,7 @@ var deleteConfirmModal,
   // quietly ignore the search box. Posting the grid's own dt.ajax.params()
   // means the server answers the identical question it answers for the grid,
   // with length forced to -1 (bounded by MAX_ROWS server side, and the file
-  // name says so when it bites).
-  //
-  // Submitted through the native form.submit(), which fires no submit event.
-  // That is deliberate on both sides: disableFormDefaults() preventDefaults
-  // every form on the page, and bootstrap-csrf.js hangs the _csrf field off
-  // that same event -- so the token is appended here by hand rather than
-  // relying on a listener that is deliberately not going to run.
+  // name says so when it bites). fogPostDownload() does the posting.
   reportCsvAllButton = {
     text: '<i class="far fa-file-excel"></i> CSV (All)',
     titleAttr: 'Export every row this report returns, not just this page',
@@ -915,22 +943,7 @@ var deleteConfirmModal,
         body.append('cols[]', this.dataSrc());
         body.append('heads[]', $(this.header()).text().trim());
       });
-      var meta = document.querySelector('meta[name="csrf-token"]');
-      body.append('_csrf', meta ? meta.getAttribute('content') || '' : '');
-
-      var form = document.createElement('form');
-      form.method = 'post';
-      form.action = '../management/index.php?' + params.toString();
-      body.forEach(function(value, key) {
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-      });
-      document.body.appendChild(form);
-      form.submit();
-      document.body.removeChild(form);
+      fogPostDownload('../management/index.php?' + params.toString(), body);
     }
   },
   // The report toolbar with the full export folded in beside the plain CSV,
