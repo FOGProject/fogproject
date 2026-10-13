@@ -38,8 +38,8 @@ use FOG\Router\Route;
  * joined.
  *
  * Here the credential is sent only to a host the server BELIEVES is not
- * joined, only while that is true, and not again for an hour after an
- * attempt. Most hosts in most estates never receive it at all. The one
+ * joined, only while that is true, and not again for an hour (by
+ * default) after an attempt. Most hosts in most estates never receive it at all. The one
  * exception is a joined Windows host with a rename outstanding (design
  * 0017), under the same cooldown.
  *
@@ -65,8 +65,25 @@ class DirectoryJoin extends FOGBase
      * report of its new membership arrives on a later poll, and until it
      * does the server would otherwise still believe the host unjoined and
      * send the credential once more.
+     *
+     * The default. An admin sets FOG_AGENT_JOIN_COOLDOWN to change it, and
+     * retryAfter() is what every reader uses.
      */
     const RETRY_AFTER = 3600;
+
+    /**
+     * The shortest cooldown an admin may set, in seconds.
+     *
+     * Not zero. Zero is no cooldown: a bad password is then one failed
+     * sign-in per host per poll, which is the lockout this exists to
+     * prevent.
+     */
+    const RETRY_MIN = 60;
+
+    /**
+     * The longest cooldown an admin may set, in seconds: one day.
+     */
+    const RETRY_MAX = 86400;
 
     /**
      * What the agent may report for a join.
@@ -95,7 +112,7 @@ class DirectoryJoin extends FOGBase
      * The longest NetBIOS computer name. A computer account is this much of
      * the host name plus a dollar sign, so a longer host name never equals
      * its account, and comparing the whole name would send the credential
-     * to that host every RETRY_AFTER forever.
+     * to that host every retryAfter() forever.
      */
     const NETBIOS_MAX = 15;
 
@@ -122,7 +139,7 @@ class DirectoryJoin extends FOGBase
      * - The host is joined to some OTHER domain. The agent would refuse,
      *   so sending the credential would achieve nothing and expose it; the
      *   Directory Membership report shows the mismatch instead.
-     * - An attempt was made within RETRY_AFTER.
+     * - An attempt was made within retryAfter().
      *
      * One exception sends it to a JOINED host (design 0017): a Windows host
      * in the right domain whose computer account does not carry the host's
@@ -337,7 +354,7 @@ class DirectoryJoin extends FOGBase
             // Named for the ATTEMPT, not the join: this is stamped whenever
             // the agent acted, so a name like hdJoinedAt would claim a join
             // happened on every occasion one did not -- and it is what the
-            // RETRY_AFTER cooldown reads.
+            // retryAfter() cooldown reads.
             ->set('joinAt', self::stamp())
             ->set('joinError', $error)
             ->save();
@@ -404,7 +421,65 @@ class DirectoryJoin extends FOGBase
         }
 
         return self::niceDate($at, self::storageTimeZone())->getTimestamp()
-            + self::RETRY_AFTER;
+            + self::retryAfter();
+    }
+
+    /**
+     * The cooldown after an attempt, in seconds: FOG_AGENT_JOIN_COOLDOWN,
+     * held to RETRY_MIN..RETRY_MAX, or RETRY_AFTER when it is not a whole
+     * number. The settings page refuses a value outside the range; the
+     * clamp covers a value written some other way.
+     *
+     * @return int
+     */
+    public static function retryAfter()
+    {
+        $set = trim((string)self::getSetting('FOG_AGENT_JOIN_COOLDOWN'));
+        if (!ctype_digit($set)) {
+            return self::RETRY_AFTER;
+        }
+
+        return max(self::RETRY_MIN, min(self::RETRY_MAX, (int)$set));
+    }
+
+    /**
+     * Forgets the last attempt, so the cooldown does not hold the host.
+     *
+     * TaskQueue::checkout() calls this when a deploy completes. The disk
+     * now holds a fresh image, and neither reason for the cooldown is about
+     * that disk: the last attempt was made by the machine that is gone,
+     * and its report of the result is stale too. Without this, a host
+     * renamed and then reimaged waits out the old attempt's hour before it
+     * joins. A bad password costs one extra attempt per reimage, not one
+     * per poll, so the lockout guard still holds.
+     *
+     * @param Host $Host the host that was imaged
+     *
+     * @return void
+     */
+    public static function forgetAttempt(Host $Host)
+    {
+        self::forget(self::observed($Host));
+    }
+
+    /**
+     * The work behind forgetAttempt(), given the host's membership row.
+     *
+     * @param HostDirectory|null $Observed the row, or null when there is none
+     *
+     * @return bool whether a stamp was cleared
+     */
+    protected static function forget(HostDirectory $Observed = null)
+    {
+        // A stamp past its cooldown holds nothing, and the Directory
+        // Membership report still shows when the last attempt was.
+        if (null === $Observed || !self::cooling($Observed)) {
+            return false;
+        }
+        // '' saves as NULL: hdJoinAt is a nullable datetime.
+        $Observed->set('joinAt', '')->save();
+
+        return true;
     }
 
     /**

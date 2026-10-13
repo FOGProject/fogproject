@@ -11920,3 +11920,20 @@ $this->schema[] = [
     . "' fog-agent reads this setting too.') "
     . "WHERE `settingKey` IN ('FOG_GRACE_TIMEOUT','FOG_TASK_FORCE_REBOOT')",
 ];
+
+// 439
+$this->schema[] = [
+    // The agent's directory join and rename cooldown, which was a constant
+    // hour (Agent\DirectoryJoin::RETRY_AFTER). An admin fixing a password
+    // or renaming a host may want a shorter wait. The value is seconds,
+    // 60 to 86400; the floor keeps a bad password from becoming one failed
+    // sign-in per host per poll.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_AGENT_JOIN_COOLDOWN','Seconds fog-agent waits after a domain "
+    . "join or rename attempt before the server sends the join credential "
+    . "again. A failed attempt is a failed sign-in for the AD account, so "
+    . "a short wait can lock out an account with a lockout policy. Allowed "
+    . "range 60 to 86400. A completed deploy task clears the wait for that "
+    . "host. (Default 3600)','3600','FOG Agent')",
+];

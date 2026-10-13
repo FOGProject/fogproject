@@ -434,8 +434,76 @@ $t->check(
     false === dj('cooling', [djObserved(['joinAt' => $old])])
 );
 $t->check(
-    'the cooldown outlasts a poll interval by a wide margin',
+    'the default cooldown outlasts a poll interval by a wide margin',
     \FOG\Agent\DirectoryJoin::RETRY_AFTER >= 1800
+);
+
+// ------------------------------------------ the admin sets the cooldown
+
+/**
+ * Seeds FOG_AGENT_JOIN_COOLDOWN so getSetting() answers without a query.
+ *
+ * @param string $value the stored setting
+ *
+ * @return void
+ */
+function djCooldown($value)
+{
+    FogTestHarness::setStatic(
+        'FOGBase',
+        '_settingsCache',
+        ['FOG_AGENT_JOIN_COOLDOWN' => ['value' => $value, 'ts' => time()]]
+    );
+    FogTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
+}
+
+foreach ([
+    ['3600', 3600, 'the shipped value'],
+    ['900', 900, 'a shorter wait an admin chose'],
+    ['', 3600, 'an empty setting falls back to the default'],
+    ['abc', 3600, 'a value that is not a number falls back to the default'],
+    ['0', 60, 'zero is held to the floor: no cooldown is one failed sign-in '
+        . 'per host per poll'],
+    ['999999', 86400, 'a huge value is held to one day'],
+] as [$value, $want, $why]) {
+    djCooldown($value);
+    $t->check(
+        sprintf('cooldown "%s" is %d seconds: %s', $value, $want, $why),
+        $want === \FOG\Agent\DirectoryJoin::retryAfter()
+    );
+}
+$twenty = (new \DateTime('-20 minutes'))->setTimezone($tz)->format('Y-m-d H:i:s');
+djCooldown('900');
+$t->check(
+    'an attempt 20 minutes ago is past a 15 minute cooldown',
+    false === dj('cooling', [djObserved(['joinAt' => $twenty])])
+);
+djCooldown('3600');
+$t->check(
+    'the same attempt is still cooling under the hour default',
+    true === dj('cooling', [djObserved(['joinAt' => $twenty])])
+);
+
+// --------------------------------- a deploy forgets the last attempt
+
+$stamped = djObserved(['joined' => 0, 'joinAt' => $recent]);
+$t->check(
+    'a deploy clears a stamp that is still cooling',
+    true === dj('forget', [$stamped])
+        && '' === (string)$stamped->get('joinAt')
+        && false === dj('cooling', [$stamped])
+);
+$t->check(
+    'with the stamp gone, the fresh image is sent the join on its next poll',
+    is_array(djDesired(djHost($joinable), $stamped))
+);
+$t->check(
+    'a host with no membership row has nothing to forget',
+    false === dj('forget', [null])
+);
+$t->check(
+    'a stamp past its cooldown is left as it is, so the report keeps it',
+    false === dj('forget', [djObserved(['joinAt' => $old])])
 );
 
 $cooling = djDesired(
