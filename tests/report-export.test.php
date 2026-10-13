@@ -218,9 +218,14 @@ $t->check('the CSV (All) button exists', false !== $at);
 $block = false === $at
     ? ''
     : substr($common, $at, strpos($common, 'reportFileButtons =', $at) - $at);
+// The form post itself lives in fogPostDownload(), which the management
+// "CSV (All)" button shares (GH-1861).
+preg_match('/function fogPostDownload\(action, body\) \{.*?\n\}\n/s', $common, $m);
+$post = $m[0] ?? '';
 $t->check(
     "it posts, so listem() sees the grid's own search and sort",
-    false !== strpos($block, "form.method = 'post'")
+    false !== strpos($block, 'fogPostDownload(')
+    && false !== strpos($post, "form.method = 'post'")
     && false !== strpos($block, "params.set('sub', 'exportAll')")
 );
 $t->check(
@@ -229,7 +234,7 @@ $t->check(
 );
 $t->check(
     'it carries the CSRF token by hand, since native submit() fires no event',
-    false !== strpos($block, "body.append('_csrf'")
+    false !== strpos($post, "body.append('_csrf'")
 );
 $t->check(
     'it sends the visible columns and their headings',
