@@ -13,6 +13,7 @@
 
 namespace FOG\TaskHandling;
 
+use FOG\Agent\DirectoryJoin;
 use FOG\Audit\Audit;
 use FOG\Boot\UbootTftpSync;
 use FOG\Items\Image;
@@ -735,6 +736,10 @@ class TaskQueue extends TaskingElement
                         ->set('deployed', $deployedAt)
                         ->save();
                 }
+                // The join cooldown belongs to the machine that was just
+                // overwritten. Without this, a host renamed and then
+                // reimaged waits out the old attempt before it joins.
+                DirectoryJoin::forgetAttempt(self::$Host);
                 $this->_email();
             } elseif ($this->Task->isCapture()) {
                 $this->_moveUpload();
