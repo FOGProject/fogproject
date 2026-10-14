@@ -14159,23 +14159,9 @@ _publishSecureBootKit() {
     fi
     cp -f ../packages/secureboot/fog-enroll-mok.sh "${kitdir}/" >>$error_log 2>&1
     cp -f ../packages/secureboot/fog-enroll-mok.desktop "${kitdir}/" >>$error_log 2>&1
-    # MokManager, for the "Enroll Secure Boot Key" PXE menu item. IpxeBootMenu
-    # chains to it over $_booturl, which is the WEB root
-    # (http://<server>/fog/service) -- but downloadipxesecureboot stages these
-    # binaries under $tftpdirdst/secureboot, which the web server does not
-    # serve. Without this copy the menu item resolves to a 403/404 on every
-    # architecture and falls straight into its own error branch.
-    #
-    # Copied rather than linked: the TFTP tree may be on a different
-    # filesystem, and it is two small binaries.
-    local mmsrc="${tftpdirdst%/}/secureboot"
-    if [[ -f ${mmsrc}/mmx64.efi ]]; then
-        cp -f "${mmsrc}/mmx64.efi" "${kitdir}/" >>$error_log 2>&1
-    fi
-    if [[ -f ${mmsrc}/arm64-efi/mmaa64.efi ]]; then
-        mkdir -p "${kitdir}/arm64-efi" >>$error_log 2>&1
-        cp -f "${mmsrc}/arm64-efi/mmaa64.efi" "${kitdir}/arm64-efi/" >>$error_log 2>&1
-    fi
+    # MokManager (mmx64.efi / mmaa64.efi) is NOT copied here. It comes from
+    # $tftpdirdst/secureboot, which downloadipxesecureboot and
+    # configureTFTPandPXE fill AFTER this runs -- see _publishMokManager().
     # The iPXE binaries for local ESP boot are NOT published here. They live in
     # service/localboot, a sibling -- see _publishLocalBootFiles(). Deliberately
     # outside this directory, because the rm -rf above removes the whole kit
@@ -14184,14 +14170,42 @@ _publishSecureBootKit() {
     # Keep the directory from being browsable, matching service/ipxe.
     echo '<?php header("HTTP/1.1 404 Not Found");' > "${kitdir}/index.php"
     chmod 0644 "${kitdir}"/MOK.der "${kitdir}"/*.desktop "${kitdir}"/index.php >>$error_log 2>&1
-    # Guarded rather than globbed blind: an HTTPS install stages no Secure Boot
-    # binaries at all (downloadipxesecureboot skips it), so an unguarded
-    # chmod would log a "No such file" for every run on those servers.
-    [[ -f ${kitdir}/mmx64.efi ]] && chmod 0644 "${kitdir}/mmx64.efi" >>$error_log 2>&1
-    [[ -f ${kitdir}/arm64-efi/mmaa64.efi ]] && chmod 0644 "${kitdir}/arm64-efi/mmaa64.efi" >>$error_log 2>&1
     chmod 0755 "${kitdir}/fog-enroll-mok.sh" >>$error_log 2>&1
     chown -R "${apacheuser}":"${apacheuser}" "$kitdir" >>$error_log 2>&1
     echo "Done"
+}
+# MokManager, for the "Enroll Secure Boot Key" PXE menu item. IpxeBootMenu
+# chains to it over $_booturl, which is the WEB root
+# (http://<server>/fog/service) -- but downloadipxesecureboot stages these
+# binaries under $tftpdirdst/secureboot, which the web server does not serve.
+# Without this copy the menu item gets the API fallback's 401 and falls
+# straight into its own error branch.
+#
+# Its own step, after configureTFTPandPXE, and NOT inside
+# _publishSecureBootKit. That function runs from configureHttpd, BEFORE the
+# Secure Boot set is downloaded and staged. On an upgrade it copied the
+# PREVIOUS install's mmx64.efi; on a fresh install there was nothing to copy,
+# so the menu item failed with "Permission denied" (forum 18277).
+#
+# Only into a kit that _publishSecureBootKit actually published: no MOK.der
+# means enrollment was declined and the kit directory was removed on purpose.
+# Copied rather than linked: the TFTP tree may be on a different filesystem,
+# and it is two small binaries.
+_publishMokManager() {
+    local kitdir="${webdirdest}/service/secureboot"
+    local mmsrc="${tftpdirdst%/}/secureboot"
+    [[ -f ${kitdir}/MOK.der ]] || return 0
+    # Guarded: an install whose Secure Boot download failed stages none.
+    if [[ -f ${mmsrc}/mmx64.efi ]]; then
+        cp -f "${mmsrc}/mmx64.efi" "${kitdir}/" >>$error_log 2>&1
+        chmod 0644 "${kitdir}/mmx64.efi" >>$error_log 2>&1
+    fi
+    if [[ -f ${mmsrc}/arm64-efi/mmaa64.efi ]]; then
+        mkdir -p "${kitdir}/arm64-efi" >>$error_log 2>&1
+        cp -f "${mmsrc}/arm64-efi/mmaa64.efi" "${kitdir}/arm64-efi/" >>$error_log 2>&1
+        chmod 0644 "${kitdir}/arm64-efi/mmaa64.efi" >>$error_log 2>&1
+    fi
+    chown -R "${apacheuser}":"${apacheuser}" "$kitdir" >>$error_log 2>&1
 }
 # efitools has no package on RHEL/Rocky/Alma/CentOS Stream 9: confirmed
 # absent from EPEL9, and the only RPMs that exist for it live in those
