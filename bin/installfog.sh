@@ -1588,6 +1588,11 @@ while [[ -z $blGo ]]; do
                     # and the PK/KEK/db variable updates -- so one archive on a
                     # USB stick holds every enrollment route. Taken by existence,
                     # so a server that published neither simply ships neither.
+                    #
+                    # _publishMokManager first: it needs the Secure Boot set
+                    # that configureTFTPandPXE staged above, and it is the step
+                    # that puts mmx64.efi in the kit at all on a fresh install.
+                    _publishMokManager
                     _publishLocalBootFiles
                     configureFTP
                     configureSnapins
