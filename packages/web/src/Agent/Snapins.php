@@ -92,6 +92,16 @@ class Snapins extends FOGBase
      */
     public static function queue(Host $Host)
     {
+        // A deploy queued with snapins creates its snapin job up front, but
+        // those snapins are for the system the image puts down. Hand none
+        // out while any non-snapin task is active, as the legacy client
+        // does ('it', SnapinClient::json()). Running them on the old system
+        // and closing the last one completed the deploy task before the
+        // machine ever PXE booted (#1875).
+        $Task = $Host->get('task');
+        if ($Task->isValid() && !$Task->isSnapinTasking()) {
+            return [];
+        }
         $SnapinJob = $Host->get('snapinjob');
         if (!$SnapinJob->isValid()) {
             return [];
@@ -231,8 +241,9 @@ class Snapins extends FOGBase
             self::_fail('cannot read the snapin file', 503);
         }
         $date = self::niceDate()->format('Y-m-d H:i:s');
+        // Only a snapin task is this run's to move; see queue().
         $Task = $Host->get('task');
-        if ($Task->isValid()) {
+        if ($Task->isSnapinTasking()) {
             $Task
                 ->set('stateID', self::getProgressState())
                 ->set('checkInTime', $date)
@@ -421,8 +432,10 @@ class Snapins extends FOGBase
         }
         if (Route::getCount('snapintask', $live) < 1) {
             $stateID = $abortedOnFailure ? self::getCancelledState() : self::getCompleteState();
+            // Only a snapin task ends with its snapins. Any other task
+            // (a deploy) is not this job's to complete; see queue().
             $Task = $Host->get('task');
-            if ($Task->isValid()) {
+            if ($Task->isSnapinTasking()) {
                 $Task->set('stateID', $stateID)->save();
             }
             $SnapinJob->set('stateID', $stateID)->save();
