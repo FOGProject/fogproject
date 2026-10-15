@@ -11937,3 +11937,14 @@ $this->schema[] = [
     . "range 60 to 86400. A completed deploy task clears the wait for that "
     . "host. (Default 3600)','3600','FOG Agent')",
 ];
+
+// 440
+$this->schema[] = [
+    // FOG_QUICKREG_MAX_PENDING_MACS=0 now stores no pending MAC (GH-1872),
+    // so the help text says 0 is the off switch. It also named the
+    // pendingMACS table, which schema moved into hostMAC long ago.
+    "UPDATE `globalSettings` SET `settingDesc` = 'How many pending MAC "
+    . "addresses FOG stores for each host. Set to 0 to disable pending MAC "
+    . "addresses. (Default 4)' "
+    . "WHERE `settingKey` = 'FOG_QUICKREG_MAX_PENDING_MACS'",
+];
