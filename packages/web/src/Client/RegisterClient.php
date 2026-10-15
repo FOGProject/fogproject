@@ -117,17 +117,6 @@ class RegisterClient extends FOGClient
                 return ['complete' => true];
             }
         }
-        if ($pendingMACcount > $maxPending) {
-            return [
-                'error' => sprintf(
-                    '%s. %s %d %s.',
-                    _('Too many MACs'),
-                    _('Only allowed to have'),
-                    $maxPending,
-                    _('additional macs')
-                )
-            ];
-        }
         $MACs = self::parseMacList(
             $MACs,
             false,
@@ -148,6 +137,24 @@ class RegisterClient extends FOGClient
             $MACs
         );
         if (count($MACs ?: [])) {
+            // Checked against the batch, not just what is already stored:
+            // the old `$pendingMACcount > $maxPending` let a host at the
+            // limit add one more batch, so 0 never disabled anything.
+            if (self::pendingLimitExceeded(
+                $pendingMACcount,
+                count($MACs),
+                $maxPending
+            )) {
+                return [
+                    'error' => sprintf(
+                        '%s. %s %d %s.',
+                        _('Too many MACs'),
+                        _('Only allowed to have'),
+                        $maxPending,
+                        _('additional macs')
+                    )
+                ];
+            }
             self::$Host->addPendMAC($MACs);
             if (!self::$Host->save()) {
                 return ['error' => 'db'];
@@ -155,5 +162,20 @@ class RegisterClient extends FOGClient
             return ['complete' => true];
         }
         return ['error' => 'ig'];
+    }
+    /**
+     * Whether storing $new more pending MACs would take a host past
+     * FOG_QUICKREG_MAX_PENDING_MACS. A max of 0 stores none, which is
+     * how pending MACs are turned off.
+     *
+     * @param int   $pending pending MACs the host already has
+     * @param int   $new     MACs this check-in would add
+     * @param mixed $max     the setting's value
+     *
+     * @return bool
+     */
+    public static function pendingLimitExceeded($pending, $new, $max)
+    {
+        return ($pending + $new) > max(0, (int)$max);
     }
 }
