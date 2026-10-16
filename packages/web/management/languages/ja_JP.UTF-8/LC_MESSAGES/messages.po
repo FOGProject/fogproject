@@ -622,6 +622,9 @@ msgstr ""
 msgid "A user already exists with this name"
 msgstr "この名前のユーザーは既に存在します"
 
+msgid "A user can start a task only when one of their roles grants its type here, and the host, group or image Task permission on the Permissions tab."
+msgstr ""
+
 #, fuzzy
 msgid "A user group already exists with this name!"
 msgstr "この名前のグループは既に存在します！"
@@ -1148,6 +1151,9 @@ msgstr "帯域幅は 0 より大きい数値で指定してください"
 msgid "All rights reserved."
 msgstr ""
 
+msgid "All task types, including types added later"
+msgstr ""
+
 #, fuzzy
 msgid "Allocated"
 msgstr "関連付けられたホスト"
@@ -1158,6 +1164,10 @@ msgstr "イメージをストレージグループへ"
 
 msgid "Allow API"
 msgstr ""
+
+#, fuzzy
+msgid "Allowed"
+msgstr "関連付けられたホスト"
 
 msgid "Allows editing/creating of Task States fog currently has."
 msgstr "現在 FOG に登録されているタスク状態の編集および作成を許可します。"
@@ -1496,7 +1506,7 @@ msgstr "バインド DN"
 msgid "Bind Password"
 msgstr "バインドパスワード"
 
-msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
+msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
 msgstr ""
 
 #, fuzzy
@@ -2863,6 +2873,10 @@ msgstr "完了しました（イメージ処理なし）！イメージが割り
 #, fuzzy
 msgid "Done, without imaging: Invalid Login."
 msgstr "完了しました（イメージ処理なし）！ログインが無効です！"
+
+#, fuzzy
+msgid "Done, without imaging: that account may not deploy."
+msgstr "完了しました（イメージ処理なし）！イメージが割り当てられていません！"
 
 msgid "Dot in Filename not allowed!"
 msgstr "ファイル名にドットは使用できません！"
@@ -7913,6 +7927,10 @@ msgstr ""
 msgid "Removed or cleared %1$d row(s) in the \"%2$s\" group whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %3$s"
 msgstr ""
 
+#, fuzzy
+msgid "Removed task type"
+msgstr "これらの項目を削除しますか？"
+
 #, php-format
 msgid "Removed the virus scan task types. %1$d task(s) and %2$d scheduled task(s) were deleted with them; their run history remains in the task log."
 msgstr ""
@@ -10454,6 +10472,9 @@ msgstr "このページでは CSV ファイルを FOG にアップロードで�
 msgid "This page documents the FOG REST API, which is currently switched off. Enable it under FOG Configuration > FOG Settings > API System, then return here."
 msgstr ""
 
+msgid "This role has full access, so it can start every task type. Change that on the Permissions tab."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr "このセクションでは更新を行えます"
 
@@ -11535,6 +11556,10 @@ msgstr "少なくとも 1 つのグループを関連付ける必要がありま
 msgid "You do not have permission to revoke API tokens."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
 
+#, fuzzy, php-format
+msgid "You do not have permission to start %s tasks."
+msgstr "少なくとも 1 つのグループを関連付ける必要があります"
+
 #, fuzzy
 msgid "You do not have permission to view API tokens."
 msgstr "少なくとも 1 つのグループを関連付ける必要があります"
@@ -12431,6 +12456,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "タスクが見つかりました"
+
+#, fuzzy, php-format
+msgid "task type %d"
+msgstr "タスクタイプの追加に失敗しました！"
 
 #, fuzzy
 msgid "task type no longer exists"
@@ -14359,9 +14388,6 @@ msgstr ""
 
 #~ msgid "Remove snapins"
 #~ msgstr "スナップインを削除"
-
-#~ msgid "Remove these items?"
-#~ msgstr "これらの項目を削除しますか？"
 
 #~ msgid "Replay from journal"
 #~ msgstr "ジャーナルから再実行"

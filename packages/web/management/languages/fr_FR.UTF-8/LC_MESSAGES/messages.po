@@ -650,6 +650,9 @@ msgstr ""
 msgid "A user already exists with this name"
 msgstr "Une image existe déjà avec ce nom!"
 
+msgid "A user can start a task only when one of their roles grants its type here, and the host, group or image Task permission on the Permissions tab."
+msgstr ""
+
 #, fuzzy
 msgid "A user group already exists with this name!"
 msgstr "Une image existe déjà avec ce nom!"
@@ -1190,6 +1193,9 @@ msgstr "La bande passante doit être numérique et supérieur à 0"
 msgid "All rights reserved."
 msgstr ""
 
+msgid "All task types, including types added later"
+msgstr ""
+
 #, fuzzy
 msgid "Allocated"
 msgstr "Aucun noeud associé"
@@ -1200,6 +1206,10 @@ msgstr "Groupe de stockage primaire"
 
 msgid "Allow API"
 msgstr ""
+
+#, fuzzy
+msgid "Allowed"
+msgstr "Aucun noeud associé"
 
 msgid "Allows editing/creating of Task States fog currently has."
 msgstr ""
@@ -1544,7 +1554,7 @@ msgstr ""
 msgid "Bind Password"
 msgstr "domaine Mot de passe"
 
-msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
+msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
 msgstr ""
 
 #, fuzzy
@@ -2938,6 +2948,10 @@ msgstr "Fait, Pas d'image attribué!"
 
 #, fuzzy
 msgid "Done, without imaging: Invalid Login."
+msgstr "Fait sans imagerie!"
+
+#, fuzzy
+msgid "Done, without imaging: that account may not deploy."
 msgstr "Fait sans imagerie!"
 
 msgid "Dot in Filename not allowed!"
@@ -8135,6 +8149,10 @@ msgstr ""
 msgid "Removed or cleared %1$d row(s) in the \"%2$s\" group whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %3$s"
 msgstr ""
 
+#, fuzzy
+msgid "Removed task type"
+msgstr "Retirer snapins sélectionnés"
+
 #, php-format
 msgid "Removed the virus scan task types. %1$d task(s) and %2$d scheduled task(s) were deleted with them; their run history remains in the task log."
 msgstr ""
@@ -10777,6 +10795,9 @@ msgstr "Ce paramètre définit le nom d'utilisateur proxy à utiliser."
 msgid "This page documents the FOG REST API, which is currently switched off. Enable it under FOG Configuration > FOG Settings > API System, then return here."
 msgstr ""
 
+msgid "This role has full access, so it can start every task type. Change that on the Permissions tab."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr ""
 
@@ -11890,6 +11911,10 @@ msgstr ""
 msgid "You do not have permission to revoke API tokens."
 msgstr ""
 
+#, fuzzy, php-format
+msgid "You do not have permission to start %s tasks."
+msgstr "Pas de connexion à la base de données"
+
 msgid "You do not have permission to view API tokens."
 msgstr ""
 
@@ -12817,6 +12842,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "tâche trouvée"
+
+#, fuzzy, php-format
+msgid "task type %d"
+msgstr "Ajouter SnapIn a échoué!"
 
 #, fuzzy
 msgid "task type no longer exists"
