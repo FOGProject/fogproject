@@ -241,6 +241,11 @@ return [
     ['child' => 'locationAssoc', 'column' => 'laHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'location'],
     ['child' => 'ouAssoc', 'column' => 'oaOUID', 'parent' => 'ou', 'pcolumn' => 'ouID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ou'],
     ['child' => 'ouAssoc', 'column' => 'oaHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ou'],
+    // Directory Groups (GH-1879), the ou plugin's replacement. An OU belongs
+    // to the domain it was read from and goes with it.
+    ['child' => 'directoryOUs', 'column' => 'doDomainID', 'parent' => 'directoryDomains', 'pcolumn' => 'ddID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'directorygroups'],
+    ['child' => 'directoryOUAssoc', 'column' => 'doaOUID', 'parent' => 'directoryOUs', 'pcolumn' => 'doID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'directorygroups'],
+    ['child' => 'directoryOUAssoc', 'column' => 'doaHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'directorygroups'],
     ['child' => 'windowsKeysAssoc', 'column' => 'wkaImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'windowskey'],
     ['child' => 'windowsKeysAssoc', 'column' => 'wkaKeyID', 'parent' => 'windowsKeys', 'pcolumn' => 'wkID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'windowskey'],
     ['child' => 'LDAPGroups', 'column' => 'lgServerID', 'parent' => 'LDAPServers', 'pcolumn' => 'lsID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'ldap'],

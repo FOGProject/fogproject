@@ -66,14 +66,62 @@ class DirectoryPlacement extends FOGBase
     const RETRY_AFTER = 3600;
 
     /**
-     * Whether placement is switched on and configured.
+     * Whether placement is switched on.
+     *
+     * The switch alone. Whether a server is configured depends on the host
+     * once a plugin supplies connections per domain, so that half of the
+     * test is in connection(): a host with no server named is left alone.
      *
      * @return bool
      */
     public static function enabled()
     {
-        return (bool)self::getSetting('FOG_DIRECTORY_PLACEMENT_ENABLED')
-            && '' !== trim((string)self::getSetting('FOG_DIRECTORY_LDAP_URI'));
+        return (bool)self::getSetting('FOG_DIRECTORY_PLACEMENT_ENABLED');
+    }
+
+    /**
+     * The directory connection to use for one host.
+     *
+     * The FOG_DIRECTORY_* settings, unless a plugin answers
+     * DIRECTORY_CONNECTION with the connection for the host's domain. That
+     * is how one install places hosts in several domains, each with its own
+     * bind account, while an install without such a plugin keeps the single
+     * connection it always had.
+     *
+     * An empty uri means no server is configured for this host.
+     *
+     * @param Host $Host the host to be placed
+     *
+     * @return array{uri:string,bindDN:string,password:string,caCert:string,baseDN:string}
+     */
+    public static function connection(Host $Host)
+    {
+        $connection = [
+            'uri' => (string)self::getSetting('FOG_DIRECTORY_LDAP_URI'),
+            'bindDN' => (string)self::getSetting('FOG_DIRECTORY_BIND_DN'),
+            'password' => self::_bindPassword(),
+            'caCert' => (string)self::getSetting('FOG_DIRECTORY_CA_CERT'),
+            'baseDN' => (string)self::getSetting('FOG_DIRECTORY_BASE_DN')
+        ];
+        self::$HookManager->processEvent(
+            'DIRECTORY_CONNECTION',
+            [
+                'Host' => $Host,
+                'domain' => trim((string)$Host->get('ADDomain')),
+                'connection' => &$connection
+            ]
+        );
+        // Every key present and a string, whatever the listener did, so the
+        // caller never has to guard against a half-filled answer.
+        $out = [];
+        foreach (['uri', 'bindDN', 'password', 'caCert', 'baseDN'] as $key) {
+            $out[$key] = (string)($connection[$key] ?? '');
+        }
+        // A password is used as typed; only the names are trimmed.
+        foreach (['uri', 'bindDN', 'caCert', 'baseDN'] as $key) {
+            $out[$key] = trim($out[$key]);
+        }
+        return $out;
     }
 
     /**
@@ -131,16 +179,25 @@ class DirectoryPlacement extends FOGBase
             // healthy Windows fleet never dials LDAP at all.
             return;
         }
+        // Resolved only now, past the free checks above, because a plugin
+        // may answer it from its own table and a healthy host should not
+        // cost that query on every poll.
+        $connection = self::connection($Host);
+        if ('' === $connection['uri']) {
+            // No server for this host's domain: not configured, so nothing
+            // is stamped, exactly as when placement is switched off.
+            return;
+        }
         if (self::_cooling($Directory)) {
             return;
         }
 
         $ldap = new FOGLdap();
         $ok = $ldap->connect(
-            (string)self::getSetting('FOG_DIRECTORY_LDAP_URI'),
-            (string)self::getSetting('FOG_DIRECTORY_BIND_DN'),
-            self::_bindPassword(),
-            (string)self::getSetting('FOG_DIRECTORY_CA_CERT')
+            $connection['uri'],
+            $connection['bindDN'],
+            $connection['password'],
+            $connection['caCert']
         );
         if (!$ok) {
             self::_record($Directory, $ldap->error());
@@ -155,7 +212,7 @@ class DirectoryPlacement extends FOGBase
                 // asking the machine -- it is the authority on where its own
                 // objects live, and it can answer for a machine that is off.
                 $dn = $ldap->findComputer(
-                    (string)self::getSetting('FOG_DIRECTORY_BASE_DN'),
+                    $connection['baseDN'],
                     (string)$Directory->get('machineAccount')
                 );
                 if ('' === $dn) {
