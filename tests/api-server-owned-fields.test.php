@@ -92,6 +92,11 @@ class ServerOwnedStubHooks
     public function processEvent($event, $arguments = [])
     {
     }
+
+    public function listenerCount($event)
+    {
+        return 0;
+    }
 }
 
 /** Stands in for a loaded model: _refuseServerOwned only calls get(). */

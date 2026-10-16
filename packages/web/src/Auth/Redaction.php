@@ -162,6 +162,15 @@ class Redaction extends FOGBase
      */
     private static $_exemptMap = null;
     /**
+     * How many API_SENSITIVE_FIELDS listeners $_map was built with.
+     *
+     * A map built before HookManager::load() holds no plugin field, so a
+     * different count means a rebuild. See Route::$_sensitiveMapListeners.
+     *
+     * @var int|null
+     */
+    private static $_mapListeners = null;
+    /**
      * Normalizes a class name to the key Route's registries use.
      *
      * Callers arrive with 'Host', 'FOG\Host' and 'host' depending on whether
@@ -185,9 +194,14 @@ class Redaction extends FOGBase
      */
     private static function _load()
     {
-        if (null !== self::$_map) {
+        $booted = self::$HookManager instanceof HookManager;
+        $listeners = $booted
+            ? self::$HookManager->listenerCount('API_SENSITIVE_FIELDS')
+            : 0;
+        if (null !== self::$_map && $listeners === self::$_mapListeners) {
             return;
         }
+        self::$_mapListeners = $listeners;
         // sensitiveFieldMap() fires API_SENSITIVE_FIELDS, and processEvent()
         // reaches Route::getIds('hookevent') -- so it needs a booted FOG with
         // a database. Outside one (CI, the test harness) read the core lists
@@ -207,7 +221,7 @@ class Redaction extends FOGBase
         //
         // Not a try/catch around a maybe-API: the condition is a fact about
         // whether FOG is booted, tested directly.
-        $map = self::$HookManager instanceof HookManager
+        $map = $booted
             ? Route::sensitiveFieldMap()
             : [
                 'fields' => Route::$sensitiveFields,
