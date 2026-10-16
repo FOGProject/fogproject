@@ -484,6 +484,17 @@ class Route extends FOGBase
      */
     private static $_sensitiveMap = null;
     /**
+     * How many API_SENSITIVE_FIELDS listeners $_sensitiveMap was built with.
+     *
+     * The map is first built at boot, inside getActivePlugins(), before
+     * HookManager::load() registers any plugin hook. Kept forever, that
+     * first map held the core tiers only, and the API emitted every
+     * plugin-declared secret. A different count means a rebuild.
+     *
+     * @var int|null
+     */
+    private static $_sensitiveMapListeners = null;
+    /**
      * Fields the SERVER maintains: class => [friendly keys].
      *
      * edit() and create() copy a JSON body straight into a model's
@@ -612,6 +623,13 @@ class Route extends FOGBase
      * @var array|null
      */
     private static $_serverOwnedMap = null;
+    /**
+     * How many API_SERVER_OWNED_FIELDS listeners $_serverOwnedMap was built
+     * with. See $_sensitiveMapListeners.
+     *
+     * @var int|null
+     */
+    private static $_serverOwnedMapListeners = null;
     /**
      * globalSettings rows whose VALUE is a credential.
      *
@@ -7816,9 +7834,13 @@ class Route extends FOGBase
      */
     public static function sensitiveFieldMap()
     {
-        if (null !== self::$_sensitiveMap) {
+        $listeners = self::$HookManager->listenerCount('API_SENSITIVE_FIELDS');
+        if (null !== self::$_sensitiveMap
+            && $listeners === self::$_sensitiveMapListeners
+        ) {
             return self::$_sensitiveMap;
         }
+        self::$_sensitiveMapListeners = $listeners;
         $fields = self::$sensitiveFields;
         $always = self::$sensitiveAlwaysFields;
         $exempt = Redaction::$patternExempt;
@@ -7871,7 +7893,11 @@ class Route extends FOGBase
      */
     public static function serverOwnedFields($class)
     {
-        if (null === self::$_serverOwnedMap) {
+        $listeners = self::$HookManager->listenerCount('API_SERVER_OWNED_FIELDS');
+        if (null === self::$_serverOwnedMap
+            || $listeners !== self::$_serverOwnedMapListeners
+        ) {
+            self::$_serverOwnedMapListeners = $listeners;
             $fields = self::$serverOwnedFields;
             // Pre-set before the event, then again after -- see the long note
             // in sensitiveFieldMap(). Not currently reachable re-entrantly
