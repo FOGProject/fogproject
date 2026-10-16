@@ -7035,6 +7035,10 @@ class HostManagement extends FOGPage
             if (!$TaskType->isValid()) {
                 continue;
             }
+            // Nor a type the role may not start (GH-1878).
+            if (!Authorization::canTaskType($typeId)) {
+                continue;
+            }
             // get(), not ->prop. These are FOGController instances built
             // by getClass(); the class has no __get, so a property read
             // answers null and the whole span comes out blank -- which is
@@ -7241,6 +7245,7 @@ class HostManagement extends FOGPage
                     )
                 );
             }
+            Authorization::assertTaskType($TaskType->get('id'), 'host');
             $this->assertSelectionTaskable($TaskType, count($hosts));
 
             // Pending hosts cannot be tasked -- the same refusal the single
@@ -7375,7 +7380,8 @@ class HostManagement extends FOGPage
                 ]
             );
         } catch (\Exception $e) {
-            // Always 400, unlike deployPost(). Everything this method can
+            // 400, unlike deployPost(), except a task type the role may not
+            // start, which is 403. Everything else this method can
             // refuse is a property of the REQUEST -- an empty or
             // out-of-scope selection, a task type the selection size cannot
             // support, hosts with no image -- and all of it is checked
@@ -7384,7 +7390,11 @@ class HostManagement extends FOGPage
             // not enabled, not replicated to the group), so there is no arm
             // here that means "the server failed". $serverFault stays in the
             // hook payload because a listener may still set it.
-            $code = HTTPResponseCodes::HTTP_BAD_REQUEST;
+            $code = (
+                HTTPResponseCodes::HTTP_FORBIDDEN === $e->getCode() ?
+                HTTPResponseCodes::HTTP_FORBIDDEN :
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
             $hook = 'HOST_DEPLOY_FAIL';
             $msg = json_encode(
                 [
@@ -7431,6 +7441,11 @@ class HostManagement extends FOGPage
                     )
                 );
             }
+            Authorization::assertTaskType(
+                $TaskType->id,
+                'host',
+                $this->obj->get('id')
+            );
 
             $this->title = $TaskType->name
                 . ' '
@@ -7547,6 +7562,11 @@ class HostManagement extends FOGPage
                     )
                 );
             }
+            Authorization::assertTaskType(
+                $TaskType->id,
+                'host',
+                $this->obj->get('id')
+            );
             // Pending check.
             if ($this->obj->get('pending')) {
                 throw new \Exception(_('Pending hosts cannot be tasked'));
@@ -7690,10 +7710,14 @@ class HostManagement extends FOGPage
                 ]
             );
         } catch (\Exception $e) {
+            // 403 for a task type the role may not start.
             $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
+                HTTPResponseCodes::HTTP_FORBIDDEN === $e->getCode() ?
+                HTTPResponseCodes::HTTP_FORBIDDEN : (
+                    $serverFault ?
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
+                )
             );
             $hook = 'HOST_DEPLOY_FAIL';
             $msg = json_encode(

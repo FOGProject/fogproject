@@ -14,6 +14,7 @@
 namespace FOG\Boot;
 
 use FOG\Audit\Audit;
+use FOG\Auth\Authorization;
 use FOG\Base\FOGBase;
 use FOG\Base\SmbiosIdentity;
 use FOG\Items\Host;
@@ -462,6 +463,20 @@ class Registration extends FOGBase
             throw new \Exception(
                 _('Done, without imaging: Invalid Login.')
             );
+        }
+        // Full registration deploys as the account that signed in, so it
+        // needs the Deploy task type (GH-1878). Quick registration has no
+        // account: the administrator turned it on in settings.
+        if (!$quickReg) {
+            $regUser = (new User())->set('name', $username)->load('name');
+            if (!Authorization::canTaskType(
+                TaskType::DEPLOY,
+                (int)$regUser->get('id')
+            )) {
+                throw new \Exception(
+                    _('Done, without imaging: that account may not deploy.')
+                );
+            }
         }
         if (!self::$Host->get('token')) {
             self::$Host->getManager()->update(

@@ -629,6 +629,10 @@ trait FOGPageRender
             if (!$TaskType->isValid()) {
                 continue;
             }
+            // Nor a type the role may not start (GH-1878).
+            if (!Authorization::canTaskType($typeId)) {
+                continue;
+            }
             $name = (string)$TaskType->get('name');
             // Built here, not in the script. gettext runs server side, so a
             // sentence assembled in JS would never reach the .pot -- the
@@ -1110,6 +1114,10 @@ trait FOGPageRender
             $data = [];
             foreach ($items as $TaskType) {
                 if ($advanced != $TaskType->isAdvanced) {
+                    continue;
+                }
+                // A type the role may not start is not offered (GH-1878).
+                if (!Authorization::canTaskType($TaskType->id)) {
                     continue;
                 }
                 // Wake-Up belongs with the other two power actions, not in

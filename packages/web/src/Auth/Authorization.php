@@ -491,6 +491,12 @@ class Authorization extends FOGBase
      */
     private static $_registry = null;
     /**
+     * Memoized task types, ttID => ttName, or null before the first read.
+     *
+     * @var array|null
+     */
+    private static $_taskTypes = null;
+    /**
      * Page nodes already reported as unregistered this request, so the
      * diagnostic in resolvePagePermission() is logged once per node rather
      * than once per call. buildMainMenuItems() resolves a permission for
@@ -538,6 +544,13 @@ class Authorization extends FOGBase
             return self::$_registry;
         }
         $registry = self::coreRegistry();
+        // The task type actions are the ttIDs on this server, so they are
+        // read here and not written into coreRegistry()'s literal. See the
+        // 'tasktype' entry there.
+        $registry['tasktype'] = array_map(
+            'strval',
+            array_keys(self::taskTypeNames())
+        );
         // Memoized with the CORE registry BEFORE the event fires, and again
         // with the plugin-augmented one after. can() now consults this on
         // every call, and processEvent() reaches Route::getIds('hookevent'),
@@ -632,6 +645,24 @@ class Authorization extends FOGBase
             // permission the registry cannot name. Declaring them takes
             // nothing away and makes them delegable.
             'task' => ['view', 'create', 'edit', 'delete', 'task'],
+            // Which task types a role may start (GH-1878). host.task,
+            // group.task and image.task say a user may task the object;
+            // this says WHICH task. Without it, a role that may deploy may
+            // also capture and wipe.
+            //
+            // One action per task type, keyed by ttID: 'tasktype.1' is
+            // Deploy. The ID and not the name, because the TaskType plugin
+            // lets an administrator rename a type, and a rename must not
+            // drop every grant of it. Each place that shows a grant to a
+            // person reads the current name from taskTypeNames().
+            //
+            // Empty here and filled by registry(), because the types are
+            // rows: plugins and the TaskType plugin add them. This method
+            // stays DB-free. A type added later is denied to a role that
+            // lists types one by one, and granted to a role that holds
+            // 'tasktype.*'. Schema step 441 gave 'tasktype.*' to every role
+            // that could start a task before this node existed.
+            'tasktype' => [],
             'service' => ['view', 'edit'],
             // Same reason: hookevent, notifyevent, oui and setting all map
             // here and all four take create/join/delete.
@@ -3121,6 +3152,96 @@ class Authorization extends FOGBase
     {
         self::$_permCache = [];
         self::$_registry = null;
+        self::$_taskTypes = null;
+    }
+    /**
+     * The task types on this server, ttID => current ttName.
+     *
+     * Read directly rather than through Route: registry() calls this, and
+     * Route reaches code that asks permission questions. An unreadable
+     * table answers [], which denies every task type to every role,
+     * '*' included -- closed, not open.
+     *
+     * @return array int ttID => string ttName, ordered by ttID
+     */
+    public static function taskTypeNames()
+    {
+        if (null !== self::$_taskTypes) {
+            return self::$_taskTypes;
+        }
+        $names = [];
+        try {
+            $rows = self::$DB
+                ->query(
+                    'SELECT `ttID`, `ttName` FROM `taskTypes` ORDER BY `ttID`'
+                )
+                ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
+                ->get();
+            foreach ((array)$rows as $row) {
+                $names[(int)$row['ttID']] = (string)$row['ttName'];
+            }
+        } catch (\Throwable $e) {
+            $names = [];
+        }
+        return self::$_taskTypes = $names;
+    }
+    /**
+     * May the user start a task of this type?
+     *
+     * Only the type. The caller still needs the object's own task
+     * permission (host.task, group.task, image.task) and its site scope.
+     *
+     * @param int      $typeID the ttID
+     * @param int|null $userID the user id (defaults to current user)
+     *
+     * @return bool
+     */
+    public static function canTaskType($typeID, $userID = null)
+    {
+        return self::can('tasktype.' . (int)$typeID, $userID);
+    }
+    /**
+     * Refuse a task type the user may not start.
+     *
+     * Throws with code 403, which Route::_sendCaught() sends as is and
+     * the page handlers report as the error. The refusal is audited; an
+     * allowed type is not, because the object's own task permission has
+     * already recorded the request.
+     *
+     * @param int      $typeID  the ttID
+     * @param string   $subject the node or class tasked, for the audit row
+     * @param int      $id      the object id, for the audit row
+     * @param int|null $userID  the user id (defaults to current user)
+     *
+     * @throws \Exception when the type is not permitted
+     *
+     * @return void
+     */
+    public static function assertTaskType(
+        $typeID,
+        $subject = '',
+        $id = 0,
+        $userID = null
+    ) {
+        $typeID = (int)$typeID;
+        if (self::canTaskType($typeID, $userID)) {
+            return;
+        }
+        self::_auditGate(
+            'tasktype.' . $typeID,
+            Audit::DENIED,
+            'task',
+            $subject,
+            (int)$id
+        );
+        $names = self::taskTypeNames();
+        throw new \Exception(
+            sprintf(
+                _('You do not have permission to start %s tasks.'),
+                $names[$typeID] ?? sprintf(_('task type %d'), $typeID)
+            ),
+            HTTPResponseCodes::HTTP_FORBIDDEN
+        );
     }
     /**
      * Remove every rolePermissions row belonging to a node namespace.
