@@ -441,6 +441,10 @@ msgstr ""
 msgid "A dmi field must be set!"
 msgstr "Campo chiave deve essere una stringa"
 
+#, fuzzy
+msgid "A domain already exists with this name!"
+msgstr "Esiste già un snapin con questo nome!"
+
 msgid "A file"
 msgstr "Un file"
 
@@ -635,6 +639,9 @@ msgstr ""
 
 msgid "A user already exists with this name"
 msgstr "Esiste già un utente con questo nome!"
+
+msgid "A user can start a task only when one of their roles grants its type here, and the host, group or image Task permission on the Permissions tab."
+msgstr ""
 
 #, fuzzy
 msgid "A user group already exists with this name!"
@@ -884,6 +891,10 @@ msgstr "Aggiunta broadcast non riuscita!"
 msgid "Add capone failed!"
 msgstr "Aggiunta posizione non riuscita!"
 
+#, fuzzy
+msgid "Add domain failed!"
+msgstr "Aggiunta posizione non riuscita!"
+
 msgid "Add failed"
 msgstr "Aggiunta fallita"
 
@@ -936,6 +947,10 @@ msgstr "Aggiunta utente fallita!"
 
 #, fuzzy
 msgid "Add selected"
+msgstr "Aggiungi stampanti selezionate"
+
+#, fuzzy
+msgid "Add selected as groups"
 msgstr "Aggiungi stampanti selezionate"
 
 #, fuzzy
@@ -1164,6 +1179,9 @@ msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 msgid "All rights reserved."
 msgstr ""
 
+msgid "All task types, including types added later"
+msgstr ""
+
 #, fuzzy
 msgid "Allocated"
 msgstr "Host associato"
@@ -1174,6 +1192,10 @@ msgstr "Immagini in un gruppo di archiviazione"
 
 msgid "Allow API"
 msgstr ""
+
+#, fuzzy
+msgid "Allowed"
+msgstr "Host associato"
 
 msgid "Allows editing/creating of Task States fog currently has."
 msgstr "Consente la modifica/creazione di Task States per FOG."
@@ -1512,7 +1534,10 @@ msgstr "Bind DN"
 msgid "Bind Password"
 msgstr "Bind Password"
 
-msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
+msgid "Blank starts at the domain root"
+msgstr ""
+
+msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
 msgstr ""
 
 #, fuzzy
@@ -1578,6 +1603,10 @@ msgstr "Broadcast aggiornato!"
 
 msgid "Browse"
 msgstr "Sfoglia"
+
+#, fuzzy
+msgid "Browse Directory"
+msgstr "elenco"
 
 #, fuzzy
 msgid "Building the blobs failed."
@@ -1742,6 +1771,10 @@ msgstr ""
 #, fuzzy
 msgid "Cannot notify from the hook manager"
 msgstr "Controllare se sono il responsabile del gruppo"
+
+#, fuzzy
+msgid "Cannot read the directory"
+msgstr "Impossibile creare Snapin lavoro"
 
 #, php-format
 msgid "Cannot select %s field(s): %s"
@@ -2069,6 +2102,10 @@ msgstr ""
 msgid "Computer Model"
 msgstr "Modello di computer"
 
+#, fuzzy
+msgid "Computer Search Base"
+msgstr "Cerca Base DN"
+
 msgid "Config File"
 msgstr "File di configurazione"
 
@@ -2141,6 +2178,10 @@ msgstr "Impossibile aggiornare l'host"
 msgid "Could not create the catch-all site"
 msgstr "Impossibile creare Snapin lavoro"
 
+#, fuzzy
+msgid "Could not create the core group for directory group"
+msgstr "Impossibile creare Snapin lavoro"
+
 #, fuzzy, php-format
 msgid "Could not create the group \"%s\""
 msgstr "Impossibile leggere il file tmp."
@@ -2152,6 +2193,10 @@ msgstr "Impossibile creare Snapin lavoro"
 #, fuzzy
 msgid "Could not create tmp file."
 msgstr "Impossibile leggere il file tmp."
+
+#, fuzzy
+msgid "Could not drop directoryOUAssoc"
+msgstr "Impossibile creare Snapin lavoro"
 
 msgid "Could not find a Storage Node in this group"
 msgstr "Impossibile trovare un nodo di archiviazione in questo gruppo"
@@ -2312,6 +2357,10 @@ msgstr "Crea nuovo %s"
 #, fuzzy
 msgid "Create New Capone"
 msgstr "Crea nuovo snapin"
+
+#, fuzzy
+msgid "Create New Domain"
+msgstr "Crea nuova posizione"
 
 msgid "Create New Group"
 msgstr "Crea nuovo Gruppo"
@@ -2774,12 +2823,23 @@ msgid "Directory Already Exists"
 msgstr "Directory esiste già"
 
 #, fuzzy
+msgid "Directory Domains"
+msgstr "Active Directory"
+
+#, fuzzy
 msgid "Directory Group"
 msgstr "elenco"
 
 #, fuzzy
 msgid "Directory Group Name"
 msgstr "elenco"
+
+#, fuzzy
+msgid "Directory Groups"
+msgstr "elenco"
+
+msgid "Directory Groups: group hosts by Active Directory OU, across one or more domains."
+msgstr ""
 
 #, fuzzy
 msgid "Directory Membership"
@@ -2815,6 +2875,9 @@ msgstr "Display"
 msgid "Display timezone"
 msgstr "Attributo nome utente"
 
+msgid "Distinguished Name"
+msgstr ""
+
 msgid "Do not list on menu"
 msgstr "Non elencare nel menu"
 
@@ -2826,8 +2889,20 @@ msgid "Does NOT match this server's current certificate -- this host trusts a su
 msgstr ""
 
 #, fuzzy
+msgid "Domain"
+msgstr "dominio Nome utente"
+
+#, fuzzy
 msgid "Domain Admins"
 msgstr "Nome del dominio"
+
+#, fuzzy
+msgid "Domain Create Fail"
+msgstr "Creazione posizione fallita"
+
+#, fuzzy
+msgid "Domain Create Success"
+msgstr "Modifica posizione riuscita"
 
 #, fuzzy
 msgid "Domain Joining"
@@ -2840,8 +2915,28 @@ msgstr "dominio Nome utente"
 msgid "Domain Password"
 msgstr "password di dominio"
 
+#, fuzzy
+msgid "Domain Update Fail"
+msgstr "Aggiornamento posizione fallita"
+
+#, fuzzy
+msgid "Domain Update Success"
+msgstr "Modifica posizione riuscita"
+
 msgid "Domain Username"
 msgstr "dominio Nome utente"
+
+#, fuzzy
+msgid "Domain added!"
+msgstr "Posizione aggiunta!"
+
+#, fuzzy
+msgid "Domain update failed!"
+msgstr "Aggiornamento posizione non riuscito"
+
+#, fuzzy
+msgid "Domain updated!"
+msgstr "Posizione aggiornata!"
 
 msgid "Donate"
 msgstr ""
@@ -2874,6 +2969,10 @@ msgstr "Fatto, nessuna immagine assegnato!"
 
 #, fuzzy
 msgid "Done, without imaging: Invalid Login."
+msgstr "Fatto, senza imaging!"
+
+#, fuzzy
+msgid "Done, without imaging: that account may not deploy."
 msgstr "Fatto, senza imaging!"
 
 msgid "Dot in Filename not allowed!"
@@ -3202,6 +3301,10 @@ msgstr "Esportazione Completata"
 
 msgid "Export Configuration"
 msgstr "Esporta configurazione"
+
+#, fuzzy
+msgid "Export Domains"
+msgstr "Esporta luoghi"
 
 #, fuzzy
 msgid "Export Failed"
@@ -4371,6 +4474,10 @@ msgstr "immagine host"
 #, fuzzy
 msgid "Hosts assigned"
 msgstr "Host associato"
+
+#, fuzzy
+msgid "Hosts in directory group"
+msgstr "elenco"
 
 #, fuzzy
 msgid "Hosts in tasking"
@@ -6334,6 +6441,10 @@ msgstr "Nessun Host trovato per MAC Address"
 msgid "No Image specified"
 msgstr "Nessuna immagine specificata"
 
+#, fuzzy
+msgid "No OU selected."
+msgstr "Snapin Protetto"
+
 msgid "No Printer Management"
 msgstr "No Printer Management"
 
@@ -6758,6 +6869,10 @@ msgid "OU Association"
 msgstr "Associazione Sito"
 
 #, fuzzy
+msgid "OU Browse Base"
+msgstr "Sfoglia"
+
+#, fuzzy
 msgid "OU Create Fail"
 msgstr "Creazione utente fallita"
 
@@ -6984,6 +7099,10 @@ msgid "Organization (O)"
 msgstr "Unità organizzativa"
 
 msgid "Organizational Unit"
+msgstr "Unità organizzativa"
+
+#, fuzzy
+msgid "Organizational Units"
 msgstr "Unità organizzativa"
 
 #, fuzzy
@@ -7931,6 +8050,10 @@ msgstr ""
 msgid "Removed or cleared %1$d row(s) in the \"%2$s\" group whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %3$s"
 msgstr ""
 
+#, fuzzy
+msgid "Removed task type"
+msgstr "Rimuovi i selezionati"
+
 #, php-format
 msgid "Removed the virus scan task types. %1$d task(s) and %2$d scheduled task(s) were deleted with them; their run history remains in the task log."
 msgstr ""
@@ -8474,6 +8597,10 @@ msgid "Server Information"
 msgstr "Informazione generale"
 
 msgid "Server Shell"
+msgstr "Server Shell"
+
+#, fuzzy
+msgid "Server URI"
 msgstr "Server Shell"
 
 #, fuzzy
@@ -10496,6 +10623,9 @@ msgstr "Questa sezione consente di caricare l'utente"
 msgid "This page documents the FOG REST API, which is currently switched off. Enable it under FOG Configuration > FOG Settings > API System, then return here."
 msgstr ""
 
+msgid "This role has full access, so it can start every task type. Change that on the Permissions tab."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr "Questa sezione ti consente di aggiornare"
 
@@ -11577,11 +11707,19 @@ msgstr ""
 msgid "You do not have permission to revoke API tokens."
 msgstr ""
 
+#, fuzzy, php-format
+msgid "You do not have permission to start %s tasks."
+msgstr "Nessuna connessione al database"
+
 msgid "You do not have permission to view API tokens."
 msgstr ""
 
 msgid "You may not change a filter shared with everyone"
 msgstr ""
+
+#, fuzzy
+msgid "You may not create directory groups."
+msgstr "Impossibile leggere il file tmp."
 
 msgid "You may not impersonate that user."
 msgstr ""
@@ -12467,6 +12605,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "compito trovato"
+
+#, fuzzy, php-format
+msgid "task type %d"
+msgstr "Aggiunta tipo attività non riuscita!"
 
 #, fuzzy
 msgid "task type no longer exists"
