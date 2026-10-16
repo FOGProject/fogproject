@@ -14,6 +14,8 @@
 
 namespace FOG\Client;
 
+use FOG\Agent\DirectoryJoin;
+
 /**
  * Sends the client with the hostname and domain
  * information needed to perform the client actions.
@@ -57,9 +59,18 @@ class HostnameChanger extends FOGClient
         } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
             $productKey = $productKeytest;
         }
-        $username = trim(
-            self::$Host->get('ADUser')
-        );
+        // The account for the host's domain, which a plugin may supply
+        // (GH-1887). Asked only when the host joins at all, so a host with
+        // useAD off never fires the event.
+        $username = (string)self::$Host->get('ADUser');
+        if ((bool)self::$Host->get('useAD')) {
+            list($username, $password) = DirectoryJoin::account(
+                self::$Host,
+                $username,
+                $password
+            );
+        }
+        $username = trim($username);
         if (strpos($username, chr(92))
             || strpos($username, chr(64))
         ) {
