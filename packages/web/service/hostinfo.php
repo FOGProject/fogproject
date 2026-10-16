@@ -11,6 +11,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Agent\DirectoryJoin;
 use FOG\Base\FOGCore;
 use FOG\Items\Image;
 use FOG\Items\MulticastSession;
@@ -191,7 +192,6 @@ try {
     // With useAD off nothing on the client consumes it, so it stays here.
     $adUser = $pass = '';
     if (FOGCore::$Host->get('useAD')) {
-        $adUser = FOGCore::$Host->get('ADUser');
         $pass = FOGCore::$Host->get('ADPass');
         $passtest = FOGCore::aesdecrypt($pass);
         if ($test_base64 = base64_decode($passtest)) {
@@ -201,6 +201,13 @@ try {
         } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
             $pass = $passtest;
         }
+        // The account for the host's domain, which a plugin may supply
+        // (GH-1887): FOS gets the same join account the clients do.
+        list($adUser, $pass) = DirectoryJoin::account(
+            FOGCore::$Host,
+            (string)FOGCore::$Host->get('ADUser'),
+            (string)$pass
+        );
     }
     $productKey = FOGCore::$Host->get('productKey');
     $productKeytest = FOGCore::aesdecrypt($productKey);

@@ -206,8 +206,12 @@ class DirectoryJoin extends FOGBase
             return null;
         }
 
-        $user = self::joinUser($Host, $domain);
-        $pass = self::joinPassword($Host);
+        list($user, $pass) = self::account(
+            $Host,
+            (string)$Host->get('ADUser'),
+            self::joinPassword($Host)
+        );
+        $user = self::qualifyUser($user, $domain);
         if ('' === $user || '' === $pass) {
             // No credential to send. Deliberately still returns a block:
             // the agent reports `refused` with a message naming the missing
@@ -557,7 +561,19 @@ class DirectoryJoin extends FOGBase
      */
     protected static function joinUser(Host $Host, $domain)
     {
-        $user = trim((string)$Host->get('ADUser'));
+        return self::qualifyUser((string)$Host->get('ADUser'), $domain);
+    }
+    /**
+     * A join user, qualified with the domain unless it already is.
+     *
+     * @param string $user   the user as stored or supplied
+     * @param string $domain the domain being joined
+     *
+     * @return string
+     */
+    public static function qualifyUser($user, $domain)
+    {
+        $user = trim((string)$user);
         if ('' === $user) {
             return '';
         }
@@ -568,6 +584,45 @@ class DirectoryJoin extends FOGBase
         return $domain . '\\' . $user;
     }
 
+    /**
+     * The account a host joins its domain with.
+     *
+     * Every path that hands a join account to a client asks here: the
+     * agent's directory block, the legacy client's hostnamechanger answer,
+     * and the FOS boot variables. Each passes the host's own user and
+     * password, decoded its own way, and gets back what to send.
+     *
+     * Fires DIRECTORY_JOIN_ACCOUNT so a plugin can supply the account for
+     * the host's domain. Example: the directorygroups plugin answers with
+     * the join account set on the matching Directory Domain (GH-1887). With
+     * no listener, the host's own account comes back unchanged. A host with
+     * no domain fires nothing.
+     *
+     * @param Host   $Host     the host
+     * @param string $user     the host's own join user, unqualified
+     * @param string $password the host's own join password, decoded
+     *
+     * @return array [user, password]
+     */
+    public static function account(Host $Host, $user, $password)
+    {
+        $user = (string)$user;
+        $password = (string)$password;
+        $domain = trim((string)$Host->get('ADDomain'));
+        if ('' === $domain) {
+            return [$user, $password];
+        }
+        self::$HookManager->processEvent(
+            'DIRECTORY_JOIN_ACCOUNT',
+            [
+                'Host' => $Host,
+                'domain' => $domain,
+                'user' => &$user,
+                'password' => &$password
+            ]
+        );
+        return [(string)$user, (string)$password];
+    }
     /**
      * The joining account's password, as typed.
      *

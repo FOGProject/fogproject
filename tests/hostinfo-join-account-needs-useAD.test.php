@@ -87,6 +87,29 @@ class FOGCore
     }
 }
 
+/**
+ * Stand-in for core's resolver: a plugin that answers for the domain.
+ */
+class DirectoryJoin
+{
+    /**
+     * The domain's account when the host has a domain, else the host's own.
+     *
+     * @param StubHost $Host     the host
+     * @param string   $user     the host's own user
+     * @param string   $password the host's own password
+     *
+     * @return array [user, password]
+     */
+    public static function account($Host, $user, $password)
+    {
+        if ('' === (string)$Host->get('ADDomain')) {
+            return [$user, $password];
+        }
+        return ['domain-user', 'domain-secret'];
+    }
+}
+
 $t = new \FogChecks();
 
 $source = (string)file_get_contents(
@@ -125,9 +148,15 @@ function run($block, array $fields)
 $host = ['ADUser' => 'svc-join', 'ADPass' => 'letmein', 'ADDomain' => 'corp.example.com'];
 
 $t->check(
-    'a host that joins a domain gets its join account',
-    ['svc-join', 'letmein'] === run($block, ['useAD' => '1'] + $host)
+    'a host that joins a domain gets the account its domain answers with',
+    ['domain-user', 'domain-secret'] === run($block, ['useAD' => '1'] + $host)
 );
+$t->check(
+    'a host that joins with no domain account gets its own',
+    ['svc-join', 'letmein'] === run($block, ['useAD' => '1', 'ADDomain' => ''] + $host)
+);
+// The gate covers the domain's account too: a host that does not join
+// gets neither its own account nor its domain's.
 $t->check(
     'a host with useAD off gets no join account',
     ['', ''] === run($block, ['useAD' => '0'] + $host)
