@@ -2229,6 +2229,10 @@ msgstr "无法更新"
 msgid "Could not create the catch-all site"
 msgstr "无法创建管理单元工作"
 
+#, fuzzy
+msgid "Could not create the core group for directory group"
+msgstr "无法创建管理单元工作"
+
 #, fuzzy, php-format
 msgid "Could not create the group \"%s\""
 msgstr "无法读取tmp文件。"
@@ -2240,6 +2244,10 @@ msgstr "无法创建管理单元工作"
 #, fuzzy
 msgid "Could not create tmp file."
 msgstr "无法读取tmp文件。"
+
+#, fuzzy
+msgid "Could not drop directoryOUAssoc"
+msgstr "无法创建管理单元工作"
 
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
@@ -4567,6 +4575,10 @@ msgstr "主机图片"
 #, fuzzy
 msgid "Hosts assigned"
 msgstr "无关联的节点"
+
+#, fuzzy
+msgid "Hosts in directory group"
+msgstr "目录"
 
 #, fuzzy
 msgid "Hosts in tasking"

@@ -2163,6 +2163,10 @@ msgstr "見つかりませんでした"
 msgid "Could not create the catch-all site"
 msgstr "スナップインジョブの作成に失敗しました"
 
+#, fuzzy
+msgid "Could not create the core group for directory group"
+msgstr "スナップインジョブの作成に失敗しました"
+
 #, fuzzy, php-format
 msgid "Could not create the group \"%s\""
 msgstr "一時ファイルを読み取れませんでした。"
@@ -2174,6 +2178,10 @@ msgstr "スナップインジョブの作成に失敗しました"
 #, fuzzy
 msgid "Could not create tmp file."
 msgstr "一時ファイルを読み取れませんでした。"
+
+#, fuzzy
+msgid "Could not drop directoryOUAssoc"
+msgstr "スナップインジョブの作成に失敗しました"
 
 msgid "Could not find a Storage Node in this group"
 msgstr "このグループ内にストレージノードが見つかりません"
@@ -4443,6 +4451,10 @@ msgstr "ホストとユーザー"
 #, fuzzy
 msgid "Hosts assigned"
 msgstr "関連付けられたホスト"
+
+#, fuzzy
+msgid "Hosts in directory group"
+msgstr "ディレクトリ"
 
 #, fuzzy
 msgid "Hosts in tasking"

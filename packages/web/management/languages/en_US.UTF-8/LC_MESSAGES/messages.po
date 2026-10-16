@@ -2228,6 +2228,10 @@ msgstr "Failed to update"
 msgid "Could not create the catch-all site"
 msgstr "Failed to create Snapin Job"
 
+#, fuzzy
+msgid "Could not create the core group for directory group"
+msgstr "Failed to create Snapin Job"
+
 #, fuzzy, php-format
 msgid "Could not create the group \"%s\""
 msgstr "Could not read tmp file."
@@ -2239,6 +2243,10 @@ msgstr "Failed to create Snapin Job"
 #, fuzzy
 msgid "Could not create tmp file."
 msgstr "Could not read tmp file."
+
+#, fuzzy
+msgid "Could not drop directoryOUAssoc"
+msgstr "Failed to create Snapin Job"
 
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
@@ -4567,6 +4575,10 @@ msgstr "Host Image"
 #, fuzzy
 msgid "Hosts assigned"
 msgstr "No node associated"
+
+#, fuzzy
+msgid "Hosts in directory group"
+msgstr "Directory"
 
 #, fuzzy
 msgid "Hosts in tasking"

@@ -2178,6 +2178,10 @@ msgstr "Impossibile aggiornare l'host"
 msgid "Could not create the catch-all site"
 msgstr "Impossibile creare Snapin lavoro"
 
+#, fuzzy
+msgid "Could not create the core group for directory group"
+msgstr "Impossibile creare Snapin lavoro"
+
 #, fuzzy, php-format
 msgid "Could not create the group \"%s\""
 msgstr "Impossibile leggere il file tmp."
@@ -2189,6 +2193,10 @@ msgstr "Impossibile creare Snapin lavoro"
 #, fuzzy
 msgid "Could not create tmp file."
 msgstr "Impossibile leggere il file tmp."
+
+#, fuzzy
+msgid "Could not drop directoryOUAssoc"
+msgstr "Impossibile creare Snapin lavoro"
 
 msgid "Could not find a Storage Node in this group"
 msgstr "Impossibile trovare un nodo di archiviazione in questo gruppo"
@@ -4466,6 +4474,10 @@ msgstr "immagine host"
 #, fuzzy
 msgid "Hosts assigned"
 msgstr "Host associato"
+
+#, fuzzy
+msgid "Hosts in directory group"
+msgstr "elenco"
 
 #, fuzzy
 msgid "Hosts in tasking"

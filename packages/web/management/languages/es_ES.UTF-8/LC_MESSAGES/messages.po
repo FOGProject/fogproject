@@ -2249,6 +2249,10 @@ msgstr "No se ha podido destruir"
 msgid "Could not create the catch-all site"
 msgstr "No se pudo crear Complemento de empleo"
 
+#, fuzzy
+msgid "Could not create the core group for directory group"
+msgstr "No se pudo crear Complemento de empleo"
+
 #, fuzzy, php-format
 msgid "Could not create the group \"%s\""
 msgstr "No se pudo leer el archivo tmp."
@@ -2260,6 +2264,10 @@ msgstr "No se pudo crear Complemento de empleo"
 #, fuzzy
 msgid "Could not create tmp file."
 msgstr "No se pudo leer el archivo tmp."
+
+#, fuzzy
+msgid "Could not drop directoryOUAssoc"
+msgstr "No se pudo crear Complemento de empleo"
 
 msgid "Could not find a Storage Node in this group"
 msgstr ""
@@ -4630,6 +4638,10 @@ msgstr "nombre de host"
 #, fuzzy
 msgid "Hosts assigned"
 msgstr "No nodo asociado"
+
+#, fuzzy
+msgid "Hosts in directory group"
+msgstr "Directorio"
 
 #, fuzzy
 msgid "Hosts in tasking"
