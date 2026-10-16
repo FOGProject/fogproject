@@ -150,9 +150,14 @@ settings([
     'FOG_DIRECTORY_PLACEMENT_ENABLED' => '1',
     'FOG_DIRECTORY_LDAP_URI' => ''
 ]);
+// The server half of "configured" is per host now (a plugin may supply one
+// per domain), so it is tested on a host that would otherwise be consulted:
+// joined, wanting an OU, and with no DN of its own to compare for free.
+$d = row(['joined' => 1, 'machineAccount' => 'WS-014$']);
+\FOG\Agent\DirectoryPlacement::ensure(wanting('OU=Staging,DC=example,DC=com'), $d);
 $t->check(
-    'placement is off with the switch on and no server named',
-    !\FOG\Agent\DirectoryPlacement::enabled()
+    'placement leaves a host alone with the switch on and no server named',
+    !consulted($d)
 );
 
 settings([
@@ -160,7 +165,7 @@ settings([
     'FOG_DIRECTORY_LDAP_URI' => 'ldaps://dc.example.com'
 ]);
 $t->check(
-    'placement is on when both are set',
+    'placement is on when the switch is on',
     \FOG\Agent\DirectoryPlacement::enabled()
 );
 
@@ -337,6 +342,24 @@ $t->check(
     '' === \FOG\Net\FOGLdap::parentDn('CN=WS-014')
 );
 
+// listOUs() sorts root first, so an OU tree can be drawn parent before
+// child. A plain string sort of DNs puts OU=Staging,OU=Sales before
+// OU=Sales, because a DN reads leaf first.
+$rootFirst = new \ReflectionMethod(\FOG\Net\FOGLdap::class, '_rootFirst');
+$rootFirst->setAccessible(true);
+$t->check(
+    'a DN reversed for sorting reads root first, keeping escaped commas',
+    'DC=com,DC=example,OU=Sales,OU=Smith\\, John'
+        === $rootFirst->invoke(null, 'OU=Smith\\, John,OU=Sales,DC=example,DC=com')
+);
+$t->check(
+    'and so a parent OU sorts before its child',
+    strcasecmp(
+        $rootFirst->invoke(null, 'OU=Sales,DC=example,DC=com'),
+        $rootFirst->invoke(null, 'OU=Staging,OU=Sales,DC=example,DC=com')
+    ) < 0
+);
+
 // ------------------------------------------------------------- the lookup
 
 $m = new \ReflectionMethod(\FOG\Agent\DirectoryFacts::class, 'row');
@@ -452,6 +475,79 @@ function codeOf($src)
     }
     return $out;
 }
+
+// --------------------------------------- DIRECTORY_CONNECTION (GH-1879)
+
+/**
+ * Starts a clean hook manager with one listener on DIRECTORY_CONNECTION.
+ *
+ * @param callable $listener fn(array $args): void, by reference
+ *
+ * @return void
+ */
+function answering(callable $listener)
+{
+    $hooks = new \FOG\Base\HookManager();
+    $hooks->register('DIRECTORY_CONNECTION', $listener);
+    FogTestHarness::setStatic('FOGBase', 'HookManager', $hooks);
+}
+
+$seenDomain = null;
+answering(
+    function (&$args) use (&$seenDomain) {
+        $seenDomain = $args['domain'];
+        $args['connection']['uri'] = 'ldaps://dc.lab.example.com';
+        $args['connection']['bindDN'] = '';
+        unset($args['connection']['caCert']);
+    }
+);
+settings([
+    'FOG_DIRECTORY_PLACEMENT_ENABLED' => '1',
+    'FOG_DIRECTORY_LDAP_URI' => ''
+]);
+$h = wanting('OU=Staging,DC=lab,DC=example,DC=com')->set('ADDomain', ' lab.example.com ');
+$c = \FOG\Agent\DirectoryPlacement::connection($h);
+$t->check(
+    'a listener is told the host\'s domain, trimmed',
+    'lab.example.com' === $seenDomain
+);
+$t->check(
+    'a listener\'s server replaces the configured one',
+    'ldaps://dc.lab.example.com' === $c['uri']
+);
+$t->check(
+    'a key a listener removed comes back as an empty string, never missing',
+    '' === $c['caCert']
+);
+$d = row(['joined' => 1, 'machineAccount' => 'WS-014$']);
+\FOG\Agent\DirectoryPlacement::ensure($h, $d);
+$t->check(
+    'a listener-supplied server is dialed with no FOG_DIRECTORY_LDAP_URI set'
+        . ' -- the case of a plugin owning every domain',
+    consulted($d)
+);
+
+answering(
+    function (&$args) {
+        $args['connection']['uri'] = '';
+    }
+);
+placementOnButUnreachable();
+$d = row(['joined' => 1, 'machineAccount' => 'WS-014$']);
+\FOG\Agent\DirectoryPlacement::ensure(wanting('OU=Staging,DC=example,DC=com'), $d);
+$t->check(
+    'a listener answering no server for a domain leaves that host alone,'
+        . ' even with a server configured in the settings',
+    !consulted($d)
+);
+
+FogTestHarness::setStatic('FOGBase', 'HookManager', new \FOG\Base\HookManager());
+placementOnButUnreachable();
+$c = \FOG\Agent\DirectoryPlacement::connection(wanting('OU=X,DC=example,DC=com'));
+$t->check(
+    'with no listener the connection is the settings, as before',
+    'ldaps://dc.example.com' === $c['uri'] && 'DC=example,DC=com' === $c['baseDN']
+);
 
 $t->check(
     'placement runs from the poll, so an admin editing a host OU takes effect'

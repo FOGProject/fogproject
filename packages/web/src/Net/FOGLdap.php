@@ -178,6 +178,116 @@ class FOGLdap
     }
 
     /**
+     * Every organizational unit at or below a base, sorted by DN.
+     *
+     * For an admin choosing where a host belongs (GH-1879), so it reads the
+     * whole subtree, a page at a time: Active Directory returns at most 1000
+     * entries to an unpaged search and reports the rest as a size-limit
+     * error, which would show a large directory as a truncated tree.
+     *
+     * Null on failure, with the reason in error(). An empty list is a valid
+     * answer: a base that holds no OUs.
+     *
+     * @param string $baseDn where to start; the base itself is included
+     *                       when it is an OU
+     *
+     * @return array<int,array{dn:string,name:string}>|null
+     */
+    public function listOUs($baseDn)
+    {
+        if (!$this->_ld || '' === trim((string)$baseDn)) {
+            $this->_error = 'no search base configured';
+            return null;
+        }
+        $ous = [];
+        $cookie = '';
+        do {
+            $controls = [
+                [
+                    'oid' => LDAP_CONTROL_PAGEDRESULTS,
+                    'value' => ['size' => 500, 'cookie' => $cookie]
+                ]
+            ];
+            $res = @ldap_search(
+                $this->_ld,
+                $baseDn,
+                '(objectClass=organizationalUnit)',
+                ['ou'],
+                0,
+                -1,
+                -1,
+                LDAP_DEREF_NEVER,
+                $controls
+            );
+            if (!$res) {
+                $this->_error = 'search failed: ' . ldap_error($this->_ld);
+                return null;
+            }
+            $entries = @ldap_get_entries($this->_ld, $res);
+            $count = (int)($entries['count'] ?? 0);
+            for ($i = 0; $i < $count; $i++) {
+                $dn = (string)($entries[$i]['dn'] ?? '');
+                if ('' === $dn) {
+                    continue;
+                }
+                $ous[] = [
+                    'dn' => $dn,
+                    'name' => (string)($entries[$i]['ou'][0] ?? self::rdn($dn))
+                ];
+            }
+            // The server hands back a cookie while more pages remain and an
+            // empty one on the last page. A server that ignores the control
+            // returns no cookie at all, which ends the loop after one page.
+            $cookie = '';
+            $errcode = $matcheddn = $errmsg = $referrals = null;
+            $resControls = [];
+            if (@ldap_parse_result(
+                $this->_ld,
+                $res,
+                $errcode,
+                $matcheddn,
+                $errmsg,
+                $referrals,
+                $resControls
+            )) {
+                $cookie = (string)(
+                    $resControls[LDAP_CONTROL_PAGEDRESULTS]['value']['cookie'] ?? ''
+                );
+            }
+        } while ('' !== $cookie);
+        // Sorted from the root down, so a parent always precedes its
+        // children. A DN reads leaf first, so it is compared reversed.
+        usort(
+            $ous,
+            function ($a, $b) {
+                return strcasecmp(
+                    self::_rootFirst($a['dn']),
+                    self::_rootFirst($b['dn'])
+                );
+            }
+        );
+        return $ous;
+    }
+
+    /**
+     * A DN with its components reversed, root first, for sorting.
+     *
+     * @param string $dn the distinguished name
+     *
+     * @return string
+     */
+    private static function _rootFirst($dn)
+    {
+        $parts = [];
+        $dn = (string)$dn;
+        while ('' !== $dn) {
+            $parts[] = self::rdn($dn);
+            $dn = self::parentDn($dn);
+        }
+        return implode(',', array_reverse($parts));
+    }
+
+    /**
      * Moves an object into another container, keeping its name.
      *
      * One LDAP Modify DN. The object keeps its SID, its password, its group
