@@ -52,9 +52,9 @@ $db->responder = function ($sql) {
  */
 function rendered()
 {
-    $page = (new ReflectionClass(\FOG\Pages\FOGConfigurationPage::class))
+    $page = (new \ReflectionClass(\FOG\Pages\FOGConfigurationPage::class))
         ->newInstanceWithoutConstructor();
-    $m = new ReflectionMethod($page, '_renderSettings');
+    $m = new \ReflectionMethod($page, '_renderSettings');
     $m->setAccessible(true);
     return (string)$m->invoke($page);
 }
