@@ -613,4 +613,94 @@ $t->check(
         || 1 === preg_match_all("/get\('ADPass'\)/", $src)
 );
 
+// ------------------------------- DIRECTORY_JOIN_ACCOUNT (GH-1887)
+
+/**
+ * Starts a clean hook manager, with an optional DIRECTORY_JOIN_ACCOUNT
+ * listener that answers for one domain.
+ *
+ * @param string|null $domain the domain the listener answers for, or null
+ *                            for no listener
+ * @param array       $seen   every domain the event was fired for
+ *
+ * @return void
+ */
+function djAccountFor($domain, &$seen)
+{
+    $seen = [];
+    $hooks = new \FOG\Base\HookManager();
+    if (null !== $domain) {
+        $hooks->register(
+            'DIRECTORY_JOIN_ACCOUNT',
+            function (&$args) use ($domain, &$seen) {
+                $seen[] = $args['domain'];
+                if ($domain === $args['domain']) {
+                    $args['user'] = 'svc-domainjoin';
+                    $args['password'] = 'domain-secret';
+                }
+            }
+        );
+    }
+    FogTestHarness::setStatic('FOGBase', 'HookManager', $hooks);
+}
+
+/**
+ * The legacy client's hostnamechanger answer for a host.
+ *
+ * @param \FOG\Items\Host $Host the host
+ *
+ * @return array
+ */
+function djLegacy($Host)
+{
+    FogTestHarness::setStatic('FOGBase', 'Host', $Host);
+    $hc = (new \ReflectionClass(\FOG\Client\HostnameChanger::class))
+        ->newInstanceWithoutConstructor();
+
+    return $hc->json();
+}
+
+$fresh = djObserved(['joined' => 0]);
+
+djAccountFor('corp.example.com', $seen);
+$block = djDesired(djHost($joinable), $fresh);
+$t->check(
+    'the agent is sent the account a listener supplies for the domain,'
+        . ' qualified with the domain like the host\'s own',
+    is_array($block)
+        && 'corp.example.com\\svc-domainjoin' === $block['username']
+        && 'domain-secret' === $block['password']
+);
+$t->check('the listener is told the host\'s domain', ['corp.example.com'] === $seen);
+$legacy = djLegacy(djHost($joinable));
+$t->check(
+    'the legacy client is sent the same account, in its own keys',
+    'corp.example.com\\svc-domainjoin' === $legacy['ADUser']
+        && 'domain-secret' === $legacy['ADPass']
+);
+
+djAccountFor('other.example.com', $seen);
+$block = djDesired(djHost($joinable), $fresh);
+$t->check(
+    'a listener with no account for the domain leaves the host\'s own',
+    is_array($block)
+        && 'corp.example.com\\svc-join' === $block['username']
+        && 'letmein' === $block['password']
+);
+
+djAccountFor(null, $seen);
+$legacy = djLegacy(djHost($joinable));
+$t->check(
+    'with no listener, the legacy client is sent the host\'s own account',
+    'corp.example.com\\svc-join' === $legacy['ADUser'] && 'letmein' === $legacy['ADPass']
+);
+
+djAccountFor('corp.example.com', $seen);
+djLegacy(djHost(['useAD' => 0] + $joinable));
+\FOG\Agent\DirectoryJoin::account(djHost(['ADDomain' => ''] + $joinable), 'u', 'p');
+$t->check(
+    'a host that does not join, or has no domain, never asks for an account',
+    [] === $seen
+);
+
 $t->finish();

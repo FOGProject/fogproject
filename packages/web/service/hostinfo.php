@@ -11,6 +11,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Agent\DirectoryJoin;
 use FOG\Base\FOGCore;
 use FOG\Items\Image;
 use FOG\Items\MulticastSession;
@@ -196,6 +197,13 @@ try {
     } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
         $pass = $passtest;
     }
+    // The account for the host's domain, which a plugin may supply
+    // (GH-1887): FOS gets the same join account the clients do.
+    list($adUser, $pass) = DirectoryJoin::account(
+        FOGCore::$Host,
+        (string)FOGCore::$Host->get('ADUser'),
+        (string)$pass
+    );
     $productKey = FOGCore::$Host->get('productKey');
     $productKeytest = FOGCore::aesdecrypt($productKey);
     if ($test_base64 = base64_decode($productKeytest)) {
@@ -238,7 +246,7 @@ try {
         'hostbuilding' => FOGCore::$Host->get('building'),
         'hostusead' => FOGCore::$Host->get('useAD'),
         'hostaddomain' => FOGCore::$Host->get('ADDomain'),
-        'hostaduser' => FOGCore::$Host->get('ADUser'),
+        'hostaduser' => $adUser,
         'hostadou' => str_replace(';', '', FOGCore::$Host->get('ADOU')),
         'hostadpass' => trim($pass),
         'hostproductkey' => trim($productKey),

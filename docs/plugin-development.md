@@ -1094,6 +1094,7 @@ fire for page routes too: `docs/adr/0006-site-object-scope-boundary.md`.
 | `<NODE>_ADD_FIELDS` / `_GENERAL_FIELDS` | let others extend your forms |
 | `<NODE>_ADD_POST` / `_EDIT_POST` / `_ADD_SUCCESS` / `_ADD_FAIL` | extension points around your saves |
 | `HOST_MASSEDIT_FIELDS` / `HOST_MASSEDIT_APPLY` | change one of your own values across a whole host selection — see §9b |
+| `DIRECTORY_JOIN_ACCOUNT` | supply the account a host joins its domain with. Args: `Host`, `domain`, and `user` and `password` by reference (unqualified user, plain password). Fires from `FOG\Agent\DirectoryJoin::account()`, which the agent's directory block, the legacy client's hostnamechanger answer and FOS's `hostinfo.php` all call; a host with no domain fires nothing |
 | `ASSOCIATION_UPDATED` | react after a save links or unlinks two objects, e.g. a host joins a group. Args: `association` (class, e.g. `GroupAssociation`), `owner` (the saved object), `item` (the other end, e.g. `host`), `added` and `removed` (its ids). Fires from `FOGController::assocSetter()`, so every `Host::save()` and `Group::save()` path; a REST create or edit of one association row does not fire it |
 
 Fire your own events with `&`‑by‑reference args so listeners can mutate them
