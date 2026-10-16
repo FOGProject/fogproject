@@ -342,6 +342,24 @@ $t->check(
     '' === \FOG\Net\FOGLdap::parentDn('CN=WS-014')
 );
 
+// listOUs() sorts root first, so an OU tree can be drawn parent before
+// child. A plain string sort of DNs puts OU=Staging,OU=Sales before
+// OU=Sales, because a DN reads leaf first.
+$rootFirst = new \ReflectionMethod(\FOG\Net\FOGLdap::class, '_rootFirst');
+$rootFirst->setAccessible(true);
+$t->check(
+    'a DN reversed for sorting reads root first, keeping escaped commas',
+    'DC=com,DC=example,OU=Sales,OU=Smith\\, John'
+        === $rootFirst->invoke(null, 'OU=Smith\\, John,OU=Sales,DC=example,DC=com')
+);
+$t->check(
+    'and so a parent OU sorts before its child',
+    strcasecmp(
+        $rootFirst->invoke(null, 'OU=Sales,DC=example,DC=com'),
+        $rootFirst->invoke(null, 'OU=Staging,OU=Sales,DC=example,DC=com')
+    ) < 0
+);
+
 // ------------------------------------------------------------- the lookup
 
 $m = new \ReflectionMethod(\FOG\Agent\DirectoryFacts::class, 'row');

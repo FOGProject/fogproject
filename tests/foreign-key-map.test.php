@@ -246,8 +246,8 @@ foreach ($map as $rel) {
  * Group 7 -- user preferences, schema step 392. The only group whose table
  *   was created by the release that constrains it, so the only one with no
  *   orphan sweep before it.
- * Groups 'location', 'ou', 'windowskey', 'ldap', 'oidc', 'capone' and
- *   'subnetgroup' -- the plugin tables, each applied by a step appended to
+ * Groups 'location', 'ou', 'directorygroups', 'windowskey', 'ldap', 'oidc',
+ *   'capone' and 'subnetgroup' -- the plugin tables, each applied by a step appended to
  *   that plugin's own schema() in the fog-plugins repo, not by a core step.
  */
 $expected = [
@@ -385,6 +385,10 @@ $expected = [
     // Group 'ou'
     'ouAssoc.oaOUID',
     'ouAssoc.oaHostID',
+    // Group 'directorygroups' (GH-1879, the ou plugin's replacement)
+    'directoryOUs.doDomainID',
+    'directoryOUAssoc.doaOUID',
+    'directoryOUAssoc.doaHostID',
     // Group 'windowskey'
     'windowsKeysAssoc.wkaImageID',
     'windowsKeysAssoc.wkaKeyID',
@@ -429,6 +433,7 @@ $expected = [
 $corePlugins = [
     'location',
     'ou',
+    'directorygroups',
     'windowskey',
     'ldap',
     'oidc',
