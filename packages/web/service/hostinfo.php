@@ -188,22 +188,27 @@ try {
             true
         )
     );
-    $pass = FOGCore::$Host->get('ADPass');
-    $passtest = FOGCore::aesdecrypt($pass);
-    if ($test_base64 = base64_decode($passtest)) {
-        if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-            $pass = $test_base64;
+    // The join account goes to FOS only for a host that joins a domain.
+    // With useAD off nothing on the client consumes it, so it stays here.
+    $adUser = $pass = '';
+    if (FOGCore::$Host->get('useAD')) {
+        $pass = FOGCore::$Host->get('ADPass');
+        $passtest = FOGCore::aesdecrypt($pass);
+        if ($test_base64 = base64_decode($passtest)) {
+            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                $pass = $test_base64;
+            }
+        } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
+            $pass = $passtest;
         }
-    } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
-        $pass = $passtest;
+        // The account for the host's domain, which a plugin may supply
+        // (GH-1887): FOS gets the same join account the clients do.
+        list($adUser, $pass) = DirectoryJoin::account(
+            FOGCore::$Host,
+            (string)FOGCore::$Host->get('ADUser'),
+            (string)$pass
+        );
     }
-    // The account for the host's domain, which a plugin may supply
-    // (GH-1887): FOS gets the same join account the clients do.
-    list($adUser, $pass) = DirectoryJoin::account(
-        FOGCore::$Host,
-        (string)FOGCore::$Host->get('ADUser'),
-        (string)$pass
-    );
     $productKey = FOGCore::$Host->get('productKey');
     $productKeytest = FOGCore::aesdecrypt($productKey);
     if ($test_base64 = base64_decode($productKeytest)) {
