@@ -318,6 +318,8 @@ class RoleManagement extends FOGPage
     public function rolePermission()
     {
         $registry = Authorization::registry();
+        // Task types have their own tab. One column per ttID would not fit.
+        unset($registry['tasktype']);
         $perms = (array)$this->obj->get('permissions');
         $hasStar = in_array('*', $perms, true);
 
@@ -431,6 +433,9 @@ class RoleManagement extends FOGPage
     {
         self::checkAuthAndCSRF();
         $registry = Authorization::registry();
+        // The Task Types tab owns these grants. This form does not post
+        // them, so rebuilding them here would erase them on every save.
+        unset($registry['tasktype']);
         if (isset($_POST['allperm'])) {
             $perms = ['*'];
         } else {
@@ -470,6 +475,7 @@ class RoleManagement extends FOGPage
                     $perms = array_merge($perms, $granted);
                 }
             }
+            $perms = array_merge($perms, $this->_taskTypeGrants());
         }
         $adminRemains = Authorization::adminExistsGiven(
             [
@@ -484,6 +490,179 @@ class RoleManagement extends FOGPage
             );
         }
         $this->obj->set('permissions', $perms);
+    }
+    /**
+     * The role's current task type grants: 'tasktype.*' and 'tasktype.<id>'.
+     *
+     * @return array
+     */
+    private function _taskTypeGrants()
+    {
+        return array_values(
+            array_filter(
+                (array)$this->obj->get('permissions'),
+                function ($perm) {
+                    return 0 === strpos((string)$perm, 'tasktype.');
+                }
+            )
+        );
+    }
+    /**
+     * Present the task types tab: which task types this role may start.
+     *
+     * Grants are stored by ttID. The names come from taskTypes at render,
+     * so a type renamed with the TaskType plugin shows its new name and
+     * keeps its grants. A grant for a type no longer on this server is
+     * listed, so an administrator can see it and clear it.
+     *
+     * @return void
+     */
+    public function roleTaskType()
+    {
+        $perms = (array)$this->obj->get('permissions');
+        $hasStar = in_array('*', $perms, true);
+        $hasAll = $hasStar || in_array('tasktype.*', $perms, true);
+        $names = Authorization::taskTypeNames();
+        foreach ($this->_taskTypeGrants() as $perm) {
+            $typeID = (int)substr($perm, strlen('tasktype.'));
+            if ($typeID > 0 && !isset($names[$typeID])) {
+                $names[$typeID] = null;
+            }
+        }
+        ksort($names);
+
+        echo self::makeFormTag(
+            '',
+            'role-tasktype-form',
+            self::makeTabUpdateURL(
+                'role-tasktype',
+                $this->obj->get('id')
+            ),
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div class="card">';
+        echo '<div class="card-body">';
+        echo '<p class="text-muted">'
+            . _('A user can start a task only when one of their roles grants '
+                . 'its type here, and the host, group or image Task '
+                . 'permission on the Permissions tab.')
+            . '</p>';
+        if ($hasStar) {
+            echo '<p class="text-muted">'
+                . _('This role has full access, so it can start every task '
+                    . 'type. Change that on the Permissions tab.')
+                . '</p>';
+        }
+        echo '<div class="form-check mb-3">';
+        echo self::makeInput(
+            'form-check-input',
+            'tasktypeall',
+            '',
+            'checkbox',
+            'role-tasktype-all',
+            '1',
+            false,
+            false,
+            -1,
+            -1,
+            ($hasAll ? 'checked' : '') . ($hasStar ? ' disabled' : '')
+        );
+        echo self::makeLabel(
+            'form-check-label',
+            'role-tasktype-all',
+            _('All task types, including types added later')
+        );
+        echo '</div>';
+        echo '<div class="table-responsive">';
+        echo '<table class="table table-sm table-striped align-middle" '
+            . 'id="role-tasktype-table">';
+        echo '<thead><tr>';
+        echo '<th class="text-center">' . _('Allowed') . '</th>';
+        echo '<th>' . _('Task Type') . '</th>';
+        echo '<th>' . _('ID') . '</th>';
+        echo '</tr></thead>';
+        echo '<tbody>';
+        foreach ($names as $typeID => $name) {
+            $perm = 'tasktype.' . $typeID;
+            $checked = $hasAll || in_array($perm, $perms, true);
+            echo '<tr>';
+            echo '<td class="text-center">';
+            echo self::makeInput(
+                'form-check-input role-tasktype-box',
+                'tasktype[]',
+                '',
+                'checkbox',
+                'tasktype-' . $typeID,
+                $perm,
+                false,
+                false,
+                -1,
+                -1,
+                ($checked ? 'checked' : '') . ($hasStar ? ' disabled' : '')
+            );
+            echo '</td>';
+            echo '<td>'
+                . (
+                    null === $name
+                    ? '<em>' . _('Removed task type') . '</em>'
+                    : \Initiator::e($name)
+                )
+                . '</td>';
+            echo '<td>' . (int)$typeID . '</td>';
+            echo '</tr>';
+        }
+        echo '</tbody>';
+        echo '</table>';
+        echo '</div>';
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo self::makeButton(
+            'tasktype-send',
+            _('Update'),
+            'btn btn-primary float-end'
+        );
+        echo '</div>';
+        echo '</div>';
+        echo '</form>';
+    }
+    /**
+     * Updates the task types this role may start.
+     *
+     * Replaces the role's tasktype grants and nothing else. A full access
+     * role is left alone: '*' already grants every type.
+     *
+     * @return void
+     */
+    public function roleTaskTypePost()
+    {
+        self::checkAuthAndCSRF();
+        $perms = (array)$this->obj->get('permissions');
+        if (in_array('*', $perms, true)) {
+            return;
+        }
+        $perms = array_values(
+            array_diff($perms, $this->_taskTypeGrants())
+        );
+        if (isset($_POST['tasktypeall'])) {
+            $perms[] = 'tasktype.*';
+        } else {
+            $posted = filter_input_array(
+                INPUT_POST,
+                ['tasktype' => ['flags' => FILTER_REQUIRE_ARRAY]]
+            );
+            $valid = Authorization::taskTypeNames();
+            foreach ((array)($posted['tasktype'] ?? []) as $perm) {
+                $typeID = (int)substr((string)$perm, strlen('tasktype.'));
+                // Only a type on this server. A box for a removed type
+                // that is left ticked is dropped, which clears the grant.
+                if (isset($valid[$typeID])) {
+                    $perms[] = 'tasktype.' . $typeID;
+                }
+            }
+        }
+        $this->obj->set('permissions', array_values(array_unique($perms)));
     }
     /**
      * Present the users tab.
@@ -643,6 +822,15 @@ class RoleManagement extends FOGPage
             }
         ];
 
+        // Task Types
+        $tabData[] = [
+            'name' => _('Task Types'),
+            'id' => 'role-tasktype',
+            'generator' => function () {
+                $this->roleTaskType();
+            }
+        ];
+
         // User Association
         $tabData[] = [
             'name' => _('User Association'),
@@ -769,6 +957,9 @@ class RoleManagement extends FOGPage
                         break;
                     case 'role-permission':
                         $this->rolePermissionPost();
+                        break;
+                    case 'role-tasktype':
+                        $this->roleTaskTypePost();
                         break;
                     case 'role-user':
                         $this->roleUserPost();

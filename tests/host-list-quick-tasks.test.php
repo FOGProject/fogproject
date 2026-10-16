@@ -143,6 +143,18 @@ $emit = static function (array $perms) use ($page, $items) {
         FogTestHarness::setStatic($cls, 'FOGUser', $user);
     }
     FogTestHarness::setStatic('Authorization', '_permCache', [1 => $perms]);
+    // The task types the registry declares (GH-1878). The stub DB does
+    // not answer the registry's unparameterized read.
+    FogTestHarness::setStatic(
+        'Authorization',
+        '_taskTypes',
+        [
+            TaskType::DEPLOY => 'Deploy',
+            TaskType::CAPTURE => 'Capture',
+            TaskType::MULTICAST => 'Multi-Cast'
+        ]
+    );
+    FogTestHarness::setStatic('Authorization', '_registry', null);
 
     return (string)$items->invoke($page);
 };
@@ -155,8 +167,19 @@ $t->check(
     '' === $emit(['host.view', 'host.edit'])
 );
 $t->check(
-    'host.task alone is enough',
-    false !== strpos($emit(['host.task']), 'quicktaskitem')
+    'host.task alone offers nothing: each type needs its tasktype grant',
+    '' === $emit(['host.task'])
+);
+$t->check(
+    'host.task with tasktype.* is enough',
+    false !== strpos($emit(['host.task', 'tasktype.*']), 'quicktaskitem')
+);
+$t->check(
+    'a role granted only Deploy is offered only Deploy',
+    1 === substr_count(
+        $emit(['host.task', 'tasktype.' . TaskType::DEPLOY]),
+        'quicktaskitem'
+    )
 );
 $t->check(
     'and so is a wildcard',
