@@ -2230,6 +2230,10 @@ msgstr "Impossible de mettre à jour"
 msgid "Could not create the catch-all site"
 msgstr "Échec de la création d'emploi Snapin"
 
+#, fuzzy
+msgid "Could not create the core group for directory group"
+msgstr "Échec de la création d'emploi Snapin"
+
 #, fuzzy, php-format
 msgid "Could not create the group \"%s\""
 msgstr "Impossible de lire le fichier tmp."
@@ -2241,6 +2245,10 @@ msgstr "Échec de la création d'emploi Snapin"
 #, fuzzy
 msgid "Could not create tmp file."
 msgstr "Impossible de lire le fichier tmp."
+
+#, fuzzy
+msgid "Could not drop directoryOUAssoc"
+msgstr "Échec de la création d'emploi Snapin"
 
 #, fuzzy
 msgid "Could not find a Storage Node in this group"
@@ -4567,6 +4575,10 @@ msgstr "image hôte"
 #, fuzzy
 msgid "Hosts assigned"
 msgstr "Aucun noeud associé"
+
+#, fuzzy
+msgid "Hosts in directory group"
+msgstr "Annuaire"
 
 #, fuzzy
 msgid "Hosts in tasking"
