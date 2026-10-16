@@ -1907,7 +1907,7 @@ abstract class FOGController extends FOGBase
         // Determine items to add (in $items but not in $cur).
         $diff = array_diff((array)$items, (array)$cur);
         if (!count($diff ?: [])) {
-            return $this;
+            return $this->_associationUpdated($classCall, $alterItem, [], $rem);
         }
 
         // Prepare for insertion.
@@ -1945,6 +1945,42 @@ abstract class FOGController extends FOGBase
             );
         }
 
+        return $this->_associationUpdated($classCall, $alterItem, $diff, $rem);
+    }
+    /**
+     * Tells listeners which links assocSetter() just added and removed.
+     *
+     * Fires ASSOCIATION_UPDATED once per changed association, after the rows
+     * are written. A plugin can then keep its own rule about a membership,
+     * whichever page or route saved it. Example: the directorygroups plugin
+     * lets a host sit in one OU group only, and writes that OU onto the host.
+     *
+     * This is the one place every Host::save() and Group::save() membership
+     * change passes through. A REST create or edit of one association row
+     * does not pass through it.
+     *
+     * @param string $classCall the association class, e.g. GroupAssociation
+     * @param string $alterItem the other end, lower case, e.g. host
+     * @param array  $added     the other end's ids now linked
+     * @param array  $removed   the other end's ids now unlinked
+     *
+     * @return object
+     */
+    private function _associationUpdated($classCall, $alterItem, $added, $removed)
+    {
+        if (!count($added ?: []) && !count($removed ?: [])) {
+            return $this;
+        }
+        self::$HookManager->processEvent(
+            'ASSOCIATION_UPDATED',
+            [
+                'association' => $classCall,
+                'owner' => $this,
+                'item' => $alterItem,
+                'added' => array_values(array_map('intval', (array)$added)),
+                'removed' => array_values(array_map('intval', (array)$removed))
+            ]
+        );
         return $this;
     }
     /**
