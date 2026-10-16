@@ -11,6 +11,9 @@
  * the API emitted every plugin-declared secret: the ldap and oidc plugins'
  * own, and Directory Groups' bind and join passwords.
  *
+ * Redaction keeps its own copy of the secret map for the audit log, built
+ * the same way, so it is pinned here too.
+ *
  * This test builds each map with no listener, registers one, and asks again
  * WITHOUT resetting the memo -- the step production never takes.
  *
@@ -30,6 +33,7 @@ require __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('sensitive-map-sees-late-listeners');
 FogTestHarness::fakeDb();
 
+use FOG\Auth\Redaction;
 use FOG\Base\Hook;
 use FOG\Base\HookManager;
 use FOG\Router\Route;
@@ -73,12 +77,17 @@ $hooks = new HookManager();
 FogTestHarness::setStatic('FOGBase', 'HookManager', $hooks);
 FogTestHarness::setStatic('Route', '_sensitiveMap', null);
 FogTestHarness::setStatic('Route', '_serverOwnedMap', null);
+Redaction::resetCache();
 
 // Boot: the maps are built while no plugin hook is registered yet.
 $early = Route::sensitiveFieldMap();
 $t->check(
     'the map built at boot holds no plugin class',
     !isset($early['always']['widget'])
+);
+$t->check(
+    'the audit redaction built at boot holds no plugin field',
+    !in_array('secret', Redaction::declaredFor('widget'), true)
 );
 $t->check(
     'the server-owned map built at boot holds no plugin class',
@@ -106,6 +115,10 @@ $t->check(
 $t->check(
     'the server-owned map sees the plugin\'s field once its hook registers',
     ['ownerID'] === Route::serverOwnedFields('widget')
+);
+$t->check(
+    'the audit redaction sees the plugin\'s secret too',
+    in_array('secret', Redaction::declaredFor('widget'), true)
 );
 $t->check(
     'core tiers survive the rebuild',
