@@ -244,6 +244,9 @@ return [
     // Directory Groups (GH-1879), the ou plugin's replacement. An OU belongs
     // to the domain it was read from and goes with it.
     ['child' => 'directoryOUs', 'column' => 'doDomainID', 'parent' => 'directoryDomains', 'pcolumn' => 'ddID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'directorygroups'],
+    // Each directory group is backed by a core group, which holds its hosts
+    // and its grants. The directory group goes with that core group.
+    ['child' => 'directoryOUs', 'column' => 'doGroupID', 'parent' => 'groups', 'pcolumn' => 'groupID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'directorygroups'],
     ['child' => 'directoryOUAssoc', 'column' => 'doaOUID', 'parent' => 'directoryOUs', 'pcolumn' => 'doID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'directorygroups'],
     ['child' => 'directoryOUAssoc', 'column' => 'doaHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'directorygroups'],
     ['child' => 'windowsKeysAssoc', 'column' => 'wkaImageID', 'parent' => 'images', 'pcolumn' => 'imageID', 'class' => 'junction', 'action' => 'CASCADE', 'enabled' => true, 'group' => 'windowskey'],
