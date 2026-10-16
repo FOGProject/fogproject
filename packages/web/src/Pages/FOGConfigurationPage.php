@@ -4442,7 +4442,7 @@ class FOGConfigurationPage extends FOGPage
      * range(1, 65535) membership arrays) avoids allocating hundreds of
      * thousands of array elements on every settings load/save.
      *
-     * @return array{checkbox:array,numeric:array,ip:array}
+     * @return array{checkbox:array,numeric:array,ip:array,refresh:array,hidden:array}
      */
     private function _settingsMeta()
     {
@@ -4608,11 +4608,23 @@ class FOGConfigurationPage extends FOGPage
             ['needspagerefresh' => &$refresh]
         );
 
+        // Settings a plugin has taken over and edits on its own page. They
+        // are neither rendered nor saved from here while the plugin is
+        // installed, and come back when it is removed, because nothing
+        // registers the hook then. Keyed like the maps above:
+        // ['FOG_DIRECTORY_LDAP_URI' => true].
+        $hidden = [];
+        self::$HookManager->processEvent(
+            'SETTINGS_HIDDEN',
+            ['hidden' => &$hidden]
+        );
+
         return [
             'checkbox' => $checkbox,
             'numeric' => $numeric,
             'ip' => $ip,
             'refresh' => $refresh,
+            'hidden' => (array)$hidden,
         ];
     }
     /**
@@ -5241,6 +5253,11 @@ class FOGConfigurationPage extends FOGPage
                     continue;
                 }
                 $name = trim($Setting->name);
+                // A plugin owns this setting while it is installed, so a
+                // stale form field must not overwrite it from here.
+                if (isset($meta['hidden'][$name])) {
+                    continue;
+                }
                 $val = trim($Setting->value);
                 if ($val && $val == ($set ?? '')) {
                     continue;
@@ -5746,6 +5763,10 @@ class FOGConfigurationPage extends FOGPage
             // secret into a form field is a leak with no upside. Rotation
             // is deleting the row -- the next request regenerates one.
             if ($row['settingKey'] === self::NODE_API_KEY_SETTING) {
+                continue;
+            }
+            // Taken over by a plugin (SETTINGS_HIDDEN in _settingsMeta()).
+            if (isset($meta['hidden'][$row['settingKey']])) {
                 continue;
             }
             $cat = trim((string) $row['settingCategory']);
