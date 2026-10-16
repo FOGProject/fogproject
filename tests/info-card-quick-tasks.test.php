@@ -136,6 +136,18 @@ $emit = static function (
         FogTestHarness::setStatic($cls, 'FOGUser', $user);
     }
     FogTestHarness::setStatic('Authorization', '_permCache', [1 => $perms]);
+    // The task types the registry declares (GH-1878). The stub DB does
+    // not answer the registry's unparameterized read.
+    FogTestHarness::setStatic(
+        'Authorization',
+        '_taskTypes',
+        [
+            TaskType::DEPLOY => 'Deploy',
+            TaskType::CAPTURE => 'Capture',
+            TaskType::MULTICAST => 'Multi-Cast'
+        ]
+    );
+    FogTestHarness::setStatic('Authorization', '_registry', null);
     // The builder APPENDS its modal to a static the card drains later, so
     // without this every emit in this file would stack onto the last one's
     // leftovers and the "no buttons means no modal" checks would read a
@@ -173,8 +185,22 @@ $t->check(
     '' === $emit(['host.view', 'host.edit'], 'host', $hostTypes)
 );
 $t->check(
-    'host.task alone is enough',
-    false !== strpos($emit(['host.task'], 'host', $hostTypes), 'fog-quicktask')
+    'host.task alone offers nothing: each type needs its tasktype grant',
+    '' === $emit(['host.task'], 'host', $hostTypes)
+);
+$t->check(
+    'host.task with tasktype.* is enough',
+    false !== strpos(
+        $emit(['host.task', 'tasktype.*'], 'host', $hostTypes),
+        'fog-quicktask'
+    )
+);
+$t->check(
+    'a role granted only Deploy gets only the Deploy button',
+    1 === substr_count(
+        $emit(['host.task', 'tasktype.' . TaskType::DEPLOY], 'host', $hostTypes),
+        'data-type='
+    )
 );
 $t->check(
     'a reader without group.task is offered no quick tasks on a group',
@@ -185,9 +211,9 @@ $t->check(
     '' === $emit(['host.task'], 'group', $groupTypes)
 );
 $t->check(
-    'group.task alone is enough',
+    'group.task with tasktype.* is enough',
     false !== strpos(
-        $emit(['group.task'], 'group', $groupTypes),
+        $emit(['group.task', 'tasktype.*'], 'group', $groupTypes),
         'fog-quicktask'
     )
 );

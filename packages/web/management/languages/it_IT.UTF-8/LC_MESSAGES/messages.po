@@ -636,6 +636,9 @@ msgstr ""
 msgid "A user already exists with this name"
 msgstr "Esiste già un utente con questo nome!"
 
+msgid "A user can start a task only when one of their roles grants its type here, and the host, group or image Task permission on the Permissions tab."
+msgstr ""
+
 #, fuzzy
 msgid "A user group already exists with this name!"
 msgstr "Esiste già un gruppo con questo nome!"
@@ -1164,6 +1167,9 @@ msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 msgid "All rights reserved."
 msgstr ""
 
+msgid "All task types, including types added later"
+msgstr ""
+
 #, fuzzy
 msgid "Allocated"
 msgstr "Host associato"
@@ -1174,6 +1180,10 @@ msgstr "Immagini in un gruppo di archiviazione"
 
 msgid "Allow API"
 msgstr ""
+
+#, fuzzy
+msgid "Allowed"
+msgstr "Host associato"
 
 msgid "Allows editing/creating of Task States fog currently has."
 msgstr "Consente la modifica/creazione di Task States per FOG."
@@ -1512,7 +1522,7 @@ msgstr "Bind DN"
 msgid "Bind Password"
 msgstr "Bind Password"
 
-msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own."
+msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
 msgstr ""
 
 #, fuzzy
@@ -2874,6 +2884,10 @@ msgstr "Fatto, nessuna immagine assegnato!"
 
 #, fuzzy
 msgid "Done, without imaging: Invalid Login."
+msgstr "Fatto, senza imaging!"
+
+#, fuzzy
+msgid "Done, without imaging: that account may not deploy."
 msgstr "Fatto, senza imaging!"
 
 msgid "Dot in Filename not allowed!"
@@ -7931,6 +7945,10 @@ msgstr ""
 msgid "Removed or cleared %1$d row(s) in the \"%2$s\" group whose parent record no longer existed, so that foreign key constraints could be declared. Per table: %3$s"
 msgstr ""
 
+#, fuzzy
+msgid "Removed task type"
+msgstr "Rimuovi i selezionati"
+
 #, php-format
 msgid "Removed the virus scan task types. %1$d task(s) and %2$d scheduled task(s) were deleted with them; their run history remains in the task log."
 msgstr ""
@@ -10496,6 +10514,9 @@ msgstr "Questa sezione consente di caricare l'utente"
 msgid "This page documents the FOG REST API, which is currently switched off. Enable it under FOG Configuration > FOG Settings > API System, then return here."
 msgstr ""
 
+msgid "This role has full access, so it can start every task type. Change that on the Permissions tab."
+msgstr ""
+
 msgid "This section allows you to update"
 msgstr "Questa sezione ti consente di aggiornare"
 
@@ -11577,6 +11598,10 @@ msgstr ""
 msgid "You do not have permission to revoke API tokens."
 msgstr ""
 
+#, fuzzy, php-format
+msgid "You do not have permission to start %s tasks."
+msgstr "Nessuna connessione al database"
+
 msgid "You do not have permission to view API tokens."
 msgstr ""
 
@@ -12467,6 +12492,10 @@ msgstr ""
 
 msgid "task found"
 msgstr "compito trovato"
+
+#, fuzzy, php-format
+msgid "task type %d"
+msgstr "Aggiunta tipo attività non riuscita!"
 
 #, fuzzy
 msgid "task type no longer exists"

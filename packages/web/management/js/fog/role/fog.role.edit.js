@@ -39,6 +39,39 @@ $(function() {
     });
 
     // ---------------------------------------------------------------
+    // TASK TYPES TAB
+    // "All task types" stores tasktype.*, so while it is on the boxes are
+    // display-only, the same way the administrator toggle works above.
+    // A full access role renders everything disabled server side.
+    var taskTypeForm = $('#role-tasktype-form'),
+        taskTypeFormBtn = $('#tasktype-send'),
+        taskTypeAll = $('#role-tasktype-all'),
+        taskTypeBoxes = $('.role-tasktype-box');
+
+    function applyTaskTypeAll() {
+        if (taskTypeAll.is(':disabled')) {
+            return;
+        }
+        if (taskTypeAll.is(':checked')) {
+            taskTypeBoxes.prop('checked', true).prop('disabled', true);
+        } else {
+            taskTypeBoxes.prop('disabled', false);
+        }
+    }
+
+    taskTypeForm.on('submit', function(e) {
+        e.preventDefault();
+    });
+    taskTypeAll.on('change', applyTaskTypeAll);
+    applyTaskTypeAll();
+    taskTypeFormBtn.on('click', function() {
+        taskTypeFormBtn.prop('disabled', true);
+        taskTypeForm.processForm(function(err) {
+            taskTypeFormBtn.prop('disabled', false);
+        });
+    });
+
+    // ---------------------------------------------------------------
     // USER ASSOCIATION TAB
     var roleUsersTable = $.registerAssociationTab({
         slug: 'role-user',

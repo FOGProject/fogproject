@@ -13,6 +13,7 @@
 
 namespace FOG\Boot;
 
+use FOG\Auth\Authorization;
 use FOG\Base\FOGBase;
 use FOG\Base\SmbiosIdentity;
 use FOG\Items\Architecture;
@@ -2056,6 +2057,34 @@ class IpxeBootMenu extends BootMenuBase
         $this->_parseMe($Send);
     }
     /**
+     * May this account start a task of this type from the menu?
+     *
+     * Says why not on the client screen when it may not.
+     *
+     * @param object $tmpUser the account that signed in at the menu
+     * @param int    $typeID  the ttID
+     *
+     * @return bool
+     */
+    private function _mayStart($tmpUser, $typeID)
+    {
+        if (Authorization::canTaskType($typeID, (int)$tmpUser->get('id'))) {
+            return true;
+        }
+        $names = Authorization::taskTypeNames();
+        // iPXE prints the echo line as is. Keep the name to plain text.
+        $name = preg_replace(
+            '/[^A-Za-z0-9 +\-]/',
+            '',
+            (string)($names[(int)$typeID] ?? $typeID)
+        );
+        $this->_say(
+            'notasktypeperm',
+            ["echo That account may not start {$name} tasks."]
+        );
+        return false;
+    }
+    /**
      * Verifies credentials for us
      *
      * @return void
@@ -2086,6 +2115,11 @@ class IpxeBootMenu extends BootMenuBase
             if (isset($_REQUEST['keyreg']) && $_REQUEST['keyreg']) {
                 $this->keyreg();
             } elseif (isset($_REQUEST['qihost']) && $_REQUEST['qihost']) {
+                // Quick image is a deploy, so the account needs the Deploy
+                // task type (GH-1878). It used to need only a password.
+                if (!$this->_mayStart($tmpUser, TaskType::DEPLOY)) {
+                    return;
+                }
                 $this->setTasking($_REQUEST['imageID'] ?? '');
             } elseif (isset($_REQUEST['sessionJoin']) && $_REQUEST['sessionJoin']) {
                 // Joining or creating a session builds real tasking against
@@ -2097,6 +2131,9 @@ class IpxeBootMenu extends BootMenuBase
                         'nosessperm',
                         ['echo That account may not join multicast sessions.']
                     );
+                    return;
+                }
+                if (!$this->_mayStart($tmpUser, TaskType::MULTICAST)) {
                     return;
                 }
                 // The name can arrive with the credentials, in which case
@@ -2111,6 +2148,11 @@ class IpxeBootMenu extends BootMenuBase
                 $this->_hiddenmenu = false;
                 $this->_chainBoot(true);
             } elseif (isset($_REQUEST['debugAccess']) && $_REQUEST['debugAccess']) {
+                // A FOS debug shell is the Debug task's power without the
+                // task row, so it takes the same task type.
+                if (!$this->_mayStart($tmpUser, TaskType::DEBUG)) {
+                    return;
+                }
                 $this->_debugAccess();
             } else {
                 $this->printDefault();
