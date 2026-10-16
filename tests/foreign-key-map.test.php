@@ -387,6 +387,7 @@ $expected = [
     'ouAssoc.oaHostID',
     // Group 'directorygroups' (GH-1879, the ou plugin's replacement)
     'directoryOUs.doDomainID',
+    'directoryOUs.doGroupID',
     'directoryOUAssoc.doaOUID',
     'directoryOUAssoc.doaHostID',
     // Group 'windowskey'
