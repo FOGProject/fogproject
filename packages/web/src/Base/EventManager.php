@@ -258,8 +258,24 @@ class EventManager extends FOGBase
      */
     public function hasListeners($event)
     {
+        return $this->listenerCount($event) > 0;
+    }
+    /**
+     * How many listeners are registered against an event.
+     *
+     * A cache built from an event's answers keys on this, so it rebuilds
+     * when a listener registers after it was built. Route's secret map is
+     * built at boot, before HookManager::load() registers the plugin hooks.
+     *
+     * @param string $event the event name to count
+     *
+     * @return int
+     */
+    public function listenerCount($event)
+    {
         return isset($this->data[$event])
-            && count((array) $this->data[$event]) > 0;
+            ? count((array) $this->data[$event])
+            : 0;
     }
     /**
      * Notifies the system of events.
