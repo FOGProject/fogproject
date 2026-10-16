@@ -178,13 +178,19 @@ try {
             true
         )
     );
-    $pass = FOGCore::$Host->get('ADPass');
-    $passtest = FOGCore::aesdecrypt($pass);
-    if ($test_base64 = base64_decode($passtest)) {
-        if (mb_detect_encoding($test_base64, 'utf-8', true)) {
-            $pass = $test_base64;
-        } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
-            $pass = $passtest;
+    // The join account goes to FOS only for a host that joins a domain.
+    // With useAD off nothing on the client consumes it, so it stays here.
+    $adUser = $pass = '';
+    if (FOGCore::$Host->get('useAD')) {
+        $adUser = FOGCore::$Host->get('ADUser');
+        $pass = FOGCore::$Host->get('ADPass');
+        $passtest = FOGCore::aesdecrypt($pass);
+        if ($test_base64 = base64_decode($passtest)) {
+            if (mb_detect_encoding($test_base64, 'utf-8', true)) {
+                $pass = $test_base64;
+            } elseif (mb_detect_encoding($passtest, 'utf-8', true)) {
+                $pass = $passtest;
+            }
         }
     }
     $productKey = FOGCore::$Host->get('productKey');
@@ -229,7 +235,7 @@ try {
         'hostbuilding' => FOGCore::$Host->get('building'),
         'hostusead' => FOGCore::$Host->get('useAD'),
         'hostaddomain' => FOGCore::$Host->get('ADDomain'),
-        'hostaduser' => FOGCore::$Host->get('ADUser'),
+        'hostaduser' => $adUser,
         'hostadpass' => trim($pass),
         'hostadou' => str_replace(';', '', FOGCore::$Host->get('ADOU')),
         'hostproductkey' => trim($productKey),
