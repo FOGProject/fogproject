@@ -1471,7 +1471,11 @@ class OpenAPI extends FOGBase
                     _('Body accepts taskTypeID, taskName, shutdown, debug, '
                         . 'deploySnapins, passreset, sessionjoin and wol. '
                         . 'Wake-on-lan is this route with wol set, not a route '
-                        . 'of its own.'),
+                        . 'of its own. The caller also needs '
+                        . 'tasktype.{taskTypeID} (or tasktype.*); without it '
+                        . 'the answer is 403. The generic create and update '
+                        . 'routes for task and scheduledtask check the same '
+                        . 'permission against the row\'s type.'),
                     self::_entityResponse(
                         '#/components/schemas/ListEnvelope',
                         _('The created task.')

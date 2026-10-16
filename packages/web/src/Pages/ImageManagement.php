@@ -13,6 +13,7 @@
 
 namespace FOG\Pages;
 
+use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
 use FOG\Db\DatabaseManager;
 use FOG\Items\Architecture;
@@ -20,6 +21,7 @@ use FOG\Items\Image;
 use FOG\Items\MulticastSession;
 use FOG\Items\StorageGroup;
 use FOG\Items\StorageNode;
+use FOG\Items\TaskType;
 use FOG\Managers\ArchitectureManager;
 use FOG\Managers\ImageAssociationManager;
 use FOG\Managers\ImageManager;
@@ -1929,6 +1931,8 @@ class ImageManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'sessioncount')
         );
         $sessionshutdown = (int)isset($_POST['sessionshutdown']);
+        // A session is a multicast deploy, so it needs that task type.
+        Authorization::assertTaskType(TaskType::MULTICAST, 'image', $image);
         if (!$image) {
             throw new \Exception(_('Please choose an image'));
         }

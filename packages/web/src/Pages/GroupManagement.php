@@ -2427,6 +2427,11 @@ class GroupManagement extends FOGPage
             }
 
             $TaskType = new TaskType($type);
+            Authorization::assertTaskType(
+                $type,
+                'group',
+                $this->obj->get('id')
+            );
 
             $this->title = $TaskType->get('name')
                 . ' '
@@ -2520,6 +2525,11 @@ class GroupManagement extends FOGPage
             if (!is_numeric($type) && $type > 0) {
                 $type = 1;
             }
+            Authorization::assertTaskType(
+                $type,
+                'group',
+                $this->obj->get('id')
+            );
             // Host checks:
             $hosts = $this->obj->get('hosts');
             $find = [
@@ -2702,10 +2712,14 @@ class GroupManagement extends FOGPage
                 ]
             );
         } catch (\Exception $e) {
+            // 403 for a task type the role may not start.
             $code = (
-                $serverFault ?
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
-                HTTPResponseCodes::HTTP_BAD_REQUEST
+                HTTPResponseCodes::HTTP_FORBIDDEN === $e->getCode() ?
+                HTTPResponseCodes::HTTP_FORBIDDEN : (
+                    $serverFault ?
+                    HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR :
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
+                )
             );
             $hook = 'GROUP_DEPLOY_FAIL';
             $msg = json_encode(

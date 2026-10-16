@@ -6045,6 +6045,32 @@ class Route extends FOGBase
         }
     }
     /**
+     * Refuse a task or scheduled task row of a type the user may not start.
+     *
+     * The generic create and update routes write these rows directly, so
+     * without this a role could schedule a Deploy and then edit its type
+     * into a wipe. Other classes pass through.
+     *
+     * @param object $class     the entity being written
+     * @param string $classname the lowercased class name
+     *
+     * @throws \Exception code 403 when the type is not permitted
+     *
+     * @return void
+     */
+    private static function _assertTaskTypeOf($class, $classname)
+    {
+        $fields = ['task' => 'typeID', 'scheduledtask' => 'taskTypeID'];
+        if (!isset($fields[$classname])) {
+            return;
+        }
+        Authorization::assertTaskType(
+            $class->get($fields[$classname]),
+            $classname,
+            (int)$class->get('id')
+        );
+    }
+    /**
      * Enables editing/updating a specified object.
      *
      * @param string $class The class to work with.
@@ -6061,7 +6087,11 @@ class Route extends FOGBase
             self::_requireFound($class);
             $vars = self::_requestBody();
             self::_assertEditName($class, $classname, $vars);
+            // Both ends: editing a task of a type the role may not start
+            // is refused, and so is changing one into such a type.
+            self::_assertTaskTypeOf($class, $classname);
             self::_applyEditFields($class, $classname, $classVars, $vars);
+            self::_assertTaskTypeOf($class, $classname);
             self::_applyEditAssociations($class, $classname, $vars, $id);
             // Store the data and recreate.
             // If failed present so.
@@ -6092,6 +6122,16 @@ class Route extends FOGBase
         self::_requireFound($class);
         $tids = Route::getIds('tasktype', false);
         $task = self::_requestBody();
+        try {
+            Authorization::assertTaskType(
+                $task->taskTypeID ?? 0,
+                $classname,
+                $id
+            );
+        } catch (\Exception $e) {
+            self::_sendCaught($e);
+            return;
+        }
         Route::indiv('tasktype', $task->taskTypeID);
         $TaskType = json_decode(Route::getData());
         try {
@@ -6350,6 +6390,7 @@ class Route extends FOGBase
 
             self::_assertCreateName($classname, $vars);
             self::_applyCreateFields($class, $classname, $classVars, $vars);
+            self::_assertTaskTypeOf($class, $classname);
             self::_applyCreateAssociations($class, $classname, $vars);
             self::_assertCreateRequired($class, $classVars);
             // Store the data and recreate.

@@ -11948,3 +11948,18 @@ $this->schema[] = [
     . "addresses. (Default 4)' "
     . "WHERE `settingKey` = 'FOG_QUICKREG_MAX_PENDING_MACS'",
 ];
+
+// 441
+$this->schema[] = [
+    // Task types became a permission (GH-1878): a task now needs
+    // 'tasktype.<ttID>' as well as host.task, group.task or image.task.
+    // Every role that could start a task before gets 'tasktype.*', so the
+    // upgrade takes nothing away. A role that is narrowed later loses only
+    // what an administrator unticks. '*' needs nothing: it grants every
+    // type already. Runs on a fresh install too, which is how the seeded
+    // Technician role gets it.
+    "INSERT IGNORE INTO `rolePermissions` (`rpRoleID`,`rpName`) "
+    . "SELECT DISTINCT `rpRoleID`, 'tasktype.*' FROM `rolePermissions` "
+    . "WHERE `rpName` IN ('host.task','host.*','group.task','group.*',"
+    . "'image.task','image.*','task.task','task.*')",
+];
