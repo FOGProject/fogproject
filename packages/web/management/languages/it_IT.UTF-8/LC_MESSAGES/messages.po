@@ -1537,6 +1537,9 @@ msgstr "Bind Password"
 msgid "Blank starts at the domain root"
 msgstr ""
 
+msgid "Blank: each host joins with its own account"
+msgstr ""
+
 msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
 msgstr ""
 
@@ -5349,6 +5352,14 @@ msgstr ""
 
 msgid "Join Domain after image task"
 msgstr ""
+
+#, fuzzy
+msgid "Join Password"
+msgstr "password di dominio"
+
+#, fuzzy
+msgid "Join Username"
+msgstr "dominio Nome utente"
 
 msgid "Kbps"
 msgstr ""
