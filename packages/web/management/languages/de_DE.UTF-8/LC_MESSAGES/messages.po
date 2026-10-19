@@ -12256,8 +12256,11 @@ msgstr ""
 msgid "cycles since last line"
 msgstr ""
 
+#, fuzzy
 msgid "day"
-msgstr "Tag"
+msgid_plural "days"
+msgstr[0] "Tag"
+msgstr[1] "Tag"
 
 msgid "days"
 msgstr ""
@@ -12471,7 +12474,9 @@ msgstr "Stunde"
 
 #, fuzzy
 msgid "hr"
-msgstr "Stunde"
+msgid_plural "hrs"
+msgstr[0] "Stunde"
+msgstr[1] "Stunde"
 
 #, fuzzy
 msgid "iPXE Config Update Fail"
@@ -12679,7 +12684,9 @@ msgstr "also einen ohne Images,"
 
 #, fuzzy
 msgid "min"
-msgstr "Minuten"
+msgid_plural "mins"
+msgstr[0] "Minuten"
+msgstr[1] "Minuten"
 
 msgid "minutes"
 msgstr "Minuten"

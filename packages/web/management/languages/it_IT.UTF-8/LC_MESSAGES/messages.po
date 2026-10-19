@@ -11927,8 +11927,11 @@ msgstr ""
 msgid "cycles since last line"
 msgstr ""
 
+#, fuzzy
 msgid "day"
-msgstr "giorno"
+msgid_plural "days"
+msgstr[0] "giorno"
+msgstr[1] "giorno"
 
 msgid "days"
 msgstr ""
@@ -12131,8 +12134,11 @@ msgstr "hosts"
 msgid "hour"
 msgstr "ora"
 
+#, fuzzy
 msgid "hr"
-msgstr "ore"
+msgid_plural "hrs"
+msgstr[0] "ore"
+msgstr[1] "ore"
 
 #, fuzzy
 msgid "iPXE Config Update Fail"
@@ -12328,8 +12334,11 @@ msgstr "disconnettersi"
 msgid "meaning a node that has no images on it"
 msgstr "intendendo un nodo con nessuna immagine in esso"
 
+#, fuzzy
 msgid "min"
-msgstr "minuti"
+msgid_plural "mins"
+msgstr[0] "minuti"
+msgstr[1] "minuti"
 
 msgid "minutes"
 msgstr "minuti"
