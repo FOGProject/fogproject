@@ -479,6 +479,64 @@ $scenarios = [
         'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
         'settings' => ['FOG_WEB_ROOT' => 'fog'],
     ],
+
+    /*
+     * The `sbenroll` request the Enroll Secure Boot Key choice chains back
+     * with (#1869). Each answers with the MokManager script; the
+     * #harness-writes line says whether the host record was written.
+     * The stub MOK.der holds the bytes 'test', so the server fingerprint is
+     * the SHA-256 of 'test'.
+     */
+    'sbenroll-registered-no-record' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'efi', 'sbenroll' => '1'],
+        'host' => ['id' => 1, 'name' => 'testhost'],
+        'mok' => true,
+    ],
+    // A confirmed record of today's certificate: no write.
+    'sbenroll-registered-confirmed-current' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'efi', 'sbenroll' => '1'],
+        'host' => [
+            'id' => 1, 'name' => 'testhost',
+            'sbenrollvia' => 'mok',
+            'sbenrollcert' => '9F:86:D0:81:88:4C:7D:65:9A:2F:EA:A0:C5:5A:D0:15:A3:BF:4F:1B:2B:0B:82:2C:D1:5D:6C:15:B0:F0:0A:08',
+        ],
+        'mok' => true,
+    ],
+    // An earlier unconfirmed attempt: restamped.
+    'sbenroll-registered-pending-current' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'efi', 'sbenroll' => '1'],
+        'host' => [
+            'id' => 1, 'name' => 'testhost',
+            'sbenrollvia' => 'mok-pending',
+            'sbenrollcert' => '9F:86:D0:81:88:4C:7D:65:9A:2F:EA:A0:C5:5A:D0:15:A3:BF:4F:1B:2B:0B:82:2C:D1:5D:6C:15:B0:F0:0A:08',
+        ],
+        'mok' => true,
+    ],
+    // A confirmed record of a superseded certificate: re-enrollment, written.
+    'sbenroll-registered-confirmed-stale' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'efi', 'sbenroll' => '1'],
+        'host' => [
+            'id' => 1, 'name' => 'testhost',
+            'sbenrollvia' => 'db',
+            'sbenrollcert' => 'AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA:AA',
+        ],
+        'mok' => true,
+    ],
+    // No host record to write; the script is the same.
+    'sbenroll-unregistered' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'efi', 'sbenroll' => '1'],
+        'mok' => true,
+    ],
+    // Refused, and nothing written, when there is no key or no shim.
+    'sbenroll-no-mok' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'efi', 'sbenroll' => '1'],
+        'host' => ['id' => 1, 'name' => 'testhost'],
+    ],
+    'sbenroll-efi-i386' => [
+        'request' => ['arch' => 'i386', 'platform' => 'efi', 'sbenroll' => '1'],
+        'host' => ['id' => 1, 'name' => 'testhost'],
+        'mok' => true,
+    ],
 ];
 
 /**

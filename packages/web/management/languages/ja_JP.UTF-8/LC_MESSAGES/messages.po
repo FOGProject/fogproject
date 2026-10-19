@@ -3530,15 +3530,6 @@ msgstr "グループとホストの関連付け"
 msgid "Group Host Inventories"
 msgstr "グループ内ホストのインベントリ"
 
-msgid "Group Init"
-msgstr "グループの Init"
-
-msgid "Group Kernel"
-msgstr "グループカーネル"
-
-msgid "Group Kernel Arguments"
-msgstr "グループカーネル引数"
-
 msgid "Group Login History"
 msgstr "グループのログイン履歴"
 
@@ -3571,9 +3562,6 @@ msgstr "グループの順序"
 
 msgid "Group Power Management Task run time"
 msgstr "グループ電源管理タスクの実行時刻"
-
-msgid "Group Primary Disk"
-msgstr "グループプライマリディスク"
 
 msgid "Group Printer Assignment"
 msgstr "グループへのプリンター割り当て"
@@ -5986,6 +5974,9 @@ msgstr "認識できる形式の SQL ダンプではありません。"
 
 msgid "Not allowed here"
 msgstr "ここでは許可されていません"
+
+msgid "Not confirmed. MokManager was opened for this certificate, and nothing reported the result. Run the Enroll Secure Boot task to verify it, or set Enrolled Via to mok after you confirm it."
+msgstr ""
 
 msgid "Not offered here, on purpose"
 msgstr "意図的にここでは提供していません"
@@ -12109,6 +12100,15 @@ msgstr "{node}"
 #~ msgid "Group Image Association"
 #~ msgstr "グループとイメージの関連付け"
 
+#~ msgid "Group Init"
+#~ msgstr "グループの Init"
+
+#~ msgid "Group Kernel"
+#~ msgstr "グループカーネル"
+
+#~ msgid "Group Kernel Arguments"
+#~ msgstr "グループカーネル引数"
+
 #~ msgid "Group Location"
 #~ msgstr "グループのロケーション"
 
@@ -12132,6 +12132,9 @@ msgstr "{node}"
 
 #~ msgid "Group Power Management Remove"
 #~ msgstr "グループの電源管理設定を削除"
+
+#~ msgid "Group Primary Disk"
+#~ msgstr "グループプライマリディスク"
 
 #~ msgid "Group Printer Configuration"
 #~ msgstr "グループのプリンター設定"

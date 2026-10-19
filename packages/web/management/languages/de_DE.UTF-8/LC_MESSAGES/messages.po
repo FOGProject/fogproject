@@ -4090,16 +4090,6 @@ msgid "Group Host Inventories"
 msgstr "Gruppen"
 
 #, fuzzy
-msgid "Group Init"
-msgstr "Gruppen-Snapins"
-
-msgid "Group Kernel"
-msgstr "Gruppe-Kernel"
-
-msgid "Group Kernel Arguments"
-msgstr "Gruppe-Kernel Argumente"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "Login-Verlauf"
 
@@ -4138,9 +4128,6 @@ msgstr "Gruppe"
 #, fuzzy
 msgid "Group Power Management Task run time"
 msgstr "Power Management"
-
-msgid "Group Primary Disk"
-msgstr "Primäre Festplatte der Gruppe"
 
 #, fuzzy
 msgid "Group Printer Assignment"
@@ -6988,6 +6975,9 @@ msgstr ""
 
 msgid "Not allowed here"
 msgstr "Hier nicht erlaubt"
+
+msgid "Not confirmed. MokManager was opened for this certificate, and nothing reported the result. Run the Enroll Secure Boot task to verify it, or set Enrolled Via to mok after you confirm it."
+msgstr ""
 
 msgid "Not offered here, on purpose"
 msgstr ""
@@ -13547,6 +13537,16 @@ msgstr ""
 #~ msgstr "Imagezuordnung"
 
 #, fuzzy
+#~ msgid "Group Init"
+#~ msgstr "Gruppen-Snapins"
+
+#~ msgid "Group Kernel"
+#~ msgstr "Gruppe-Kernel"
+
+#~ msgid "Group Kernel Arguments"
+#~ msgstr "Gruppe-Kernel Argumente"
+
+#, fuzzy
 #~ msgid "Group Location"
 #~ msgstr "Host Standort"
 
@@ -13573,6 +13573,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group OU Updated!"
 #~ msgstr "Gruppe aktualisiert"
+
+#~ msgid "Group Primary Disk"
+#~ msgstr "Primäre Festplatte der Gruppe"
 
 #, fuzzy
 #~ msgid "Group Printer Configuration"
