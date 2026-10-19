@@ -2346,6 +2346,9 @@ msgstr "Impossible de lire le fichier tmp."
 msgid "Could not send data from file"
 msgstr "Impossible de lire le fichier tmp."
 
+msgid "Could not signal udp-sender for session"
+msgstr ""
+
 #, fuzzy
 msgid "Could not stage the passphrase"
 msgstr "Impossible de lire le fichier tmp."
@@ -10638,6 +10641,7 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
+#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12284,6 +12288,10 @@ msgstr "L'image est protégée et ne peut être supprimé"
 msgid "domain"
 msgstr ""
 
+#, php-format
+msgid "dropped %d canceled host(s), %d remain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -12301,6 +12309,9 @@ msgid "error"
 msgstr "Erreur"
 
 msgid "every column on this table will be treated as untyped"
+msgstr ""
+
+msgid "every remaining host has connected, told udp-sender to start"
 msgstr ""
 
 msgid "exclusive"
