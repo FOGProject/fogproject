@@ -10641,7 +10641,7 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
+#, no-php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -12246,7 +12246,9 @@ msgid "cycles since last line"
 msgstr ""
 
 msgid "day"
-msgstr ""
+msgid_plural "days"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "days"
 msgstr ""
@@ -12460,7 +12462,9 @@ msgstr "1 heure"
 
 #, fuzzy
 msgid "hr"
-msgstr "ici"
+msgid_plural "hrs"
+msgstr[0] "ici"
+msgstr[1] "ici"
 
 #, fuzzy
 msgid "iPXE Config Update Fail"
@@ -12667,7 +12671,9 @@ msgstr ""
 
 #, fuzzy
 msgid "min"
-msgstr "minutes"
+msgid_plural "mins"
+msgstr[0] "minutes"
+msgstr[1] "minutes"
 
 msgid "minutes"
 msgstr "minutes"
