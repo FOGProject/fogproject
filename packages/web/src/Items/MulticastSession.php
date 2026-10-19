@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Managers\MulticastSessionManager;
 use FOG\Managers\TaskManager;
 use FOG\Router\Route;
 
@@ -335,6 +336,57 @@ class MulticastSession extends FOGController
         }
         return self::niceDate()->getTimestamp()
             < (strtotime($start) + (int)$this->get('maxwait'));
+    }
+    /**
+     * The sender's first wait for this session, in whole minutes.
+     *
+     * FOS reads this as mcastMaxWait and derives udp-receiver's
+     * --start-timeout from it, so a host that boots after its sender has
+     * started, or has given up, fails instead of waiting forever. The
+     * kernel argument is in minutes because the 1.5 line already sends
+     * FOG_UDPCAST_MAXWAIT under that name and FOS serves both. maxwait is
+     * stored in seconds; 0 means the session took the global setting.
+     *
+     * @return int
+     */
+    public function maxwaitMinutes()
+    {
+        $seconds = (int)$this->get('maxwait');
+        if ($seconds > 0) {
+            return (int)ceil($seconds / 60);
+        }
+        return max(1, (int)self::getSetting('FOG_UDPCAST_MAXWAIT'));
+    }
+    /**
+     * Lowers the number of hosts this session waits for.
+     *
+     * Called when one host is canceled out of a session that keeps running.
+     * sessclients is the size a session was created for, and
+     * MulticastTask::getAllMulticastTasks() holds udp-sender for
+     * max(associated, sessclients) receivers. Left alone, a session sized for N would still wait for the
+     * host just removed. A session created without a size (sessclients 0)
+     * is sized by its associations, and the caller has already deleted
+     * this host's row, so there is nothing to lower.
+     *
+     * The column is written directly, not through save(): this object may
+     * be stale, and save() writes every field it holds.
+     *
+     * @param int $removed How many hosts left the session.
+     *
+     * @return void
+     */
+    public function removeExpectedClients($removed = 1)
+    {
+        $expected = (int)$this->get('sessclients');
+        $removed = (int)$removed;
+        if ($expected < 1 || $removed < 1) {
+            return;
+        }
+        (new MulticastSessionManager())->update(
+            ['id' => $this->get('id')],
+            '',
+            ['sessclients' => max(0, $expected - $removed)]
+        );
     }
     /**
      * Cancels this particular session.

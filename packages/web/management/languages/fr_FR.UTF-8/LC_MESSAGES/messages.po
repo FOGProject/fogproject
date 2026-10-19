@@ -2346,6 +2346,9 @@ msgstr "Impossible de lire le fichier tmp."
 msgid "Could not send data from file"
 msgstr "Impossible de lire le fichier tmp."
 
+msgid "Could not signal udp-sender for session"
+msgstr ""
+
 #, fuzzy
 msgid "Could not stage the passphrase"
 msgstr "Impossible de lire le fichier tmp."
@@ -12285,6 +12288,10 @@ msgstr "L'image est protégée et ne peut être supprimé"
 msgid "domain"
 msgstr ""
 
+#, php-format
+msgid "dropped %d canceled host(s), %d remain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -12302,6 +12309,9 @@ msgid "error"
 msgstr "Erreur"
 
 msgid "every column on this table will be treated as untyped"
+msgstr ""
+
+msgid "every remaining host has connected, told udp-sender to start"
 msgstr ""
 
 msgid "exclusive"
