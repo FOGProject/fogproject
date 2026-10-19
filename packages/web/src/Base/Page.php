@@ -599,9 +599,11 @@ class Page extends FOGBase
                     case 1:
                         header(
                             'X-FOG-PageTitle: '
-                            . $this->pageTitle
-                            . ' | '
-                            . _('FOG Project')
+                            . rawurlencode(
+                                $this->pageTitle
+                                . ' | '
+                                . _('FOG Project')
+                            )
                         );
                         header(
                             'X-FOG-Memory-Usage: '
