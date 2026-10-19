@@ -51,7 +51,9 @@ use FOG\Router\Route;
  * enrollment task actually in flight. That is true by construction when FOS
  * calls this -- the task is what booted it -- and it means an arbitrary
  * caller who knows a MAC cannot stamp an enrollment onto a host that was never
- * asked to enroll.
+ * asked to enroll. The one write that needs no task is the PXE menu's
+ * `mok-pending`, and it never overwrites a confirmed record -- see
+ * IpxeBootMenu::_recordMokPending().
  *
  * Answers 200 with a plain-text body in every case, including refusal. A
  * non-2xx from a FOS script is invisible to the caller and reads as a

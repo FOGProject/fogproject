@@ -291,7 +291,28 @@ $haltFile = dirname($classFile) . '/UbootRenderHalted.php';
 if (is_file($haltFile)) {
     require_once $haltFile;
 }
+/*
+ * The real Secure Boot vocabulary, not a stub. It is pure, and the enrollment
+ * path compares the fingerprint of the scenario's MOK.der with it.
+ */
+$sbStateFile = dirname($classFile) . '/SecureBootState.php';
+if (is_file($sbStateFile)) {
+    require_once $sbStateFile;
+}
 require_once $classFile;
+
+/*
+ * Print any host write after the script. Only the Secure Boot enrollment
+ * path writes, so no other scenario's bytes change. A shutdown handler,
+ * because several paths end in exit().
+ */
+register_shutdown_function(
+    function () {
+        if (\FOG\HostManager::$updates) {
+            echo '#harness-writes ', json_encode(\FOG\HostManager::$updates), "\n";
+        }
+    }
+);
 
 /*
  * Derived from the filename rather than hardcoded, so the same harness renders
