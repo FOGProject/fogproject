@@ -5885,7 +5885,8 @@ function clearAllIntervals(){
       ajaxPageWrapper.empty().html(data);
 
       // Set new page information
-      document.title = req.getResponseHeader('X-FOG-PageTitle');
+      var pageTitle = req.getResponseHeader('X-FOG-PageTitle');
+      if(pageTitle !== null) document.title = decodeURIComponent(pageTitle);
       if(shouldPushState) history.pushState({ target: targetPage }, document.title, targetPage);
 
       // Reinitialize, render and display the new page.
