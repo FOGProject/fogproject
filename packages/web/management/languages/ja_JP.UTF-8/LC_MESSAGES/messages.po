@@ -2274,6 +2274,9 @@ msgstr "一時ファイルを読み取れませんでした。"
 msgid "Could not send data from file"
 msgstr "一時ファイルを読み取れませんでした。"
 
+msgid "Could not signal udp-sender for session"
+msgstr ""
+
 #, fuzzy
 msgid "Could not stage the passphrase"
 msgstr "一時ファイルを読み取れませんでした。"
@@ -11921,6 +11924,10 @@ msgstr "イメージは保護されているため削除できません"
 msgid "domain"
 msgstr "AD ドメイン"
 
+#, php-format
+msgid "dropped %d canceled host(s), %d remain"
+msgstr ""
+
 msgid "e.g. nightly inventory script"
 msgstr ""
 
@@ -11938,6 +11945,9 @@ msgid "error"
 msgstr "エラー"
 
 msgid "every column on this table will be treated as untyped"
+msgstr ""
+
+msgid "every remaining host has connected, told udp-sender to start"
 msgstr ""
 
 msgid "exclusive"
