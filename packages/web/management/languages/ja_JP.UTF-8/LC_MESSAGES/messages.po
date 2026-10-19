@@ -5976,7 +5976,7 @@ msgid "Not allowed here"
 msgstr "ここでは許可されていません"
 
 msgid "Not confirmed. MokManager was opened for this certificate, and nothing reported the result. Run the Enroll Secure Boot task to verify it, or set Enrolled Via to mok after you confirm it."
-msgstr ""
+msgstr "未確認です。この証明書の登録用に MokManager が開かれましたが、結果は報告されていません。Secure Boot 登録タスクを実行して確認するか、登録済みであることを確認してから「登録方法」を mok に設定してください。"
 
 msgid "Not offered here, on purpose"
 msgstr "意図的にここでは提供していません"
