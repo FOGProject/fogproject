@@ -83,10 +83,6 @@ class GroupManagement extends FOGPage
     {
         $group = filter_input(INPUT_POST, 'group');
         $description = filter_input(INPUT_POST, 'description');
-        $kernel = filter_input(INPUT_POST, 'kernel');
-        $args = filter_input(INPUT_POST, 'args');
-        $init = filter_input(INPUT_POST, 'init');
-        $dev = filter_input(INPUT_POST, 'dev');
         $order = filter_input(INPUT_POST, 'order');
 
         $labelClass = 'col-sm-3 col-form-label';
@@ -142,54 +138,11 @@ class GroupManagement extends FOGPage
                 . 'printers.'
             )
             . '</p>',
-            self::makeLabel(
-                $labelClass,
-                'kernel',
-                _('Group Kernel')
-            ) => self::kernelFileSelect(
-                'kernel',
-                $kernel,
-                'kernel',
-                'form-control groupkernel-input',
-                '',
-                _('Use the default kernel')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'args',
-                _('Group Kernel Arguments')
-            ) => self::makeInput(
-                'form-control groupkernelargs-input',
-                'args',
-                'debug acpi=off',
-                'text',
-                'args',
-                $args
-            ),
-            self::makeLabel(
-                $labelClass,
-                'init',
-                _('Group Init')
-            ) => self::kernelFileSelect(
-                'init',
-                $init,
-                'init',
-                'form-control groupinit-input',
-                '',
-                _('Use the default init')
-            ),
-            self::makeLabel(
-                $labelClass,
-                'dev',
-                _('Group Primary Disk')
-            ) => self::makeInput(
-                'form-control groupdev-input',
-                'dev',
-                '/dev/md0',
-                'text',
-                'dev',
-                $dev
-            )
+            // No kernel, kernel arguments, init or primary disk. Nothing
+            // reads the group's copies at boot, and since ADR 0038 decision
+            // 10 nothing pushes them to the members either. Set them per
+            // host, or on many hosts with Edit selected hosts.
+            // The groups columns and their API fields stay.
         ];
 
         return self::fastmerge($fields, self::siteAddField($labelClass));
@@ -241,18 +194,6 @@ class GroupManagement extends FOGPage
                 $description = trim(
                     (string)filter_input(INPUT_POST, 'description')
                 );
-                $kernel = trim(
-                    (string)filter_input(INPUT_POST, 'kernel')
-                );
-                $args = trim(
-                    (string)filter_input(INPUT_POST, 'args')
-                );
-                $init = trim(
-                    (string)filter_input(INPUT_POST, 'init')
-                );
-                $dev = trim(
-                    (string)filter_input(INPUT_POST, 'dev')
-                );
                 $order = max(
                     0,
                     (int)filter_input(INPUT_POST, 'order')
@@ -267,11 +208,7 @@ class GroupManagement extends FOGPage
                 $Group = (new Group())
                     ->set('name', $group)
                     ->set('description', $description)
-                    ->set('order', $order)
-                    ->set('kernel', $kernel)
-                    ->set('kernelArgs', $args)
-                    ->set('kernelDevice', $dev)
-                    ->set('init', $init);
+                    ->set('order', $order);
                 if (!$Group->save()) {
                     $serverFault = true;
                     throw new \Exception(_('Add group failed!'));
