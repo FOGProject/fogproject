@@ -1369,6 +1369,129 @@ class MulticastTask extends FOGService
         );
     }
     /**
+     * Reads where the current udp-sender is from its log.
+     *
+     * The session's senders run one after another, one per partition
+     * stream, and every one appends to the same log. Each starts by
+     * printing "Udp-sender <version>", so only the text after the last
+     * banner describes the sender running now. The patterns are the
+     * printf formats in udpcast's participants.c and udps-negotiate.c.
+     *
+     * @param string $log The udp-sender log text.
+     *
+     * @return array ['started' => bool, 'connected' => int]
+     */
+    public static function senderLogState($log)
+    {
+        $log = (string)$log;
+        $at = strrpos($log, 'Udp-sender ');
+        if (false === $at) {
+            return ['started' => false, 'connected' => 0];
+        }
+        $current = substr($log, $at);
+        // Distinct addresses: a receiver that retries its connect request
+        // is announced again and is still one host.
+        preg_match_all(
+            '/^New connection from (\S+)/m',
+            $current,
+            $joined
+        );
+        preg_match_all(
+            '/^Disconnecting #\d+ \((\S+)\)/m',
+            $current,
+            $left
+        );
+        $connected = array_diff(
+            array_unique($joined[1]),
+            array_unique($left[1])
+        );
+        return [
+            'started' => false !== strpos($current, 'Starting transfer'),
+            'connected' => count($connected)
+        ];
+    }
+    /**
+     * Tells a waiting udp-sender to start now.
+     *
+     * udp-sender was launched with --min-receivers set to the hosts the
+     * session had then, and that number cannot change while it runs. When
+     * hosts are canceled out of the session, the sender would still wait
+     * the full --max-wait for them, and each later partition stream would
+     * wait for them again. udpcast lets any receiver end the wait with
+     * CMD_GO (udps-negotiate.c), and it accepts the message from any
+     * address whose source port is the session's portbase. So once every
+     * host still in the session has connected, this sends that message.
+     *
+     * It sends only when hosts were removed (fewer expected than the
+     * sender was launched for), every remaining task has checked in, and
+     * the current sender has not started and reports at least that many
+     * connections.
+     *
+     * @param int    $expected Hosts the session still waits for.
+     * @param array  $liveIDs  Task ids still in the session.
+     * @param string $senderIP Address udp-sender listens on.
+     *
+     * @return bool True when the start message was sent.
+     */
+    public function startIfAllConnected($expected, $liveIDs, $senderIP)
+    {
+        $expected = (int)$expected;
+        if ($expected < 1
+            || $expected >= (int)$this->getClientCount()
+            || count($liveIDs) < $expected
+            || !$senderIP
+        ) {
+            return false;
+        }
+        // Multicast tasks stay at checked-in for the whole session, so this
+        // is "every remaining host has arrived".
+        $arrived = Route::getCount(
+            'task',
+            [
+                'id' => $liveIDs,
+                'stateID' => self::getCheckedInState()
+            ]
+        );
+        if ($arrived < count($liveIDs)) {
+            return false;
+        }
+        $logfile = $this->getUDPCastLogFile();
+        if (!is_readable($logfile)) {
+            return false;
+        }
+        $state = self::senderLogState(file_get_contents($logfile));
+        if ($state['started'] || $state['connected'] < $expected) {
+            return false;
+        }
+        $port = (int)$this->getPortBase();
+        $sock = @stream_socket_client(
+            sprintf('udp://%s:%d', $senderIP, $port + 1),
+            $errno,
+            $errstr,
+            1,
+            STREAM_CLIENT_CONNECT,
+            stream_context_create(
+                ['socket' => ['bindto' => sprintf('0.0.0.0:%d', $port)]]
+            )
+        );
+        if (!$sock) {
+            self::outall(
+                sprintf(
+                    ' | %s %s: %s',
+                    _('Could not signal udp-sender for session'),
+                    $this->getName(),
+                    $errstr
+                )
+            );
+            return false;
+        }
+        // struct go in udpc-protoc.h: uint16 opCode, int16 reserved, both
+        // in network order. CMD_GO is 2 in the opCode enum.
+        $sent = fwrite($sock, pack('nn', 2, 0));
+        fclose($sock);
+        return 4 === $sent;
+    }
+    /**
      * Updates task ID list in case of MC session joins via PXE menu
      *
      * @param array $newTaskIDs The array of task ids to set.

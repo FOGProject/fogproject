@@ -386,6 +386,18 @@ abstract class BootMenuBase extends FOGBase
                     'active' => $TaskType->isMulticast(),
                 ],
                 [
+                    // FOS sizes udp-receiver's --start-timeout from this.
+                    'value' => sprintf(
+                        'mcastMaxWait=%d',
+                        (
+                            $TaskType->isMulticast() ?
+                            $MulticastSession->maxwaitMinutes() :
+                            0
+                        )
+                    ),
+                    'active' => $TaskType->isMulticast(),
+                ],
+                [
                     'value' => sprintf(
                         'winuser=%s',
                         $Task->get('passreset')
