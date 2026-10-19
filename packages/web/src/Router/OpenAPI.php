@@ -3455,6 +3455,11 @@ class OpenAPI extends FOGBase
                         'in' => 'path',
                         'required' => true,
                         'schema' => ['type' => 'string'],
+                        // The "% c" in "% cannot" reads to xgettext as a
+                        // printf conversion, so it flagged this php-format
+                        // and msgmerge kept marking a correct translation
+                        // fuzzy. The string never goes through sprintf().
+                        // xgettext:no-php-format
                         'description' => _('The term. Because it is a path '
                             . 'segment, a term containing / ? # or % cannot '
                             . 'travel this way; use /unisearch?q= instead.')
