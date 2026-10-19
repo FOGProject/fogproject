@@ -1747,6 +1747,14 @@ class IpxeBootMenu extends BootMenuBase
                 'active' => $mc,
             ],
             [
+                // FOS sizes udp-receiver's --start-timeout from this.
+                'value' => sprintf(
+                    'mcastMaxWait=%d',
+                    $mc ? $mc->maxwaitMinutes() : 0
+                ),
+                'active' => (bool)$mc,
+            ],
+            [
                 'value' => 'debug',
                 'active' => $kdebug,
             ],

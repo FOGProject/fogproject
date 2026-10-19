@@ -149,10 +149,18 @@ class MulticastManager extends FOGService
     ) {
         foreach ($KnownTasks as $Known) {
             if ($Known->getID() == $curTask->getID()) {
-                // This is very important for MC session joins via PXE menu
-                $curTaskTaskIDs = $curTask->getTaskIDs();
-                if (count($curTaskTaskIDs) > count($Known->getTaskIDs())) {
-                    $Known->setTaskIDs($curTaskTaskIDs);
+                // This is very important for MC session joins via PXE menu.
+                // A union, not a larger-count test: a cancel deletes the
+                // host's association row, so a join and a cancel in the
+                // same tick left the count equal and the join unseen. The
+                // canceled ID stays in the list so the caller can see it
+                // was canceled and drop it. Issue #1903.
+                $knownIDs = $Known->getTaskIDs();
+                $joined = array_diff($curTask->getTaskIDs(), $knownIDs);
+                if (count($joined)) {
+                    $Known->setTaskIDs(
+                        array_values(array_merge($knownIDs, $joined))
+                    );
                 }
                 return $Known;
             }
@@ -623,10 +631,32 @@ class MulticastManager extends FOGService
                             == self::getCancelledState();
                         $SessCompleted = $Session->get('stateID')
                             == self::getCompleteState();
-                        if ($SessCanceled
-                            || count($inTaskCanceledIDs) > 0
-                        ) {
+                        // One canceled host is removed from the session; it
+                        // does not end it. Any canceled member used to kill
+                        // the sender, and the cancel arm below then canceled
+                        // every other host with it (fos#48). The session
+                        // ends when it is canceled itself, or when no host
+                        // is left. Issue #1903.
+                        $liveIDs = array_values(
+                            array_diff($taskIDs, (array)$inTaskCanceledIDs)
+                        );
+                        if ($SessCanceled || count($liveIDs) < 1) {
                             $jobcanceled = true;
+                        } elseif (count($inTaskCanceledIDs) > 0) {
+                            $runningTask->setTaskIDs($liveIDs);
+                            $taskIDs = $liveIDs;
+                            self::outall(
+                                sprintf(
+                                    $startStr,
+                                    $runningTask->getID(),
+                                    $runningTask->getName(),
+                                    sprintf(
+                                        _('dropped %d canceled host(s), %d remain'),
+                                        count($inTaskCanceledIDs),
+                                        count($liveIDs)
+                                    )
+                                )
+                            );
                         }
                         if ($SessCompleted
                             || (count($inTaskCompletedIDs) > 0
@@ -655,6 +685,23 @@ class MulticastManager extends FOGService
                                     )
                                 );
                                 $runningTask->updateStats();
+                                // $curTask was built from this tick's rows,
+                                // so its count is what the session waits
+                                // for now, after any hosts were removed.
+                                if ($runningTask->startIfAllConnected(
+                                    $curTask->getClientCount(),
+                                    $taskIDs,
+                                    self::resolveHostname($StorageNode->ip)
+                                )) {
+                                    self::outall(
+                                        sprintf(
+                                            $startStr,
+                                            $runningTask->getID(),
+                                            $runningTask->getName(),
+                                            _('every remaining host has connected, told udp-sender to start')
+                                        )
+                                    );
+                                }
                             } else {
                                 // -1 == could not be determined (e.g. already
                                 // reaped). Only a DEFINITE positive exit code

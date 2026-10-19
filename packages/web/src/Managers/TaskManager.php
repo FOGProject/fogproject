@@ -15,6 +15,7 @@ namespace FOG\Managers;
 
 use FOG\Base\FOGManagerController;
 use FOG\Boot\UbootTftpSync;
+use FOG\Items\MulticastSession;
 use FOG\Items\TaskLog;
 use FOG\Items\TaskState;
 use FOG\Items\TaskType;
@@ -130,24 +131,47 @@ class TaskManager extends FOGManagerController
             'multicastsession',
             $findNew
         );
+        // How many hosts each session loses, counted before the rows go.
+        $removedFrom = [];
+        foreach ((array)$MulticastSessionIDs as $msID) {
+            $removedFrom[$msID] = count(
+                (array)Route::getIds(
+                    'multicastsessionassociation',
+                    [
+                        'msID' => $msID,
+                        'taskID' => $taskids
+                    ],
+                    'taskID'
+                )
+            );
+        }
         if (count($MulticastSessionAssocIDs ?: [])) {
             Route::deletemass(
                 'multicastsessionassociation',
                 ['id' => $MulticastSessionAssocIDs]
             );
         }
-        $StillLeft = Route::getCount(
-            'multicastsessionassociation',
-            ['msID' => $MulticastSessionIDs]
-        );
         if (count($SnapinTaskIDs ?: [])) {
             (new SnapinTaskManager())->cancel($SnapinTaskIDs);
         }
         if (count($SnapinJobIDs ?: [])) {
             (new SnapinJobManager())->cancel($SnapinJobIDs);
         }
-        if ($StillLeft < 1 && count($MulticastSessionIDs ?: [])) {
-            (new MulticastSessionManager())->cancel($MulticastSessionIDs);
+        // Decided per session. One count across every session meant a bulk
+        // cancel that emptied one session but not another canceled neither.
+        // A session that keeps hosts keeps running with fewer hosts -- the
+        // same rule as Task::cancel(). Issue #1903.
+        $emptied = [];
+        foreach ((array)$MulticastSessionIDs as $msID) {
+            $Session = new MulticastSession($msID);
+            if (count($Session->getAssociatedTaskIDs()) < 1) {
+                $emptied[] = $msID;
+                continue;
+            }
+            $Session->removeExpectedClients($removedFrom[$msID]);
+        }
+        if (count($emptied)) {
+            (new MulticastSessionManager())->cancel($emptied);
         }
     }
     /**
