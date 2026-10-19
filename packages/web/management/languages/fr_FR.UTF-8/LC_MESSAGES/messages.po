@@ -4091,16 +4091,6 @@ msgid "Group Host Inventories"
 msgstr "Groupes"
 
 #, fuzzy
-msgid "Group Init"
-msgstr "Export SnapIns"
-
-msgid "Group Kernel"
-msgstr "Groupe Kernel"
-
-msgid "Group Kernel Arguments"
-msgstr "Arguments Groupe Kernel"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "Historique de connexion"
 
@@ -4140,9 +4130,6 @@ msgstr "Groupe"
 #, fuzzy
 msgid "Group Power Management Task run time"
 msgstr "Gestion des utilisateurs"
-
-msgid "Group Primary Disk"
-msgstr "Primary Disk Group"
 
 #, fuzzy
 msgid "Group Printer Assignment"
@@ -10651,7 +10638,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -13527,6 +13513,16 @@ msgstr ""
 #~ msgstr "Association Image"
 
 #, fuzzy
+#~ msgid "Group Init"
+#~ msgstr "Export SnapIns"
+
+#~ msgid "Group Kernel"
+#~ msgstr "Groupe Kernel"
+
+#~ msgid "Group Kernel Arguments"
+#~ msgstr "Arguments Groupe Kernel"
+
+#, fuzzy
 #~ msgid "Group Location"
 #~ msgstr "hôte Lieu"
 
@@ -13553,6 +13549,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group OU Updated!"
 #~ msgstr "Groupe ajouté"
+
+#~ msgid "Group Primary Disk"
+#~ msgstr "Primary Disk Group"
 
 #, fuzzy
 #~ msgid "Group Printer Configuration"

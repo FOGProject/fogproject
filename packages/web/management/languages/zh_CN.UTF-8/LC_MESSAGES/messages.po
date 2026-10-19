@@ -4091,16 +4091,6 @@ msgid "Group Host Inventories"
 msgstr "组"
 
 #, fuzzy
-msgid "Group Init"
-msgstr "出口Snapins"
-
-msgid "Group Kernel"
-msgstr "集团核心"
-
-msgid "Group Kernel Arguments"
-msgstr "集团内核参数"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "登录历史记录"
 
@@ -4140,9 +4130,6 @@ msgstr "组"
 #, fuzzy
 msgid "Group Power Management Task run time"
 msgstr "用户管理"
-
-msgid "Group Primary Disk"
-msgstr "集团主磁盘"
 
 #, fuzzy
 msgid "Group Printer Assignment"
@@ -10654,7 +10641,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
@@ -13530,6 +13516,16 @@ msgstr ""
 #~ msgstr "图像协会"
 
 #, fuzzy
+#~ msgid "Group Init"
+#~ msgstr "出口Snapins"
+
+#~ msgid "Group Kernel"
+#~ msgstr "集团核心"
+
+#~ msgid "Group Kernel Arguments"
+#~ msgstr "集团内核参数"
+
+#, fuzzy
 #~ msgid "Group Location"
 #~ msgstr "主机位置"
 
@@ -13556,6 +13552,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group OU Updated!"
 #~ msgstr "集团补充"
+
+#~ msgid "Group Primary Disk"
+#~ msgstr "集团主磁盘"
 
 #, fuzzy
 #~ msgid "Group Printer Configuration"

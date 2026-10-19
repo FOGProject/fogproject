@@ -3522,15 +3522,6 @@ msgstr ""
 msgid "Group Host Inventories"
 msgstr ""
 
-msgid "Group Init"
-msgstr ""
-
-msgid "Group Kernel"
-msgstr ""
-
-msgid "Group Kernel Arguments"
-msgstr ""
-
 msgid "Group Login History"
 msgstr ""
 
@@ -3562,9 +3553,6 @@ msgid "Group Order"
 msgstr ""
 
 msgid "Group Power Management Task run time"
-msgstr ""
-
-msgid "Group Primary Disk"
 msgstr ""
 
 msgid "Group Printer Assignment"
@@ -9128,7 +9116,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
