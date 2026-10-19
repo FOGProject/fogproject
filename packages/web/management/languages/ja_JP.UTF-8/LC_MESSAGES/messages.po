@@ -2263,7 +2263,7 @@ msgid "Cross platform, more secure, faster, and much easier on the server. Espei
 msgstr "クロスプラットフォームに対応し、より安全かつ高速で、サーバーへの負荷も軽減されます。特に多数のホストを管理する組織で効果的です"
 
 msgid "Currency"
-msgstr "通貨"
+msgstr "更新状況"
 
 msgid "Current Records"
 msgstr "現在のレコード"
@@ -3385,7 +3385,7 @@ msgid "Friendly Name"
 msgstr "表示名"
 
 msgid "From"
-msgstr "送信元"
+msgstr "開始日時"
 
 msgid "Full History"
 msgstr "全履歴"
@@ -4085,7 +4085,7 @@ msgid "Image Association"
 msgstr "イメージの関連付け"
 
 msgid "Image Compression Rating"
-msgstr "イメージ圧縮レベル"
+msgstr "イメージの圧縮レベル"
 
 msgid "Image Create Fail"
 msgstr "イメージの作成に失敗しました"
@@ -4097,7 +4097,7 @@ msgid "Image Description"
 msgstr "イメージの説明"
 
 msgid "Image Enabled"
-msgstr "イメージ有効"
+msgstr "イメージの有効化"
 
 msgid "Image History"
 msgstr "イメージ履歴"
@@ -4109,7 +4109,7 @@ msgid "Image Management"
 msgstr "イメージ管理"
 
 msgid "Image Manager"
-msgstr "イメージ管理"
+msgstr "イメージの保存形式"
 
 msgid "Image Name"
 msgstr "イメージ名"
@@ -4124,7 +4124,7 @@ msgid "Image Partition"
 msgstr "イメージのパーティション"
 
 msgid "Image Path"
-msgstr "イメージパス"
+msgstr "イメージのパス"
 
 msgid "Image Primary Storage Group"
 msgstr "イメージのプライマリストレージグループ"
@@ -4142,7 +4142,7 @@ msgid "Image Size"
 msgstr "イメージサイズ"
 
 msgid "Image Storage Group"
-msgstr "イメージストレージグループ"
+msgstr "イメージのストレージグループ"
 
 msgid "Image Storage Group Associations"
 msgstr "イメージとストレージグループの関連付け"
@@ -9481,7 +9481,7 @@ msgid "Title"
 msgstr "タイトル"
 
 msgid "To"
-msgstr "宛先"
+msgstr "終了日時"
 
 msgid "To PXE boot with Secure Boot on"
 msgstr "Secure Boot を有効にした状態で PXE ブートするには"
