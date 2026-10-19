@@ -14,7 +14,6 @@
 namespace FOG\Items;
 
 use FOG\Boot\UbootTftpSync;
-use FOG\Managers\MulticastSessionManager;
 use FOG\Managers\SnapinTaskManager;
 use FOG\Router\Route;
 
@@ -301,22 +300,30 @@ class Task extends TaskType
             )->save();
         }
         if ($this->isMulticast()) {
+            // Remove this host from its session, not the session itself.
+            // This used to cancel the whole session, so canceling one host
+            // that never booted forced every other host to start over
+            // (fos#48, forums topic 16528). The session ends here only when
+            // this was its last host -- the same rule TaskManager::cancel()
+            // applies to a bulk cancel. Issue #1903.
             $find = ['taskID' => $this->get('id')];
             $msIDs = Route::getIds(
                 'multicastsessionassociation',
                 $find,
                 'msID'
             );
-            (new MulticastSessionManager())
-                ->update(
-                    ['id' => $msIDs],
-                    '',
-                    [
-                        'clients' => 0,
-                        'completetime' => self::storageNow(),
-                        'stateID' => self::getCancelledState()
-                    ]
-                );
+            Route::deletemass('multicastsessionassociation', $find);
+            foreach ((array)$msIDs as $msID) {
+                $Session = new MulticastSession($msID);
+                if (!$Session->isValid()) {
+                    continue;
+                }
+                if (count($Session->getAssociatedTaskIDs()) < 1) {
+                    $Session->cancel();
+                    continue;
+                }
+                $Session->removeExpectedClients(1);
+            }
         }
         // Recorded only if the save actually happened, so the log cannot
         // claim a transition the database never took. Before this, canceling
