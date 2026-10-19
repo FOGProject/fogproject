@@ -948,6 +948,17 @@ class FOGBase
     {
         return (bool)$key;
     }
+    /**
+     * A fixed clock, so a recorded write renders the same bytes every run.
+     *
+     * Reached on the Secure Boot enrollment path, which stamps the date.
+     *
+     * @return \DateTime
+     */
+    public static function niceDate()
+    {
+        return new \DateTime('2026-01-01 00:00:00');
+    }
 }
 
 /**
@@ -1002,5 +1013,35 @@ class PXEMenuOptions extends StubModel
             }
         }
         parent::__construct($found);
+    }
+}
+
+/**
+ * Host manager. Records each update() instead of writing.
+ *
+ * The render prints what it recorded after the script, so a scenario that
+ * writes the host record shows the write in the golden file.
+ */
+class HostManager
+{
+    /**
+     * Every update() call, in order.
+     *
+     * @var array
+     */
+    public static $updates = [];
+    /**
+     * Records an update.
+     *
+     * @param array  $findWhere the row filter
+     * @param string $whereOp   unused
+     * @param array  $set       the fields written
+     *
+     * @return bool
+     */
+    public function update($findWhere = [], $whereOp = '', $set = [])
+    {
+        self::$updates[] = ['where' => $findWhere, 'set' => $set];
+        return true;
     }
 }

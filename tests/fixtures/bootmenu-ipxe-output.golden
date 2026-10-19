@@ -186,16 +186,28 @@ kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 w
 imgfetch init.xz
 boot || goto MENU
 :fog.enrollsecureboot
-imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
-echo MOK.der has been downloaded into memory as MOK.der --
-echo look for it under Enroll key from disk.
-echo MokManager gives up after about 10 seconds with no
-echo keypress, and reboots if left idle for a few minutes --
-echo be ready before it appears.
-echo If it is not listed there, have MOK.der on a
-echo FAT-formatted USB stick in this machine instead.
-sleep 8
-chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrollment menu. && sleep 5 && goto MENU
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param sbenroll 1
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
 :bootme
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
 goto MENU
@@ -261,16 +273,28 @@ kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 w
 imgfetch init.xz
 boot || goto MENU
 :fog.enrollsecureboot
-imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
-echo MOK.der has been downloaded into memory as MOK.der --
-echo look for it under Enroll key from disk.
-echo MokManager gives up after about 10 seconds with no
-echo keypress, and reboots if left idle for a few minutes --
-echo be ready before it appears.
-echo If it is not listed there, have MOK.der on a
-echo FAT-formatted USB stick in this machine instead.
-sleep 8
-chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrollment menu. && sleep 5 && goto MENU
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param sbenroll 1
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
 :fog.enrollsecurebootunattended
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=enrollsb
 imgfetch init.xz
@@ -1271,16 +1295,28 @@ kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 w
 imgfetch init.xz
 boot || goto MENU
 :fog.enrollsecureboot
-imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
-echo MOK.der has been downloaded into memory as MOK.der --
-echo look for it under Enroll key from disk.
-echo MokManager gives up after about 10 seconds with no
-echo keypress, and reboots if left idle for a few minutes --
-echo be ready before it appears.
-echo If it is not listed there, have MOK.der on a
-echo FAT-formatted USB stick in this machine instead.
-sleep 8
-chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || echo Could not load the Secure Boot enrollment menu. && sleep 5 && goto MENU
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param sbenroll 1
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
 :fog.enrollsecurebootunattended
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=enrollsb
 imgfetch init.xz
@@ -3462,4 +3498,329 @@ boot || goto MENU
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
 goto MENU
 autoboot
+
+########## sbenroll-registered-no-record ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
+echo MOK.der has been downloaded into memory as MOK.der --
+echo look for it under Enroll key from disk.
+echo MokManager gives up after about 10 seconds with no
+echo keypress, and reboots if left idle for a few minutes --
+echo be ready before it appears.
+echo If it is not listed there, have MOK.der on a
+echo FAT-formatted USB stick in this machine instead.
+sleep 8
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || goto sbenrollfail
+:sbenrollfail
+echo Could not load the Secure Boot enrollment menu.
+sleep 5
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param menuAccess 1
+param debug 
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
+#harness-writes [{"where":{"id":1},"set":{"sbenrolled":"2026-01-01 00:00:00","sbenrollvia":"mok-pending","sbenrollcert":"9F:86:D0:81:88:4C:7D:65:9A:2F:EA:A0:C5:5A:D0:15:A3:BF:4F:1B:2B:0B:82:2C:D1:5D:6C:15:B0:F0:0A:08"}}]
+
+########## sbenroll-registered-confirmed-current ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
+echo MOK.der has been downloaded into memory as MOK.der --
+echo look for it under Enroll key from disk.
+echo MokManager gives up after about 10 seconds with no
+echo keypress, and reboots if left idle for a few minutes --
+echo be ready before it appears.
+echo If it is not listed there, have MOK.der on a
+echo FAT-formatted USB stick in this machine instead.
+sleep 8
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || goto sbenrollfail
+:sbenrollfail
+echo Could not load the Secure Boot enrollment menu.
+sleep 5
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param menuAccess 1
+param debug 
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
+
+########## sbenroll-registered-pending-current ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
+echo MOK.der has been downloaded into memory as MOK.der --
+echo look for it under Enroll key from disk.
+echo MokManager gives up after about 10 seconds with no
+echo keypress, and reboots if left idle for a few minutes --
+echo be ready before it appears.
+echo If it is not listed there, have MOK.der on a
+echo FAT-formatted USB stick in this machine instead.
+sleep 8
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || goto sbenrollfail
+:sbenrollfail
+echo Could not load the Secure Boot enrollment menu.
+sleep 5
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param menuAccess 1
+param debug 
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
+#harness-writes [{"where":{"id":1},"set":{"sbenrolled":"2026-01-01 00:00:00","sbenrollvia":"mok-pending","sbenrollcert":"9F:86:D0:81:88:4C:7D:65:9A:2F:EA:A0:C5:5A:D0:15:A3:BF:4F:1B:2B:0B:82:2C:D1:5D:6C:15:B0:F0:0A:08"}}]
+
+########## sbenroll-registered-confirmed-stale ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
+echo MOK.der has been downloaded into memory as MOK.der --
+echo look for it under Enroll key from disk.
+echo MokManager gives up after about 10 seconds with no
+echo keypress, and reboots if left idle for a few minutes --
+echo be ready before it appears.
+echo If it is not listed there, have MOK.der on a
+echo FAT-formatted USB stick in this machine instead.
+sleep 8
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || goto sbenrollfail
+:sbenrollfail
+echo Could not load the Secure Boot enrollment menu.
+sleep 5
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param menuAccess 1
+param debug 
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
+#harness-writes [{"where":{"id":1},"set":{"sbenrolled":"2026-01-01 00:00:00","sbenrollvia":"mok-pending","sbenrollcert":"9F:86:D0:81:88:4C:7D:65:9A:2F:EA:A0:C5:5A:D0:15:A3:BF:4F:1B:2B:0B:82:2C:D1:5D:6C:15:B0:F0:0A:08"}}]
+
+########## sbenroll-unregistered ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set storage-ip 10.0.0.1
+imgfetch http://10.0.0.1/fog/service/secureboot/MOK.der MOK.der || echo Could not fetch MOK.der over the network.
+echo MOK.der has been downloaded into memory as MOK.der --
+echo look for it under Enroll key from disk.
+echo MokManager gives up after about 10 seconds with no
+echo keypress, and reboots if left idle for a few minutes --
+echo be ready before it appears.
+echo If it is not listed there, have MOK.der on a
+echo FAT-formatted USB stick in this machine instead.
+sleep 8
+chain -ar http://10.0.0.1/fog/service/secureboot/mmx64.efi || goto sbenrollfail
+:sbenrollfail
+echo Could not load the Secure Boot enrollment menu.
+sleep 5
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param menuAccess 1
+param debug 
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
+
+########## sbenroll-no-mok ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+echo Secure Boot signing is not configured on this FOG server.
+echo Nothing to enroll -- returning to the menu...
+sleep 5
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param menuAccess 1
+param debug 
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
+
+########## sbenroll-efi-i386 ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+echo No signed Secure Boot shim exists for 32-bit x86 UEFI.
+echo Returning to the menu...
+sleep 5
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param platform ${platform}
+param product ${product}
+param manufacturer ${manufacturer}
+param ipxever ${version}
+param filename ${filename}
+param menuAccess 1
+param debug 
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+isset ${netX/mac} && param macboot ${netX/mac} ||
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+isset ${net3/mac} && param mac3 ${net3/mac} || goto bootme
+isset ${net4/mac} && param mac4 ${net4/mac} || goto bootme
+isset ${net5/mac} && param mac5 ${net5/mac} || goto bootme
+isset ${net6/mac} && param mac6 ${net6/mac} || goto bootme
+isset ${net7/mac} && param mac7 ${net7/mac} || goto bootme
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params
 

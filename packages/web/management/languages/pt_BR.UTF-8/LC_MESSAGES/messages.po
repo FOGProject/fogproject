@@ -6987,6 +6987,9 @@ msgstr ""
 msgid "Not allowed here"
 msgstr "Não permitido aqui"
 
+msgid "Not confirmed. MokManager was opened for this certificate, and nothing reported the result. Run the Enroll Secure Boot task to verify it, or set Enrolled Via to mok after you confirm it."
+msgstr ""
+
 msgid "Not offered here, on purpose"
 msgstr ""
 
@@ -10651,7 +10654,6 @@ msgstr ""
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr ""
 
-#, php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr ""
 
