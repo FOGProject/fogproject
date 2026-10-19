@@ -448,8 +448,8 @@ class MulticastSession extends FOGController
         // A task that never even checked in was never on the wire, so
         // completing it reports a deployment that did not happen.
         //
-        // The predicate is deliberately narrow. Multicast tasks never reach
-        // the progress state -- nothing advances them past checked-in -- and
+        // The predicate is deliberately narrow. A host that arrived is at
+        // checked-in or, once TaskQueue::checkIn() has run, in progress, and
         // checked-in (2) is itself inside getQueuedStates() (0..2), so
         // testing against that whole set would cancel every task in every
         // session. Only the states below checked-in mean "never arrived".

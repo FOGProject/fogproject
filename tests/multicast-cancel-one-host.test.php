@@ -26,6 +26,11 @@
  *                           has started is never told to start.
  *   _getMCExistingTask()    DRIVEN. A join and a cancel in the same tick must
  *                           not hide the join.
+ *   startIfAllConnected()   DRIVEN against a real UDP socket. A host counts
+ *                           as arrived at checked-in OR in progress:
+ *                           TaskQueue::checkIn() moves every multicast task
+ *                           to in progress, so a checked-in-only gate never
+ *                           sent the start message on a live session.
  *
  * Usage: php tests/multicast-cancel-one-host.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -122,7 +127,7 @@ class SessionTables
     public function answer($sql, $params)
     {
         if (!preg_match(
-            '/^\s*(SELECT|DELETE|UPDATE|INSERT)\b.*?`(multicastSessionsAssoc|multicastSessions)`/s',
+            '/^\s*(SELECT|DELETE|UPDATE|INSERT)\b.*?`(multicastSessionsAssoc|multicastSessions|tasks)`/s',
             $sql,
             $m
         )) {
@@ -466,6 +471,86 @@ $t->check(
 $t->check(
     'the canceled id stays so the manager can see it was canceled',
     in_array(9, $ids)
+);
+
+// --- startIfAllConnected(): which task states mean "arrived" -------------
+/**
+ * A sender whose udpcast log is a file the test writes.
+ */
+class GoTask extends MulticastTask
+{
+    public $logPath;
+
+    public function getUDPCastLogFile()
+    {
+        return $this->logPath;
+    }
+}
+
+/**
+ * Runs startIfAllConnected() for a session launched for three hosts, after
+ * one was canceled: tasks 7 and 8 remain, both connected to udp-sender.
+ *
+ * @param int $state The stateID both remaining tasks are in.
+ *
+ * @return array [returned, bytes the sender's port received]
+ */
+function goWith($state)
+{
+    global $db;
+    $m = freshTables();
+    $m->rows['tasks'] = [
+        ['taskID' => 7, 'taskStateID' => $state],
+        ['taskID' => 8, 'taskStateID' => $state],
+    ];
+    $db->responder = [$m, 'answer'];
+    $port = 47000 + 2 * mt_rand(0, 900);
+    $recv = stream_socket_server(
+        sprintf('udp://127.0.0.1:%d', $port + 1),
+        $errno,
+        $errstr,
+        STREAM_SERVER_BIND
+    );
+    stream_set_blocking($recv, false);
+    $log = tempnam(sys_get_temp_dir(), 'mcgo');
+    file_put_contents(
+        $log,
+        "Udp-sender 20200328\n"
+        . "UDP sender for img at 127.0.0.1 on eth0\n"
+        . "New connection from 10.20.0.57  (#0) 00000009\n"
+        . "New connection from 10.20.0.65  (#1) 00000009\n"
+    );
+    $task = new GoTask(99, 'lab', $port, 'img', 'lo', 3, 1, 50, false, [7, 8]);
+    $task->logPath = $log;
+    ob_start();
+    $ret = $task->startIfAllConnected(2, [7, 8], '127.0.0.1');
+    ob_end_clean();
+    usleep(100000);
+    $got = (string)@fread($recv, 64);
+    fclose($recv);
+    unlink($log);
+    $db->responder = null;
+    return [$ret, $got];
+}
+// Live session: TaskQueue::checkIn() has moved both tasks to in progress.
+list($ret, $got) = goWith(3);
+$t->check(
+    'hosts in progress count as arrived, so the start message is sent',
+    true === $ret
+);
+$t->check(
+    'the start message is CMD_GO, opcode 2, in network order',
+    pack('nn', 2, 0) === $got
+);
+list($ret, $got) = goWith(2);
+$t->check(
+    'hosts still at checked-in count as arrived too',
+    true === $ret && pack('nn', 2, 0) === $got
+);
+list($ret, $got) = goWith(1);
+$t->check(
+    'a host still queued has not arrived, so nothing is sent',
+    false === $ret && '' === $got
 );
 
 $t->finish();
