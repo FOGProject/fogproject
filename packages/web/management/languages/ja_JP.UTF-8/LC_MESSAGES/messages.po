@@ -9125,7 +9125,7 @@ msgstr "端末の前に操作する人がいなくても、タスクはクライ
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
 msgstr "検索語は q に指定します。limit は全体ではなくクラスごとの結果数を制限します。このルートはページングに対応しておらず、次ページを示す nextUrl もありません。同一クラス内では、名前が検索語で始まる項目が先に並びます。どちらのフィールドも POST の本文で指定できます。/search からもアクセスできます。"
 
-#, fuzzy, no-php-format
+#, no-php-format
 msgid "The term. Because it is a path segment, a term containing / ? # or % cannot travel this way; use /unisearch?q= instead."
 msgstr "検索語です。パスの一部分として指定するため、/ ? # または % を含む検索語はこの方法では送信できません。代わりに /unisearch?q= を使用してください。"
 
@@ -10552,7 +10552,8 @@ msgid "cycles since last line"
 msgstr "前回のログ出力からのサイクル数"
 
 msgid "day"
-msgstr "日"
+msgid_plural "days"
+msgstr[0] "日"
 
 msgid "days"
 msgstr "日"
@@ -10738,7 +10739,8 @@ msgid "hour"
 msgstr "時間"
 
 msgid "hr"
-msgstr "時間"
+msgid_plural "hrs"
+msgstr[0] "時間"
 
 msgid "iPXE Config Update Fail"
 msgstr "iPXE 構成の更新に失敗しました"
@@ -10918,7 +10920,8 @@ msgid "meaning a node that has no images on it"
 msgstr "つまり、イメージを保持していないノード"
 
 msgid "min"
-msgstr "分"
+msgid_plural "mins"
+msgstr[0] "分"
 
 msgid "minutes"
 msgstr "分"
