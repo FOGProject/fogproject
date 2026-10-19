@@ -7107,6 +7107,9 @@ msgstr ""
 msgid "Not allowed here"
 msgstr ""
 
+msgid "Not confirmed. MokManager was opened for this certificate, and nothing reported the result. Run the Enroll Secure Boot task to verify it, or set Enrolled Via to mok after you confirm it."
+msgstr ""
+
 msgid "Not offered here, on purpose"
 msgstr ""
 
