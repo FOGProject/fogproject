@@ -1,9 +1,11 @@
 <?php
 /**
  * Run the real uptime formatter with deterministic /proc data and translations.
+ * Load it in a test namespace so stubs do not shadow production classes during
+ * whole-suite static analysis.
  * Usage: php tests/uptime-unit-plurals.test.php
  */
-namespace FOG\Base {
+namespace FOGTest\UptimeUnits {
     class FOGBase
     {
     }
@@ -31,7 +33,28 @@ namespace FOG\Base {
 }
 
 namespace {
-    require dirname(__DIR__) . '/packages/web/src/Base/FOGCore.php';
+    $coreSourcePath = dirname(__DIR__) . '/packages/web/src/Base/FOGCore.php';
+    $coreSource = file_get_contents($coreSourcePath);
+    if (false === $coreSource) {
+        fwrite(STDERR, "cannot read $coreSourcePath\n");
+        exit(1);
+    }
+
+    $productionNamespace = 'namespace FOG\\Base;';
+    if (1 !== substr_count($coreSource, $productionNamespace)) {
+        fwrite(
+            STDERR,
+            "expected exactly one FOG\\Base namespace declaration in "
+            . "$coreSourcePath\n"
+        );
+        exit(1);
+    }
+    $coreSource = str_replace(
+        $productionNamespace,
+        'namespace FOGTest\\UptimeUnits;',
+        $coreSource
+    );
+    eval(substr($coreSource, 5));
 
     $locales = [
         'English' => [
@@ -61,7 +84,7 @@ namespace {
         foreach ($cases as [$seconds, $english, $japanese]) {
             $GLOBALS['uptimeSeconds'] = $seconds;
             $expected = 'English' === $locale ? $english : $japanese;
-            $actual = \FOG\Base\FOGCore::systemUptime()['uptime'];
+            $actual = \FOGTest\UptimeUnits\FOGCore::systemUptime()['uptime'];
             if ($expected !== $actual) {
                 $failures[] = sprintf(
                     '%s uptime %s: expected <%s>, got <%s>',
