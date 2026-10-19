@@ -4006,16 +4006,6 @@ msgid "Group Host Inventories"
 msgstr "gruppi"
 
 #, fuzzy
-msgid "Group Init"
-msgstr "Gruppo Snapins"
-
-msgid "Group Kernel"
-msgstr "Gruppo kernel"
-
-msgid "Group Kernel Arguments"
-msgstr "Argomenti Gruppo Kernel"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "Accesso Storia"
 
@@ -4054,9 +4044,6 @@ msgstr "Gruppo"
 #, fuzzy
 msgid "Group Power Management Task run time"
 msgstr "Gestione energetica"
-
-msgid "Group Primary Disk"
-msgstr "Gruppo di dischi primario"
 
 #, fuzzy
 msgid "Group Printer Assignment"
@@ -13171,6 +13158,16 @@ msgstr ""
 #~ msgstr "Associazione immagine"
 
 #, fuzzy
+#~ msgid "Group Init"
+#~ msgstr "Gruppo Snapins"
+
+#~ msgid "Group Kernel"
+#~ msgstr "Gruppo kernel"
+
+#~ msgid "Group Kernel Arguments"
+#~ msgstr "Argomenti Gruppo Kernel"
+
+#, fuzzy
 #~ msgid "Group Location"
 #~ msgstr "Host Luoghi"
 
@@ -13197,6 +13194,9 @@ msgstr ""
 #, fuzzy
 #~ msgid "Group OU Updated!"
 #~ msgstr "Gruppo aggiornato!"
+
+#~ msgid "Group Primary Disk"
+#~ msgstr "Gruppo di dischi primario"
 
 #, fuzzy
 #~ msgid "Group Printer Configuration"

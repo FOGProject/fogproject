@@ -130,10 +130,18 @@ function codeOnly($body)
  */
 function methodBody($src, $method)
 {
-    $start = strpos($src, "\n    public function $method(");
-    if (false === $start) {
+    // Any visibility: _addFields() is protected, and a public-only search
+    // returned '' for it, which every strpos() === false check then passed.
+    if (!preg_match(
+        '/\n    (?:public|protected|private) (?:static )?function '
+        . preg_quote($method, '/') . '\(/',
+        $src,
+        $m,
+        PREG_OFFSET_CAPTURE
+    )) {
         return '';
     }
+    $start = $m[0][1];
     $end = strpos($src, "\n    /**", $start + 1);
 
     return codeOnly(
@@ -480,6 +488,20 @@ foreach ($pushes as $method => $needles) {
     foreach ($needles as $needle) {
         $t->check(
             "$method() no longer pushes $needle onto the members",
+            false === strpos($body, $needle)
+        );
+    }
+}
+
+// The create form offered the same four boot settings the General tab
+// lost. They were stored on the group, and nothing ever read them there, so
+// an admin who filled them in got no effect at all.
+foreach (['_addFields', 'addPost'] as $method) {
+    $body = codeOnly(methodBody($pageSrc, $method));
+    $t->check("$method() was found to inspect", '' !== $body);
+    foreach (["'kernel'", "'args'", "'kernelArgs'", "'init'", "'dev'", "'kernelDevice'"] as $needle) {
+        $t->check(
+            "$method() no longer offers the dead group boot field $needle",
             false === strpos($body, $needle)
         );
     }

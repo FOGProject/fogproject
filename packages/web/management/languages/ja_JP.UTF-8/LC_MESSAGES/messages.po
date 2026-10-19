@@ -3983,16 +3983,6 @@ msgid "Group Host Inventories"
 msgstr "FOG ホストインベントリ - 検索"
 
 #, fuzzy
-msgid "Group Init"
-msgstr "グループ スナップイン"
-
-msgid "Group Kernel"
-msgstr "グループ カーネル"
-
-msgid "Group Kernel Arguments"
-msgstr "グループカーネル引数"
-
-#, fuzzy
 msgid "Group Login History"
 msgstr "ログイン履歴"
 
@@ -4031,9 +4021,6 @@ msgstr "グループ"
 #, fuzzy
 msgid "Group Power Management Task run time"
 msgstr "電源管理タスク実行時刻"
-
-msgid "Group Primary Disk"
-msgstr "グループプライマリディスク"
 
 #, fuzzy
 msgid "Group Printer Assignment"
@@ -13542,6 +13529,16 @@ msgstr ""
 #~ msgstr "グループイメージの関連付け"
 
 #, fuzzy
+#~ msgid "Group Init"
+#~ msgstr "グループ スナップイン"
+
+#~ msgid "Group Kernel"
+#~ msgstr "グループ カーネル"
+
+#~ msgid "Group Kernel Arguments"
+#~ msgstr "グループカーネル引数"
+
+#, fuzzy
 #~ msgid "Group Location"
 #~ msgstr "グループの関連付け"
 
@@ -13571,6 +13568,9 @@ msgstr ""
 
 #~ msgid "Group Power Management Remove"
 #~ msgstr "グループ電源管理を削除"
+
+#~ msgid "Group Primary Disk"
+#~ msgstr "グループプライマリディスク"
 
 #, fuzzy
 #~ msgid "Group Printer Configuration"

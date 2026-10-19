@@ -3522,15 +3522,6 @@ msgstr ""
 msgid "Group Host Inventories"
 msgstr ""
 
-msgid "Group Init"
-msgstr ""
-
-msgid "Group Kernel"
-msgstr ""
-
-msgid "Group Kernel Arguments"
-msgstr ""
-
 msgid "Group Login History"
 msgstr ""
 
@@ -3562,9 +3553,6 @@ msgid "Group Order"
 msgstr ""
 
 msgid "Group Power Management Task run time"
-msgstr ""
-
-msgid "Group Primary Disk"
 msgstr ""
 
 msgid "Group Printer Assignment"
