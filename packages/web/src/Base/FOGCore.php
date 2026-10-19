@@ -38,28 +38,25 @@ class FOGCore extends FOGBase
         $day = 86400;
         $days = floor($uptime/$day);
         $uptimestr = sprintf(
-            'Up: %d %s%s ',
+            'Up: %d %s ',
             $days,
-            _('day'),
-            $days != 1 ? 's' : ''
+            ngettext('day', 'days', (int)$days)
         );
         $utdelta = $uptime - ($days * $day);
         $hour = 3600;
         $hours = floor($utdelta/$hour);
         $uptimestr .= sprintf(
-            '%d %s%s ',
+            '%d %s ',
             $hours,
-            _('hr'),
-            $hours != 1 ? 's' : ''
+            ngettext('hr', 'hrs', (int)$hours)
         );
         $utdelta -= $hours*$hour;
         $minute = 60;
         $minutes = floor($utdelta/$minute);
         $uptimestr .= sprintf(
-            '%d %s%s',
+            '%d %s',
             $minutes,
-            _('min'),
-            $minutes != 1 ? 's' : ''
+            ngettext('min', 'mins', (int)$minutes)
         );
         $uptime = $uptimestr;
         if (stristr(PHP_OS, 'win')) {
