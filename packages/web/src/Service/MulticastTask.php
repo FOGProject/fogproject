@@ -1443,14 +1443,21 @@ class MulticastTask extends FOGService
         ) {
             return false;
         }
-        // Multicast tasks stay at checked-in for the whole session, so this
-        // is "every remaining host has arrived".
-        $arrived = Route::getCount(
-            'task',
-            [
-                'id' => $liveIDs,
-                'stateID' => self::getCheckedInState()
-            ]
+        // A multicast task is checked in when its host arrives, and
+        // TaskQueue::checkIn() then moves it to in progress. Either state
+        // means "this host has arrived". Counting checked-in alone never
+        // matched a live session, so the start message was never sent.
+        $arrived = count(
+            (array)Route::getIds(
+                'task',
+                [
+                    'id' => $liveIDs,
+                    'stateID' => [
+                        self::getCheckedInState(),
+                        self::getProgressState()
+                    ]
+                ]
+            )
         );
         if ($arrived < count($liveIDs)) {
             return false;
