@@ -1072,6 +1072,10 @@ class IpxeBootMenu extends BootMenuBase
             $this->verifyCreds();
         } elseif (isset($_REQUEST['key'])) {
             $this->keyset();
+        } elseif (isset($_REQUEST['sbenroll'])) {
+            // Ahead of the unregistered branch: an unregistered machine can
+            // enroll the key too, it just has no host record to write.
+            $this->sbEnroll();
         } elseif (!self::$Host->isValid()) {
             $this->printDefault();
         } else {
@@ -2429,22 +2433,42 @@ class IpxeBootMenu extends BootMenuBase
      * nothing to enroll, so this returns a message rather than attempting
      * a chain to a target that was never staged.
      *
-     * MokManager (mmx64.efi) only shows its "Enroll key from disk" menu
-     * when it is the boot target itself -- shim only invokes it when a
-     * pending MOK request already exists, which nothing here stages -- so
-     * this chains to it directly rather than through the normal shim gate.
+     * The choice itself does not chain MokManager. It chains back to
+     * boot.php with `sbenroll`, and sbEnroll() answers with the MokManager
+     * script. That round trip is the only moment the server hears that
+     * this machine is enrolling, so it is where the host record is written
+     * (#1869). Without it, MokManager enrolled the key and the host page
+     * still said "Never reported".
      *
      * @return array
      */
     private function _enrollSecureBootChoice()
+    {
+        $refusal = $this->_enrollSecureBootRefusal();
+        if ($refusal) {
+            return array_merge($refusal, ['sleep 5', 'goto MENU']);
+        }
+
+        return array_merge(
+            $this->_chainParams(['param sbenroll 1'], false),
+            ['goto bootme']
+        );
+    }
+    /**
+     * Why this machine cannot enroll the key from the menu, or [] if it can.
+     *
+     * Shared by the menu choice and sbEnroll(), because sbEnroll() is a
+     * request anyone can send and must refuse the same cases.
+     *
+     * @return array the echo lines, without a sleep
+     */
+    private function _enrollSecureBootRefusal()
     {
         if (!file_exists(BASEPATH . 'service/secureboot' . DS . 'MOK.der')) {
             return [
                 'echo Secure Boot signing is not configured on this FOG '
                 . 'server.',
                 'echo Nothing to enroll -- returning to the menu...',
-                'sleep 5',
-                'goto MENU'
             ];
         }
         // An empty mokManager is an architecture with no signed shim to
@@ -2458,11 +2482,36 @@ class IpxeBootMenu extends BootMenuBase
                     $arch['label']
                 ),
                 'echo Returning to the menu...',
-                'sleep 5',
-                'goto MENU'
             ];
         }
-        $mmTarget = "$this->_booturl/" . $arch['mokManager'];
+
+        return [];
+    }
+    /**
+     * Records the enrollment attempt, then chains MokManager.
+     *
+     * The answer to the `sbenroll` request _enrollSecureBootChoice() makes.
+     *
+     * MokManager (mmx64.efi) only shows its "Enroll key from disk" menu
+     * when it is the boot target itself -- shim only invokes it when a
+     * pending MOK request already exists, which nothing here stages -- so
+     * this chains to it directly rather than through the normal shim gate.
+     *
+     * This is a separate response, not part of the menu script, so there is
+     * no MENU label to fall back to. A failed chain returns to the menu
+     * through _chainBoot() instead.
+     *
+     * @return void
+     */
+    public function sbEnroll()
+    {
+        $refusal = $this->_enrollSecureBootRefusal();
+        if ($refusal) {
+            $this->_say('sbenrollrefused', $refusal, 5);
+            return;
+        }
+        self::_recordMokPending();
+        $mmTarget = "$this->_booturl/" . self::_arch()['mokManager'];
         // iPXE's EFI filesystem driver exposes every image it has downloaded
         // -- kernel, initrd, or a plain imgfetch like this one -- to any EFI
         // app that enumerates SimpleFileSystemProtocol handles. MokManager's
@@ -2472,23 +2521,77 @@ class IpxeBootMenu extends BootMenuBase
         // -- confirmed on physical hardware. Keep the USB fallback text below
         // regardless, in case a given machine's MokManager only walks handles
         // backed by a real block device.
-        return [
-            "imgfetch $this->_booturl/secureboot/MOK.der MOK.der || "
-            . "echo Could not fetch MOK.der over the network.",
-            // No quotes in the text: iPXE's tokenizer treats them as quoting
-            // and strips them, so they would vanish from the output anyway.
-            'echo MOK.der has been downloaded into memory as MOK.der --',
-            'echo look for it under Enroll key from disk.',
-            'echo MokManager gives up after about 10 seconds with no',
-            'echo keypress, and reboots if left idle for a few minutes --',
-            'echo be ready before it appears.',
-            'echo If it is not listed there, have MOK.der on a',
-            'echo FAT-formatted USB stick in this machine instead.',
-            'sleep 8',
-            "chain -ar $mmTarget || "
-            . "echo Could not load the Secure Boot enrollment menu. && "
-            . "sleep 5 && goto MENU"
-        ];
+        $this->_say(
+            'sbenroll',
+            [
+                "imgfetch $this->_booturl/secureboot/MOK.der MOK.der || "
+                . "echo Could not fetch MOK.der over the network.",
+                // No quotes in the text: iPXE's tokenizer treats them as
+                // quoting and strips them, so they would vanish anyway.
+                'echo MOK.der has been downloaded into memory as MOK.der --',
+                'echo look for it under Enroll key from disk.',
+                'echo MokManager gives up after about 10 seconds with no',
+                'echo keypress, and reboots if left idle for a few minutes --',
+                'echo be ready before it appears.',
+                'echo If it is not listed there, have MOK.der on a',
+                'echo FAT-formatted USB stick in this machine instead.',
+                'sleep 8',
+                "chain -ar $mmTarget || goto sbenrollfail",
+                ':sbenrollfail',
+                'echo Could not load the Secure Boot enrollment menu.',
+            ],
+            5
+        );
+    }
+    /**
+     * Write `mok-pending` and this server's certificate onto the host.
+     *
+     * `mok-pending` because that is all the server knows: MokManager was
+     * opened for this certificate. Nothing reports whether the technician
+     * finished the enrollment. The host page tells the admin how to confirm
+     * it (#1869).
+     *
+     * A confirmed record of the certificate served today is left alone.
+     * That is db, trusted, mok or manual with a matching fingerprint. A
+     * second attempt on a machine that already trusts the key must not
+     * downgrade that record to "not confirmed". Everything else is
+     * overwritten: no record, an earlier pending attempt, or a record of
+     * a superseded certificate, which is the re-enrollment case.
+     *
+     * Advisory, like everything boot.php writes. This request is
+     * unauthenticated, so anyone who knows a MAC can send it. The worst it
+     * can write is "an enrollment was started and not confirmed", and it
+     * can never overwrite a confirmed one. See ADR 0029.
+     *
+     * @return void
+     */
+    private static function _recordMokPending()
+    {
+        if (!self::$Host->isValid()) {
+            return;
+        }
+        $served = SecureBootState::serverFingerprint();
+        if ('' === $served) {
+            return;
+        }
+        $fresh = SecureBootState::enrollmentFreshness(
+            self::$Host->get('sbenrollcert'),
+            $served
+        );
+        if (SecureBootState::FRESH === $fresh
+            && 'mok-pending' !== (string)self::$Host->get('sbenrollvia')
+        ) {
+            return;
+        }
+        (new HostManager())->update(
+            ['id' => self::$Host->get('id')],
+            '',
+            [
+                'sbenrolled' => self::niceDate()->format('Y-m-d H:i:s'),
+                'sbenrollvia' => 'mok-pending',
+                'sbenrollcert' => $served,
+            ]
+        );
     }
     /**
      * Drops the menu entries this machine could not act on.

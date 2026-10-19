@@ -1831,6 +1831,19 @@ class HostManagement extends FOGPage
                 $this->obj->get('sbenrollcert')
             )
         );
+        // mok-pending is a started enrollment that nothing confirmed: the PXE
+        // menu item writes it before it chains MokManager (#1869). Say how to
+        // confirm it, from the stored value for the same reason as above.
+        if ('mok-pending' === (string)$this->obj->get('sbenrollvia')) {
+            $sbEnrollFresh = trim(
+                _(
+                    'Not confirmed. MokManager was opened for this '
+                    . 'certificate, and nothing reported the result. Run the '
+                    . 'Enroll Secure Boot task to verify it, or set Enrolled '
+                    . 'Via to mok after you confirm it.'
+                ) . ' ' . $sbEnrollFresh
+            );
+        }
 
         $labelClass = 'col-sm-3 col-form-label';
 
