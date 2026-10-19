@@ -10592,7 +10592,7 @@ msgstr "ドメイン"
 
 #, php-format
 msgid "dropped %d canceled host(s), %d remain"
-msgstr ""
+msgstr "キャンセルされたホスト %d 台を除外しました。残りは %d 台です"
 
 msgid "e.g. nightly inventory script"
 msgstr "例: 夜間のインベントリ取得スクリプト"
@@ -10613,7 +10613,7 @@ msgid "every column on this table will be treated as untyped"
 msgstr "このテーブルのすべての列は型情報なしとして扱われます"
 
 msgid "every remaining host has connected, told udp-sender to start"
-msgstr ""
+msgstr "残りのすべてのホストが接続したため、udp-sender に開始を指示しました"
 
 msgid "exclusive"
 msgstr "排他的"
