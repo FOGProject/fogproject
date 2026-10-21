@@ -3354,27 +3354,48 @@ _sbChainStaged() {
 # real reason the shim chain is the better default, and it is stronger than
 # "signed vs not".
 #
-# No 32-bit case on purpose: there is no Microsoft-signed ia32 shim to start a
-# chain from and no 32-bit MokManager to enroll one with, so i386-efi clients must
-# have Secure Boot disabled to netboot at all.
+# No signed 32-bit case on purpose: there is no Microsoft-signed ia32 shim to
+# start a chain from and no 32-bit MokManager to enroll one with, so i386-efi
+# clients must have Secure Boot disabled to netboot at all.
 #
 # --boot-delay needs no handling here either. EFI takes its delay from
 # autoexec.ipxe (_applyBootDelay), so unlike _biosBootFile there is no second
 # binary to point at.
+#
+# --uefi-bootfile (BOOT_uefi_bootfile) picks the loader: snponly (the default)
+# drives the NIC through the firmware's own SNP driver, ipxe through iPXE's
+# built-in drivers. Some firmware SNP drivers never let go of the NIC at the
+# handoff to the FOS kernel, and those machines only boot with ipxe. It is a
+# persisted setting rather than a hand edit because configureDHCP rewrites the
+# whole DHCP config on every install and upgrade, so an edited filename does not
+# survive the next run. Only the stem changes: snponly and ipxe sit side by side
+# in every directory used below, signed chain or not, so the fallback and the
+# per-architecture layout are the same for both. Anything other than ipxe --
+# unset included -- means snponly, so a mistyped .fogsettings value boots the
+# default rather than naming a file TFTP cannot serve.
+#
+# i386 takes the stem as well, but never the shim: there is none to start from.
+_uefiBootStem() {
+    [[ ${BOOT_uefi_bootfile} == ipxe ]] && echo "ipxe" || echo "snponly"
+}
 _uefiBootFile() {
+    local stem="$(_uefiBootStem)"
     case "$1" in
+        i386)
+            echo "i386-efi/${stem}.efi"
+            ;;
         arm64)
             if _sbChainStaged; then
-                echo "secureboot/arm64-efi/snponly-shimaa64.efi"
+                echo "secureboot/arm64-efi/${stem}-shimaa64.efi"
             else
-                echo "arm64-efi/snponly.efi"
+                echo "arm64-efi/${stem}.efi"
             fi
             ;;
         *)
             if _sbChainStaged; then
-                echo "secureboot/snponly-shimx64.efi"
+                echo "secureboot/${stem}-shimx64.efi"
             else
-                echo "snponly.efi"
+                echo "${stem}.efi"
             fi
             ;;
     esac
@@ -7729,6 +7750,12 @@ writeUpdateFile() {
         # upgrade brings back the intermittent "no DHCP answer" boots it was set
         # to cure. 0 (the default) writes no sleep at all.
         BOOT_dhcp_delay_seconds
+        # The UEFI loader DHCP hands out: snponly or ipxe. A genuine preference,
+        # set by --uefi-bootfile: it is the admin's answer to their own client
+        # firmware, and configureDHCP rewrites the whole DHCP config every run,
+        # so losing it on upgrade puts the machines it was set for back on a
+        # loader that hangs them. Unset means snponly. See _uefiBootFile.
+        BOOT_uefi_bootfile
         # How many prior kernel/init generations backupPreservedCustomizations()
         # keeps under customizations/kernel-backups. A genuine persisted
         # preference like FOG_update_channel, not a record: an admin who chose
@@ -16194,18 +16221,20 @@ _keaBaseClasses() {
     # Piped through sed rather than unquoting the heredoc: the block is JSON and
     # keeping it literal is what stops a stray $ or backtick in a future edit
     # being expanded by the shell. The BIOS name varies with --boot-delay
-    # (_biosBootFile) and the 64-bit UEFI names with whether the signed chain is
-    # staged (_uefiBootFile).
+    # (_biosBootFile) and the UEFI names with --uefi-bootfile and whether the
+    # signed chain is staged (_uefiBootFile).
     #
     # The arm64 expression comes first, but the order is not load-bearing: each
     # pattern matches a whole quote-delimited value, so "snponly.efi" cannot also
     # match inside "arm64-efi/snponly.efi".
     #
-    # i386-efi is deliberately absent -- no signed 32-bit shim exists -- and so
-    # is the Apple BSDP class, which lives in _keaAppleClass and serves Intel
-    # Macs over a protocol Secure Boot never enters.
+    # i386-efi follows --uefi-bootfile but never gets the shim -- no signed
+    # 32-bit shim exists. The Apple BSDP class is absent: it lives in
+    # _keaAppleClass and serves Intel Macs over a protocol Secure Boot never
+    # enters.
     cat <<'EOFCLS' | sed \
         -e "s|\"boot-file-name\": \"undionly.kkpxe\"|\"boot-file-name\": \"$(_biosBootFile)\"|" \
+        -e "s|\"boot-file-name\": \"i386-efi/snponly.efi\"|\"boot-file-name\": \"$(_uefiBootFile i386)\"|" \
         -e "s|\"boot-file-name\": \"arm64-efi/snponly.efi\"|\"boot-file-name\": \"$(_uefiBootFile arm64)\"|" \
         -e "s|\"boot-file-name\": \"snponly.efi\"|\"boot-file-name\": \"$(_uefiBootFile x64)\"|"
         {
@@ -16267,9 +16296,14 @@ _keaBootFileFallbackComment() {
 #        one, add a leading comma to the entry above, and narrow the test to the
 #        affected machines -- by subnet, MAC or a client class of your own.
 #
-#        1. The chain loads but the network never comes up. That is the
-#           firmware's own UEFI SNP driver, not anything signed. Use iPXE's
-#           built-in NIC drivers instead (arm64: secureboot/arm64-efi/ipxe-shimaa64.efi):
+#        This file is regenerated by every install and upgrade, so an edit here
+#        does not survive the next one. To change the boot file for every UEFI
+#        client, re-run the installer with --uefi-bootfile ipxe (or snponly).
+#
+#        1. The chain loads but the network never comes up, or the FOS kernel
+#           hangs at the handoff. That is the firmware's own UEFI SNP driver,
+#           not anything signed. Use iPXE's built-in NIC drivers instead
+#           (arm64: secureboot/arm64-efi/ipxe-shimaa64.efi):
 #        {
 #            "name": "FOG-UEFI-64-IpxeDrivers",
 #            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
@@ -16568,11 +16602,11 @@ configureDHCP() {
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-32-2\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00002\";" >> "$dhcptouse"
-            echo "    filename \"i386-efi/snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile i386)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-32-1\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00006\";" >> "$dhcptouse"
-            echo "    filename \"i386-efi/snponly.efi\";" >> "$dhcptouse"
+            echo "    filename \"$(_uefiBootFile i386)\";" >> "$dhcptouse"
             echo "}" >> "$dhcptouse"
             echo "class \"UEFI-64-1\" {" >> "$dhcptouse"
             echo "    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
@@ -16615,8 +16649,13 @@ configureDHCP() {
             echo "# Uncomment one and narrow the match to the affected machines. Both are" >> "$dhcptouse"
             echo "# DHCP-only changes -- nothing is renamed on this server." >> "$dhcptouse"
             echo "#" >> "$dhcptouse"
-            echo "# 1. The chain loads but the network never comes up: that is the firmware's" >> "$dhcptouse"
-            echo "#    own UEFI SNP driver, so use iPXE's built-in drivers instead." >> "$dhcptouse"
+            echo "# This file is regenerated by every install and upgrade, so an edit here" >> "$dhcptouse"
+            echo "# does not survive the next one. To change the boot file for every UEFI" >> "$dhcptouse"
+            echo "# client, re-run the installer with --uefi-bootfile ipxe (or snponly)." >> "$dhcptouse"
+            echo "#" >> "$dhcptouse"
+            echo "# 1. The chain loads but the network never comes up, or the FOS kernel" >> "$dhcptouse"
+            echo "#    hangs at the handoff: that is the firmware's own UEFI SNP driver," >> "$dhcptouse"
+            echo "#    so use iPXE's built-in drivers instead." >> "$dhcptouse"
             echo "#    On arm64, secureboot/arm64-efi/ipxe-shimaa64.efi." >> "$dhcptouse"
             echo "#class \"FOG-UEFI-64-IpxeDrivers\" {" >> "$dhcptouse"
             echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
