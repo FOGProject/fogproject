@@ -153,12 +153,39 @@ is "$(kea_file_for FOG-UEFI-64-1)" "secureboot/snponly-shimx64.efi" "Kea 64-bit 
 BOOT_dhcp_delay_seconds=0
 
 echo
+echo "With --uefi-bootfile ipxe"
+# configureDHCP rewrites the whole config every run, so this persisted setting
+# is the only way off snponly that survives an upgrade. Every UEFI architecture
+# has to follow it, through both generators, and the fallback must still apply.
+BOOT_uefi_bootfile=ipxe
+tftpdirsrc="$WORK/staged"
+is "$(_uefiBootFile x64)"   "secureboot/ipxe-shimx64.efi"            "x86-64 UEFI gets the ipxe shim"
+is "$(_uefiBootFile arm64)" "secureboot/arm64-efi/ipxe-shimaa64.efi" "arm64 UEFI gets the arm64 ipxe shim"
+is "$(_uefiBootFile i386)"  "i386-efi/ipxe.efi"                      "32-bit UEFI gets ipxe, never a shim"
+for c in UEFI-64-1 UEFI-64-2 UEFI-64-3 SURFACE-PRO-4; do
+    is "$(isc_file_for $c)" "secureboot/ipxe-shimx64.efi" "ISC $c -> ipxe shim"
+done
+is "$(isc_file_for UEFI-32-1)"     "i386-efi/ipxe.efi"           "ISC UEFI-32-1 -> ipxe"
+is "$(kea_file_for FOG-UEFI-64-1)" "secureboot/ipxe-shimx64.efi" "Kea FOG-UEFI-64-1 -> ipxe shim"
+is "$(kea_file_for FOG-UEFI-32-2)" "i386-efi/ipxe.efi"           "Kea FOG-UEFI-32-2 -> ipxe"
+is "$(_biosBootFile)" "undionly.kkpxe" "BIOS ignores --uefi-bootfile"
+tftpdirsrc="$WORK/bare"
+is "$(_uefiBootFile x64)"   "ipxe.efi"           "x86-64 UEFI falls back to the unsigned ipxe"
+is "$(_uefiBootFile arm64)" "arm64-efi/ipxe.efi" "arm64 UEFI falls back to the unsigned ipxe"
+# A hand-edited .fogsettings is sourced, not validated by the flag parser. A bad
+# value must boot the default, not name a file TFTP cannot serve.
+BOOT_uefi_bootfile=bogus
+is "$(_uefiBootFile x64)" "snponly.efi" "an unknown value means snponly"
+BOOT_uefi_bootfile=""
+
+echo
 echo "ISC and Kea agree"
 # The invariant _keaBaseClasses' own comment asks for, checked rather than asked.
+for BOOT_uefi_bootfile in "" ipxe; do
 for tree in staged bare; do
     tftpdirsrc="$WORK/$tree"
     while read -r isc kea; do
-        is "$(kea_file_for "$kea")" "$(isc_file_for "$isc")" "$isc == $kea ($tree)"
+        is "$(kea_file_for "$kea")" "$(isc_file_for "$isc")" "$isc == $kea ($tree${BOOT_uefi_bootfile:+, $BOOT_uefi_bootfile})"
     done <<'PAIRS'
 Legacy FOG-Legacy-BIOS
 UEFI-32-2 FOG-UEFI-32-2
@@ -169,6 +196,7 @@ UEFI-64-3 FOG-UEFI-64-3
 UEFI-ARM64 FOG-UEFI-ARM64
 SURFACE-PRO-4 FOG-Surface-Pro-4
 PAIRS
+done
 done
 
 echo

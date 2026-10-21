@@ -149,12 +149,17 @@ usage() {
     echo -e "\t                              \t\tenrolled before a client netboots"
     echo -e "\t      --no-rebuild-ipxe-with-my-ca\tUndo the above"
     echo -e "\t      --netboot-proto\t\thttp or https: the protocol iPXE uses to"
-    echo -e "\t      --boot-delay\t\tseconds to sleep before the first DHCP"
-    echo -e "\t\t\t\t\tattempt, for switches slow out of STP or"
-    echo -e "\t\t\t\t\tpowersave. 0 (default) writes no sleep."
     echo -e "\t                     \t\t\tfetch boot.php. Defaults to http, and"
     echo -e "\t                     \t\t\tto https when the certificate is public"
     echo -e "\t                     \t\t\tor iPXE was rebuilt with your CA"
+    echo -e "\t      --boot-delay\t\tseconds to sleep before the first DHCP"
+    echo -e "\t\t\t\t\tattempt, for switches slow out of STP or"
+    echo -e "\t\t\t\t\tpowersave. 0 (default) writes no sleep."
+    echo -e "\t      --uefi-bootfile\t\tsnponly or ipxe: the UEFI loader DHCP"
+    echo -e "\t\t\t\t\thands out. snponly (default) uses the"
+    echo -e "\t\t\t\t\tfirmware's NIC driver; ipxe uses iPXE's"
+    echo -e "\t\t\t\t\town, for firmware that hangs at the"
+    echo -e "\t\t\t\t\thandoff to FOS. Kept across upgrades"
     echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
     echo -e "\t                   \t\t\tImplies --recreate-keys below, and"
     echo -e "\t                   \t\t\tre-anchors what fog-client pins"
@@ -267,7 +272,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -615,6 +620,16 @@ while :; do
                 exit 3
             fi
             sBOOT_dhcp_delay_seconds="$2"
+            shift 2
+            ;;
+        --uefi-bootfile)
+            # Closed set rather than a free path: the value picks a loader
+            # family, and _uefiBootFile still decides the directory, the shim
+            # and the per-architecture name from it.
+            case $2 in
+                snponly|ipxe) sBOOT_uefi_bootfile="$2" ;;
+                *) echo "$1 must be snponly or ipxe"; usage; exit 3 ;;
+            esac
             shift 2
             ;;
         --internal-domain)
@@ -1024,6 +1039,7 @@ _applyInstallMode
 # value one run derived went on overriding the keys it was derived from.
 [[ -n ${sBOOT_url_proto} ]] && BOOT_url_proto=${sBOOT_url_proto}
 [[ -n ${sBOOT_dhcp_delay_seconds} ]] && BOOT_dhcp_delay_seconds=${sBOOT_dhcp_delay_seconds}
+[[ -n ${sBOOT_uefi_bootfile} ]] && BOOT_uefi_bootfile=${sBOOT_uefi_bootfile}
 # Record the shape, AFTER the discrete flags above have had their say.
 #
 # A preference, not a record: it is the admin's declared answer to "how should
@@ -1266,20 +1282,23 @@ case ${FOG_install_type} in
                 echo " * On a Windows DHCP server you must set options 066 and 067"
                 echo
                 echo " * Option 066/next-server is the IP of the FOG Server: (e.g. ${NET_fog_server_ip})"
+                uefistem="$(_uefiBootStem)"
                 echo " * Option 067/filename is the bootfile, per client architecture:"
                 echo " |   BIOS / legacy   $(_biosBootFile)"
-                echo " |   32-bit UEFI     i386-efi/snponly.efi"
-                echo " |   64-bit UEFI     secureboot/snponly-shimx64.efi"
-                echo " |   ARM64 UEFI      secureboot/arm64-efi/snponly-shimaa64.efi"
+                echo " |   32-bit UEFI     $(_uefiBootFile i386)"
+                echo " |   64-bit UEFI     secureboot/${uefistem}-shimx64.efi"
+                echo " |   ARM64 UEFI      secureboot/arm64-efi/${uefistem}-shimaa64.efi"
                 echo
                 # The BIOS row goes through _biosBootFile because --boot-delay
                 # really does change it (10secdelay/) and that flag is parsed
-                # well before here. The UEFI rows are literal rather than
-                # $(_uefiBootFile) for the opposite reason: this summary prints
-                # before downloadipxesecureboot has run, so the guard would be
-                # answering about the PREVIOUS install's staging tree. These are
-                # what this run is about to stage; if the fetch fails, that
-                # function says so itself.
+                # well before here. The 64-bit UEFI rows are spelled out rather
+                # than $(_uefiBootFile) for the opposite reason: this summary
+                # prints before downloadipxesecureboot has run, so the guard
+                # would be answering about the PREVIOUS install's staging tree.
+                # These are what this run is about to stage; if the fetch fails,
+                # that function says so itself. Only the stem comes from
+                # --uefi-bootfile, through _uefiBootStem. The 32-bit row
+                # has no staging guard, so it can ask _uefiBootFile directly.
                 echo " * The secureboot/ files are the signed chain. They boot the same"
                 echo " | whether Secure Boot is enabled or not, so they are the right"
                 echo " | answer for every 64-bit UEFI client, not just the ones enforcing"
