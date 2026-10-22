@@ -32,7 +32,11 @@ header('Content-Type: application/json');
 // Allow local authenticated users and trusted node-to-node requests.
 $isAuthorizedUser = FOGCore::is_authorized(true);
 $remoteIP = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
-$isTrustedCaller = FOGCore::isTrustedNodeIp($remoteIP);
+// The IP list covers storage nodes in this server's own database. A peer
+// that is a full FOG server has its own database and is never in it, so
+// a request signed with a node key this server holds is trusted too.
+$isTrustedCaller = FOGCore::isTrustedNodeIp($remoteIP)
+    || FOGCore::validNodeSignature();
 if (!$isAuthorizedUser && !$isTrustedCaller) {
     http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
     echo json_encode(
