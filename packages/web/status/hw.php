@@ -33,8 +33,12 @@ $trustedIPs = array_merge(
     (array)$storageNodeIPs,
     ['127.0.0.1', '::1']
 );
-$isTrustedCaller = is_string($remoteIP)
-    && in_array($remoteIP, $trustedIPs, true);
+// The IP list covers storage nodes in this server's own database. A peer
+// that is a full FOG server has its own database and is never in it, so
+// a request signed with a node key this server holds is trusted too.
+$isTrustedCaller = (is_string($remoteIP)
+    && in_array($remoteIP, $trustedIPs, true))
+    || FOGCore::validNodeSignature();
 if (!$isAuthorizedUser && !$isTrustedCaller) {
     http_response_code(HTTPResponseCodes::HTTP_UNAUTHORIZED);
     echo json_encode(_('Unauthorized'));
