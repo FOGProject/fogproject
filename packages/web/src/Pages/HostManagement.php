@@ -4991,6 +4991,13 @@ class HostManagement extends FOGPage
      */
     private function massEditSelection()
     {
+        // The group page's launcher posts a group, not ids (GH-1938). Its
+        // members are resolved here, on every request, so the form and the
+        // apply each act on the membership at that moment.
+        $group = $this->massEditGroupSelection();
+        if (null !== $group) {
+            return $group['hosts'];
+        }
         $hosts = filter_input(
             INPUT_POST,
             'hosts',
@@ -5009,6 +5016,74 @@ class HostManagement extends FOGPage
         }
 
         return $hosts;
+    }
+    /**
+     * The posted group's members, when the group page launched the edit.
+     *
+     * The members are read on the server rather than sent from the browser,
+     * so a group larger than one grid page is never cut short. The group
+     * itself must be in the caller's scope. A member outside the caller's
+     * host scope is left out and counted, not refused: the person did not
+     * pick those ids, and the form says how many were left out. The ids
+     * that remain still go through requirePageObjectScopeMass() in both
+     * handlers, unchanged.
+     *
+     * @return array|null ['id', 'name', 'hosts', 'excluded'], or null when
+     *                    no group was posted
+     *
+     * @throws \Exception when the group does not exist or has no member the
+     *                    caller may edit
+     */
+    private function massEditGroupSelection()
+    {
+        $groupID = (int)filter_input(INPUT_POST, 'group', FILTER_VALIDATE_INT);
+        if ($groupID < 1) {
+            return null;
+        }
+        Authorization::requirePageObjectScope('group', $groupID);
+        $group = new Group($groupID);
+        if (!$group->isValid()) {
+            throw new \Exception(_('No group exists with that ID'));
+        }
+        $members = self::massEditScopeMembers(
+            (array)$group->get('hosts'),
+            Authorization::scopedObjectIDs('host')
+        );
+        if (count($members['hosts']) < 1) {
+            throw new \Exception(_('This group has no hosts you can edit'));
+        }
+
+        return [
+            'id' => $groupID,
+            'name' => (string)$group->get('name'),
+            'hosts' => $members['hosts'],
+            'excluded' => $members['excluded']
+        ];
+    }
+    /**
+     * Splits a group's members into the ones in scope and a count of the rest.
+     *
+     * @param array      $members the member host ids
+     * @param array|null $scoped  the caller's host scope; null means unbounded
+     *
+     * @return array ['hosts' => int ids, 'excluded' => int]
+     */
+    private static function massEditScopeMembers(array $members, $scoped)
+    {
+        $members = array_values(
+            array_unique(array_filter(array_map('intval', $members)))
+        );
+        if (null === $scoped) {
+            return ['hosts' => $members, 'excluded' => 0];
+        }
+        $kept = array_values(
+            array_intersect($members, array_map('intval', (array)$scoped))
+        );
+
+        return [
+            'hosts' => $kept,
+            'excluded' => count($members) - count($kept)
+        ];
     }
 
     /**
@@ -5931,24 +6006,52 @@ class HostManagement extends FOGPage
                 'application/x-www-form-urlencoded',
                 true
             );
+            $group = $this->massEditGroupSelection();
             echo '<p class="form-text">';
-            printf(
-                /* translators: %d is the number of selected hosts */
-                _('Editing %d selected hosts. Every field is left alone '
-                . 'unless you choose otherwise.'),
-                count($hosts)
-            );
+            if (null === $group) {
+                printf(
+                    /* translators: %d is the number of selected hosts */
+                    _('Editing %d selected hosts. Every field is left alone '
+                    . 'unless you choose otherwise.'),
+                    count($hosts)
+                );
+            } else {
+                printf(
+                    /* translators: %1$d is a host count, %2$s a group name */
+                    _('Editing the %1$d hosts in group %2$s. Every field is '
+                    . 'left alone unless you choose otherwise.'),
+                    count($hosts),
+                    \Initiator::e($group['name'])
+                );
+                if ($group['excluded'] > 0) {
+                    echo ' ';
+                    printf(
+                        /* translators: %d is a host count */
+                        _('%d hosts in this group are outside your sites '
+                        . 'and are not included.'),
+                        $group['excluded']
+                    );
+                }
+            }
             echo '</p>';
             echo $rendered;
-            foreach ($hosts as $hostID) {
-                echo '<input type="hidden" name="hosts[]" value="'
-                    . (int)$hostID . '"/>';
+            // A group launch carries the group, not its ids, so the apply
+            // reads the membership again rather than trusting this snapshot.
+            if (null === $group) {
+                foreach ($hosts as $hostID) {
+                    echo '<input type="hidden" name="hosts[]" value="'
+                        . (int)$hostID . '"/>';
+                }
+            } else {
+                echo '<input type="hidden" name="group" value="'
+                    . (int)$group['id'] . '"/>';
             }
             echo '</form>';
 
             $msg = json_encode(
                 [
                     'msg' => ob_get_clean(),
+                    'count' => count($hosts),
                     'title' => _('Mass edit form success')
                 ]
             );
@@ -6720,7 +6823,7 @@ class HostManagement extends FOGPage
      *
      * @return array ['button' => string, 'modal' => string]
      */
-    public function massEditActions()
+    public static function massEditActions()
     {
         // Left half of the toolbar, immediately right of "Delete selected".
         // Both act ON the rows already ticked, which is the distinction the
