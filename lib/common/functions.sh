@@ -4553,6 +4553,31 @@ installPackages() {
     export WEB_php_version=$($phpbin -i | grep "PHP Version" | head -1 | cut -d' ' -f 4 | cut -d'.' -f1-2)
     [[ -z ${phpfpm} ]] && export phpfpm="php${WEB_php_version}-fpm"
     [[ -z ${phpini} ]] && export phpini="/etc/php/${WEB_php_version}/fpm/php.ini"
+    matchPhpSsh2ToRunningPhp
+}
+# Forum 18289: on Debian-family systems php-ssh2 is a metapackage that names
+# one php<ver>-ssh2 build, and that version does not have to match the one
+# php-fpm names. ondrej's PPA, which Linux Mint installs get, maps php-fpm to
+# php8.4-fpm and php-ssh2 to php8.5-ssh2. The extension landed on a PHP that
+# nothing runs, and every SFTP call died with "Call to undefined function
+# ssh2_connect()" -- a snapin upload was a 500. So install the build for the
+# PHP measured above, and put that name in FOG_packages so that
+# confirmPackageInstallation checks it instead of the metapackage. The distro
+# config strips the version again on the next run, so .fogsettings stays
+# version-free.
+matchPhpSsh2ToRunningPhp() {
+    [[ ${FOG_os_id} == 2 && -n ${WEB_php_version} ]] || return 0
+    local want="php${WEB_php_version}-ssh2"
+    FOG_packages=" ${FOG_packages} "
+    FOG_packages="${FOG_packages// php-ssh2 / ${want} }"
+    dots "Installing package: $want"
+    DEBIAN_FRONTEND=noninteractive $packageinstaller $want >>$error_log 2>&1
+    if [[ $? -eq 0 ]]; then
+        echo "OK"
+    else
+        # Not fatal here: confirmPackageInstallation names it next.
+        echo "Failed!"
+    fi
 }
 confirmPackageInstallation() {
     # Re-read the installed set -- installPackages changed it -- then check
