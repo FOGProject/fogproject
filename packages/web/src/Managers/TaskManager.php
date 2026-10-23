@@ -159,16 +159,17 @@ class TaskManager extends FOGManagerController
         }
         // Decided per session. One count across every session meant a bulk
         // cancel that emptied one session but not another canceled neither.
-        // A session that keeps hosts keeps running with fewer hosts -- the
-        // same rule as Task::cancel(). Issue #1903.
+        // A session that keeps hosts, or still expects machines to join by
+        // name, keeps running with fewer hosts -- the same rule as
+        // Task::cancel(). Issues #1903, #1922.
         $emptied = [];
         foreach ((array)$MulticastSessionIDs as $msID) {
             $Session = new MulticastSession($msID);
-            if (count($Session->getAssociatedTaskIDs()) < 1) {
+            if ($Session->removeExpectedClients($removedFrom[$msID]) < 1
+                && count($Session->getAssociatedTaskIDs()) < 1
+            ) {
                 $emptied[] = $msID;
-                continue;
             }
-            $Session->removeExpectedClients($removedFrom[$msID]);
         }
         if (count($emptied)) {
             (new MulticastSessionManager())->cancel($emptied);

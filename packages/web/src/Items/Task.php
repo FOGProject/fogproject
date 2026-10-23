@@ -304,8 +304,11 @@ class Task extends TaskType
             // This used to cancel the whole session, so canceling one host
             // that never booted forced every other host to start over
             // (fos#48, forums topic 16528). The session ends here only when
-            // this was its last host -- the same rule TaskManager::cancel()
-            // applies to a bulk cancel. Issue #1903.
+            // it is empty: this was its last host, and it expects no machine
+            // to join by name. Unregistered machines join a named session
+            // without a task, so "no task left" alone would drop them. The
+            // same rule TaskManager::cancel() applies to a bulk cancel.
+            // Issues #1903, #1922.
             $find = ['taskID' => $this->get('id')];
             $msIDs = Route::getIds(
                 'multicastsessionassociation',
@@ -318,11 +321,11 @@ class Task extends TaskType
                 if (!$Session->isValid()) {
                     continue;
                 }
-                if (count($Session->getAssociatedTaskIDs()) < 1) {
+                if ($Session->removeExpectedClients(1) < 1
+                    && count($Session->getAssociatedTaskIDs()) < 1
+                ) {
                     $Session->cancel();
-                    continue;
                 }
-                $Session->removeExpectedClients(1);
             }
         }
         // Recorded only if the save actually happened, so the log cannot
