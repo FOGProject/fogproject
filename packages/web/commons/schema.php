@@ -11963,3 +11963,15 @@ $this->schema[] = [
     . "WHERE `rpName` IN ('host.task','host.*','group.task','group.*',"
     . "'image.task','image.*','task.task','task.*')",
 ];
+
+// 442
+$this->schema[] = [
+    // When udp-sender began transmitting (issue #1922). The PXE join
+    // closes on it. The join used to close when the session's tasks
+    // reached its size, but an unregistered machine joins a named session
+    // without a task, so a late machine was let in after the transfer had
+    // started and received a partial image. FOGMulticastManager writes it
+    // from the sender's log; NULL means nothing has been sent yet.
+    "ALTER TABLE `multicastSessions` "
+    . "ADD COLUMN `msTransferStart` DATETIME NULL DEFAULT NULL",
+];

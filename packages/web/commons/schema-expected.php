@@ -713,7 +713,7 @@ return [
             ],
         ],
         'multicastSessions' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `multicastSessions` ( `msID` int(11) NOT NULL AUTO_INCREMENT, `msName` varchar(250) NOT NULL DEFAULT \'\', `msBasePort` int(11) NOT NULL DEFAULT 0, `msLogPath` longtext NOT NULL DEFAULT \'\', `msImage` longtext NOT NULL DEFAULT \'\', `msClients` int(11) NOT NULL DEFAULT 0, `msSessClients` int(11) NOT NULL DEFAULT 0, `msInterface` varchar(250) NOT NULL DEFAULT \'\', `msStartDateTime` datetime DEFAULT NULL, `msPercent` int(11) NOT NULL DEFAULT 0, `msState` int(11) DEFAULT NULL, `msCompleteDateTime` datetime DEFAULT NULL, `msIsDD` int(11) NOT NULL DEFAULT 0, `msNFSGroupID` int(11) NOT NULL, `msShutdown` tinyint(1) NOT NULL DEFAULT 0, `msMaxwait` int(11) NOT NULL DEFAULT 0, `msAnon5` varchar(250) NOT NULL DEFAULT \'\', `msSenderPID` int(11) NOT NULL DEFAULT 0, `msSenderNode` int(11) DEFAULT NULL, `msSenderStart` datetime DEFAULT NULL, PRIMARY KEY (`msID`), KEY `new_index` (`msNFSGroupID`), KEY `idx_msStartDateTime` (`msStartDateTime`), KEY `fk_multicastSessions_msSenderNode` (`msSenderNode`), KEY `fk_multicastSessions_msState` (`msState`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `multicastSessions` ( `msID` int(11) NOT NULL AUTO_INCREMENT, `msName` varchar(250) NOT NULL DEFAULT \'\', `msBasePort` int(11) NOT NULL DEFAULT 0, `msLogPath` longtext NOT NULL DEFAULT \'\', `msImage` longtext NOT NULL DEFAULT \'\', `msClients` int(11) NOT NULL DEFAULT 0, `msSessClients` int(11) NOT NULL DEFAULT 0, `msInterface` varchar(250) NOT NULL DEFAULT \'\', `msStartDateTime` datetime DEFAULT NULL, `msPercent` int(11) NOT NULL DEFAULT 0, `msState` int(11) DEFAULT NULL, `msCompleteDateTime` datetime DEFAULT NULL, `msIsDD` int(11) NOT NULL DEFAULT 0, `msNFSGroupID` int(11) NOT NULL, `msShutdown` tinyint(1) NOT NULL DEFAULT 0, `msMaxwait` int(11) NOT NULL DEFAULT 0, `msAnon5` varchar(250) NOT NULL DEFAULT \'\', `msSenderPID` int(11) NOT NULL DEFAULT 0, `msSenderNode` int(11) DEFAULT NULL, `msSenderStart` datetime DEFAULT NULL, `msTransferStart` datetime DEFAULT NULL, PRIMARY KEY (`msID`), KEY `new_index` (`msNFSGroupID`), KEY `idx_msStartDateTime` (`msStartDateTime`), KEY `fk_multicastSessions_msSenderNode` (`msSenderNode`), KEY `fk_multicastSessions_msState` (`msState`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'msID' => 'int(11) NOT NULL',
                 'msName' => 'varchar(250) NOT NULL DEFAULT \'\'',
@@ -735,6 +735,7 @@ return [
                 'msSenderPID' => 'int(11) NOT NULL DEFAULT 0',
                 'msSenderNode' => 'int(11) DEFAULT NULL',
                 'msSenderStart' => 'datetime DEFAULT NULL',
+                'msTransferStart' => 'datetime DEFAULT NULL',
             ],
         ],
         'multicastSessionsAssoc' => [
