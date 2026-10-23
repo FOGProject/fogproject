@@ -136,25 +136,25 @@ class MulticastManager extends FOGService
         return true;
     }
     /**
-     * Has a running session lost every host it had?
+     * Is a running session left with nobody to send to?
      *
-     * A named session starts with no task IDs, and may never get any. Any
-     * machine that knows the name can join from the PXE menu. A registered
-     * host gets a task; an unregistered one does not
-     * (IpxeBootMenu::falseTasking()). "No host left" therefore means a
-     * session that had tasked hosts and saw each one canceled. An empty
-     * list is not that, and testing only the live count canceled every
-     * named session on its second tick, before any machine could join.
-     * Issue #1922.
+     * Tasks are not the whole membership of a session. One with a size
+     * (sessclients) can be joined by name from the PXE menu, by any machine
+     * that knows the name. A registered host gets a task; an unregistered
+     * one does not (IpxeBootMenu::falseTasking()), so the server never sees
+     * it. Such a session can have no live task at all -- before anyone has
+     * joined, or with only unregistered machines in it -- and still be in
+     * use. It is empty only when no task is live AND it expects no machine
+     * by name. Issue #1922.
      *
-     * @param array $taskIDs The session's task IDs, canceled ones included.
-     * @param array $liveIDs The task IDs that are not canceled.
+     * @param array $liveIDs  The session's task IDs that are not canceled.
+     * @param int   $expected The session's sessclients, read this tick.
      *
      * @return bool
      */
-    private static function _lostEveryHost($taskIDs, $liveIDs)
+    private static function _sessionIsEmpty($liveIDs, $expected)
     {
-        return count($taskIDs) > 0 && count($liveIDs) < 1;
+        return count($liveIDs) < 1 && (int)$expected < 1;
     }
     /**
      * Gets the multicast task
@@ -656,13 +656,19 @@ class MulticastManager extends FOGService
                         // does not end it. Any canceled member used to kill
                         // the sender, and the cancel arm below then canceled
                         // every other host with it (fos#48). The session
-                        // ends when it is canceled itself, or when no host
-                        // is left. Issue #1903.
+                        // ends when it is canceled itself, or when it is
+                        // empty: no host left, and no machine expected by
+                        // name. Issues #1903, #1922.
                         $liveIDs = array_values(
                             array_diff($taskIDs, (array)$inTaskCanceledIDs)
                         );
                         if ($SessCanceled
-                            || self::_lostEveryHost($taskIDs, $liveIDs)
+                            || self::_sessionIsEmpty(
+                                $liveIDs,
+                                // $curTask's session was loaded this tick;
+                                // $Session is the copy from first sighting.
+                                $curTask->getSess()->get('sessclients')
+                            )
                         ) {
                             $jobcanceled = true;
                         } elseif (count($inTaskCanceledIDs) > 0) {
