@@ -136,6 +136,24 @@ class MulticastManager extends FOGService
         return true;
     }
     /**
+     * Has a running session lost every host it had?
+     *
+     * A named session starts with no hosts: they join by name from the PXE
+     * menu while udp-sender waits. "No host left" therefore means a session
+     * that had hosts and saw each one canceled. An empty list from the start
+     * is not that, and testing only the live count canceled every named
+     * session on its second tick, before any host could join. Issue #1922.
+     *
+     * @param array $taskIDs The session's task IDs, canceled ones included.
+     * @param array $liveIDs The task IDs that are not canceled.
+     *
+     * @return bool
+     */
+    private static function _lostEveryHost($taskIDs, $liveIDs)
+    {
+        return count($taskIDs) > 0 && count($liveIDs) < 1;
+    }
+    /**
      * Gets the multicast task
      *
      * @param array $KnownTasks the known tasks
@@ -640,7 +658,9 @@ class MulticastManager extends FOGService
                         $liveIDs = array_values(
                             array_diff($taskIDs, (array)$inTaskCanceledIDs)
                         );
-                        if ($SessCanceled || count($liveIDs) < 1) {
+                        if ($SessCanceled
+                            || self::_lostEveryHost($taskIDs, $liveIDs)
+                        ) {
                             $jobcanceled = true;
                         } elseif (count($inTaskCanceledIDs) > 0) {
                             $runningTask->setTaskIDs($liveIDs);
