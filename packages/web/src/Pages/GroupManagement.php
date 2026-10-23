@@ -424,6 +424,38 @@ class GroupManagement extends FOGPage
             _('Host Name'),
             'host'
         );
+
+        // GH-1938: edit the members from here. It opens the host list's own
+        // mass edit, with the group resolved to its members on the server,
+        // so a big group is never cut to one grid page. It writes values
+        // onto today's members once; the group itself keeps nothing.
+        // Same permission the endpoint itself demands.
+        if (!Authorization::can(
+            Authorization::resolvePagePermission('host', 'massedit', true)
+        )) {
+            return;
+        }
+        $mass = HostManagement::massEditActions();
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Mass Edit Member Hosts');
+        echo '</h4>';
+        echo '<p class="form-text">';
+        echo _('Change settings on every host in this group in one step. '
+            . 'This writes onto the hosts that are members now. A host '
+            . 'added to the group later does not get these values.');
+        echo '</p>';
+        echo '</div>';
+        echo '<div class="card-footer">';
+        echo self::makeButton(
+            'group-massedit-open',
+            _('Mass edit'),
+            'btn btn-primary float-end'
+        );
+        echo '</div>';
+        echo '</div>';
+        echo $mass['modal'];
     }
     /**
      * Update the group hosts.
