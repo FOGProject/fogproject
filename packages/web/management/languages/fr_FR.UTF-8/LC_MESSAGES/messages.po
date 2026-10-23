@@ -13101,6 +13101,9 @@ msgstr "nœud de stockage non valide"
 msgid "token: optional. Create one under Hosts, Agent Enrollment Tokens."
 msgstr ""
 
+msgid "transfer has started, the session can no longer be joined"
+msgstr ""
+
 #, fuzzy
 msgid "unable to be updated"
 msgstr "Impossible de mettre à jour"

@@ -714,6 +714,16 @@ class MulticastManager extends FOGService
                                     )
                                 );
                                 $runningTask->updateStats();
+                                if ($runningTask->recordTransferStart()) {
+                                    self::outall(
+                                        sprintf(
+                                            $startStr,
+                                            $runningTask->getID(),
+                                            $runningTask->getName(),
+                                            _('transfer has started, the session can no longer be joined')
+                                        )
+                                    );
+                                }
                                 // $curTask was built from this tick's rows,
                                 // so its count is what the session waits
                                 // for now, after any hosts were removed.

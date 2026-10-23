@@ -13104,6 +13104,9 @@ msgstr "无效的存储节点"
 msgid "token: optional. Create one under Hosts, Agent Enrollment Tokens."
 msgstr ""
 
+msgid "transfer has started, the session can no longer be joined"
+msgstr ""
+
 #, fuzzy
 msgid "unable to be updated"
 msgstr "无法更新"
