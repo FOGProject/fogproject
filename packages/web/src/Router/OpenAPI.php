@@ -15,6 +15,7 @@ namespace FOG\Router;
 
 use FOG\Auth\Authorization;
 use FOG\Base\FOGBase;
+use FOG\Base\FOGManagerController;
 use FOG\Db\SchemaReconciler;
 
 /**
@@ -176,7 +177,7 @@ class OpenAPI extends FOGBase
         $maxRows = null;
         $expandMax = null;
         try {
-            $manager = new \ReflectionClass('FOGManagerController');
+            $manager = new \ReflectionClass(FOGManagerController::class);
             if ($manager->hasConstant('MAX_ROWS')) {
                 $maxRows = (int)$manager->getConstant('MAX_ROWS');
             }
