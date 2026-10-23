@@ -189,8 +189,8 @@ $t->check(
  * 5. The derivation, through a fake connection.
  */
 $window = [
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 ];
 $db->responder = function ($sql) {
     if (false !== strpos($sql, 'nfsGroups`) AS `groups`')) {

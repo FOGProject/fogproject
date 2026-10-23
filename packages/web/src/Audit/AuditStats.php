@@ -61,10 +61,10 @@ class AuditStats extends WindowedStats
      */
     private static function _perDaySql()
     {
-        return "SELECT DATE(`alCreatedTime`) AS `d`, COUNT(*) AS `c`
+        return "SELECT " . self::daySlot('`alCreatedTime`') . " AS `d`, COUNT(*) AS `c`
                   FROM `auditLog`
                  WHERE `alCreatedTime` BETWEEN :start AND :end
-                 GROUP BY DATE(`alCreatedTime`)";
+                 GROUP BY " . self::daySlot('`alCreatedTime`');
     }
 
     /**
@@ -80,11 +80,11 @@ class AuditStats extends WindowedStats
      */
     private static function _deniedPerDaySql()
     {
-        return "SELECT DATE(`alCreatedTime`) AS `d`, COUNT(*) AS `c`
+        return "SELECT " . self::daySlot('`alCreatedTime`') . " AS `d`, COUNT(*) AS `c`
                   FROM `auditLog`
                  WHERE `alCreatedTime` BETWEEN :start AND :end
                    AND `alOutcome` = 'denied'
-                 GROUP BY DATE(`alCreatedTime`)";
+                 GROUP BY " . self::daySlot('`alCreatedTime`');
     }
 
     /**

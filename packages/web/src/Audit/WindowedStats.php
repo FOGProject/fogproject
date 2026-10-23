@@ -36,13 +36,17 @@ use FOG\Base\FOGBase;
  * caller asking for more gets the recent end of what it asked for; clipping
  * the other way would answer with the oldest window and give no sign it had.
  *
- * BOUNDS ARE ON FOG'S CLOCK, which is the reason the bind lives here rather
- * than in each subclass. The columns being compared are stamped by
- * FOGController::save() through FOGBase::niceDate(), using the configured
- * FOG timezone; a bound built with PHP's own date() is offset by however far
- * apart the two are and does not error -- BETWEEN just matches a shifted
- * window and answers a question nobody asked. Callers hand in
- * DateTimeInterface values from ReportWindow, which reads them that way.
+ * BOUNDS ARE BOUND IN THE STORAGE ZONE, which is the reason the bind lives
+ * here rather than in each subclass. The columns being compared are stamped
+ * by FOGController::save() through FOGBase::niceDate(), in the storage zone
+ * (UTC once the boundary is crossed); a bound formatted in any other zone is
+ * offset by however far apart the two are and does not error -- BETWEEN
+ * just matches a shifted window and answers a question nobody asked. A
+ * DateTimeInterface carries its own zone, so storageBound() moves each one
+ * before formatting it, and a caller may build its window in either zone.
+ *
+ * DAYS ARE THE VIEWER'S. A per-day series groups on daySlot(), not DATE(),
+ * and dailySeries() puts each slot on its display-zone day (#1935).
  *
  * @category WindowedStats
  * @package  FOGProject
@@ -106,8 +110,8 @@ abstract class WindowedStats extends FOGBase
         $all = array_merge(
             $binds,
             [
-                ':start' => $start->format('Y-m-d H:i:s'),
-                ':end' => $end->format('Y-m-d H:i:s')
+                ':start' => self::storageBound($start),
+                ':end' => self::storageBound($end)
             ]
         );
         $used = [];
@@ -148,17 +152,28 @@ abstract class WindowedStats extends FOGBase
         // MAX_DAYS, and the series would run off the data.
         list($start, $end) = static::clamp($start, $end);
 
+        // Each row's date is a daySlot() value: a stored time, so in the
+        // storage zone (UTC once the boundary is crossed). It is moved to the
+        // display zone before its day is taken, and slots that land on the
+        // same display day are summed. Taking DATE() of the stored value
+        // instead counted runs by UTC day, so an evening run west of UTC
+        // landed on the next day (#1935).
         $counts = [];
         foreach ($rows as $row) {
-            if (isset($row[$dateK])) {
-                $counts[(string)$row[$dateK]] = (int)$row[$countK];
+            if (!isset($row[$dateK])) {
+                continue;
             }
+            $day = self::toDisplayStored((string)$row[$dateK])->format('Y-m-d');
+            $counts[$day] = (isset($counts[$day]) ? $counts[$day] : 0)
+                + (int)$row[$countK];
         }
 
         // DatePeriod's end is EXCLUSIVE, so the last day of the window would
         // be dropped without this. The bound is moved rather than the period
         // extended, because $end carries a time of day the caller chose and
-        // adding a day to it would reach into the day after.
+        // adding a day to it would reach into the day after. Both bounds are
+        // already in the display zone (see clamp()), so these are the days
+        // the viewer sees.
         $through = (new \DateTimeImmutable($end->format('Y-m-d')))
             ->modify('+1 day');
         $period = new \DatePeriod(
@@ -231,14 +246,21 @@ abstract class WindowedStats extends FOGBase
      * @param \DateTimeInterface $start the lower bound as given
      * @param \DateTimeInterface $end   the upper bound as given
      *
+     * Both come back in the display zone, whatever zone they arrived in, so
+     * the day count below and dailySeries()' walk are in the viewer's days.
+     * The instant is kept; only the zone it is read in changes.
+     *
      * @return array [\DateTimeImmutable, \DateTimeImmutable]
      */
     protected static function clamp(
         \DateTimeInterface $start,
         \DateTimeInterface $end
     ) {
-        $lo = new \DateTimeImmutable($start->format('Y-m-d H:i:s'));
-        $hi = new \DateTimeImmutable($end->format('Y-m-d H:i:s'));
+        $zone = self::displayTimeZone();
+        $lo = (new \DateTimeImmutable('@' . $start->getTimestamp()))
+            ->setTimezone($zone);
+        $hi = (new \DateTimeImmutable('@' . $end->getTimestamp()))
+            ->setTimezone($zone);
         if ($lo > $hi) {
             list($lo, $hi) = [$hi, $lo];
         }
@@ -250,12 +272,56 @@ abstract class WindowedStats extends FOGBase
             ->diff($hi->setTime(0, 0, 0))
             ->days + 1;
         if ($span > static::MAX_DAYS) {
-            $lo = new \DateTimeImmutable(
-                $hi->modify('-' . (static::MAX_DAYS - 1) . ' days')
-                    ->format('Y-m-d') . ' ' . $lo->format('H:i:s')
-            );
+            $lo = $hi->modify('-' . (static::MAX_DAYS - 1) . ' days')
+                ->setTime(
+                    (int)$lo->format('H'),
+                    (int)$lo->format('i'),
+                    (int)$lo->format('s')
+                );
         }
 
         return [$lo, $hi];
+    }
+
+    /**
+     * A window bound as the stored columns hold it.
+     *
+     * The columns are stamped in the storage zone, which is UTC once the
+     * boundary is crossed, while clamp() hands back display-zone bounds.
+     * Formatting a bound without moving it first compares a local wall
+     * clock against UTC values, and BETWEEN then matches a shifted window.
+     *
+     * @param \DateTimeInterface $bound a window bound, in any zone
+     *
+     * @return string 'Y-m-d H:i:s' in the storage zone
+     */
+    protected static function storageBound(\DateTimeInterface $bound)
+    {
+        return (new \DateTimeImmutable('@' . $bound->getTimestamp()))
+            ->setTimezone(self::storageTimeZone())
+            ->format('Y-m-d H:i:s');
+    }
+
+    /**
+     * The SQL for a stored time's 15-minute slot, for a per-day GROUP BY.
+     *
+     * A per-day query cannot group on DATE(): that is the day in the
+     * storage zone, and the viewer's day starts at a different instant
+     * (#1935). Converting in SQL is no better: CONVERT_TZ() with a zone
+     * name needs the server's time-zone tables, which a default install
+     * does not load, and a fixed offset is wrong across a DST change inside
+     * the window. So the query groups on a slot, and dailySeries() moves
+     * each slot to the display zone in PHP. Fifteen minutes because every
+     * real zone offset is a multiple of it (India is +05:30, Nepal +05:45),
+     * so no slot straddles a display-zone midnight.
+     *
+     * @param string $column a backquoted column, e.g. "`started`"
+     *
+     * @return string an expression giving 'Y-m-d H:i' at the slot start
+     */
+    protected static function daySlot($column)
+    {
+        return "CONCAT(DATE_FORMAT($column, '%Y-%m-%d %H:'),"
+            . " LPAD(FLOOR(MINUTE($column) / 15) * 15, 2, '0'))";
     }
 }

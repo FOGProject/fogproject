@@ -152,9 +152,9 @@ class ImagingStats extends WindowedStats
      */
     private static function _runsPerDaySql()
     {
-        return "SELECT DATE(`started`) AS `d`, COUNT(*) AS `c`
+        return "SELECT " . self::daySlot('`started`') . " AS `d`, COUNT(*) AS `c`
                   FROM (" . self::_foldSql() . ") AS `runs`
-                 GROUP BY DATE(`started`)";
+                 GROUP BY " . self::daySlot('`started`');
     }
 
     /**
