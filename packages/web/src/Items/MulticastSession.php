@@ -369,24 +369,29 @@ class MulticastSession extends FOGController
      * this host's row, so there is nothing to lower.
      *
      * The column is written directly, not through save(): this object may
-     * be stale, and save() writes every field it holds.
+     * be stale, and save() writes every field it holds. The object takes
+     * the new value too, so a cancel() that follows does not write the old
+     * one back.
      *
      * @param int $removed How many hosts left the session.
      *
-     * @return void
+     * @return int How many machines the session still expects by name.
      */
     public function removeExpectedClients($removed = 1)
     {
         $expected = (int)$this->get('sessclients');
         $removed = (int)$removed;
         if ($expected < 1 || $removed < 1) {
-            return;
+            return max(0, $expected);
         }
+        $left = max(0, $expected - $removed);
         (new MulticastSessionManager())->update(
             ['id' => $this->get('id')],
             '',
-            ['sessclients' => max(0, $expected - $removed)]
+            ['sessclients' => $left]
         );
+        $this->set('sessclients', $left);
+        return $left;
     }
     /**
      * Cancels this particular session.

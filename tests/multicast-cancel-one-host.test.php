@@ -15,7 +15,10 @@
  *                           one host deletes only its association row, lowers
  *                           a sized session's sessclients by one, and leaves
  *                           the session's state alone. The last host out
- *                           still cancels the session.
+ *                           cancels the session only when it expects no
+ *                           more machines by name (issue #1922).
+ *   _sessionIsEmpty()       DRIVEN. A session with no live task that still
+ *                           expects machines by name is not empty.
  *   TaskManager::cancel()   DRIVEN the same way. The decision is per session,
  *                           and a sized session loses as many expected hosts
  *                           as were canceled out of it.
@@ -374,6 +377,46 @@ $t->check(
     'TaskManager::cancel() lowers sessclients by the hosts removed',
     1 === $m->sessClients(10)
 );
+// --- Named sessions: a host cancel leaves room for machines by name -------
+// Session 50 was sized for two and holds one registered host (task 60); the
+// other machine joins by name, unregistered, with no task. Session 51 was
+// sized for one and holds only task 61. Issue #1922.
+$m = freshTables();
+$m->rows['multicastSessionsAssoc'] = [
+    ['msaID' => 5, 'msID' => 50, 'tID' => 60],
+    ['msaID' => 6, 'msID' => 51, 'tID' => 61],
+];
+$m->rows['multicastSessions'] = [
+    ['msID' => 50, 'msSessClients' => 2] + $m->rows['multicastSessions'][0],
+    ['msID' => 51, 'msSessClients' => 1] + $m->rows['multicastSessions'][0],
+];
+$db->responder = [$m, 'answer'];
+cancelOne(60);
+cancelOne(61);
+$t->check(
+    'Task::cancel() of the last tasked host keeps a session that expects a machine by name',
+    !$m->sessionCanceled(50) && 1 === $m->sessClients(50)
+);
+$t->check(
+    'Task::cancel() of the last host ends a session that expects no more machines',
+    $m->sessionCanceled(51)
+);
+
+$m = freshTables();
+$m->rows['multicastSessionsAssoc'] = [
+    ['msaID' => 5, 'msID' => 50, 'tID' => 60],
+];
+$m->rows['multicastSessions'] = [
+    ['msID' => 50, 'msSessClients' => 2] + $m->rows['multicastSessions'][0],
+];
+$db->responder = [$m, 'answer'];
+ob_start();
+@(new \FOG\Managers\TaskManager())->cancel([60]);
+ob_end_clean();
+$t->check(
+    'TaskManager::cancel() keeps a session that expects a machine by name',
+    !$m->sessionCanceled(50) && 1 === $m->sessClients(50)
+);
 $db->responder = null;
 
 // --- senderLogState(): text from udpcast's own formats --------------------
@@ -473,27 +516,28 @@ $t->check(
     in_array(9, $ids)
 );
 
-// --- _lostEveryHost(): a named session starts with no hosts ---------------
-// Issue #1922: the empty list a named session starts with read as "every
-// host canceled", so the session was canceled before any host could join.
-$lost = function ($taskIDs, $liveIDs) {
+// --- _sessionIsEmpty(): tasks are not the whole membership ---------------
+// Issue #1922: a session sized for machines that join by name can have no
+// live task -- nobody joined yet, or only unregistered machines, which get
+// no task. It is empty only when it also expects no machine by name.
+$empty = function ($liveIDs, $expected) {
     return FogTestHarness::callStatic(
         'FOG\\Service\\MulticastManager',
-        '_lostEveryHost',
-        [$taskIDs, $liveIDs]
+        '_sessionIsEmpty',
+        [$liveIDs, $expected]
     );
 };
 $t->check(
     'a named session with no tasked host (none yet, or only unregistered) keeps running',
-    false === $lost([], [])
+    false === $empty([], 2)
 );
 $t->check(
-    'a session whose every host was canceled ends',
-    true === $lost([7, 8], [])
+    'a session with no live task that expects no machine by name ends',
+    true === $empty([], 0)
 );
 $t->check(
     'a session with one host left keeps running',
-    false === $lost([7, 8], [8])
+    false === $empty([8], 0)
 );
 
 // --- startIfAllConnected(): which task states mean "arrived" -------------
