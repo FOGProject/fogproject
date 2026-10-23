@@ -126,10 +126,10 @@ class FleetStats extends WindowedStats
      */
     private static function _addedPerDaySql()
     {
-        return "SELECT DATE(`hostCreateDate`) AS `d`, COUNT(*) AS `c`
+        return "SELECT " . self::daySlot('`hostCreateDate`') . " AS `d`, COUNT(*) AS `c`
                   FROM `hosts`
                  WHERE `hostCreateDate` BETWEEN :start AND :end
-                 GROUP BY DATE(`hostCreateDate`)";
+                 GROUP BY " . self::daySlot('`hostCreateDate`');
     }
 
     /**

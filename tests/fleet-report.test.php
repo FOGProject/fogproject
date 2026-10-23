@@ -147,8 +147,8 @@ $db->responder = function ($sql) {
     return [['b' => '0', 'c' => '5'], ['b' => '3', 'c' => '2']];
 };
 $buckets = FleetStats::ageBuckets(
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
 $t->check(
     'every bucket is present even when nothing is in it',
@@ -177,8 +177,8 @@ $db->responder = function ($sql) {
     return [['d' => '2026-03-03', 'c' => '2']];
 };
 $added = FleetStats::addedPerDay(
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
 $t->check('the window produces one point per day', 5 === count($added));
 $t->check(

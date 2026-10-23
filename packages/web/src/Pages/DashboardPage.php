@@ -663,13 +663,16 @@ class DashboardPage extends FOGPage
         if ($days < 1) {
             $days = 30;
         }
-        // On FOG's clock, which is what ImagingStats requires and why the
-        // bounds are built here with niceDate() rather than date(). The
-        // widest view this page offers is a year, inside the class' cap.
-        $start = self::niceDate()
+        // The viewer's days: midnight to midnight in the display zone, not
+        // the storage zone. Storage is UTC once the boundary is crossed, so
+        // a UTC window started the graph at 20:00 the evening before in
+        // America/New_York (#1935). ImagingStats binds these in the storage
+        // zone itself. The widest view this page offers is a year, inside
+        // the class' cap.
+        $start = self::toDisplay('now')
             ->setTime(00, 00, 00)
             ->modify("-$days days");
-        $end = self::niceDate()
+        $end = self::toDisplay('now')
             ->setTime(23, 59, 59);
         // ADR 0030 decision 3. The three rules for counting an imaging run
         // out of taskLog -- fold a task's transition rows to one, exclude
@@ -679,19 +682,15 @@ class DashboardPage extends FOGPage
         // and the zero-filled series comes back already continuous.
         $data = [];
         foreach (ImagingStats::runsPerDay($start, $end) as $point) {
-            // Chart.js wants milliseconds and a pair per point; that is this
-            // page's shape and stays here, while the counting does not.
+            // A pair per point is this page's shape and stays here, while
+            // the counting does not.
             //
-            // niceDate() rather than strtotime(), for the reason the whole
-            // rollup exists: strtotime() resolves a bare date in PHP's
-            // default timezone while every bound above is on FOG's, so the
-            // points would be plotted however far apart the two clocks are
-            // from the window that produced them. Silent, and visible only
-            // as a graph shifted by a day at the edges.
-            $data[] = [
-                (self::niceDate($point['date'])->getTimestamp() * 1000),
-                $point['count']
-            ];
+            // The day goes out as its 'Y-m-d' string, not as epoch
+            // milliseconds. An instant is drawn in the BROWSER's zone, so
+            // midnight of any other zone lands on the day before or after
+            // wherever the two differ (#1935). The chart's time axis reads a
+            // bare date as local midnight, which is the calendar day itself.
+            $data[] = [$point['date'], $point['count']];
         }
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode($data));
     }
