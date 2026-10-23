@@ -538,8 +538,14 @@ $check(
 // search for it would pass whatever the error handlers do. The slice is
 // anchored on the FETCH URL, because there are two error handlers in this
 // file and the first textual match is the other one.
+//
+// The mass edit fetch lives in $.registerMassEdit() in fog.common.js, which
+// the host list and the group page share (GH-1938).
 $listJs = (string)@file_get_contents(
     $root . '/packages/web/management/js/fog/host/fog.host.list.js'
+);
+$commonJs = (string)@file_get_contents(
+    $root . '/packages/web/management/js/fog/fog.common.js'
 );
 
 /**
@@ -559,18 +565,22 @@ $errorHandler = function ($js, $anchor) {
     if (false === $at) {
         return '';
     }
-    $end = strpos($js, "\n                }", $at);
+    // The handler ends at the first brace back at its own indentation, so
+    // the slice works whatever indent style the file uses.
+    $lineStart = strrpos(substr($js, 0, $at), "\n");
+    $indent = substr($js, $lineStart + 1, $at - $lineStart - 1);
+    $end = strpos($js, "\n" . $indent . '}', $at);
 
     return substr($js, $at, (false === $end ? strlen($js) : $end) - $at);
 };
 
 $fetches = [
-    'mass edit' => ['sub=masseditform', 'massEditHolder.html(', "massEditModal.modal('hide')"],
-    'queue task' => ['sub=deployMulti', 'queueHolder', "queueTaskModal.modal('hide')"],
+    'mass edit' => [$commonJs, 'sub=masseditform', 'holder.html(', "modal.modal('hide')"],
+    'queue task' => [$listJs, 'sub=deployMulti', 'queueHolder', "queueTaskModal.modal('hide')"],
 ];
 foreach ($fetches as $what => $spec) {
-    list($anchor, $writes, $hides) = $spec;
-    $errBody = $errorHandler($listJs, $anchor);
+    list($js, $anchor, $writes, $hides) = $spec;
+    $errBody = $errorHandler($js, $anchor);
     $check(
         "the $what fetch still has an error handler",
         '' !== $errBody

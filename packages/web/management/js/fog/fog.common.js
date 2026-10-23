@@ -2629,6 +2629,138 @@ $.getSelectedIds = function(table) {
   var rows = table.rows({selected: true});
   return rows.ids().toArray();
 };
+// $.registerMassEdit(opts) - wire a button to the host mass edit modal.
+//
+// Shared by the host list (the ticked rows) and the group page (the group's
+// members, GH-1938), so the two cannot drift. The modal markup comes from
+// HostManagement::massEditActions().
+//
+//   opts.button    the button that opens the modal
+//   opts.selection function returning the POST payload naming the hosts:
+//                  {hosts: [ids]} or {group: id}. Called on open AND on
+//                  Update, because the selection behind the modal is live.
+//                  Return null to do nothing.
+//   opts.onSaved   called after a successful update
+//
+// The form is fetched by POST rather than GET because its "(varies)" hints
+// are computed over the actual selection, and several hundred ids do not go
+// in a query string.
+$.registerMassEdit = function(opts) {
+  var modal = $('#massEditModal'),
+    holder = $('#massedit-form-holder'),
+    count = $('.massedit-host-count'),
+    send = $('#massEditSend'),
+    dialog = $('#massEditModal .modal-dialog');
+
+  $(opts.button).on('click', function() {
+    var payload = opts.selection();
+    if (!payload) {
+      return;
+    }
+
+    count.text('');
+    holder.html('Loading, please wait...');
+    send.addClass('d-none');
+    modal.modal('show');
+    dialog.setLoading(true);
+
+    Pace.track(function() {
+      $.ajax({
+        type: 'post',
+        url: '../management/index.php?node=host&sub=masseditform',
+        data: payload,
+        dataType: 'json',
+        success: function(data) {
+          dialog.setLoading(false);
+          holder.html($.parseHTML(data.msg));
+          // The server counts, so a group launch shows its member count too.
+          if (data.count) {
+            count.text(' - ' + data.count);
+          }
+
+          var form = $('#host-massedit-form');
+
+          // A value control is inert until its action says SET. The
+          // disabled state is the form SAYING the three states out loud --
+          // without it the boxes all look live and "leave alone" reads as
+          // "I forgot to fill this in".
+          function applyActionState() {
+            var action = $(this),
+              key = action.data('massedit-key'),
+              enable = action.val() === 'set',
+              // Exact name, plus the composite's parts. A ^= on
+              // 'value[key]' alone would also catch 'value[keyOther]',
+              // which is a bug waiting for the first pair of keys that
+              // share a prefix.
+              sel = '[name="value[' + key + ']"],'
+                + '[name^="value[' + key + ']["]';
+            $(sel, form).prop('disabled', !enable);
+          }
+          $('.massedit-action', form)
+            .on('change', applyActionState)
+            .each(applyActionState);
+
+          send.removeClass('d-none').off('click').on('click', function(e) {
+            e.stopImmediatePropagation();
+            // Read the selection again HERE, for the same reason the Queue
+            // Task modal does: the grid is still live behind the modal, and
+            // the ids in the form are the ones the server writes.
+            var current = opts.selection();
+            if (!current) {
+              return;
+            }
+            $('input[name="hosts[]"], input[name="group"]', form).remove();
+            $.each(current, function(name, value) {
+              $.each($.isArray(value) ? value : [value], function(i, v) {
+                $('<input>').attr({
+                  type: 'hidden',
+                  name: $.isArray(value) ? name + '[]' : name
+                }).val(v).appendTo(form);
+              });
+            });
+            form.processForm(function(err) {
+              if (err) {
+                return;
+              }
+              modal.modal('hide');
+              if (opts.onSaved) {
+                opts.onSaved();
+              }
+            });
+          });
+        },
+        error: function(jqXHR, textStatus) {
+          if (textStatus == 'abort') {
+            return;
+          }
+          dialog.setLoading(false);
+          // The reason goes IN the modal, and the modal stays put.
+          //
+          // This called modal('hide'), and Bootstrap 5 DROPS a hide() that
+          // lands inside the show transition:
+          //
+          //   hide() { this._isShown && !this._isTransitioning && (...) }
+          //
+          // A refusal comes back faster than the fade takes -- the page
+          // guard that used to reject this endpoint outright answered before
+          // any handler ran -- so the hide was discarded and the box sat on
+          // "Loading, please wait..." indefinitely, with only a toast beside
+          // it to say why. Writing the reason where the person is already
+          // looking needs no race won, and is what they wanted anyway.
+          var reason = (jqXHR.responseJSON && jqXHR.responseJSON.error)
+            || jqXHR.statusText
+            || 'Request failed';
+          holder.html(
+            '<div class="alert alert-danger mb-0">'
+            + $.escapeHtml(String(reason))
+            + '</div>'
+          );
+          $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+        }
+      });
+    });
+  });
+};
 // Toasts are Bootstrap 5's own Toast component. FOG used to vendor PNotify
 // 3.2.0 for this; bootstrap5.bundle.min.js already carries Toast, so the
 // library was dropped rather than updated. PNotify's last release was 2020,

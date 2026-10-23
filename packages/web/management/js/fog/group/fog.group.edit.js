@@ -209,6 +209,16 @@
         sub: 'getHostsList'
     });
 
+    // GH-1938: mass edit the members. The group id goes to the server, which
+    // resolves the membership itself, so no grid paging can cut it short.
+    // The button is absent when the user cannot mass edit hosts.
+    $.registerMassEdit({
+        button: '#group-massedit-open',
+        selection: function() {
+            return {group: Common.id};
+        }
+    });
+
     // ---------------------------------------------------------------
     // PRINTER TAB
     // Association area
