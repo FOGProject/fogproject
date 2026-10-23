@@ -100,10 +100,10 @@ class InventoryStats extends WindowedStats
      */
     private static function _recordedPerDaySql()
     {
-        return "SELECT DATE(`iCreateDate`) AS `d`, COUNT(*) AS `c`
+        return "SELECT " . self::daySlot('`iCreateDate`') . " AS `d`, COUNT(*) AS `c`
                   FROM `inventory`
                  WHERE `iCreateDate` BETWEEN :start AND :end
-                 GROUP BY DATE(`iCreateDate`)";
+                 GROUP BY " . self::daySlot('`iCreateDate`');
     }
 
     /**

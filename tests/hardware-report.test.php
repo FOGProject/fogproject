@@ -86,8 +86,8 @@ $db->responder = function ($sql) use (&$asked) {
     return [];
 };
 $window = [
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 ];
 $t->check(
     'an unmapped breakdown key returns nothing',

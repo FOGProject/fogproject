@@ -82,10 +82,10 @@ class SnapinStats extends WindowedStats
      */
     private static function _runsPerDaySql()
     {
-        return "SELECT DATE(`st`.`stCompleteDate`) AS `d`, COUNT(*) AS `c`
+        return "SELECT " . self::daySlot('`st`.`stCompleteDate`') . " AS `d`, COUNT(*) AS `c`
                   FROM `snapinTasks` AS `st`
                  WHERE `st`.`stCompleteDate` BETWEEN :start AND :end
-                 GROUP BY DATE(`st`.`stCompleteDate`)";
+                 GROUP BY " . self::daySlot('`st`.`stCompleteDate`');
     }
 
     /**
@@ -99,11 +99,11 @@ class SnapinStats extends WindowedStats
      */
     private static function _failuresPerDaySql()
     {
-        return "SELECT DATE(`st`.`stCompleteDate`) AS `d`, COUNT(*) AS `c`
+        return "SELECT " . self::daySlot('`st`.`stCompleteDate`') . " AS `d`, COUNT(*) AS `c`
                   FROM `snapinTasks` AS `st`
                  WHERE `st`.`stCompleteDate` BETWEEN :start AND :end
                    AND `st`.`stReturnCode` <> 0
-                 GROUP BY DATE(`st`.`stCompleteDate`)";
+                 GROUP BY " . self::daySlot('`st`.`stCompleteDate`');
     }
 
     /**
