@@ -13104,6 +13104,9 @@ msgstr "nó de armazenamento inválido"
 msgid "token: optional. Create one under Hosts, Agent Enrollment Tokens."
 msgstr ""
 
+msgid "transfer has started, the session can no longer be joined"
+msgstr ""
+
 #, fuzzy
 msgid "unable to be updated"
 msgstr "Falha ao atualizar"

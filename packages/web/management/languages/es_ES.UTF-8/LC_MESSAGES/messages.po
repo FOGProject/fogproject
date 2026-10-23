@@ -13272,6 +13272,9 @@ msgstr "nodo de almacenamiento no válido"
 msgid "token: optional. Create one under Hosts, Agent Enrollment Tokens."
 msgstr ""
 
+msgid "transfer has started, the session can no longer be joined"
+msgstr ""
+
 #, fuzzy
 msgid "unable to be updated"
 msgstr "No se ha podido destruir"
