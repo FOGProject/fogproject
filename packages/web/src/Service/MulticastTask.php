@@ -331,6 +331,12 @@ class MulticastTask extends FOGService
      */
     private $_isNameSess;
     /**
+     * Has this sender's transfer start been written to the session?
+     *
+     * @var bool
+     */
+    private $_transferRecorded = false;
+    /**
      * The multicast session class
      *
      * @var object
@@ -1262,10 +1268,14 @@ class MulticastTask extends FOGService
         // Persist who owns this sender. procRef alone is in-process memory,
         // so without this a daemon restart cannot tell an orphaned sender
         // from a session that never started.
+        // A new sender has transmitted nothing yet, so the session is
+        // joinable again until recordTransferStart() says otherwise.
+        $this->_transferRecorded = false;
         $this->_MultiSess
             ->set('stateID', self::getQueuedState())
             ->set('senderpid', $running ? (int)$this->getPID($this->procRef) : 0)
-            ->set('sendernode', $running ? $this->_intNodeID : 0);
+            ->set('sendernode', $running ? $this->_intNodeID : 0)
+            ->set('transferstart', null);
         if ($running) {
             $this->_MultiSess->set(
                 'senderstart',
@@ -1409,6 +1419,43 @@ class MulticastTask extends FOGService
             'started' => false !== strpos($current, 'Starting transfer'),
             'connected' => count($connected)
         ];
+    }
+    /**
+     * Records on the session that udp-sender has begun transmitting.
+     *
+     * MulticastSession::isJoinable() closes the PXE join on this column.
+     * The sender's log is the only place that knows, and it sits on the
+     * storage node running the sender, which need not be the server that
+     * answers the boot menu. So the manager reads the log and writes the
+     * moment into the database. Written once per sender: the first
+     * "Starting transfer" means data is on the wire, and a machine joining
+     * after it would receive a partial image. Issue #1922.
+     *
+     * The column is written directly, not through save(): _MultiSess is
+     * the copy from first sighting, and save() writes every field it holds.
+     *
+     * @return bool True when this call recorded the start.
+     */
+    public function recordTransferStart()
+    {
+        if ($this->_transferRecorded) {
+            return false;
+        }
+        $logfile = $this->getUDPCastLogFile();
+        if (!is_readable($logfile)) {
+            return false;
+        }
+        $state = self::senderLogState(file_get_contents($logfile));
+        if (!$state['started']) {
+            return false;
+        }
+        (new MulticastSessionManager())->update(
+            ['id' => $this->getID()],
+            '',
+            ['transferstart' => self::niceDate()->format('Y-m-d H:i:s')]
+        );
+        $this->_transferRecorded = true;
+        return true;
     }
     /**
      * Tells a waiting udp-sender to start now.
