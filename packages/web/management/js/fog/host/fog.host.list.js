@@ -2,10 +2,6 @@
     var addToGroup = $('#addSelectedToGroup'),
         deleteSelected = $('#deleteSelected'),
         massEdit = $('#massEditSelected'),
-        massEditModal = $('#massEditModal'),
-        massEditHolder = $('#massedit-form-holder'),
-        massEditCount = $('.massedit-host-count'),
-        massEditSend = $('#massEditSend'),
         queueTask = $('#queueTask'),
         queueTaskModal = $('#queueTaskModal'),
         groupModal = $('#addToGroupModal'),
@@ -923,113 +919,16 @@
         });
     });
 
-    // Mass edit. The form is fetched by POST rather than GET because its
-    // "Hosts: (varies)" hints are computed over the actual selection, and
-    // several hundred ids do not go in a query string.
-    massEdit.on('click', function() {
-        var hosts = $.getSelectedIds(table);
-        if (hosts.length < 1) {
-            return;
+    // Mass edit. The modal and its handlers are shared with the group page;
+    // see $.registerMassEdit() in fog.common.js.
+    $.registerMassEdit({
+        button: massEdit,
+        selection: function() {
+            var hosts = $.getSelectedIds(table);
+            return hosts.length ? {hosts: hosts} : null;
+        },
+        onSaved: function() {
+            table.ajax.reload(null, false);
         }
-
-        massEditCount.text(' - ' + hosts.length);
-        massEditHolder.html('Loading, please wait...');
-        massEditSend.addClass('d-none');
-        massEditModal.modal('show');
-        $('#massEditModal .modal-dialog').setLoading(true);
-
-        Pace.track(function() {
-            $.ajax({
-                type: 'post',
-                url: '../management/index.php?node=host&sub=masseditform',
-                data: {hosts: hosts},
-                dataType: 'json',
-                success: function(data) {
-                    $('#massEditModal .modal-dialog').setLoading(false);
-                    massEditHolder.html($.parseHTML(data.msg));
-
-                    var form = $('#host-massedit-form');
-
-                    // A value control is inert until its action says SET.
-                    // The disabled state is the form SAYING the three
-                    // states out loud -- without it the boxes all look
-                    // live and "leave alone" reads as "I forgot to fill
-                    // this in".
-                    function applyActionState() {
-                        var action = $(this),
-                            key = action.data('massedit-key'),
-                            enable = action.val() === 'set',
-                            // Exact name, plus the composite's parts. A
-                            // ^= on 'value[key]' alone would also catch
-                            // 'value[keyOther]', which is a bug waiting
-                            // for the first pair of keys that share a
-                            // prefix.
-                            sel = '[name="value[' + key + ']"],'
-                                + '[name^="value[' + key + ']["]';
-                        $(sel, form).prop('disabled', !enable);
-                    }
-                    $('.massedit-action', form)
-                        .on('change', applyActionState)
-                        .each(applyActionState);
-
-                    massEditSend.removeClass('d-none').off('click').on(
-                        'click',
-                        function(e) {
-                            e.stopImmediatePropagation();
-                            // Read the selection again HERE, for the same
-                            // reason the Queue Task modal does: the grid is
-                            // still live behind the modal, and the ids in
-                            // the form are the ones the server writes.
-                            var current = $.getSelectedIds(table);
-                            $('input[name="hosts[]"]', form).remove();
-                            $.each(current, function(i, id) {
-                                $('<input>').attr({
-                                    type: 'hidden',
-                                    name: 'hosts[]'
-                                }).val(id).appendTo(form);
-                            });
-                            form.processForm(function(err) {
-                                if (err) {
-                                    return;
-                                }
-                                massEditModal.modal('hide');
-                                table.ajax.reload(null, false);
-                            });
-                        }
-                    );
-                },
-                error: function(jqXHR, textStatus) {
-                    if (textStatus == 'abort') {
-                        return;
-                    }
-                    $('#massEditModal .modal-dialog').setLoading(false);
-                    // The reason goes IN the modal, and the modal stays put.
-                    //
-                    // This called modal('hide'), and Bootstrap 5 DROPS a
-                    // hide() that lands inside the show transition:
-                    //
-                    //   hide() { this._isShown && !this._isTransitioning
-                    //            && (...) }
-                    //
-                    // A refusal comes back faster than the fade takes -- the
-                    // page guard that used to reject this endpoint outright
-                    // answered before any handler ran -- so the hide was
-                    // discarded and the box sat on "Loading, please wait..."
-                    // indefinitely, with only a toast beside it to say why.
-                    // Writing the reason where the person is already looking
-                    // needs no race won, and is what they wanted anyway.
-                    var reason = (jqXHR.responseJSON
-                        && jqXHR.responseJSON.error)
-                        || jqXHR.statusText
-                        || 'Request failed';
-                    massEditHolder.html(
-                        '<div class="alert alert-danger mb-0">'
-                        + $.escapeHtml(String(reason))
-                        + '</div>'
-                    );
-                    $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
-                }
-            });
-        });
     });
 })(jQuery);
