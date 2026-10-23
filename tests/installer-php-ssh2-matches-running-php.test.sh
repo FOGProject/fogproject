@@ -111,6 +111,12 @@ after=$(awk '/export WEB_php_version=/ { seen = 1 } seen' <<< "$body")
 check "installPackages calls matchPhpSsh2ToRunningPhp after measuring PHP" \
     "$(grep -q '^ *matchPhpSsh2ToRunningPhp$' <<< "$after"; echo $?)"
 
+# ---------------------------------------------------------------------------
+# Linux Mint takes the distro-PHP branch, as Ubuntu does, instead of falling
+# through to ondrej's PPA, where php-ssh2 and php-fpm named different PHPs.
+check "Linux Mint uses the distro PHP, not ondrej's PPA" \
+    "$(grep -Eq 'linuxReleaseName_lower == \+\(\*ubuntu\*\|\*mint\*\) && \$OSVersion -ge 18' "$functions"; echo $?)"
+
 echo "ok $pass"
 [[ $fail -eq 0 ]] || { echo "FAIL ($fail of $((pass + fail)))" >&2; exit 1; }
 exit 0

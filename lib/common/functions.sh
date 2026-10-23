@@ -4377,7 +4377,12 @@ installPackages() {
                     if [[ $OSVersion -gt 22 ]]; then
                         FOG_packages="${FOG_packages// libcurl4 / libcurl4t64 }">>$error_log 2>&1
                     fi
-                    if [[ $linuxReleaseName_lower == +(*ubuntu*) && $OSVersion -ge 18 ]]; then
+                    # Linux Mint is included: it used to fall through to
+                    # addOndrejRepo below, the only Debian-family system still
+                    # on ondrej's PHP. That PPA's php-ssh2 named a different
+                    # PHP than its php-fpm (forum 18289). Mint 19+ sits on
+                    # Ubuntu 18.04+, whose own PHP meets FOG's 7.4 floor.
+                    if [[ $linuxReleaseName_lower == +(*ubuntu*|*mint*) && $OSVersion -ge 18 ]]; then
                         # Fix missing universe section for Ubuntu 18.04 LIVE
                         LANG='en_US.UTF-8' LC_ALL='en_US.UTF-8' add-apt-repository -y universe >>$error_log 2>&1
                         # check to see if we still have packages from deb.sury.org (a.k.a ondrej) installed and try to clean it up
