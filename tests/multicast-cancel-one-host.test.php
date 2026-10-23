@@ -484,7 +484,7 @@ $lost = function ($taskIDs, $liveIDs) {
     );
 };
 $t->check(
-    'a named session nobody has joined yet keeps running',
+    'a named session with no tasked host (none yet, or only unregistered) keeps running',
     false === $lost([], [])
 );
 $t->check(
