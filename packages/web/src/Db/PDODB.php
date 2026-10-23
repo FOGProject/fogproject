@@ -192,6 +192,22 @@ class PDODB extends DatabaseManager
      */
     public function __destruct()
     {
+        self::disconnect();
+    }
+
+    /**
+     * Closes the shared connection; the next link() opens a new one.
+     *
+     * The statement is released too, because a PDOStatement holds a
+     * reference to its PDO and would otherwise keep the connection open.
+     *
+     * The daemon supervisor calls this before every pcntl_fork(), so that no
+     * child inherits the supervisor's socket (#1930).
+     *
+     * @return void
+     */
+    public static function disconnect()
+    {
         self::$_result = null;
 
         if (self::$_queryResult instanceof \PDOStatement) {

@@ -12,6 +12,8 @@
  */
 
 use FOG\Base\FOGCore;
+use FOG\Db\DatabaseManager;
+use FOG\Db\PDODB;
 
 /**
  * Service library
@@ -234,6 +236,15 @@ function Service_persist($service_name)
     Service_Log_message($service_logpath, $service_name, 'Start');
     Service_Register_Signal_handler();
     for (;;) {
+        // #1930: a forked child inherits the supervisor's MySQL socket, and
+        // so does every replacement forked after it. A child that dies in the
+        // middle of a result leaves unread packets on that socket; the next
+        // child then reads them as replies to its own queries ("Packets out
+        // of order", prepare() returns false). A child that exits cleanly
+        // sends COM_QUIT on it instead, and the next one starts on a closed
+        // connection. So close it here. The supervisor makes no more queries,
+        // and each child opens its own connection below.
+        PDODB::disconnect();
         $service_child_pid = pcntl_fork();
         if ($service_child_pid < 0) {
             Service_Log_message(
@@ -307,6 +318,7 @@ function Service_persist($service_name)
             $service_child_pid = 0;
         } elseif ($service_child_pid == 0) {
             Service_Unregister_Signal_handler();
+            DatabaseManager::getLink();
             Service_Log_message(
                 $service_logpath,
                 $service_name,
