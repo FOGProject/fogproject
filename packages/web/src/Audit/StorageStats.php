@@ -100,10 +100,10 @@ class StorageStats extends WindowedStats
      */
     private static function _addedPerDaySql()
     {
-        return "SELECT DATE(`imageDateTime`) AS `d`, COUNT(*) AS `c`
+        return "SELECT " . self::daySlot('`imageDateTime`') . " AS `d`, COUNT(*) AS `c`
                   FROM `images`
                  WHERE `imageDateTime` BETWEEN :start AND :end
-                 GROUP BY DATE(`imageDateTime`)";
+                 GROUP BY " . self::daySlot('`imageDateTime`');
     }
 
     /**
@@ -201,7 +201,7 @@ class StorageStats extends WindowedStats
             self::_totalsSql(),
             $lo,
             $hi,
-            [':staleBefore' => $lo->format('Y-m-d H:i:s')]
+            [':staleBefore' => self::storageBound($lo)]
         );
     }
 

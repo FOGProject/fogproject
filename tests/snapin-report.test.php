@@ -129,8 +129,8 @@ $db->responder = function ($sql) {
     ];
 };
 $totals = SnapinStats::totals(
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
 $t->check('the runs tile counts the run rows', 4 === $totals['runs']);
 $t->check(
@@ -162,8 +162,8 @@ $db->responder = function ($sql) {
     return [['d' => '2026-03-02', 'c' => '4']];
 };
 $series = SnapinStats::runsPerDay(
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
 $t->check('the window produces one point per day', 5 === count($series));
 $t->check(
@@ -178,8 +178,8 @@ $t->check(
 // Both series have to be the same length or the two lines do not line up
 // on one axis, which is the whole reason they share a chart.
 $failures = SnapinStats::failuresPerDay(
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
 $t->check(
     'runs and failures come back the same length, so they share an axis',

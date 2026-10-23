@@ -132,7 +132,7 @@ $t->check(
 );
 $t->check(
     'the days are grouped off that earliest transition',
-    1 === preg_match('/GROUP BY DATE\(\s*`started`\s*\)/i', $sql)
+    1 === preg_match('/GROUP BY CONCAT\(DATE_FORMAT\(`started`/i', $sql)
 );
 // COUNT(DISTINCT taskID) was how an older shape deduplicated. The inner
 // GROUP BY does it now, and both together would not be wrong so much as a
@@ -184,8 +184,8 @@ $db->responder = function ($sql, $params) use (&$asked) {
 };
 
 $series = ImagingStats::runsPerDay(
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
 
 $t->check('the window produces one point per day', 5 === count($series));
@@ -250,8 +250,8 @@ $db->responder = function ($sql) {
     ];
 };
 $totals = ImagingStats::totals(
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
 $t->check('the runs tile counts the run rows', 5 === $totals['runs']);
 $t->check(
@@ -291,8 +291,8 @@ $db->responder = function ($sql) {
     return $rows;
 };
 $over = ImagingStats::totals(
-    new \DateTimeImmutable('2026-03-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
 $t->check(
     'one row past the cap is reported as truncated',
@@ -307,8 +307,8 @@ $t->check(
  * 5. The window is ordered and capped.
  */
 $reversed = ImagingStats::runsPerDay(
-    new \DateTimeImmutable('2026-03-05 23:59:59'),
-    new \DateTimeImmutable('2026-03-01 00:00:00')
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC'))
 );
 $t->check(
     'bounds passed backwards mean the range between them',
@@ -316,8 +316,8 @@ $t->check(
 );
 
 $capped = ImagingStats::runsPerDay(
-    new \DateTimeImmutable('2020-01-01 00:00:00'),
-    new \DateTimeImmutable('2026-03-05 23:59:59')
+    new \DateTimeImmutable('2020-01-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
 $t->check(
     'a window wider than MAX_DAYS is capped',
@@ -334,8 +334,8 @@ $t->check(
 // as the same check and is not one, because both sides are known before the
 // code runs and it can only ever be true.
 $leap = ImagingStats::runsPerDay(
-    new \DateTimeImmutable('2024-01-01 00:00:00'),
-    new \DateTimeImmutable('2024-12-31 23:59:59')
+    new \DateTimeImmutable('2024-01-01 00:00:00', new \DateTimeZone('UTC')),
+    new \DateTimeImmutable('2024-12-31 23:59:59', new \DateTimeZone('UTC'))
 );
 $t->check('a full leap year comes back unclipped', 366 === count($leap));
 $t->check(
@@ -366,13 +366,14 @@ $t->check(
     false === strpos($page, 'MIN(`createTime`)')
         && false === strpos($page, "`logImageName` <> ''")
 );
-// strtotime() on a bare date resolves in PHP's timezone while every bound is
-// on FOG's, so the points would be plotted off by the difference between the
-// two clocks -- the exact failure this rollup exists to stop, reintroduced
-// one line after calling it.
+// The day leaves as its date string. An instant -- epoch milliseconds, or a
+// strtotime() of the date -- is drawn in the BROWSER's zone, so every point
+// lands a day early wherever the browser is west of the zone that made it
+// (#1935).
 $t->check(
-    'the dashboard converts the series on FOG clock, not PHP\'s',
-    false !== strpos($page, "self::niceDate(\$point['date'])")
+    'the dashboard sends each day as its date, not as an instant',
+    false !== strpos($page, "[\$point['date'], \$point['count']]")
+        && false === strpos($page, 'getTimestamp() * 1000')
         && false === strpos($page, "strtotime(\$point['date'])")
 );
 
@@ -523,10 +524,18 @@ foreach (array_keys($params) as $name) {
 }
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
+// Each row is a 15-minute slot now, not a day (#1935); dailySeries() puts
+// slots on display-zone days. The fixtures are all daytime UTC, so their
+// date part is their day here.
 $got = [];
+$slotsOk = true;
 foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $row) {
-    $got[$row['d']] = (int)$row['c'];
+    $slotsOk = $slotsOk
+        && 1 === preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:(00|15|30|45)$/', $row['d']);
+    $day = substr($row['d'], 0, 10);
+    $got[$day] = ($got[$day] ?? 0) + (int)$row['c'];
 }
+$t->check('each row is a 15-minute slot', $slotsOk);
 
 $t->check(
     'rule 1 holds: three transitions of one task are ONE image',
