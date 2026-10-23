@@ -352,6 +352,7 @@ multicastsession	20	msSenderPID	senderpid	-	-
 multicastsession	21	msSenderNode	sendernode	-	-
 multicastsession	22	msSenderStart	senderstart	-	-
 multicastsession	23	msAnon5	anon5	-	-
+multicastsession	24	msTransferStart	transferstart	-	-
 multicastsessionassociation	0	msaID	id	-	-
 multicastsessionassociation	1	msaID	DT_RowId	f	-
 multicastsessionassociation	2	msID	msID	-	-

@@ -60,7 +60,8 @@ class MulticastSession extends FOGController
         'senderpid' => 'msSenderPID',
         'sendernode' => 'msSenderNode',
         'senderstart' => 'msSenderStart',
-        'anon5' => 'msAnon5'
+        'anon5' => 'msAnon5',
+        'transferstart' => 'msTransferStart'
     ];
     /**
      * Additional Fields
@@ -317,6 +318,15 @@ class MulticastSession extends FOGController
         // No sender yet, so nothing has been transmitted.
         if ((int)$this->get('senderpid') < 1) {
             return true;
+        }
+        // The manager records the moment udp-sender's log says the
+        // transfer started. That is the one signal that counts every
+        // receiver: an unregistered machine joins a named session without
+        // a task, so the association count below never sees it, and the
+        // sender could start while the menu still let a late machine in.
+        // Issue #1922.
+        if ($this->get('transferstart')) {
+            return false;
         }
         // An unsized session was started with --min-receivers set to
         // whatever had already joined, so it can begin transmitting at any
