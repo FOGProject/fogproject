@@ -231,6 +231,14 @@ class FOGSSH
                 }
             }
             $this->_lastFailure = 'connect';
+            // Without the extension the call below is a fatal error, not a
+            // false return, and the caller's own "connection failed" message
+            // never runs. Forum 18289: a snapin upload became a bare 500.
+            if (!function_exists('ssh2_connect')) {
+                throw new \Exception(
+                    _('The PHP ssh2 extension is not loaded')
+                );
+            }
             $this->_link = ssh2_connect($host, $port);
             if ($this->_link === false) {
                 trigger_error(_('SSH Connection Failed'), E_USER_NOTICE);
