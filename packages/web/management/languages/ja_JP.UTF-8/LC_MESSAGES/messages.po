@@ -8772,6 +8772,10 @@ msgstr "ID トークンが別の対象者に対して発行されています"
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr "ホストへ Ping を実行するには PHP の sockets 拡張機能が必要です"
 
+#, fuzzy
+msgid "The PHP ssh2 extension is not loaded"
+msgstr "ホストへ Ping を実行するには PHP の sockets 拡張機能が必要です"
+
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr "FOG がストレージノード自体にログインするためのアカウントです。SSH ではノードへの到達性を確認し、FTP ではイメージやスナップインを転送します。通常はインストーラーが「fogproject」という名前で作成します。FOG Web UI のユーザーアカウントではありません。"
 
@@ -11310,6 +11314,10 @@ msgstr "FOG ストレージノードへ。"
 
 msgid "token: optional. Create one under Hosts, Agent Enrollment Tokens."
 msgstr "トークンは任意です。「ホスト > エージェント登録トークン」から作成できます。"
+
+#, fuzzy
+msgid "transfer has started, the session can no longer be joined"
+msgstr "これ以上参加できません"
 
 msgid "unable to be updated"
 msgstr "更新できません"
