@@ -473,6 +473,29 @@ $t->check(
     in_array(9, $ids)
 );
 
+// --- _lostEveryHost(): a named session starts with no hosts ---------------
+// Issue #1922: the empty list a named session starts with read as "every
+// host canceled", so the session was canceled before any host could join.
+$lost = function ($taskIDs, $liveIDs) {
+    return FogTestHarness::callStatic(
+        'FOG\\Service\\MulticastManager',
+        '_lostEveryHost',
+        [$taskIDs, $liveIDs]
+    );
+};
+$t->check(
+    'a named session with no tasked host (none yet, or only unregistered) keeps running',
+    false === $lost([], [])
+);
+$t->check(
+    'a session whose every host was canceled ends',
+    true === $lost([7, 8], [])
+);
+$t->check(
+    'a session with one host left keeps running',
+    false === $lost([7, 8], [8])
+);
+
 // --- startIfAllConnected(): which task states mean "arrived" -------------
 /**
  * A sender whose udpcast log is a file the test writes.
