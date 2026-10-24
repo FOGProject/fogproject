@@ -133,6 +133,10 @@ msgstr ""
 msgid "%d host(s) are assigned an image they cannot run"
 msgstr ""
 
+#, php-format
+msgid "%d hosts in this group are outside your sites and are not included."
+msgstr ""
+
 #, fuzzy, php-format
 msgid "%d module"
 msgid_plural "%d modules"
@@ -1955,6 +1959,9 @@ msgstr "Create New %s"
 msgid "Chain - LDAP_MATCHING_RULE_IN_CHAIN (AD only)"
 msgstr ""
 
+msgid "Change settings on every host in this group in one step. This writes onto the hosts that are members now. A host added to the group later does not get these values."
+msgstr ""
+
 msgid "Change what the request asks for (optional)"
 msgstr ""
 
@@ -3137,6 +3144,10 @@ msgstr "Update Settings"
 #, fuzzy
 msgid "Editing Global LDAP Settings"
 msgstr "Update Settings"
+
+#, php-format
+msgid "Editing the %1$d hosts in group %2$s. Every field is left alone unless you choose otherwise."
+msgstr ""
 
 msgid "Either half may be sent, or both. ABSENT IS NOT EMPTY: a body with no \"shares\" key leaves the share list alone, while one carrying empty lists means \"shared with nobody\" and clears it. The whole list is replaced rather than added to. Sharing needs no permission -- it can only add one named entry to the picker of somebody you could already name -- but editing a GLOBAL filter requires savedfilter.edit."
 msgstr ""
@@ -6185,6 +6196,10 @@ msgid "Mass Edit Fail"
 msgstr "User update failed"
 
 #, fuzzy
+msgid "Mass Edit Member Hosts"
+msgstr "Install / Update Successful!"
+
+#, fuzzy
 msgid "Mass Edit Success"
 msgstr "Install / Update Successful!"
 
@@ -6703,6 +6718,10 @@ msgstr ""
 
 msgid "No files provided in the \"snapinfiles[]\" multipart field"
 msgstr ""
+
+#, fuzzy
+msgid "No group exists with that ID"
+msgstr "An image already exists with this name!"
 
 #, php-format
 msgid "No group named \"%s\" exists to remove hosts from"
@@ -10803,6 +10822,9 @@ msgid "This endpoint accepts POST only."
 msgstr ""
 
 msgid "This endpoint only accepts POST."
+msgstr ""
+
+msgid "This group has no hosts you can edit"
 msgstr ""
 
 #, fuzzy
