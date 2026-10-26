@@ -5916,6 +5916,34 @@ abstract class FOGBase
     }
 
     /**
+     * The literal DEFAULT a column declares, or null when it has none.
+     *
+     * Null also for DEFAULT NULL and for a SQL function such as
+     * current_timestamp(), which is "the server decides at INSERT" rather
+     * than a value anyone can write. The parse is the one
+     * OpenAPI::_columnSchema() uses to publish `default`, so a caller that
+     * honors this honors exactly what the API document promises (GH-1946).
+     *
+     * A plugin table's types come from the server catalog without the
+     * DEFAULT clause, so a plugin column answers null here.
+     *
+     * @param string $table  the database table
+     * @param string $column the database column
+     *
+     * @return string|null
+     */
+    protected static function columnDefault($table, $column)
+    {
+        $type = self::columnType($table, $column);
+        if (!preg_match("/DEFAULT\s+(?!NULL)'?([^'\s]+)'?/i", $type, $match)
+            || preg_match('/^\w+\s*\(/', $match[1])
+        ) {
+            return null;
+        }
+        return $match[1];
+    }
+
+    /**
      * Columns per table that an INSERT must name, built on demand.
      *
      * @var array
