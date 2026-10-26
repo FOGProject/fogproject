@@ -27,17 +27,6 @@ use FOG\Base\FOGController;
 class NodeFailure extends FOGController
 {
     /**
-     * The load query template custom for this class.
-     *
-     * @var string
-     */
-    protected $loadQueryTemplate = "SELECT * 
-        FROM `%s`
-        WHERE `%s`='%s'
-        AND TIMESTAMP(`nfDateTime`)
-        BETWEEN TIMESTAMP(DATE_ADD(NOW(), INTERVAL -5 MINUTE))
-        AND TIMESTAMP(NOW())";
-    /**
      * The node failure table.
      *
      * @var string
