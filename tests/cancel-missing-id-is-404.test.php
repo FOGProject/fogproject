@@ -8,16 +8,16 @@
  * and answered 200. snapinjob, snapintask and multicastsession share the arm
  * (GH-1949).
  *
- * The arm now answers 404 through _requireFound() when an id was named. Only
- * the id-less route (null $id) keeps the bulk search.
+ * The arm now answers 404 through _requireFound() for any object that does
+ * not load. The id-less route and its bulk search are gone: a cancel always
+ * names one object.
  *
  * WHAT THIS PINS, driven through the real Route::cancel() on FogFakeDb:
  *
  *   - a named id that does not load, as the int a caller can pass and as the
  *     string the router hands over (including "0"): 404 and no UPDATE of
  *     tasks;
- *   - the id-less call still issues its state-filtered id search and then
- *     cancels what it found;
+ *   - a call with no id at all is a 404 too, with no search and no write;
  *   - a named id that loads and is live still cancels (the arm was not
  *     turned into a blanket refusal).
  *
@@ -146,8 +146,10 @@ foreach (['missing-int', 'missing-str', 'missing-zero'] as $case) {
 
 $bulk = missingIdChild('bulk');
 $t->check(
-    'id-less: the bulk arm still runs its state-filtered search: ' . $bulk,
-    0 === strpos($bulk, 'PROCEEDED') && false !== strpos($bulk, 'search')
+    'no id: 404, nothing searched or canceled: ' . $bulk,
+    0 === strpos($bulk, 'REFUSED 404')
+        && false === strpos($bulk, 'taskwrite')
+        && false === strpos($bulk, 'search')
 );
 
 $live = missingIdChild('live');
