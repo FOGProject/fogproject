@@ -1557,7 +1557,7 @@ class OpenAPI extends FOGBase
             $paths['/' . $class . '/join'] = [
                 'put' => self::_op(
                     $class,
-                    'join',
+                    'joinupdate',
                     sprintf(_('Bulk edit %s'), $class),
                     _('Applies one set of field values to every object named '
                         . 'in ids. Fields left out of the body keep their '
@@ -1840,6 +1840,8 @@ class OpenAPI extends FOGBase
             'delete' => 'Delete',
             'search' => 'Search',
             'join' => 'Join',
+            // PUT /{class}/join keeps the operation id it had as 'join'.
+            'joinupdate' => 'Join',
             'count' => 'Count',
             'ids' => 'ListId',
             'names' => 'ListName',

@@ -10449,6 +10449,10 @@ msgstr "サイトへのアクセス許可を変更する権限がありません
 msgid "You do not have permission to create groups."
 msgstr "グループを作成する権限がありません。"
 
+#, fuzzy
+msgid "You do not have permission to edit an existing group"
+msgstr "グループを作成する権限がありません。"
+
 msgid "You do not have permission to export the database."
 msgstr "データベースをエクスポートする権限がありません。"
 

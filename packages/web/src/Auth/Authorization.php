@@ -294,7 +294,10 @@ class Authorization extends FOGBase
         'ids' => 'view',
         'active' => 'view',
         'create' => 'create',
+        // POST /{class}/join makes net-new groups; PUT /{class}/join edits
+        // existing objects in bulk, so it is an edit, not a create (GH-1950).
         'join' => 'create',
+        'joinupdate' => 'edit',
         'update' => 'edit',
         'delete' => 'delete',
         'task' => 'task',
