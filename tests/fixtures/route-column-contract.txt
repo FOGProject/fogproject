@@ -433,10 +433,11 @@ pxemenuoptions	3	pxeName	mainlink	f:classname,tmpcolumns	-
 pxemenuoptions	4	pxeDesc	description	-	-
 pxemenuoptions	5	pxeParams	params	-	-
 pxemenuoptions	6	pxeDefault	default	-	-
-pxemenuoptions	7	pxeRegOnly	regMenu	f	-
-pxemenuoptions	8	pxeArgs	args	-	-
-pxemenuoptions	9	pxeHotKeyEnable	hotkey	-	-
-pxemenuoptions	10	pxeKeySequence	keysequence	-	-
+pxemenuoptions	7	pxeRegOnly	regMenu	-	-
+pxemenuoptions	8	pxeRegOnly	regMenuText	f	-
+pxemenuoptions	9	pxeArgs	args	-	-
+pxemenuoptions	10	pxeHotKeyEnable	hotkey	-	-
+pxemenuoptions	11	pxeKeySequence	keysequence	-	-
 role	0	rID	id	-	-
 role	1	rID	DT_RowId	f	-
 role	2	rName	name	-	-

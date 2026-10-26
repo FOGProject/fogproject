@@ -6327,6 +6327,10 @@ msgstr "Méthode n'existe pas"
 msgid "Method not allowed"
 msgstr "Non autorisé ici"
 
+#, fuzzy
+msgid "Method not allowed."
+msgstr "Non autorisé ici"
+
 msgid "Microsoft AD"
 msgstr ""
 
@@ -6914,6 +6918,9 @@ msgid "No such filter"
 msgstr ""
 
 msgid "No such object."
+msgstr ""
+
+msgid "No such route."
 msgstr ""
 
 msgid "No such token."

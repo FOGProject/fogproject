@@ -5425,6 +5425,10 @@ msgstr "メソッドが存在しません"
 msgid "Method not allowed"
 msgstr "許可されていないメソッド"
 
+#, fuzzy
+msgid "Method not allowed."
+msgstr "許可されていないメソッド"
+
 msgid "Microsoft AD"
 msgstr "Microsoft AD"
 
@@ -5934,6 +5938,10 @@ msgstr "該当するフィルターがありません"
 
 msgid "No such object."
 msgstr "該当するオブジェクトが存在しません。"
+
+#, fuzzy
+msgid "No such route."
+msgstr "該当するユーザーが存在しません。"
 
 msgid "No such token."
 msgstr "該当するトークンが存在しません。"
