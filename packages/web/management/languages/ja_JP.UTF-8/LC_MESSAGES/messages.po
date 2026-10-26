@@ -1150,6 +1150,9 @@ msgstr "ページ分割されていない一覧。"
 msgid "Annually"
 msgstr "毎年"
 
+msgid "Another object already has this name. Classes whose names need not be unique never answer this."
+msgstr ""
+
 msgid "Another record still refers to this one and the database refused the delete. The message names what is holding it; retry once that is reassigned or removed."
 msgstr "別のレコードがこのレコードを参照しているため、データベースが削除を拒否しました。メッセージに参照元が示されています。参照先を変更するか参照元を削除してから、再試行してください。"
 
@@ -5880,6 +5883,10 @@ msgstr "このグループにマスターとして関連付けられたスナッ
 msgid "No storage node can serve the file."
 msgstr "ファイルを配信できるストレージノードがありません。"
 
+#, fuzzy
+msgid "No storage node with that id."
+msgstr "指定した ID のプラグインは存在しません。"
+
 msgid "No storage nodes assigned to this storage group"
 msgstr "このストレージグループに割り当てられたストレージノードがありません"
 
@@ -5999,6 +6006,10 @@ msgstr "ここでは許可されていません"
 
 msgid "Not confirmed. MokManager was opened for this certificate, and nothing reported the result. Run the Enroll Secure Boot task to verify it, or set Enrolled Via to mok after you confirm it."
 msgstr "未確認です。この証明書の登録用に MokManager が開かれましたが、結果は報告されていません。Secure Boot 登録タスクを実行して確認するか、登録済みであることを確認してから「登録方法」を mok に設定してください。"
+
+#, fuzzy
+msgid "Not found"
+msgstr "見つかりません"
 
 msgid "Not offered here, on purpose"
 msgstr "意図的にここでは提供していません"
@@ -7158,6 +7169,9 @@ msgstr "報告済み"
 
 msgid "Reports"
 msgstr "レポート"
+
+msgid "Request body must be a JSON object"
+msgstr ""
 
 msgid "Requested"
 msgstr "要求済み"
@@ -9081,6 +9095,15 @@ msgstr "更新後の証明書です。リーフ証明書、続いて証明書チ
 
 msgid "The reported software list is larger than the server accepts."
 msgstr "報告されたソフトウェア一覧のサイズが、サーバーで受け入れ可能な上限を超えています。"
+
+msgid "The request body is not a JSON object, or a required field is missing or empty. The message names the field."
+msgstr ""
+
+msgid "The request body is not a JSON object, or it sets name to an empty value."
+msgstr ""
+
+msgid "The request body is not a JSON object."
+msgstr ""
 
 msgid "The resource is not in a cancellable state."
 msgstr "対象のリソースはキャンセル可能な状態ではありません。"
