@@ -7371,6 +7371,44 @@ EOF
     unset cnt
     unset ret
 }
+# _warnSshPasswordAuth -- warn when sshd refuses password login to the service
+# account (GH-1945).
+#
+# An image capture is moved into place by the web tier, which logs in over SSH
+# as the storage user with ssh2_auth_password (TaskQueue.php, FOGSSH.php). When
+# sshd has PasswordAuthentication no for that user -- the default on many cloud
+# images and hardened servers -- the capture copies all of its data and then
+# fails with "Unable to connect to ssh during move upload".
+#
+# Warning only. Whether to allow password login for an account is the admin's
+# call, so sshd_config is never edited here. Never fails the install: no sshd,
+# or an sshd -T that errors, is silent, and every path returns 0.
+_warnSshPasswordAuth() {
+    local sshd user addr pa
+    user="${SVC_user:-fogproject}"
+    addr="${ipaddress:-127.0.0.1}"
+    # sshd lives in /usr/sbin, which a non-login root PATH often lacks.
+    sshd=$(PATH="$PATH:${sshdSearchDirs:-/usr/sbin:/usr/local/sbin:/sbin}" command -v sshd 2>/dev/null)
+    [[ -n $sshd ]] || return 0
+    pa=$("$sshd" -T -C "user=${user},host=localhost,addr=${addr}" 2>/dev/null | awk 'tolower($1) == "passwordauthentication" {print tolower($2); exit}')
+    [[ $pa == no ]] || return 0
+    echo
+    echo "  ###################################################################"
+    echo "  # WARNING: sshd does not allow password login for ${user}."
+    echo "  #"
+    echo "  # Image captures will FAIL: the data is copied, then the move step"
+    echo "  # stops with \"Unable to connect to ssh during move upload\"."
+    echo "  # The web tier logs in over SSH as ${user} with a password."
+    echo "  #"
+    echo "  # An administrator must allow password authentication for that user,"
+    echo "  # for example in sshd_config:"
+    echo "  #     Match User ${user}"
+    echo "  #         PasswordAuthentication yes"
+    echo "  # then reload sshd. The installer does not change sshd_config."
+    echo "  ###################################################################"
+    echo
+    return 0
+}
 installUtilities() {
     dots "Installing FOG utilities"
     # GH-314: the utility scripts only ever existed inside the git checkout you
@@ -16712,7 +16750,11 @@ configureDHCP() {
             [[ ${DHCP_engine} == kea ]] && otherdhcp="$iscservice" || otherdhcp="$keaservice"
             if [[ -n $otherdhcp && $systemctl == yes ]]; then
                 systemctl is-active --quiet $otherdhcp && systemctl stop $otherdhcp >>$error_log 2>&1
-                systemctl is-enabled --quiet $otherdhcp && systemctl disable $otherdhcp >>$error_log 2>&1
+                # GH-1945: stderr dropped on the query only. With Kea chosen the
+                # ISC unit is usually not installed, and is-enabled prints
+                # "Failed to get unit file state" for a missing unit even with
+                # --quiet. The exit status is all this line reads.
+                systemctl is-enabled --quiet $otherdhcp 2>/dev/null && systemctl disable $otherdhcp >>$error_log 2>&1
             fi
             case $systemctl in
                 yes)
