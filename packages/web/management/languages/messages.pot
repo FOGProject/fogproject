@@ -5414,6 +5414,9 @@ msgstr ""
 msgid "Method not allowed"
 msgstr ""
 
+msgid "Method not allowed."
+msgstr ""
+
 msgid "Microsoft AD"
 msgstr ""
 
@@ -5920,6 +5923,9 @@ msgid "No such filter"
 msgstr ""
 
 msgid "No such object."
+msgstr ""
+
+msgid "No such route."
 msgstr ""
 
 msgid "No such token."
