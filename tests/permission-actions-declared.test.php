@@ -103,7 +103,7 @@ $reg = FOG\Auth\Authorization::coreRegistry();
  * the first pass of this sweep read 25 permissions instead of 12.
  */
 $readRoutes = ['list', 'indiv', 'search', 'count', 'names', 'ids'];
-$writeRoutes = ['create', 'join', 'update', 'delete'];
+$writeRoutes = ['create', 'join', 'joinupdate', 'update', 'delete'];
 $pairs = [];
 foreach (FOG\Router\Route::$validClasses as $class) {
     foreach ($readRoutes as $route) {
