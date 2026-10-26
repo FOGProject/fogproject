@@ -261,11 +261,11 @@
         {
           render: function(data, type, row) {
             return '<a href="../management/index.php?node=snapin&sub=edit&id='
-              + row.snapinid
+              + (row.snapinid || '')
               + '">'
               // snapins is a LEFT JOIN: a deleted snapin's name is null
               // (GH-1953), which would print as "null".
-              + '(' + row.snapinid + ') - ' + (data || '')
+              + '(' + (row.snapinid || '') + ') - ' + (data || '')
               + '</a>';
           },
           targets: 0
@@ -416,7 +416,7 @@
               + '&type=' + row.typeID
               + '" class="taskitem" data-task-name="'
               // A deleted type's name is null from the LEFT JOIN (GH-1953).
-              + $.escapeHtml((row.tasktypename || '') + ' - ' + row.hostname)
+              + $.escapeHtml((row.tasktypename || '') + ' - ' + (row.hostname || ''))
               + '" title="Run this task again">'
               + '<i class="fas fa-arrow-rotate-right"></i>'
               + '</a>';
