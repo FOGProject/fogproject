@@ -1564,10 +1564,6 @@ msgstr "選択したタスクをキャンセル"
 msgid "Cancel a %s task"
 msgstr "%s タスクをキャンセル"
 
-#, php-format
-msgid "Cancel every active %s matching a body"
-msgstr ""
-
 msgid "Cancel the selected tasks."
 msgstr "選択したタスクをキャンセルします。"
 
@@ -3239,9 +3235,6 @@ msgstr "フィールドとタイプの数は一致している必要がありま
 
 msgid "Fields not defined for this class"
 msgstr "このクラスにはフィールドが定義されていません"
-
-msgid "Fields of the class to match on."
-msgstr ""
 
 msgid "Fields withheld from list responses are returned here."
 msgstr "一覧の応答では省略されるフィールドが、ここでは返されます。"
@@ -5820,9 +5813,6 @@ msgstr "タスク対象のホストがありません"
 
 msgid "No icons found"
 msgstr "アイコンが見つかりません"
-
-msgid "No id: the JSON body is a set of field=value pairs and every queued or in-progress row matching all of them is canceled. An EMPTY body matches every active row. Rows already finished are never touched, and a body that matches nothing is still a 200. A success answers 200 with no object or message."
-msgstr ""
 
 msgid "No image specified"
 msgstr "イメージが指定されていません"
