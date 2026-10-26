@@ -438,6 +438,10 @@ class Enrollment extends FOGBase
             ->set('description', _('Pending Registration created by FOG_AGENT'))
             ->set('imageID', null)
             ->set('pending', '1')
+            // No AD join here, so no enforcement -- what a full
+            // registration without AD stores. Unset, it would now take
+            // hostEnforce's DEFAULT 1 (GH-1946).
+            ->set('enforce', 0)
             // The default modules, as Boot\Registration and the host add
             // form attach them: Resolver::resolveModules() has no default
             // tier, so a host created without these has every capability

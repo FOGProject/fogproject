@@ -673,11 +673,41 @@ abstract class FOGController extends FOGBase
                 $notInt[$this->key($strKey)] = true;
             }
 
+            // GH-1946: on a new row, a field the caller never set is left
+            // out of the INSERT, so the column's own DEFAULT applies. Filled
+            // in with emptyValueFor() instead, imageEnabled DEFAULT 1 became
+            // 0 and POST /image made a disabled image. Not for an existing
+            // row: there an omitted column keeps its stored value, which is
+            // already right. Only for a NOT NULL column with a DEFAULT: one
+            // with no DEFAULT is error 1364 if omitted, and a nullable one
+            // would turn today's '' into NULL.
+            $isNew = false === filter_var(
+                $this->data['id'] ?? null,
+                FILTER_VALIDATE_INT,
+                ['options' => ['min_range' => 1]]
+            );
+            $noDefault = $isNew
+                ? self::columnsRequiringValue($this->databaseTable)
+                : [];
+
             foreach ($this->databaseFields as $rawKey => $column) {
                 $key = $this->key($rawKey);
                 $column = trim($column);
 
                 if ($column === '') {
+                    continue;
+                }
+
+                // createdBy and createdTime are filled in below when empty,
+                // so they always go through.
+                if ($isNew
+                    && !array_key_exists($key, $this->data)
+                    && !isset($required[$key])
+                    && !isset($noDefault[strtolower($column)])
+                    && '' !== self::columnType($this->databaseTable, $column)
+                    && !self::columnIsNullable($this->databaseTable, $column)
+                    && !in_array($key, ['createdBy', 'createdTime'], true)
+                ) {
                     continue;
                 }
 
