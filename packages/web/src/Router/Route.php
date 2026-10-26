@@ -10430,12 +10430,13 @@ class Route extends FOGBase
      * _applySiteScope(), so a PUT naming an id outside the caller's site
      * scope simply gets a shorter list back rather than writing to it.
      *
-     * Unlike _applyEditFields(), an absent field falls back to the object's
-     * OWN stored value rather than being skipped -- the value is read and
-     * written back. That is why this route is not a bulk edit(): the
-     * re-assignment is not a no-op for a class whose set() transforms what
-     * it stores, which is the trap api-server-owned-fields.test.php pins on
-     * edit() for User::set() and password hashing.
+     * Each object then goes through the same guards and field copy as
+     * edit(), in the same order: the name check, the task-type check on
+     * both ends, and _applyEditFields(). This loop used to copy the fields
+     * itself. It re-set every field the body did not name to its own
+     * stored value, so User::set() re-hashed the stored password hash and
+     * locked the account out, and it skipped the server-owned refusal and
+     * both assertions. GH-1950.
      *
      * @param string $classname The lowercased class name.
      * @param array  $classVars The class's reflected variables.
@@ -10454,19 +10455,12 @@ class Route extends FOGBase
         );
         foreach ($classes->data as &$c) {
             $c = self::getClass($classname, $c->id);
-            foreach ($classVars['databaseFields'] as &$key) {
-                $key = $c->key($key);
-                if (!isset($vars->$key)) {
-                    $val = $c->get($key);
-                } else {
-                    $val = $vars->$key;
-                }
-                if ($key == 'id') {
-                    continue;
-                }
-                $c->set($key, $val);
-                unset($key);
-            }
+            // Mirrors edit(), so one object behaves the same through
+            // PUT /{class}/join as through PUT /{class}/{id}. GH-1950.
+            self::_assertEditName($c, $classname, $vars);
+            self::_assertTaskTypeOf($c, $classname);
+            self::_applyEditFields($c, $classname, $classVars, $vars);
+            self::_assertTaskTypeOf($c, $classname);
             self::_applyJoiningAssociations($c, $classname, $vars);
             // Store the data and recreate.
             // If failed present so.
