@@ -6058,7 +6058,8 @@ msgstr "未記録"
 msgid "Not reported"
 msgstr "未報告"
 
-msgid "Not set means a group may enable this module. Off is the host's own answer and no group can override it."
+#, fuzzy
+msgid "Not set follows the module default, and a group may also enable this module. Off is the host's own answer and no group can override it."
 msgstr "未設定の場合はグループからこのモジュールを有効化できます。「オフ」はホスト自身の設定であり、グループ側から上書きできません。"
 
 msgid "Not signed in"

@@ -7052,7 +7052,7 @@ msgstr ""
 msgid "Not reported"
 msgstr "Inventaire"
 
-msgid "Not set means a group may enable this module. Off is the host's own answer and no group can override it."
+msgid "Not set follows the module default, and a group may also enable this module. Off is the host's own answer and no group can override it."
 msgstr ""
 
 #, fuzzy

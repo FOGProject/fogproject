@@ -55,12 +55,6 @@ class Registration extends FOGBase
      */
     protected $macsimple;
     /**
-     * The host modules to associate to this host.
-     *
-     * @var array
-     */
-    protected $modulesToJoin;
-    /**
      * The host description if needed.
      *
      * @var string
@@ -96,11 +90,6 @@ class Registration extends FOGBase
                     '',
                     $this->PriMAC
                 )
-            );
-            $find = ['isDefault' => 1];
-            $this->modulesToJoin = Route::getIds(
-                'module',
-                $find
             );
             $this->description = sprintf(
                 '%s %s',
@@ -368,7 +357,6 @@ class Registration extends FOGBase
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
                 ->set('enforce', $enforce)
-                ->set('modules', $this->modulesToJoin)
                 ->addGroup($groupsToJoin)
                 ->addSnapin($snapinsToJoin)
                 ->addPriMAC($this->PriMAC)
@@ -631,7 +619,6 @@ class Registration extends FOGBase
                 // registration without AD stores. Unset, it would now take
                 // hostEnforce's DEFAULT 1 (GH-1946).
                 ->set('enforce', 0)
-                ->set('modules', $this->modulesToJoin)
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC);
             if ($prodkeyget > 0) {
@@ -688,7 +675,6 @@ class Registration extends FOGBase
             self::$Host = (new Host())
                 ->set('name', $this->macsimple)
                 ->set('description', $this->description)
-                ->set('modules', $this->modulesToJoin)
                 ->addPriMAC($this->PriMAC);
             if ($prodkeyget > 0) {
                 $productKey = trim((string)filter_var($stripped['productKey'] ?? '', FILTER_UNSAFE_RAW));

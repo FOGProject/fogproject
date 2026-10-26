@@ -5069,10 +5069,6 @@ abstract class FOGPage extends FOGBase
             }
 
             $ItemMan = $Item->getManager();
-            $modules = Route::getIds(
-                'module',
-                ['isDefault' => [1]]
-            );
             // The CSV record number, header included, so an error names the
             // row a spreadsheet shows rather than the count of rows imported.
             $rowNum = $headerMode ? 1 : 0;
@@ -5204,9 +5200,7 @@ abstract class FOGPage extends FOGBase
                         unset($field);
                     }
                     if ($isHost) {
-                        $Item
-                            ->set('modules', $modules)
-                            ->addPriMAC($primac);
+                        $Item->addPriMAC($primac);
                     }
                     if ($Item->save()) {
                         $Item->load();
