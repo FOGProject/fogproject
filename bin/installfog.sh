@@ -1403,6 +1403,8 @@ while [[ -z $blGo ]]; do
                 esac
             fi
             configureUsers
+            # GH-1945: sshd is installed by now; warn only, never fails.
+            _warnSshPasswordAuth
             # GH-964: before either branch configures a web tier. Storage nodes
             # get this too -- configureMinHttpd still runs as httpd_t and still
             # has to reach the master over HTTP.
