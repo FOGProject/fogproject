@@ -448,21 +448,26 @@ abstract class FOGManagerController extends FOGBase
                         );
                     }
                 } else {
+                    // GH-1953: array_key_exists, not isset, so a NULL
+                    // column stays null. isset() is false for NULL, which
+                    // emitted "" here while GET /{class}/{id} and the
+                    // OpenAPI document both say null. Only a key the row
+                    // does not carry at all falls back to ''.
                     $row[$column['dt']] = (
-                        isset($columns[$j]['db']) && isset($data[$i][$columns[$j]['db']]) ?
+                        isset($columns[$j]['db']) && array_key_exists($columns[$j]['db'], $data[$i]) ?
                         $data[$i][$columns[$j]['db']] :
                         (
-                            isset($columns[$j]['do']) && isset($data[$i][$columns[$j]['do']]) ?
+                            isset($columns[$j]['do']) && array_key_exists($columns[$j]['do'], $data[$i]) ?
                             $data[$i][$columns[$j]['do']] :
                             ''
                         )
                     );
                     if (!isset($column['extra'])) {
                         $row[$column['dt']] = (
-                            isset($columns[$j]['db']) && isset($data[$i][$columns[$j]['db']]) ?
+                            isset($columns[$j]['db']) && array_key_exists($columns[$j]['db'], $data[$i]) ?
                             $data[$i][$columns[$j]['db']] :
                             (
-                                isset($columns[$j]['do']) && isset($data[$i][$columns[$j]['do']]) ?
+                                isset($columns[$j]['do']) && array_key_exists($columns[$j]['do'], $data[$i]) ?
                                 $data[$i][$columns[$j]['do']] :
                                 ''
                             )
