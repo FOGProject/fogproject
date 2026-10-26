@@ -12114,6 +12114,10 @@ msgid "You do not have permission to create groups."
 msgstr "没有连接到数据库"
 
 #, fuzzy
+msgid "You do not have permission to edit an existing group"
+msgstr "没有连接到数据库"
+
+#, fuzzy
 msgid "You do not have permission to export the database."
 msgstr "没有连接到数据库"
 

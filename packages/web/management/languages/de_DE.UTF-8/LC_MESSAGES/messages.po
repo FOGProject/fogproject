@@ -12120,6 +12120,10 @@ msgid "You do not have permission to create groups."
 msgstr "Keine Verbindung zur Datenbank"
 
 #, fuzzy
+msgid "You do not have permission to edit an existing group"
+msgstr "Keine Verbindung zur Datenbank"
+
+#, fuzzy
 msgid "You do not have permission to export the database."
 msgstr "Keine Verbindung zur Datenbank"
 
