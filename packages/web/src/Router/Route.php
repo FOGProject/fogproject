@@ -5764,7 +5764,7 @@ class Route extends FOGBase
             if (!$var_name) {
                 self::setErrorMessage(
                     _('A name must be defined if using the "name" property'),
-                    HTTPResponseCodes::HTTP_FORBIDDEN
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
                 );
             }
         }
@@ -5776,7 +5776,7 @@ class Route extends FOGBase
         ) {
             self::setErrorMessage(
                 _('Already created'),
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                HTTPResponseCodes::HTTP_CONFLICT
             );
         }
     }
@@ -6103,7 +6103,7 @@ class Route extends FOGBase
             $classVars = self::_classVars($class);
             $class = self::_newEntity($class, $id);
             self::_requireFound($class);
-            $vars = self::_requestBody();
+            $vars = self::_requestObject();
             self::_assertEditName($class, $classname, $vars);
             // Both ends: editing a task of a type the role may not start
             // is refused, and so is changing one into such a type.
@@ -6139,7 +6139,7 @@ class Route extends FOGBase
         $class = self::_newEntity($class, $id);
         self::_requireFound($class);
         $tids = Route::getIds('tasktype', false);
-        $task = self::_requestBody();
+        $task = self::_requestObject();
         try {
             Authorization::assertTaskType(
                 $task->taskTypeID ?? 0,
@@ -6219,7 +6219,7 @@ class Route extends FOGBase
         if ($exists && $uniqueNames) {
             self::setErrorMessage(
                 _('Already created'),
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                HTTPResponseCodes::HTTP_CONFLICT
             );
         }
     }
@@ -6261,6 +6261,13 @@ class Route extends FOGBase
             }
             $class->set($key, $val);
             unset($key);
+        }
+        // GH-1946: save() now lets an omitted field take its column DEFAULT.
+        // uAllowAPI's DEFAULT is 1, which would grant API access to every
+        // user created without the field. Held at the old 0 until that
+        // access change is decided on its own.
+        if ('user' === $classname && !property_exists($vars, 'api')) {
+            $class->set('api', 0);
         }
     }
     /**
@@ -6382,10 +6389,13 @@ class Route extends FOGBase
         foreach ($classVars['databaseFieldsRequired'] as &$key) {
             $key = $class->key($key);
             $val = $class->get($key);
-            if (null === $val) {
+            // get() answers '' for a field nobody set, never null, so a
+            // null-only test never fired and save() failed later as a 500.
+            // A missing required field is the client's error: 400. GH-1952.
+            if (null === $val || (is_string($val) && '' === trim($val))) {
                 self::setErrorMessage(
                     self::$foglang['RequiredDB'] . ": " . $key,
-                    HTTPResponseCodes::HTTP_EXPECTATION_FAILED
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
                 );
             }
         }
@@ -6404,7 +6414,7 @@ class Route extends FOGBase
             $classVars = self::_classVars($class);
             $class = self::_newEntity($class);
 
-            $vars = self::_requestBody();
+            $vars = self::_requestObject();
 
             self::_assertCreateName($classname, $vars);
             self::_applyCreateFields($class, $classname, $classVars, $vars);
@@ -6690,11 +6700,10 @@ class Route extends FOGBase
     /**
      * Answers 404 unless the named item exists.
      *
-     * Seven call sites: indiv(), edit(), task(), and four of cancel()'s five
-     * arms. cancel()'s `default:` arm deliberately does NOT call it -- an id
-     * it cannot load is its signal to fall through to a bulk search rather
-     * than a refusal -- and that omission is now visible, which it was not
-     * while every arm carried its own copy of the block.
+     * Eight call sites: indiv(), edit(), task(), and all five of cancel()'s
+     * arms. cancel()'s `default:` arm calls it only when an id was named; the
+     * id-less route has nothing to load, and its invalid object is the signal
+     * to fall through to a bulk search rather than a refusal (GH-1949).
      *
      * Answers through sendResponse(), which throws, so this either returns
      * having found the item or does not return at all.
@@ -6808,6 +6817,17 @@ class Route extends FOGBase
                     $class->getManager()->cancel([$class->get('id')]);
                     break;
                 default:
+                    // An id that was NAMED and does not load is a 404, not a
+                    // bulk cancel. `!isValid()` alone cannot tell "no id in
+                    // the URL" from "an id that matches no row", so
+                    // DELETE /task/999999/cancel fell into the bulk arm below
+                    // and canceled every active task (GH-1949). Only the
+                    // id-less route (null $id) reaches the bulk search. The
+                    // router hands a named id over as a string, so "0" is
+                    // tested against null/'' and not with empty().
+                    if (null !== $id && '' !== $id) {
+                        self::_requireFound($class);
+                    }
                     if (!$class->isValid()) {
                         $classman = $class->getManager();
                         $find = self::getsearchbody($classname);
@@ -9793,6 +9813,31 @@ class Route extends FOGBase
         );
     }
     /**
+     * The decoded request body, refused with a 400 unless it is an object.
+     *
+     * For the write routes that read properties off the body. Without this a
+     * body that is absent or not a JSON object reached property_exists() as
+     * null, which throws a TypeError the routes' \Exception catches miss, and
+     * the client got a 500 with no body. GH-1952.
+     *
+     * Answers through setErrorMessage(), so this either returns an object or
+     * does not return at all. Routes whose body is optional keep calling
+     * _requestBody().
+     *
+     * @return object
+     */
+    private static function _requestObject()
+    {
+        $vars = self::_requestBody();
+        if (!is_object($vars)) {
+            self::setErrorMessage(
+                _('Request body must be a JSON object'),
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+        }
+        return $vars;
+    }
+    /**
      * Delete items in mass.
      *
      * Four phases, in order: announce what is going, work out what else has
@@ -10416,12 +10461,13 @@ class Route extends FOGBase
      * _applySiteScope(), so a PUT naming an id outside the caller's site
      * scope simply gets a shorter list back rather than writing to it.
      *
-     * Unlike _applyEditFields(), an absent field falls back to the object's
-     * OWN stored value rather than being skipped -- the value is read and
-     * written back. That is why this route is not a bulk edit(): the
-     * re-assignment is not a no-op for a class whose set() transforms what
-     * it stores, which is the trap api-server-owned-fields.test.php pins on
-     * edit() for User::set() and password hashing.
+     * Each object then goes through the same guards and field copy as
+     * edit(), in the same order: the name check, the task-type check on
+     * both ends, and _applyEditFields(). This loop used to copy the fields
+     * itself. It re-set every field the body did not name to its own
+     * stored value, so User::set() re-hashed the stored password hash and
+     * locked the account out, and it skipped the server-owned refusal and
+     * both assertions. GH-1950.
      *
      * @param string $classname The lowercased class name.
      * @param array  $classVars The class's reflected variables.
@@ -10440,19 +10486,12 @@ class Route extends FOGBase
         );
         foreach ($classes->data as &$c) {
             $c = self::getClass($classname, $c->id);
-            foreach ($classVars['databaseFields'] as &$key) {
-                $key = $c->key($key);
-                if (!isset($vars->$key)) {
-                    $val = $c->get($key);
-                } else {
-                    $val = $vars->$key;
-                }
-                if ($key == 'id') {
-                    continue;
-                }
-                $c->set($key, $val);
-                unset($key);
-            }
+            // Mirrors edit(), so one object behaves the same through
+            // PUT /{class}/join as through PUT /{class}/{id}. GH-1950.
+            self::_assertEditName($c, $classname, $vars);
+            self::_assertTaskTypeOf($c, $classname);
+            self::_applyEditFields($c, $classname, $classVars, $vars);
+            self::_assertTaskTypeOf($c, $classname);
             self::_applyJoiningAssociations($c, $classname, $vars);
             // Store the data and recreate.
             // If failed present so.
@@ -10631,7 +10670,6 @@ class Route extends FOGBase
         try {
             $classname = strtolower($class);
             $classVars = self::_classVars($class);
-            $vars = self::_requestBody();
             if ('POST' == self::$reqmethod) {
                 if ($classname != 'group') {
                     self::sendResponse(
@@ -10639,6 +10677,12 @@ class Route extends FOGBase
                     );
                 }
             }
+            // Only PUT and POST read the body, and both read properties off
+            // it, so a body that is not an object is refused here rather
+            // than failing inside the handler. GH-1952.
+            $vars = in_array(self::$reqmethod, ['PUT', 'POST'], true)
+                ? self::_requestObject()
+                : null;
             $classman = self::getClass($class.'Manager');
             switch (self::$reqmethod) {
                 case 'PUT':
@@ -10850,7 +10894,15 @@ class Route extends FOGBase
      */
     public static function logfiles($id)
     {
-        self::$data = (new StorageNode($id))->get('logfiles');
+        $node = new StorageNode($id);
+        // A missing node read as 200 with an empty body. GH-1952.
+        if (!$node->isValid()) {
+            self::setErrorMessage(
+                _('Not found'),
+                HTTPResponseCodes::HTTP_NOT_FOUND
+            );
+        }
+        self::$data = $node->get('logfiles');
     }
     /**
      * Return node's image files.

@@ -627,6 +627,10 @@ class Registration extends FOGBase
                 ->set('name', $hostname)
                 ->set('description', $this->description)
                 ->set('imageID', $imageid)
+                // No AD join here, so no enforcement -- what a full
+                // registration without AD stores. Unset, it would now take
+                // hostEnforce's DEFAULT 1 (GH-1946).
+                ->set('enforce', 0)
                 ->set('modules', $this->modulesToJoin)
                 ->addGroup($groupsToJoin)
                 ->addPriMAC($this->PriMAC);

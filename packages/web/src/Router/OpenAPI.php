@@ -1414,7 +1414,9 @@ class OpenAPI extends FOGBase
                 'create',
                 sprintf(_('Create a %s'), $class),
                 _('Also reachable as /create and /new.'),
-                self::_entityResponse($ref, _('The created object.')),
+                self::_entityResponse($ref, _('The created object.'))
+                + self::_errorResponse('400', self::_createBadRequest())
+                + self::_errorResponse('409', self::_nameTaken()),
                 [],
                 self::_entityBody($ref)
             );
@@ -1441,7 +1443,9 @@ class OpenAPI extends FOGBase
                 sprintf(_('Update a %s'), $class),
                 _('Also reachable as /update and /edit. Send only the fields '
                     . 'being changed.'),
-                self::_entityResponse($ref),
+                self::_entityResponse($ref)
+                + self::_errorResponse('400', self::_editBadRequest())
+                + self::_errorResponse('409', self::_nameTaken()),
                 [],
                 self::_entityBody($ref)
             );
@@ -1562,7 +1566,8 @@ class OpenAPI extends FOGBase
                         . 'matches on nothing but the ids given: a body with '
                         . 'no ids matches nothing and succeeds without '
                         . 'changing anything.'),
-                    self::_acceptedResponse(),
+                    self::_acceptedResponse()
+                    + self::_errorResponse('400', self::_bodyNotObject()),
                     [],
                     self::_bulkEditBody($ref)
                 )
@@ -1622,7 +1627,8 @@ class OpenAPI extends FOGBase
                         . 'the answer is 403. The generic create and update '
                         . 'routes for task and scheduledtask check the same '
                         . 'permission against the row\'s type.'),
-                    self::_emptyResponse(),
+                    self::_emptyResponse()
+                    + self::_errorResponse('400', self::_bodyNotObject()),
                     [],
                     [
                         'required' => true,
@@ -2476,6 +2482,67 @@ class OpenAPI extends FOGBase
                 ]
             ]
         ];
+    }
+
+    /**
+     * One error response whose body is the Error schema.
+     *
+     * _errorResponses() adds a bodyless 404 and a generic 400 to every
+     * operation; an operation merges one of these in ahead of it when the
+     * route answers that code with a described `error` body. GH-1952.
+     *
+     * @param string $code        The HTTP status, as a string key.
+     * @param string $description What makes the route answer it.
+     *
+     * @return array
+     */
+    private static function _errorResponse($code, $description)
+    {
+        return [
+            $code => [
+                'description' => $description,
+                'content' => [
+                    'application/json' => [
+                        'schema' => ['$ref' => '#/components/schemas/Error']
+                    ]
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @return string
+     */
+    private static function _bodyNotObject()
+    {
+        return _('The request body is not a JSON object.');
+    }
+
+    /**
+     * @return string
+     */
+    private static function _createBadRequest()
+    {
+        return _('The request body is not a JSON object, or a required field '
+            . 'is missing or empty. The message names the field.');
+    }
+
+    /**
+     * @return string
+     */
+    private static function _editBadRequest()
+    {
+        return _('The request body is not a JSON object, or it sets name to '
+            . 'an empty value.');
+    }
+
+    /**
+     * @return string
+     */
+    private static function _nameTaken()
+    {
+        return _('Another object already has this name. Classes whose names '
+            . 'need not be unique never answer this.');
     }
 
     /**
@@ -3715,6 +3782,10 @@ class OpenAPI extends FOGBase
                     _('Read a server log'),
                     '',
                     $json(['type' => 'object'], _('Log contents.'))
+                    + self::_errorResponse(
+                        '404',
+                        _('No storage node with that id.')
+                    )
                 )
             ],
             '/unisearch' => [
