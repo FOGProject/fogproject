@@ -16,7 +16,6 @@ namespace FOG\Router;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGBase;
 use FOG\Base\FOGManagerController;
-use FOG\Db\SchemaReconciler;
 
 /**
  * OpenAPI description of the FOG REST API, generated from FOG's own metadata.
@@ -104,13 +103,6 @@ class OpenAPI extends FOGBase
      * revisited rather than extended.
      */
     const OAS_VERSION = '3.0.3';
-    /**
-     * Cache of the decoded schema manifest, so a 50-class walk reads and
-     * parses commons/schema-expected.php once rather than once per class.
-     *
-     * @var array
-     */
-    private static $_manifest = null;
     /**
      * Reflected metadata per class, memoised. Tags, paths and schemas each
      * walk the class list, so without this every class is reflected three
@@ -448,26 +440,6 @@ class OpenAPI extends FOGBase
     }
 
     /**
-     * Loads and caches commons/schema-expected.php.
-     *
-     * Reuses SchemaReconciler::manifest() rather than re-implementing the
-     * path building, so the two cannot disagree about where the file is.
-     *
-     * @return array
-     */
-    private static function _manifest()
-    {
-        if (null === self::$_manifest) {
-            $manifest = SchemaReconciler::manifest();
-            self::$_manifest = isset($manifest['tables'])
-                && is_array($manifest['tables'])
-                ? $manifest['tables']
-                : [];
-        }
-        return self::$_manifest;
-    }
-
-    /**
      * Reflected model metadata for one route class, or null when the class
      * does not resolve.
      *
@@ -595,6 +567,19 @@ class OpenAPI extends FOGBase
             if (count($values) > 0) {
                 $schema['enum'] = $values;
             }
+        } elseif (preg_match('/^(tinyint|smallint|mediumint|int|bigint)/i', $sqlType)
+            && false !== stripos($sqlType, 'zerofill')
+        ) {
+            // GH-1953: MySQL hands a zerofill column back as its padded
+            // string ("0000000000" for task.pct), not as a number, so
+            // "integer" described a payload the server does not send.
+            $schema = [
+                'type' => 'string',
+                'pattern' => '^[0-9]+$',
+                'description' => _(
+                    'A zero padded decimal string, not a JSON number.'
+                )
+            ];
         } elseif (preg_match('/^(tinyint|smallint|mediumint|int|bigint)/i', $sqlType)) {
             $schema = ['type' => 'integer'];
         } elseif (preg_match('/^(decimal|numeric|float|double)/i', $sqlType)) {
@@ -767,10 +752,6 @@ class OpenAPI extends FOGBase
             return null;
         }
         $table = isset($vars['databaseTable']) ? (string)$vars['databaseTable'] : '';
-        $manifest = self::_manifest();
-        $columns = isset($manifest[$table]['columns'])
-            ? (array)$manifest[$table]['columns']
-            : [];
         $ignore = isset($vars['databaseFieldsToIgnore'])
             ? (array)$vars['databaseFieldsToIgnore']
             : [];
@@ -787,18 +768,30 @@ class OpenAPI extends FOGBase
 
         $properties = [];
         foreach ($fields as $property => $column) {
-            if (in_array($property, $ignore, true)) {
-                continue;
-            }
-            $schema = isset($columns[$column])
-                ? self::_columnSchema($columns[$column])
+            // GH-1953: columnType() answers from the core manifest and, for
+            // a table the manifest does not carry (every plugin table), from
+            // the server catalog. Reading the manifest here directly typed
+            // every plugin column `string`.
+            $type = (string)self::columnType($table, $column);
+            $schema = '' !== $type
+                ? self::_columnSchema($type)
                 : ['type' => 'string'];
             $schema['x-fog-column'] = $column;
-            if (!isset($columns[$column])) {
+            if ('' === $type) {
                 $schema['description'] = _('No type information available for this column.');
             }
             if ('id' === $property) {
                 $schema['readOnly'] = true;
+            }
+            // GH-1953: $databaseFieldsToIgnore means "not settable", not
+            // "not returned" -- createdBy and createdTime come back on about
+            // 30 classes. Documented readOnly instead of dropped.
+            if (in_array($property, $ignore, true)) {
+                $schema['readOnly'] = true;
+                $schema['description'] = _(
+                    'Set by the server when the object is created. '
+                    . 'Returned by the API but not settable.'
+                );
             }
             if (in_array(strtolower($property), $sensitive['always'], true)) {
                 $schema['x-fog-sensitive'] = 'always';
@@ -827,6 +820,15 @@ class OpenAPI extends FOGBase
             $schema = self::_applyReference($vars, $property, $schema);
             $properties[$property] = $schema;
         }
+        $shape = self::_getterShape($class);
+        foreach ($shape['retype'] as $property => $override) {
+            if (isset($properties[$property])) {
+                unset($properties[$property]['type'], $properties[$property]['nullable']);
+                $properties[$property] = $override + $properties[$property];
+            }
+        }
+        $properties += $shape['fields'];
+        $properties += self::_listOnlyColumns($fields);
         // additionalProperties is stated rather than left to the default.
         //
         // The default is already true -- an object schema that says nothing
@@ -861,7 +863,9 @@ class OpenAPI extends FOGBase
             $out['required'] = $required;
         }
         $additional = isset($vars['additionalFields'])
-            ? array_values((array)$vars['additionalFields'])
+            ? array_values(
+                array_diff((array)$vars['additionalFields'], $shape['drop'])
+            )
             : [];
         if (count($additional) > 0) {
             $out['description'] = sprintf(
@@ -920,6 +924,129 @@ class OpenAPI extends FOGBase
         }
         return $out;
     }
+    /**
+     * What Route::getter() changes on a single GET, beyond the columns.
+     *
+     * GH-1953. getter() merges extras over the row for a few classes, and
+     * the document described the row alone:
+     *
+     *   - tasktype adds nine flags derived from its id and kernel args;
+     *   - multicastsession keeps `image` as an id in a list but returns the
+     *     embedded Image object under that key on a single GET, adds
+     *     `imageID`, and drops `imagename`, which is never sent.
+     *
+     * Kept beside the document rather than derived, because getter() builds
+     * these inline and there is nothing to reflect. Route.php's `case`
+     * arms are the source; change one and change this.
+     *
+     * @param string $class The lowercase route class name.
+     *
+     * @return array drop (additional fields never sent), retype (column
+     *               overrides), fields (extra properties)
+     */
+    private static function _getterShape($class)
+    {
+        $shape = ['drop' => [], 'retype' => [], 'fields' => []];
+        $single = _('Returned on a single GET only.');
+        if ('tasktype' === $class) {
+            foreach ([
+                'isSnapinTasking',
+                'isSnapinTask',
+                'isImagingTask',
+                'isCapture',
+                'isDeploy',
+                'isInitNeeded',
+                'isMulticast',
+                'isDebug'
+            ] as $flag) {
+                $shape['fields'][$flag] = [
+                    'type' => 'boolean',
+                    'readOnly' => true,
+                    'x-fog-computed' => true,
+                    'description' => $single
+                ];
+            }
+            $shape['fields']['initIDs'] = [
+                'type' => 'array',
+                'items' => ['type' => 'integer'],
+                'readOnly' => true,
+                'x-fog-computed' => true,
+                'description' => $single . ' ' . _(
+                    'The task type ids that need an init image.'
+                )
+            ];
+        }
+        if ('multicastsession' === $class) {
+            $shape['drop'] = ['imagename'];
+            $shape['retype']['image'] = [
+                'oneOf' => [
+                    ['type' => 'integer'],
+                    ['$ref' => '#/components/schemas/' . self::schemaName('image')]
+                ],
+                'description' => _(
+                    'The image id in a list. A single GET replaces it with '
+                    . 'the embedded image object; the id is then in imageID.'
+                )
+            ];
+            $shape['fields']['imageID'] = [
+                'type' => 'integer',
+                'readOnly' => true,
+                'x-fog-computed' => true,
+                'description' => $single
+            ];
+        }
+        return $shape;
+    }
+
+    /**
+     * The keys a list row carries that the model does not declare.
+     *
+     * GH-1953. Route::_gridColumns() adds DT_RowId for the id, `mainlink`
+     * (an HTML anchor) for the name, and one `<node>Link` anchor beside each
+     * foreign key it knows how to link. A single GET has none of them, so
+     * they are marked list-only. The set is what the grid builds today; a
+     * plugin can remove columns, and additionalProperties stays true.
+     *
+     * @param array $fields The model's databaseFields.
+     *
+     * @return array
+     */
+    private static function _listOnlyColumns(array $fields)
+    {
+        $note = _('List rows only; absent from a single GET.');
+        $out = [];
+        $add = function ($name, $desc) use (&$out, $note) {
+            $out[$name] = [
+                'type' => 'string',
+                'readOnly' => true,
+                'x-fog-list-only' => true,
+                'description' => $desc . ' ' . $note
+            ];
+        };
+        if (isset($fields['id'])) {
+            $add('DT_RowId', _('The id as "row_<id>", for DataTables.'));
+        }
+        if (isset($fields['name'])) {
+            $add('mainlink', _('An HTML anchor to the object: "Name - (id)".'));
+        }
+        $links = [];
+        foreach (Route::ENTITY_LINK_COLUMNS as $field => $spec) {
+            $links[$field] = $spec[0];
+        }
+        $links['hostID'] = 'host';
+        $links['image'] = 'image';
+        $links['imageID'] = 'image';
+        foreach ($links as $field => $node) {
+            if (isset($fields[$field])) {
+                $add(
+                    $node . 'Link',
+                    _('An HTML anchor to the related object.')
+                );
+            }
+        }
+        return $out;
+    }
+
     /**
      * Marks a column that holds another class's id as pointing at it.
      *
@@ -1178,6 +1305,14 @@ class OpenAPI extends FOGBase
                     )
                 ],
                 '_lang' => ['type' => 'string'],
+                // GH-1953: sent on every list and undocumented.
+                '_unadjustednote' => [
+                    'type' => 'string',
+                    'description' => _(
+                        'A tooltip for the web UI. Always "" on an API '
+                        . 'request; ignore it.'
+                    )
+                ],
                 '_searchtypes' => [
                     'type' => 'object',
                     'description' => _(
@@ -1265,11 +1400,12 @@ class OpenAPI extends FOGBase
                 $class,
                 'list',
                 sprintf(_('List %s'), $class),
-                _('Also reachable as /list and /all. Filter with ?filter= or '
+                self::_expandNote($class)
+                . _('Also reachable as /list and /all. Filter with ?filter= or '
                     . 'the equivalent trailing path segment; both take '
                     . 'field=value pairs joined with &.'),
                 self::_listResponse($ref),
-                self::_listParameters()
+                self::_listParameters($class)
             ),
         ];
         if ($writable) {
@@ -1292,8 +1428,12 @@ class OpenAPI extends FOGBase
                 $class,
                 'indiv',
                 sprintf(_('Get one %s by id'), $class),
-                _('Fields withheld from list responses are returned here.'),
-                self::_entityResponse($ref)
+                self::_expandNote($class)
+                . _('Fields withheld from list responses are returned here.'),
+                self::_entityResponse($ref),
+                count(Route::relationMap($class)) > 0
+                    ? [['$ref' => '#/components/parameters/expand']]
+                    : []
             ),
         ];
         if ($writable) {
@@ -1313,8 +1453,10 @@ class OpenAPI extends FOGBase
                 $class,
                 'delete',
                 sprintf(_('Delete a %s'), $class),
-                _('Also reachable as /delete and /remove.'),
-                self::_messageResponse() + self::_conflictResponse(
+                _('Also reachable as /delete and /remove. A success answers '
+                    . '200 with no object or message; the body is a '
+                    . 'placeholder to ignore.'),
+                self::_emptyResponse() + self::_conflictResponse(
                     _('Another record still refers to this one and the '
                         . 'database refused the delete. The message names '
                         . 'what is holding it; retry once that is reassigned '
@@ -1346,7 +1488,7 @@ class OpenAPI extends FOGBase
                         . 'Returns the same envelope as a list. Takes no '
                         . 'filter -- the match is the whole query.'),
                     self::_listResponse($ref),
-                    self::_pageParameters()
+                    self::_pageParameters($class)
                 )
             ];
         }
@@ -1474,18 +1616,19 @@ class OpenAPI extends FOGBase
                     $class,
                     'task',
                     sprintf(_('Queue a task against a %s'), $class),
-                    _('Body accepts taskTypeID, taskName, shutdown, debug, '
-                        . 'deploySnapins, passreset, sessionjoin and wol. '
+                    _('Body accepts taskTypeID (required), taskName, shutdown, '
+                        . 'debug, deploySnapins, snapinAbortOnFailure, '
+                        . 'passreset, sessionjoin and wol. A success answers '
+                        . '200 with no body content, so read the queued task '
+                        . 'from the task list. '
                         . 'Wake-on-lan is this route with wol set, not a route '
                         . 'of its own. The caller also needs '
                         . 'tasktype.{taskTypeID} (or tasktype.*); without it '
                         . 'the answer is 403. The generic create and update '
                         . 'routes for task and scheduledtask check the same '
                         . 'permission against the row\'s type.'),
-                    self::_entityResponse(
-                        '#/components/schemas/ListEnvelope',
-                        _('The created task.')
-                    ) + self::_errorResponse('400', self::_bodyNotObject()),
+                    self::_emptyResponse()
+                    + self::_errorResponse('400', self::_bodyNotObject()),
                     [],
                     [
                         'required' => true,
@@ -1515,13 +1658,54 @@ class OpenAPI extends FOGBase
                         . 'canceled. Naming a resource whose task has already '
                         . 'finished -- Complete, Canceled or Failed -- answers '
                         . '409 rather than reporting a success it did not '
-                        . 'perform.'
+                        . 'perform. A success answers 200 with no object or '
+                        . 'message.'
                     ),
-                    self::_messageResponse() + self::_conflictResponse(
+                    self::_emptyResponse() + self::_conflictResponse(
                         _('The resource is not in a cancellable state.')
                     )
                 )
             ];
+            // GH-1953: DELETE /{class}/cancel is registered for every tasking
+            // class, but Route::cancel() only runs its bulk arm for the
+            // classes outside this list. The others look the object up by id
+            // and answer 404 without one.
+            if (!in_array(
+                $class,
+                ['group', 'host', 'scheduledtask', 'filedeletequeue'],
+                true
+            )) {
+                $paths['/' . $class . '/cancel'] = [
+                    'delete' => self::_op(
+                        $class,
+                        'cancel',
+                        sprintf(_('Cancel every active %s matching a body'), $class),
+                        _('No id: the JSON body is a set of field=value pairs '
+                            . 'and every queued or in-progress row matching '
+                            . 'all of them is canceled. An EMPTY body matches '
+                            . 'every active row. Rows already finished are '
+                            . 'never touched, and a body that matches nothing '
+                            . 'is still a 200. A success answers 200 with no '
+                            . 'object or message.'),
+                        self::_emptyResponse(),
+                        [],
+                        [
+                            'required' => false,
+                            'content' => [
+                                'application/json' => [
+                                    'schema' => [
+                                        'type' => 'object',
+                                        'additionalProperties' => true,
+                                        'description' => _('Fields of the '
+                                            . 'class to match on.')
+                                    ]
+                                ]
+                            ]
+                        ],
+                        'CancelMatching'
+                    )
+                ];
+            }
         }
 
         return $paths;
@@ -1801,12 +1985,14 @@ class OpenAPI extends FOGBase
     }
 
     /**
+     * @param string $class The lowercase route class name.
+     *
      * @return array
      */
-    private static function _listParameters()
+    private static function _listParameters($class)
     {
         return array_merge(
-            self::_pageParameters(),
+            self::_pageParameters($class),
             self::_filterParameters()
         );
     }
@@ -1821,15 +2007,53 @@ class OpenAPI extends FOGBase
      * defect this whole change is fixing, so it must not be reintroduced
      * one function further along.
      *
+     * ?expand is offered only for a class Route::relationMap() has entries
+     * for. Everywhere else the server reads it only to lower the page size
+     * (GH-1953), so advertising it would describe a relation that never
+     * arrives.
+     *
+     * @param string $class The lowercase route class name.
+     *
      * @return array
      */
-    private static function _pageParameters()
+    private static function _pageParameters($class)
     {
-        return [
+        $params = [
             ['$ref' => '#/components/parameters/start'],
-            ['$ref' => '#/components/parameters/length'],
-            ['$ref' => '#/components/parameters/expand']
+            ['$ref' => '#/components/parameters/length']
         ];
+        if (count(Route::relationMap($class)) > 0) {
+            $params[] = ['$ref' => '#/components/parameters/expand'];
+        }
+        return $params;
+    }
+
+    /**
+     * The sentence naming a class's ?expand tokens, or '' when it has none.
+     *
+     * @param string $class The lowercase route class name.
+     *
+     * @return string
+     */
+    private static function _expandNote($class)
+    {
+        $map = Route::relationMap($class);
+        if (count($map) < 1) {
+            return '';
+        }
+        $many = [];
+        foreach ($map as $token => $rel) {
+            if (!empty($rel['many'])) {
+                $many[] = $token;
+            }
+        }
+        return sprintf(
+            // translators: first %s is the token list, second the to-many ones.
+            _('?expand accepts: %1$s, or all. Each to-many token (%2$s) '
+                . 'also adds <token>_total and <token>_truncated.'),
+            implode(', ', array_keys($map)),
+            implode(', ', $many)
+        ) . ' ';
     }
 
     /**
@@ -2058,6 +2282,10 @@ class OpenAPI extends FOGBase
             'description' => _('The fields a queued task accepts. '
                 . 'Wake-on-lan is this body with wol set, not a route of '
                 . 'its own.'),
+            // taskTypeID is read unconditionally: Route::task() asks
+            // Authorization about it before anything else, and a body
+            // without it answers an error rather than queueing anything.
+            'required' => ['taskTypeID'],
             'properties' => [
                 'taskTypeID' => self::_oneOfTypes(['string', 'integer']),
                 'taskName' => ['type' => 'string'],
@@ -2065,6 +2293,11 @@ class OpenAPI extends FOGBase
                 'debug' => self::_oneOfTypes(['string', 'boolean']),
                 'deploySnapins' => self::_oneOfTypes(
                     ['string', 'integer', 'boolean']
+                ),
+                // Read at Route::task() as (bool), so any value is accepted
+                // and a false-ish one means false. Default false.
+                'snapinAbortOnFailure' => self::_oneOfTypes(
+                    ['string', 'boolean']
                 ),
                 'passreset' => ['type' => 'string'],
                 'sessionjoin' => self::_oneOfTypes(['string', 'boolean']),
@@ -2167,6 +2400,29 @@ class OpenAPI extends FOGBase
         return [
             '201' => [
                 'description' => _('Created. No body is returned.')
+            ]
+        ];
+    }
+
+    /**
+     * A success that carries nothing worth reading.
+     *
+     * GH-1953. DELETE /{class}/{id}, the cancel routes and POST
+     * /{class}/{id}/task answer 200 and never fill the payload: the router
+     * prints whatever Route::$data was left holding, which is a placeholder
+     * (an empty string or array) and not a {msg}. Documenting {msg} had a
+     * generated client wait for a key that never arrives.
+     *
+     * @return array
+     */
+    private static function _emptyResponse()
+    {
+        return [
+            '200' => [
+                'description' => _(
+                    'Success. No object or message is returned; the body is '
+                    . 'a placeholder ("" or []) to ignore.'
+                )
             ]
         ];
     }
@@ -3088,6 +3344,41 @@ class OpenAPI extends FOGBase
                     ],
                     'SetPref'
                 ),
+                // GH-1953: the route is GET|POST|PUT|DELETE and PUT was left
+                // out. Route::userpref() treats PUT exactly like POST.
+                'put' => self::_op(
+                    '',
+                    'userpref',
+                    _('Store one of your preferences (PUT)'),
+                    _('The same as POST: the body is {"value": "..."}, an '
+                        . 'empty value clears the preference, and a request '
+                        . 'with no value at all answers 400.'),
+                    $json(
+                        [
+                            'type' => 'object',
+                            'properties' => [
+                                'key' => ['type' => 'string'],
+                                'msg' => ['type' => 'string']
+                            ]
+                        ],
+                        _('The preference was stored.')
+                    ),
+                    self::_prefKeyParam(),
+                    [
+                        'required' => true,
+                        'content' => [
+                            'application/json' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'properties' => [
+                                        'value' => ['type' => 'string']
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    'ReplacePref'
+                ),
                 'delete' => self::_op(
                     '',
                     'userpref',
@@ -3435,8 +3726,14 @@ class OpenAPI extends FOGBase
                 'get' => self::_op(
                     '',
                     'kernelUpdate',
-                    _('Kernels present on disk'),
-                    '',
+                    _('FOS kernel releases available to download'),
+                    // GH-1953: said "present on disk". Route::availablekernels()
+                    // never reads the disk.
+                    _('Lists the releases of the FOS project on GitHub '
+                        . '(api.github.com), not the kernels installed on this '
+                        . 'server. The server needs outbound access to GitHub. '
+                        . 'Each row carries id, date, version, type, arch, '
+                        . 'download and tag_name.'),
                     $json(
                         ['$ref' => '#/components/schemas/ValueList'],
                         _('Kernels.')
@@ -3447,8 +3744,12 @@ class OpenAPI extends FOGBase
                 'get' => self::_op(
                     '',
                     'initrdUpdate',
-                    _('Init images present on disk'),
-                    '',
+                    _('FOS init image releases available to download'),
+                    _('Lists the releases of the FOS project on GitHub '
+                        . '(api.github.com), not the init images installed on '
+                        . 'this server. The server needs outbound access to '
+                        . 'GitHub. Each row carries id, date, version, type, '
+                        . 'arch, download and tag_name.'),
                     $json(
                         ['$ref' => '#/components/schemas/ValueList'],
                         _('Init images.')
@@ -3517,6 +3818,38 @@ class OpenAPI extends FOGBase
                                 . 'absent means no cap.')
                         ]
                     ]
+                ),
+                // GH-1953: the route is GET|POST and only GET was described.
+                // Route::unisearch() reads POST fields with filter_input(), so
+                // the body is a form, not JSON.
+                'post' => self::_op(
+                    '',
+                    'unisearch',
+                    _('Search every class at once (POST)'),
+                    _('The same search with q and limit sent as form fields '
+                        . 'instead of in the query string. Also reachable as '
+                        . '/search.'),
+                    $json(['type' => 'object'], _('Grouped matches.')),
+                    [],
+                    [
+                        'required' => true,
+                        'content' => [
+                            'application/x-www-form-urlencoded' => [
+                                'schema' => [
+                                    'type' => 'object',
+                                    'required' => ['q'],
+                                    'properties' => [
+                                        'q' => ['type' => 'string'],
+                                        'limit' => [
+                                            'type' => 'integer',
+                                            'minimum' => 0
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    'SearchPost'
                 )
             ],
             '/unisearch/{item}' => [
@@ -3872,7 +4205,11 @@ class OpenAPI extends FOGBase
                 'required' => false,
                 'schema' => ['type' => 'string'],
                 'description' => _(
-                    'Comma separated relations to inline. Forces the page size to '
+                    'Comma separated relations to inline, or all. Offered only '
+                    . 'on a class that has relations to expand (host today); the '
+                    . 'operation description names the tokens. Each to-many token '
+                    . 'adds <token>_total and <token>_truncated beside its array, '
+                    . 'capped at EXPAND_MAX_ITEMS. Forces the page size to '
                     . 'EXPAND_MAX_ITEMS, so an expanded page can come back smaller '
                     . 'than the length asked for.'
                 )
