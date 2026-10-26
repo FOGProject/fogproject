@@ -6262,6 +6262,13 @@ class Route extends FOGBase
             $class->set($key, $val);
             unset($key);
         }
+        // GH-1946: save() now lets an omitted field take its column DEFAULT.
+        // uAllowAPI's DEFAULT is 1, which would grant API access to every
+        // user created without the field. Held at the old 0 until that
+        // access change is decided on its own.
+        if ('user' === $classname && !property_exists($vars, 'api')) {
+            $class->set('api', 0);
+        }
     }
     /**
      * Applies the join-table changes a create body asks for.

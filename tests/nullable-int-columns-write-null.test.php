@@ -198,11 +198,14 @@ $t->check(
     !array_key_exists($sender, $captured) || null === $captured[$sender]
 );
 // The counterpart, in the same statement, so the two halves of the rule
-// are proven against one another rather than in isolation.
+// are proven against one another rather than in isolation. A never-set
+// field on a new row is left out so its DEFAULT 0 applies (GH-1946), so
+// absent is correct here too; a bound NULL is not.
 $pid = ':msSenderPID_insert';
 $t->check(
-    'msSenderPID in the same statement is still bound as 0',
-    array_key_exists($pid, $captured) && 0 === (int) $captured[$pid]
+    'msSenderPID in the same statement is 0 or its DEFAULT, never NULL',
+    !array_key_exists($pid, $captured)
+        || (null !== $captured[$pid] && 0 === (int) $captured[$pid])
 );
 
 $t->finish();
