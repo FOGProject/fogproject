@@ -112,6 +112,13 @@ class Route extends FOGBase
      */
     private static $_webrootbase = '/fog/';
     /**
+     * The dispatcher's NOT_FOUND / METHOD_NOT_ALLOWED result for the request,
+     * kept so runMatches() can tell the two apart (GH-1953).
+     *
+     * @var array|null
+     */
+    private static $_unmatched = null;
+    /**
      * The path segment every fog-agent API route lives under.
      *
      * A constant because TWO places have to agree on it and they cannot
@@ -970,9 +977,7 @@ class Route extends FOGBase
          * in by a shared parent-path match.
          */
         $unauthprefixes = [
-            $webrootbase . 'bandwidth',
-            $webrootbase . 'storagegroupid',
-            $webrootbase . 'storagenodeid'
+            $webrootbase . 'bandwidth'
         ];
         $unauthexact = [
             $webrootbase . 'system/status',
@@ -1914,15 +1919,10 @@ class Route extends FOGBase
     /**
      * Sets the matches variable
      *
-     * Preserves AltoRouter's own match-failure behavior exactly: a
-     * completely unmatched path and a matched path with the wrong verb both
-     * become plain `false` here, same as they always collapsed to a single
-     * `false` out of AltoRouter's match(). FastRoute's dispatch() DOES
-     * distinguish NOT_FOUND from METHOD_NOT_ALLOWED (with an allowed-methods
-     * list), but returning a different status for that distinction is a
-     * real behavior change, made deliberately out of scope for this engine
-     * swap -- runMatches() still answers every unmatched case with the same
-     * 501 it always has.
+     * A completely unmatched path and a matched path with the wrong verb
+     * both leave `false` in $matches, as AltoRouter's match() did. GH-1953:
+     * the distinction FastRoute's dispatch() makes is kept in $_unmatched,
+     * so runMatches() can answer 404 or 405 instead of 501 for both.
      *
      * @return void
      */
@@ -1946,6 +1946,7 @@ class Route extends FOGBase
         $result = self::$router->dispatch($requestMethod, $requestUri);
         if (\FastRoute\Dispatcher::FOUND !== $result[0]) {
             self::$matches = false;
+            self::$_unmatched = $result;
             return;
         }
         $params = array_filter(
@@ -2015,6 +2016,22 @@ class Route extends FOGBase
             $target = self::$matches['target'];
             $target(...$args);
             return;
+        }
+        // GH-1953: a path no route owns is 404 and a known path with the
+        // wrong verb is 405, not 501. 501 means the server lacks a feature;
+        // here the client asked for something that does not exist.
+        if (\FastRoute\Dispatcher::METHOD_NOT_ALLOWED === (self::$_unmatched[0] ?? null)) {
+            header('Allow: ' . implode(', ', (array)self::$_unmatched[1]));
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_METHOD_NOT_ALLOWED,
+                json_encode(['error' => _('Method not allowed.')])
+            );
+        }
+        if (\FastRoute\Dispatcher::NOT_FOUND === (self::$_unmatched[0] ?? null)) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_FOUND,
+                json_encode(['error' => _('No such route.')])
+            );
         }
         self::sendResponse(
             HTTPResponseCodes::HTTP_NOT_IMPLEMENTED
@@ -4375,9 +4392,15 @@ class Route extends FOGBase
                     ];
                     break;
                 case 'regMenu':
+                    // GH-1953: the API row keeps the integer, as the single
+                    // GET sends it. The grid shows the label from its own key.
                     $columns[] = [
                         'db' => $real,
-                        'dt' => $common,
+                        'dt' => $common
+                    ];
+                    $columns[] = [
+                        'db' => $real,
+                        'dt' => 'regMenuText',
                         'formatter' => function ($d, $row) {
                             return PXEMenuOptionsManager::regText($d);
                         }
