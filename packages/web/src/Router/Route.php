@@ -1714,7 +1714,11 @@ class Route extends FOGBase
         // already use it.
         self::_registerRoute($r, 'GET|POST', '/[search|unisearch]', [__CLASS__, 'unisearch'], 'unisearch');
         self::_registerRoute($r, 'GET|POST', '/[search|unisearch]/[*:item]/[i:limit]?', [__CLASS__, 'unisearch'], 'unisearch');
-        self::_registerRoute($r, 'PUT|POST', "{$expandedw}/join", [__CLASS__, 'joining'], 'join');
+        // Two names for one handler, so each verb carries its own permission
+        // (GH-1950): PUT edits existing objects and needs .edit; POST makes
+        // net-new groups and needs .create.
+        self::_registerRoute($r, 'PUT', "{$expandedw}/join", [__CLASS__, 'joining'], 'joinupdate');
+        self::_registerRoute($r, 'POST', "{$expandedw}/join", [__CLASS__, 'joining'], 'join');
         self::_registerRoute($r, 'GET', '/availablekernels', [__CLASS__, 'availablekernels'], 'kernelUpdate');
         self::_registerRoute($r, 'GET', '/availableinitrds', [__CLASS__, 'availableinitrds'], 'initrdUpdate');
         self::_registerRoute($r, 'GET', "{$expandeda}/[current|active]", [__CLASS__, 'active'], 'active');
@@ -10609,6 +10613,15 @@ class Route extends FOGBase
                 ['name' => $name]
             );
             if ($exists) {
+                // An existing group is not net new: the hosts added below
+                // edit it, so it needs group.edit, not only the route's
+                // group.create (GH-1950).
+                if (!Authorization::can($classname . '.edit')) {
+                    throw new \Exception(
+                        _('You do not have permission to edit an existing group'),
+                        HTTPResponseCodes::HTTP_FORBIDDEN
+                    );
+                }
                 foreach ($id as &$i) {
                     $ids[] = $i;
                     unset($i);
