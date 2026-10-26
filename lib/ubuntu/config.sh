@@ -20,8 +20,10 @@
 [[ -z ${WEB_server_engine} ]] && WEB_server_engine="apache2"
 if [[ $linuxReleaseName_lower == +(*bian*) ]]; then
     # Debian 13+ (Trixie) is systemd-only and dropped the sysv-rc-conf package,
-    # which is never used on a systemctl system anyway. Omit it there.
-    if [[ "$OSVersion" -ge 13 ]] 2>/dev/null; then
+    # which is never used on a systemctl system anyway. Omit it there, and on
+    # any systemd host: on Debian 12 it depends on sysvinit-core, which
+    # conflicts with systemd-sysv, so it cannot be installed at all (#530).
+    if [[ $systemctl == yes || "$OSVersion" -ge 13 ]] 2>/dev/null; then
         sysvrcconf=""
     else
         sysvrcconf="sysv-rc-conf"
@@ -47,8 +49,8 @@ case $linuxReleaseName_lower in
         else
             # make sure we update the package list to not use specific version numbers anymore
             FOG_packages=${FOG_packages//php[0-9]\.[0-9]/php}
-            # Debian 13+ dropped sysv-rc-conf; strip it from cached package lists (upgrades)
-            [[ $linuxReleaseName_lower == +(*bian*) && "$OSVersion" -ge 13 ]] 2>/dev/null && FOG_packages="${FOG_packages//sysv-rc-conf/}"
+            # Same rule for a cached package list (reruns, upgrades)
+            [[ $linuxReleaseName_lower == +(*bian*) && -z $sysvrcconf ]] && FOG_packages="${FOG_packages//sysv-rc-conf/}"
         fi
         [[ -z $packageinstaller ]] && packageinstaller="apt-get -yq install -o Dpkg::Options::=--force-confdef -o Dpkg::Options::=--force-confold"
         [[ -z $packagelist ]] && packagelist="apt-cache pkgnames | grep"
