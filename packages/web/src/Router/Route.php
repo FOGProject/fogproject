@@ -5764,7 +5764,7 @@ class Route extends FOGBase
             if (!$var_name) {
                 self::setErrorMessage(
                     _('A name must be defined if using the "name" property'),
-                    HTTPResponseCodes::HTTP_FORBIDDEN
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
                 );
             }
         }
@@ -5776,7 +5776,7 @@ class Route extends FOGBase
         ) {
             self::setErrorMessage(
                 _('Already created'),
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                HTTPResponseCodes::HTTP_CONFLICT
             );
         }
     }
@@ -6103,7 +6103,7 @@ class Route extends FOGBase
             $classVars = self::_classVars($class);
             $class = self::_newEntity($class, $id);
             self::_requireFound($class);
-            $vars = self::_requestBody();
+            $vars = self::_requestObject();
             self::_assertEditName($class, $classname, $vars);
             // Both ends: editing a task of a type the role may not start
             // is refused, and so is changing one into such a type.
@@ -6139,7 +6139,7 @@ class Route extends FOGBase
         $class = self::_newEntity($class, $id);
         self::_requireFound($class);
         $tids = Route::getIds('tasktype', false);
-        $task = self::_requestBody();
+        $task = self::_requestObject();
         try {
             Authorization::assertTaskType(
                 $task->taskTypeID ?? 0,
@@ -6219,7 +6219,7 @@ class Route extends FOGBase
         if ($exists && $uniqueNames) {
             self::setErrorMessage(
                 _('Already created'),
-                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR
+                HTTPResponseCodes::HTTP_CONFLICT
             );
         }
     }
@@ -6389,10 +6389,13 @@ class Route extends FOGBase
         foreach ($classVars['databaseFieldsRequired'] as &$key) {
             $key = $class->key($key);
             $val = $class->get($key);
-            if (null === $val) {
+            // get() answers '' for a field nobody set, never null, so a
+            // null-only test never fired and save() failed later as a 500.
+            // A missing required field is the client's error: 400. GH-1952.
+            if (null === $val || (is_string($val) && '' === trim($val))) {
                 self::setErrorMessage(
                     self::$foglang['RequiredDB'] . ": " . $key,
-                    HTTPResponseCodes::HTTP_EXPECTATION_FAILED
+                    HTTPResponseCodes::HTTP_BAD_REQUEST
                 );
             }
         }
@@ -6411,7 +6414,7 @@ class Route extends FOGBase
             $classVars = self::_classVars($class);
             $class = self::_newEntity($class);
 
-            $vars = self::_requestBody();
+            $vars = self::_requestObject();
 
             self::_assertCreateName($classname, $vars);
             self::_applyCreateFields($class, $classname, $classVars, $vars);
@@ -9807,6 +9810,31 @@ class Route extends FOGBase
         );
     }
     /**
+     * The decoded request body, refused with a 400 unless it is an object.
+     *
+     * For the write routes that read properties off the body. Without this a
+     * body that is absent or not a JSON object reached property_exists() as
+     * null, which throws a TypeError the routes' \Exception catches miss, and
+     * the client got a 500 with no body. GH-1952.
+     *
+     * Answers through setErrorMessage(), so this either returns an object or
+     * does not return at all. Routes whose body is optional keep calling
+     * _requestBody().
+     *
+     * @return object
+     */
+    private static function _requestObject()
+    {
+        $vars = self::_requestBody();
+        if (!is_object($vars)) {
+            self::setErrorMessage(
+                _('Request body must be a JSON object'),
+                HTTPResponseCodes::HTTP_BAD_REQUEST
+            );
+        }
+        return $vars;
+    }
+    /**
      * Delete items in mass.
      *
      * Four phases, in order: announce what is going, work out what else has
@@ -10639,7 +10667,6 @@ class Route extends FOGBase
         try {
             $classname = strtolower($class);
             $classVars = self::_classVars($class);
-            $vars = self::_requestBody();
             if ('POST' == self::$reqmethod) {
                 if ($classname != 'group') {
                     self::sendResponse(
@@ -10647,6 +10674,12 @@ class Route extends FOGBase
                     );
                 }
             }
+            // Only PUT and POST read the body, and both read properties off
+            // it, so a body that is not an object is refused here rather
+            // than failing inside the handler. GH-1952.
+            $vars = in_array(self::$reqmethod, ['PUT', 'POST'], true)
+                ? self::_requestObject()
+                : null;
             $classman = self::getClass($class.'Manager');
             switch (self::$reqmethod) {
                 case 'PUT':
@@ -10858,7 +10891,15 @@ class Route extends FOGBase
      */
     public static function logfiles($id)
     {
-        self::$data = (new StorageNode($id))->get('logfiles');
+        $node = new StorageNode($id);
+        // A missing node read as 200 with an empty body. GH-1952.
+        if (!$node->isValid()) {
+            self::setErrorMessage(
+                _('Not found'),
+                HTTPResponseCodes::HTTP_NOT_FOUND
+            );
+        }
+        self::$data = $node->get('logfiles');
     }
     /**
      * Return node's image files.
