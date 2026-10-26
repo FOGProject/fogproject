@@ -21,7 +21,7 @@
             {data: 'mainlink'},
             {data: 'description'},
             {data: 'default'},
-            {data: 'regMenu'},
+            {data: 'regMenuText'},
             {data: 'hotkey'},
             {data: 'keysequence'}
         ],
