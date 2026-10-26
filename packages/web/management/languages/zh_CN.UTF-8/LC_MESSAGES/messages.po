@@ -1786,10 +1786,6 @@ msgstr "删除所选"
 msgid "Cancel a %s task"
 msgstr "删除所选"
 
-#, php-format
-msgid "Cancel every active %s matching a body"
-msgstr ""
-
 #, fuzzy
 msgid "Cancel the selected tasks."
 msgstr "删除所选"
@@ -3742,9 +3738,6 @@ msgstr "场和值不具有相等的参数。"
 #, fuzzy
 msgid "Fields not defined for this class"
 msgstr "该类定义没有数据库字段"
-
-msgid "Fields of the class to match on."
-msgstr ""
 
 msgid "Fields withheld from list responses are returned here."
 msgstr ""
@@ -6782,9 +6775,6 @@ msgstr "在任务主机"
 
 msgid "No icons found"
 msgstr "发现没有图标"
-
-msgid "No id: the JSON body is a set of field=value pairs and every queued or in-progress row matching all of them is canceled. An EMPTY body matches every active row. Rows already finished are never touched, and a body that matches nothing is still a 200. A success answers 200 with no object or message."
-msgstr ""
 
 msgid "No image specified"
 msgstr "没有指定的图像"

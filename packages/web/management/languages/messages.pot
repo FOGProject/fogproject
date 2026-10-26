@@ -1554,10 +1554,6 @@ msgstr ""
 msgid "Cancel a %s task"
 msgstr ""
 
-#, php-format
-msgid "Cancel every active %s matching a body"
-msgstr ""
-
 msgid "Cancel the selected tasks."
 msgstr ""
 
@@ -3228,9 +3224,6 @@ msgid "Fields and types must have equal count"
 msgstr ""
 
 msgid "Fields not defined for this class"
-msgstr ""
-
-msgid "Fields of the class to match on."
 msgstr ""
 
 msgid "Fields withheld from list responses are returned here."
@@ -5807,9 +5800,6 @@ msgid "No hosts to task"
 msgstr ""
 
 msgid "No icons found"
-msgstr ""
-
-msgid "No id: the JSON body is a set of field=value pairs and every queued or in-progress row matching all of them is canceled. An EMPTY body matches every active row. Rows already finished are never touched, and a body that matches nothing is still a 200. A success answers 200 with no object or message."
 msgstr ""
 
 msgid "No image specified"

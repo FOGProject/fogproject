@@ -1741,13 +1741,9 @@ class Route extends FOGBase
         self::_registerRoute($r, 'GET', '/settings/cache', [__CLASS__, 'settingsCacheView'], 'settingsCacheView');
         self::_registerRoute($r, 'POST', '/settings/cache/flush', [__CLASS__, 'settingsCacheFlush'], 'settingsCacheFlush');
         self::_registerRoute($r, 'POST', '/settings/cache/refresh', [__CLASS__, 'settingsCacheRefresh'], 'settingsCacheRefresh');
-        // "{$expandedt}/[i:id]?/[cancel]" in AltoRouter syntax -- an OPTIONAL
-        // segment ([i:id]?) followed by a MANDATORY one (/cancel). FastRoute's
-        // parser rejects that shape outright ("Optional segments can only
-        // occur at the end of a route"), so this is the one route in the core
-        // table registered as two explicit patterns instead of going through
-        // _toFastRoutePattern(), rather than through the general translator.
-        self::_registerRoute($r, 'DELETE', "{$expandedt}/cancel", [__CLASS__, 'cancel'], 'cancel');
+        // Cancel always names one object. The id-less DELETE {class}/cancel
+        // canceled every active row that matched the body -- all of them on
+        // an empty body -- and is gone (GH-1949).
         self::_registerRoute($r, 'DELETE', "{$expandedt}/[i:id]/cancel", [__CLASS__, 'cancel'], 'cancel');
         self::_registerRoute($r, 'DELETE', "{$expandedw}/[i:id]/[delete|remove]?", [__CLASS__, 'delete'], 'delete');
         /**
@@ -6705,9 +6701,7 @@ class Route extends FOGBase
      * Answers 404 unless the named item exists.
      *
      * Eight call sites: indiv(), edit(), task(), and all five of cancel()'s
-     * arms. cancel()'s `default:` arm calls it only when an id was named; the
-     * id-less route has nothing to load, and its invalid object is the signal
-     * to fall through to a bulk search rather than a refusal (GH-1949).
+     * arms. A cancel always names one object (GH-1949).
      *
      * Answers through sendResponse(), which throws, so this either returns
      * having found the item or does not return at all.
@@ -6821,48 +6815,29 @@ class Route extends FOGBase
                     $class->getManager()->cancel([$class->get('id')]);
                     break;
                 default:
-                    // An id that was NAMED and does not load is a 404, not a
-                    // bulk cancel. `!isValid()` alone cannot tell "no id in
-                    // the URL" from "an id that matches no row", so
-                    // DELETE /task/999999/cancel fell into the bulk arm below
-                    // and canceled every active task (GH-1949). Only the
-                    // id-less route (null $id) reaches the bulk search. The
-                    // router hands a named id over as a string, so "0" is
-                    // tested against null/'' and not with empty().
-                    if (null !== $id && '' !== $id) {
-                        self::_requireFound($class);
+                    // A cancel names one object, and one that does not load
+                    // is a 404. This arm used to read an invalid object as
+                    // "no id given" and cancel every active row matching the
+                    // body, so DELETE /task/999999/cancel canceled every
+                    // active task (GH-1949).
+                    self::_requireFound($class);
+                    // Falling out of this test used to be silent: the
+                    // method returned normally and the router answered 200
+                    // "canceled" with the state untouched. That is how a
+                    // Failed task came back from the API reporting success
+                    // and stayed Failed.
+                    if (!in_array($class->get('stateID'), $states)) {
+                        $stateName = (new TaskState($class->get('stateID')))->get('name');
+                        self::_notCancellable(
+                            sprintf(
+                                '%s: %s',
+                                _('Task is not active and cannot be canceled'),
+                                ($stateName ?: $class->get('stateID'))
+                            )
+                        );
                     }
-                    if (!$class->isValid()) {
-                        $classman = $class->getManager();
-                        $find = self::getsearchbody($classname);
-                        $find['stateID'] = $states;
-                        // getIds(), not ids(): ids() sets Route::$data and
-                        // returns void, so this handed cancel() a null.
-                        $ids = self::getIds($classname, $find);
-                        // A search that matches nothing stays a 200. This arm
-                        // is a bulk filter, and matching no rows is a
-                        // legitimate result for one; the 409s in this method
-                        // are for a caller who named a specific resource and
-                        // is entitled to know it was not touched.
-                        $classman->cancel($ids);
-                    } else {
-                        // Falling out of this test used to be silent: the
-                        // method returned normally and the router answered 200
-                        // "canceled" with the state untouched. That is how a
-                        // Failed task came back from the API reporting success
-                        // and stayed Failed.
-                        if (!in_array($class->get('stateID'), $states)) {
-                            $stateName = (new TaskState($class->get('stateID')))->get('name');
-                            self::_notCancellable(
-                                sprintf(
-                                    '%s: %s',
-                                    _('Task is not active and cannot be canceled'),
-                                    ($stateName ?: $class->get('stateID'))
-                                )
-                            );
-                        }
-                        $class->cancel();
-                    }
+                    $class->cancel();
+                    $class->cancel();
             }
         } catch (\Exception $e) {
             self::_sendCaught($e);
