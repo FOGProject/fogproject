@@ -11975,3 +11975,26 @@ $this->schema[] = [
     "ALTER TABLE `multicastSessions` "
     . "ADD COLUMN `msTransferStart` DATETIME NULL DEFAULT NULL",
 ];
+
+// 443
+$this->schema[] = [
+    // "Not set" now follows `modules`.`default` (GH-1972): the resolver has
+    // a default tier, and host creation no longer copies the defaults into
+    // host rows. On an install upgraded from 1.5 a missing row meant OFF,
+    // because 1.5 turned a module off by deleting the host's row. Without
+    // this step the new tier would switch those modules on across the
+    // fleet. So every host gets an explicit OFF row for each default module
+    // it has no row for and no group grants, which keeps its effective
+    // state exactly as it is today. Insert-only: it never deletes or
+    // changes a row a host already has. A no-op on a fresh install, which
+    // has no hosts when the schema runs.
+    "INSERT IGNORE INTO `moduleStatusByHost` "
+    . "(`msHostID`,`msModuleID`,`msState`) "
+    . "SELECT h.`hostID`, m.`id`, 0 FROM `hosts` h "
+    . "CROSS JOIN `modules` m WHERE m.`default` = 1 "
+    . "AND NOT EXISTS (SELECT 1 FROM `moduleStatusByHost` s "
+    . "WHERE s.`msHostID` = h.`hostID` AND s.`msModuleID` = m.`id`) "
+    . "AND NOT EXISTS (SELECT 1 FROM `groupMembers` gm "
+    . "JOIN `groupModuleAssoc` g ON g.`gmaGroupID` = gm.`gmGroupID` "
+    . "WHERE gm.`gmHostID` = h.`hostID` AND g.`gmaModuleID` = m.`id`)",
+];
