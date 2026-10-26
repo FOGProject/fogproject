@@ -309,11 +309,11 @@ snapins and printers have two:
 | host row, `msState = 0` | the host says OFF. Beats everything. |
 | host row, `msState = 1` | the host says ON |
 | group grant | any group the host is in says ON |
-| nothing anywhere | OFF |
+| nothing anywhere | OFF (superseded 2026-10-26: the module default; see Amendment) |
 
 Only the host may say OFF — that is "lowest tier wins" as Tom put it.
 
-**"Nothing anywhere" is OFF rather than `modules`.`default`,** because that is
+**(Reversed 2026-10-26, see the amendment at the end.) "Nothing anywhere" is OFF rather than `modules`.`default`,** because that is
 already what absence means: `ServiceModule::checkPassiveModule()` computes its
 disabled list as `array_diff(globalModules, hostRows)`. Falling back to
 `default` would silently switch modules on across a fleet at upgrade.
@@ -1530,3 +1530,32 @@ else here is load-bearing in the same way: if `groupName` turns out not to be
 unique the resolver's third tiebreak starts earning its keep, which is why it
 is there; if the trigger's duplicate-key behavior is different from the
 inference, the retirement step is unchanged.
+
+## Amendment, 2026-10-26: "Not set" follows the module default
+
+The decision that "nothing anywhere" is OFF rather than `modules`.`default` is
+reversed (GH-1972).
+
+**Decision.** `Resolver::resolveModules()` has a fourth tier. A module with no
+host row and no group grant is ON when `modules`.`default` is 1, and OFF when
+it is 0. A host OFF row still beats everything, the default included. Host
+creation (the host add form, CSV import, quick and full registration, the
+client and agent registration paths) no longer copies the default modules into
+host rows.
+
+**Reason.** "Not set" should follow the default, and a change to a default
+should reach existing hosts. Copying the default once at creation meant neither
+was true: a changed default never reached an existing host, and a host left
+"Not set" was off.
+
+**Why the upgrade is safe.** The old rule existed because 1.5 turned a module
+off by deleting the host row, so on an upgraded install a missing row means
+OFF. Schema step 443 keeps that state. For each host and each default module,
+it writes an explicit OFF row when the host has no row for the module and no
+group of the host grants it. It is insert-only, it never deletes or changes a
+row, and it is a no-op on a fresh install. After it runs, every host resolves
+to the same module list as before the upgrade.
+
+**What changes afterward.** A host created from now on carries no module rows
+and follows the defaults. Changing a module's default reaches every host left
+"Not set". Group grants and the host OFF row work as before.

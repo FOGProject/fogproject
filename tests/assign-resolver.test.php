@@ -227,6 +227,10 @@ $need = [
     'groupSnapinAssoc',
     'groupPrinterAssoc',
     'moduleStatusByHost',
+    // The resolver reads the module default tier (GH-1972). The table is
+    // left empty, so no module is a default and the checks below are the
+    // host and group tiers alone.
+    'modules',
     'groupModuleAssoc',
     'powerManagement',
     'groupPowerManagement',

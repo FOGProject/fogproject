@@ -2062,8 +2062,9 @@ class Host extends FOGController
      *
      * ADR 0038 gives a module three states on a host: a row with msState 1
      * (on), a row with msState 0 (off, and it beats every group grant), and
-     * no row at all (unstated -- a group may grant it, and nothing else
-     * turns it on). loadModules() answers the middle question only.
+     * no row at all (unstated -- a group may grant it, and the module's
+     * default decides otherwise). loadModules() answers the middle question
+     * only.
      *
      * @param int      $hostID The host.
      * @param int|null $state  1, 0, or null for either.

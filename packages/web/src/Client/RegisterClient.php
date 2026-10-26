@@ -80,11 +80,6 @@ class RegisterClient extends FOGClient
                     return ['error' => 'ih'];
                 }
                 $PriMAC = array_shift($MACs);
-                $find = ['isDefault' => 1];
-                $modules = Route::getIds(
-                    'module',
-                    $find
-                );
                 self::$Host = (new Host())
                     ->set('name', $hostname)
                     ->set(
@@ -96,7 +91,6 @@ class RegisterClient extends FOGClient
                     ->set('imageID', null)
                     ->set('pending', "1")
                     ->set('enforce', (string)$enforce)
-                    ->set('modules', $modules)
                     ->addPriMAC($PriMAC);
                 self::$Host->save();
                 if (!self::$Host->isValid()) {
