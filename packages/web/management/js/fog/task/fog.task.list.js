@@ -148,8 +148,10 @@
         },
         {
           render: function(data, type, row) {
-            return row.tasktypename
-              + ' <i class="fas fa-' + row.tasktypeicon + '"></i> '
+            // taskTypes is a LEFT JOIN: a deleted type is null, not ''
+            // (GH-1953), and null would print as the word "null".
+            return (row.tasktypename || '')
+              + ' <i class="fas fa-' + (row.tasktypeicon || '') + '"></i> '
           },
           targets: 6
         },
@@ -259,9 +261,11 @@
         {
           render: function(data, type, row) {
             return '<a href="../management/index.php?node=snapin&sub=edit&id='
-              + row.snapinid
+              + (row.snapinid || '')
               + '">'
-              + '(' + row.snapinid + ') - ' + data
+              // snapins is a LEFT JOIN: a deleted snapin's name is null
+              // (GH-1953), which would print as "null".
+              + '(' + (row.snapinid || '') + ') - ' + (data || '')
               + '</a>';
           },
           targets: 0
@@ -269,9 +273,11 @@
         {
           render: function(data, type, row) {
             return '<a href="../management/index.php?node=host&sub=edit&id='
-              + row.hostid
+              + (row.hostid || '')
               + '">'
-              + '(' + row.hostid + ') - ' + data
+              // hosts is a LEFT JOIN: a deleted host leaves both the id and
+              // the name null (GH-1953), which would print as "null".
+              + '(' + (row.hostid || '') + ') - ' + (data || '')
               + '</a>';
           },
           targets: 1
@@ -409,7 +415,8 @@
               + row.hostid
               + '&type=' + row.typeID
               + '" class="taskitem" data-task-name="'
-              + $.escapeHtml(row.tasktypename + ' - ' + row.hostname)
+              // A deleted type's name is null from the LEFT JOIN (GH-1953).
+              + $.escapeHtml((row.tasktypename || '') + ' - ' + (row.hostname || ''))
               + '" title="Run this task again">'
               + '<i class="fas fa-arrow-rotate-right"></i>'
               + '</a>';
