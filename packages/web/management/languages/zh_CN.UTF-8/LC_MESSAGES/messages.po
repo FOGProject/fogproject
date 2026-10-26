@@ -403,6 +403,10 @@ msgstr ""
 msgid "91 to 365 days"
 msgstr ""
 
+#, php-format
+msgid "?expand accepts: %1$s, or all. Each to-many token (%2$s) also adds <token>_total and <token>_truncated."
+msgstr ""
+
 msgid "A .tar.gz holding one directory named for the plugin, with config/plugin.config.php inside it."
 msgstr ""
 
@@ -649,6 +653,9 @@ msgstr "图像已经存在具有此名称！"
 msgid "A task type already exists with this name!"
 msgstr "图像已经存在具有此名称！"
 
+msgid "A tooltip for the web UI. Always \"\" on an API request; ignore it."
+msgstr ""
+
 #, php-format
 msgid "A usable pair is waiting: %s, valid until %s."
 msgstr ""
@@ -679,6 +686,9 @@ msgid "A valid database connection could not be made"
 msgstr ""
 
 msgid "A worked example of the first one, end to end:"
+msgstr ""
+
+msgid "A zero padded decimal string, not a JSON number."
 msgstr ""
 
 msgid "API"
@@ -1249,13 +1259,19 @@ msgstr ""
 msgid "Also reachable as /create and /new."
 msgstr ""
 
-msgid "Also reachable as /delete and /remove."
+msgid "Also reachable as /delete and /remove. A success answers 200 with no object or message; the body is a placeholder to ignore."
 msgstr ""
 
 msgid "Also reachable as /list and /all. Filter with ?filter= or the equivalent trailing path segment; both take field=value pairs joined with &."
 msgstr ""
 
 msgid "Also reachable as /update and /edit. Send only the fields being changed."
+msgstr ""
+
+msgid "An HTML anchor to the object: \"Name - (id)\"."
+msgstr ""
+
+msgid "An HTML anchor to the related object."
 msgstr ""
 
 #, fuzzy
@@ -1578,7 +1594,7 @@ msgstr ""
 msgid "Blank: each host joins with its own account"
 msgstr ""
 
-msgid "Body accepts taskTypeID, taskName, shutdown, debug, deploySnapins, passreset, sessionjoin and wol. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
+msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
 msgstr ""
 
 #, fuzzy
@@ -1769,6 +1785,10 @@ msgstr "删除所选"
 #, fuzzy, php-format
 msgid "Cancel a %s task"
 msgstr "删除所选"
+
+#, php-format
+msgid "Cancel every active %s matching a body"
+msgstr ""
 
 #, fuzzy
 msgid "Cancel the selected tasks."
@@ -2136,7 +2156,7 @@ msgstr ""
 msgid "Column type lookup failed"
 msgstr "用户更新失败"
 
-msgid "Comma separated relations to inline. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
+msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
 #, fuzzy
@@ -3547,6 +3567,12 @@ msgstr "核心"
 msgid "FOS Release"
 msgstr ""
 
+msgid "FOS init image releases available to download"
+msgstr ""
+
+msgid "FOS kernel releases available to download"
+msgstr ""
+
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
@@ -3716,6 +3742,9 @@ msgstr "场和值不具有相等的参数。"
 #, fuzzy
 msgid "Fields not defined for this class"
 msgstr "该类定义没有数据库字段"
+
+msgid "Fields of the class to match on."
+msgstr ""
 
 msgid "Fields withheld from list responses are returned here."
 msgstr ""
@@ -5131,10 +5160,6 @@ msgid "Init FS"
 msgstr "主机列表"
 
 #, fuzzy
-msgid "Init images present on disk"
-msgstr "图片没有节点发现"
-
-#, fuzzy
 msgid "Init images."
 msgstr "图片无效"
 
@@ -5526,10 +5551,6 @@ msgstr "内核更新"
 #, fuzzy
 msgid "Kernel Update Fail"
 msgstr "内核更新"
-
-#, fuzzy
-msgid "Kernels present on disk"
-msgstr "内核版本"
 
 #, fuzzy
 msgid "Kernels."
@@ -5924,6 +5945,9 @@ msgstr "已安装的插件"
 msgid "List of MACs"
 msgstr "列表中的所有%s"
 
+msgid "List rows only; absent from a single GET."
+msgstr ""
+
 msgid "Listener must be [class,function] or a closure"
 msgstr ""
 
@@ -5933,6 +5957,12 @@ msgstr ""
 #, fuzzy
 msgid "Lists"
 msgstr "线"
+
+msgid "Lists the releases of the FOS project on GitHub (api.github.com), not the init images installed on this server. The server needs outbound access to GitHub. Each row carries id, date, version, type, arch, download and tag_name."
+msgstr ""
+
+msgid "Lists the releases of the FOS project on GitHub (api.github.com), not the kernels installed on this server. The server needs outbound access to GitHub. Each row carries id, date, version, type, arch, download and tag_name."
+msgstr ""
 
 msgid "Load Average"
 msgstr "平均负载"
@@ -6753,6 +6783,9 @@ msgstr "在任务主机"
 msgid "No icons found"
 msgstr "发现没有图标"
 
+msgid "No id: the JSON body is a set of field=value pairs and every queued or in-progress row matching all of them is canceled. An EMPTY body matches every active row. Rows already finished are never touched, and a body that matches nothing is still a 200. A success answers 200 with no object or message."
+msgstr ""
+
 msgid "No image specified"
 msgstr "没有指定的图像"
 
@@ -7222,7 +7255,7 @@ msgstr "打印机更新失败！"
 msgid "Online"
 msgstr ""
 
-msgid "Only a task in a queued or in-progress state can be canceled. Naming a resource whose task has already finished -- Complete, Canceled or Failed -- answers 409 rather than reporting a success it did not perform."
+msgid "Only a task in a queued or in-progress state can be canceled. Naming a resource whose task has already finished -- Complete, Canceled or Failed -- answers 409 rather than reporting a success it did not perform. A success answers 200 with no object or message."
 msgstr ""
 
 msgid "Only administrators may use it until the plugin declares a permission for the route."
@@ -8435,6 +8468,9 @@ msgstr ""
 msgid "Return code"
 msgstr "返回代码"
 
+msgid "Returned on a single GET only."
+msgstr ""
+
 msgid "Returning value of key"
 msgstr "返回键的值"
 
@@ -8762,6 +8798,9 @@ msgstr "搜索"
 msgid "Search every class at once"
 msgstr ""
 
+msgid "Search every class at once (POST)"
+msgstr ""
+
 msgid "Search every class at once (path form)"
 msgstr ""
 
@@ -8985,6 +9024,9 @@ msgstr "存储组名称"
 #, fuzzy
 msgid "Set as"
 msgstr "服务更新失败"
+
+msgid "Set by the server when the object is created. Returned by the API but not settable."
+msgstr ""
 
 #, fuzzy
 msgid "Set failed"
@@ -9804,6 +9846,9 @@ msgstr "存储节点"
 msgid "Store one of your preferences"
 msgstr ""
 
+msgid "Store one of your preferences (PUT)"
+msgstr ""
+
 #, fuzzy
 msgid "Stored addresses used"
 msgstr "存储节点名称"
@@ -9884,6 +9929,9 @@ msgstr "成功"
 #, fuzzy
 msgid "Success."
 msgstr "访问"
+
+msgid "Success. No object or message is returned; the body is a placeholder (\"\" or []) to ignore."
+msgstr ""
 
 #, fuzzy
 msgid "Successfully deleted"
@@ -10383,10 +10431,6 @@ msgid "The created object."
 msgstr ""
 
 #, fuzzy
-msgid "The created task."
-msgstr "无法创建任务"
-
-#, fuzzy
 msgid "The current user is invalid."
 msgstr "任务类型无效"
 
@@ -10436,6 +10480,9 @@ msgstr ""
 msgid "The host's complete installed-program list, sent on the same terms as inventory. Complete by contract: anything installed and absent from it is marked removed."
 msgstr ""
 
+msgid "The id as \"row_<id>\", for DataTables."
+msgstr ""
+
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr ""
 
@@ -10470,6 +10517,9 @@ msgstr ""
 #, fuzzy
 msgid "The image associated does not have a valid OS!"
 msgstr "存储组相关联的存储节点无效"
+
+msgid "The image id in a list. A single GET replaces it with the embedded image object; the id is then in imageID."
+msgstr ""
 
 msgid "The image storage group assigned is not valid"
 msgstr "分配图像存储组无效"
@@ -10630,7 +10680,13 @@ msgstr ""
 msgid "The row goes, so the token can never match again. Audited as agent.token."
 msgstr ""
 
+msgid "The same as POST: the body is {\"value\": \"...\"}, an empty value clears the preference, and a request with no value at all answers 400."
+msgstr ""
+
 msgid "The same rules in prose, for a client reading this at runtime."
+msgstr ""
+
+msgid "The same search with q and limit sent as form fields instead of in the query string. Also reachable as /search."
 msgstr ""
 
 #, fuzzy
@@ -10684,6 +10740,9 @@ msgid "The storage groups associated storage node is not valid"
 msgstr "存储组相关联的存储节点无效"
 
 msgid "The task finishes on the client with nobody at the keyboard"
+msgstr ""
+
+msgid "The task type ids that need an init image."
 msgstr ""
 
 msgid "The term goes in q. limit caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Within a class, names that start with the term sort first. Both fields may also be sent as POST body fields. Also reachable as /search."
@@ -13787,6 +13846,10 @@ msgstr ""
 #~ msgstr "导入用户"
 
 #, fuzzy
+#~ msgid "Init images present on disk"
+#~ msgstr "图片没有节点发现"
+
+#, fuzzy
 #~ msgid "InitRD Versions"
 #~ msgstr "CPU版本"
 
@@ -13814,6 +13877,10 @@ msgstr ""
 #~ msgstr "内核版本"
 
 #~ msgid "Kernel Versions"
+#~ msgstr "内核版本"
+
+#, fuzzy
+#~ msgid "Kernels present on disk"
 #~ msgstr "内核版本"
 
 #, fuzzy
@@ -14038,6 +14105,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "That mapping already exists."
 #~ msgstr "打印机已经存在"
+
+#, fuzzy
+#~ msgid "The created task."
+#~ msgstr "无法创建任务"
 
 #, fuzzy
 #~ msgid "The desired state."
