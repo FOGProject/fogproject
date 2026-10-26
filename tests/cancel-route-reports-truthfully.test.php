@@ -139,23 +139,14 @@ if (!preg_match(
         . ' has no model cancel() -- the call raises an uncatchable Error';
 }
 
-// ------------------------------------------------------- the bulk arm is not
+// ------------------------------------------------------------ no bulk arm
 
-// The search-driven arm is a filter, and matching nothing is a legitimate
-// result for one. If this ever starts refusing, the 409 has spread from
-// "you named a thing I did not touch" to "your filter was empty", which is
-// a different and wrong contract.
-if (!preg_match(
-    '#\$find\[\'stateID\'\] = \$states;(.*?)\n                    \} else \{#s',
-    $cancel,
-    $bulk
-)) {
-    $fails[] = 'the search-driven bulk arm is not where this gate can see it,'
-        . ' so nothing checks that it still answers 200 on an empty filter';
-} elseif (false !== strpos($bulk[1], '_notCancellable')) {
-    $fails[] = 'the search-driven bulk arm now refuses an empty filter result;'
-        . ' matching no rows is a legitimate outcome for a filter, and the'
-        . ' 409 is only for a caller who named a specific resource';
+// A cancel names one object. The search-driven bulk arm read an invalid
+// object as "no id given", so a missing id canceled every active row, and an
+// empty body did the same on purpose (GH-1949). It must not come back.
+if (false !== strpos($cancel, 'getsearchbody(')) {
+    $fails[] = 'cancel() searches the request body again; a cancel must name'
+        . ' one object, never a filter (GH-1949)';
 }
 
 // ------------------------------------------------------------- the document

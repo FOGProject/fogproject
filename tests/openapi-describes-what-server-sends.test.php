@@ -128,8 +128,7 @@ $emptyOk = function ($op) {
 $t->check('DELETE /host/{id} 200 has no body schema', $emptyOk($paths['/host/{id}']['delete']));
 $t->check('DELETE /task/{id}/cancel 200 has no body schema', $emptyOk($paths['/task/{id}/cancel']['delete']));
 $t->check('POST /host/{id}/task 200 has no body schema', $emptyOk($paths['/host/{id}/task']['post']));
-$t->check('DELETE /task/cancel exists', isset($paths['/task/cancel']['delete']));
-$t->check('DELETE /task/cancel 200 has no body schema', $emptyOk($paths['/task/cancel']['delete'] ?? []));
+$t->check('DELETE /task/cancel is not offered (needs an id)', !isset($paths['/task/cancel']));
 $t->check('DELETE /host/cancel is not offered (needs an id)', !isset($paths['/host/cancel']));
 $t->check('DELETE /group/cancel is not offered (needs an id)', !isset($paths['/group/cancel']));
 
