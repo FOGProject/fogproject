@@ -6690,11 +6690,10 @@ class Route extends FOGBase
     /**
      * Answers 404 unless the named item exists.
      *
-     * Seven call sites: indiv(), edit(), task(), and four of cancel()'s five
-     * arms. cancel()'s `default:` arm deliberately does NOT call it -- an id
-     * it cannot load is its signal to fall through to a bulk search rather
-     * than a refusal -- and that omission is now visible, which it was not
-     * while every arm carried its own copy of the block.
+     * Eight call sites: indiv(), edit(), task(), and all five of cancel()'s
+     * arms. cancel()'s `default:` arm calls it only when an id was named; the
+     * id-less route has nothing to load, and its invalid object is the signal
+     * to fall through to a bulk search rather than a refusal (GH-1949).
      *
      * Answers through sendResponse(), which throws, so this either returns
      * having found the item or does not return at all.
@@ -6808,6 +6807,17 @@ class Route extends FOGBase
                     $class->getManager()->cancel([$class->get('id')]);
                     break;
                 default:
+                    // An id that was NAMED and does not load is a 404, not a
+                    // bulk cancel. `!isValid()` alone cannot tell "no id in
+                    // the URL" from "an id that matches no row", so
+                    // DELETE /task/999999/cancel fell into the bulk arm below
+                    // and canceled every active task (GH-1949). Only the
+                    // id-less route (null $id) reaches the bulk search. The
+                    // router hands a named id over as a string, so "0" is
+                    // tested against null/'' and not with empty().
+                    if (null !== $id && '' !== $id) {
+                        self::_requireFound($class);
+                    }
                     if (!$class->isValid()) {
                         $classman = $class->getManager();
                         $find = self::getsearchbody($classname);
