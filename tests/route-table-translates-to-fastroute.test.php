@@ -99,11 +99,12 @@ assertFound($t, 'PUT /host/5/update', 'PUT', '/host/5/update');
 assertFound($t, 'POST /host (bare)', 'POST', '/host');
 assertFound($t, 'POST /host/create', 'POST', '/host/create');
 
-// cancel: the one route with a mandatory segment AFTER an optional one in
-// AltoRouter syntax, which FastRoute's grammar cannot express as a single
-// pattern -- registered as two explicit routes. Both must work, and the id
-// must come through on the one that carries it.
-assertFound($t, 'DELETE /task/cancel (no id)', 'DELETE', '/task/cancel');
+// cancel always names one object. The id-less DELETE /task/cancel canceled
+// every active task on an empty body and is not routed (GH-1949).
+$t->check(
+    'DELETE /task/cancel (no id) is not routed',
+    \FastRoute\Dispatcher::FOUND !== $router->dispatch('DELETE', '/task/cancel')[0]
+);
 $vars = assertFound($t, 'DELETE /task/5/cancel', 'DELETE', '/task/5/cancel');
 $t->check('cancel id=5', '5' === ($vars['id'] ?? null));
 

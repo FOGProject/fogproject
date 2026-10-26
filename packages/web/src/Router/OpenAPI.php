@@ -1666,46 +1666,6 @@ class OpenAPI extends FOGBase
                     )
                 )
             ];
-            // GH-1953: DELETE /{class}/cancel is registered for every tasking
-            // class, but Route::cancel() only runs its bulk arm for the
-            // classes outside this list. The others look the object up by id
-            // and answer 404 without one.
-            if (!in_array(
-                $class,
-                ['group', 'host', 'scheduledtask', 'filedeletequeue'],
-                true
-            )) {
-                $paths['/' . $class . '/cancel'] = [
-                    'delete' => self::_op(
-                        $class,
-                        'cancel',
-                        sprintf(_('Cancel every active %s matching a body'), $class),
-                        _('No id: the JSON body is a set of field=value pairs '
-                            . 'and every queued or in-progress row matching '
-                            . 'all of them is canceled. An EMPTY body matches '
-                            . 'every active row. Rows already finished are '
-                            . 'never touched, and a body that matches nothing '
-                            . 'is still a 200. A success answers 200 with no '
-                            . 'object or message.'),
-                        self::_emptyResponse(),
-                        [],
-                        [
-                            'required' => false,
-                            'content' => [
-                                'application/json' => [
-                                    'schema' => [
-                                        'type' => 'object',
-                                        'additionalProperties' => true,
-                                        'description' => _('Fields of the '
-                                            . 'class to match on.')
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'CancelMatching'
-                    )
-                ];
-            }
         }
 
         return $paths;
