@@ -1043,8 +1043,8 @@
     //   On       a host row saying yes
     //   Off      a host row saying no -- and only a host may say it, so it
     //            beats every group grant
-    //   Not set  no host row; a group that grants the module turns it on,
-    //            and nothing else does
+    //   Not set  no host row; the module's default decides, and a group
+    //            that grants the module turns it on (GH-1972)
     //
     // So the cell is a select, not a checkbox. Unticking a checkbox deletes
     // the row, which under this design means "not set" -- and a group grant

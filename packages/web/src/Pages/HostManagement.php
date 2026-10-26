@@ -1602,10 +1602,6 @@ class HostManagement extends FOGPage
                         )
                     );
                 }
-                $ModuleIDs = Route::getIds(
-                    'module',
-                    ['isDefault' => 1]
-                );
                 self::$Host
                     ->set('name', $host)
                     ->set('description', $description)
@@ -1618,7 +1614,6 @@ class HostManagement extends FOGPage
                     ->set('efiexit', $efiBootTypeExit)
                     ->set('productKey', $productKey)
                     ->set('enforce', $enforce)
-                    ->set('modules', $ModuleIDs)
                     ->addPriMAC($MAC)
                     ->setAD(
                         $useAD,
@@ -3434,7 +3429,8 @@ class HostManagement extends FOGPage
             'btn btn-primary float-end',
             _('Disabled items are not displayed. Legacy items are removed.')
             . ' '
-            . _('Not set means a group may enable this module. Off is the '
+            . _('Not set follows the module default, and a group may also enable '
+            . 'this module. Off is the '
             . 'host\'s own answer and no group can override it.'),
             '',
             '',

@@ -442,12 +442,8 @@ class Enrollment extends FOGBase
             // registration without AD stores. Unset, it would now take
             // hostEnforce's DEFAULT 1 (GH-1946).
             ->set('enforce', 0)
-            // The default modules, as Boot\Registration and the host add
-            // form attach them: Resolver::resolveModules() has no default
-            // tier, so a host created without these has every capability
-            // off until an admin visits its Modules tab. Found when the
-            // first agent-created host polled and got no capabilities.
-            ->set('modules', Route::getIds('module', ['isDefault' => 1]))
+            // No module rows: Resolver::resolveModules() follows
+            // `modules`.`default` for a host with none (GH-1972).
             ->addPriMAC(array_shift($macs));
         $Host->save();
         $hostID = (int)$Host->get('id');

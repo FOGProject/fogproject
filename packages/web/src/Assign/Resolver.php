@@ -25,7 +25,7 @@ use FOG\Base\FOGBase;
  * from that grant plus the host's own direct associations.
  *
  * Modules are the one of the three that is a SWITCH rather than a thing, so
- * they resolve in three tiers rather than two and a host may hold one OFF
+ * they resolve in more tiers than the other two and a host may hold one OFF
  * against every group that grants it. resolveModules() carries the reasoning.
  *
  * ONE function answers it, for every caller -- task creation, the client's
@@ -318,13 +318,14 @@ class Resolver extends FOGBase
      * MODULES ARE THE THIRD DECLARATIVE GRANT, and they are not shaped like
      * the other two. A snapin or a printer is a thing a host either has or
      * does not; a module is a switch, and a host is allowed to hold it OFF
-     * against every group that grants it. So this is a three-tier answer,
-     * not a two-tier union:
+     * against every group that grants it. So this is a tiered answer, not a
+     * two-tier union:
      *
      *   host row, msState = 0   the host says OFF. Beats everything.
      *   host row, msState = 1   the host says ON.
      *   group grant             any group the host is in says ON.
-     *   nothing anywhere        OFF.
+     *   module default          `modules`.`default` = 1 says ON.
+     *   otherwise               OFF.
      *
      * Lowest tier wins, and only the host is allowed to say OFF. A group
      * grant is presence-only -- `groupModuleAssoc` has no state column -- so
@@ -333,21 +334,27 @@ class Resolver extends FOGBase
      * says disable, that one says enable, which wins?" is a question with no
      * defensible answer, so the schema refuses to let it be asked.
      *
-     * WHY "NOTHING ANYWHERE" IS OFF RATHER THAN `modules`.`default`. Before
-     * group grants, a host's rows in `moduleStatusByHost` WERE its enabled
-     * set and nothing read msState -- ServiceModule::checkPassiveModule()
-     * still computes its disabled list as array_diff(globalModules,
-     * hostRows). Absence therefore already means OFF on every existing
-     * install, and falling back to `default` here would silently switch
-     * modules on across a fleet at upgrade. `default` keeps the one job it
-     * has: seeding a newly registered host's rows.
+     * WHY THE MODULE DEFAULT IS A TIER (GH-1972, ADR 0038 amendment). A
+     * host with no row for a module has said nothing, so "Not set" follows
+     * `modules`.`default`. The default used to be copied into a host's rows
+     * once, at creation, and "nothing anywhere" was OFF. Changing a default
+     * therefore never reached an existing host, and a host left "Not set"
+     * was off. Resolving the default at read time fixes both, and creation
+     * no longer stamps rows.
+     *
+     * WHY THAT IS SAFE AT UPGRADE. Before group grants, a host's rows in
+     * `moduleStatusByHost` WERE its enabled set, and 1.5 turned a module off
+     * by deleting the row. On an upgraded install a missing row therefore
+     * meant OFF, and a default tier would switch those modules on across the
+     * fleet. Schema step 443 writes an explicit OFF row for every host and
+     * default module that has neither a row nor a group grant, so every
+     * host keeps the state it has today.
      *
      * WHY msState CAN BE TRUSTED NOW. It was a varchar(1) that only ever
      * held '1', because the only writer -- FOGController::addRemItem() --
      * hardcodes it. Schema step 409 makes it the tinyint(1) it always was.
-     * A host row that means OFF is new, so no upgraded database has one, and
-     * this resolver returns exactly what the old code did until someone
-     * turns a module off in the UI.
+     * A host row that means OFF was new then, and only step 443 or the host
+     * Modules tab writes one now.
      *
      * Order is by module id. Modules have no sequence anywhere in the
      * schema -- unlike snapins, nothing runs them in turn -- so the order is
@@ -386,6 +393,17 @@ class Resolver extends FOGBase
             $off[$hostID][$moduleID] = true;
         }
 
+        // The default tier. One query per call, not per host. `default` is
+        // a reserved word, so it is quoted. `modules` has no active or
+        // enabled column; the global switch (FOG_SERVICE_*_ENABLED) is
+        // applied by the client paths, not here, same as for grants.
+        $defaults = [];
+        foreach (self::_rows(
+            'SELECT `id` FROM `modules` WHERE `default` = 1'
+        ) as $row) {
+            $defaults[(int)$row['id']] = true;
+        }
+
         list($groupsByHost, $groupIDs) = self::_membership($hostIDs);
         $byGroup = [];
         if (count($groupIDs) > 0) {
@@ -411,6 +429,14 @@ class Resolver extends FOGBase
                     }
                     $out[$moduleID] = true;
                 }
+            }
+            foreach ($defaults as $moduleID => $unused) {
+                // Same OFF check as the grants: a host's own OFF row beats
+                // the default.
+                if (isset($off[$hostID][$moduleID])) {
+                    continue;
+                }
+                $out[$moduleID] = true;
             }
             $ids = array_keys($out);
             sort($ids);
