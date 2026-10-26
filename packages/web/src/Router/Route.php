@@ -6239,32 +6239,12 @@ class Route extends FOGBase
     private static function _applyCreateFields($class, $classname, $classVars, $vars)
     {
         $serverOwned = self::serverOwnedFields($classname);
-        $table = $classVars['databaseTable'];
         foreach ($classVars['databaseFields'] as &$key) {
-            $column = $key;
             $key = $class->key($key);
             if (property_exists($vars, $key)) {
                 $val = $vars->$key;
             } else {
-                // GH-1946: an omitted field gets the column DEFAULT the API
-                // document publishes. Left to save(), it would get
-                // emptyValueFor() instead -- 0 for imageEnabled, so POST
-                // /image made a disabled image. Only where the two differ,
-                // so save()'s own fill-ins for an empty field (createdBy,
-                // createdTime, a NULL foreign key) still run. A server-owned
-                // field is not the client's to fill, so it stays unset.
-                // user.api is held back: its DEFAULT 1 would grant API
-                // access to every user created without the field, and an
-                // access change is not this fix's to make.
                 $val = null;
-                $default = self::columnDefault($table, $column);
-                if (null !== $default
-                    && !in_array($key, $serverOwned, true)
-                    && !('user' === $classname && 'api' === $key)
-                    && $default !== (string)self::emptyValueFor($table, $column)
-                ) {
-                    $val = $default;
-                }
             }
             if ('id' == $key
                 || null === $val
@@ -6281,6 +6261,13 @@ class Route extends FOGBase
             }
             $class->set($key, $val);
             unset($key);
+        }
+        // GH-1946: save() now lets an omitted field take its column DEFAULT.
+        // uAllowAPI's DEFAULT is 1, which would grant API access to every
+        // user created without the field. Held at the old 0 until that
+        // access change is decided on its own.
+        if ('user' === $classname && !property_exists($vars, 'api')) {
+            $class->set('api', 0);
         }
     }
     /**
