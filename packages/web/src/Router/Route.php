@@ -8064,11 +8064,14 @@ class Route extends FOGBase
      * Only relations whose target getter does NOT re-embed the parent are
      * listed, so expansion is inherently free of back-references.
      *
+     * Public so OpenAPI::document() can offer ?expand only where a map
+     * exists (GH-1953).
+     *
      * @param string $classname The entity being serialized.
      *
      * @return array
      */
-    protected static function relationMap($classname)
+    public static function relationMap($classname)
     {
         $maps = [
             'host' => [
