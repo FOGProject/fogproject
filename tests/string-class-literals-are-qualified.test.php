@@ -21,7 +21,13 @@
  *     published API document described no permissions at all;
  *   - `PluginRunner::_discoverTasks()` had the same shape recorded in a
  *     comment for `is_subclass_of($class, 'PluginTask')` -- every plugin
- *     task skipped, with "Skipping, not a PluginTask" as the only trace.
+ *     task skipped, with "Skipping, not a PluginTask" as the only trace;
+ *   - `OpenAPI::pagingLimits()` built `new \ReflectionClass(
+ *     'FOGManagerController')`, caught the exception, and published
+ *     maxRows null from system/info on every server.
+ *
+ * So the Reflection constructors are checked too, wherever `new` builds
+ * one -- their first argument is a class name in exactly the same way.
  *
  * The fix is `Foo::class` (resolved at compile time, `use`-aware) or a
  * leading-backslash FQCN. Both are accepted here.
@@ -65,6 +71,17 @@ $funcs = [
     'is_a' => [1],
 ];
 
+/*
+ * Classes whose constructor takes a class name first. Only matched after
+ * `new`, which is the opposite of the functions above.
+ */
+$ctors = [
+    'reflectionclass' => [0],
+    'reflectionmethod' => [0],
+    'reflectionproperty' => [0],
+    'reflectionclassconstant' => [0],
+];
+
 $files = [];
 foreach (['packages/web', 'packages/service'] as $sub) {
     $dir = $root . '/' . $sub;
@@ -102,28 +119,35 @@ foreach ($files as $path) {
     $count = count($tokens);
     for ($i = 0; $i < $count; $i++) {
         $t = $tokens[$i];
-        if (!is_array($t) || $t[0] !== T_STRING) {
+        if (!is_array($t)
+            || ($t[0] !== T_STRING && $t[0] !== T_NAME_FULLY_QUALIFIED)
+        ) {
             continue;
         }
-        $name = strtolower($t[1]);
-        if (!isset($funcs[$name])) {
-            continue;
-        }
-        // A method call ($x->method_exists(...), Foo::method_exists(...)) is
-        // not the built-in.
+        $name = strtolower(ltrim($t[1], '\\'));
         for ($p = $i - 1; $p >= 0; $p--) {
             if (is_array($tokens[$p]) && $tokens[$p][0] === T_WHITESPACE) {
                 continue;
             }
             break;
         }
-        if ($p >= 0 && is_array($tokens[$p])
-            && in_array(
-                $tokens[$p][0],
-                [T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION, T_NEW],
-                true
-            )
-        ) {
+        $afterNew = $p >= 0 && is_array($tokens[$p]) && $tokens[$p][0] === T_NEW;
+        if ($afterNew && isset($ctors[$name])) {
+            $positions = $ctors[$name];
+        } elseif ($t[0] === T_STRING && isset($funcs[$name])) {
+            // A method call ($x->method_exists(...), Foo::method_exists(...))
+            // is not the built-in.
+            if ($p >= 0 && is_array($tokens[$p])
+                && in_array(
+                    $tokens[$p][0],
+                    [T_OBJECT_OPERATOR, T_DOUBLE_COLON, T_FUNCTION, T_NEW],
+                    true
+                )
+            ) {
+                continue;
+            }
+            $positions = $funcs[$name];
+        } else {
             continue;
         }
         // Find the opening paren.
@@ -166,7 +190,7 @@ foreach ($files as $path) {
                 $literals[$arg] = [trim($tk[1], "'\""), $tk[2]];
             }
         }
-        foreach ($funcs[$name] as $pos) {
+        foreach ($positions as $pos) {
             if (!isset($literals[$pos])) {
                 continue;
             }
