@@ -108,10 +108,18 @@ class Audit extends FOGBase
     /**
      * The synthetic actor for a write no person made.
      *
-     * Not a new convention: FOGController::save()'s createdBy auto-fill
-     * already produces exactly this when no user is valid.
+     * FOGController::save()'s createdBy auto-fill uses this same constant
+     * when no user is valid, so every table names the server the same way.
+     *
+     * It must never be a name an account can have. It was 'fog', which is
+     * also the default administrator's username, so a rejected API token or
+     * a host registered by FOS read as the admin's own action in the Audit
+     * Log and in every Created By column. The parentheses keep it outside
+     * User::PATTERN and UserManagement::USERNAME_REGEX, which both require a
+     * letter or digit first and last. Rows written before this change keep
+     * 'fog'. Pinned by tests/machine-actor-is-not-a-username.test.php.
      */
-    const MACHINE_ACTOR = 'fog';
+    const MACHINE_ACTOR = '(system)';
     /**
      * The authSource for a write no credential was presented for.
      *
