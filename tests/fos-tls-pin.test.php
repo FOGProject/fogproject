@@ -8,9 +8,11 @@
  * by the openssl CLI, against curl itself, and against the cases where no pin
  * must be sent at all.
  *
- * FosTlsPin::arg() reads the served key twice -- over loopback and at
- * the web= address -- and pins only a key both agree on. Cases 4 and 5 put a
- * different server, or none, on loopback, and expect no pin.
+ * FosTlsPin::arg() pins only when the web= host resolves to an address on
+ * this machine, and reads the key at that address. Case 4 is the shape the
+ * installer's nginx vhost has -- a listener on one specific address and
+ * nothing on 127.0.0.1:443 -- which an earlier loopback read never pinned.
+ * Cases 5 and 7 cover addresses and names that are not this machine.
  *
  * Needs openssl and curl on the PATH. Binds 127.0.0.1 and 127.0.0.2 only.
  *
@@ -159,23 +161,54 @@ namespace {
     $got = $pin("http://127.0.0.1:$p1/fog/");
     $check('3. http gets no pin', '' === $got, "got '$got'");
 
-    // 4. Loopback and web= present different keys: a proxy, a remote web
-    //    host, or a poisoned lookup. No pin.
+    // 4. The installer's nginx shape: TLS on one specific local address,
+    //    nothing on 127.0.0.1 at that port. It is this machine, so it pins.
     $p4 = $freePort();
-    $serve('a', '127.0.0.1', $p4);
     $serve('b', '127.0.0.2', $p4);
     $got = $pin("https://127.0.0.2:$p4/fog/");
-    $check('4. keys that disagree send no pin', '' === $got, "got '$got'");
+    $check(
+        '4. a listener bound to one local address is pinned',
+        " fogpin=$pinB" === $got,
+        "got '$got', want ' fogpin=$pinB'"
+    );
 
-    // 5. Nothing on loopback at all. No pin.
-    $p5 = $freePort();
-    $serve('b', '127.0.0.2', $p5);
-    $got = $pin("https://127.0.0.2:$p5/fog/");
-    $check('5. no loopback answer sends no pin', '' === $got, "got '$got'");
+    // 5. An address that is not this machine is refused before any
+    //    connection. 192.0.2.0/24 is TEST-NET-1, never assigned to a host.
+    $check(
+        '5. a non-local address is not local',
+        false === \FOG\Boot\FosTlsPin::isLocalAddress('192.0.2.10')
+    );
+    $check(
+        '5b. a loopback address is local',
+        true === \FOG\Boot\FosTlsPin::isLocalAddress('127.0.0.2')
+    );
+    // Timed, because the answer alone cannot tell "refused as non-local"
+    // from "tried, and nothing answered": with a default route, a connect to
+    // TEST-NET hangs until _servedKeyPin()'s 2s timeout. Without one it fails at
+    // once, and this check cannot fail -- it never fails wrongly.
+    $t = microtime(true);
+    $got = $pin('https://192.0.2.10/fog/');
+    $took = microtime(true) - $t;
+    $check(
+        '5c. a non-local web= host gets no pin, and no connection is tried',
+        '' === $got && $took < 0.5,
+        sprintf("got '%s' in %.2fs", $got, $took)
+    );
 
-    // 6. Nothing listening anywhere. No pin, and no error.
+    // 6. Nothing listening on a local port. No pin, and no error.
     $got = $pin('https://127.0.0.1:' . $freePort() . '/fog/');
     $check('6. an unreachable server sends no pin', '' === $got, "got '$got'");
+
+    // 7. A name is resolved first: localhost is this machine and pins; a
+    //    name that does not resolve does not.
+    $got = $pin("https://localhost:$p1/fog/");
+    $check(
+        '7. a name that resolves to this machine is pinned',
+        " fogpin=$pinA" === $got,
+        "got '$got', want ' fogpin=$pinA'"
+    );
+    $got = $pin('https://no-such-host.invalid/fog/');
+    $check('7b. a name that does not resolve gets no pin', '' === $got, "got '$got'");
 
     echo "\nfos-tls-pin: $checks checks, $failures failed\n";
     exit($failures ? 1 : 0);
