@@ -31,6 +31,7 @@ namespace {
 
     $dir = sys_get_temp_dir() . '/fos-tls-pin-' . getmypid();
     mkdir($dir);
+    /** @var resource[] $servers the s_server processes, filled by $serve */
     $servers = [];
     register_shutdown_function(
         function () use (&$servers, $dir) {
