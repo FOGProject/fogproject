@@ -46,6 +46,7 @@ class TaskType extends FOGController
     const NORMAL_WIPE = 19;
     const FULL_WIPE = 20;
     const ENROLL_SECUREBOOT = 25;
+    const PERF_TEST = 27;
     const DEBUGTASKS = [
         self::DEBUG,
         self::MULTICAST,

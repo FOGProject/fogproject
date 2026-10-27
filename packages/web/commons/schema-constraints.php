@@ -357,6 +357,11 @@ return [
     ['child' => 'hostSoftware', 'column' => 'hsHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'hostUserSession', 'column' => 'husHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'hostFactState', 'column' => 'hfsHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    // Performance Test results (fos#55). A satellite of the host: CASCADE.
+    // The task id is audit, like taskLog.taskID: a result records something
+    // that happened and must not constrain the task row.
+    ['child' => 'hostPerfTests', 'column' => 'hptHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    ['child' => 'hostPerfTests', 'column' => 'hptTaskID', 'parent' => 'tasks', 'pcolumn' => 'taskID', 'class' => 'audit', 'action' => 'none'],
     ['child' => 'hostDirectory', 'column' => 'hdHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'hostPrinter', 'column' => 'hpHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'hostSpooler', 'column' => 'hspHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],

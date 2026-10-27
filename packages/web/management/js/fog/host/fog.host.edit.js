@@ -1032,6 +1032,45 @@
         }
     });
 
+    // ---------------------------------------------------------------
+    // PERFORMANCE TAB (read only)
+    //
+    // One row per Performance Test run, newest first. The server formats the
+    // rates and the ratio (getPerfTests), so every column only escapes. The
+    // empty-state sentence is translated server side and handed over in a
+    // hidden element.
+    var hostPerfTestTable = $('#host-perftest-table').registerTable(null, {
+        columns: [
+            $.escapedColumn('date'),
+            $.escapedColumn('disk'),
+            $.escapedColumn('diskMBps'),
+            $.escapedColumn('netMBps'),
+            $.escapedColumn('cpuMBps'),
+            $.escapedColumn('ratio'),
+            $.escapedColumn('format'),
+            $.escapedColumn('bottleneck'),
+            $.escapedColumn('kernel'),
+            $.escapedColumn('init')
+        ],
+        order: [
+            [0, 'desc']
+        ],
+        rowId: 'id',
+        processing: true,
+        serverSide: true,
+        select: false,
+        language: {
+            emptyTable: $('#host-perftest-empty').text()
+        },
+        ajax: {
+            url: '../management/index.php?node='
+                + Common.node
+                + '&sub=getPerfTests&id='
+                + Common.id,
+            type: 'post'
+        }
+    });
+
     // FOG CLIENT AREA
     // ---------------------------------------------------------------
     // CLIENT SETTINGS TAB
