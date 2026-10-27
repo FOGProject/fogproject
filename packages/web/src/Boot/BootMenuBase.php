@@ -53,6 +53,104 @@ abstract class BootMenuBase extends FOGBase
     protected $_storage;
 
     /**
+     * The fogpin= kernel argument for FOS, or '' when there is none to give.
+     *
+     * FOS used to call this server with curl -k on every request. It now
+     * verifies the server's TLS key against fogpin= (fos#102, fos ADR-0020),
+     * because a FOG server's certificate is usually signed by the CA the
+     * installer generated, and no CA bundle in the init carries that CA. The
+     * pin is the base64 SHA-256 of the served certificate's
+     * SubjectPublicKeyInfo, which is what curl --pinnedpubkey takes.
+     *
+     * The key is read from the server as a client sees it, at each render,
+     * so a renewed or replaced certificate needs no other step. It is read
+     * twice: once over loopback, which no network attacker can answer, and
+     * once at the address in $web, which is what FOS will reach. Only a key
+     * both agree on is pinned. A reverse proxy, a web host that is not this
+     * machine, or a poisoned name lookup gives two different keys, and then
+     * no pin is sent and FOS falls back to its CA bundle. A wrong pin would
+     * stop every task; a missing one costs only the stronger check.
+     *
+     * Plain http has no key to pin.
+     *
+     * @param string $web the web= URL the kernel line carries
+     *
+     * @return string ' fogpin=<base64>' or ''
+     */
+    protected static function fosPinArg($web)
+    {
+        $parts = parse_url((string)$web);
+        if (!is_array($parts)
+            || 'https' !== strtolower($parts['scheme'] ?? '')
+            || empty($parts['host'])
+        ) {
+            return '';
+        }
+        $host = trim($parts['host'], '[]');
+        $port = (int)($parts['port'] ?? 443);
+        $local = self::_servedKeyPin('127.0.0.1', $port, $host);
+        if ('' === $local
+            || $local !== self::_servedKeyPin($host, $port, $host)
+        ) {
+            return '';
+        }
+        return ' fogpin=' . $local;
+    }
+
+    /**
+     * The base64 SHA-256 of the key a TLS server presents, or ''.
+     *
+     * Verification is off on purpose: this reads the key in order to pin
+     * it, and the caller's loopback comparison is what makes it trustworthy.
+     *
+     * @param string $connect address to connect to
+     * @param int    $port    TLS port
+     * @param string $name    server name to send, so a name-based vhost
+     *                        answers with the certificate FOS will see
+     *
+     * @return string
+     */
+    private static function _servedKeyPin($connect, $port, $name)
+    {
+        $context = stream_context_create(
+            [
+                'ssl' => [
+                    'capture_peer_cert' => true,
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true,
+                    'peer_name' => $name,
+                ],
+            ]
+        );
+        $target = false !== strpos($connect, ':') ? "[$connect]" : $connect;
+        $sock = @stream_socket_client(
+            sprintf('ssl://%s:%d', $target, $port),
+            $errno,
+            $errstr,
+            2,
+            STREAM_CLIENT_CONNECT,
+            $context
+        );
+        if (false === $sock) {
+            return '';
+        }
+        $params = stream_context_get_params($sock);
+        fclose($sock);
+        $cert = $params['options']['ssl']['peer_certificate'] ?? null;
+        $pub = $cert ? openssl_pkey_get_public($cert) : false;
+        $details = $pub ? openssl_pkey_get_details($pub) : false;
+        if (!is_array($details) || empty($details['key'])) {
+            return '';
+        }
+        // The PEM body IS the DER SubjectPublicKeyInfo, base64-encoded.
+        $der = base64_decode(
+            preg_replace('/-----[^-]+-----|\s+/', '', $details['key'])
+        );
+        return base64_encode(hash('sha256', $der, true));
+    }
+
+    /**
      * Render the menu a host with no tasking should see.
      *
      * @return void

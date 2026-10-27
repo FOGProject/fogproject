@@ -245,12 +245,13 @@ class UbootBootMenu extends BootMenuBase
          * characters '${se' onward to the kernel.
          */
         $this->_kernel = sprintf(
-            'loglevel=%s root=/dev/ram0 rw ramdisk_size=%s%sweb=%s '
+            'loglevel=%s root=/dev/ram0 rw ramdisk_size=%s%sweb=%s%s '
             . 'consoleblank=0%srootfstype=ext4%s%s %s',
             $kernelLogLevel,
             $kernelRamDisk,
             strlen($keymap) ? sprintf(' keymap=%s ', $keymap) : ' ',
             $web,
+            self::fosPinArg($web),
             $kernelDebug ? ' debug ' : ' ',
             $kernelArgs ? sprintf(' %s', $kernelArgs) : '',
             (
