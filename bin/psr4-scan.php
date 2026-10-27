@@ -201,6 +201,10 @@ const TABLE = [
     // and the task-completion report. Util is for things belonging to no
     // subsystem at all.
     'SecureBootState' => 'Boot',
+    // No parent at all, so no RULES ancestry rule can place it. Boot, for
+    // the same reason SecureBootState is: its only callers are the two boot
+    // menus, and what it produces is a kernel argument for the netboot path.
+    'FosTlsPin' => 'Boot',
     // Agent, not Boot: fog-agent is the management client, not the netboot
     // path. Both extend FOGBase directly -- Enrollment is the policy for who
     // gets a client certificate, Principal is the pure verifier that turns a
