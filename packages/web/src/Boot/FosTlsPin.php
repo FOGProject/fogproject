@@ -39,12 +39,18 @@ class FosTlsPin
      *
      * The key is read from the server as a client sees it, at each render,
      * so a renewed or replaced certificate needs no other step. It is read
-     * twice: once over loopback, which no network attacker can answer, and
-     * once at the address in $web, which is what FOS will reach. Only a key
-     * both agree on is pinned. A reverse proxy, a web host that is not this
-     * machine, or a poisoned name lookup gives two different keys, and then
-     * no pin is sent and FOS falls back to its CA bundle. A wrong pin would
-     * stop every task; a missing one costs only the stronger check.
+     * only when the host in $web resolves to an address on THIS machine. A
+     * connection to a local address never leaves the box, so no network
+     * attacker can answer it, and a poisoned name lookup that points
+     * elsewhere is refused rather than pinned. A reverse proxy or a web host
+     * that is another machine gets no pin either: FOS then falls back to its
+     * CA bundle. A wrong pin would stop every task; a missing one costs only
+     * the stronger check.
+     *
+     * The key is read at that address, not over loopback. The installer's
+     * nginx vhost listens on <server ip>:443 only (lib/common/functions.sh),
+     * so 127.0.0.1:443 answers nothing there, and an earlier loopback read
+     * meant no nginx install ever sent a pin.
      *
      * Plain http has no key to pin.
      *
@@ -63,20 +69,48 @@ class FosTlsPin
         }
         $host = trim($parts['host'], '[]');
         $port = (int)($parts['port'] ?? 443);
-        $local = self::_servedKeyPin('127.0.0.1', $port, $host);
-        if ('' === $local
-            || $local !== self::_servedKeyPin($host, $port, $host)
-        ) {
+        $ip = filter_var($host, FILTER_VALIDATE_IP) ? $host : gethostbyname($host);
+        if (!self::isLocalAddress($ip)) {
+            return '';
+        }
+        $local = self::_servedKeyPin($ip, $port, $host);
+        if ('' === $local) {
             return '';
         }
         return ' fogpin=' . $local;
     }
 
     /**
+     * Whether an address belongs to this machine.
+     *
+     * Binding a listener succeeds only on an address the kernel owns, so the
+     * bind itself is the test. Port 0 lets the kernel pick a free port, and
+     * the socket is closed at once. A hostname that did not resolve arrives
+     * here unchanged and fails the IP check.
+     *
+     * @param string $ip the address to test
+     *
+     * @return bool
+     */
+    public static function isLocalAddress($ip)
+    {
+        if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            return false;
+        }
+        $target = false !== strpos($ip, ':') ? "[$ip]" : $ip;
+        $sock = @stream_socket_server("tcp://$target:0", $errno, $errstr);
+        if (false === $sock) {
+            return false;
+        }
+        fclose($sock);
+        return true;
+    }
+
+    /**
      * The base64 SHA-256 of the key a TLS server presents, or ''.
      *
      * Verification is off on purpose: this reads the key in order to pin
-     * it, and the caller's loopback comparison is what makes it trustworthy.
+     * it, and the caller's local-address check is what makes it trustworthy.
      *
      * @param string $connect address to connect to
      * @param int    $port    TLS port
