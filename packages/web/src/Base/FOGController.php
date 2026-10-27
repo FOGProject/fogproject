@@ -114,8 +114,8 @@ abstract class FOGController extends FOGBase
      * |----------------|----------------------------------------------------|
      * | `createdTime`  | when it happened; filled by save()                 |
      * | `createdBy`    | the FOG identity responsible -- an operator, an API |
-     * |                | user, or 'fog' for the server itself. Filled by     |
-     * |                | save(). NEVER an endpoint's OS account.            |
+     * |                | user, or Audit::MACHINE_ACTOR for the server.       |
+     * |                | Filled by save(). NEVER an endpoint's OS account.  |
      * | `ip`           | the address the event arrived from                 |
      * | `type`         | what kind of event, as a stable machine code --     |
      * |                | class constants, NEVER translated at write time     |
@@ -129,7 +129,8 @@ abstract class FOGController extends FOGBase
      *
      * `TaskLog` is the worked example -- it maps all six. The rule the frame
      * exists to prevent is the one `userTracking` got wrong: `utUserName` is
-     * the *subject* of the event, not its actor, and `createdBy` is 'fog'
+     * the *subject* of the event, not its actor, and `createdBy` is the
+     * machine actor
      * (ADR 0020 Decision 3).
      *
      * @var array
@@ -840,7 +841,7 @@ abstract class FOGController extends FOGBase
                             if (self::$FOGUser->isValid()) {
                                 $val = trim(self::$FOGUser->get('name'));
                             } else {
-                                $val = 'fog';
+                                $val = Audit::MACHINE_ACTOR;
                             }
                         }
                         break;
