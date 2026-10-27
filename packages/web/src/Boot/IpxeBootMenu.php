@@ -1026,7 +1026,7 @@ class IpxeBootMenu extends BootMenuBase
         $this->_parseMe($Send);
         $this->_kernel = sprintf(
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
-            . 'ramdisk_size=%s%sweb=%s consoleblank=0%s rootfstype=ext4%s%s '
+            . 'ramdisk_size=%s%sweb=%s%s consoleblank=0%s rootfstype=ext4%s%s '
             . '%s nvme_core.default_ps_max_latency_us=0 '
             . 'setmacto=${setmacto}',
             $bzImage,
@@ -1035,6 +1035,7 @@ class IpxeBootMenu extends BootMenuBase
             $ramsize,
             strlen($keymap) ? sprintf(' keymap=%s ', $keymap) : ' ',
             $this->_web,
+            self::fosPinArg($this->_web),
             $kernelDebug ? ' debug' : ' ',
             $kernelArgs ? sprintf(' %s', $kernelArgs) : '',
             (
