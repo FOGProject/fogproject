@@ -2771,6 +2771,9 @@ msgstr "Opciones de arranque:"
 msgid "Decided."
 msgstr ""
 
+msgid "Decompress MB/s"
+msgstr ""
+
 #, fuzzy
 msgid "Default"
 msgstr "Defecto"
@@ -2978,6 +2981,12 @@ msgid "Disable selected"
 msgstr "Eliminar seleccionado"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
+msgstr ""
+
+msgid "Disk"
+msgstr ""
+
+msgid "Disk MB/s"
 msgstr ""
 
 #, fuzzy
@@ -3955,6 +3964,9 @@ msgstr "Eliminar seleccionado"
 msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
 msgstr ""
 
+msgid "Format"
+msgstr ""
+
 #, fuzzy
 msgid "Forums"
 msgstr "Foros FOG"
@@ -4540,6 +4552,10 @@ msgstr "actualización Valoración falló"
 #, fuzzy
 msgid "Host OU Updated!"
 msgstr "el usuario actualiza"
+
+#, fuzzy
+msgid "Host Performance Tests"
+msgstr "Clave del producto Grupo"
 
 #, fuzzy
 msgid "Host Primary Disk"
@@ -5913,6 +5929,10 @@ msgstr "Línea"
 msgid "Light"
 msgstr "Medianoche"
 
+#, fuzzy
+msgid "Limited by"
+msgstr "Creado"
+
 msgid "Line"
 msgstr "Línea"
 
@@ -6696,6 +6716,9 @@ msgstr "Información de la red"
 msgid "Network Interface"
 msgstr "impresora de red"
 
+msgid "Network MB/s"
+msgstr ""
+
 msgid "Network Printer"
 msgstr "impresora de red"
 
@@ -6950,6 +6973,10 @@ msgstr ""
 
 #, fuzzy
 msgid "No payloads for the capability, or not a live row of this host."
+msgstr "No se encontró Clase FOGPage para este nodo"
+
+#, fuzzy
+msgid "No performance tests have run for this host."
 msgstr "No se encontró Clase FOGPage para este nodo"
 
 #, fuzzy
@@ -7659,6 +7686,9 @@ msgstr "macs pendientes"
 msgid "People"
 msgstr ""
 
+msgid "Performance"
+msgstr ""
+
 #, fuzzy
 msgid "Permission"
 msgstr "Versión"
@@ -8283,6 +8313,10 @@ msgstr ""
 
 msgid "RX"
 msgstr "RX"
+
+#, fuzzy
+msgid "Ratio"
+msgstr "Configuración"
 
 msgid "Re-Transmit Hello Interval"
 msgstr ""
@@ -13053,6 +13087,9 @@ msgid "not found on this node"
 msgstr "No se encontró Clase FOGPage para este nodo"
 
 msgid "not joined"
+msgstr ""
+
+msgid "not measured"
 msgstr ""
 
 #, fuzzy
