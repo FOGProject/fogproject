@@ -11998,3 +11998,51 @@ $this->schema[] = [
     . "JOIN `groupModuleAssoc` g ON g.`gmaGroupID` = gm.`gmGroupID` "
     . "WHERE gm.`gmHostID` = h.`hostID` AND g.`gmaModuleID` = m.`id`)",
 ];
+
+// 444
+$this->schema[] = [
+    // The Performance Test task type (fos#55). FOS boots with
+    // mode=perftest, times the disk, the network and decompression, and
+    // reports the result to service/perftest.php. The task changes
+    // nothing on the disk.
+    //
+    // ttID 27 is the next free id (26 is the Secure Boot test task).
+    // Deleted ids are not reused. ttIsAdvanced '1': a diagnostic, not a
+    // fleet operation, so it sits behind the Advanced toggle. It needs no
+    // image, so getTasking() treats it like the wipes.
+    "INSERT IGNORE INTO `taskTypes` "
+    . "(`ttID`,`ttName`,`ttDescription`,`ttIcon`,`ttKernel`,"
+    . "`ttKernelArgs`,`ttType`,`ttIsAdvanced`,`ttIsAccess`) "
+    . "VALUES "
+    . "(27,'Performance Test','Times the disk, network and decompression "
+    . "speed of the client to find what limits imaging. It changes nothing "
+    . "on the disk.','gauge-high','','mode=perftest','fog','1','both')",
+    // One row per reported run, newest first on the host page.
+    //
+    // hptHostID is a satellite of the host: the rows go with the host
+    // (CASCADE in commons/schema-constraints.php, group 14, like
+    // hostUserSession). hptTaskID is an audit reference: a result records
+    // something that happened and must not constrain the task row, the
+    // same as taskLog.taskID.
+    //
+    // A rate of 0 means FOS did not measure it. hptRatio is the
+    // compression ratio times 100, so 250 is 2.50:1.
+    "CREATE TABLE IF NOT EXISTS `hostPerfTests` ( "
+    . "`hptID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`hptHostID` int(11) NOT NULL, "
+    . "`hptTaskID` int(11) NOT NULL DEFAULT 0, "
+    . "`hptDateTime` datetime DEFAULT NULL, "
+    . "`hptDisk` varchar(64) NOT NULL DEFAULT '', "
+    . "`hptDiskMBps` int(10) unsigned NOT NULL DEFAULT 0, "
+    . "`hptNetMBps` int(10) unsigned NOT NULL DEFAULT 0, "
+    . "`hptCpuMBps` int(10) unsigned NOT NULL DEFAULT 0, "
+    . "`hptRatio` int(10) unsigned NOT NULL DEFAULT 0, "
+    . "`hptFormat` varchar(8) NOT NULL DEFAULT '', "
+    . "`hptSample` varchar(255) NOT NULL DEFAULT '', "
+    . "`hptBottleneck` varchar(16) NOT NULL DEFAULT '', "
+    . "`hptKernel` varchar(64) NOT NULL DEFAULT '', "
+    . "`hptInit` varchar(32) NOT NULL DEFAULT '', "
+    . "PRIMARY KEY (`hptID`), "
+    . "KEY `hptHostID` (`hptHostID`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
