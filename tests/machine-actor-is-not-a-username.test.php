@@ -37,7 +37,16 @@ use FOG\Items\User;
 
 $t = new FogChecks();
 
-$actor = Audit::MACHINE_ACTOR;
+// Read from source, like the other pins below. Compared as a PHP constant,
+// phpstan folds 'fog' !== '(system)' to "always true" and fails the build.
+$auditSrc = (string)file_get_contents($web . '/src/Audit/Audit.php');
+$hasActor = preg_match("/const MACHINE_ACTOR = '([^']*)';/", $auditSrc, $am);
+$t->check('Audit::MACHINE_ACTOR is readable', 1 === $hasActor);
+$actor = $am[1] ?? '';
+$t->check(
+    'the loaded class carries the same value',
+    Audit::MACHINE_ACTOR === $actor
+);
 
 $t->check(
     'the machine actor is not the default admin username',
