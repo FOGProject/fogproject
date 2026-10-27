@@ -2690,6 +2690,9 @@ msgstr "mettere a punto"
 msgid "Decided."
 msgstr ""
 
+msgid "Decompress MB/s"
+msgstr ""
+
 msgid "Default"
 msgstr "Predefinito"
 
@@ -2886,6 +2889,12 @@ msgid "Disable selected"
 msgstr "Cancella selezionato"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
+msgstr ""
+
+msgid "Disk"
+msgstr ""
+
+msgid "Disk MB/s"
 msgstr ""
 
 msgid "Display"
@@ -3830,6 +3839,9 @@ msgstr "Cancella selezionato"
 msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
 msgstr ""
 
+msgid "Format"
+msgstr ""
+
 #, fuzzy
 msgid "Forums"
 msgstr "FOG Forum"
@@ -4387,6 +4399,10 @@ msgstr "Aggiornamento host completato!"
 #, fuzzy
 msgid "Host OU Updated!"
 msgstr "Host aggiornato!"
+
+#, fuzzy
+msgid "Host Performance Tests"
+msgstr "Tasti del prodotto host"
 
 msgid "Host Primary Disk"
 msgstr "Host disco principale"
@@ -5671,6 +5687,10 @@ msgstr "Licenza"
 msgid "Light"
 msgstr "Mezzanotte"
 
+#, fuzzy
+msgid "Limited by"
+msgstr "Creato da"
+
 msgid "Line"
 msgstr "linea"
 
@@ -6416,6 +6436,9 @@ msgstr "Informationi di rete"
 msgid "Network Interface"
 msgstr "Installazione via rete"
 
+msgid "Network MB/s"
+msgstr ""
+
 msgid "Network Printer"
 msgstr "stampante di rete"
 
@@ -6659,6 +6682,10 @@ msgstr ""
 
 #, fuzzy
 msgid "No payloads for the capability, or not a live row of this host."
+msgstr "Nessun compito attivo trovato per Host"
+
+#, fuzzy
+msgid "No performance tests have run for this host."
 msgstr "Nessun compito attivo trovato per Host"
 
 #, fuzzy
@@ -7347,6 +7374,10 @@ msgid "People"
 msgstr ""
 
 #, fuzzy
+msgid "Performance"
+msgstr "Il tentativo di ping"
+
+#, fuzzy
 msgid "Permission"
 msgstr "Versione"
 
@@ -7950,6 +7981,10 @@ msgstr ""
 
 msgid "RX"
 msgstr "RX"
+
+#, fuzzy
+msgid "Ratio"
+msgstr "Durata"
 
 msgid "Re-Transmit Hello Interval"
 msgstr ""
@@ -12542,6 +12577,9 @@ msgstr "Non trovato su questo nodo"
 msgid "not joined"
 msgstr ""
 
+msgid "not measured"
+msgstr ""
+
 #, fuzzy
 msgid "not reachable"
 msgstr "Non disponibile"
@@ -13622,10 +13660,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Pending Mac List"
 #~ msgstr "Mac in attesa"
-
-#, fuzzy
-#~ msgid "Performing ping"
-#~ msgstr "Il tentativo di ping"
 
 #~ msgid "Please Enter an admin or mobile lookup name"
 #~ msgstr "Inserisci un nome di amministratore o di ricerca per cellulari"

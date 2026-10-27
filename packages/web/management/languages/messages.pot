@@ -2376,6 +2376,9 @@ msgstr ""
 msgid "Decided."
 msgstr ""
 
+msgid "Decompress MB/s"
+msgstr ""
+
 msgid "Default"
 msgstr ""
 
@@ -2544,6 +2547,12 @@ msgid "Disable selected"
 msgstr ""
 
 msgid "Disabled items are not displayed. Legacy items are removed."
+msgstr ""
+
+msgid "Disk"
+msgstr ""
+
+msgid "Disk MB/s"
 msgstr ""
 
 msgid "Display"
@@ -3370,6 +3379,9 @@ msgstr ""
 msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
 msgstr ""
 
+msgid "Format"
+msgstr ""
+
 msgid "Forums"
 msgstr ""
 
@@ -3851,6 +3863,9 @@ msgid "Host OU Update Success"
 msgstr ""
 
 msgid "Host OU Updated!"
+msgstr ""
+
+msgid "Host Performance Tests"
 msgstr ""
 
 msgid "Host Primary Disk"
@@ -4980,6 +4995,9 @@ msgstr ""
 msgid "Light"
 msgstr ""
 
+msgid "Limited by"
+msgstr ""
+
 msgid "Line"
 msgstr ""
 
@@ -5631,6 +5649,9 @@ msgstr ""
 msgid "Network Interface"
 msgstr ""
 
+msgid "Network MB/s"
+msgstr ""
+
 msgid "Network Printer"
 msgstr ""
 
@@ -5851,6 +5872,9 @@ msgid "No password is needed. Issue this account a token from its API tab, or fr
 msgstr ""
 
 msgid "No payloads for the capability, or not a live row of this host."
+msgstr ""
+
+msgid "No performance tests have run for this host."
 msgstr ""
 
 msgid "No plugin tasks to run"
@@ -6467,6 +6491,9 @@ msgstr ""
 msgid "People"
 msgstr ""
 
+msgid "Performance"
+msgstr ""
+
 msgid "Permission"
 msgstr ""
 
@@ -6984,6 +7011,9 @@ msgid "REST API reference"
 msgstr ""
 
 msgid "RX"
+msgstr ""
+
+msgid "Ratio"
 msgstr ""
 
 msgid "Re-Transmit Hello Interval"
@@ -11115,6 +11145,9 @@ msgid "not found on this node"
 msgstr ""
 
 msgid "not joined"
+msgstr ""
+
+msgid "not measured"
 msgstr ""
 
 msgid "not reachable"
