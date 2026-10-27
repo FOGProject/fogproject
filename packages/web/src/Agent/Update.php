@@ -116,7 +116,7 @@ class Update extends FOGBase
     /**
      * The audit types a transition records (design 0015 section 13). These
      * are machine-originated rows: ADR 0021 decision 4 applies, so they
-     * carry createdBy 'fog', authSource 'agent' and an empty permission,
+     * carry createdBy Audit::MACHINE_ACTOR, authSource 'agent' and an empty permission,
      * saying truthfully that no authorization was consulted.
      */
     const AUDIT_APPLIED = 'agent.update.applied';

@@ -392,9 +392,15 @@ class TaskQueue extends TaskingElement
             $fromEmail,
             phpversion()
         );
-        $engineer = ucwords(
-            $this->Task->get('createdBy')
-        );
+        $engineer = $this->Task->get('createdBy');
+        // A task no person created (quick registration) is recorded as the
+        // machine actor, which is not a mailbox. Keep the address such a
+        // task reached before the rename, so ${user-name} routing does not
+        // change under anyone.
+        if (Audit::MACHINE_ACTOR === $engineer) {
+            $engineer = 'fog';
+        }
+        $engineer = ucwords($engineer);
         $primaryUser = ucwords(
             self::$Host->get('inventory')->get('primaryUser')
         );
