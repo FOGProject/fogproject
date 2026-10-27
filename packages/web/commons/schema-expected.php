@@ -472,6 +472,25 @@ return [
                 'hnObservedAt' => 'datetime DEFAULT NULL',
             ],
         ],
+        'hostPerfTests' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostPerfTests` ( `hptID` int(11) NOT NULL AUTO_INCREMENT, `hptHostID` int(11) NOT NULL, `hptTaskID` int(11) NOT NULL DEFAULT 0, `hptDateTime` datetime DEFAULT NULL, `hptDisk` varchar(64) NOT NULL DEFAULT \'\', `hptDiskMBps` int(10) unsigned NOT NULL DEFAULT 0, `hptNetMBps` int(10) unsigned NOT NULL DEFAULT 0, `hptCpuMBps` int(10) unsigned NOT NULL DEFAULT 0, `hptRatio` int(10) unsigned NOT NULL DEFAULT 0, `hptFormat` varchar(8) NOT NULL DEFAULT \'\', `hptSample` varchar(255) NOT NULL DEFAULT \'\', `hptBottleneck` varchar(16) NOT NULL DEFAULT \'\', `hptKernel` varchar(64) NOT NULL DEFAULT \'\', `hptInit` varchar(32) NOT NULL DEFAULT \'\', PRIMARY KEY (`hptID`), KEY `hptHostID` (`hptHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'hptID' => 'int(11) NOT NULL',
+                'hptHostID' => 'int(11) NOT NULL',
+                'hptTaskID' => 'int(11) NOT NULL DEFAULT 0',
+                'hptDateTime' => 'datetime DEFAULT NULL',
+                'hptDisk' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'hptDiskMBps' => 'int(10) unsigned NOT NULL DEFAULT 0',
+                'hptNetMBps' => 'int(10) unsigned NOT NULL DEFAULT 0',
+                'hptCpuMBps' => 'int(10) unsigned NOT NULL DEFAULT 0',
+                'hptRatio' => 'int(10) unsigned NOT NULL DEFAULT 0',
+                'hptFormat' => 'varchar(8) NOT NULL DEFAULT \'\'',
+                'hptSample' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hptBottleneck' => 'varchar(16) NOT NULL DEFAULT \'\'',
+                'hptKernel' => 'varchar(64) NOT NULL DEFAULT \'\'',
+                'hptInit' => 'varchar(32) NOT NULL DEFAULT \'\'',
+            ],
+        ],
         'hostPrinter' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `hostPrinter` ( `hpID` int(11) NOT NULL AUTO_INCREMENT, `hpHostID` int(11) NOT NULL, `hpName` varchar(255) NOT NULL DEFAULT \'\', `hpURI` varchar(1024) NOT NULL DEFAULT \'\', `hpDriver` varchar(255) NOT NULL DEFAULT \'\', `hpDefault` tinyint(1) NOT NULL DEFAULT 0, `hpShared` tinyint(1) NOT NULL DEFAULT 0, `hpObservedAt` datetime DEFAULT NULL, PRIMARY KEY (`hpID`), UNIQUE KEY `hpHostName` (`hpHostID`,`hpName`), KEY `hpName` (`hpName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [

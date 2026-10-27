@@ -16,7 +16,7 @@
  *   - schema step 443 only inserts, inserts msState 0, and keeps every host
  *     whose missing row meant OFF on an install upgraded from 1.5 (it skips
  *     a host with a row and a host whose group grants the module);
- *   - FOG_SCHEMA is 443;
+ *   - FOG_SCHEMA has reached 443, so the step ships;
  *   - host creation no longer copies the default modules into host rows.
  *
  * Usage: php tests/module-not-set-follows-default.test.php
@@ -104,14 +104,16 @@ $t->check('the default set is read once per call', 1 === $defaultReads);
 
 // Schema step 443 is array index 442: the array is keyed from 0.
 $systemSrc = file_get_contents(dirname(__DIR__) . '/packages/web/src/Base/System.php');
-$t->check('FOG_SCHEMA is 443', 1 === preg_match("/define\(\s*'FOG_SCHEMA'\s*,\s*443\s*\)/", $systemSrc));
+// At least 443, not exactly: a later step raises the constant and must not
+// fail a test about step 443.
+$t->check('FOG_SCHEMA has reached 443', 1 === preg_match("/define\(\s*'FOG_SCHEMA'\s*,\s*(\d+)\s*\)/", $systemSrc, $schemaVer) && (int)$schemaVer[1] >= 443);
 $steps = fogCollectSchemaSteps(
     dirname(__DIR__) . '/packages/web/commons/schema.php',
     'module_not_set_follows_default',
-    443
+    (int)$schemaVer[1]
 );
 $sql = isset($steps[442]) ? implode("\n", (array)$steps[442]) : '';
-$t->check('step 443 is the last step', 443 === count($steps));
+$t->check('step 443 exists', count($steps) >= 443);
 $t->check('step 443 inserts msState 0', 1 === preg_match('/INSERT IGNORE INTO `moduleStatusByHost`.*SELECT h\.`hostID`, m\.`id`, 0 FROM/s', $sql));
 $t->check('step 443 has no DELETE or UPDATE', 0 === preg_match('/\b(DELETE|UPDATE)\b/i', $sql));
 $t->check('step 443 skips hosts with a row', false !== strpos($sql, 'FROM `moduleStatusByHost` s'));
