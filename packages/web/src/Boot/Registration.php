@@ -473,7 +473,9 @@ class Registration extends FOGBase
                 ['token' => self::createSecToken()]
             );
         }
-        $username = ($username ?: 'fog');
+        // Quick registration has no account, so the task's creator is the
+        // server itself -- the machine actor, not the `fog` admin account.
+        $username = ($username ?: Audit::MACHINE_ACTOR);
         $Image = self::$Host->getImage();
         if (!$Image->isValid()) {
             throw new \Exception(
