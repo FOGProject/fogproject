@@ -25,6 +25,7 @@ use FOG\Items\Architecture;
 use FOG\Items\Group;
 use FOG\Items\Host;
 use FOG\Items\HostAutoLogout;
+use FOG\Items\HostPerfTest;
 use FOG\Items\MACAddress;
 use FOG\Items\PowerManagement;
 use FOG\Items\ScheduledTask;
@@ -4631,6 +4632,43 @@ class HostManagement extends FOGPage
         );
     }
     /**
+     * Display the host's Performance Test results.
+     *
+     * Read only. Each row is one run of the Performance Test task type
+     * (fos#55), newest first. The grid is filled by getPerfTests().
+     *
+     * The empty-state text is translated here and handed to the grid
+     * through a hidden element, because the script cannot call _().
+     *
+     * @return void
+     */
+    public function hostPerfTests()
+    {
+        printf(
+            '<span id="host-perftest-empty" class="d-none">%s</span>',
+            \Initiator::e(_('No performance tests have run for this host.'))
+        );
+        $this->renderHistoryTab(
+            [
+                _('Date'),
+                _('Disk'),
+                _('Disk MB/s'),
+                _('Network MB/s'),
+                _('Decompress MB/s'),
+                _('Ratio'),
+                _('Format'),
+                _('Limited by'),
+                _('Kernel'),
+                _('Init')
+            ],
+            [
+                [], [], [], [], [], [], [], [], [], []
+            ],
+            _('Host Performance Tests'),
+            'host-perftest-table'
+        );
+    }
+    /**
      * Edits an existing item.
      *
      * @return void
@@ -4886,6 +4924,15 @@ class HostManagement extends FOGPage
                         'id' => 'host-installed-software',
                         'generator' => function () {
                             $this->hostInstalledSoftware();
+                        }
+                    ],
+                    [
+                        // What the Performance Test task type measured on
+                        // this host (fos#55). Read only.
+                        'name' => _('Performance'),
+                        'id' => 'host-perftest',
+                        'generator' => function () {
+                            $this->hostPerfTests();
                         }
                     ],
                     [
@@ -8048,6 +8095,69 @@ class HostManagement extends FOGPage
             ),
             'name'
         );
+        $this->jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode($data, JSON_UNESCAPED_UNICODE)
+        );
+    }
+    /**
+     * Serves the host's Performance Test grid.
+     *
+     * Newest first. The rates and the ratio are formatted here, by the same
+     * functions the tests pin, so the grid script only escapes and shows.
+     *
+     * @return void
+     */
+    public function getPerfTests()
+    {
+        header('Content-type: application/json');
+        parse_str(
+            file_get_contents('php://input'),
+            $request
+        );
+        $hostID = (int)$this->obj->get('id');
+        $columns = [
+            ['db' => 'hptID', 'dt' => 'id'],
+            ['db' => 'hptDateTime', 'dt' => 'date'],
+            ['db' => 'hptDisk', 'dt' => 'disk'],
+            ['db' => 'hptDiskMBps', 'dt' => 'diskMBps'],
+            ['db' => 'hptNetMBps', 'dt' => 'netMBps'],
+            ['db' => 'hptCpuMBps', 'dt' => 'cpuMBps'],
+            ['db' => 'hptRatio', 'dt' => 'ratio'],
+            ['db' => 'hptFormat', 'dt' => 'format'],
+            ['db' => 'hptBottleneck', 'dt' => 'bottleneck'],
+            ['db' => 'hptKernel', 'dt' => 'kernel'],
+            ['db' => 'hptInit', 'dt' => 'init']
+        ];
+        $sqlstr = "SELECT `%s`
+            FROM `%s`
+            %s
+            %s
+            %s";
+        $fltrstr = "SELECT COUNT(`%s`)
+            FROM `%s`
+            %s";
+        $ttlstr = "SELECT COUNT(`%s`)
+            FROM `%s`";
+        $data = FOGManagerController::complex(
+            $request,
+            'hostPerfTests',
+            'hptID',
+            $columns,
+            $sqlstr,
+            $fltrstr,
+            $ttlstr,
+            null,
+            sprintf('`hostPerfTests`.`hptHostID` = %d', $hostID),
+            'date'
+        );
+        foreach ($data['data'] as &$row) {
+            $row['diskMBps'] = HostPerfTest::formatRate($row['diskMBps']);
+            $row['netMBps'] = HostPerfTest::formatRate($row['netMBps']);
+            $row['cpuMBps'] = HostPerfTest::formatRate($row['cpuMBps']);
+            $row['ratio'] = HostPerfTest::formatRatio($row['ratio']);
+        }
+        unset($row);
         $this->jsonSend(
             HTTPResponseCodes::HTTP_SUCCESS,
             json_encode($data, JSON_UNESCAPED_UNICODE)

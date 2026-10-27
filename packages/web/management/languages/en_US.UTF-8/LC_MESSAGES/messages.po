@@ -2748,6 +2748,9 @@ msgstr "Debug"
 msgid "Decided."
 msgstr ""
 
+msgid "Decompress MB/s"
+msgstr ""
+
 msgid "Default"
 msgstr "Default"
 
@@ -2950,6 +2953,12 @@ msgid "Disable selected"
 msgstr "Delete Selected"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
+msgstr ""
+
+msgid "Disk"
+msgstr ""
+
+msgid "Disk MB/s"
 msgstr ""
 
 msgid "Display"
@@ -3909,6 +3918,9 @@ msgstr "Delete Selected"
 msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
 msgstr ""
 
+msgid "Format"
+msgstr ""
+
 #, fuzzy
 msgid "Forums"
 msgstr "FOG Forums"
@@ -4482,6 +4494,10 @@ msgstr "Install / Update Successful!"
 #, fuzzy
 msgid "Host OU Updated!"
 msgstr "User updated"
+
+#, fuzzy
+msgid "Host Performance Tests"
+msgstr "Host Product Key"
 
 msgid "Host Primary Disk"
 msgstr "Host Primary Disk"
@@ -5819,6 +5835,10 @@ msgstr "License"
 msgid "Light"
 msgstr "Midnight"
 
+#, fuzzy
+msgid "Limited by"
+msgstr "Created By"
+
 msgid "Line"
 msgstr "Line"
 
@@ -6597,6 +6617,9 @@ msgstr "Network Information"
 msgid "Network Interface"
 msgstr "Network Printer"
 
+msgid "Network MB/s"
+msgstr ""
+
 msgid "Network Printer"
 msgstr "Network Printer"
 
@@ -6847,6 +6870,10 @@ msgstr ""
 
 #, fuzzy
 msgid "No payloads for the capability, or not a live row of this host."
+msgstr "No Active Task found for Host"
+
+#, fuzzy
+msgid "No performance tests have run for this host."
 msgstr "No Active Task found for Host"
 
 #, fuzzy
@@ -7550,6 +7577,10 @@ msgid "People"
 msgstr ""
 
 #, fuzzy
+msgid "Performance"
+msgstr "Attempting to ping"
+
+#, fuzzy
 msgid "Permission"
 msgstr "Version"
 
@@ -8166,6 +8197,10 @@ msgstr ""
 
 msgid "RX"
 msgstr "RX"
+
+#, fuzzy
+msgid "Ratio"
+msgstr "Duration"
 
 msgid "Re-Transmit Hello Interval"
 msgstr ""
@@ -12896,6 +12931,9 @@ msgstr "Image not found on node"
 msgid "not joined"
 msgstr ""
 
+msgid "not measured"
+msgstr ""
+
 #, fuzzy
 msgid "not reachable"
 msgstr "Not Available"
@@ -13981,10 +14019,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Pending Mac List"
 #~ msgstr "Pending macs"
-
-#, fuzzy
-#~ msgid "Performing ping"
-#~ msgstr "Attempting to ping"
 
 #, fuzzy
 #~ msgid "Please Enter an admin or mobile lookup name"

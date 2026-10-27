@@ -373,6 +373,7 @@ $expected = [
     'agentWake.awTargetID',
     'agentWake.awSenderID',
     'hostFactState.hfsHostID',
+    'hostPerfTests.hptHostID',
     // Plugin groups, named for the plugin rather than numbered. Each
     // lands in that plugin's own repo, in an appended step of its
     // manager's schema(); see fog-plugins tests/foreign-keys.test.php,

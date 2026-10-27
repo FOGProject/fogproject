@@ -2386,6 +2386,9 @@ msgstr "デバッグタスク"
 msgid "Decided."
 msgstr "判定済み。"
 
+msgid "Decompress MB/s"
+msgstr ""
+
 msgid "Default"
 msgstr "既定"
 
@@ -2555,6 +2558,12 @@ msgstr "選択した項目を無効化"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr "無効な項目は表示されません。従来の項目は削除されます。"
+
+msgid "Disk"
+msgstr ""
+
+msgid "Disk MB/s"
+msgstr ""
 
 msgid "Display"
 msgstr "表示"
@@ -3380,6 +3389,10 @@ msgstr "選択した項目の登録情報を削除"
 msgid "Forgotten. Any database tables the plugin created are still there -- what to drop is described by code that is no longer installed."
 msgstr "登録情報を削除しました。ただし、プラグインが作成したデータベーステーブルは残っています。削除すべきテーブルの情報は、既にアンインストールされたコードに記述されているためです。"
 
+#, fuzzy
+msgid "Format"
+msgstr "フォーム"
+
 msgid "Forums"
 msgstr "フォーラム"
 
@@ -3862,6 +3875,10 @@ msgstr "ホストの OU を更新しました"
 
 msgid "Host OU Updated!"
 msgstr "ホストの OU を更新しました！"
+
+#, fuzzy
+msgid "Host Performance Tests"
+msgstr "ホストプロダクトキー"
 
 msgid "Host Primary Disk"
 msgstr "ホストプライマリディスク"
@@ -4990,6 +5007,10 @@ msgstr "ライセンス"
 msgid "Light"
 msgstr "ライト"
 
+#, fuzzy
+msgid "Limited by"
+msgstr "無制限"
+
 msgid "Line"
 msgstr "行"
 
@@ -5643,6 +5664,9 @@ msgstr "ネットワーク情報"
 msgid "Network Interface"
 msgstr "ネットワークインターフェイス"
 
+msgid "Network MB/s"
+msgstr ""
+
 msgid "Network Printer"
 msgstr "ネットワークプリンター"
 
@@ -5865,6 +5889,10 @@ msgstr "パスワードは不要です。アカウント作成後、そのアカ
 
 msgid "No payloads for the capability, or not a live row of this host."
 msgstr "この機能に対応するペイロードがないか、対象ホストの有効なレコードではありません。"
+
+#, fuzzy
+msgid "No performance tests have run for this host."
+msgstr "このホストに実行中のタスクが見つかりません"
 
 msgid "No plugin tasks to run"
 msgstr "実行するプラグインタスクがありません"
@@ -6485,6 +6513,10 @@ msgstr "保留中..."
 msgid "People"
 msgstr "利用者"
 
+#, fuzzy
+msgid "Performance"
+msgstr "検索を実行"
+
 msgid "Permission"
 msgstr "権限"
 
@@ -7003,6 +7035,10 @@ msgstr "REST API リファレンス"
 
 msgid "RX"
 msgstr "受信（RX）"
+
+#, fuzzy
+msgid "Ratio"
+msgstr "所要時間"
 
 msgid "Re-Transmit Hello Interval"
 msgstr "Hello 再送信間隔"
@@ -11135,6 +11171,9 @@ msgstr "このノード上に見つかりません"
 msgid "not joined"
 msgstr "未参加"
 
+msgid "not measured"
+msgstr ""
+
 msgid "not reachable"
 msgstr "到達できません"
 
@@ -12201,9 +12240,6 @@ msgstr "{node}"
 #~ msgid "Force task to start"
 #~ msgstr "タスクを強制開始"
 
-#~ msgid "Form"
-#~ msgstr "フォーム"
-
 #~ msgid "Found login information"
 #~ msgstr "ログイン情報が見つかりました"
 
@@ -13036,9 +13072,6 @@ msgstr "{node}"
 
 #~ msgid "Perform Immediately?"
 #~ msgstr "すぐに実行しますか？"
-
-#~ msgid "Perform search"
-#~ msgstr "検索を実行"
 
 #~ msgid "Performing ping"
 #~ msgstr "Ping を実行しています"
