@@ -8,7 +8,7 @@
  * by the openssl CLI, against curl itself, and against the cases where no pin
  * must be sent at all.
  *
- * BootMenuBase::fosPinArg() reads the served key twice -- over loopback and at
+ * FosTlsPin::arg() reads the served key twice -- over loopback and at
  * the web= address -- and pins only a key both agree on. Cases 4 and 5 put a
  * different server, or none, on loopback, and expect no pin.
  *
@@ -18,17 +18,9 @@
  * Exit status 0 = pass, 1 = fail.
  */
 
-namespace FOG\Base {
-    // BootMenuBase extends FOGBase, whose real definition pulls in the whole
-    // application. fosPinArg() uses none of it.
-    abstract class FOGBase
-    {
-    }
-}
-
 namespace {
     $root = dirname(__DIR__);
-    require_once $root . '/packages/web/src/Boot/BootMenuBase.php';
+    require_once $root . '/packages/web/src/Boot/FosTlsPin.php';
 
     foreach (['openssl', 'curl'] as $tool) {
         if ('' === trim((string)shell_exec('command -v ' . $tool))) {
@@ -121,10 +113,8 @@ namespace {
         exit(1);
     };
 
-    $pinArg = new \ReflectionMethod('FOG\Boot\BootMenuBase', 'fosPinArg');
-    $pinArg->setAccessible(true);
-    $pin = function ($web) use ($pinArg) {
-        return $pinArg->invoke(null, $web);
+    $pin = function ($web) {
+        return \FOG\Boot\FosTlsPin::arg($web);
     };
 
     $failures = 0;

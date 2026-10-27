@@ -251,7 +251,7 @@ class UbootBootMenu extends BootMenuBase
             $kernelRamDisk,
             strlen($keymap) ? sprintf(' keymap=%s ', $keymap) : ' ',
             $web,
-            self::fosPinArg($web),
+            FosTlsPin::arg($web),
             $kernelDebug ? ' debug ' : ' ',
             $kernelArgs ? sprintf(' %s', $kernelArgs) : '',
             (

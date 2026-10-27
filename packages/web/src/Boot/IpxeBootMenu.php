@@ -1035,7 +1035,7 @@ class IpxeBootMenu extends BootMenuBase
             $ramsize,
             strlen($keymap) ? sprintf(' keymap=%s ', $keymap) : ' ',
             $this->_web,
-            self::fosPinArg($this->_web),
+            FosTlsPin::arg($this->_web),
             $kernelDebug ? ' debug' : ' ',
             $kernelArgs ? sprintf(' %s', $kernelArgs) : '',
             (

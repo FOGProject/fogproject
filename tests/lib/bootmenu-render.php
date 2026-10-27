@@ -287,6 +287,14 @@ if (is_file($baseFile)) {
  * calling exit(), so renderForHost() can be used from a process that renders
  * more than one host (UbootTftpSync). Only UbootBootMenu depends on it.
  */
+/*
+ * Both menus call it for the fogpin= argument. Under the harness's http
+ * it returns '' without opening a connection.
+ */
+$pinFile = dirname($classFile) . '/FosTlsPin.php';
+if (is_file($pinFile)) {
+    require_once $pinFile;
+}
 $haltFile = dirname($classFile) . '/UbootRenderHalted.php';
 if (is_file($haltFile)) {
     require_once $haltFile;
