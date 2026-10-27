@@ -12046,3 +12046,21 @@ $this->schema[] = [
     . "KEY `hptHostID` (`hptHostID`) "
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
+
+// 445
+$this->schema[] = [
+    // FOS now boots an initramfs on every arch (fos ADR-0021). The kernel
+    // ignores ramdisk_size= for an initramfs, so the old text, which said
+    // the value sizes the boot image, no longer describes what it does.
+    // FOS reads it instead as the size limit of its /tmp. An init older
+    // than EXP_20261027-181357 is an ext2 initrd and still uses the old
+    // meaning.
+    "UPDATE `globalSettings` SET `settingDesc` = 'The size, in KB, of the "
+    . "/tmp RAM disk on a client that boots FOS. FOS keeps it between 64 MB "
+    . "and half of the client''s physical memory. An init older than "
+    . "EXP_20261027-181357 instead uses this value as the size of its boot "
+    . "image, "
+    . "which must be larger than the init and smaller than the client''s "
+    . "physical memory. (Default 275000)' "
+    . "WHERE `settingKey` = 'FOG_KERNEL_RAMDISK_SIZE'",
+];
