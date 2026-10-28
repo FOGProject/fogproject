@@ -23,6 +23,7 @@ use FOG\Items\Host;
 use FOG\Items\Image;
 use FOG\Items\Site;
 use FOG\Items\Snapin;
+use FOG\Items\User;
 use FOG\Managers\FileDeleteQueueManager;
 use FOG\Managers\HostManager;
 use FOG\Managers\PowerManagementManager;
@@ -5151,11 +5152,17 @@ abstract class FOGPage extends FOGBase
                         }
                     }
                     if ($ItemMan->exists($rowVals['name'])) {
+                        // Names the class: every importer shares this check,
+                        // and it used to say "host" for users and images too.
                         throw new \Exception(
-                            _('This host already exists')
+                            sprintf(
+                                _('%s "%s" already exists'),
+                                $this->childClass,
+                                $rowVals['name']
+                            )
                         );
                     }
-                    $fkWarnings = [];
+                    $rowWarnings = [];
                     foreach ((array)$dbkeys as &$field) {
                         $lc = strtolower($field);
                         if (!array_key_exists($lc, $rowVals)) {
@@ -5181,7 +5188,7 @@ abstract class FOGPage extends FOGBase
                                 if (count($fkIds) > 0) {
                                     $Item->set($field, $fkIds[0]);
                                 } else {
-                                    $fkWarnings[] = sprintf(
+                                    $rowWarnings[] = sprintf(
                                         _('%s value "%s" did not match any %s '
                                         . 'by id or name; left unset'),
                                         $field,
@@ -5193,11 +5200,47 @@ abstract class FOGPage extends FOGBase
                             continue;
                         }
                         if ($field == 'password') {
-                            $Item->set($field, $rowVals[$lc], true);
+                            // A recognized hash is stored as-is; a typed
+                            // password is hashed. Blank is left for the
+                            // backstop below. See User::isStoredHash().
+                            $pw = (string)$rowVals[$lc];
+                            if ('' !== $pw) {
+                                $Item->set(
+                                    $field,
+                                    $pw,
+                                    User::isStoredHash($pw)
+                                );
+                            }
                         } else {
                             $Item->set($field, $rowVals[$lc]);
                         }
                         unset($field);
+                    }
+                    /*
+                     * A user row with no password (GH-1987).
+                     *
+                     * The export leaves the hash out unless "Include password
+                     * hashes" was ticked, and password is a required field,
+                     * so every row of a plain export used to fail with
+                     * "Required database field is empty". The row now
+                     * imports with a random password nobody holds -- the
+                     * same backstop an API-only account gets -- because an
+                     * empty uPass is not a safe value to store. The warning
+                     * says so, except for an account that never signs in
+                     * with a FOG password anyway (external or API-only).
+                     */
+                    if ($Item instanceof User
+                        && '' === (string)$Item->get('password')
+                    ) {
+                        $Item->set('password', bin2hex(random_bytes(32)));
+                        if (!$Item->get('authsource')
+                            && !$Item->get('apionly')
+                        ) {
+                            $rowWarnings[] = _(
+                                'No password imported; set one before this '
+                                . 'user can sign in'
+                            );
+                        }
                     }
                     if ($isHost) {
                         $Item->addPriMAC($primac);
@@ -5263,15 +5306,16 @@ abstract class FOGPage extends FOGBase
                                 $Item->load();
                             }
                         }
-                        // Surface any lenient foreign-key warnings for this row.
-                        foreach ($fkWarnings as &$fkWarning) {
+                        // Surface this row's lenient warnings: foreign keys
+                        // that did not resolve, and a user with no password.
+                        foreach ($rowWarnings as &$rowWarning) {
                             $uploadErrors .= sprintf(
                                 "%s #%s: %s\n",
                                 _('Row'),
                                 $rowNum,
-                                $fkWarning
+                                $rowWarning
                             );
-                            unset($fkWarning);
+                            unset($rowWarning);
                         }
                         $itemCap = strtoupper($this->childClass);
                         $event = sprintf(
@@ -7129,6 +7173,7 @@ abstract class FOGPage extends FOGBase
             . 'loaded in the table.'
         );
         echo '</p>';
+        echo $this->exportOptions();
         $this->render(12, strtolower($this->childClass).'-export-table');
         echo '</div>';
         echo '</div>';
@@ -7144,9 +7189,13 @@ abstract class FOGPage extends FOGBase
      * plugin adding or removing a column through that hook moves the matching
      * <th> with it and the two cannot fall out of step.
      *
+     * @param array $keepSecrets sensitive keys to keep anyway. Only
+     *                           exportAll() passes any; see
+     *                           exportSecretsToKeep().
+     *
      * @return array [$table, $tableID, $columns, $sqlstr, $filterstr, $totalstr]
      */
-    private function _buildExportColumns()
+    private function _buildExportColumns(array $keepSecrets = [])
     {
         $obj = self::getClass($this->childClass.'Manager');
         $table = $obj->getTable();
@@ -7174,7 +7223,10 @@ abstract class FOGPage extends FOGBase
          * and is fed by API_SENSITIVE_FIELDS, so a plugin's own secrets are
          * covered here too and the two emitters cannot drift apart.
          */
-        $secretColumns = Route::unfilterableFields($this->childClass);
+        $secretColumns = array_diff(
+            Route::unfilterableFields($this->childClass),
+            $keepSecrets
+        );
         if ($this->childClass == 'Host') {
             $columns[] = [
                 'db' => 'hmMAC',
@@ -7293,7 +7345,7 @@ abstract class FOGPage extends FOGBase
     public function exportAll()
     {
         list($table, $tableID, $columns, $sqlstr, $filterstr, $totalstr)
-            = $this->_buildExportColumns();
+            = $this->_buildExportColumns($this->exportSecretsToKeep());
         $request = self::_exportRequest(
             (string) file_get_contents('php://input'),
             $_GET
@@ -7329,6 +7381,31 @@ abstract class FOGPage extends FOGBase
         }
         fclose($fh);
         exit;
+    }
+    /**
+     * Extra controls for the export page, shown above the table.
+     *
+     * A checkbox with class "fog-export-option" is sent with the "CSV (All)"
+     * request by its name when ticked (see exportButtons in fog.common.js).
+     *
+     * @return string HTML, '' for none
+     */
+    protected function exportOptions()
+    {
+        return '';
+    }
+    /**
+     * Sensitive keys the "CSV (All)" download keeps for this request.
+     *
+     * Only the full download asks. The on-screen table and its header row
+     * never carry a secret, so an opted-in column cannot show in the
+     * browser or leave through the Copy, Excel and Print buttons.
+     *
+     * @return array keys from Route::unfilterableFields(), [] for none
+     */
+    protected function exportSecretsToKeep()
+    {
+        return [];
     }
     /**
      * The DataTables request exportAll() replays, forced to one full page.

@@ -832,6 +832,11 @@ var deleteConfirmModal,
         var body = new URLSearchParams($.param(dt.ajax.params() || {}));
         body.set('start', '0');
         body.set('length', '-1');
+        // Page-specific options from FOGPage::exportOptions(), such as the
+        // user export's "Include password hashes". Sent only when ticked.
+        $('input.fog-export-option:checked').each(function() {
+          body.set(this.name, this.value);
+        });
         fogPostDownload(
           '../management/index.php?node='
             + encodeURIComponent(Common.node)

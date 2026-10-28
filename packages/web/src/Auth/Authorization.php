@@ -593,7 +593,14 @@ class Authorization extends FOGBase
             'software' => ['view', 'create', 'edit', 'delete'],
             'printer' => ['view', 'create', 'edit', 'delete'],
             'module' => ['view', 'create', 'edit', 'delete'],
-            'user' => ['view', 'create', 'edit', 'delete'],
+            // `export` is the password-hash column of the user export
+            // (GH-1987), not the export itself: the plain CSV carries nothing
+            // user.view cannot already read, so it stays on view. The hashes
+            // are offline-crackable, and "may list the users" is not "may
+            // take every password away to crack". Deny by default, as
+            // system.export arrived: no schema step seeds it, so only a
+            // holder of '*' has it until an administrator grants it.
+            'user' => ['view', 'create', 'edit', 'delete', 'export'],
             // API tokens are their own node rather than an extension of
             // user.*, because "can edit users" and "can inventory every API
             // credential on this server" are different powers and only one
