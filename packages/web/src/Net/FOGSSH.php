@@ -152,14 +152,21 @@ class FOGSSH
      */
     public function disconnect()
     {
+        // Null, never unset(). An unset declared property routes the next
+        // read of it to __get(), which looks it up in $data and warns
+        // 'Undefined array key "_link"' on every reuse of this shared
+        // instance -- the next connect() or disconnect() reads both.
         if ($this->_sftp) {
             @ssh2_disconnect($this->_sftp);
             $this->_sftp = null;
-            unset($this->_sftp);
         }
-        $test = @ssh2_disconnect($this->_link);
+        // No session to close after a failed connect (false) or an earlier
+        // disconnect (null). ssh2_disconnect() takes only a resource, and on
+        // PHP 8 anything else is a TypeError that @ does not suppress.
+        $test = is_resource($this->_link)
+            ? @ssh2_disconnect($this->_link)
+            : false;
         $this->_link = null;
-        unset($this->_link);
         return $test;
     }
     /**
