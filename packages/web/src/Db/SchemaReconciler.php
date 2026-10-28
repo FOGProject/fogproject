@@ -664,6 +664,10 @@ class SchemaReconciler extends FOGBase
                 error_log(sprintf('%s: %s', _('Schema reconcile'), $sql));
             }
         }
+        // Lossless type repair, before the foreign keys: a child column
+        // widened here can be what lets its constraint land below.
+        self::repairShape($manifest);
+
         // Pass 4 -- foreign keys, after every table and column exists.
         //
         // Re-snapshots inside applyConstraints(): pass 1 may have created
@@ -677,7 +681,7 @@ class SchemaReconciler extends FOGBase
         // way forward from the browser. Logged and reported instead.
         self::applyConstraints(null, $map);
 
-        // Reports, never repairs -- GH-1542. The four passes above all ask
+        // Reports what repairShape() above left -- GH-1542. The four passes above all ask
         // "is this thing PRESENT?" and create it when it is not. Nothing
         // asks whether a column or an index that IS present has the right
         // SHAPE, so drift is invisible: a column whose type no longer
@@ -686,13 +690,12 @@ class SchemaReconciler extends FOGBase
         // any reason is never put back, taking its guarantee with it
         // silently.
         //
-        // Repairing either is a bigger decision than this pass is allowed to
-        // make -- MODIFY COLUMN on a populated column can truncate, and
-        // ADD UNIQUE on a table that has since acquired duplicates fails
-        // outright and needs a sweep in front of it, in the shape ADR 0031
-        // decision 8 gives the constraint groups. So this turns an invisible
-        // condition into a readable one and settles how often it actually
-        // happens before anything starts issuing ALTERs.
+        // repairShape() fixes only a column change that cannot lose data.
+        // Everything else stays report-only: MODIFY COLUMN to a narrower or
+        // different type can truncate, and ADD UNIQUE on a table that has
+        // since acquired duplicates fails outright and needs a sweep in front
+        // of it, in the shape ADR 0031 decision 8 gives the constraint
+        // groups.
         self::reportShapeDrift($manifest);
 
         if (count($errors ?: [])) {
@@ -740,13 +743,206 @@ class SchemaReconciler extends FOGBase
                     _('Schema shape'),
                     count($drift),
                     _(
-                        'difference(s) from the manifest. Nothing was'
-                        . ' changed -- these are reported, not repaired.'
+                        'difference(s) from the manifest. These are'
+                        . ' reported, not repaired: only a change that'
+                        . ' cannot lose data is repaired.'
                     )
                 )
             );
         }
         return $drift;
+    }
+
+    /**
+     * Applies the column repairs planWidenings() says cannot lose data.
+     *
+     * GH-2000. A 1.5.x server carries a schema count that lands on a
+     * different 1.6 step, so the updater skips the steps below it. plan()
+     * puts back what those steps CREATED, but a step that changed the type of
+     * an existing column is lost: users.uName stayed varchar(40) NOT NULL on
+     * an upgraded server where a fresh install has varchar(255). Before this,
+     * each such case needed its own schema step, found by hand.
+     *
+     * Never fails the update. A repair the server refuses -- a wider column
+     * in an index that would pass the key length limit, a column a foreign
+     * key pins -- is logged, and reportShapeDrift() still reports the column.
+     *
+     * @param array|null $manifest Expected structure; defaults to the
+     *                             shipped one.
+     *
+     * @return array the statements that were applied
+     */
+    public static function repairShape($manifest = null)
+    {
+        if (null === $manifest) {
+            $manifest = self::manifest();
+        }
+        $drift = self::shapeDrift($manifest);
+        if (!count($drift)) {
+            return [];
+        }
+        // A column's own charset, collation and AUTO_INCREMENT, so the MODIFY
+        // keeps them. The manifest declares the first two per table and the
+        // third only in the CREATE statement, and MODIFY replaces the whole
+        // column definition: without them it converts the column to the
+        // table charset, which can lose characters, and drops AUTO_INCREMENT,
+        // which makes every later INSERT that omits the id fail with 1364.
+        $res = self::$DB->query(
+            sprintf(
+                'SELECT `TABLE_NAME`, `COLUMN_NAME`, `CHARACTER_SET_NAME`,'
+                . ' `COLLATION_NAME`, `EXTRA` FROM `information_schema`.`COLUMNS`'
+                . ' WHERE `TABLE_SCHEMA` = %s',
+                self::$DB->escape(self::$DB->dbName())
+            )
+        );
+        if (false !== $res->error) {
+            return [];
+        }
+        $charsets = [];
+        foreach ((array)$res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get() as $row) {
+            $charsets[strtolower((string)$row['TABLE_NAME'])]
+                [strtolower((string)$row['COLUMN_NAME'])] = [
+                    (string)($row['CHARACTER_SET_NAME'] ?? ''),
+                    (string)($row['COLLATION_NAME'] ?? ''),
+                    false !== stripos((string)($row['EXTRA'] ?? ''), 'auto_increment'),
+                ];
+        }
+        $applied = [];
+        foreach (self::planWidenings($drift, $manifest, $charsets) as $sql) {
+            if (false === self::$DB->query($sql)->error) {
+                $applied[] = $sql;
+                error_log(sprintf('%s: %s', _('Schema shape repaired'), $sql));
+                continue;
+            }
+            error_log(
+                sprintf(
+                    '%s: %s: %s',
+                    _('Schema shape repair refused'),
+                    self::$DB->error,
+                    $sql
+                )
+            );
+        }
+        return $applied;
+    }
+
+    /**
+     * The MODIFY statements for column drift that cannot lose data.
+     *
+     * Pure. A column qualifies only when every part of its change is lossless:
+     *
+     * - the type is the same, or a longer varchar/char/varbinary/binary, or a
+     *   wider integer of the same signedness. An integer's display width,
+     *   int(11) against int, is not a change at all.
+     * - nullability stays, or goes from NOT NULL to NULL.
+     *
+     * Anything else -- a narrower type, a different type, NULL to NOT NULL,
+     * an enum to tinyint -- stays report-only. Those can truncate a value or
+     * refuse a row, and they need a schema step that knows the data.
+     *
+     * @param array $drift    shapeDrift() output
+     * @param array $manifest expected structure
+     * @param array $charsets [table][column] => [charset, collation,
+     *                        auto_increment], live
+     *
+     * @return array SQL statements
+     */
+    public static function planWidenings(array $drift, $manifest, array $charsets = [])
+    {
+        $out = [];
+        foreach ($drift as $d) {
+            if ('column' !== ($d['kind'] ?? '')) {
+                continue;
+            }
+            $decl = (string)($manifest['tables'][$d['table']]['columns'][$d['name']] ?? '');
+            if ('' === $decl) {
+                continue;
+            }
+            $want = self::_declShape($decl);
+            $haveNull = (bool)preg_match('/ NULL$/', $d['actual'])
+                && !preg_match('/ NOT NULL$/', $d['actual']);
+            $haveType = (string)preg_replace('/ (NOT )?NULL$/', '', $d['actual']);
+            if (!$want['null'] && $haveNull) {
+                continue;
+            }
+            if (!self::_typeWidens($haveType, $want['type'])) {
+                continue;
+            }
+            if (self::_sameInteger($haveType, $want['type'])
+                && $want['null'] === $haveNull
+            ) {
+                // Only the display width differs. Nothing to change.
+                continue;
+            }
+            // Keep the column's own charset: put it right after the type,
+            // where MODIFY expects it.
+            $decl = trim($decl);
+            $typeLen = strlen((string)preg_split(
+                '/\s+(?:NOT\s+NULL|NULL|DEFAULT|AUTO_INCREMENT|COMMENT|'
+                . 'CHARACTER\s+SET|COLLATE|ON\s+UPDATE|GENERATED)\b/i',
+                $decl
+            )[0]);
+            $cs = $charsets[strtolower((string)$d['table'])][strtolower((string)$d['name'])] ?? ['', '', false];
+            $charset = '' !== $cs[0] && '' !== $cs[1]
+                ? sprintf(' CHARACTER SET %s COLLATE %s', $cs[0], $cs[1])
+                : '';
+            $rest = substr($decl, $typeLen);
+            if (!empty($cs[2]) && false === stripos($rest, 'AUTO_INCREMENT')) {
+                $rest .= ' AUTO_INCREMENT';
+            }
+            $out[] = sprintf(
+                'ALTER TABLE `%s` MODIFY `%s` %s%s%s',
+                $d['table'],
+                $d['name'],
+                substr($decl, 0, $typeLen),
+                $charset,
+                $rest
+            );
+        }
+        return $out;
+    }
+
+    /**
+     * Whether every value of type $have fits in type $want unchanged.
+     *
+     * @param string $have live COLUMN_TYPE, lowercase
+     * @param string $want manifest type, lowercase
+     *
+     * @return bool
+     */
+    private static function _typeWidens($have, $want)
+    {
+        if ($have === $want) {
+            return true;
+        }
+        $len = '/^(varchar|char|varbinary|binary)\(([0-9]+)\)$/';
+        if (preg_match($len, $have, $h) && preg_match($len, $want, $w)) {
+            return $h[1] === $w[1] && (int)$w[2] >= (int)$h[2];
+        }
+        $ranks = ['tinyint' => 1, 'smallint' => 2, 'mediumint' => 3, 'int' => 4, 'bigint' => 5];
+        $int = '/^(tinyint|smallint|mediumint|int|bigint)(?:\([0-9]+\))?( unsigned)?( zerofill)?$/';
+        if (preg_match($int, $have, $h) && preg_match($int, $want, $w)) {
+            return ($h[2] ?? '') === ($w[2] ?? '')
+                && ($h[3] ?? '') === ($w[3] ?? '')
+                && $ranks[$w[1]] >= $ranks[$h[1]];
+        }
+        return false;
+    }
+
+    /**
+     * Whether two integer types differ only in display width.
+     *
+     * @param string $have live COLUMN_TYPE, lowercase
+     * @param string $want manifest type, lowercase
+     *
+     * @return bool
+     */
+    private static function _sameInteger($have, $want)
+    {
+        $strip = static function ($t) {
+            return (string)preg_replace('/^(tinyint|smallint|mediumint|int|bigint)\([0-9]+\)/', '$1', $t);
+        };
+        return $strip($have) === $strip($want);
     }
 
     /**
