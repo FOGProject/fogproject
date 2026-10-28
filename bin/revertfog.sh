@@ -291,9 +291,11 @@ _candidateDumps() {
 # ---------------------------------------------------------------------------
 # Same problem as the dump and the same answer. configureHttpd() REMOVES an
 # existing fog_web_<ver>.BACKUP before writing a new one, so a second
-# installfog.sh run after a failed upgrade overwrites the 1.5 tree with the
-# 1.6 one it just laid down -- and the directory name, which carries the
-# version being installed, looks identical either way.
+# installfog.sh run after a failed upgrade used to overwrite the 1.5 tree with
+# the 1.6 one it just laid down -- and the directory name, which carries the
+# version being installed, looks identical either way. The installer now
+# renames a backup of another release after its own version first (GH-2000),
+# but a server upgraded before that change may still hold only the 1.6 copy.
 #
 # 1.5 keeps its classes under lib/fog/ and has no src/; 1.6 is PSR-4 under
 # src/ (ADR 0013) and has no lib/fog/. One file each way settles it.
