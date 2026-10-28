@@ -12064,3 +12064,15 @@ $this->schema[] = [
     . "physical memory. (Default 275000)' "
     . "WHERE `settingKey` = 'FOG_KERNEL_RAMDISK_SIZE'",
 ];
+// 446
+$this->schema[] = [
+    // Step 279 again. It widened these two columns from 1.5's
+    // VARCHAR(40) NOT NULL, but a 1.5.x server carries a count past 279 and
+    // skips it, and SchemaReconciler never retypes an existing column. So an
+    // upgraded server kept the 40-character limit that a fresh install does
+    // not have (GH-2000). Widening keeps every stored value, and on a server
+    // that already ran 279 this changes nothing.
+    "ALTER TABLE `users` "
+    . "MODIFY `uName` VARCHAR(255),"
+    . "MODIFY `uCreateBy` VARCHAR(255)"
+];
