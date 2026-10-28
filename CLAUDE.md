@@ -144,9 +144,15 @@ there is not a plain `git push`:
   base + the entry and tests that. So the queue is not a version-bump
   mechanism — the version left git in GH-1510/GH-1513 — it is the thing that
   now catches a pull request whose base moved under it;
-- **nine checks must pass**: the eight `fogproject / …` contexts plus
+- **ten checks must pass**: the nine `fogproject / …` contexts plus
   `phpstan`. `regenerate / …` is deliberately *not* required: it is skipped on
   fork PRs, and requiring it would leave those unmergeable.
+  `fogproject / upgrade from stable` was added on 2026-10-28. It builds a real
+  1.5 database with 1.5's own updater and upgrades it with the pull request's
+  (`tests/upgrade-from-15-ci.test.sh`, #2000). Its sibling
+  `fogproject / upgrade from dev-branch` is deliberately *not* required: it
+  goes red when dev-branch adds a schema step, which is not the 1.6 pull
+  request's fault, so it is a warning to act on, not a gate.
   `fogproject / upgrade rehearsal` was added on 2026-09-01, having reported
   since the day it landed without ever being required — the ruleset was last
   edited the day before. That gap is not academic: #1604 merged with the

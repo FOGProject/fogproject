@@ -161,12 +161,14 @@ jobs:
     # suite is running is the useful thing for this segment to say.
     #
     # THESE NAMES ARE NOW LOAD-BEARING. The ruleset "working-1.6 pull request
-    # gate" (active since 2026-08-26) requires all eight of `fogproject / tests
+    # gate" (active since 2026-08-26) requires all nine of `fogproject / tests
     # (PHP 7.4)`, `fogproject / tests (PHP 8.3)`, `fogproject / vendor matches
     # composer.lock`, `fogproject / schema on mariadb:10.5`, `fogproject /
     # schema on mariadb:11.8`, `fogproject / schema on mysql:8.0`, `fogproject /
-    # release pins resolve` and `fogproject / upgrade rehearsal` -- plus
-    # `phpstan`, which is an inline job below and so carries no prefix.
+    # release pins resolve`, `fogproject / upgrade rehearsal` and `fogproject /
+    # upgrade from stable` -- plus `phpstan`, which is an inline job below and
+    # so carries no prefix. `fogproject / upgrade from dev-branch` reports too
+    # and is advisory on purpose (see that job in fog-workflows).
     # Renaming this job, or a job inside fogproject-tests.yml, silently orphans
     # a required context and parks every pull request on "Expected -- waiting
     # for status to be reported". Update the ruleset in the same change.
