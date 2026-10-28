@@ -163,6 +163,10 @@ msgstr "%d 件のトークンを有効にしました。"
 msgid "%d token(s) revoked."
 msgstr "%d 件のトークンを失効させました。"
 
+#, fuzzy, php-format
+msgid "%s \"%s\" already exists"
+msgstr "このホストは既に存在します"
+
 #, php-format
 msgid "%s %s log (%s)"
 msgstr "%s %s ログ（%s）"
@@ -4419,6 +4423,9 @@ msgstr "使用用途"
 msgid "Include"
 msgstr "含める"
 
+msgid "Include password hashes in \"CSV (All)\""
+msgstr ""
+
 #, php-format
 msgid "Index page of: %s%s"
 msgstr "インデックスページ: %s%s"
@@ -5883,6 +5890,9 @@ msgstr "利用可能なノードがありません"
 
 msgid "No open slots"
 msgstr "空きスロットがありません"
+
+msgid "No password imported; set one before this user can sign in"
+msgstr ""
 
 msgid "No password is needed. Issue this account a token from its API tab, or from FOG Configuration &rarr; API Tokens, once it has been created."
 msgstr "パスワードは不要です。アカウント作成後、そのアカウントの「API」タブ、または「FOG 構成 &rarr; API トークン」からトークンを発行してください。"
@@ -9411,9 +9421,6 @@ msgstr "このエンドポイントは POST のみ受け付けます。"
 msgid "This group has no hosts you can edit"
 msgstr "このモジュールには設定可能な項目がありません。"
 
-msgid "This host already exists"
-msgstr "このホストは既に存在します"
-
 #, php-format
 msgid "This host failed imaging %1$s: %2$s"
 msgstr "このホストのイメージ %1$s の処理に失敗しました: %2$s"
@@ -10045,6 +10052,9 @@ msgstr "サポートが必要な場合は、以下のリンクを参照してく
 
 msgid "Use the selector to choose how many items you want exported"
 msgstr "セレクターでエクスポートする項目数を指定してください"
+
+msgid "Use this only to move users to another FOG server. The hashes are not the passwords, but anyone who holds the file can try to crack them offline. API tokens are never exported; issue new ones on the other server."
+msgstr ""
 
 msgid "Used"
 msgstr "使用済み"
