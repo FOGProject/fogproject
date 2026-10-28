@@ -7572,6 +7572,14 @@ msgstr "スキーマの初期レコード投入"
 msgid "Schema shape"
 msgstr "スキーマ構造"
 
+#, fuzzy
+msgid "Schema shape repair refused"
+msgstr "スキーマ構造"
+
+#, fuzzy
+msgid "Schema shape repaired"
+msgstr "スキーマ構造"
+
 msgid "Schema sweep"
 msgstr "スキーマの検査と整理"
 
@@ -10736,7 +10744,8 @@ msgstr "上記の CA 組み込み設定から自動判定"
 msgid "derived from the public CA setting above"
 msgstr "上記の公開 CA 設定から自動判定"
 
-msgid "difference(s) from the manifest. Nothing was changed -- these are reported, not repaired."
+#, fuzzy
+msgid "difference(s) from the manifest. These are reported, not repaired: only a change that cannot lose data is repaired."
 msgstr "マニフェストとの差異。変更は行われていません。差異を報告しただけで、修復はしていません。"
 
 msgid "directive in php.ini"
