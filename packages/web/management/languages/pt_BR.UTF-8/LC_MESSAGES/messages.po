@@ -8797,6 +8797,14 @@ msgstr ""
 msgid "Schema shape"
 msgstr "atualização da impressora falhou!"
 
+#, fuzzy
+msgid "Schema shape repair refused"
+msgstr "atualização da impressora falhou!"
+
+#, fuzzy
+msgid "Schema shape repaired"
+msgstr "atualização da impressora falhou!"
+
 msgid "Schema sweep"
 msgstr ""
 
@@ -12420,7 +12428,7 @@ msgstr ""
 msgid "derived from the public CA setting above"
 msgstr ""
 
-msgid "difference(s) from the manifest. Nothing was changed -- these are reported, not repaired."
+msgid "difference(s) from the manifest. These are reported, not repaired: only a change that cannot lose data is repaired."
 msgstr ""
 
 msgid "directive in php.ini"
