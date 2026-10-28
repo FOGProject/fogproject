@@ -3528,7 +3528,8 @@ abstract class FOGBase
      * Load every global setting from the database in a single query, applying
      * the same normalization as getSetting().
      *
-     * @return array Map of settingKey => normalized value.
+     * @return array|null Map of settingKey => normalized value, or null when
+     *                    the read failed.
      */
     private static function _loadAllSettings()
     {
@@ -3537,6 +3538,14 @@ abstract class FOGBase
         $rows = self::$DB->query(
             "SELECT `settingKey`, `settingValue` FROM `globalSettings`"
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+
+        // A failed read answers false, not an empty set. (array) false is
+        // [false], so iterating it walked one "row" that was false itself
+        // (GH-1994). null tells the callers not to replace what they hold
+        // with an empty map -- query() has already logged the cause.
+        if (!is_array($rows)) {
+            return null;
+        }
 
         $data = [];
         foreach ((array) $rows as $row) {
@@ -3675,6 +3684,11 @@ abstract class FOGBase
         // Missing, stale, or flushed: rebuild from the database and persist.
         ++self::$_settingsCacheQueries;
         $data = self::_loadAllSettings();
+        if (null === $data) {
+            // Leave the file alone: siblings would read an empty map as
+            // "no settings" for a whole TTL. getSetting() reads per key.
+            return;
+        }
         foreach ($data as $k => $v) {
             self::$_settingsCache[$k] = ['value' => $v, 'ts' => $now];
         }
@@ -3743,7 +3757,14 @@ abstract class FOGBase
             $rows = self::$DB->query($sql)
                 ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
 
-            foreach ((array) $rows as $row) {
+            // A failed read answers false; (array) false is [false], one
+            // "row" that is false itself (GH-1994). Skip it: a stale entry
+            // keeps its value and is retried on the next call, and query()
+            // has already logged the cause.
+            if (!is_array($rows)) {
+                $rows = [];
+            }
+            foreach ($rows as $row) {
                 self::$_settingsCache[$row['settingKey']] = [
                     'value' => trim(
                         str_replace(
@@ -3850,6 +3871,10 @@ abstract class FOGBase
     {
         $now = time();
         $data = self::_loadAllSettings();
+        if (null === $data) {
+            // A failed read must not empty the cache it was meant to refresh.
+            return 0;
+        }
 
         self::$_settingsCache = [];
         foreach ($data as $k => $v) {

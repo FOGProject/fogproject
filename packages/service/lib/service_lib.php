@@ -105,6 +105,13 @@ register_shutdown_function('Service_Fatal_handler');
  */
 function Service_Log_message($logpath, $name, $msg)
 {
+    // The supervisor closes its connection before every fork (#1930), but
+    // formatting the time below can still read a setting -- the log gate
+    // behind it, once the cache entry is past its TTL. On a closed link that
+    // read failed and spilled warnings into this log (GH-1994). Reopen it;
+    // a no-op when connected, and Service_persist() closes it again before
+    // the next fork, so no child inherits it.
+    DatabaseManager::getLink();
     $msg = sprintf(
         "[%s] %s %s\n",
         FOGCore::formatTime('now', 'm-d-y g:i:s a'),
