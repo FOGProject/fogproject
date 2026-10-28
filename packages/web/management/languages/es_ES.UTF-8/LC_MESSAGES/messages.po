@@ -177,6 +177,10 @@ msgstr "La imagen no está habilitada"
 msgid "%d token(s) revoked."
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%s \"%s\" already exists"
+msgstr "Impresora ya existe"
+
 #, php-format
 msgid "%s %s log (%s)"
 msgstr ""
@@ -5217,6 +5221,9 @@ msgstr ""
 msgid "Include"
 msgstr ""
 
+msgid "Include password hashes in \"CSV (All)\""
+msgstr ""
+
 #, php-format
 msgid "Index page of: %s%s"
 msgstr ""
@@ -6966,6 +6973,9 @@ msgid "No nodes available"
 msgstr "No se dispone de hash"
 
 msgid "No open slots"
+msgstr ""
+
+msgid "No password imported; set one before this user can sign in"
 msgstr ""
 
 msgid "No password is needed. Issue this account a token from its API tab, or from FOG Configuration &rarr; API Tokens, once it has been created."
@@ -11099,10 +11109,6 @@ msgstr ""
 msgid "This group has no hosts you can edit"
 msgstr ""
 
-#, fuzzy
-msgid "This host already exists"
-msgstr "Impresora ya existe"
-
 #, fuzzy, php-format
 msgid "This host failed imaging %1$s: %2$s"
 msgstr "Impresora ya existe"
@@ -11806,6 +11812,9 @@ msgid "Use the links below if you need assistance."
 msgstr ""
 
 msgid "Use the selector to choose how many items you want exported"
+msgstr ""
+
+msgid "Use this only to move users to another FOG server. The hashes are not the passwords, but anyone who holds the file can try to crack them offline. API tokens are never exported; issue new ones on the other server."
 msgstr ""
 
 msgid "Used"
