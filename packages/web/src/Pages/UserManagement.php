@@ -13,6 +13,7 @@
 
 namespace FOG\Pages;
 
+use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
 use FOG\Items\APIToken;
@@ -1769,5 +1770,61 @@ class UserManagement extends FOGPage
     public function userSitePost()
     {
         $this->siteTabPost('user', $this->obj);
+    }
+    /**
+     * The "Include password hashes" option on the user export (GH-1987).
+     *
+     * Shown only to a holder of user.export, the same check
+     * exportSecretsToKeep() makes, so nobody sees a box that does nothing.
+     *
+     * @return string
+     */
+    protected function exportOptions()
+    {
+        if (!Authorization::can('user.export')) {
+            return '';
+        }
+        return '<div class="form-check mb-3">'
+            . '<input class="form-check-input fog-export-option" '
+            . 'type="checkbox" name="includehashes" value="1" '
+            . 'id="export-includehashes"/>'
+            . '<label class="form-check-label" for="export-includehashes">'
+            . _('Include password hashes in "CSV (All)"')
+            . '</label>'
+            . '<div class="form-text">'
+            . _('Use this only to move users to another FOG server. The '
+                . 'hashes are not the passwords, but anyone who holds the '
+                . 'file can try to crack them offline. API tokens are never '
+                . 'exported; issue new ones on the other server.')
+            . '</div>'
+            . '</div>';
+    }
+    /**
+     * Keep the password hash in the download when asked and allowed.
+     *
+     * user.export, not the user.view the export route itself checks: the
+     * plain export carries nothing a viewer cannot already read, and the
+     * hashes are a credential. Recorded in the audit trail, because nothing
+     * else shows that every password hash left the server.
+     *
+     * @return array
+     */
+    protected function exportSecretsToKeep()
+    {
+        if (!filter_input(INPUT_POST, 'includehashes')
+            || !Authorization::can('user.export')
+        ) {
+            return [];
+        }
+        Audit::record(
+            [
+                'type' => 'user.export.hashes',
+                'subjectType' => 'user',
+                'permission' => 'user.export',
+                'renderable' => 1,
+                'text' => 'exported user password hashes'
+            ]
+        );
+        return ['password'];
     }
 }
