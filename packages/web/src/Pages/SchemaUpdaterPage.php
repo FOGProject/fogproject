@@ -402,6 +402,9 @@ class SchemaUpdaterPage extends FOGPage
                         if (in_array($err, $skiperrs)) {
                             continue;
                         }
+                        if (self::_repairAndRetry($update, $err, $skiperrs)) {
+                            continue;
+                        }
                         $errors[] = sprintf(
                             "%s: %s\n",
                             _('Update ID'),
@@ -578,6 +581,48 @@ class SchemaUpdaterPage extends FOGPage
             chmod(BASEPATH . 'fog_schema_update_error.log', 0200);
         }
         $this->jsonSend($code, $msg);
+    }
+    /**
+     * Repair the structure and run the statement once more after a 1146.
+     *
+     * 1146 means the step names a table this database never got. Steps are
+     * positions, not identities, and 1.5.x fills the same positions with
+     * different migrations: 1.5.10.2518 arrives at 288, so 1.6's
+     * `CREATE TABLE fileDeleteQueue` (`// 287`) is skipped and `// 290`
+     * ALTERs a table that is not there. The reconcile after the loop creates
+     * it, but only once the update has already failed, so the installer
+     * printed "Failed!" and a second run was needed. This runs that repair at
+     * the point of failure instead.
+     *
+     * Any other error is left to the caller. So is a repair that does not
+     * succeed, and a retry that still fails: one repair, one retry.
+     *
+     * @param string        $update   the statement that failed
+     * @param int|string    $err      its MySQL error number
+     * @param array         $skiperrs the codes the updater tolerates
+     * @param callable|null $repair   SchemaReconciler::reconcile() unless given
+     *
+     * @return bool true when the statement now stands
+     */
+    private static function _repairAndRetry(
+        $update,
+        $err,
+        array $skiperrs,
+        $repair = null
+    ) {
+        if (1146 != $err) {
+            return false;
+        }
+        if (true !== call_user_func($repair ?: [SchemaReconciler::class, 'reconcile'])) {
+            // Leave the statement's own error behind for the caller to
+            // report, not whatever the repair ran last.
+            self::$DB->query($update);
+            return false;
+        }
+        if (false === self::$DB->query($update)->error) {
+            return true;
+        }
+        return in_array(self::$DB->errorCode, $skiperrs);
     }
     /**
      * Drop NO_ZERO_DATE and NO_ZERO_IN_DATE from this session's sql_mode.
