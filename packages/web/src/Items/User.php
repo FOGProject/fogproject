@@ -119,6 +119,32 @@ class User extends FOGController
         );
     }
     /**
+     * Whether a value is already a stored password, not a password.
+     *
+     * The CSV import stores a recognized hash as-is, so a "CSV (All)" file
+     * written with "Include password hashes" moves an account between
+     * servers with its password intact. Anything else is a password somebody
+     * typed into the file, and storing that raw would leave an account no
+     * password can ever open, because passwordValidate() compares against a
+     * hash.
+     *
+     * The two shapes are the two passwordValidate() accepts: anything
+     * password_hash() produced, and the bare 32-hex MD5 a 1.5 export can
+     * carry, which the first login upgrades. A typed password that is
+     * exactly 32 hex characters reads as MD5; that is the price of taking a
+     * 1.5 file unchanged.
+     *
+     * @param string $value the imported value
+     *
+     * @return bool
+     */
+    public static function isStoredHash($value)
+    {
+        $value = (string)$value;
+        return !empty(password_get_info($value)['algo'])
+            || (bool)preg_match('#^[a-f0-9]{32}$#i', $value);
+    }
+    /**
      * Validates the users password and user
      *
      * The $adminTest parameter is gone. It made the credential typed into
