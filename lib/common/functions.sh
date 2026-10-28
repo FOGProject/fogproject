@@ -12840,6 +12840,34 @@ _warnUnrecognizedPlugins() {
     echo "  and re-run, or install them from that directory via the UI."
     echo
 }
+# Keep a web backup that holds a DIFFERENT release, instead of deleting it.
+#
+# The backup is named after the version being installed, and configureHttpd()
+# removes any existing one of that name before copying the current tree in. On
+# the first 1.5 -> 1.6 run that directory holds the 1.5 tree. A second run of
+# the same release then finds the 1.6 tree it laid down, and replacing the
+# backup deleted the only copy of 1.5 -- the tree bin/revertfog.sh needs
+# (GH-2000).
+#
+# So a backup whose own FOG_VERSION is not $version is renamed after its own
+# version, with a timestamp if that name is taken. bin/revertfog.sh finds it by
+# its fog_web_*.BACKUP glob. A backup of the same release is still replaced,
+# exactly as before. The files are the version file of each layout: the
+# generated 1.6 one, its tracked fallback, and 1.5's lib/fog/.
+_setAsideOtherVersionWebBackup() {
+    local backup="${DB_backup_path}/fog_web_${version}.BACKUP"
+    [[ -d $backup ]] || return 0
+    local f="" held=""
+    for f in commons/version.php src/Base/System.php lib/fog/system.class.php; do
+        [[ -f $backup/$f ]] || continue
+        held="$(awk -F\' /"define\('FOG_VERSION'[,](.*)"/'{print $4}' "$backup/$f" | tr -d '[[:space:]]')"
+        [[ -n $held ]] && break
+    done
+    [[ -z $held || $held == "$version" ]] && return 0
+    local dest="${DB_backup_path}/fog_web_${held}.BACKUP"
+    [[ -e $dest ]] && dest="${DB_backup_path}/fog_web_${held}_$(date +%Y%m%d_%H%M%S).BACKUP"
+    mv "$backup" "$dest" >>$error_log 2>&1
+}
 configureHttpd() {
     normalizeWebroot
     # Both customizations trees, before anything below needs either of them.
@@ -13002,6 +13030,7 @@ configureHttpd() {
     # the time that runs the evidence has been deleted. The list itself is
     # $retiredplugins, defined at the top level beside those two functions.
     retiredpluginsstripped=""
+    _setAsideOtherVersionWebBackup
     if [[ -d ${DB_backup_path}/fog_web_${version}.BACKUP ]]; then
         rm -rf ${DB_backup_path}/fog_web_${version}.BACKUP >>$error_log 2>&1
     fi
