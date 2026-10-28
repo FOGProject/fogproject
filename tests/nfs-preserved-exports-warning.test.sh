@@ -118,5 +118,13 @@ check "configureNFS() calls nfsDevExportHasNoRootSquash" $?
 ! grep -q 'grep -q "no_root_squash"' <<<"$body"
 check "configureNFS() no longer greps the whole exports file" $?
 
+# The share path is named differently on each branch (STORAGE_image_share_path
+# on 1.6, storageLocation on 1.5). A port that keeps the other branch's name
+# passes an unset variable, the helper looks for "/dev", and never warns.
+share=$(grep -oE 'nfsDevExportHasNoRootSquash "\$nfsconfig" "\$\{[A-Za-z_]+\}"' <<<"$body" |
+    sed -E 's/.*\{([A-Za-z_]+)\}"/\1/')
+[[ -n $share ]] && grep -rqE "(^|[^A-Za-z_])${share}=" "$root/bin" "$root/lib"
+check "configureNFS() passes a share variable the installer assigns (${share:-none})" $?
+
 printf '%d passed, %d failed\n' "$pass" "$fail"
 [[ $fail -eq 0 ]]
