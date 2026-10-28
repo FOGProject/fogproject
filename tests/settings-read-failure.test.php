@@ -60,7 +60,7 @@ class FailingDB
 
 $db = new FailingDB();
 $db->rows = [['settingKey' => 'FOG_GH1994', 'settingValue' => 'kept']];
-$prop = new ReflectionProperty('FOG\Base\FOGBase', 'DB');
+$prop = new \ReflectionProperty('FOG\Base\FOGBase', 'DB');
 $prop->setAccessible(true);
 $prop->setValue(null, $db);
 
