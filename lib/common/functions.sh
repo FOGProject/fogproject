@@ -2903,6 +2903,30 @@ configureFOGService() {
     echo "<?php define('WEBROOT','${webdirdest}');" > $servicedst/etc/config.php
     startInitScript
 }
+# True when the image staging export (<share>/dev) carries no_root_squash.
+# Only that export matters: captures land there and are renamed out by the
+# service user. Another export (an ISO share, say) may use no_root_squash for
+# its own reasons, so a match anywhere else in the file is not a warning.
+# Usage: nfsDevExportHasNoRootSquash <exports file> <image share path>
+nfsDevExportHasNoRootSquash() {
+    local exportsfile="$1"
+    local devpath="${2%/}/dev"
+    [[ -f $exportsfile ]] || return 1
+    awk -v dev="$devpath" '
+        { line = line $0 }
+        /\\$/ { sub(/\\$/, "", line); next }
+        {
+            sub(/#.*/, "", line)
+            split(line, f, " ")
+            p = f[1]
+            gsub(/"/, "", p)
+            sub(/\/+$/, "", p)
+            if (p == dev && line ~ /no_root_squash/) found = 1
+            line = ""
+        }
+        END { exit !found }
+    ' "$exportsfile"
+}
 configureNFS() {
     dots "Setting up NFS configuration file"
     if [[ -f "/etc/nfs.conf" ]]; then
@@ -2930,7 +2954,7 @@ EOF
     dots "Setting up exports file"
     if [[ $blexports != 1 ]]; then
         echo "Skipped"
-        if [[ -f "$nfsconfig" ]] && grep -q "no_root_squash" "$nfsconfig"; then
+        if nfsDevExportHasNoRootSquash "$nfsconfig" "${storageLocation}"; then
             echo
             echo "  ** WARNING: ${nfsconfig} still exports with no_root_squash."
             echo "  ** Captures land as root, so moving the image out of"
