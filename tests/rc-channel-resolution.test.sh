@@ -63,10 +63,12 @@ lift() {
 
 snippet="$(lift normalizeChannel)
 $(lift channelToBranch)
+$(lift newestBranch)
 $(lift rcBranch)
+$(lift betaBranch)
 $(lift branchToChannel)"
 
-for fn in normalizeChannel channelToBranch rcBranch branchToChannel; do
+for fn in normalizeChannel channelToBranch newestBranch rcBranch betaBranch branchToChannel; do
     if ! grep -q "^${fn}() {" <<< "$snippet"; then
         echo "FAIL: could not find ${fn}() in lib/common/functions.sh." >&2
         echo "  If it moved or was renamed, point this test at it -- do not" >&2
@@ -176,6 +178,21 @@ check "beta is unaffected by published release candidates" \
     "$([[ $(channelToBranch beta) == working-1.6 ]]; echo $?)"
 
 # ---------------------------------------------------------------------------
+# beta is a query too: the newest working-* branch. At the 1.6.0 release
+# working-1.6 is deleted, and the next beta line has its own name. A constant
+# would send every beta server to a branch that no longer exists.
+# ---------------------------------------------------------------------------
+publish feat/working-notes
+publish working-1.7
+publish working-1.10
+check "beta follows the newest working-* branch by version" \
+    "$([[ $(channelToBranch beta) == working-1.10 ]]; echo $?)"
+check "a feat/working-* branch is not offered as the beta line" \
+    "$([[ $(betaBranch) == working-1.10 ]]; echo $?)"
+check "beta and rc stay independent" \
+    "$([[ $(channelToBranch rc) == rc-1.6.10 ]]; echo $?)"
+
+# ---------------------------------------------------------------------------
 # The checkout's own origin wins over the built-in constant.
 #
 # A server installed from a fork or an internal mirror must not be told about a
@@ -225,6 +242,8 @@ check "rc is its own canonical spelling" \
     "$([[ $(normalizeChannel rc) == rc ]]; echo $?)"
 check "a feature branch still has no channel" \
     "$(! branchToChannel feature-x >/dev/null 2>&1; echo $?)"
+check "any working-* branch maps back to the beta channel" \
+    "$([[ $(branchToChannel working-1.7) == beta ]]; echo $?)"
 
 # ---------------------------------------------------------------------------
 # The callers say the right thing about each failure.
@@ -236,6 +255,9 @@ check "updatefog.sh handles the 'nothing published' case separately" \
 
 check "it says no release candidate is published, not 'unknown channel'" \
     "$(grep -qi 'No release candidate is currently published' <<< "$updater"; echo $?)"
+
+check "it says no beta line is published when beta has nothing to track" \
+    "$(grep -qi 'No beta line is currently published' <<< "$updater"; echo $?)"
 
 check "updatefog.sh offers rc in its help" \
     "$(grep -q 'stable|patches|beta|rc' <<< "$updater"; echo $?)"

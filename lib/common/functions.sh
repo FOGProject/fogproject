@@ -119,7 +119,14 @@ channelToBranch() {
     case "$(normalizeChannel "$1")" in
         stable) echo "stable" ;;
         patches) echo "dev-branch" ;;
-        beta) echo "working-1.6" ;;
+        beta)
+            betaBranch
+            case $? in
+                0) ;;
+                3) return 3 ;;
+                *) return 2 ;;
+            esac
+            ;;
         rc)
             rcBranch
             case $? in
@@ -132,6 +139,16 @@ channelToBranch() {
     esac
 }
 # The current release-candidate branch, or nothing.
+rcBranch() {
+    newestBranch rc
+}
+# The current beta branch, or nothing. A query for the same reason rc is one:
+# working-1.6 is deleted at the 1.6.0 release, and the next beta line carries
+# its own name. Between the release and that line, beta has nothing to track.
+betaBranch() {
+    newestBranch working
+}
+# The newest refs/heads/<prefix>-* branch on the remote, or nothing.
 #
 # Asked of the REMOTE, not of local refs: a checkout that has never fetched
 # has no origin/rc-* to find, and bin/bootstrap.sh runs before there is a
@@ -153,8 +170,8 @@ channelToBranch() {
 # start of the branch name rather than the start of its last path segment, and
 # the sed re-checks that on the way out: matching rules are not the place to
 # rely on one layer alone when the answer decides what gets checked out.
-rcBranch() {
-    local ref
+newestBranch() {
+    local prefix="$1" ref
     # Sorted with `sort -Vr`, NOT with git's own --sort=-v:refname.
     #
     # `git ls-remote --sort` needs git 2.18 (2018). RHEL/CentOS 7 ships
@@ -180,9 +197,9 @@ rcBranch() {
     # key for an SSH origin, or no network) came back as an empty match and
     # read as "none published". Return 3 for it instead.
     local heads
-    heads=$(git ls-remote --heads "$remote" 'refs/heads/rc-*' 2>/dev/null) || return 3
+    heads=$(git ls-remote --heads "$remote" "refs/heads/${prefix}-*" 2>/dev/null) || return 3
     ref=$(printf '%s\n' "$heads" \
-        | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
+        | sed -n "s#^[0-9a-f]\\{7,\\}[[:space:]]\\{1,\\}refs/heads/\\(${prefix}-[^/]\\{1,\\}\\)\$#\\1#p" \
         | sort -Vr \
         | head -n1)
     [[ -n $ref ]] || return 1
@@ -216,7 +233,7 @@ branchToChannel() {
     case "$1" in
         stable) echo "stable" ;;
         dev-branch) echo "patches" ;;
-        working-1.6) echo "beta" ;;
+        working-*) echo "beta" ;;
         rc-*) echo "rc" ;;
         *) return 1 ;;
     esac

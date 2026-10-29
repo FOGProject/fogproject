@@ -316,7 +316,17 @@ normalizeChannel() {
 # the sed re-checks that on the way out: matching rules are not the place to
 # rely on one layer alone when the answer decides what gets checked out.
 rcBranch() {
-    local ref
+    newestBranch rc
+}
+
+# beta resolves the same way: working-1.6 is deleted at the 1.6.0 release, and
+# the next beta line carries its own name.
+betaBranch() {
+    newestBranch working
+}
+
+newestBranch() {
+    local prefix="$1" ref
     # sort -Vr rather than git --sort=-v:refname: ls-remote --sort needs git
     # 2.18, and this script runs on a machine whose git it has only just
     # installed from the distro repository -- which on an older release is
@@ -331,9 +341,9 @@ rcBranch() {
     # could not be asked (no network) returns 3 rather than reading as an
     # empty match -- "none published" would be a guess, not a finding.
     local heads
-    heads=$(git ls-remote --heads "$repo" 'rc-*' 2>/dev/null) || return 3
+    heads=$(git ls-remote --heads "$repo" "refs/heads/${prefix}-*" 2>/dev/null) || return 3
     ref=$(printf '%s\n' "$heads" \
-        | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(rc-[^/]\{1,\}\)$#\1#p' \
+        | sed -n "s#^[0-9a-f]\\{7,\\}[[:space:]]\\{1,\\}refs/heads/\\(${prefix}-[^/]\\{1,\\}\\)\$#\\1#p" \
         | sort -Vr \
         | head -n1)
     [[ -n $ref ]] || return 1
@@ -344,7 +354,14 @@ channelToBranch() {
     case "$(normalizeChannel "$1")" in
         stable) echo "stable" ;;
         patches) echo "dev-branch" ;;
-        beta) echo "working-1.6" ;;
+        beta)
+            betaBranch
+            case $? in
+                0) ;;
+                3) return 3 ;;
+                *) return 2 ;;
+            esac
+            ;;
         rc)
             rcBranch
             case $? in
@@ -416,13 +433,19 @@ if [[ -z $branch ]]; then
     case $? in
         0) ;;
         2)
+            if [[ $(normalizeChannel "$channel") == beta ]]; then
+                fail "No beta line is currently published, so the beta channel" \
+                     "has nothing to install. This is normal right after a release." \
+                     "" \
+                     "Install the stable line instead with --channel stable." 3
+            fi
             fail "No release candidate is currently published, so the rc channel" \
                  "has nothing to install. This is normal between releases." \
                  "" \
-                 "Install the beta line instead with --channel beta." 3
+                 "Install the stable line instead with --channel stable." 3
             ;;
         3)
-            fail "Could not ask ${repo} which release candidate is current." \
+            fail "Could not ask ${repo} which branch the ${channel} channel tracks." \
                  "git ls-remote failed, so nothing is known about what is" \
                  "published. Check this machine's network access to it." 3
             ;;
