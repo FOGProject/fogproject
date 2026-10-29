@@ -59,6 +59,18 @@ release_tag() {
     printf '%s\n' "$t"
 }
 
+# The base version a release tag gives the dev and stable arms. A 1.5 tag
+# carries the build count as a fourth field (1.5.10.2518 -> 1.5.10). The first
+# release of a line has three (1.6.0), and is the base as it stands: stripping
+# a field from it gave 1.6.<count>, which the installer then read as a pinned
+# FOS release tag (downloadfiles() in lib/common/functions.sh).
+release_base() {
+    case "$1" in
+        *.*.*.*) printf '%s\n' "${1%.*}" ;;
+        *) printf '%s\n' "$1" ;;
+    esac
+}
+
 git fetch origin master:master 2>/dev/null || true
 gitcount=$(git rev-list master..HEAD --count)
 
@@ -97,13 +109,13 @@ compute_version() {
     case "$branchon" in
         dev)
             tagversion=$(release_tag)
-            baseversion=${tagversion%.*}
+            baseversion=$(release_base "$tagversion")
             trunkversion="${baseversion}.${count}"
             channel="Patches"
             ;;
         stable)
             tagversion=$(release_tag)
-            baseversion=${tagversion%.*}
+            baseversion=$(release_base "$tagversion")
             count=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
             trunkversion="${baseversion}.${count}"
             # "Stable", not "Patches" -- one channel vocabulary now, shared with

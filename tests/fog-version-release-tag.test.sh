@@ -90,6 +90,29 @@ got=$(cd "$fx" && git checkout -q feature-x && sh .githooks/lib/fog-version.sh d
 git -C "$fx" checkout -q dev-branch
 [ "$got" = "1.5.10.$fcount" ] || bad "dev arm on a HEAD that reaches no release tag computed '$got', expected '1.5.10.$fcount'."
 
+# A three-part release tag -- 1.6.0, the first release of a line. The 1.5 tags
+# carry the build count as a fourth field (1.5.10.2518), so stripping the last
+# field gives the base. Stripping it from 1.6.0 gave 1.6 and the dev arm
+# reported 1.6.<count>. The installer reads any X.Y.Z version as a pinned FOS
+# release tag (downloadfiles() in lib/common/functions.sh), so 1.6.2 asked
+# FOGProject/fos for a release that does not exist.
+git -C "$fx" checkout -q -b line16 master
+commit '2020-04-01T00:00:00Z' 'release 1.6.0'
+git -C "$fx" tag -a 1.6.0 -m '1.6.0'
+commit '2020-04-02T00:00:00Z' 'patch'
+lcount=$(git -C "$fx" rev-list master..line16 --count)
+for arm in dev-branch stable; do
+    got=$(cd "$fx" && sh .githooks/lib/fog-version.sh "$arm" head 2>/dev/null | sed -n '1p')
+    if [ "$arm" = stable ]; then
+        # The stable arm counts master..dev-branch, not master..HEAD.
+        want16="1.6.0.$(git -C "$fx" rev-list master..dev-branch --count)"
+    else
+        want16="1.6.0.$lcount"
+    fi
+    [ "$got" = "$want16" ] || bad "$arm after a three-part release tag computed '$got', expected '$want16'."
+done
+git -C "$fx" checkout -q dev-branch
+
 # A checkout with NO tags -- CI clones without them. The arms that do not use a
 # release tag must still compute. Looking the tag up at the top of the script
 # made this exit 129 before any arm ran.
