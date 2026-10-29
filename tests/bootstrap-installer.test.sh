@@ -222,7 +222,15 @@ INNER
         chmod +x "$dest/bin/installfog.sh"
         ;;
     ls-remote)
-        # No release candidate published, which is origin's real state.
+        # No release candidate published. One beta line, working-1.6, so the
+        # beta runs below have a branch to clone. Each is origin's real state.
+        # The pattern is the last argument.
+        case "${@: -1}" in
+            refs/heads/working-\*)
+                [[ -n $GIT_NO_BETA ]] && exit 0
+                echo "0123456789abcdef0123456789abcdef01234567	refs/heads/working-1.6"
+                ;;
+        esac
         exit 0
         ;;
 esac
@@ -319,6 +327,15 @@ check "--channel rc with none published says so, rather than 'unknown channel'" 
     "$(grep -qi 'No release candidate is currently published' <<< "$out"; echo $?)"
 check "and does not clone anything" \
     "$([[ ! -d $work/rc ]]; echo $?)"
+
+# beta with no working-* branch: the state between the 1.6.0 release and the
+# next beta line. Same shape as rc: say so, and clone nothing.
+: > "$calls"
+out=$(export GIT_NO_BETA=1; run Ubuntu 22 --git-path "$work/nobeta" --channel beta --yes 2>&1)
+check "--channel beta with none published says so" \
+    "$(grep -qi 'No beta line is currently published' <<< "$out"; echo $?)"
+check "and does not clone anything either" \
+    "$([[ ! -d $work/nobeta ]]; echo $?)"
 
 : > "$calls"
 out=$(run Ubuntu 22 --git-path "$work/bogus" --channel nonsense --yes 2>&1)
@@ -419,9 +436,14 @@ check "--yes passes -Y" \
 # two diverging silently is the exact hazard this file exists to police.
 # tests/rc-channel-resolution.test.sh pins the functions.sh copy the same way.
 # ---------------------------------------------------------------------------
-rcfn=$(awk '/^rcBranch\(\) \{/ { grab = 1 } grab { print } grab && /^\}/ { exit }' "$bootstrap")
-if ! grep -q '^rcBranch() {' <<< "$rcfn"; then
-    echo "FAIL: could not find rcBranch() in bin/bootstrap.sh." >&2
+rcfn=""
+for fn in rcBranch betaBranch newestBranch; do
+    rcfn+=$(awk -v fn="$fn" '$0 ~ "^" fn "\\(\\) \\{" { grab = 1 } grab { print } grab && /^\}/ { exit }' "$bootstrap")
+    rcfn+=$'\n'
+done
+if ! grep -q '^rcBranch() {' <<< "$rcfn" || ! grep -q '^betaBranch() {' <<< "$rcfn" \
+   || ! grep -q '^newestBranch() {' <<< "$rcfn"; then
+    echo "FAIL: could not find rcBranch(), betaBranch() and newestBranch() in bin/bootstrap.sh." >&2
     echo "  If it moved or was renamed, point this test at it -- do not" >&2
     echo "  delete the assertions." >&2
     exit 1
@@ -457,6 +479,14 @@ check "rc-1.6.10 beats rc-1.6.2 and the decoy" \
 # nothing about what is published, so it must not report "none published".
 check "an unreachable remote returns 3, not 1" \
     "$(repo="$work/no-such-remote.git" rcBranch >/dev/null 2>&1; [[ $? -eq 3 ]]; echo $?)"
+
+check "with no working-* branch, beta reports nothing published" \
+    "$(! betaBranch >/dev/null 2>&1; echo $?)"
+rcpublish feat/working-notes
+rcpublish working-1.7
+rcpublish working-1.10
+check "beta follows the newest working-* branch, not the decoy" \
+    "$([[ $(betaBranch) == working-1.10 ]]; echo $?)"
 
 # ---------------------------------------------------------------------------
 # An existing FOG INSTALL is a different question from an existing CHECKOUT.

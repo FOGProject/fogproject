@@ -66,6 +66,13 @@ for fn in channelToBranch normalizeChannel branchToChannel; do
     declare -F "$fn" >/dev/null || { echo "ERROR: could not extract $fn from functions.sh" >&2; exit 1; }
 done
 
+# beta, like rc, asks the remote for its newest branch (betaBranch). This file
+# pins the VOCABULARY, not that query -- tests/rc-channel-resolution.test.sh
+# runs both queries against a real remote -- so beta answers with the branch it
+# tracks today. Without the stub every beta lookup here would query the real
+# origin of whatever checkout runs the suite.
+betaBranch() { echo "working-1.6"; }
+
 # --- A. canonical channel -> branch ---------------------------------------
 while read -r ch want; do
     got=$(channelToBranch "$ch" 2>/dev/null)
