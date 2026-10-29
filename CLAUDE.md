@@ -144,9 +144,15 @@ there is not a plain `git push`:
   base + the entry and tests that. So the queue is not a version-bump
   mechanism — the version left git in GH-1510/GH-1513 — it is the thing that
   now catches a pull request whose base moved under it;
-- **nine checks must pass**: the eight `fogproject / …` contexts plus
+- **ten checks must pass**: the nine `fogproject / …` contexts plus
   `phpstan`. `regenerate / …` is deliberately *not* required: it is skipped on
   fork PRs, and requiring it would leave those unmergeable.
+  `fogproject / upgrade from stable` was added on 2026-10-28. It builds a real
+  1.5 database with 1.5's own updater and upgrades it with the pull request's
+  (`tests/upgrade-from-15-ci.test.sh`, #2000). Its sibling
+  `fogproject / upgrade from dev-branch` is deliberately *not* required: it
+  goes red when dev-branch adds a schema step, which is not the 1.6 pull
+  request's fault, so it is a warning to act on, not a gate.
   `fogproject / upgrade rehearsal` was added on 2026-09-01, having reported
   since the day it landed without ever being required — the ruleset was last
   edited the day before. That gap is not academic: #1604 merged with the
@@ -159,6 +165,16 @@ there is not a plain `git push`:
   report a reduced set on the queue. When pull requests are merged one at a
   time onto a quiet base — the normal case here — the queue run tests a tree
   byte-identical to the one the pull request already tested.
+- **`fogproject / upgrade from stable` starts from a PINNED 1.5 commit**,
+  `tests/fixtures/upgrade-from-15-stable.ref`, not the tip of `stable`. A
+  required check must change only when the pull request does: reading the tip
+  would let a 1.5 release with a schema step turn every open 1.6 pull request
+  red at once, and the queue would merge nothing. **Bump the pin after each
+  1.5 release** (the monthly merge on the 11th included) in its own pull
+  request: `git rev-parse origin/stable > tests/fixtures/upgrade-from-15-stable.ref`.
+  If that pull request goes red, the 1.6 fix belongs in it. The advisory
+  `fogproject / upgrade from dev-branch` leg reads the tip, so it is the
+  warning that the next bump will need a fix.
 
 No version is written into git by any of this. See **Why `FOG_VERSION` is not
 written on a branch** above.
