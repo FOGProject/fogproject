@@ -248,11 +248,17 @@ else
         2)
             # A channel FOG knows, that has nothing to point at right now. Not
             # the admin's mistake, so it must not read like one -- and it is a
-            # state that resolves on its own when the next RC is published.
-            echo " * No release candidate is currently published, so the rc channel"
-            echo " | has nothing to check out. This is normal between releases."
+            # state that resolves on its own when the next RC or beta line is
+            # published. Points at stable, the one line that always exists.
+            if [[ $(normalizeChannel "${FOG_update_channel}") == beta ]]; then
+                echo " * No beta line is currently published, so the beta channel"
+                echo " | has nothing to check out. This is normal right after a release."
+            else
+                echo " * No release candidate is currently published, so the rc channel"
+                echo " | has nothing to check out. This is normal between releases."
+            fi
             echo " |"
-            echo " | Track the beta line instead with --channel beta, or pass a"
+            echo " | Track the stable line instead with --channel stable, or pass a"
             echo " | specific branch with --branch."
             exit 1
             ;;
@@ -261,7 +267,7 @@ else
             # is published. Seen as root on a checkout with an SSH origin: root
             # holds no key for it. Saying "none published" there is wrong.
             rcremote=$(git -C "${FOG_git_path}" remote get-url origin 2>/dev/null)
-            echo " * Could not ask ${rcremote:-the remote} which release candidate is current."
+            echo " * Could not ask ${rcremote:-the remote} which branch the ${FOG_update_channel} channel tracks."
             echo " | git ls-remote failed: no network, or this user cannot authenticate"
             echo " | to it. An SSH remote needs a key or an agent that root can use."
             echo " |"
