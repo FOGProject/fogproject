@@ -573,6 +573,27 @@ if (!preg_match(
         . ' checkAuthAndCSRF() when the request is unsigned, or no longer'
         . ' accepts a signature at all';
 }
+/*
+ * The node status endpoints trust by IP, which only works when the caller is
+ * a storage node in the receiver's own database. A peer that is itself a full
+ * FOG server has its own database and is never in that list, so its signed
+ * request must be accepted too -- forum 18283.
+ */
+foreach (['freespace.php', 'hw.php'] as $statusFile) {
+    $statusSrc = (string)file_get_contents(
+        'packages/web/status/' . $statusFile
+    );
+    if (!preg_match(
+        '#\$isTrustedCaller = \(is_string\(\$remoteIP\)\s*'
+        . '&& in_array\(\$remoteIP, \$trustedIPs, true\)\)\s*'
+        . '\|\| FOGCore::validNodeSignature\(\);#',
+        $statusSrc
+    )) {
+        $fails[] = "status/$statusFile does not accept a node signature"
+            . ' beside its IP list; a peer FOG server with its own database'
+            . ' is refused';
+    }
+}
 
 /*
  * 5. The sending side signs FOG's own hosts and nobody else's.

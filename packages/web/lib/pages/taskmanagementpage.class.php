@@ -991,6 +991,13 @@ class TaskManagementPage extends FOGPage
             if (!$SnapinJob->id) {
                 continue;
             }
+            // Route::indiv() answers a missing host with sendResponse(404),
+            // which exits, so a job whose host was deleted blanked the whole
+            // page instead of being skipped. Check the host first, as the
+            // multicast service does for images (#907). Refs #1920.
+            if (!self::getClass('Host', $SnapinJob->hostID)->isValid()) {
+                continue;
+            }
             Route::indiv('host', $SnapinJob->hostID);
             $Host = json_decode(
                 Route::getData()
