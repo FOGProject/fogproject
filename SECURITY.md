@@ -18,8 +18,8 @@ ensure responsible handling of critical issues.
 **1.5.x reached end of life with the 1.6.0 release.** A report that affects
 1.5 only will be acknowledged, and recorded so that anyone reading later can
 find it — but it will not be fixed, and there will be no further 1.5 release.
-If the same issue affects 1.6, it is fixed in 1.6. Nothing is being deleted:
-`dev-branch`, `stable` and every 1.5 tag remain in this repository. See the
+If the same issue affects 1.6, it is fixed in 1.6. Every 1.5 tag remains in
+this repository. The `stable` and `dev-branch` branches now carry 1.6. See the
 [1.5 support statement](docs/release/1.5-support-statement.md) for the
 full wording.
 
@@ -62,7 +62,7 @@ report can be confirmed:
 - basic identity information, such as your name and your affiliation or
   company;
 - the FOG version (`FOG_VERSION`, shown at the bottom of the web UI) and how
-  it was installed — release tarball, `dev-branch`, or a git checkout;
+  it was installed — release tarball, or a git checkout and its branch;
 - what an attacker gains, and what access they need to start: unauthenticated,
   an enrolled host, a low-privileged API user, a logged-in admin;
 - detailed steps to reproduce the vulnerability, or a request/response pair,
