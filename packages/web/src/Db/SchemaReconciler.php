@@ -615,6 +615,10 @@ class SchemaReconciler extends FOGBase
             // could only produce noise, so stand down.
             return true;
         }
+        $directoryError = self::_directoryRepairError($have);
+        if (null !== $directoryError) {
+            return $directoryError;
+        }
         // No early return on an empty structural plan. An up-to-date server
         // is the NORMAL case -- most databases are missing no table and no
         // column -- and returning here would mean the constraint pass below
@@ -774,6 +778,10 @@ class SchemaReconciler extends FOGBase
      */
     public static function repairShape($manifest = null)
     {
+        $directoryError = self::_directoryRepairError(self::snapshot());
+        if (null !== $directoryError) {
+            throw new \RuntimeException($directoryError);
+        }
         if (null === $manifest) {
             $manifest = self::manifest();
         }
@@ -824,6 +832,39 @@ class SchemaReconciler extends FOGBase
             );
         }
         return $applied;
+    }
+
+    /**
+     * Once step 447 is recorded, absent directory authority is data loss,
+     * not an unapplied feature. Do not fabricate empty history during repair.
+     * Official schemas before 447 retain the ordinary additive repair path.
+     *
+     * @param array|null $have Current column inventory.
+     *
+     * @return string|null A recovery requirement, or no directory restriction.
+     */
+    private static function _directoryRepairError($have)
+    {
+        $schema = new \FOG\Items\Schema(1);
+        if ((int)$schema->get('version') < 447) {
+            return null;
+        }
+        $required = [
+            'hostdirectory' => ['hdrejoinconfig', 'hdrejoinstate'],
+            'directoryplacementintent' => [
+                'dpiguid', 'dpisid', 'dpihostid', 'dpigeneration',
+                'dpistatus', 'dpipayload', 'dpihash', 'dpiresult', 'dpiupdated'
+            ]
+        ];
+        foreach ($required as $table => $columns) {
+            if (!is_array($have) || !isset($have[$table])
+                || array_diff($columns, $have[$table])
+            ) {
+                return 'Directory authority is missing after schema 447; '
+                    . 'restore a consistent database backup before retrying.';
+            }
+        }
+        return null;
     }
 
     /**

@@ -231,6 +231,14 @@ const TABLE = [
     // The join half of directory membership (design 0009 section 6): the
     // one class that decides whether a credential leaves this server.
     'DirectoryJoin' => 'Agent',
+    // The MJ-1 identity and single-use directory operation pipeline. These
+    // classes extend FOGBase directly, so ancestry cannot place them: task
+    // eligibility, operation planning/claiming, durable rejoin state and
+    // certificate-to-host identity all belong to the Agent subsystem.
+    'DirectoryTask' => 'Agent',
+    'DirectoryOperation' => 'Agent',
+    'DirectoryRejoin' => 'Agent',
+    'MachineIdentity' => 'Agent',
     // The writer for the links a host is on, and the class that asks an
     // awake agent to broadcast a wake for a sleeping neighbor (design
     // 0011). Network and Wake would both be far too general as Items

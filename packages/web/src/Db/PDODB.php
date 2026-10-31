@@ -28,6 +28,8 @@ namespace FOG\Db;
  */
 class PDODB extends DatabaseManager
 {
+    /** Preserve the original INSERT result across a cancellation COMMIT. */
+    private $directoryInsertID;
     /**
      * If true, query() will throw on error instead of swallowing it.
      * Default false to preserve legacy behavior.
@@ -422,6 +424,10 @@ class PDODB extends DatabaseManager
         $data = [],
         $paramvals = []
     ) {
+        $directorySqlScope = \FOG\Agent\DirectoryNameFence::sqlScope();
+        $directorySqlSuccess = false;
+        $this->directoryInsertID = null;
+        try {
         // Save for diagnostics even if we fail early
         $this->lastSql = $sql;
         $this->lastParams = $paramvals;
@@ -456,6 +462,10 @@ class PDODB extends DatabaseManager
             self::$_query = $sql;
             $this->lastSql = $sql;
 
+            \FOG\Agent\DirectoryNameFence::beforeSQL(self::$_link, $sql, $paramvals);
+            self::$_query = $sql;
+            $this->lastSql = $sql;
+            $this->lastParams = $paramvals;
             self::_prepare();
 
             $ok = self::_execute($paramvals);
@@ -528,7 +538,15 @@ class PDODB extends DatabaseManager
             }
         }
 
+        $directorySqlSuccess = false === $this->error;
         return $this;
+        } finally {
+            try {
+                $this->directoryInsertID = $directorySqlScope->finishSQL($directorySqlSuccess);
+            } finally {
+                $directorySqlScope->close();
+            }
+        }
     }
 
     /**
@@ -729,7 +747,8 @@ class PDODB extends DatabaseManager
 
         // Do NOT run a new SQL query here; it can trigger SQLSTATE[HY000] 2014
         // when unbuffered queries are still active. Use PDO's built-in method.
-        return (int) self::$_link->lastInsertId();
+        return null !== $this->directoryInsertID
+            ? $this->directoryInsertID : (int) self::$_link->lastInsertId();
     }
 
     /**
@@ -902,6 +921,22 @@ class PDODB extends DatabaseManager
      *
      * @return object
      */
+    public static function peekLink()
+    {
+        return self::$_link;
+    }
+
+    /** Match query()'s cursor handoff before same-connection fence SQL. */
+    public static function closeCursorForFence($pdo)
+    {
+        if (self::$_link !== $pdo) {
+            throw new \FOG\Agent\DirectoryFenceRefusal('directory_fence_connection_changed');
+        }
+        if (self::$_queryResult instanceof \PDOStatement) {
+            self::$_queryResult->closeCursor();
+        }
+    }
+
     public function link()
     {
         $this->_connect(true);

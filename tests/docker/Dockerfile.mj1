@@ -1,0 +1,8 @@
+ARG PHP_VERSION=8.3
+FROM php:${PHP_VERSION}-cli-alpine
+RUN apk add --no-cache openssl gettext gettext-libs libldap oniguruma libcurl \
+    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS gettext-dev openldap-dev oniguruma-dev curl-dev \
+    && docker-php-ext-install gettext pdo_mysql ldap pcntl mbstring curl \
+    && apk del .build-deps \
+    && mkdir -p /opt/fog/sessions && chmod 1777 /opt/fog/sessions
+WORKDIR /workspace

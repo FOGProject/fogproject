@@ -1236,6 +1236,9 @@ msgstr "主存储组"
 msgid "Allow API"
 msgstr ""
 
+msgid "Allow Computer Account Creation"
+msgstr ""
+
 #, fuzzy
 msgid "Allowed"
 msgstr "无关联的节点"
@@ -1547,6 +1550,9 @@ msgstr ""
 msgid "Available downloads"
 msgstr "没有文件被上传"
 
+msgid "Awaiting reboot"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr "BIOS日期"
 
@@ -1596,6 +1602,9 @@ msgid "Blank starts at the domain root"
 msgstr ""
 
 msgid "Blank: each host joins with its own account"
+msgstr ""
+
+msgid "Blocked"
 msgstr ""
 
 msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
@@ -2028,6 +2037,9 @@ msgstr ""
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+msgid "Check the live agent identity"
+msgstr ""
+
 #, fuzzy
 msgid "Check the password stored for this node"
 msgstr "没有FOGPage类中找到此节点"
@@ -2180,7 +2192,15 @@ msgid "Computed field. Returned by the API but not a column, and not settable."
 msgstr ""
 
 #, fuzzy
+msgid "Computer GUID"
+msgstr "打印机型号"
+
+#, fuzzy
 msgid "Computer Model"
+msgstr "打印机型号"
+
+#, fuzzy
+msgid "Computer SID"
 msgstr "打印机型号"
 
 #, fuzzy
@@ -2210,8 +2230,15 @@ msgid "Confirm Download"
 msgstr "管理密码"
 
 #, fuzzy
+msgid "Confirm Retry"
+msgstr "任务无效"
+
+#, fuzzy
 msgid "Confirm delete"
 msgstr "任务无效"
+
+msgid "Confirm that this account is assigned to this host or its handoff is approved. Do not select an account belonging to another computer by mistake."
+msgstr ""
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
 msgstr ""
@@ -2652,6 +2679,9 @@ msgstr "当前记录"
 msgid "Current Records"
 msgstr "当前记录"
 
+msgid "Current directory observation does not match this host"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -2949,12 +2979,27 @@ msgid "Directory Membership"
 msgstr "籍"
 
 #, fuzzy
+msgid "Directory operation history"
+msgstr "活动目录"
+
+#, fuzzy
+msgid "Directory operation phase"
+msgstr "活动目录"
+
+msgid "Directory-task-operations-v3 plan; absent or null when no operation is planned."
+msgstr ""
+
+#, fuzzy
 msgid "Disable on all hosts"
 msgstr "启用"
 
 #, fuzzy
 msgid "Disable selected"
 msgstr "删除所选"
+
+#, fuzzy
+msgid "Disabled"
+msgstr "启用"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
@@ -3012,6 +3057,10 @@ msgstr "更新管理单元"
 #, fuzzy
 msgid "Domain Create Success"
 msgstr "安装/升级成功！"
+
+#, fuzzy
+msgid "Domain Join Status"
+msgstr "域名"
 
 #, fuzzy
 msgid "Domain Joining"
@@ -3374,6 +3423,9 @@ msgstr ""
 msgid "Existence check failed"
 msgstr "私钥失败"
 
+msgid "Existing target pin; null for rename and before a create operation is confirmed."
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -3497,6 +3549,10 @@ msgstr "没有文件被上传"
 
 msgid "FOG Agent poll"
 msgstr ""
+
+#, fuzzy
+msgid "FOG Agent protocol features"
+msgstr "已成功更新"
 
 #, fuzzy
 msgid "FOG Client"
@@ -4717,6 +4773,9 @@ msgstr "服务器外壳"
 msgid "Identity Provider"
 msgstr ""
 
+msgid "Identity mismatch, conflict or unresolved live identity."
+msgstr ""
+
 #, php-format
 msgid "Ids for %s"
 msgstr ""
@@ -5141,6 +5200,9 @@ msgstr "在"
 msgid "In FOG"
 msgstr "在"
 
+msgid "In progress"
+msgstr ""
+
 msgid "In use as"
 msgstr ""
 
@@ -5190,6 +5252,12 @@ msgstr "更新"
 #, fuzzy
 msgid "Initrd Update Fail"
 msgstr "打印机更新失败！"
+
+msgid "Inspect target candidate"
+msgstr ""
+
+msgid "Inspect the current directory candidate before confirming it."
+msgstr ""
 
 msgid "Install Plugins"
 msgstr "安装插件"
@@ -5543,6 +5611,12 @@ msgstr "域密码"
 msgid "Join Username"
 msgstr "域用户名"
 
+msgid "Join operation verified; current status not confirmed"
+msgstr ""
+
+msgid "Joined and secure channel healthy"
+msgstr ""
+
 msgid "Kbps"
 msgstr ""
 
@@ -5789,6 +5863,9 @@ msgstr ""
 msgid "Last imaged"
 msgstr "图片"
 
+msgid "Last operation result time (UTC)"
+msgstr ""
+
 #, fuzzy
 msgid "Last ring"
 msgstr "图片"
@@ -5809,6 +5886,12 @@ msgstr "最新版本"
 
 msgid "Latest Version"
 msgstr "最新版本"
+
+msgid "Latest secure channel check passed; directory actions are on hold"
+msgstr ""
+
+msgid "Latest secure channel check returned False"
+msgstr ""
 
 msgid "Leave blank to keep the current password"
 msgstr ""
@@ -6538,6 +6621,9 @@ msgstr ""
 msgid "Must have a name to create the table"
 msgstr ""
 
+msgid "Must match the operation in the current ready plan."
+msgstr ""
+
 msgid "MySQL Administrator or by running"
 msgstr ""
 
@@ -6571,10 +6657,17 @@ msgstr ""
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
+#, fuzzy
+msgid "Native status (history)"
+msgstr "状态"
+
 msgid "Need the table name to drop"
 msgstr ""
 
 msgid "Needs a 256-bit key!"
+msgstr ""
+
+msgid "Needs operator review"
 msgstr ""
 
 #, fuzzy
@@ -6842,6 +6935,9 @@ msgstr "无主节点启用删除这张图片"
 msgid "No master nodes available"
 msgstr "没有可用的散列"
 
+msgid "No matching computer account was found."
+msgstr ""
+
 msgid "No need to sync"
 msgstr ""
 
@@ -6926,6 +7022,10 @@ msgstr "更新管理单元"
 #, fuzzy
 msgid "No snapins associated with this group as master"
 msgstr "没有与此主机关联snapins"
+
+#, fuzzy
+msgid "No status reported"
+msgstr "库存"
 
 #, fuzzy
 msgid "No storage node can serve the file."
@@ -7361,6 +7461,9 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Operations on %s."
 msgstr "操作字段没有设置： %s"
+
+msgid "Optional read-only Windows observation sent in response to directory_check. It carries no credentials."
+msgstr ""
 
 msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
 msgstr ""
@@ -8138,6 +8241,9 @@ msgstr "打印机更新！"
 msgid "Providers"
 msgstr ""
 
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the required MJ-1 feature. This does not issue a certificate or change trust."
+msgstr ""
+
 msgid "Publisher"
 msgstr ""
 
@@ -8221,6 +8327,12 @@ msgstr ""
 msgid "Read one saved filter"
 msgstr "删除所选"
 
+msgid "Read-only context for the directory-task-operations-v3 observation. Present only when the poll declares directory-task-operations-v3 and the host is eligible for observation; null when no check is requested."
+msgstr ""
+
+msgid "Ready"
+msgstr ""
+
 #, fuzzy
 msgid "Real Time"
 msgstr "主机更新失败"
@@ -8255,6 +8367,9 @@ msgstr ""
 #, fuzzy
 msgid "Recorded in range"
 msgstr "未发现记录，错误： %s"
+
+msgid "Recorded operation result (history)"
+msgstr ""
 
 msgid "Recorded; outcome present for an item report."
 msgstr ""
@@ -8441,7 +8556,16 @@ msgstr "用户更新失败"
 msgid "Required database field is empty"
 msgstr "所需的数据库字段为空"
 
+msgid "Required feature name."
+msgstr ""
+
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
+
+msgid "Requires the existing fog-agent client certificate, verified and bound to its host principal. A valid ready plan is durably claimed before its existing directory credential and rejoin plan are returned. A repeated start does not return the credential again."
+msgstr ""
+
+msgid "Requires the existing fog-agent client certificate, verified by the web server and bound to its host principal. Resolves the supplied live identity without check-in, inventory, AD or certificate writes."
 msgstr ""
 
 msgid "Reset Encryption Data"
@@ -8726,6 +8850,9 @@ msgstr ""
 msgid "Save the site before setting catch-all"
 msgstr ""
 
+msgid "Saved diagnostic reason (may be historical)"
+msgstr ""
+
 msgid "Saved filters for one grid"
 msgstr ""
 
@@ -8904,6 +9031,9 @@ msgstr "有此服务器上没有图像。"
 msgid "Secure Boot: signing FOS with your own key"
 msgstr "有此服务器上没有图像。"
 
+msgid "Secure channel status unknown"
+msgstr ""
+
 #, fuzzy
 msgid "See all results"
 msgstr "列表中的所有%s"
@@ -8927,6 +9057,9 @@ msgid "Selected tasks canceled!"
 msgstr "已成功更新"
 
 msgid "Self-signed"
+msgstr ""
+
+msgid "Sensitive one-shot credential; returned only after the mTLS host has claimed the ready attempt."
 msgstr ""
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
@@ -9615,6 +9748,9 @@ msgstr "下载失败"
 msgid "Start Time"
 msgstr "开始时间"
 
+msgid "Start one directory rejoin attempt"
+msgstr ""
+
 #, fuzzy
 msgid "Started"
 msgstr "开始"
@@ -10063,6 +10199,13 @@ msgstr "任务名称"
 msgid "Takes a list of names and returns an id for each: the existing object where the name is already taken, a newly created one otherwise. That pattern is often called an upsert -- update or insert -- and because the object may not exist yet it matches on the name rather than on an id. Safe to send repeatedly: the same names give the same ids back and no duplicates are made. Group only; every other class answers 400."
 msgstr ""
 
+msgid "Target computer account"
+msgstr ""
+
+#, fuzzy
+msgid "Target lookup is unavailable."
+msgstr "没有可用的散列"
+
 msgid "Task"
 msgstr "任务"
 
@@ -10473,6 +10616,9 @@ msgstr "没有文件被上传"
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
+msgid "The confirmed existing Target pin, or null before creation is confirmed."
+msgstr ""
+
 #, fuzzy
 msgid "The count."
 msgstr "CPU计数"
@@ -10491,6 +10637,9 @@ msgid "The default printer for hosts in this group. A host that has its own defa
 msgstr ""
 
 msgid "The desired state: revision, capabilities, and one block per capability listed. Absent when the agent is current."
+msgstr ""
+
+msgid "The directory service or required server-side provider is unavailable."
 msgstr ""
 
 #, fuzzy
@@ -10534,6 +10683,9 @@ msgid "The id as \"row_<id>\", for DataTables."
 msgstr ""
 
 msgid "The id the package manager knows, e.g. googlechrome."
+msgstr ""
+
+msgid "The identity or required MJ-1 feature declaration is invalid."
 msgstr ""
 
 #, fuzzy
@@ -10603,6 +10755,12 @@ msgstr ""
 msgid "The leaf followed by the agent CA, PEM."
 msgstr ""
 
+msgid "The live SMBIOS and MAC identity reported by fog-agent."
+msgstr ""
+
+msgid "The live identity matches the certificate principal."
+msgstr ""
+
 msgid "The logical sector size of the disk this image was captured from."
 msgstr ""
 
@@ -10632,6 +10790,9 @@ msgstr ""
 msgid "The older spelling of /unisearch?q=. An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
 msgstr ""
 
+msgid "The one-shot start was claimed; includes the directory credential and public rejoin plan."
+msgstr ""
+
 msgid "The order software is applied in when the agent reconciles this host."
 msgstr ""
 
@@ -10645,6 +10806,9 @@ msgid "The path requested is already in use by another image!"
 msgstr ""
 
 msgid "The payload bytes."
+msgstr ""
+
+msgid "The plan is no longer ready or its host, identity, configuration or directory records changed."
 msgstr ""
 
 #, fuzzy
@@ -10672,6 +10836,9 @@ msgid "The preference was cleared."
 msgstr ""
 
 msgid "The preference was stored."
+msgstr ""
+
+msgid "The previous directory operation requires review. Preserve its evidence and obtain a separate recovery decision; Retry cannot clear it."
 msgstr ""
 
 msgid "The primary mac associated is"
@@ -10708,6 +10875,10 @@ msgstr "新建%s"
 
 msgid "The reported software list is larger than the server accepts."
 msgstr ""
+
+#, fuzzy
+msgid "The request body is invalid."
+msgstr "任务类型无效"
 
 msgid "The request body is not a JSON object, or a required field is missing or empty. The message names the field."
 msgstr ""
@@ -10746,6 +10917,9 @@ msgstr "打印机更新失败！"
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr "不复存在"
+
+msgid "The server advertises MJ-1."
+msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
 msgstr ""
@@ -10946,6 +11120,10 @@ msgstr ""
 msgid "This group has no hosts you can edit"
 msgstr ""
 
+#, fuzzy
+msgid "This host already exists"
+msgstr "打印机已经存在"
+
 #, fuzzy, php-format
 msgid "This host failed imaging %1$s: %2$s"
 msgstr "打印机已经存在"
@@ -10989,6 +11167,9 @@ msgid "This is a cron style task that should not run now."
 msgstr ""
 
 msgid "This is a cron style task that should run now."
+msgstr ""
+
+msgid "This is a point-in-time observation, not proof of online authentication or a confirmed credential mismatch. Confirm the target and use explicit administrator judgment before retrying."
 msgstr ""
 
 msgid "This is a single run task that should not run now."
@@ -11884,6 +12065,9 @@ msgstr "值"
 msgid "Variable contains"
 msgstr ""
 
+msgid "Verified"
+msgstr ""
+
 msgid "Version"
 msgstr "版"
 
@@ -12085,6 +12269,9 @@ msgstr "用户管理"
 #, fuzzy
 msgid "Windows Keys"
 msgstr "Windows 8的"
+
+msgid "Windows MJ-1 polls declare both the base identity feature and directory-task-operations-v3 when supported."
+msgstr ""
 
 #, fuzzy
 msgid "Windows Product key"
@@ -12426,6 +12613,9 @@ msgid "derived from the embedded-CA setting above"
 msgstr ""
 
 msgid "derived from the public CA setting above"
+msgstr ""
+
+msgid "difference(s) from the manifest. Nothing was changed -- these are reported, not repaired."
 msgstr ""
 
 msgid "difference(s) from the manifest. These are reported, not repaired: only a change that cannot lose data is repaired."

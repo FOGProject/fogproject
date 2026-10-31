@@ -140,11 +140,35 @@ class DirectoryPlacement extends FOGBase
     public static function ensure(Host $Host, HostDirectory $Directory)
     {
         try {
+            $state = DirectoryRejoin::decode($Directory->get('rejoinState'));
+            if (!empty($state['placement_hold'])) {
+                return;
+            }
+            if (2 === ($state['protocol'] ?? 1)) {
+                // A previously loaded ORM row is not current operation authority.
+                $saved = DirectoryRejoin::settings($Host);
+                if (2 !== ($saved['state']['protocol'] ?? 1)
+                    || !empty($saved['state']['placement_hold'])
+                    || !DirectoryOperation::placementHealthy($Host, $saved['config'], $saved['state'])) {
+                    return;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Missing/unreadable authority must not reach LDAP or start its cooldown.
+            return;
+        }
+        try {
             self::_ensure($Host, $Directory);
         } catch (\Throwable $e) {
             // Recorded, not raised. Whatever went wrong here, the host has
             // still checked in and its facts are still stored.
-            self::_record($Directory, 'placement failed: ' . $e->getMessage());
+            try {
+                self::_record($Directory, $e instanceof DirectoryFenceRefusal
+                    ? $e->getMessage() : 'placement failed: ' . $e->getMessage());
+            } catch (\Throwable $recordError) {
+                // Do not turn persistence failure into another LDAP attempt.
+                self::logFault('directory placement outcome could not be recorded');
+            }
         }
     }
 
@@ -158,111 +182,7 @@ class DirectoryPlacement extends FOGBase
      */
     private static function _ensure(Host $Host, HostDirectory $Directory)
     {
-        if (!self::enabled() || !$Host->get('useAD')) {
-            return;
-        }
-        $wantOU = trim((string)$Host->get('ADOU'));
-        if ('' === $wantOU) {
-            // No OU expressed. An admin who never set one is not a machine
-            // in the wrong place, and moving it somewhere would be FOG
-            // inventing an intention.
-            return;
-        }
-        if (!$Directory->get('joined')) {
-            // Not joined: there is no object to move, and creating one is a
-            // join, which is section 6 and needs the machine.
-            return;
-        }
-        if ('' !== $Directory->containerDN() && !$Directory->ouDrifted($wantOU)) {
-            // The host reported its own DN and it is the right one. Nothing
-            // to ask the directory, so no connection and no cooldown: a
-            // healthy Windows fleet never dials LDAP at all.
-            return;
-        }
-        // Resolved only now, past the free checks above, because a plugin
-        // may answer it from its own table and a healthy host should not
-        // cost that query on every poll.
-        $connection = self::connection($Host);
-        if ('' === $connection['uri']) {
-            // No server for this host's domain: not configured, so nothing
-            // is stamped, exactly as when placement is switched off.
-            return;
-        }
-        if (self::_cooling($Directory)) {
-            return;
-        }
-
-        $ldap = new FOGLdap();
-        $ok = $ldap->connect(
-            $connection['uri'],
-            $connection['bindDN'],
-            $connection['password'],
-            $connection['caCert']
-        );
-        if (!$ok) {
-            self::_record($Directory, $ldap->error());
-            return;
-        }
-
-        try {
-            $dn = trim((string)$Directory->get('computerDN'));
-            if ('' === $dn) {
-                // Normal on Linux: no join tool there exposes the DN. The
-                // directory knows, though, and asking it is better than
-                // asking the machine -- it is the authority on where its own
-                // objects live, and it can answer for a machine that is off.
-                $dn = $ldap->findComputer(
-                    $connection['baseDN'],
-                    (string)$Directory->get('machineAccount')
-                );
-                if ('' === $dn) {
-                    self::_record($Directory, $ldap->error());
-                    return;
-                }
-                // Learned from the directory, so the report stops saying
-                // "unknown" for this host and the free comparison above
-                // works from the next poll on.
-                $Directory->set('computerDN', $dn);
-                if (!$Directory->ouDrifted($wantOU)) {
-                    self::_record($Directory, '');
-                    return;
-                }
-            }
-            if (!$ldap->moveTo($dn, $wantOU)) {
-                self::_record($Directory, $ldap->error());
-                return;
-            }
-            // Where the object now is, not where we asked it to go: a true
-            // return from ldap_rename is the directory confirming the object
-            // is there. Recording it keeps the next poll's free comparison
-            // correct -- leaving the old DN would make FOG move an object
-            // that has already moved, once every poll forever.
-            $Directory->set(
-                'computerDN',
-                FOGLdap::rdn($dn) . ',' . $wantOU
-            );
-        } finally {
-            $ldap->close();
-        }
-
-        self::_record($Directory, '');
-
-        Audit::record(
-            [
-                'type' => 'agent.directory.move',
-                'subjectType' => 'host',
-                'subjectID' => (int)$Host->get('id'),
-                'subjectLabel' => (string)$Host->get('name'),
-                'renderable' => 1,
-                'affectedCount' => 1,
-                'text' => substr(
-                    'moved the computer object to ' . $wantOU,
-                    0,
-                    Audit::MAX_DETAIL
-                ),
-                'authSource' => Principal::AUTH_SOURCE
-            ]
-        );
+        DirectoryPlacementIntent::ensure($Host, $Directory);
     }
 
     /**
@@ -294,10 +214,22 @@ class DirectoryPlacement extends FOGBase
      */
     private static function _record(HostDirectory $Directory, $error)
     {
-        $Directory
-            ->set('placementAt', self::stamp())
-            ->set('placementError', substr(trim((string)$error), 0, 255))
-            ->save();
+        $at = self::stamp();
+        $message = substr(trim((string)$error), 0, 255);
+        // get(key) maps NULL to ''. Preserve the actual loaded SQL NULLs for
+        // the null-safe CAS instead of binding an empty DATETIME string.
+        $loaded = $Directory->get();
+        $before = [$loaded['computerDN'] ?? null, $loaded['observedAt'] ?? null, $loaded['placementAt'] ?? null];
+        // This request's diagnostic is useful even if DB persistence fails;
+        // it is not authoritative evidence that the outcome was committed.
+        $Directory->set('placementAt', $at)->set('placementError', $message);
+        DirectoryNameFence::run(function ($db) use ($Directory, $at, $message, $before) {
+            // A failure callback must never save a stale full facts model.
+            // Preserve facts received since this placement request started.
+            $q = $db->prepare('UPDATE hostDirectory SET hdPlacementAt=?,hdPlacementError=? WHERE hdHostID=? AND hdComputerDN <=> ? AND hdObservedAt <=> ? AND hdPlacementAt <=> ? AND NOT EXISTS (SELECT 1 FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (\'PREPARED\',\'MAY_HAVE_RUN\',\'UNKNOWN\'))');
+            $q->execute([$at, $message, (int)$Directory->get('hostID'),
+                $before[0], $before[1], $before[2], (int)$Directory->get('hostID')]);
+        });
     }
 
     /**

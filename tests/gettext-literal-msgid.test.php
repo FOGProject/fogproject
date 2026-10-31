@@ -44,20 +44,50 @@
 $root = dirname(__DIR__);
 chdir($root);
 
-$files = array_filter(
-    explode("\n", (string) shell_exec('git ls-files "*.php"')),
-    function ($f) {
-        return '' !== $f
-            && is_readable($f)
-            && 0 !== strpos($f, 'packages/web/vendor/');
+$files = [];
+$unreadable = [];
+$directory = new \RecursiveDirectoryIterator($root, \FilesystemIterator::SKIP_DOTS);
+$filter = new \RecursiveCallbackFilterIterator(
+    $directory,
+    function ($current) use ($root) {
+        if (!$current->isDir()) {
+            return true;
+        }
+        $relative = str_replace('\\', '/', substr($current->getPathname(), strlen($root) + 1));
+        return '.git' !== $current->getFilename()
+            && 'packages/web/vendor' !== $relative
+            && 0 !== strpos($relative, 'packages/web/vendor/');
     }
 );
+$iterator = new \RecursiveIteratorIterator($filter);
+foreach ($iterator as $entry) {
+    if (!$entry->isFile() || 'php' !== strtolower($entry->getExtension())) {
+        continue;
+    }
+    $path = $entry->getPathname();
+    $relative = str_replace('\\', '/', substr($path, strlen($root) + 1));
+    if (!is_readable($path)) {
+        $unreadable[] = $relative;
+        continue;
+    }
+    $files[] = $relative;
+}
+sort($files, SORT_STRING);
+sort($unreadable, SORT_STRING);
+
+if (count($unreadable) > 0) {
+    fwrite(STDERR, "FAIL: unreadable PHP file(s) in whole-tree scan:\n");
+    foreach ($unreadable as $file) {
+        fwrite(STDERR, "  $file\n");
+    }
+    exit(1);
+}
 
 if (count($files) < 100) {
     fwrite(
         STDERR,
         'FAIL: only ' . count($files) . " files scanned; expected the whole "
-        . "tree. Is this a git checkout?\n"
+        . "tree.\n"
     );
     exit(1);
 }

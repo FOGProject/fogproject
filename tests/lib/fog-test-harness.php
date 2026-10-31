@@ -228,6 +228,11 @@ class FogFakeDb
         return $this->pdo;
     }
 
+    public function peekLink()
+    {
+        return $this->pdo;
+    }
+
     public function query($sql, $a = [], $params = [])
     {
         $this->log[] = $sql;

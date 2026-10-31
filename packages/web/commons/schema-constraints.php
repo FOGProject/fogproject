@@ -375,4 +375,6 @@ return [
     ['child' => 'agentWake', 'column' => 'awSenderID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'ldapUserGrant', 'column' => 'lugTargetID', 'parent' => '(lugTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
     ['child' => 'oidcUserGrant', 'column' => 'ougTargetID', 'parent' => '(ougTargetType)', 'pcolumn' => '-', 'class' => 'poly', 'action' => 'none'],
+    // Durable Target history; owner deletion is guarded by DirectoryNameFence.
+    ['child' => 'directoryPlacementIntent', 'column' => 'dpiHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'audit', 'action' => 'none'],
 ];

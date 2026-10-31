@@ -15,6 +15,7 @@
 
 namespace FOG\Pages;
 
+use FOG\Agent\DirectoryRejoin;
 use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
@@ -3004,7 +3005,328 @@ class HostManagement extends FOGPage
             true,
             true
         );
+        // Older forms and integrations do not submit the marker. Keep their
+        // AD update path unchanged and do not read any MJ-1 POST fields.
+        if (isset($_POST['rejoin_settings_present'])
+            && is_scalar($_POST['rejoin_settings_present'])
+            && '1' === (string)$_POST['rejoin_settings_present']
+        ) {
+            $checkbox = static function ($key) {
+                return isset($_POST[$key])
+                    && is_scalar($_POST[$key])
+                    && '1' === (string)$_POST[$key];
+            };
+            $text = static function ($key) {
+                return isset($_POST[$key]) && is_scalar($_POST[$key])
+                    ? trim((string)$_POST[$key])
+                    : '';
+            };
+            DirectoryRejoin::configure(
+                $this->obj,
+                [
+                    'rejoin_allow_create' => $checkbox(
+                        'rejoin_allow_create'
+                    ),
+                    'rejoin_confirm_target' => $checkbox(
+                        'rejoin_confirm_target'
+                    ),
+                    'rejoin_target_guid' => $text('rejoin_target_guid'),
+                    'rejoin_retry' => $checkbox('rejoin_retry')
+                ],
+                (string)self::$FOGUser->get('name')
+            );
+        }
     }
+    /**
+     * Displays the AD form together with directory account settings.
+     *
+     * The base renderer echoes its own form, so get its field map and render
+     * the same hook/form scaffold here to keep the new controls in that form.
+     *
+     * @return void
+     */
+    private function hostAD()
+    {
+        global $node;
+
+        $settings = DirectoryRejoin::settings($this->obj);
+        $config = is_array($settings['config'] ?? null)
+            ? $settings['config'] : [];
+        $state = is_array($settings['state'] ?? null)
+            ? $settings['state'] : [];
+        $fields = $this->adFieldsToDisplay(
+            $this->obj->get('useAD'),
+            $this->obj->get('ADDomain'),
+            $this->obj->get('ADOU'),
+            $this->obj->get('ADUser'),
+            '',
+            false,
+            true
+        );
+        $labelClass = 'col-sm-3 col-form-label';
+        $marker = self::makeInput(
+            '',
+            'rejoin_settings_present',
+            '',
+            'hidden',
+            'rejoin_settings_present',
+            '1'
+        );
+        $allowCreate = DirectoryRejoin::allowsCreate($config);
+        $fields[
+            self::makeLabel(
+                $labelClass,
+                'rejoin_allow_create',
+                _('Allow Computer Account Creation')
+            )
+        ] = '<div class="form-check">'
+            . self::makeInput(
+                'form-check-input',
+                'rejoin_allow_create',
+                '',
+                'checkbox',
+                'rejoin_allow_create',
+                '1',
+                false,
+                false,
+                -1,
+                -1,
+                $allowCreate ? 'checked' : ''
+            ) . '</div>';
+
+        $formAction = self::makeTabUpdateURL(
+            $node . '-active-directory',
+            (int)$this->obj->get('id')
+        );
+        $inspectTarget = isset($_GET['rejoin_inspect_target'])
+            && is_scalar($_GET['rejoin_inspect_target'])
+            && '1' === (string)$_GET['rejoin_inspect_target'];
+        $candidate = ['status' => $inspectTarget ? 'unavailable' : ''];
+        if ($inspectTarget && $this->obj->get('useAD')) {
+            try {
+                $candidate = DirectoryRejoin::targetCandidate($this->obj);
+            } catch (\Throwable $e) {
+                // Candidate inspection is optional. An LDAP/configuration
+                // failure must not prevent the existing AD form from rendering.
+                $candidate = ['status' => 'unavailable'];
+            }
+        }
+        $candidateStatus = (string)($candidate['status'] ?? 'unavailable');
+        $candidateRecord = is_array($candidate['record'] ?? null)
+            ? $candidate['record'] : [];
+        $candidateGuid = 'found' === $candidateStatus
+            ? (string)($candidateRecord['guid'] ?? '') : '';
+        $candidateDetails = '';
+        if ('found' === $candidateStatus) {
+            $candidateDetails .= '<dl class="row mb-2">';
+            foreach ([
+                _('Account') => (string)($candidateRecord['account'] ?? ''),
+                _('Computer GUID') => $candidateGuid,
+                _('Computer SID') => (string)($candidateRecord['sid'] ?? ''),
+                _('Distinguished Name') => (string)($candidateRecord['dn'] ?? '')
+            ] as $label => $value) {
+                $candidateDetails .= '<dt class="col-sm-3">' . $label
+                    . '</dt><dd class="col-sm-9">'
+                    . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</dd>';
+            }
+            $candidateDetails .= '</dl>'
+                . self::makeInput(
+                    '',
+                    'rejoin_target_guid',
+                    '',
+                    'hidden',
+                    'rejoin_target_guid',
+                    $candidateGuid
+                )
+                . '<div class="form-check">'
+                . self::makeInput(
+                    'form-check-input',
+                    'rejoin_confirm_target',
+                    '',
+                    'checkbox',
+                    'rejoin_confirm_target',
+                    '1'
+                )
+                . '<label class="form-check-label" for="rejoin_confirm_target">'
+                . _(
+                    'Confirm that this account is assigned to this host or its handoff is approved. Do not select an account belonging to another computer by mistake.'
+                )
+                . '</label></div>';
+        } elseif ($inspectTarget) {
+            $candidateDetails = 'absent' === $candidateStatus
+                ? '<p>' . _('No matching computer account was found.') . '</p>'
+                : '<p>' . _('Target lookup is unavailable.') . '</p>';
+        }
+        $inspectUrl = htmlspecialchars(
+            $formAction . '&rejoin_inspect_target=1',
+            ENT_QUOTES,
+            'UTF-8'
+        );
+        $candidatePanel = '<details class="mb-3"><summary>'
+            . _('Target computer account') . '</summary><div class="pt-2">'
+            . '<p>' . _('Inspect the current directory candidate before confirming it.')
+            . '</p><a class="btn btn-outline-secondary" href="' . $inspectUrl
+            . '">' . _('Inspect target candidate') . '</a>'
+            . ($inspectTarget ? $candidateDetails : '')
+            . '</div></details>';
+
+        $phase = strtolower((string)($state['phase'] ?? ''));
+        $phaseLabels = [
+            'ready' => _('Ready'),
+            'started' => _('In progress'),
+            'awaiting_reboot' => _('Awaiting reboot'),
+            'verified' => _('Verified'),
+            'failed' => _('Failed'),
+            'unknown' => _('Unknown'),
+            'blocked' => _('Blocked')
+        ];
+        $observation = is_array($state['observation'] ?? null)
+            ? $state['observation'] : [];
+        $hostName = (string)$this->obj->get('name');
+        $domain = (string)$this->obj->get('ADDomain');
+        $checkDc = (string)($state['check_dc'] ?? '');
+        $observedDc = (string)($observation['dc'] ?? '');
+        $observationContextMatches = '' !== $hostName
+            && 0 === strcasecmp(
+                (string)($observation['current_name'] ?? ''),
+                $hostName
+            )
+            && 0 === strcasecmp(
+                (string)($observation['pending_name'] ?? ''),
+                $hostName
+            )
+            && \FOG\Agent\DirectoryOperation::sameDomain(
+                $observation,
+                $domain
+            )
+            && ('' === $checkDc
+                ? '' !== $observedDc
+                : 0 === strcasecmp($observedDc, $checkDc));
+        $currentObservation = \FOG\Agent\DirectoryOperation::observationFresh(
+            $this->obj,
+            $config,
+            $state
+        ) && $observationContextMatches;
+        if (!$this->obj->get('useAD')) {
+            $domainStatus = _('Disabled');
+        } elseif ($currentObservation
+            && 'false' === ($observation['secure_channel'] ?? '')
+        ) {
+            $domainStatus = _('Latest secure channel check returned False');
+        } elseif ($currentObservation
+            && 'unknown' === ($observation['secure_channel'] ?? '')
+        ) {
+            $domainStatus = _('Secure channel status unknown');
+        } elseif ($currentObservation
+            && 'true' === ($observation['secure_channel'] ?? '')
+            && true === ($observation['dc_reachable'] ?? false)
+            && empty($state['placement_hold'])
+        ) {
+            $domainStatus = _('Joined and secure channel healthy');
+        } elseif ($currentObservation
+            && 'true' === ($observation['secure_channel'] ?? '')
+            && !empty($state['placement_hold'])
+        ) {
+            $domainStatus = _('Latest secure channel check passed; directory actions are on hold');
+        } elseif (!$observationContextMatches && !empty($observation)) {
+            $domainStatus = _('Current directory observation does not match this host');
+        } elseif ('verified' === $phase && !$currentObservation) {
+            $domainStatus = _('Join operation verified; current status not confirmed');
+        } elseif ('' === $phase) {
+            $domainStatus = !empty($state['reason'])
+                ? _('Needs operator review') : _('No status reported');
+        } else {
+            $domainStatus = $phaseLabels[$phase] ?? _('Unknown');
+        }
+        $candidatePanel .= '<p class="mb-3"><strong>'
+            . _('Domain Join Status') . ':</strong> '
+            . htmlspecialchars($domainStatus, ENT_QUOTES, 'UTF-8') . '</p>';
+
+        $candidatePanel .= '<p class="small text-muted">'
+            . _('This is a point-in-time observation, not proof of online authentication or a confirmed credential mismatch. Confirm the target and use explicit administrator judgment before retrying.')
+            . '</p>';
+
+        $retryAllowed = \FOG\Agent\DirectoryRejoin::canConfirmRetry($state)
+            && $currentObservation
+            && 'false' === ($observation['secure_channel'] ?? '');
+        if (!\FOG\Agent\DirectoryRejoin::canConfirmRetry($state)) {
+            $candidatePanel .= '<p class="small text-muted">'
+                . _('The previous directory operation requires review. Preserve its evidence and obtain a separate recovery decision; Retry cannot clear it.')
+                . '</p>';
+        }
+        if ($retryAllowed) {
+            $fields[self::makeLabel($labelClass, 'rejoin_retry', _('Confirm Retry'))]
+                = '<div class="form-check">'
+                . self::makeInput(
+                    'form-check-input',
+                    'rejoin_retry',
+                    '',
+                    'checkbox',
+                    'rejoin_retry',
+                    '1'
+                ) . '</div>';
+        }
+
+        $statusDetails = '';
+        foreach ([
+            _('Directory operation phase') => '' === $phase
+                ? '' : ($phaseLabels[$phase] ?? _('Unknown')),
+            _('Saved diagnostic reason (may be historical)') => (string)($state['reason'] ?? ''),
+            _('Recorded operation result (history)') => (string)($state['secure_channel'] ?? ''),
+            _('Native status (history)') => isset($state['native_status'])
+                ? sprintf('0x%08x', $state['native_status']) : '',
+            _('Last operation result time (UTC)') => (string)($state['updated_at'] ?? '')
+        ] as $label => $value) {
+            if ('' !== $value) {
+                $statusDetails .= '<dt class="col-sm-3">' . $label
+                    . '</dt><dd class="col-sm-9">'
+                    . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</dd>';
+            }
+        }
+        if ('' !== $statusDetails) {
+            $candidatePanel .= '<details class="mb-3"><summary>'
+                . _('Directory operation history') . '</summary><dl class="row pt-2">'
+                . $statusDetails . '</dl></details>';
+        }
+        $fields[''] = $candidatePanel;
+
+        $ucclass = strtoupper($this->childClass);
+        $buttons = self::makeButton(
+            'ad-send',
+            _('Update'),
+            'btn btn-primary float-end'
+        ) . self::makeButton(
+            'ad-clear',
+            _('Clear Fields'),
+            'btn btn-danger float-start'
+        );
+        self::$HookManager->processEvent(
+            "{$ucclass}_EDIT_AD_FIELDS",
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'obj' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields) . $marker;
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header"><h4 class="card-title">';
+        echo $this->childClass . ' ' . _('Active Directory');
+        echo '</h4></div>';
+        echo self::makeFormTag(
+            '',
+            'active-directory-form',
+            $formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div id="' . $node . '-active-directory" class="">';
+        echo '<div class="card-body">' . $rendered . '</div>';
+        echo '<div class="card-footer">' . $buttons . '</div>';
+        echo '</form></div></div>';
+    }
+
     /**
      * Host groups dispay.
      *
@@ -4837,12 +5159,7 @@ class HostManagement extends FOGPage
                         'name' =>  _('Active Directory'),
                         'id' => 'host-active-directory',
                         'generator' => function () {
-                            $this->adFieldsToDisplay(
-                                $this->obj->get('useAD'),
-                                $this->obj->get('ADDomain'),
-                                $this->obj->get('ADOU'),
-                                $this->obj->get('ADUser')
-                            );
+                            $this->hostAD();
                         }
                     ],
                     [

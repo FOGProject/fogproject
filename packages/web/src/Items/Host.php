@@ -294,6 +294,28 @@ class Host extends FOGController
      */
     public function destroy($key = 'id')
     {
+        $normalized = empty($key) ? 'id' : $this->key($key);
+        if ('id' !== $normalized) {
+            if (!array_key_exists($normalized, $this->databaseFields)) {
+                throw new \Exception(_('Invalid key being destroyed'));
+            }
+            $value = $this->get($normalized);
+            if (!is_numeric($value) && !$value) {
+                throw new \Exception(sprintf('%s: %s', _('Operation field not set'), $normalized));
+            }
+            // A non-unique key can reach more Hosts than this model's ID.
+            // Judge that complete set before the first cascade/hook, and keep
+            // its fixed decommission owners through the original DELETE.
+            return \FOG\Agent\DirectoryNameFence::run(function () use ($normalized, $value, $key) {
+                $ids = Route::getIds('host', [$normalized => $value]);
+                if (!in_array((int)$this->get('id'), array_map('intval', $ids), true)) {
+                    throw new \FOG\Agent\DirectoryFenceRefusal('directory_decommission_model_changed');
+                }
+                \FOG\Agent\DirectoryNameFence::preflightDecommission('host', $ids);
+                Route::deletemass('host', ['id' => $this->get('id')]);
+                return parent::destroy($key);
+            });
+        }
         // DESTROY_HOST is fired by Route::deletemass(), not here. Firing it
         // here only reached the UI path -- the REST delete goes straight to
         // deletemass and never builds a Host, so no listener ever heard about

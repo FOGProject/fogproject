@@ -36,10 +36,11 @@
  * this server knows and another one does not", which cannot be enumerated as
  * a denylist -- uca1400 is merely the family that bit us, and the next
  * MariaDB default change would ship a different name past the same gate. The
- * legitimate vocabulary of these two files is tiny (general_ci and bin), so
- * naming what is allowed is both shorter and complete. Adding a collation
- * here is a deliberate act that should be argued for in review, which is the
- * point.
+ * legitimate vocabulary of these two files is tiny (general_ci and bin), plus
+ * ascii_bin for the placement-intent status/hash fields whose validated
+ * storage contract requires bytewise ASCII comparison. Naming what is allowed
+ * is both shorter and complete. Adding a collation here is a deliberate act
+ * that should be argued for in review, which is the point.
  *
  * WHERE THE BOUNDARY ACTUALLY IS. It was first written down here as 11.4;
  * that was wrong, and GH-1152 inherited the error. Measured against real
@@ -76,6 +77,9 @@ $files = [
  * Collations available on every server FOG supports (MySQL 5.7+, MariaDB
  * 10.2+). utf8, utf8mb3 and their _general_ci collations are the same things
  * under two spellings -- utf8 was renamed utf8mb3 -- so both are listed.
+ * ascii_bin is the narrow exception: DirectoryPlacementIntent validates
+ * dpiStatus and dpiHash as ASCII byte strings and requires this exact
+ * collation. This does not allowlist UCA or other version-specific collations.
  */
 $portable = [
     'utf8_general_ci',
@@ -84,6 +88,7 @@ $portable = [
     'utf8_bin',
     'utf8mb3_bin',
     'utf8mb4_bin',
+    'ascii_bin',
 ];
 
 /*

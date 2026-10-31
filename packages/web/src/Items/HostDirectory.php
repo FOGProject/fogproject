@@ -61,7 +61,9 @@ class HostDirectory extends FOGController
         'placementAt' => 'hdPlacementAt',
         'placementError' => 'hdPlacementError',
         'joinAt' => 'hdJoinAt',
-        'joinError' => 'hdJoinError'
+        'joinError' => 'hdJoinError',
+        'rejoinConfig' => 'hdRejoinConfig',
+        'rejoinState' => 'hdRejoinState'
     ];
     /**
      * The required fields.
@@ -79,6 +81,18 @@ class HostDirectory extends FOGController
     protected $additionalFields = [
         'host'
     ];
+
+    /** Facts/placement saves must not overwrite a concurrently claimed operation. */
+    public function save()
+    {
+        $fields = $this->databaseFields;
+        unset($this->databaseFields['rejoinConfig'], $this->databaseFields['rejoinState']);
+        try {
+            return parent::save();
+        } finally {
+            $this->databaseFields = $fields;
+        }
+    }
     /**
      * Return the associated host object.
      *

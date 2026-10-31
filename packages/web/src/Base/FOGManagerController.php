@@ -2029,6 +2029,8 @@ abstract class FOGManagerController extends FOGBase
      */
     public function insertBatch($fields, $values, $table = null)
     {
+        $directoryScope = \FOG\Agent\DirectoryNameFence::writerScope('batch', $this->databaseTable, $this->databaseFields, func_get_args());
+        try {
         $fieldlength = count($fields ?: []);
         $valuelength = count($values ?: []);
         if ($fieldlength < 1) {
@@ -2168,6 +2170,9 @@ abstract class FOGManagerController extends FOGBase
             $insertID,
             $affectedRows,
         ];
+        } finally {
+            $directoryScope->close();
+        }
     }
     /**
      * Function deals with enmass updating.
@@ -2183,6 +2188,8 @@ abstract class FOGManagerController extends FOGBase
         $whereOperator = 'AND',
         $insertData = []
     ) {
+        $directoryScope = \FOG\Agent\DirectoryNameFence::writerScope('update', $this->databaseTable, $this->databaseFields, func_get_args());
+        try {
         if (empty($findWhere)) {
             $findWhere = [];
         }
@@ -2203,6 +2210,11 @@ abstract class FOGManagerController extends FOGBase
             return true;
         }
         return false;
+        } catch (\FOG\Agent\DirectoryFenceRefusal $e) {
+            self::logFault($e->getMessage()); return false;
+        } finally {
+            $directoryScope->close();
+        }
     }
     /**
      * Works to perform the actual actions.

@@ -199,6 +199,11 @@ class DirectoryFacts extends FOGBase
      *
      * @return \FOG\Items\HostDirectory
      */
+    public static function forHost($hostID)
+    {
+        return self::row($hostID);
+    }
+
     protected static function row($hostID)
     {
         // Route::getIds, the way State::_factStateID looks up its own row.

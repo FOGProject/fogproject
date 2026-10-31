@@ -12076,3 +12076,25 @@ $this->schema[] = [
     . "MODIFY `uName` VARCHAR(255),"
     . "MODIFY `uCreateBy` VARCHAR(255)"
 ];
+
+// 447: target-based directory operations and durable OU placement intents.
+// Separate ALTERs retain the updater's duplicate-column retry semantics when
+// a previous attempt stopped after only one of the columns was added.
+$this->schema[] = [
+    'ALTER TABLE `hostDirectory` ADD COLUMN `hdRejoinConfig` TEXT NULL DEFAULT NULL',
+    'ALTER TABLE `hostDirectory` ADD COLUMN `hdRejoinState` TEXT NULL DEFAULT NULL',
+    'CREATE TABLE IF NOT EXISTS `directoryPlacementIntent` (
+    `dpiGUID` BINARY(16) NOT NULL,
+    `dpiSID` VARBINARY(184) NOT NULL,
+    `dpiHostID` INT UNSIGNED NOT NULL,
+    `dpiGeneration` BIGINT UNSIGNED NOT NULL,
+    `dpiStatus` VARCHAR(20) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    `dpiPayload` MEDIUMTEXT NOT NULL,
+    `dpiHash` CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    `dpiResult` VARCHAR(512) NULL,
+    `dpiUpdated` DATETIME(6) NOT NULL,
+    PRIMARY KEY (`dpiGUID`),
+    UNIQUE KEY `uq_directoryPlacementIntent_sid` (`dpiSID`),
+    KEY `idx_directoryPlacementIntent_host_status` (`dpiHostID`, `dpiStatus`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci',
+];

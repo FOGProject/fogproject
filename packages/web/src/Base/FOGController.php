@@ -649,6 +649,8 @@ abstract class FOGController extends FOGBase
      */
     public function save()
     {
+        $directoryScope = \FOG\Agent\DirectoryNameFence::writerScope('save', $this->databaseTable, $this->databaseFields, func_get_args());
+        try {
         try {
             $insertKeys = [];
             $insertValKeys = [];
@@ -1017,6 +1019,9 @@ abstract class FOGController extends FOGBase
         }
 
         return $this;
+        } finally {
+            $directoryScope->close();
+        }
     }
     /**
      * Loads the item from the database.
@@ -1331,6 +1336,8 @@ abstract class FOGController extends FOGBase
      */
     public function destroy($key = 'id')
     {
+        $directoryScope = \FOG\Agent\DirectoryNameFence::writerScope('destroy', $this->databaseTable, $this->databaseFields, func_get_args());
+        try {
         try {
             if (empty($key)) {
                 $key = 'id';
@@ -1485,6 +1492,9 @@ abstract class FOGController extends FOGBase
         }
 
         return $this;
+        } finally {
+            $directoryScope->close();
+        }
     }
     /**
      * Get's the relevant common key if available.

@@ -161,4 +161,71 @@ $t->check('page documents _unadjustednote', isset($schemas['HostPage']['properti
 $t->check('PUT /system/userpref/{key}', isset($paths['/system/userpref/{key}']['put']));
 $t->check('POST /unisearch', isset($paths['/unisearch']['post']));
 
+// 10. Task-driven directory operations retain the existing routes and bind
+// the concrete operation and Task identity in their documented contracts.
+$poll = $paths['/agent/v1/poll']['post'];
+$pollResponse = $poll['responses']['200']['content']['application/json']['schema']['properties'] ?? [];
+$directoryPlan = $pollResponse['directory_rejoin'] ?? [];
+$directoryPlanProperties = $directoryPlan['properties'] ?? [];
+$planAlternatives = $directoryPlan['anyOf'] ?? [];
+$pollRequest = $poll['requestBody']['content']['application/json']['schema']['properties'] ?? [];
+$pollFeatures = $pollRequest['features']['items']['enum'] ?? [];
+$t->check('poll declares directory-task-operations-v3', in_array('directory-task-operations-v3', $pollFeatures, true));
+$directoryAttempt = $pollRequest['directory_attempt'] ?? [];
+$directoryAttemptProperties = $directoryAttempt['properties'] ?? [];
+$t->check('directory_attempt is required for feature v3',
+    ($directoryAttempt['x-required-when-feature'] ?? '') === 'directory-task-operations-v3');
+$t->check('directory_attempt requires marker summary fields',
+    ($directoryAttempt['required'] ?? []) === ['phase', 'attempt_id', 'host_id', 'fingerprint']);
+$t->check('directory_attempt documents phase vocabulary',
+    ($directoryAttemptProperties['phase']['enum'] ?? []) === ['none', 'unreadable', 'reserved', 'may_have_run', 'unknown', 'failed', 'awaiting_reboot', 'verified']);
+$t->check('directory_attempt documents marker summary types',
+    ($directoryAttemptProperties['attempt_id']['type'] ?? '') === 'string'
+    && ($directoryAttemptProperties['host_id']['type'] ?? '') === 'integer'
+    && ($directoryAttemptProperties['fingerprint']['type'] ?? '') === 'string');
+$t->check('poll documents directory_hold boolean', ($pollResponse['directory_hold']['type'] ?? '') === 'boolean');
+$t->check('directory plan remains nullable with conditional shapes',
+    !empty($directoryPlan['nullable']) && count($planAlternatives) === 2);
+$blockedPlan = null;
+$concretePlan = null;
+foreach ($planAlternatives as $alternative) {
+    $required = $alternative['required'] ?? [];
+    if (in_array('phase', $required, true) && in_array('reason', $required, true)) {
+        $blockedPlan = $alternative;
+    }
+    if (in_array('version', $required, true) && in_array('attempt_id', $required, true)
+        && in_array('operation', $required, true) && in_array('task_id', $required, true)) {
+        $concretePlan = $alternative;
+    }
+}
+$t->check('blocked directory plan requires blocked phase and reason',
+    in_array('blocked', $blockedPlan['properties']['phase']['enum'] ?? [], true)
+    && ($blockedPlan['properties']['reason']['type'] ?? '') === 'string');
+$t->check('concrete directory plan requires task_id', is_array($concretePlan));
+$t->check('concrete directory plan phase excludes blocked',
+    is_array($concretePlan)
+    && !in_array('blocked', $concretePlan['properties']['phase']['enum'] ?? [], true));
+$t->check('directory plan task_id is nonnegative integer',
+    ($directoryPlanProperties['task_id']['type'] ?? '') === 'integer'
+    && 0 === ($directoryPlanProperties['task_id']['minimum'] ?? null));
+$t->check('directory plan documents Workgroup join operation and mode',
+    in_array('join', $directoryPlanProperties['operation']['enum'] ?? [], true)
+    && in_array('join', $directoryPlanProperties['mode']['enum'] ?? [], true));
+
+$start = $paths['/agent/v1/directory/rejoin/start']['post'];
+$startRequest = $start['requestBody']['content']['application/json']['schema'] ?? [];
+$startProperties = $startRequest['properties'] ?? [];
+$t->check('rejoin/start requires operation and task_id',
+    in_array('operation', $startRequest['required'] ?? [], true)
+    && in_array('task_id', $startRequest['required'] ?? [], true));
+$t->check('rejoin/start accepts join and nonnegative task_id',
+    in_array('join', $startProperties['operation']['enum'] ?? [], true)
+    && ($startProperties['task_id']['type'] ?? '') === 'integer'
+    && 0 === ($startProperties['task_id']['minimum'] ?? null));
+
+$resultItem = $paths['/agent/v1/result']['post']['requestBody']['content']['application/json']['schema']['properties']['item']['properties'] ?? [];
+$t->check('result item documents task_id and netbios',
+    ($resultItem['task_id']['type'] ?? '') === 'integer'
+    && ($resultItem['netbios']['type'] ?? '') === 'string');
+
 $t->finish();

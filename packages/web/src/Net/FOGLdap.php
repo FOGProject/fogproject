@@ -46,6 +46,12 @@ namespace FOG\Net;
  */
 class FOGLdap
 {
+    private $_moveOutcome = ['kind' => 'not_sent', 'code' => null];
+
+    public function moveOutcome()
+    {
+        return $this->_moveOutcome;
+    }
     /**
      * Seconds to wait for the directory, connecting and searching alike.
      *
@@ -178,6 +184,391 @@ class FOGLdap
     }
 
     /**
+     * Reads the RootDSE context for the requested DNS domain.
+     *
+     * @param string $wantedDnsDomain the DNS domain expected by the caller
+     *
+     * @return array{status:string,base_dn?:string,dc?:string,reason?:string}
+     */
+    public function domainContext($wantedDnsDomain, $includeNamingContexts = false)
+    {
+        $wantedDnsDomain = strtolower(rtrim(trim((string)$wantedDnsDomain), '.'));
+        if (!$this->_ld) {
+            return ['status' => 'error', 'reason' => 'not_connected'];
+        }
+        if (!self::_validDnsName($wantedDnsDomain)) {
+            return ['status' => 'error', 'reason' => 'invalid_domain'];
+        }
+        $res = @ldap_read(
+            $this->_ld,
+            '',
+            '(objectClass=*)',
+            $includeNamingContexts
+                ? ['defaultNamingContext', 'dnsHostName', 'namingContexts']
+                : ['defaultNamingContext', 'dnsHostName']
+        );
+        if (!$res) {
+            return ['status' => 'error', 'reason' => 'rootdse_read_failed'];
+        }
+        $entries = @ldap_get_entries($this->_ld, $res);
+        if (!is_array($entries) || 1 !== (int)($entries['count'] ?? -1)) {
+            return ['status' => 'error', 'reason' => 'invalid_rootdse_result'];
+        }
+        if (!self::_completeResult($this->_ld, $res)) {
+            return ['status' => 'error', 'reason' => 'incomplete_rootdse_result'];
+        }
+        $entry = $entries[0] ?? [];
+        $baseValues = $entry['defaultnamingcontext'] ?? null;
+        $dcValues = $entry['dnshostname'] ?? null;
+        if (!is_array($baseValues) || (int)($baseValues['count'] ?? 0) !== 1
+            || !is_array($dcValues) || (int)($dcValues['count'] ?? 0) !== 1
+        ) {
+            return ['status' => 'error', 'reason' => 'missing_rootdse_attribute'];
+        }
+        $baseDn = trim((string)($baseValues[0] ?? ''));
+        $dc = strtolower(rtrim(trim((string)($dcValues[0] ?? '')), '.'));
+        $contextDomain = self::_domainFromNamingContext($baseDn);
+        if (null === $contextDomain || $contextDomain !== $wantedDnsDomain
+            || !self::_validDnsName($dc)
+        ) {
+            return ['status' => 'error', 'reason' => 'rootdse_domain_mismatch'];
+        }
+        $context = ['status' => 'found', 'base_dn' => $baseDn, 'dc' => $dc];
+        if ($includeNamingContexts) {
+            $contexts = self::_values($entry, 'namingcontexts');
+            if (!$contexts || !array_filter($contexts, static function ($nc) use ($baseDn) {
+                return 0 === strcasecmp($nc, $baseDn);
+            })) {
+                return ['status' => 'error', 'reason' => 'naming_contexts_unavailable'];
+            }
+            $context['naming_contexts'] = $contexts;
+        }
+        return $context;
+    }
+
+    /** Validate the configured search scope against this connection's NC.
+     * Legacy facts can contain a NetBIOS alias rather than a DNS domain.
+     * The configured base remains the search scope; it need not be the NC root.
+     */
+    public function placementContext($searchBase)
+    {
+        $parts = @ldap_explode_dn((string)$searchBase, 0);
+        if (!is_array($parts) || empty($parts['count'])) {
+            return ['status' => 'error', 'reason' => 'invalid_search_base'];
+        }
+        $labels = [];
+        for ($i = (int)$parts['count'] - 1; $i >= 0; --$i) {
+            if (!preg_match('/^DC=([A-Za-z0-9-]+)$/iD', $parts[$i], $m)) {
+                break;
+            }
+            array_unshift($labels, $m[1]);
+        }
+        $context = $this->domainContext(implode('.', $labels), true);
+        if ('found' !== $context['status']
+            || !self::samePlacementNC($searchBase, $context)) {
+            return ['status' => 'error', 'reason' => 'search_base_nc_mismatch'];
+        }
+        return $context;
+    }
+
+    /** Configuration/Schema/application NCs can share a domain DN suffix.
+     * Match the most specific NC advertised by the same connected DC.
+     */
+    public static function samePlacementNC($dn, array $context)
+    {
+        $best = '';
+        foreach ($context['naming_contexts'] ?? [] as $nc) {
+            if (is_string($nc) && strlen($nc) > strlen($best) && self::sameNamingContext($dn, $nc)) {
+                $best = $nc;
+            }
+        }
+        return '' !== $best && 0 === strcasecmp($best, $context['base_dn']);
+    }
+
+    /**
+     * Reads a single computer account without collapsing query failures into
+     * an absence result.
+     *
+     * @param string $baseDn  where to search
+     * @param string $account sAMAccountName, with or without its dollar
+     *
+     * @return array{
+     *     status:string,
+     *     record?:array{
+     *         guid:string,sid:string,dn:string,account:string,dns:string,
+     *         uac:int,pwd_last_set:string,spns:array<int,string>
+     *     },
+     *     reason?:string
+     * }
+     */
+    public function computerRecord($baseDn, $account)
+    {
+        if (!$this->_ld) {
+            return ['status' => 'error', 'reason' => 'not_connected'];
+        }
+        $baseDn = trim((string)$baseDn);
+        $account = trim((string)$account);
+        if ('' === $baseDn) {
+            return ['status' => 'error', 'reason' => 'invalid_search_base'];
+        }
+        if (substr($account, -1) === '$') {
+            $account = substr($account, 0, -1);
+        }
+        if ('' === $account || false !== strpos($account, '$')) {
+            return ['status' => 'error', 'reason' => 'invalid_account'];
+        }
+        $filter = sprintf(
+            '(&(objectClass=computer)(sAMAccountName=%s$))',
+            ldap_escape($account, '', LDAP_ESCAPE_FILTER)
+        );
+        $attributes = [
+            'objectClass',
+            'objectGUID',
+            'objectSid',
+            'distinguishedName',
+            'sAMAccountName',
+            'dNSHostName',
+            'userAccountControl',
+            'pwdLastSet',
+            'servicePrincipalName'
+        ];
+        $res = @ldap_search($this->_ld, $baseDn, $filter, $attributes);
+        if (!$res) {
+            return ['status' => 'error', 'reason' => 'search_failed'];
+        }
+        $entries = @ldap_get_entries($this->_ld, $res);
+        if (!is_array($entries) || !array_key_exists('count', $entries)
+            || !self::_completeResult($this->_ld, $res)
+        ) {
+            return ['status' => 'error', 'reason' => 'incomplete_search'];
+        }
+        $count = (int)$entries['count'];
+        if (0 === $count) {
+            return ['status' => 'absent'];
+        }
+        if (1 !== $count) {
+            return ['status' => 'conflict', 'reason' => 'multiple_matches'];
+        }
+        $entry = $entries[0] ?? [];
+        $classes = self::_values($entry, 'objectclass');
+        if (null === $classes) {
+            return ['status' => 'error', 'reason' => 'missing_record_attribute'];
+        }
+        if (!in_array('computer', array_map('strtolower', $classes), true)) {
+            return ['status' => 'conflict', 'reason' => 'not_computer'];
+        }
+        $guidValues = self::_values($entry, 'objectguid');
+        $sidValues = self::_values($entry, 'objectsid');
+        $dnValues = self::_values($entry, 'distinguishedname');
+        $samValues = self::_values($entry, 'samaccountname');
+        $dnsValues = self::_values($entry, 'dnshostname');
+        $uacValues = self::_values($entry, 'useraccountcontrol');
+        $pwdValues = self::_values($entry, 'pwdlastset');
+        $spnValues = self::_values($entry, 'serviceprincipalname');
+        if ((array_key_exists('dnshostname', $entry) && null === $dnsValues)
+            || (array_key_exists('serviceprincipalname', $entry) && null === $spnValues)
+        ) {
+            return ['status' => 'error', 'reason' => 'invalid_optional_attribute'];
+        }
+        if (null === $guidValues || 1 !== count($guidValues)
+            || null === $sidValues || 1 !== count($sidValues)
+            || null === $dnValues || 1 !== count($dnValues)
+            || null === $samValues || 1 !== count($samValues)
+            || null === $uacValues || 1 !== count($uacValues)
+            || null === $pwdValues || 1 !== count($pwdValues)
+            || (null !== $dnsValues && count($dnsValues) > 1)
+        ) {
+            return ['status' => 'error', 'reason' => 'missing_record_attribute'];
+        }
+        $guid = self::_guid($guidValues[0]);
+        $sid = self::_sid($sidValues[0]);
+        $dn = trim($dnValues[0]);
+        $sam = $samValues[0];
+        $dns = null === $dnsValues || 0 === count($dnsValues)
+            ? ''
+            : strtolower(rtrim(trim($dnsValues[0]), '.'));
+        $uacText = $uacValues[0];
+        $pwdText = $pwdValues[0];
+        if (null === $guid || null === $sid || '' === $dn || '' === $sam
+            || 0 !== strcasecmp($sam, $account . '$')
+            || !preg_match('/\A(?:0|[1-9][0-9]*)\z/D', $uacText)
+            || !preg_match('/\A(?:0|[1-9][0-9]*)\z/D', $pwdText)
+            || (string)(int)$uacText !== $uacText
+            || ('' !== $dns && !self::_validDnsName($dns))
+        ) {
+            return ['status' => 'error', 'reason' => 'invalid_record'];
+        }
+        $uac = (int)$uacText;
+        if (0 !== ($uac & (0x2000 | 0x04000000))) {
+            return ['status' => 'conflict', 'reason' => 'unsupported_account_control_flags'];
+        }
+        $spns = null === $spnValues || 0 === count($spnValues)
+            ? []
+            : array_values(array_unique($spnValues));
+        sort($spns, SORT_STRING);
+        return [
+            'status' => 'found',
+            'record' => [
+                'guid' => $guid,
+                'sid' => $sid,
+                'dn' => $dn,
+                'account' => $sam,
+                'dns' => $dns,
+                'uac' => $uac,
+                'pwd_last_set' => $pwdText,
+                'spns' => $spns
+            ]
+        ];
+    }
+
+    /**
+     * Whether an LDAP search completed without a partial result or referral.
+     *
+     * @param mixed $ld  connection
+     * @param mixed $res result
+     *
+     * @return bool
+     */
+    private static function _completeResult($ld, $res)
+    {
+        $code = $matched = $message = $referrals = null;
+        if (!@ldap_parse_result($ld, $res, $code, $matched, $message, $referrals)) {
+            return false;
+        }
+        return 0 === (int)$code && empty($referrals);
+    }
+
+    /**
+     * Gets one LDAP attribute's values, preserving binary strings.
+     *
+     * @param array  $entry LDAP entry from ldap_get_entries()
+     * @param string $name  lower-case attribute name
+     *
+     * @return array<int,string>|null
+     */
+    private static function _values(array $entry, $name)
+    {
+        $values = $entry[$name] ?? null;
+        if (!is_array($values) || !isset($values['count'])) {
+            return null;
+        }
+        $out = [];
+        for ($i = 0; $i < (int)$values['count']; $i++) {
+            if (!array_key_exists($i, $values) || !is_string($values[$i])) {
+                return null;
+            }
+            $out[] = $values[$i];
+        }
+        return $out;
+    }
+
+    /**
+     * Converts Active Directory's little-endian objectGUID bytes to UUID.
+     *
+     * @param mixed $bytes raw objectGUID
+     *
+     * @return string|null
+     */
+    private static function _guid($bytes)
+    {
+        if (!is_string($bytes) || 16 !== strlen($bytes)) {
+            return null;
+        }
+        $parts = unpack('Vfirst/vsecond/vthird', substr($bytes, 0, 8));
+        if (!is_array($parts)) {
+            return null;
+        }
+        $tail = bin2hex(substr($bytes, 8));
+        $hex = sprintf(
+            '%08x-%04x-%04x-%s-%s',
+            $parts['first'],
+            $parts['second'],
+            $parts['third'],
+            substr($tail, 0, 4),
+            substr($tail, 4)
+        );
+        return strtolower($hex);
+    }
+
+    /**
+     * Strictly decodes the binary SID form returned by Active Directory.
+     *
+     * @param mixed $bytes raw objectSid
+     *
+     * @return string|null
+     */
+    private static function _sid($bytes)
+    {
+        if (!is_string($bytes) || strlen($bytes) < 8 || 1 !== ord($bytes[0])) {
+            return null;
+        }
+        $count = ord($bytes[1]);
+        if (strlen($bytes) !== 8 + (4 * $count)) {
+            return null;
+        }
+        $authority = hexdec(bin2hex(substr($bytes, 2, 6)));
+        $subAuthorities = $count
+            ? array_values(unpack('V' . $count, substr($bytes, 8)))
+            : [];
+        return 'S-1-' . $authority . (count($subAuthorities)
+            ? '-' . implode('-', $subAuthorities)
+            : '');
+    }
+
+    /**
+     * Maps a simple AD domain naming context to its DNS domain.
+     *
+     * @param string $baseDn naming context
+     *
+     * @return string|null
+     */
+    private static function _domainFromNamingContext($baseDn)
+    {
+        $labels = [];
+        foreach (explode(',', (string)$baseDn) as $rdn) {
+            if (!preg_match(
+                '/\A\s*DC=([A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)\s*\z/i',
+                $rdn,
+                $match
+            )) {
+                return null;
+            }
+            $labels[] = strtolower($match[1]);
+        }
+        $domain = implode('.', $labels);
+        return self::_validDnsName($domain) ? $domain : null;
+    }
+
+    /**
+     * Validates an ASCII DNS FQDN (not an IP address or single label).
+     *
+     * @param mixed $name DNS name
+     *
+     * @return bool
+     */
+    private static function _validDnsName($name)
+    {
+        if (!is_string($name) || strlen($name) > 253
+            || false !== strpos($name, ':')
+            || false !== filter_var($name, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)
+        ) {
+            return false;
+        }
+        $labels = explode('.', $name);
+        if (count($labels) < 2) {
+            return false;
+        }
+        foreach ($labels as $label) {
+            if (strlen($label) < 1 || strlen($label) > 63
+                || !preg_match('/\A[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\z/D', $label)
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Every organizational unit at or below a base, sorted by DN.
      *
      * For an admin choosing where a host belongs (GH-1879), so it reads the
@@ -301,8 +692,11 @@ class FOGLdap
      *
      * @return bool
      */
-    public function moveTo($dn, $parentDn)
+    public function moveTo($dn, $parentDn, $dispatchPermit = null)
     {
+        $this->_moveOutcome = ['kind' => 'not_sent', 'code' => null];
+        $dispatchRdn = \FOG\Agent\DirectoryPlacementIntent::consumePermit($dispatchPermit, $this, $dn, $parentDn);
+
         if (!$this->_ld) {
             $this->_error = 'not connected';
             return false;
@@ -313,18 +707,68 @@ class FOGLdap
             $this->_error = 'a move needs both an object and a destination';
             return false;
         }
-        $rdn = self::rdn($dn);
+        $rdn = $dispatchRdn;
         if ('' === $rdn) {
             $this->_error = 'cannot read the RDN of ' . $dn;
             return false;
         }
         // deleteoldrdn=true: the name is not changing, so keeping the old
         // RDN as an extra value would leave a second name on the object.
+        $this->_moveOutcome = ['kind' => 'request_result_unknown', 'code' => null];
         if (!@ldap_rename($this->_ld, $dn, $rdn, $parentDn, true)) {
             $this->_error = ldap_error($this->_ld);
+            $code = (int)ldap_errno($this->_ld);
+            $this->_moveOutcome = [
+                'kind' => $code > 0 && $code <= 80 ? 'ldap_rejection' : 'local_or_transport_error',
+                'code' => $code, 'message' => $this->_error
+            ];
             return false;
         }
+        $this->_moveOutcome = ['kind' => 'ldap_success', 'code' => 0];
         return true;
+    }
+
+    /** AD binary-GUID alternative DN. A reusable DN is never a fallback. */
+    public static function guidDN($guid)
+    {
+        if (!\FOG\Agent\DirectoryRejoin::guid($guid)) {
+            throw new \InvalidArgumentException('invalid immutable LDAP identity');
+        }
+        $bytes = hex2bin(str_replace('-', '', strtolower($guid)));
+        $binary = strrev(substr($bytes, 0, 4)) . strrev(substr($bytes, 4, 2))
+            . strrev(substr($bytes, 6, 2)) . substr($bytes, 8);
+        return '<GUID=' . bin2hex($binary) . '>';
+    }
+
+    public static function sameNamingContext($dn, $nc)
+    {
+        return is_string($dn) && is_string($nc) && '' !== $nc
+            && (0 === strcasecmp($dn, $nc) || 0 === strcasecmp(substr($dn, -strlen($nc) - 1), ',' . $nc));
+    }
+
+    /** Resolve destination identity on the existing verified LDAP connection. */
+    public function containerIdentity($dn)
+    {
+        if (!$this->_ld || !is_string($dn) || '' === trim($dn)) {
+            return ['status' => 'error', 'reason' => 'destination_unavailable'];
+        }
+        $result = @ldap_read($this->_ld, $dn,
+            '(|(objectClass=organizationalUnit)(objectClass=container)(objectClass=domainDNS))',
+            ['objectGUID', 'distinguishedName', 'objectClass']);
+        if (!$result || !self::_completeResult($this->_ld, $result)) {
+            return ['status' => 'error', 'reason' => 'destination_read_failed'];
+        }
+        $entries = ldap_get_entries($this->_ld, $result);
+        if (!is_array($entries) || 1 !== (int)($entries['count'] ?? -1)) {
+            return ['status' => 'error', 'reason' => 'destination_not_unique'];
+        }
+        $guids = self::_values($entries[0], 'objectguid');
+        $dns = self::_values($entries[0], 'distinguishedname');
+        if (!is_array($guids) || !is_array($dns) || count($guids) !== 1 || count($dns) !== 1
+            || null === ($guid = self::_guid($guids[0]))) {
+            return ['status' => 'error', 'reason' => 'destination_identity_incomplete'];
+        }
+        return ['status' => 'found', 'guid' => $guid, 'dn' => $dns[0]];
     }
 
     /**

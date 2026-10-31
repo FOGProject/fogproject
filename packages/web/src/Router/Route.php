@@ -1669,6 +1669,9 @@ class Route extends FOGBase
         // fog-agent (protocol v1). The enroll route is public, listed in
         // $unauthexact above; the other two are the admin's side of it.
         self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
+        self::_registerRoute($r, 'GET', '/agent/v1/enroll', [__CLASS__, 'agentFeatures'], 'agentfeatures');
+        self::_registerRoute($r, 'POST', '/agent/v1/identity/check', [__CLASS__, 'agentIdentityCheck'], 'agentidentitycheck');
+        self::_registerRoute($r, 'POST', '/agent/v1/directory/rejoin/start', [__CLASS__, 'agentRejoinStart'], 'agentrejoinstart');
         self::_registerRoute($r, 'POST', '/agent/v1/poll', [__CLASS__, 'agentPoll'], 'agentpoll');
         self::_registerRoute($r, 'POST', '/agent/v1/renew', [__CLASS__, 'agentRenew'], 'agentrenew');
         self::_registerRoute($r, 'POST', '/agent/v1/result', [__CLASS__, 'agentResult'], 'agentresult');
@@ -3064,6 +3067,12 @@ class Route extends FOGBase
     {
         $Host = self::$agentHost;
         $body = self::_jsonBody();
+        try {
+            \FOG\Agent\DirectoryRejoin::beforePoll($Host, $body);
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(self::_agentErrorCode($e), json_encode(['status' => 'blocked', 'reason' => $e->getMessage()]));
+            return;
+        }
         // Canonical form on the way in: the agent stamps itself from the
         // release tag and so reports `v0.1.6`, while every version the
         // server is given is written `0.1.6`. Storing the spelling the
@@ -3139,6 +3148,19 @@ class Route extends FOGBase
         try {
             $answer += \FOG\Agent\State::facts($Host, $body);
             $answer += \FOG\Agent\State::sessions($Host, $body);
+            if (\FOG\Agent\MachineIdentity::requested($body)) {
+                try {
+                    $answer['directory_rejoin'] = \FOG\Agent\DirectoryRejoin::plan($Host, $body);
+                } catch (\RuntimeException $rejoinError) {
+                    \FOG\Agent\DirectoryRejoin::blocked($Host, $rejoinError->getMessage());
+                    $answer['directory_rejoin'] = ['phase' => 'blocked', 'reason' => $rejoinError->getMessage()];
+                }
+                if (\FOG\Agent\DirectoryOperation::requested($body)) {
+                    $answer['directory_check'] = \FOG\Agent\DirectoryOperation::check($Host);
+                    $directorySaved = \FOG\Agent\DirectoryRejoin::settings($Host);
+                    $answer['directory_hold'] = !empty($directorySaved['state']['placement_hold']);
+                }
+            }
         } catch (\RuntimeException $e) {
             HTTPResponseCodes::breakHead(
                 self::_agentErrorCode($e),
@@ -3153,6 +3175,32 @@ class Route extends FOGBase
      *
      * @return void
      */
+    public static function agentFeatures()
+    {
+        header('X-FOG-Agent-Features: directory-join-mj1, directory-task-operations-v3');
+        HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => ['directory-join-mj1']]));
+    }
+
+    public static function agentIdentityCheck()
+    {
+        try {
+            $answer = \FOG\Agent\MachineIdentity::check(self::$agentHost, self::_jsonBody());
+            HTTPResponseCodes::breakHead('ok' === $answer['status'] ? 200 : 409, json_encode($answer));
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(self::_agentErrorCode($e), json_encode(['status' => 'blocked', 'reason' => $e->getMessage()]));
+        }
+    }
+
+    public static function agentRejoinStart()
+    {
+        try {
+            $answer = \FOG\Agent\DirectoryRejoin::start(self::$agentHost, self::_jsonBody());
+            HTTPResponseCodes::breakHead(200, json_encode($answer));
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(self::_agentErrorCode($e), json_encode(['status' => 'blocked', 'reason' => $e->getMessage()]));
+        }
+    }
+
     public static function agentResult()
     {
         $body = self::_jsonBody();
@@ -6121,6 +6169,8 @@ class Route extends FOGBase
      */
     public static function edit($class, $id)
     {
+        $directoryScope = \FOG\Agent\DirectoryNameFence::routeScope('edit', func_get_args());
+        try {
         try {
             $classname = strtolower($class);
             $classVars = self::_classVars($class);
@@ -6133,6 +6183,9 @@ class Route extends FOGBase
             self::_assertTaskTypeOf($class, $classname);
             self::_applyEditFields($class, $classname, $classVars, $vars);
             self::_assertTaskTypeOf($class, $classname);
+            \FOG\Agent\DirectoryNameFence::preflightModels(
+                $classVars['databaseTable'], $classVars['databaseFields'], [$class]
+            );
             self::_applyEditAssociations($class, $classname, $vars, $id);
             // Store the data and recreate.
             // If failed present so.
@@ -6146,6 +6199,9 @@ class Route extends FOGBase
             self::indiv($classname, $id);
         } catch (\Exception $e) {
             self::_sendCaught($e);
+        }
+        } finally {
+            $directoryScope->close();
         }
     }
     /**
@@ -6432,6 +6488,8 @@ class Route extends FOGBase
      */
     public static function create($class)
     {
+        $directoryScope = \FOG\Agent\DirectoryNameFence::routeScope('create', func_get_args());
+        try {
         try {
             $classname = strtolower($class);
             $classVars = self::_classVars($class);
@@ -6442,6 +6500,9 @@ class Route extends FOGBase
             self::_assertCreateName($classname, $vars);
             self::_applyCreateFields($class, $classname, $classVars, $vars);
             self::_assertTaskTypeOf($class, $classname);
+            \FOG\Agent\DirectoryNameFence::preflightModels(
+                $classVars['databaseTable'], $classVars['databaseFields'], [$class]
+            );
             self::_applyCreateAssociations($class, $classname, $vars);
             self::_assertCreateRequired($class, $classVars);
             // Store the data and recreate.
@@ -6460,6 +6521,9 @@ class Route extends FOGBase
             self::indiv($classname, $id);
         } catch (\Exception $e) {
             self::_sendCaught($e);
+        }
+        } finally {
+            $directoryScope->close();
         }
     }
     /**
@@ -9861,6 +9925,8 @@ class Route extends FOGBase
         $operator = 'AND',
         $orderby = 'name'
     ) {
+        $directoryScope = \FOG\Agent\DirectoryNameFence::routeScope('deletemass', func_get_args());
+        try {
         try {
             if (empty($operator)) {
                 $operator = 'AND';
@@ -9889,6 +9955,7 @@ class Route extends FOGBase
                     $itemIDs
                 );
             }
+            \FOG\Agent\DirectoryNameFence::preflightDecommission($classname, $itemIDs);
             self::$_deleteDepth++;
 
             self::_fireDestroyEvents($classname, $itemIDs);
@@ -9912,6 +9979,22 @@ class Route extends FOGBase
                     'removeItems' => &$removeItems
                 ]
             );
+            if (\FOG\Agent\DirectoryNameFence::inDecommission()) {
+                $directoryDependencies = [];
+                foreach ($removeItems as $directoryClass => $directoryWhere) {
+                    $directoryVars = self::_classVars($directoryClass);
+                    $directorySelect = self::_buildSql(
+                        'SELECT * FROM `' . $directoryVars['databaseTable'] . '`',
+                        $directoryVars, $directoryWhere, false, 'AND', 'name'
+                    );
+                    $directoryDependencies[] = [
+                        'table' => $directoryVars['databaseTable'],
+                        'sql' => $directorySelect['sql'],
+                        'params' => $directorySelect['params']
+                    ];
+                }
+                \FOG\Agent\DirectoryNameFence::preflightDependencies($directoryDependencies);
+            }
             foreach ((array)$removeItems as $item => &$vals) {
                 Route::deletemass(
                     $item,
@@ -9937,6 +10020,9 @@ class Route extends FOGBase
         // off the end of a typed return is the shape that made delete()
         // look like it returned nothing for years.
         return null;
+        } finally {
+            $directoryScope->close();
+        }
     }
     /**
      * Builds the sql query with the where.
@@ -10479,6 +10565,8 @@ class Route extends FOGBase
      */
     private static function _joiningUpdate($classname, $classVars, $vars)
     {
+        $directoryScope = \FOG\Agent\DirectoryNameFence::routeScope('_joiningUpdate', func_get_args());
+        try {
         Route::listem(
             $classname,
             ['id' => $vars->ids]
@@ -10486,6 +10574,15 @@ class Route extends FOGBase
         $classes = json_decode(
             Route::getData()
         );
+        if (in_array($classVars['databaseTable'], ['hosts', 'hostDirectory'], true)) {
+            $directoryModels = [];
+            foreach ($classes->data as $directoryObject) {
+                $directoryModels[] = self::getClass($classname, $directoryObject->id);
+            }
+            \FOG\Agent\DirectoryNameFence::preflightModels(
+                $classVars['databaseTable'], $classVars['databaseFields'], $directoryModels, $vars
+            );
+        }
         foreach ($classes->data as &$c) {
             $c = self::getClass($classname, $c->id);
             // Mirrors edit(), so one object behaves the same through
@@ -10503,6 +10600,9 @@ class Route extends FOGBase
                 );
             }
             unset($c);
+        }
+        } finally {
+            $directoryScope->close();
         }
     }
     /**
