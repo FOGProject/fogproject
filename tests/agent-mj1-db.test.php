@@ -67,7 +67,7 @@ try {
     FOG\Agent\DirectoryRejoin::beforePoll($host, []);
     throw new \RuntimeException('old agent bypassed pending operation guard');
 } catch (\RuntimeException $e) {
-    if ($e->getMessage() !== 'mj1_feature_required') { throw $e; }
+    if ($e->getMessage() !== 'directory_target_feature_required') { throw $e; }
 }
 try {
     FOG\Agent\DirectoryRejoin::start($host, ['attempt_id' => $legacy['attempt_id']]);
@@ -97,7 +97,7 @@ try {
     FOG\Agent\DirectoryRejoin::beforePoll($host, []);
     throw new \RuntimeException('old Agent bypassed current v2 unknown state');
 } catch (\RuntimeException $e) {
-    if ($e->getMessage() !== 'mj1_feature_required') { throw $e; }
+    if ($e->getMessage() !== 'directory_target_feature_required') { throw $e; }
 }
 $pdo->exec('ALTER TABLE hostDirectory ENGINE=MyISAM');
 try { $method->invoke(null,$host,function(&$config,&$state) {}); throw new \RuntimeException('unsafe engine accepted'); }

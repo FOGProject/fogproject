@@ -46,7 +46,11 @@ foreach (['{"version":1,"placement_hold":"false"}', '{"version":1,"password":"no
     $t->check('unknown or wrongly typed state is rejected', mj1Refuses(function () use ($raw) { R::decode($raw); }));
 }
 $blocked = (new FOG\Items\AgentEnrollment())->set('identity', json_encode(['_mj1' => ['required' => true, 'upgrade_blocked' => true]]));
-$t->check('pending upgrade block cannot be approved', mj1Refuses(function () use ($blocked) { FOG\Agent\Enrollment::guardMJ1($blocked); }));
+$t->check('pending upgrade block cannot be approved', mj1Refuses(function () use ($blocked) { FOG\Agent\Enrollment::guardDirectoryIdentity($blocked); }));
+$t->check('new directory identity feature is recognized', I::requested(['features' => ['directory-join-target-v1']]));
+$t->check('legacy directory identity feature is not recognized', !I::requested(['features' => ['directory-join-mj1']]));
+$t->check('new target operation feature is recognized', FOG\Agent\DirectoryOperation::requested(['features' => ['directory-task-operations-v1']]));
+$t->check('legacy target operation feature is not recognized', !FOG\Agent\DirectoryOperation::requested(['features' => ['directory-task-operations-v3']]));
 $v3OnlyHost = (new FOG\Items\Host())->set('id', 123);
 $v3Error = function (array $body) use ($v3OnlyHost) {
     try {
@@ -56,9 +60,9 @@ $v3Error = function (array $body) use ($v3OnlyHost) {
         return [$e->getMessage(), $e->getCode()];
     }
 };
-$t->check('v3-only request cannot bypass identity gating on an unmanaged host',
-    ['mj1_feature_required', 409] === $v3Error(['features' => [FOG\Agent\DirectoryOperation::FEATURE],
+$t->check('target-operation-only request cannot bypass identity gating on an unmanaged host',
+    ['directory_target_feature_required', 409] === $v3Error(['features' => [FOG\Agent\DirectoryOperation::FEATURE],
         'directory_attempt' => ['phase' => 'none']]));
-$t->check('v3-only request without local marker summary also fails before legacy handling',
-    ['mj1_feature_required', 409] === $v3Error(['features' => [FOG\Agent\DirectoryOperation::FEATURE]]));
+$t->check('target-operation-only request without local marker summary also fails before legacy handling',
+    ['directory_target_feature_required', 409] === $v3Error(['features' => [FOG\Agent\DirectoryOperation::FEATURE]]));
 $t->finish();

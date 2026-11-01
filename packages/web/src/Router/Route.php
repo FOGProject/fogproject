@@ -3177,8 +3177,8 @@ class Route extends FOGBase
      */
     public static function agentFeatures()
     {
-        header('X-FOG-Agent-Features: directory-join-mj1, directory-task-operations-v3');
-        HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => ['directory-join-mj1']]));
+        header('X-FOG-Agent-Features: directory-join-target-v1, directory-task-operations-v1');
+        HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => ['directory-join-target-v1']]));
     }
 
     public static function agentIdentityCheck()

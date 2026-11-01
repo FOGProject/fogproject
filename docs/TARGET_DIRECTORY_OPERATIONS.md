@@ -40,9 +40,10 @@ for an ordinary official installation.
 Secure Channel observations are evidence, not a password-corruption verdict.
 SC=False/PDC1311 does not trigger automatic Repair or change Rename into
 Create/Rebind. Postboot Join/Rebind verification still requires its success
-conditions. Directory placement requires the current poll's valid observation,
+conditions. Protocol-2 directory placement requires the current poll's valid observation,
 matching revision and freshness; a cached True cannot replace a missing poll
-observation.
+observation. Legacy placement retains its prior observation contract. Both paths
+use the shared Target-specific durable intent and LDAP identity checks.
 
 ## Durable OU placement
 
@@ -90,9 +91,10 @@ Windows feature, subject to their existing protocol contracts.
 
 ## Initial configuration
 
-Before configuration, confirm the Server uses schema 447 and exposes the MJ-1 API
-feature contracts. The compatible Agent requires both `directory-join-mj1` and
-`directory-task-operations-v3`.
+Before configuration, confirm the Server uses schema 447 and advertises the
+FOG AD Join/Rejoin feature contracts. The compatible Agent requires both
+`directory-join-target-v1` and
+`directory-task-operations-v1`.
 
 1. In the FOG UI, open **FOG Configuration → FOG Settings → Active Directory
    Defaults**. Set `FOG_AD_DEFAULT_DOMAINNAME`, `FOG_AD_DEFAULT_USER`, and
@@ -102,7 +104,8 @@ feature contracts. The compatible Agent requires both `directory-join-mj1` and
    based on reboot and logged-in-user handling.
 2. In the FOG UI, open **FOG Configuration → FOG Settings → FOG Agent -
    Directory Placement**. Configure this LDAP connection even if automatic OU
-   placement will remain disabled: MJ-1 uses it for AD Target lookup and GUID/SID
+   placement will remain disabled: the FOG AD Join/Rejoin enhancement uses it for
+   AD Target lookup and GUID/SID
    checks.
    - `FOG_DIRECTORY_BASE_DN`: for example, `DC=example,DC=com`.
    - `FOG_DIRECTORY_BIND_DN`: for example, `CN=fog-ldap,CN=Users,DC=example,DC=com`.
@@ -133,6 +136,13 @@ Host-side prerequisites:
 - Automatic image-deployment Rebind is authorized by a normally completed, eligible Deploy task.
 
 The Server implementation attempts StartTLS for `ldap://` URIs and aborts on StartTLS failure before bind. That code path was not hardware-validated; hardware validation covered LDAPS only.
+
+## Management and API entry points
+
+- The existing Host AD form lets an administrator inspect the LDAP candidate and explicitly confirm an existing computer by GUID/SID. The separate Create checkbox controls whether a newly created account may be selected. The UI offers Confirm Retry only with a current SC=False observation and either no recorded attempt or eligible verified history. Protected attempts, including an unclaimed ready plan, are not cleared by Retry. Retry is not automatic Repair. Existing human authorization and CSRF checks continue to apply. Candidate inspection is read-only; current observations and saved operation history are separate evidence, not proof of current online authentication.
+- `POST /agent/v1/identity/check` runs under the existing verified-client-certificate Host principal and compares live SMBIOS/MAC identity with that Host. It is read-only: it does not search AD, run inventory/check-in work or write certificates.
+- `POST /agent/v1/directory/rejoin/start` is bound to the same certificate-authenticated Host. It rechecks the ready attempt, config revision, name, Target, Task and freshness, then claims the attempt and, when a Deploy task is bound, consumes that task by advancing high-water before returning existing Join credentials. A repeated start is refused. The plan arrives through poll; claim is internal to start; result uses the existing `/agent/v1/result` route. No separate claim endpoint is added.
+- Ordinary Rename uses the existing rename path and preserves the selected original computer object's GUID/SID.
 
 ## Acceptance boundaries
 

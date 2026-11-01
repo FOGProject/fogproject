@@ -189,7 +189,7 @@ $routePoll = static function () {
     try {
         $payload = json_encode([
             'agent_version'=>'1.6.0', 'want_state'=>true,
-            'features'=>['directory-join-mj1','directory-task-operations-v3'],
+            'features'=>['directory-join-target-v1','directory-task-operations-v1'],
             'identity'=>['macs'=>['02:00:00:00:00:71']],
             'directory_attempt'=>['phase'=>'verified','host_id'=>7,
                 'attempt_id'=>str_repeat('b',32),'fingerprint'=>str_repeat('a',64)]

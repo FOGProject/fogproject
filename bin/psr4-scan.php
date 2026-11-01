@@ -231,10 +231,15 @@ const TABLE = [
     // The join half of directory membership (design 0009 section 6): the
     // one class that decides whether a credential leaves this server.
     'DirectoryJoin' => 'Agent',
-    // The MJ-1 identity and single-use directory operation pipeline. These
-    // classes extend FOGBase directly, so ancestry cannot place them: task
-    // eligibility, operation planning/claiming, durable rejoin state and
-    // certificate-to-host identity all belong to the Agent subsystem.
+    // These directory identity, target-operation and name/placement-fence
+    // classes have parent chains that do not select an Agent bucket, so they
+    // are placed here explicitly: task eligibility, operation planning and
+    // claiming, durable rejoin state, fence scope/refusal and certificate-to-
+    // host identity belong to Agent.
+    'DirectoryFenceRefusal' => 'Agent',
+    'DirectoryFenceScope' => 'Agent',
+    'DirectoryNameFence' => 'Agent',
+    'DirectoryPlacementIntent' => 'Agent',
     'DirectoryTask' => 'Agent',
     'DirectoryOperation' => 'Agent',
     'DirectoryRejoin' => 'Agent',

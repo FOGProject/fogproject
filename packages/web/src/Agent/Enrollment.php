@@ -105,7 +105,7 @@ class Enrollment extends FOGBase
         }
         $identity = is_array($body['identity'] ?? null) ? $body['identity'] : [];
         unset($identity['_mj1']);
-        $mj1 = MachineIdentity::requested($body);
+        $directoryIdentityRequired = MachineIdentity::requested($body);
         $macs = self::_macs($identity['macs'] ?? []);
         $token = trim((string)($body['token'] ?? ''));
 
@@ -116,9 +116,9 @@ class Enrollment extends FOGBase
         }
         if ($Row) {
             $savedIdentity = json_decode((string)$Row->get('identity'), true) ?: [];
-            $gate = MachineIdentity::enrollmentGate($savedIdentity, $identity, $mj1);
+            $gate = MachineIdentity::enrollmentGate($savedIdentity, $identity, $directoryIdentityRequired);
             if ('feature_required' === $gate) {
-                throw new \RuntimeException('enrollment_mj1_feature_required', 409);
+                throw new \RuntimeException('enrollment_directory_target_feature_required', 409);
             }
             unset($savedIdentity['_mj1']);
             if ('upgrade_blocked' === $gate) {
@@ -171,7 +171,7 @@ class Enrollment extends FOGBase
 
         // First contact for this key. Resolve the host the way boot does.
         list($hostID, $reason) = self::_resolve($identity, $macs);
-        if ($mj1) {
+        if ($directoryIdentityRequired) {
             $resolved = MachineIdentity::resolve($identity, true);
             $hostID = $resolved['host_id'];
             $reason = 'conflict' === $resolved['status'] ? self::REASON_CONFLICT
@@ -356,7 +356,7 @@ class Enrollment extends FOGBase
      *
      * @return void
      */
-    public static function guardMJ1(AgentEnrollment $row)
+    public static function guardDirectoryIdentity(AgentEnrollment $row)
     {
         $identity = json_decode((string)$row->get('identity'), true) ?: [];
         $meta = $identity['_mj1'] ?? [];
@@ -379,7 +379,7 @@ class Enrollment extends FOGBase
 
     private static function _autoApproval(AgentEnrollment $Row, $token)
     {
-        self::guardMJ1($Row);
+        self::guardDirectoryIdentity($Row);
         if ('' !== $token && self::_consumeToken($token)) {
             return self::VIA_TOKEN;
         }
@@ -623,7 +623,7 @@ class Enrollment extends FOGBase
      */
     private static function _issue(AgentEnrollment $Row, $via, $by)
     {
-        self::guardMJ1($Row);
+        self::guardDirectoryIdentity($Row);
         $hostID = (int)$Row->get('hostID');
         $Host = new Host($hostID);
         if (!$Host->isValid()) {

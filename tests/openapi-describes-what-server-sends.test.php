@@ -161,7 +161,37 @@ $t->check('page documents _unadjustednote', isset($schemas['HostPage']['properti
 $t->check('PUT /system/userpref/{key}', isset($paths['/system/userpref/{key}']['put']));
 $t->check('POST /unisearch', isset($paths['/unisearch']['post']));
 
-// 10. Task-driven directory operations retain the existing routes and bind
+// 10. The public feature header is a comma-separated token list. Its example
+// is tied to the literal emitted by the existing Route handler; the JSON body
+// intentionally remains the single directory identity feature advertised today.
+$enroll = $paths['/agent/v1/enroll']['get'];
+$featureHeader = $enroll['responses']['200']['headers']['X-FOG-Agent-Features'] ?? [];
+$featureHeaderSchema = $featureHeader['schema'] ?? [];
+$featureHeaderDescription = (string)($featureHeader['description'] ?? '');
+$featuresMethod = new ReflectionMethod(\FOG\Router\Route::class, 'agentFeatures');
+$featuresSource = implode('', array_slice(
+    file($featuresMethod->getFileName()),
+    $featuresMethod->getStartLine() - 1,
+    $featuresMethod->getEndLine() - $featuresMethod->getStartLine() + 1
+));
+$actualFeatureHeader = '';
+if (preg_match("/header\\('X-FOG-Agent-Features:\\s*([^']+)'\\);/", $featuresSource, $headerMatch)) {
+    $actualFeatureHeader = trim($headerMatch[1]);
+}
+$t->check('enrollment feature header is a string without individual-token enum',
+    ($featureHeaderSchema['type'] ?? '') === 'string' && !isset($featureHeaderSchema['enum']));
+$t->check('enrollment feature header description lists both comma-separated tokens',
+    false !== stripos($featureHeaderDescription, 'comma-separated')
+    && false !== strpos($featureHeaderDescription, 'directory-join-target-v1')
+    && false !== strpos($featureHeaderDescription, 'directory-task-operations-v1'));
+$t->check('enrollment feature header example matches the Route handler literal',
+    $actualFeatureHeader !== '' && ($featureHeaderSchema['example'] ?? null) === $actualFeatureHeader);
+$enrollBodyFeatures = $enroll['responses']['200']['content']['application/json']['schema']['properties']['features'] ?? [];
+$t->check('enrollment JSON body retains its current single identity feature',
+    ($enrollBodyFeatures['type'] ?? '') === 'array'
+    && ($enrollBodyFeatures['items']['enum'] ?? []) === ['directory-join-target-v1']);
+
+// 11. Task-driven directory operations retain the existing routes and bind
 // the concrete operation and Task identity in their documented contracts.
 $poll = $paths['/agent/v1/poll']['post'];
 $pollResponse = $poll['responses']['200']['content']['application/json']['schema']['properties'] ?? [];
@@ -170,11 +200,11 @@ $directoryPlanProperties = $directoryPlan['properties'] ?? [];
 $planAlternatives = $directoryPlan['anyOf'] ?? [];
 $pollRequest = $poll['requestBody']['content']['application/json']['schema']['properties'] ?? [];
 $pollFeatures = $pollRequest['features']['items']['enum'] ?? [];
-$t->check('poll declares directory-task-operations-v3', in_array('directory-task-operations-v3', $pollFeatures, true));
+$t->check('poll declares directory-task-operations-v1', in_array('directory-task-operations-v1', $pollFeatures, true));
 $directoryAttempt = $pollRequest['directory_attempt'] ?? [];
 $directoryAttemptProperties = $directoryAttempt['properties'] ?? [];
-$t->check('directory_attempt is required for feature v3',
-    ($directoryAttempt['x-required-when-feature'] ?? '') === 'directory-task-operations-v3');
+$t->check('directory_attempt is required for the target-operation feature',
+    ($directoryAttempt['x-required-when-feature'] ?? '') === 'directory-task-operations-v1');
 $t->check('directory_attempt requires marker summary fields',
     ($directoryAttempt['required'] ?? []) === ['phase', 'attempt_id', 'host_id', 'fingerprint']);
 $t->check('directory_attempt documents phase vocabulary',
@@ -215,6 +245,21 @@ $t->check('directory plan documents Workgroup join operation and mode',
 $start = $paths['/agent/v1/directory/rejoin/start']['post'];
 $startRequest = $start['requestBody']['content']['application/json']['schema'] ?? [];
 $startProperties = $startRequest['properties'] ?? [];
+$startTargetSchema = $start['responses']['200']['content']['application/json']['schema']['properties']
+    ['directory']['properties']['rejoin']['properties']['target'] ?? [];
+$startTargetDescription = strtolower((string)($startTargetSchema['description'] ?? ''));
+$t->check('rejoin/start response Target remains nullable object',
+    ($startTargetSchema['type'] ?? '') === 'object' && !empty($startTargetSchema['nullable']));
+$t->check('rejoin/start Target describes Existing Rebind and Rename GUID/SID pinning',
+    false !== strpos($startTargetDescription, 'existing rebind')
+    && false !== strpos($startTargetDescription, 'ordinary rename')
+    && false !== strpos($startTargetDescription, 'guid/sid')
+    && false !== strpos($startTargetDescription, 'pin'));
+$t->check('rejoin/start Target describes pre-creation Create and Workgroup Join null cases',
+    false !== strpos($startTargetDescription, 'create')
+    && false !== strpos($startTargetDescription, 'before')
+    && false !== strpos($startTargetDescription, 'workgroup join')
+    && false !== strpos($startTargetDescription, 'null'));
 $t->check('rejoin/start requires operation and task_id',
     in_array('operation', $startRequest['required'] ?? [], true)
     && in_array('task_id', $startRequest['required'] ?? [], true));

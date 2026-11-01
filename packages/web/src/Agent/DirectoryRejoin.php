@@ -204,7 +204,7 @@ class DirectoryRejoin extends FOGBase
     public static function beforePoll(Host $host, array $body)
     {
         if (DirectoryOperation::requested($body) && !MachineIdentity::requested($body)) {
-            throw new \RuntimeException('mj1_feature_required', 409);
+            throw new \RuntimeException('directory_target_feature_required', 409);
         }
         if (!MachineIdentity::requested($body)) {
             // Operation authority is current DB state, not a cached fact object.
@@ -223,7 +223,7 @@ class DirectoryRejoin extends FOGBase
                 }
             }
             if ($required) {
-                throw new \RuntimeException('mj1_feature_required', 409);
+                throw new \RuntimeException('directory_target_feature_required', 409);
             }
             return;
         }

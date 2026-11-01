@@ -1899,6 +1899,9 @@ msgstr "列の型の取得に失敗しました"
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity) and directory-task-operations-v1 (target operations)."
+msgstr ""
+
 msgid "Command"
 msgstr "コマンド"
 
@@ -2587,8 +2590,8 @@ msgstr "ディレクトリ操作の履歴"
 msgid "Directory operation phase"
 msgstr "ディレクトリ操作フェーズ"
 
-msgid "Directory-task-operations-v3 plan; absent or null when no operation is planned."
-msgstr "Directory-task-operations-v3の操作計画。予定された操作がない場合は省略またはnullです。"
+msgid "Directory-task-operations-v1 plan; absent or null when no operation is planned."
+msgstr "Directory-task-operations-v1の操作計画。予定された操作がない場合は省略またはnullです。"
 
 msgid "Disable on all hosts"
 msgstr "すべてのホストで無効化"
@@ -2969,7 +2972,7 @@ msgstr "呼び出し元ユーザーのすべての個人設定をキーと値の
 msgid "Existence check failed"
 msgstr "存在確認に失敗しました"
 
-msgid "Existing target pin; null for rename and before a create operation is confirmed."
+msgid "Existing Rebind and ordinary Rename pin the existing computer object's GUID/SID. Target is null for Create before the computer account exists and for Workgroup Join."
 msgstr ""
 
 msgid "Exists item must be boolean"
@@ -7091,7 +7094,7 @@ msgstr "プロバイダーを更新しました！"
 msgid "Providers"
 msgstr "プロバイダー"
 
-msgid "Public and read-only. Over the existing HTTPS server connection, advertises the required MJ-1 feature. This does not issue a certificate or change trust."
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity and target-operation features. This does not issue a certificate or change trust."
 msgstr ""
 
 msgid "Publisher"
@@ -7168,8 +7171,8 @@ msgstr "個人設定を 1 件取得"
 msgid "Read one saved filter"
 msgstr "保存済みフィルターを 1 件取得"
 
-msgid "Read-only context for the directory-task-operations-v3 observation. Present only when the poll declares directory-task-operations-v3 and the host is eligible for observation; null when no check is requested."
-msgstr "Directory-task-operations-v3の読み取り専用観測コンテキスト。pollが対応機能を宣言し、ホストが観測対象の場合に返されます。検査要求がない場合はnullです。"
+msgid "Read-only context for the directory-task-operations-v1 observation. Present only when the poll declares directory-task-operations-v1 and the host is eligible for observation; null when no check is requested."
+msgstr "Directory-task-operations-v1の読み取り専用観測コンテキスト。pollが対応機能を宣言し、ホストが観測対象の場合に返されます。検査要求がない場合はnullです。"
 
 msgid "Ready"
 msgstr "準備完了"
@@ -7370,9 +7373,6 @@ msgstr "必須列の参照に失敗しました"
 
 msgid "Required database field is empty"
 msgstr "必須のデータベースフィールドが空です"
-
-msgid "Required feature name."
-msgstr ""
 
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
 msgstr "必須項目です。また、このアカウント内で一意である必要があります &mdash; トークンを失効させる際に、ほかのトークンと区別できる唯一の情報です。"
@@ -9185,7 +9185,7 @@ msgstr ""
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr "パッケージマネージャーが認識するパッケージ ID です。例: googlechrome。"
 
-msgid "The identity or required MJ-1 feature declaration is invalid."
+msgid "The identity or required AD directory feature declaration is invalid."
 msgstr ""
 
 msgid "The identity provider could not be reached"
@@ -9404,7 +9404,7 @@ msgstr "保存済みフィルター。"
 msgid "The selected site no longer exists"
 msgstr "選択したサイトは既に存在しません"
 
-msgid "The server advertises MJ-1."
+msgid "The server advertises AD directory identity and target-operation features."
 msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
@@ -10603,11 +10603,11 @@ msgstr "Windows キーを更新しました！"
 msgid "Windows Keys"
 msgstr "Windows キー"
 
-msgid "Windows MJ-1 polls declare both the base identity feature and directory-task-operations-v3 when supported."
-msgstr "WindowsのMJ-1 pollは、対応時に基本Identity機能とdirectory-task-operations-v3の両方を宣言します。"
-
 msgid "Windows Product key"
 msgstr "Windows プロダクトキー"
+
+msgid "Windows directory polls declare directory-join-target-v1 and directory-task-operations-v1 when supported."
+msgstr "Windowsのディレクトリ処理用pollは、対応している場合にdirectory-join-target-v1とdirectory-task-operations-v1を宣言します。"
 
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Windows キーは、プロダクトキーを関連付けるプラグインです"

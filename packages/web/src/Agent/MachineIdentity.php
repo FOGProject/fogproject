@@ -1,5 +1,5 @@
 <?php
-/** Live identity resolution for MJ-1; authentication remains the existing certificate. */
+/** Live directory identity resolution; authentication remains the existing certificate. */
 namespace FOG\Agent;
 
 use FOG\Base\FOGBase;
@@ -9,7 +9,7 @@ use FOG\Router\Route;
 
 class MachineIdentity extends FOGBase
 {
-    const FEATURE = 'directory-join-mj1';
+    const FEATURE = 'directory-join-target-v1';
 
     public static function requested(array $body)
     {

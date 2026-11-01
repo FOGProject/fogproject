@@ -3006,7 +3006,7 @@ class HostManagement extends FOGPage
             true
         );
         // Older forms and integrations do not submit the marker. Keep their
-        // AD update path unchanged and do not read any MJ-1 POST fields.
+        // AD update path unchanged and do not read directory-operation POST fields.
         if (isset($_POST['rejoin_settings_present'])
             && is_scalar($_POST['rejoin_settings_present'])
             && '1' === (string)$_POST['rejoin_settings_present']

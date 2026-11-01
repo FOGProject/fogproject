@@ -2171,6 +2171,9 @@ msgstr "atualização do utilizador falhou"
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity) and directory-task-operations-v1 (target operations)."
+msgstr ""
+
 #, fuzzy
 msgid "Command"
 msgstr "Snapin Command"
@@ -2986,7 +2989,7 @@ msgstr "Active Directory"
 msgid "Directory operation phase"
 msgstr "Active Directory"
 
-msgid "Directory-task-operations-v3 plan; absent or null when no operation is planned."
+msgid "Directory-task-operations-v1 plan; absent or null when no operation is planned."
 msgstr ""
 
 #, fuzzy
@@ -3423,7 +3426,7 @@ msgstr ""
 msgid "Existence check failed"
 msgstr "chave privada falhou"
 
-msgid "Existing target pin; null for rename and before a create operation is confirmed."
+msgid "Existing Rebind and ordinary Rename pin the existing computer object's GUID/SID. Target is null for Create before the computer account exists and for Workgroup Join."
 msgstr ""
 
 msgid "Exists item must be boolean"
@@ -8241,7 +8244,7 @@ msgstr "Impressora atualizado!"
 msgid "Providers"
 msgstr ""
 
-msgid "Public and read-only. Over the existing HTTPS server connection, advertises the required MJ-1 feature. This does not issue a certificate or change trust."
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity and target-operation features. This does not issue a certificate or change trust."
 msgstr ""
 
 msgid "Publisher"
@@ -8327,7 +8330,7 @@ msgstr ""
 msgid "Read one saved filter"
 msgstr "Delete Selected"
 
-msgid "Read-only context for the directory-task-operations-v3 observation. Present only when the poll declares directory-task-operations-v3 and the host is eligible for observation; null when no check is requested."
+msgid "Read-only context for the directory-task-operations-v1 observation. Present only when the poll declares directory-task-operations-v1 and the host is eligible for observation; null when no check is requested."
 msgstr ""
 
 msgid "Ready"
@@ -8555,9 +8558,6 @@ msgstr "atualização do utilizador falhou"
 
 msgid "Required database field is empty"
 msgstr "campo de banco de dados necessário está vazio"
-
-msgid "Required feature name."
-msgstr ""
 
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
 msgstr ""
@@ -10685,7 +10685,7 @@ msgstr ""
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr ""
 
-msgid "The identity or required MJ-1 feature declaration is invalid."
+msgid "The identity or required AD directory feature declaration is invalid."
 msgstr ""
 
 #, fuzzy
@@ -10918,7 +10918,7 @@ msgstr "atualização da impressora falhou!"
 msgid "The selected site no longer exists"
 msgstr " não existe mais"
 
-msgid "The server advertises MJ-1."
+msgid "The server advertises AD directory identity and target-operation features."
 msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
@@ -12270,12 +12270,12 @@ msgstr "Gerenciamento de usuários"
 msgid "Windows Keys"
 msgstr "Windows 8"
 
-msgid "Windows MJ-1 polls declare both the base identity feature and directory-task-operations-v3 when supported."
-msgstr ""
-
 #, fuzzy
 msgid "Windows Product key"
 msgstr "Hospedar de Chave de Produto"
+
+msgid "Windows directory polls declare directory-join-target-v1 and directory-task-operations-v1 when supported."
+msgstr ""
 
 #, fuzzy
 msgid "Windows keys is a plugin that associates product keys"

@@ -7,7 +7,7 @@ use FOG\Items\TaskType;
 
 class DirectoryOperation extends \FOG\Base\FOGBase
 {
-    const FEATURE = 'directory-task-operations-v3';
+    const FEATURE = 'directory-task-operations-v1';
     const OBSERVATION_MAX_AGE = 600;
 
     public static function requested(array $body)

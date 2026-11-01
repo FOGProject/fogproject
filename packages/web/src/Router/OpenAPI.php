@@ -2761,18 +2761,18 @@ class OpenAPI extends FOGBase
                     'agentfeatures',
                     _('FOG Agent protocol features'),
                     _('Public and read-only. Over the existing HTTPS server '
-                        . 'connection, advertises the required MJ-1 feature. '
+                        . 'connection, advertises the AD directory identity and target-operation features. '
                         . 'This does not issue a certificate or change trust.'),
                     [
                         '200' => [
-                            'description' => _('The server advertises MJ-1.'),
+                            'description' => _('The server advertises AD directory identity and target-operation features.'),
                             'headers' => [
                                 'X-FOG-Agent-Features' => [
-                                    'description' => _('Required feature name.'),
+                                    'description' => _('Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity) and directory-task-operations-v1 (target operations).'),
                                     'schema' => [
                                         'type' => 'string',
-                                        'enum' => ['directory-join-mj1']
-                                    ]
+                                        'example' => 'directory-join-target-v1, directory-task-operations-v1'
+                                    ],
                                 ]
                             ],
                             'content' => ['application/json' => ['schema' => [
@@ -2783,7 +2783,7 @@ class OpenAPI extends FOGBase
                                         'type' => 'array',
                                         'items' => [
                                             'type' => 'string',
-                                            'enum' => ['directory-join-mj1']
+                                            'enum' => ['directory-join-target-v1']
                                         ]
                                     ]
                                 ]
@@ -2905,7 +2905,7 @@ class OpenAPI extends FOGBase
                             ]]]
                         ],
                         '400' => [
-                            'description' => _('The identity or required MJ-1 feature declaration is invalid.'),
+                            'description' => _('The identity or required AD directory feature declaration is invalid.'),
                             'content' => ['application/json' => ['schema' => [
                                 'type' => 'object',
                                 'properties' => [
@@ -2955,7 +2955,7 @@ class OpenAPI extends FOGBase
                                 ],
                                 'features' => [
                                     'type' => 'array',
-                                    'items' => ['type' => 'string', 'enum' => ['directory-join-mj1']]
+                                    'items' => ['type' => 'string', 'enum' => ['directory-join-target-v1']]
                                 ]
                             ]
                         ]]]
@@ -3010,7 +3010,7 @@ class OpenAPI extends FOGBase
                                                     'target' => [
                                                         'type' => 'object',
                                                         'nullable' => true,
-                                                        'description' => _('Existing target pin; null for rename and before a create operation is confirmed.'),
+                                                        'description' => _('Existing Rebind and ordinary Rename pin the existing computer object\'s GUID/SID. Target is null for Create before the computer account exists and for Workgroup Join.'),
                                                         'properties' => [
                                                             'guid' => ['type' => 'string'],
                                                             'sid' => ['type' => 'string'],
@@ -3127,7 +3127,7 @@ class OpenAPI extends FOGBase
                                     'directory_check' => [
                                         'type' => 'object',
                                         'nullable' => true,
-                                        'description' => _('Read-only context for the directory-task-operations-v3 observation. Present only when the poll declares directory-task-operations-v3 and the host is eligible for observation; null when no check is requested.'),
+                                        'description' => _('Read-only context for the directory-task-operations-v1 observation. Present only when the poll declares directory-task-operations-v1 and the host is eligible for observation; null when no check is requested.'),
                                         'required' => ['name', 'domain', 'dc', 'revision'],
                                         'properties' => [
                                             'name' => ['type' => 'string'],
@@ -3139,7 +3139,7 @@ class OpenAPI extends FOGBase
                                     'directory_rejoin' => [
                                         'type' => 'object',
                                         'nullable' => true,
-                                        'description' => _('Directory-task-operations-v3 plan; absent or null when no operation is planned.'),
+                                        'description' => _('Directory-task-operations-v1 plan; absent or null when no operation is planned.'),
                                         'anyOf' => [
                                             [
                                                 'required' => ['phase', 'reason'],
@@ -3234,12 +3234,12 @@ class OpenAPI extends FOGBase
                                 'want_state' => ['type' => 'boolean'],
                                 'features' => [
                                     'type' => 'array',
-                                    'description' => _('Windows MJ-1 polls declare both the base identity feature and directory-task-operations-v3 when supported.'),
-                                    'items' => ['type' => 'string', 'enum' => ['directory-join-mj1', 'directory-task-operations-v3']]
+                                    'description' => _('Windows directory polls declare directory-join-target-v1 and directory-task-operations-v1 when supported.'),
+                                    'items' => ['type' => 'string', 'enum' => ['directory-join-target-v1', 'directory-task-operations-v1']]
                                 ],
                                 'directory_attempt' => [
                                     'type' => 'object',
-                                    'x-required-when-feature' => 'directory-task-operations-v3',
+                                    'x-required-when-feature' => 'directory-task-operations-v1',
                                     'required' => ['phase', 'attempt_id', 'host_id', 'fingerprint'],
                                     'properties' => [
                                         'phase' => ['type' => 'string', 'enum' => ['none', 'unreadable', 'reserved', 'may_have_run', 'unknown', 'failed', 'awaiting_reboot', 'verified']],
