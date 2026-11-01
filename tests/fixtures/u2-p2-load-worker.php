@@ -16,11 +16,11 @@ if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
     exit(2);
 }
 
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
@@ -37,7 +37,7 @@ try {
     $held = in_array($acquire->fetchColumn(), [1, '1'], true);
     $acquire->closeCursor();
     if (!$held) {
-        throw new RuntimeException('could not acquire production name-fence lock');
+        throw new \RuntimeException('could not acquire production name-fence lock');
     }
 
     $identity = $pdo->query('SELECT CONNECTION_ID()')->fetchColumn();
@@ -54,11 +54,11 @@ try {
     $release = $resolved . DIRECTORY_SEPARATOR . 'release';
     while (!is_file($release)) {
         if (microtime(true) >= $deadline) {
-            throw new RuntimeException('parent did not release the load barrier');
+            throw new \RuntimeException('parent did not release the load barrier');
         }
         usleep(10000);
     }
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     $error = $e->getMessage();
 } finally {
     if ($held) {

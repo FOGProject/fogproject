@@ -7,23 +7,23 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-06 writer intent requires explicit MySQL scratch opt-in');
+    throw new \RuntimeException('U2-06 writer intent requires explicit MySQL scratch opt-in');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u206-writer-intent');
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-06 writer intent requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-06 writer intent requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME differs from validated scratch DB');
+    throw new \RuntimeException('DATABASE_NAME differs from validated scratch DB');
 }
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -100,7 +100,7 @@ $createFixture = static function ($label) use ($pdo, $guid, &$fixtures) {
     $q->execute([$hostID]);
     $directoryID = (int)$q->fetchColumn();
 
-    $snapshot = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+    $snapshot = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
     $snapshot->setAccessible(true);
     $target = [
         'guid' => $guid(),
@@ -135,26 +135,26 @@ $rawRows = static function ($table, $hostID) use ($pdo) {
     if ('hosts' === $table) {
         $q = $pdo->prepare('SELECT * FROM hosts WHERE hostID=?');
         $q->execute([$hostID]);
-        return $q->fetchAll(PDO::FETCH_ASSOC);
+        return $q->fetchAll(\PDO::FETCH_ASSOC);
     }
     if ('hostDirectory' === $table) {
         $q = $pdo->prepare('SELECT * FROM hostDirectory WHERE hdHostID=? ORDER BY hdID');
         $q->execute([$hostID]);
-        return $q->fetchAll(PDO::FETCH_ASSOC);
+        return $q->fetchAll(\PDO::FETCH_ASSOC);
     }
     if ('tasks' === $table) {
         $q = $pdo->prepare('SELECT * FROM tasks WHERE taskHostID=? ORDER BY taskID');
         $q->execute([$hostID]);
-        return $q->fetchAll(PDO::FETCH_ASSOC);
+        return $q->fetchAll(\PDO::FETCH_ASSOC);
     }
     if ('directoryPlacementIntent' === $table) {
         $q = $pdo->prepare(
             'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? ORDER BY dpiGUID,dpiSID'
         );
         $q->execute([$hostID]);
-        return $q->fetchAll(PDO::FETCH_ASSOC);
+        return $q->fetchAll(\PDO::FETCH_ASSOC);
     }
-    throw new InvalidArgumentException('invalid U2-06 snapshot table');
+    throw new \InvalidArgumentException('invalid U2-06 snapshot table');
 };
 $snapshotAll = static function ($hostID) use ($rawRows) {
     return [
@@ -176,14 +176,14 @@ $ensureHostDirectoryCascade = static function () use ($pdo, $database, &$ownedCo
         . 'AND k.COLUMN_NAME=\'hdHostID\''
     );
     $q->execute();
-    $found = $q->fetchAll(PDO::FETCH_ASSOC);
+    $found = $q->fetchAll(\PDO::FETCH_ASSOC);
     if ($found) {
         if (1 !== count($found)
             || $database !== $found[0]['REFERENCED_TABLE_SCHEMA']
             || 'hosts' !== $found[0]['REFERENCED_TABLE_NAME']
             || 'hostID' !== $found[0]['REFERENCED_COLUMN_NAME']
             || 'CASCADE' !== strtoupper((string)$found[0]['DELETE_RULE'])) {
-            throw new RuntimeException('existing hdHostID FK is incompatible; fixture will not replace it');
+            throw new \RuntimeException('existing hdHostID FK is incompatible; fixture will not replace it');
         }
         $columns = $pdo->prepare(
             'SELECT COLUMN_NAME,REFERENCED_TABLE_SCHEMA,REFERENCED_TABLE_NAME,REFERENCED_COLUMN_NAME '
@@ -191,12 +191,12 @@ $ensureHostDirectoryCascade = static function () use ($pdo, $database, &$ownedCo
             . 'AND TABLE_NAME=\'hostDirectory\' AND CONSTRAINT_NAME=? ORDER BY ORDINAL_POSITION'
         );
         $columns->execute([$found[0]['CONSTRAINT_NAME']]);
-        $columnRows = $columns->fetchAll(PDO::FETCH_ASSOC);
+        $columnRows = $columns->fetchAll(\PDO::FETCH_ASSOC);
         if (1 !== count($columnRows) || 'hdHostID' !== $columnRows[0]['COLUMN_NAME']
             || $database !== $columnRows[0]['REFERENCED_TABLE_SCHEMA']
             || 'hosts' !== $columnRows[0]['REFERENCED_TABLE_NAME']
             || 'hostID' !== $columnRows[0]['REFERENCED_COLUMN_NAME']) {
-            throw new RuntimeException('existing hdHostID FK is not the exact single-column parent FK');
+            throw new \RuntimeException('existing hdHostID FK is not the exact single-column parent FK');
         }
         return;
     }
@@ -206,7 +206,7 @@ $ensureHostDirectoryCascade = static function () use ($pdo, $database, &$ownedCo
         . 'WHERE h.hostID IS NULL'
     )->fetchColumn();
     if ($orphans) {
-        throw new RuntimeException('cannot install fixture cascade FK while hostDirectory has orphan rows');
+        throw new \RuntimeException('cannot install fixture cascade FK while hostDirectory has orphan rows');
     }
     do {
         $name = 'fk_u206_wi_hd_host_' . bin2hex(random_bytes(8));
@@ -225,7 +225,7 @@ $ensureHostDirectoryCascade = static function () use ($pdo, $database, &$ownedCo
 $attempt = static function (callable $operation) {
     try {
         return ['result' => $operation(), 'error' => null];
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return ['result' => null, 'error' => $e];
     }
 };
@@ -285,8 +285,8 @@ try {
     // and DirectoryTask reports that same high-water Task as consumed.
     $history = $createFixture('verified-highwater');
     $taskID = $newTaskID();
-    $taskChanged = (new DateTimeImmutable('now', FOG\Base\FOGBase::storageTimeZone()))
-        ->sub(new DateInterval('PT2M'))->format('Y-m-d H:i:s');
+    $taskChanged = (new \DateTimeImmutable('now', FOG\Base\FOGBase::storageTimeZone()))
+        ->sub(new \DateInterval('PT2M'))->format('Y-m-d H:i:s');
     $pdo->prepare(
         'INSERT INTO tasks (taskID,taskName,taskHostID,taskStateID,taskTypeID,taskStateChangedTime) '
         . 'VALUES (?,?,?,?,?,?)'
@@ -339,8 +339,8 @@ try {
             && $historyBefore === $historyAfter
             && 'consumed' === ($decisionAfter['status'] ?? null)
             && $taskID === (int)($decisionAfter['task_id'] ?? 0)
-            && (false === $protectedDelete['result'] || $protectedDelete['error'] instanceof Throwable)
-            && (false === $protectedReparent['result'] || $protectedReparent['error'] instanceof Throwable)
+            && (false === $protectedDelete['result'] || $protectedDelete['error'] instanceof \Throwable)
+            && (false === $protectedReparent['result'] || $protectedReparent['error'] instanceof \Throwable)
     );
 
     // B14 legacy facts-only positive control, through the normal Route value
@@ -376,7 +376,7 @@ try {
     $staleDispatchReason = '';
     try {
         FOG\Agent\DirectoryPlacementIntent::dispatch($preparedTicket, new FOG\Net\FOGLdap());
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $staleDispatchReason = $e->getMessage();
     }
     $preparedAfterDispatch = $snapshotAll($prepared['host_id']);
@@ -433,8 +433,8 @@ try {
         $afterRefusals = $snapshotAll($fixture['host_id']);
         $checks->check(
             'B39-23/24 ' . $phase . ' refuses Host config edit and Host deletion before data mutation',
-            (false === $configWrite['result'] || $configWrite['error'] instanceof Throwable)
-                && (false === $deleteAttempt['result'] || $deleteAttempt['error'] instanceof Throwable)
+            (false === $configWrite['result'] || $configWrite['error'] instanceof \Throwable)
+                && (false === $deleteAttempt['result'] || $deleteAttempt['error'] instanceof \Throwable)
                 && $beforeRefusals === $afterRefusals
                 && $phase === ($afterRefusals['intent'][0]['dpiStatus'] ?? null)
                 && $ticket['generation'] === (int)($afterRefusals['intent'][0]['dpiGeneration'] ?? 0)
@@ -472,13 +472,13 @@ try {
     $barrierDir = rtrim((string)realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR)
         . DIRECTORY_SEPARATOR . 'u206-writer-intent-' . bin2hex(random_bytes(10));
     if (!mkdir($barrierDir, 0700)) {
-        throw new RuntimeException('cannot create private U2-06 barrier directory');
+        throw new \RuntimeException('cannot create private U2-06 barrier directory');
     }
     $barrierDir = realpath($barrierDir);
     $tempRoot = rtrim((string)realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     if (false === $barrierDir || 0 !== strpos($barrierDir, $tempRoot)
         || 0 !== strpos(basename($barrierDir), 'u206-writer-intent-')) {
-        throw new RuntimeException('U2-06 barrier escaped private temp root');
+        throw new \RuntimeException('U2-06 barrier escaped private temp root');
     }
     $worker = __DIR__ . '/fixtures/u206-writer-intent-worker.php';
     $pipes = [];
@@ -494,7 +494,7 @@ try {
         dirname(__DIR__)
     );
     if (!is_resource($process)) {
-        throw new RuntimeException('cannot start U2-06 paused dispatch worker');
+        throw new \RuntimeException('cannot start U2-06 paused dispatch worker');
     }
     fclose($pipes[0]);
     $workers[] = [$process, $pipes];
@@ -583,8 +583,8 @@ try {
             'parent_delete' => [
                 'result_type' => is_object($deleteResult) ? get_class($deleteResult) : gettype($deleteResult),
                 'result_bool' => is_bool($deleteResult) ? $deleteResult : null,
-                'error_class' => $deleteError instanceof Throwable ? get_class($deleteError) : null,
-                'error' => $deleteError instanceof Throwable ? $deleteError->getMessage() : null
+                'error_class' => $deleteError instanceof \Throwable ? get_class($deleteError) : null,
+                'error' => $deleteError instanceof \Throwable ? $deleteError->getMessage() : null
             ],
             'child' => [
                 'completed' => $workerDone,
@@ -718,7 +718,7 @@ try {
         ];
         try {
             FOG\Agent\DirectoryOperation::claim($nestedHost, $nestedSaved, $nestedBody);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $nestedReason = $e->getMessage();
             throw $e;
         }
@@ -744,7 +744,7 @@ try {
         $hookClaimPreflight['error'] === null && null === $hookClaimPreflight['result']
             && 1 === $hookCalls
             && 'directory_claim_inside_generic_writer' === $nestedReason
-            && ($hookDelete['error'] instanceof Throwable || false === $hookDelete['result'])
+            && ($hookDelete['error'] instanceof \Throwable || false === $hookDelete['result'])
             && $hookBefore === $hookAfter
             && 'ready' === ($hookAfterState['phase'] ?? null)
             && [] === $hookAfter['tasks'] && [] === $hookAfter['intent']

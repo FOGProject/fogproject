@@ -7,29 +7,29 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('native-target placement requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('native-target placement requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-native-target-placement');
 
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('native-target placement requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('native-target placement requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -88,13 +88,13 @@ $setRejoinState = static function (array $fixture, array $state) {
 $readAuthority = static function ($hostID) use ($pdo) {
     $q = $pdo->prepare('SELECT hdRejoinConfig,hdRejoinState FROM hostDirectory WHERE hdHostID=?');
     $q->execute([$hostID]);
-    $row = $q->fetch(PDO::FETCH_ASSOC);
+    $row = $q->fetch(\PDO::FETCH_ASSOC);
     $q->closeCursor();
     return $row ?: null;
 };
 $intentCount = static function ($targetGuid) use ($pdo, $guidBytes) {
     $q = $pdo->prepare('SELECT COUNT(*) FROM directoryPlacementIntent WHERE dpiGUID=?');
-    $q->bindValue(1, $guidBytes($targetGuid), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($targetGuid), \PDO::PARAM_LOB);
     $q->execute();
     $count = (int)$q->fetchColumn();
     $q->closeCursor();
@@ -115,7 +115,7 @@ try {
         'account' => $placement['name'] . '$',
         'dn' => 'CN=' . $placement['name'] . ',OU=Legacy,DC=u2p2,DC=invalid'
     ];
-    $snapshotMethod = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+    $snapshotMethod = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
     $snapshotMethod->setAccessible(true);
     $snapshot = $snapshotMethod->invoke(null, $pdo, $placement['id']);
     $payload = [
@@ -175,9 +175,9 @@ try {
     $ticket = FOG\Agent\DirectoryPlacementIntent::prepare($payload);
     $authorityAfter = $readAuthority($other['id']);
     $q = $pdo->prepare('SELECT dpiStatus,dpiGeneration FROM directoryPlacementIntent WHERE dpiGUID=?');
-    $q->bindValue(1, $guidBytes($targetGuid), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($targetGuid), \PDO::PARAM_LOB);
     $q->execute();
-    $intent = $q->fetch(PDO::FETCH_ASSOC);
+    $intent = $q->fetch(\PDO::FETCH_ASSOC);
     $q->closeCursor();
     $t->check(
         'unrelated terminal legacy state permits normal placement preparation',
@@ -188,7 +188,7 @@ try {
 } finally {
     if (is_array($placement) && is_array($target)) {
         $q = $pdo->prepare('DELETE FROM directoryPlacementIntent WHERE dpiGUID=?');
-        $q->bindValue(1, $guidBytes($targetGuid), PDO::PARAM_LOB);
+        $q->bindValue(1, $guidBytes($targetGuid), \PDO::PARAM_LOB);
         $q->execute();
     }
     foreach ([$other, $placement] as $fixture) {

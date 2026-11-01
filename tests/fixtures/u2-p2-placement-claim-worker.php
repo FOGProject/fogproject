@@ -17,21 +17,21 @@ try {
     FogTestHarness::boot('u2-p2-placement-claim-worker');
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || '' === $dsn || 0 !== strpos($dsn, 'mysql:')) {
-        throw new RuntimeException('placement claim worker requires explicit MySQL scratch opt-in');
+        throw new \RuntimeException('placement claim worker requires explicit MySQL scratch opt-in');
     }
-    $pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    $pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ($database !== $input['database']
         || ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_'))) {
-        throw new RuntimeException('worker database differs from validated scratch database');
+        throw new \RuntimeException('worker database differs from validated scratch database');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME differs from validated scratch database');
+        throw new \RuntimeException('DATABASE_NAME differs from validated scratch database');
     }
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -51,14 +51,14 @@ try {
     ], JSON_THROW_ON_ERROR), LOCK_EX);
     if (false === $published || !rename($readyTemp, $readyPath)) {
         @unlink($readyTemp);
-        throw new RuntimeException('could not publish complete placement lookup readiness');
+        throw new \RuntimeException('could not publish complete placement lookup readiness');
     }
 
     $go = $resolvedDir . DIRECTORY_SEPARATOR . 'go-prepare';
     $deadline = microtime(true) + 20.0;
     while (!is_file($go)) {
         if (microtime(true) >= $deadline) {
-            throw new RuntimeException('parent did not release placement prepare barrier');
+            throw new \RuntimeException('parent did not release placement prepare barrier');
         }
         usleep(10000);
     }
@@ -69,7 +69,7 @@ try {
     try {
         $ticket = FOG\Agent\DirectoryPlacementIntent::prepare($input['payload']);
         $prepared = true;
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $reason = $e->getMessage();
     }
     echo json_encode([
@@ -80,7 +80,7 @@ try {
         'target_sid' => $ticket['payload']['target']['sid'] ?? null
     ], JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR), "\n";
     exit(0);
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     fwrite(STDERR, json_encode(['class' => get_class($e), 'reason' => $e->getMessage()]) . "\n");
     exit(1);
 }

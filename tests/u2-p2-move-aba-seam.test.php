@@ -69,7 +69,7 @@ namespace {
         exit(0);
     }
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-        throw new RuntimeException('move ABA seam requires explicit scratch opt-in and mysql DSN');
+        throw new \RuntimeException('move ABA seam requires explicit scratch opt-in and mysql DSN');
     }
 
     require_once __DIR__ . '/lib/fog-test-harness.php';
@@ -84,12 +84,12 @@ namespace {
     );
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-        throw new RuntimeException('move ABA seam requires a fog_mj1-prefixed scratch DB');
+        throw new \RuntimeException('move ABA seam requires a fog_mj1-prefixed scratch DB');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+        throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
     }
 
     $link = new \ReflectionProperty(\FOG\Db\PDODB::class, '_link');

@@ -416,12 +416,25 @@ $runner = new RehearsalRunner();
  */
 function seedStep($label, $sql)
 {
-    $res = RehearsalRunner::db()->query($sql);
-    if (false !== $res->error) {
+    // Fixture setup deliberately writes a historical, pre-fence schema and
+    // creates rows that current product writers must reject. Use the same
+    // connection/session directly, not the current Host/Directory writer
+    // fence; the upgrade itself still runs through the real product code.
+    $pdo = RehearsalRunner::db()->link();
+    if (!$pdo instanceof \PDO) {
+        throw new \RuntimeException('seed requires an active lab PDO connection');
+    }
+    try {
+        $result = $pdo->exec($sql);
+        $error = false === $result ? (string)($pdo->errorInfo()[2] ?? 'seed SQL failed') : null;
+    } catch (\PDOException $e) {
+        $error = $e->getMessage();
+    }
+    if (null !== $error) {
         printf(
             "  REFUSED  %-46s %s\n",
             $label,
-            trim(strtok((string)RehearsalRunner::db()->error, "\n"))
+            trim(strtok($error, "\n"))
         );
 
         return false;

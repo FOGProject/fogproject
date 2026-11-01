@@ -168,7 +168,7 @@ $enroll = $paths['/agent/v1/enroll']['get'];
 $featureHeader = $enroll['responses']['200']['headers']['X-FOG-Agent-Features'] ?? [];
 $featureHeaderSchema = $featureHeader['schema'] ?? [];
 $featureHeaderDescription = (string)($featureHeader['description'] ?? '');
-$featuresMethod = new ReflectionMethod(\FOG\Router\Route::class, 'agentFeatures');
+$featuresMethod = new \ReflectionMethod(\FOG\Router\Route::class, 'agentFeatures');
 $featuresSource = implode('', array_slice(
     file($featuresMethod->getFileName()),
     $featuresMethod->getStartLine() - 1,

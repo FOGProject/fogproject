@@ -17,10 +17,10 @@ $pdo->exec("UPDATE hostDirectory SET hdRejoinConfig=NULL,hdRejoinState=NULL WHER
 $pdo->exec('DROP TABLE IF EXISTS tasks');
 $pdo->exec($manifest['tables']['tasks']['create']);
 
-FOGTestHarness::setStatic('FOGBase', '_settingsCache', [
+FogTestHarness::setStatic('FOGBase', '_settingsCache', [
     'FOG_AGENT_INVENTORY_ENABLED' => ['value' => '1']
 ]);
-FOGTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
+FogTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
 $configure = new \ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'configureTarget');
 $configure->setAccessible(true);
 $configure->invoke(null, $host, [], 'local-marker-db-test');

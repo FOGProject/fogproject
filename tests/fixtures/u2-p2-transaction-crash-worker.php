@@ -1,7 +1,7 @@
 <?php
 /** Pause real DirectoryRejoin::change after its UPDATE, before COMMIT. */
 
-class U2P2TransactionCrashStatement extends PDOStatement
+class U2P2TransactionCrashStatement extends \PDOStatement
 {
     public static $armed = false;
     public static $barrierDir = '';
@@ -26,13 +26,13 @@ class U2P2TransactionCrashStatement extends PDOStatement
                 'pid' => getmypid(),
                 'connection_id' => self::$connectionID,
                 'actual_update_executed' => true,
-                'transaction_open' => self::$pdo instanceof PDO && self::$pdo->inTransaction(),
+                'transaction_open' => self::$pdo instanceof \PDO && self::$pdo->inTransaction(),
                 'callback_phase' => is_array($updatedState) ? ($updatedState['phase'] ?? null) : null,
                 'callback_highwater' => is_array($updatedState) ? ($updatedState['last_deploy_task_id'] ?? null) : null
             ], JSON_THROW_ON_ERROR), LOCK_EX);
             if (false === $published || !rename($readyTemp, $readyPath)) {
                 @unlink($readyTemp);
-                throw new RuntimeException('could not publish complete transaction crash readiness record');
+                throw new \RuntimeException('could not publish complete transaction crash readiness record');
             }
 
             // Parent kills this process while the UPDATE remains uncommitted.
@@ -59,22 +59,22 @@ try {
     FogTestHarness::boot('u2-p2-transaction-crash-worker');
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:') || '' === $dsn) {
-        throw new RuntimeException('transaction crash worker requires explicit MySQL scratch opt-in');
+        throw new \RuntimeException('transaction crash worker requires explicit MySQL scratch opt-in');
     }
-    $pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '', [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_STATEMENT_CLASS => [U2P2TransactionCrashStatement::class, []]
+    $pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '', [
+        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        \PDO::ATTR_STATEMENT_CLASS => [U2P2TransactionCrashStatement::class, []]
     ]);
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-        throw new RuntimeException('transaction crash worker database is outside scratch prefix');
+        throw new \RuntimeException('transaction crash worker database is outside scratch prefix');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+        throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
     }
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -88,7 +88,7 @@ try {
     U2P2TransactionCrashStatement::$armed = true;
     $host = new FOG\Items\Host($hostID);
     if (!$host->isValid()) {
-        throw new RuntimeException('transaction crash fixture host is unavailable');
+        throw new \RuntimeException('transaction crash fixture host is unavailable');
     }
     FOG\Agent\DirectoryRejoin::change($host, static function (&$config, &$state) {
         // Fixture-only state mutation: this deliberately does not call the
@@ -101,7 +101,7 @@ try {
     });
     fwrite(STDERR, "fixture writer unexpectedly completed instead of pausing before commit\n");
     exit(1);
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     fwrite(STDERR, json_encode(['class' => get_class($e), 'reason' => $e->getMessage()]) . "\n");
     exit(1);
 }

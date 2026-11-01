@@ -9,36 +9,36 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-P2 load requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-P2 load requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-load');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-P2 load requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-P2 load requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 $intentTable = $pdo->prepare(
     'SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?'
 );
 $intentTable->execute(['directoryPlacementIntent']);
 if (1 !== (int)$intentTable->fetchColumn()) {
-    throw new RuntimeException('scratch intent schema must be installed before U2-P2 load sampling');
+    throw new \RuntimeException('scratch intent schema must be installed before U2-P2 load sampling');
 }
 
 // Install the real PDODB over this exact PDO so query() reaches NameFence.
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -92,7 +92,7 @@ $measure = static function (callable $call, callable $verify, $contended = false
     $exception = null;
     try {
         $value = $call();
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $exception = $e;
     }
     $elapsed = (hrtime(true) - $started) / 1000000;
@@ -100,7 +100,7 @@ $measure = static function (callable $call, callable $verify, $contended = false
     if (null === $exception) {
         try {
             $success = (bool)$verify($value);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $exception = $e;
         }
     }
@@ -121,7 +121,7 @@ $newBarrier = static function () use (&$barrierDirs) {
     $dir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
         . DIRECTORY_SEPARATOR . 'u2-p2-load-' . bin2hex(random_bytes(8));
     if (!mkdir($dir, 0700)) {
-        throw new RuntimeException('cannot create isolated load barrier directory');
+        throw new \RuntimeException('cannot create isolated load barrier directory');
     }
     $barrierDirs[] = $dir;
     $pipes = [];
@@ -132,7 +132,7 @@ $newBarrier = static function () use (&$barrierDirs) {
         dirname(__DIR__)
     );
     if (!is_resource($process)) {
-        throw new RuntimeException('cannot start scratch GET_LOCK worker');
+        throw new \RuntimeException('cannot start scratch GET_LOCK worker');
     }
     fclose($pipes[0]);
     $readyPath = $dir . DIRECTORY_SEPARATOR . 'ready.json';
@@ -159,7 +159,7 @@ $newBarrier = static function () use (&$barrierDirs) {
             fclose($pipes[$pipeIndex]);
         }
         proc_close($process);
-        throw new RuntimeException('scratch GET_LOCK worker did not signal an acquired lock');
+        throw new \RuntimeException('scratch GET_LOCK worker did not signal an acquired lock');
     }
     return [$dir, $process, $pipes, $ready];
 };
@@ -189,7 +189,7 @@ $record = static function ($name, $kind, array $sample) use (&$categories) {
 $contendedSample = static function ($name, callable $call, callable $verify) use ($newBarrier, $releaseBarrier, $measure, $record, &$fatalErrors) {
     try {
         $barrier = $newBarrier();
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $fatalErrors[] = 'barrier setup: ' . $e->getMessage();
         $record($name, 'contended', [
             'elapsed_ms' => 0.0,
@@ -358,7 +358,7 @@ try {
         }
     );
     unset($deleteHost);
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     $fatalErrors[] = get_class($e) . ': ' . $e->getMessage();
 } finally {
     foreach ($barrierDirs as $dir) {

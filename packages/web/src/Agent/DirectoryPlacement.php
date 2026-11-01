@@ -186,22 +186,6 @@ class DirectoryPlacement extends FOGBase
     }
 
     /**
-     * Whether this host was consulted about recently enough to leave alone.
-     *
-     * @param HostDirectory $Directory the observation
-     *
-     * @return bool
-     */
-    private static function _cooling(HostDirectory $Directory)
-    {
-        $at = (string)$Directory->get('placementAt');
-        if (!self::validDate($at)) {
-            return false;
-        }
-        return (time() - self::niceDate($at)->getTimestamp()) < self::RETRY_AFTER;
-    }
-
-    /**
      * Stamps the attempt and stores its outcome.
      *
      * An empty error is success. The stamp is written either way, because

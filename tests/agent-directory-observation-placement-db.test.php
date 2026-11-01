@@ -178,13 +178,13 @@ $runObservationPoll = static function ($body) use ($host) {
 /** POST one isolated request through the real Route::agentPoll entry point. */
 $routePoll = static function () {
     $probe = stream_socket_server('tcp://127.0.0.1:0', $errno, $error);
-    if (false === $probe) { throw new RuntimeException('cannot reserve local poll-test port: ' . $error); }
+    if (false === $probe) { throw new \RuntimeException('cannot reserve local poll-test port: ' . $error); }
     $address = stream_socket_get_name($probe, false); fclose($probe);
     $port = (int)substr(strrchr((string)$address, ':'), 1);
     $router = __DIR__ . '/lib/sc-hold-agent-poll-router.php';
     $process = proc_open([PHP_BINARY, '-S', '127.0.0.1:' . $port, $router],
         [0=>['pipe','r'],1=>['pipe','w'],2=>['pipe','w']], $pipes, dirname(__DIR__));
-    if (!is_resource($process)) { throw new RuntimeException('cannot start isolated PHP poll server'); }
+    if (!is_resource($process)) { throw new \RuntimeException('cannot start isolated PHP poll server'); }
     stream_set_blocking($pipes[1], false); stream_set_blocking($pipes[2], false);
     try {
         $payload = json_encode([
@@ -205,13 +205,13 @@ $routePoll = static function () {
             $response = @file_get_contents($url, false, $context);
             if (false === $response) { usleep(100000); }
         }
-        if (false === $response) { throw new RuntimeException('isolated Route::agentPoll HTTP request did not return'); }
+        if (false === $response) { throw new \RuntimeException('isolated Route::agentPoll HTTP request did not return'); }
         $decoded = json_decode($response, true);
         if (!is_array($decoded)) {
             $httpStatus = $http_response_header[0] ?? 'HTTP status unavailable';
             $childStdout = stream_get_contents($pipes[1]);
             $childStderr = stream_get_contents($pipes[2]);
-            throw new RuntimeException(
+            throw new \RuntimeException(
                 'Route::agentPoll returned invalid JSON; '
                 . $httpStatus
                 . '; response=' . substr((string)$response, 0, 8000)
@@ -231,13 +231,13 @@ $routePoll = static function () {
 };
 
 $renderHostAd = static function () use ($host) {
-    $page = (new ReflectionClass(FOG\Pages\HostManagement::class))->newInstanceWithoutConstructor();
+    $page = (new \ReflectionClass(FOG\Pages\HostManagement::class))->newInstanceWithoutConstructor();
     foreach (['obj'=>$host, 'childClass'=>'Host'] as $key=>$value) {
-        $property = new ReflectionProperty(FOG\Base\FOGPage::class, $key);
+        $property = new \ReflectionProperty(FOG\Base\FOGPage::class, $key);
         $property->setAccessible(true); $property->setValue($page, $value);
     }
     $GLOBALS['node'] = 'host';
-    $method = new ReflectionMethod(FOG\Pages\HostManagement::class, 'hostAD');
+    $method = new \ReflectionMethod(FOG\Pages\HostManagement::class, 'hostAD');
     $method->setAccessible(true);
     ob_start(); $method->invoke($page); return ob_get_clean();
 };
@@ -254,7 +254,7 @@ $afterMissing = FOG\Agent\DirectoryRejoin::settings($host)['state'];
 $t->check('T01 actual Route::agentPoll returns normally for a missing current observation',
     'ok' === ($routeResponse['status'] ?? '') && array_key_exists('directory_rejoin', $routeResponse)
     && null === $routeResponse['directory_rejoin']);
-$routeCounts = $pdo->query('SELECT connects,moves FROM scHoldLdapCounts WHERE id=1')->fetch(PDO::FETCH_ASSOC);
+$routeCounts = $pdo->query('SELECT connects,moves FROM scHoldLdapCounts WHERE id=1')->fetch(\PDO::FETCH_ASSOC);
 $t->check('T01 actual poll exposes held directory state and performs no LDAP connect or move',
     true === ($routeResponse['directory_hold'] ?? null)
     && 0 === (int)($routeCounts['connects'] ?? -1) && 0 === (int)($routeCounts['moves'] ?? -1));
@@ -308,7 +308,7 @@ $movesBeforeFalsePlan = count(ScHoldLdapStub::$moves);
 $falsePlanError = '';
 try {
     FOG\Agent\DirectoryOperation::plan($host, ['directory_attempt'=>['phase'=>'none']]);
-} catch (RuntimeException $e) {
+} catch (\RuntimeException $e) {
     $falsePlanError = $e->getMessage();
 }
 $falsePlanStateAfter = FOG\Agent\DirectoryRejoin::settings($host)['state'];
@@ -323,11 +323,11 @@ $t->check('T07 fresh False blocks operation plan for operator confirmation witho
 ScHoldLdapStub::$connects = 0;
 ScHoldLdapStub::$moves = [];
 
-$taskEnd = (new DateTimeImmutable('now', FOG\Base\FOGBase::storageTimeZone()))
-    ->sub(new DateInterval('PT1M'));
+$taskEnd = (new \DateTimeImmutable('now', FOG\Base\FOGBase::storageTimeZone()))
+    ->sub(new \DateInterval('PT1M'));
 $taskObservation = $healthyObservation;
-$taskObservation['boot']['started'] = $taskEnd->add(new DateInterval('PT30S'))
-    ->setTimezone(new DateTimeZone('UTC'))->format(DATE_ATOM);
+$taskObservation['boot']['started'] = $taskEnd->add(new \DateInterval('PT30S'))
+    ->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM);
 $pdo->prepare('INSERT INTO tasks (taskID,taskName,taskHostID,taskStateID,taskTypeID,taskStateChangedTime) VALUES (?,?,?,?,?,?)')
     ->execute([9009,'unconsumed directory hold fixture',7,4,FOG\Items\TaskType::DEPLOY,$taskEnd->format('Y-m-d H:i:s')]);
 $taskBaseState = FOG\Agent\DirectoryRejoin::settings($host)['state'];
@@ -380,7 +380,7 @@ foreach ($guardCases as $label => $serialized) {
 }
 $unavailable = new class extends FogFakePdo {
     public $reads = 0;
-    public function prepare($sql) { $this->reads++; throw new RuntimeException('synthetic settings read failure'); }
+    public function prepare($sql) { $this->reads++; throw new \RuntimeException('synthetic settings read failure'); }
 };
 $fake->pdo = $unavailable;
 try { FOG\Agent\DirectoryPlacement::ensure($host, $loadedDirectory); } finally { $fake->pdo = $pdo; }
@@ -435,17 +435,17 @@ $t->check('T08 recovery uses same pinned target and moves to the intended OU exa
 $mainGuid = hex2bin(str_replace('-', '', $config['target']['guid']));
 $mainIntent = $pdo->prepare('SELECT dpiGeneration,dpiStatus FROM directoryPlacementIntent WHERE dpiGUID=? AND dpiSID=?');
 $mainIntent->execute([$mainGuid, $config['target']['sid']]);
-$mainIntentRow = $mainIntent->fetch(PDO::FETCH_ASSOC);
+$mainIntentRow = $mainIntent->fetch(\PDO::FETCH_ASSOC);
 $mainIntent->closeCursor();
 $t->check('T08 placement records a terminal intent generation for the pinned target',
     is_array($mainIntentRow) && (int)$mainIntentRow['dpiGeneration'] >= 1 && 'SUCCEEDED' === $mainIntentRow['dpiStatus']);
 if (1 !== count(ScHoldLdapStub::$moves)) {
     fwrite(STDERR, 'T10 fixture counters: ' . json_encode([ScHoldLdapStub::$connects, ScHoldLdapStub::$moves,
-        $pdo->query('SELECT hdPlacementAt,hdPlacementError,hdComputerDN FROM hostDirectory WHERE hdHostID=7')->fetch(PDO::FETCH_ASSOC)]) . "\n");
+        $pdo->query('SELECT hdPlacementAt,hdPlacementError,hdComputerDN FROM hostDirectory WHERE hdHostID=7')->fetch(\PDO::FETCH_ASSOC)]) . "\n");
 }
 $runObservationPoll(['directory_observation'=>$healthyObservation]);
 $mainIntent->execute([$mainGuid, $config['target']['sid']]);
-$mainIntentAfterPoll = $mainIntent->fetch(PDO::FETCH_ASSOC);
+$mainIntentAfterPoll = $mainIntent->fetch(\PDO::FETCH_ASSOC);
 $mainIntent->closeCursor();
 $t->check('T10 following healthy poll does not repeat completed OU move or intent generation',
     1 === count(ScHoldLdapStub::$moves)
@@ -481,7 +481,7 @@ $t->check('T17 fixture resolves a joined legacy DB row with actual OU drift',
 $legacyConnectsBefore = ScHoldLdapStub::$connects;
 $legacyMovesBefore = count(ScHoldLdapStub::$moves);
 FOG\Agent\DirectoryPlacement::ensure($legacyHost, $legacyDirectory);
-$legacyPlacement = $pdo->query('SELECT hdComputerDN,hdPlacementError FROM hostDirectory WHERE hdHostID=8')->fetch(PDO::FETCH_ASSOC);
+$legacyPlacement = $pdo->query('SELECT hdComputerDN,hdPlacementError FROM hostDirectory WHERE hdHostID=8')->fetch(\PDO::FETCH_ASSOC);
 $t->check('T17 protocol1 legacy placement remains available without MJ-1 observation settings',
     $legacyConnectsBefore + 1 === ScHoldLdapStub::$connects
     && $legacyMovesBefore + 1 === count(ScHoldLdapStub::$moves)
@@ -491,7 +491,7 @@ $t->check('T17 protocol1 legacy placement remains available without MJ-1 observa
     && 'CN=LEGACY-8,OU=Managed,DC=corp,DC=example' === ($legacyPlacement['hdComputerDN'] ?? null));
 $legacyIntent = $pdo->prepare('SELECT dpiGeneration,dpiStatus FROM directoryPlacementIntent WHERE dpiGUID=? AND dpiSID=?');
 $legacyIntent->execute([hex2bin(str_replace('-', '', $legacyTarget['guid'])), $legacyTarget['sid']]);
-$legacyIntentRow = $legacyIntent->fetch(PDO::FETCH_ASSOC);
+$legacyIntentRow = $legacyIntent->fetch(\PDO::FETCH_ASSOC);
 $legacyIntent->closeCursor();
 $t->check('T17 legacy placement stores its own terminal target generation',
     is_array($legacyIntentRow) && (int)$legacyIntentRow['dpiGeneration'] >= 1 && 'SUCCEEDED' === $legacyIntentRow['dpiStatus']);
@@ -522,7 +522,7 @@ ScHoldLdapStub::$records['ws-71'] = $wrongTarget;
 $targetMismatchConnectsBefore = ScHoldLdapStub::$connects;
 $targetMismatchMovesBefore = count(ScHoldLdapStub::$moves);
 FOG\Agent\DirectoryPlacement::ensure($host, $mismatchDirectory);
-$targetMismatchRow = $pdo->query('SELECT hdPlacementError,hdComputerDN FROM hostDirectory WHERE hdHostID=7')->fetch(PDO::FETCH_ASSOC);
+$targetMismatchRow = $pdo->query('SELECT hdPlacementError,hdComputerDN FROM hostDirectory WHERE hdHostID=7')->fetch(\PDO::FETCH_ASSOC);
 $t->check('T10 verified Target GUID/SID mismatch performs no OU move',
     $targetMismatchConnectsBefore + 1 === ScHoldLdapStub::$connects
     && $targetMismatchMovesBefore === count(ScHoldLdapStub::$moves)

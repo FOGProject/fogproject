@@ -29,6 +29,13 @@ if (!is_readable($tool)) {
 
 exec('php ' . escapeshellarg($tool) . ' --check 2>&1', $out, $rc);
 
+foreach ($out as $line) {
+    if (false !== strpos($line, 'T_NULLSAFE_OBJECT_OPERATOR')) {
+        fwrite(STDERR, "FAIL: checker referenced the PHP 8-only nullsafe token on this runtime\n");
+        exit(1);
+    }
+}
+
 $summary = array_pop($out);
 while ($summary !== null && trim($summary) === '') {
     $summary = array_pop($out);

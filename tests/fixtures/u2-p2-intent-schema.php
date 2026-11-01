@@ -8,11 +8,11 @@ if (!function_exists('mj1InstallIntentFixture')) {
 function mj1InstallIntentFixture(PDO $db): void
 {
     if (getenv('MJ1_DB_ALLOW_RESET') !== '1') {
-        throw new RuntimeException('P2 intent fixture requires explicit scratch reset opt-in');
+        throw new \RuntimeException('P2 intent fixture requires explicit scratch reset opt-in');
     }
     $database = (string)$db->query('SELECT DATABASE()')->fetchColumn();
     if (0 !== strpos($database, 'fog_mj1')) {
-        throw new RuntimeException('P2 intent fixture requires a fog_mj1-prefixed scratch database');
+        throw new \RuntimeException('P2 intent fixture requires a fog_mj1-prefixed scratch database');
     }
 
     $db->exec(<<<'SQL'
@@ -55,11 +55,11 @@ SQL
         'dpiUpdated' => ['type' => 'datetime(6)', 'null' => 'NO', 'collation' => null],
     ];
     if (array_keys($columns) !== array_keys($expectedColumns)) {
-        throw new RuntimeException('existing directoryPlacementIntent columns differ from the scratch fixture contract');
+        throw new \RuntimeException('existing directoryPlacementIntent columns differ from the scratch fixture contract');
     }
     foreach ($expectedColumns as $name => $expected) {
         if ($columns[$name] !== $expected) {
-            throw new RuntimeException('existing directoryPlacementIntent column type differs: ' . $name);
+            throw new \RuntimeException('existing directoryPlacementIntent column type differs: ' . $name);
         }
     }
 
@@ -90,16 +90,16 @@ SQL
     $sortIndexes($indexSpecs);
     $sortIndexes($expectedIndexSpecs);
     if ($indexSpecs !== $expectedIndexSpecs) {
-        throw new RuntimeException('existing directoryPlacementIntent indexes differ from the scratch fixture contract');
+        throw new \RuntimeException('existing directoryPlacementIntent indexes differ from the scratch fixture contract');
     }
 
     $engine = $db->query("SELECT ENGINE FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'directoryPlacementIntent'")->fetchColumn();
     if (strtoupper((string)$engine) !== 'INNODB') {
-        throw new RuntimeException('directoryPlacementIntent scratch table must use InnoDB');
+        throw new \RuntimeException('directoryPlacementIntent scratch table must use InnoDB');
     }
     $foreignKeys = $db->query("SELECT COUNT(*) FROM information_schema.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'directoryPlacementIntent' AND REFERENCED_TABLE_NAME IS NOT NULL")->fetchColumn();
     if ((int)$foreignKeys !== 0) {
-        throw new RuntimeException('directoryPlacementIntent scratch table must not have foreign keys');
+        throw new \RuntimeException('directoryPlacementIntent scratch table must not have foreign keys');
     }
 }
 }
@@ -109,11 +109,11 @@ SQL
 // enumerate this P2-only table, and repeated calls validate without truncating.
 $mj1IntentDsn = getenv('MJ1_DB_DSN');
 if ($mj1IntentDsn !== false && $mj1IntentDsn !== '') {
-    $mj1IntentDb = new PDO(
+    $mj1IntentDb = new \PDO(
         $mj1IntentDsn,
         getenv('MJ1_DB_USER') ?: 'root',
         getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
     mj1InstallIntentFixture($mj1IntentDb);
 }

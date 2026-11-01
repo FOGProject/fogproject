@@ -118,7 +118,7 @@ class DirectoryPlacementIntent extends FOGBase
         }
     }
 
-    /** Gather cancellable reservations without changing durable state yet. */
+    /** Gather cancelable reservations without changing durable state yet. */
     public static function editableOwner(\PDO $db, $host)
     {
         $cancel = [];
@@ -287,13 +287,19 @@ class DirectoryPlacementIntent extends FOGBase
         });
     }
 
+    /** Check the entry state separately from mutable post-begin transaction state. */
+    private static function assertNoActiveTransaction(\PDO $db)
+    {
+        if ($db->inTransaction()) {
+            throw new DirectoryFenceRefusal('directory_intent_nested_transaction');
+        }
+    }
+
     /** Persist PREPARED under the common fence; caller has no dispatch right yet. */
     public static function prepare(array $payload)
     {
         return DirectoryNameFence::run(function ($db) use ($payload) {
-            if ($db->inTransaction()) {
-                throw new DirectoryFenceRefusal('directory_intent_nested_transaction');
-            }
+            self::assertNoActiveTransaction($db);
             $current = self::snapshot($db, $payload['host_id']);
             if ($current !== $payload['snapshot']) {
                 throw new DirectoryFenceRefusal('directory_placement_snapshot_changed');
@@ -364,7 +370,7 @@ class DirectoryPlacementIntent extends FOGBase
         }
     }
 
-    /** A known-unsent request may be cancelled, never resumed or resent. */
+    /** A known-unsent request may be canceled, never resumed or resent. */
     public static function abandonUndispatched(array $ticket)
     {
         DirectoryNameFence::run(function ($db) use ($ticket) {

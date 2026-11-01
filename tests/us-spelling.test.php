@@ -68,6 +68,14 @@ $allowed = [
     // parentheses, which is the only reason the line exists.
     '(colour)',
     'e.g. colour, cpair',
+    // Durable directory-placement status enum. Preserve this exact value in
+    // PHP literals and SQL; existing rows and state-machine assertions read it.
+    "'CANCELLED'",
+    "\\'CANCELLED\\'",
+    // Stable diagnostic JSON keys in the focused P2 tests; these identify
+    // the durable cancellation outcome and are consumed by failure reports.
+    'cancelled_row',
+    'slot_cancelled_after_delete',
     // globalSettings ROW NAMES, inserted by commons/schema.php. Renaming one
     // orphans the setting on every install that already has it.
     'FOG_IPXE_MAIN_COLOURS',

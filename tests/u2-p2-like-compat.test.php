@@ -5,25 +5,29 @@ FogTestHarness::boot('u2-p2-like-compat-parent');
 $t = new FogChecks();
 
 $dsn = (string)getenv('MJ1_DB_DSN');
-if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('LIKE compatibility comparison requires explicit scratch MySQL opt-in');
+if ('' === $dsn && '1' !== getenv('MJ1_DB_ALLOW_RESET')) {
+    echo "SKIP: LIKE compatibility comparison requires explicit scratch MySQL opt-in\n";
+    exit(0);
+}
+if ('' === $dsn || '1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
+    throw new \RuntimeException('LIKE compatibility comparison requires explicit scratch MySQL opt-in');
 }
 $p1Root = (string)(getenv('U2_P1_SOURCE_ROOT') ?: '/p1-source');
 $p1Root = realpath($p1Root);
 $currentRoot = realpath(dirname(__DIR__));
 if (false === $p1Root || false === $currentRoot || $p1Root === $currentRoot
     || !is_file($p1Root . '/tests/lib/fog-test-harness.php')) {
-    throw new RuntimeException('fixed P1 source root is unavailable; baseline comparison is required');
+    throw new \RuntimeException('fixed P1 source root is unavailable; baseline comparison is required');
 }
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('LIKE compatibility comparison requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('LIKE compatibility comparison requires a fog_mj1-prefixed scratch DB');
 }
 
 do {
@@ -73,7 +77,7 @@ $run = static function ($root) use (
         dirname($root)
     );
     if (!is_resource($process)) {
-        throw new RuntimeException('could not start LIKE worker for ' . $root);
+        throw new \RuntimeException('could not start LIKE worker for ' . $root);
     }
     fclose($pipes[0]);
     $stdout = stream_get_contents($pipes[1]);

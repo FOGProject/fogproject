@@ -10,31 +10,31 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('intent fault checks require explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('intent fault checks require explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-intent-faults');
 
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('intent fault checks require a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('intent fault checks require a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
 // Use the production wrapper and real PDO path. The scratch-only intent table
 // must already be installed by the opted-in PHP test runner fixture.
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -57,9 +57,9 @@ $readIntent = static function ($targetGuid) use ($pdo, $guidBytes) {
         'SELECT dpiGUID,dpiSID,dpiGeneration,dpiStatus,dpiPayload,dpiHash,dpiResult '
         . 'FROM directoryPlacementIntent WHERE dpiGUID=?'
     );
-    $q->bindValue(1, $guidBytes($targetGuid), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($targetGuid), \PDO::PARAM_LOB);
     $q->execute();
-    return $q->fetch(PDO::FETCH_ASSOC);
+    return $q->fetch(\PDO::FETCH_ASSOC);
 };
 $matchesResultRecord = static function ($raw, $success, $result, $projection) {
     $record = json_decode((string)$raw, true);
@@ -106,7 +106,7 @@ $createFixture = static function () use ($pdo, $guid, &$fixtures) {
         $q->execute([$hostID, $domain, $oldDN, $name . '$']);
         $directoryInserted = true;
 
-        $snapshotMethod = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+        $snapshotMethod = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
         $snapshotMethod->setAccessible(true);
         $snapshot = $snapshotMethod->invoke(null, $pdo, $hostID);
         $payload = [
@@ -124,7 +124,7 @@ $createFixture = static function () use ($pdo, $guid, &$fixtures) {
         $fixtures[] = ['host_id' => $hostID, 'target' => $target,
             'host_inserted' => $hostInserted, 'directory_inserted' => $directoryInserted];
         return $fixture;
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         if ($directoryInserted) {
             $q = $pdo->prepare('DELETE FROM hostDirectory WHERE hdHostID=?');
             $q->execute([$hostID]);
@@ -141,13 +141,13 @@ $worker = __DIR__ . '/fixtures/u2-p2-intent-fault-worker.php';
 $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
     . 'u2-p2-intent-fault-' . bin2hex(random_bytes(12));
 if (!mkdir($barrierDir, 0700)) {
-    throw new RuntimeException('cannot create private intent fault directory');
+    throw new \RuntimeException('cannot create private intent fault directory');
 }
 $resolvedDir = realpath($barrierDir);
 $tempRoot = rtrim(realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 if (false === $resolvedDir || 0 !== strpos($resolvedDir, $tempRoot)
     || 0 !== strpos(basename($resolvedDir), 'u2-p2-intent-fault-')) {
-    throw new RuntimeException('intent fault directory escaped private temp root');
+    throw new \RuntimeException('intent fault directory escaped private temp root');
 }
 
 $startWorker = static function ($mode, array $input) use ($worker, $resolvedDir) {
@@ -157,7 +157,7 @@ $startWorker = static function ($mode, array $input) use ($worker, $resolvedDir)
     if (isset($input['ticket']) && is_array($input['ticket'])
         && isset($input['ticket']['guid']) && is_string($input['ticket']['guid'])) {
         if (16 !== strlen($input['ticket']['guid'])) {
-            throw new RuntimeException('intent ticket GUID is not the expected 16-byte value');
+            throw new \RuntimeException('intent ticket GUID is not the expected 16-byte value');
         }
         $input['ticket']['guid_hex'] = bin2hex($input['ticket']['guid']);
         unset($input['ticket']['guid']);
@@ -171,7 +171,7 @@ $startWorker = static function ($mode, array $input) use ($worker, $resolvedDir)
         dirname(__DIR__)
     );
     if (!is_resource($process)) {
-        throw new RuntimeException('cannot start intent fault worker');
+        throw new \RuntimeException('cannot start intent fault worker');
     }
     fclose($pipes[0]);
     return [$process, $pipes];
@@ -230,6 +230,88 @@ $releaseProcess = null;
 $freshReleaseProcess = null;
 $dbKillProcess = null;
 try {
+    // The caller owns its transaction. prepare() must reject the nested
+    // transaction without rolling it back or persisting an intent row.
+    $nestedFixture = $createFixture();
+    $nestedRefusal = '';
+    $nestedRefusalWasFenceRefusal = false;
+    $nestedTicket = null;
+    $nestedCallerTransactionActive = false;
+    $nestedIntentDuringTransaction = null;
+    FOG\Agent\DirectoryNameFence::run(function ($db) use (
+        $nestedFixture,
+        &$nestedRefusal,
+        &$nestedRefusalWasFenceRefusal,
+        &$nestedTicket,
+        &$nestedCallerTransactionActive,
+        &$nestedIntentDuringTransaction,
+        $readIntent
+    ) {
+        FOG\Agent\DirectoryNameFence::begin($db);
+        try {
+            try {
+                $nestedTicket = FOG\Agent\DirectoryPlacementIntent::prepare($nestedFixture['payload']);
+            } catch (\Throwable $e) {
+                $nestedRefusal = $e->getMessage();
+                $nestedRefusalWasFenceRefusal = $e instanceof FOG\Agent\DirectoryFenceRefusal;
+            }
+            $nestedCallerTransactionActive = $db->inTransaction();
+            $nestedIntentDuringTransaction = $readIntent($nestedFixture['target']['guid']);
+        } finally {
+            if ($db->inTransaction()) {
+                FOG\Agent\DirectoryNameFence::rollback($db);
+            }
+        }
+    });
+    $t->check(
+        'prepare refuses nested caller transaction without changing caller state',
+        $nestedRefusalWasFenceRefusal
+            && 'directory_intent_nested_transaction' === $nestedRefusal
+            && null === $nestedTicket
+            && $nestedCallerTransactionActive
+            && false === $nestedIntentDuringTransaction
+            && !$pdo->inTransaction()
+    );
+
+    // A scratch-only INSERT trigger injects a real statement failure after
+    // prepare() begins its own transaction; the failure must escape and roll
+    // that transaction back. DDL stays outside any active transaction.
+    $triggerFixture = $createFixture();
+    $triggerName = 'trg_u2p2_intent_fault_' . bin2hex(random_bytes(8));
+    $triggerFailure = null;
+    $triggerTicket = null;
+    $triggerTransactionClosed = false;
+    $triggerIntentAfterFailure = null;
+    try {
+        $pdo->exec(
+            'CREATE TRIGGER `' . $triggerName . '` BEFORE INSERT ON `directoryPlacementIntent` '
+            . "FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='u2p2 intent insert fault'"
+        );
+        try {
+            $triggerTicket = FOG\Agent\DirectoryPlacementIntent::prepare($triggerFixture['payload']);
+        } catch (\Throwable $e) {
+            $triggerFailure = $e;
+        }
+        $triggerTransactionClosed = !$pdo->inTransaction();
+        $triggerIntentAfterFailure = $readIntent($triggerFixture['target']['guid']);
+    } finally {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        $pdo->exec('DROP TRIGGER IF EXISTS `' . $triggerName . '`');
+    }
+    $triggerFailureMessage = $triggerFailure instanceof \PDOException
+        ? $triggerFailure->getMessage() : '';
+    $t->check(
+        'prepare statement failure escapes and rolls back its own transaction',
+        $triggerFailure instanceof \PDOException
+            && false !== strpos($triggerFailureMessage, 'u2p2 intent insert fault')
+            && null === $triggerTicket
+            && $triggerTransactionClosed
+            && false === $triggerIntentAfterFailure
+            && !$pdo->inTransaction()
+    );
+
     // prepare() persists PREPARED before returning its ticket. Simulate its
     // commit ACK being lost, then prove a fresh caller cannot reconstruct or
     // retrieve the ticket by repeating prepare().
@@ -521,15 +603,15 @@ try {
     $adminPDO = null;
     if ($killReady && is_array($killReadyInfo) && !empty($killReadyInfo['connection_id'])) {
         try {
-            $adminPDO = new PDO(
+            $adminPDO = new \PDO(
                 $dsn,
                 getenv('MJ1_DB_USER') ?: 'root',
                 getenv('MJ1_DB_PASSWORD') ?: '',
-                [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+                [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
             );
             $adminDatabase = (string)$adminPDO->query('SELECT DATABASE()')->fetchColumn();
             if ($adminDatabase !== $database) {
-                throw new RuntimeException('admin PDO selected a different scratch database');
+                throw new \RuntimeException('admin PDO selected a different scratch database');
             }
             $adminPDO->exec('KILL CONNECTION ' . (int)$killReadyInfo['connection_id']);
             $killIssued = true;
@@ -544,7 +626,7 @@ try {
                     usleep(10000);
                 }
             } while (!$killConnectionGone && microtime(true) < $killDeadline);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $killError = $e->getMessage();
         }
     }
@@ -552,25 +634,25 @@ try {
     list($dbKillDone, $dbKillOut, $dbKillErr, $dbKillExit) =
         $waitWorker($dbKillProcess, $dbKillPipes, 15.0);
     $dbKillProcess = null;
-    if ($adminPDO instanceof PDO) {
+    if ($adminPDO instanceof \PDO) {
         $adminPDO = null;
     }
     $dbKillResult = $readJson($dbKillOut);
 
-    $freshReadPDO = new PDO(
+    $freshReadPDO = new \PDO(
         $dsn,
         getenv('MJ1_DB_USER') ?: 'root',
         getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
     $freshReadDatabase = (string)$freshReadPDO->query('SELECT DATABASE()')->fetchColumn();
     $freshIntentQuery = $freshReadPDO->prepare(
         'SELECT dpiGUID,dpiSID,dpiGeneration,dpiStatus,dpiPayload,dpiHash,dpiResult '
         . 'FROM directoryPlacementIntent WHERE dpiGUID=?'
     );
-    $freshIntentQuery->bindValue(1, $guidBytes($dbKillFixture['target']['guid']), PDO::PARAM_LOB);
+    $freshIntentQuery->bindValue(1, $guidBytes($dbKillFixture['target']['guid']), \PDO::PARAM_LOB);
     $freshIntentQuery->execute();
-    $dbKillRow = $freshIntentQuery->fetch(PDO::FETCH_ASSOC) ?: null;
+    $dbKillRow = $freshIntentQuery->fetch(\PDO::FETCH_ASSOC) ?: null;
     $dbKillPayload = is_array($dbKillRow) ? json_decode($dbKillRow['dpiPayload'], true) : null;
     $dbKillPayloadIntact = is_array($dbKillRow)
         && hash_equals($dbKillTicket['guid'], $dbKillRow['dpiGUID'])
@@ -693,7 +775,7 @@ try {
     $claimReason = '';
     try {
         FOG\Agent\DirectoryOperation::claim($claimHost, $claimSaved, $claimBody);
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $claimReason = $e->getMessage();
     }
     $claimAfter = FOG\Agent\DirectoryRejoin::settings($claimHost);
@@ -802,7 +884,7 @@ try {
     foreach ($fixtures as $fixture) {
         if (!empty($fixture['target']['guid'])) {
             $q = $pdo->prepare('DELETE FROM directoryPlacementIntent WHERE dpiGUID=?');
-            $q->bindValue(1, $guidBytes($fixture['target']['guid']), PDO::PARAM_LOB);
+            $q->bindValue(1, $guidBytes($fixture['target']['guid']), \PDO::PARAM_LOB);
             $q->execute();
         }
         if (!empty($fixture['directory_inserted'])) {

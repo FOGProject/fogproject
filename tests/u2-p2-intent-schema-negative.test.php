@@ -10,29 +10,29 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('intent schema negative checks require explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('intent schema negative checks require explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 \FogTestHarness::boot('u2-p2-intent-schema-negative');
 
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('intent schema negative checks require a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('intent schema negative checks require a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -52,24 +52,24 @@ $guidBytes = static function ($value) {
 };
 $tableImage = static function ($table) use ($pdo) {
     if (!preg_match('/^directoryPlacementIntent(?:_backup_[a-f0-9]{16})?$/D', $table)) {
-        throw new RuntimeException('intent image table name is outside this test\'s fixed allowlist');
+        throw new \RuntimeException('intent image table name is outside this test\'s fixed allowlist');
     }
     $q = $pdo->query(
         'SELECT dpiGUID,dpiSID,dpiHostID,dpiGeneration,dpiStatus,dpiPayload,dpiHash,dpiResult,dpiUpdated '
         . 'FROM `' . $table . '` ORDER BY dpiGUID'
     );
-    $rows = $q->fetchAll(PDO::FETCH_NUM);
+    $rows = $q->fetchAll(\PDO::FETCH_NUM);
     $q->closeCursor();
     return ['count' => count($rows), 'sha256' => hash('sha256', serialize($rows))];
 };
 $readSlot = static function ($table, $targetGuid) use ($pdo, $guidBytes) {
     if (!preg_match('/^directoryPlacementIntent(?:_backup_[a-f0-9]{16})?$/D', $table)) {
-        throw new RuntimeException('intent row table name is outside this test\'s fixed allowlist');
+        throw new \RuntimeException('intent row table name is outside this test\'s fixed allowlist');
     }
     $q = $pdo->prepare('SELECT dpiStatus,dpiPayload,dpiHash,dpiResult FROM `' . $table . '` WHERE dpiGUID=?');
-    $q->bindValue(1, $guidBytes($targetGuid), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($targetGuid), \PDO::PARAM_LOB);
     $q->execute();
-    $row = $q->fetch(PDO::FETCH_ASSOC);
+    $row = $q->fetch(\PDO::FETCH_ASSOC);
     $q->closeCursor();
     return is_array($row) ? $row : null;
 };
@@ -109,7 +109,7 @@ $createPreparedFixture = static function () use ($pdo, $guid, &$fixtures) {
         $q->execute([$hostID, $domain, $oldDN, $name . '$']);
         $insertedDirectory = true;
 
-        $snapshotMethod = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+        $snapshotMethod = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
         $snapshotMethod->setAccessible(true);
         $snapshot = $snapshotMethod->invoke(null, $pdo, $hostID);
         $target = [
@@ -140,10 +140,10 @@ $createPreparedFixture = static function () use ($pdo, $guid, &$fixtures) {
         $fixtures[] = $fixture;
         $ticket = FOG\Agent\DirectoryPlacementIntent::prepare($payload);
         return [$fixture, $ticket];
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         if (is_string($targetGuid)) {
             $q = $pdo->prepare('DELETE FROM directoryPlacementIntent WHERE dpiGUID=?');
-            $q->bindValue(1, hex2bin(str_replace('-', '', strtolower($targetGuid))), PDO::PARAM_LOB);
+            $q->bindValue(1, hex2bin(str_replace('-', '', strtolower($targetGuid))), \PDO::PARAM_LOB);
             $q->execute();
         }
         if ($insertedDirectory) {
@@ -161,7 +161,7 @@ $captureReason = static function (callable $operation) {
     try {
         $operation();
         return ['reason' => null, 'returned' => true];
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return ['reason' => $e->getMessage(), 'returned' => false];
     }
 };
@@ -172,7 +172,7 @@ try {
     $originalImage = $tableImage('directoryPlacementIntent');
     $originalRow = $readSlot('directoryPlacementIntent', $targetGuid);
     if (!is_array($originalRow) || 'PREPARED' !== $originalRow['dpiStatus']) {
-        throw new RuntimeException('schema-negative fixture did not start in PREPARED');
+        throw new \RuntimeException('schema-negative fixture did not start in PREPARED');
     }
 
     // Rename only this scratch intent table. Its exact original row image is
@@ -196,7 +196,7 @@ try {
         });
     });
     $missingDispatch = $captureReason(static function () use ($ticket) {
-        FOG\Agent\DirectoryPlacementIntent::dispatch($ticket, new stdClass());
+        FOG\Agent\DirectoryPlacementIntent::dispatch($ticket, new \stdClass());
     });
     $hiddenAfter = $tableImage($backupTable);
     $hiddenRow = $readSlot($backupTable, $targetGuid);
@@ -237,7 +237,7 @@ try {
         });
     });
     $malformedDispatch = $captureReason(static function () use ($ticket) {
-        FOG\Agent\DirectoryPlacementIntent::dispatch($ticket, new stdClass());
+        FOG\Agent\DirectoryPlacementIntent::dispatch($ticket, new \stdClass());
     });
     $imageAfterMalformed = $tableImage('directoryPlacementIntent');
     $rowAfterMalformed = $readSlot('directoryPlacementIntent', $targetGuid);
@@ -270,7 +270,7 @@ try {
     }
     foreach ($fixtures as $fixture) {
         $q = $pdo->prepare('DELETE FROM directoryPlacementIntent WHERE dpiGUID=?');
-        $q->bindValue(1, $guidBytes($fixture['target']['guid']), PDO::PARAM_LOB);
+        $q->bindValue(1, $guidBytes($fixture['target']['guid']), \PDO::PARAM_LOB);
         $q->execute();
         $q = $pdo->prepare('DELETE FROM hostDirectory WHERE hdHostID=?');
         $q->execute([$fixture['host_id']]);

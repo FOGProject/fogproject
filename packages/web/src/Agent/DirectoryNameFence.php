@@ -610,7 +610,7 @@ class DirectoryNameFence extends FOGBase
         }
         $rows = self::preflightUpdateFrames($table, $rows);
         // Preflight may consider later payloads, but only reservations touched
-        // by this actual statement may be cancelled in its transaction.
+        // by this actual statement may be canceled in its transaction.
         self::$owner['cancellations'] = [];
         if ($delete && 'hosts' === $table && self::$parents) {
             $rows = array_values(array_filter($rows, static function ($row) {

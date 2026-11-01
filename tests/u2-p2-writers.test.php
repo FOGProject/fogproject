@@ -10,30 +10,30 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-P2 writers requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-P2 writers requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-writers');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-P2 writers requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-P2 writers requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
 // Use the actual PDODB instance and PDO path used by the application and its
 // DirectoryNameFence SQL callback. No fake DB or source-order assertion.
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -125,16 +125,16 @@ $createFixture = static function ($active = false, $readyMode = null) use ($pdo,
 $raw = static function ($table, $column, $id) use ($pdo) {
     if (!in_array($table, ['hosts', 'hostDirectory'], true)
         || !in_array($column, ['hostID', 'hdID'], true)) {
-        throw new InvalidArgumentException('raw fixture selector invalid');
+        throw new \InvalidArgumentException('raw fixture selector invalid');
     }
     $q = $pdo->prepare('SELECT * FROM `' . $table . '` WHERE `' . $column . '`=?');
     $q->execute([$id]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $blocked = static function (callable $fn) {
     try {
         $fn();
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return $e;
     }
     return null;
@@ -152,7 +152,7 @@ try {
     });
     $t->check(
         'active hostDirectory standalone DELETE is refused and raw row is unchanged',
-        (false === $deleteResult || $deleteError instanceof Throwable)
+        (false === $deleteResult || $deleteError instanceof \Throwable)
             && hash_equals($protectedHash, hash('sha256', serialize($raw('hostDirectory', 'hdID', $protected['directory_id']))))
     );
 
@@ -286,7 +286,7 @@ try {
     });
     $t->check(
         'active Host whole DELETE is rejected before host or directory mutation',
-        $hostDeleteError instanceof RuntimeException
+        $hostDeleteError instanceof \RuntimeException
             && false !== strpos($hostDeleteError->getMessage(), 'directory_host_operation_protected')
             && null === $activeDestroyResult
             && $hostBefore === $raw('hosts', 'hostID', $protected['id'])

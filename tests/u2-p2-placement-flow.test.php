@@ -150,30 +150,30 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-P2 placement flow requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-P2 placement flow requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-placement-flow');
 require_once __DIR__ . '/lib/sc-hold-pdo.php';
 
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-P2 placement flow requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-P2 placement flow requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new ScHoldPdoDb($pdo);
@@ -277,12 +277,12 @@ $createFixture = static function ($case, $ldapDN, $dbDN, $baseDN) use ($pdo, $ma
 $readHostDirectory = static function ($hostID) use ($pdo) {
     $q = $pdo->prepare('SELECT hdDomain,hdComputerDN,hdObservedAt,hdPlacementAt,hdPlacementError FROM hostDirectory WHERE hdHostID=?');
     $q->execute([$hostID]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: [];
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: [];
 };
 $readIntent = static function ($targetGuid) use ($pdo) {
     $q = $pdo->prepare('SELECT dpiGeneration,dpiStatus,dpiResult FROM directoryPlacementIntent WHERE dpiGUID=?');
     $q->execute([hex2bin(str_replace('-', '', strtolower($targetGuid)))]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $ensure = static function (array $fixture) {
     FOG\Agent\DirectoryPlacement::ensure($fixture['host'], $fixture['directory']);

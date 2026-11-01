@@ -207,7 +207,7 @@ class FogFakeDb
     /** @var array every statement passed to query(), in order */
     public $log = [];
 
-    /** @var FogFakePdo */
+    /** @var FogFakePdo|\PDO The scratch-DB tests replace the fake link with their guarded real PDO. */
     public $pdo;
 
     /**

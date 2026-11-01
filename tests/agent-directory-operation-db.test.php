@@ -406,9 +406,9 @@ $write->execute([json_encode($config), json_encode($stored)]);
 $failedRetryError = null;
 try {
     $configure->invoke(null, $host, ['rejoin_retry' => true], 'db-test');
-} catch (ReflectionException $e) {
+} catch (\ReflectionException $e) {
     throw $e;
-} catch (RuntimeException $e) {
+} catch (\RuntimeException $e) {
     $failedRetryError = $e->getMessage();
 }
 $afterFailedRetry = FOG\Agent\DirectoryRejoin::settings($host);

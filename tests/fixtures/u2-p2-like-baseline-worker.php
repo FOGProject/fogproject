@@ -3,7 +3,7 @@
 ini_set('display_errors', 'stderr');
 
 /** Capture the statement and bound values before later logging queries replace PDODB state. */
-class U2P2LikeCaptureStatement extends PDOStatement
+class U2P2LikeCaptureStatement extends \PDOStatement
 {
     public static $armed = false;
     public static $actual = null;
@@ -13,7 +13,7 @@ class U2P2LikeCaptureStatement extends PDOStatement
     {
     }
 
-    public function bindValue($param, $value, $type = PDO::PARAM_STR): bool
+    public function bindValue($param, $value, $type = \PDO::PARAM_STR): bool
     {
         if (self::$armed && !$this->captured
             && preg_match('/^\s*UPDATE\s+`?hosts`?/i', $this->queryString)) {
@@ -79,20 +79,20 @@ $report = [
 $stdoutNoise = '';
 ob_start();
 try {
-    $pdo = new PDO(
+    $pdo = new \PDO(
         $dsn,
         getenv('MJ1_DB_USER') ?: 'root',
         getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-        throw new RuntimeException('worker requires a fog_mj1-prefixed scratch database');
+        throw new \RuntimeException('worker requires a fog_mj1-prefixed scratch database');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME differs from selected scratch database');
+        throw new \RuntimeException('DATABASE_NAME differs from selected scratch database');
     }
 
     // P1's legacy code path still names core Items globally in a few places.
@@ -107,9 +107,9 @@ try {
         }
     }
 
-    $pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [U2P2LikeCaptureStatement::class, []]);
+    $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [U2P2LikeCaptureStatement::class, []]);
 
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -134,7 +134,7 @@ try {
             ['description' => $updatedDescription]
         );
         $report['result'] = is_bool($result) ? $result : null;
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $report['exception'] = get_class($e) . ': ' . $e->getMessage();
     } finally {
         U2P2LikeCaptureStatement::$armed = false;
@@ -148,9 +148,9 @@ try {
     $report['error_info'] = $db->lastErrorInfo;
     $query = $pdo->prepare('SELECT hostName,hostDesc FROM hosts WHERE hostID=?');
     $query->execute([$targetID]);
-    $target = $query->fetch(PDO::FETCH_ASSOC) ?: null;
+    $target = $query->fetch(\PDO::FETCH_ASSOC) ?: null;
     $query->execute([$controlID]);
-    $control = $query->fetch(PDO::FETCH_ASSOC) ?: null;
+    $control = $query->fetch(\PDO::FETCH_ASSOC) ?: null;
     $report['target_after'] = $target['hostDesc'] ?? null;
     $report['control_after'] = $control['hostDesc'] ?? null;
     $report['target_unchanged'] = is_array($target)
@@ -165,10 +165,10 @@ try {
     $report['ok'] = null === $report['exception']
         && null !== $report['actual_sql']
         && null !== $report['actual_params'];
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     $report['exception'] = get_class($e) . ': ' . $e->getMessage();
 } finally {
-    if ($pdo instanceof PDO) {
+    if ($pdo instanceof \PDO) {
         $delete = $pdo->prepare('DELETE FROM hostDirectory WHERE hdHostID IN (?,?)');
         $delete->execute([$targetID, $controlID]);
         $delete = $pdo->prepare('DELETE FROM hosts WHERE hostID IN (?,?)');

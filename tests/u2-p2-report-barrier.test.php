@@ -7,7 +7,7 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('report barrier requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('report barrier requires explicit scratch opt-in and mysql DSN');
 }
 
 class U2P2ReportTestFakeLdap
@@ -32,18 +32,18 @@ class_alias(U2P2ReportTestFakeLdap::class, 'FOG\\Net\\FOGLdap', false);
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-report-barrier');
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('report barrier requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('report barrier requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME differs from validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME differs from validated scratch database');
 }
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -147,7 +147,7 @@ try {
     try {
         $db->query('UPDATE `hosts` SET `hostName`=:new_name WHERE `hostID`=:host_id', [],
             ['new_name' => $oldName, 'host_id' => $competitorID]);
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $saveBlockedReason = $e->getMessage();
     }
     $competitorNameQ = $pdo->prepare('SELECT hostName FROM hosts WHERE hostID=?');
@@ -166,7 +166,7 @@ try {
     $reason = '';
     try {
         FOG\Agent\DirectoryOperation::report($host, $brokenBody);
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $reason = $e->getMessage();
     }
     $t->check('B18 verified report rejects broken secure channel without changing phase or footprint',
@@ -176,13 +176,13 @@ try {
     $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
         . 'u2-p2-report-barrier-' . bin2hex(random_bytes(10));
     if (!mkdir($barrierDir, 0700)) {
-        throw new RuntimeException('cannot create report barrier directory');
+        throw new \RuntimeException('cannot create report barrier directory');
     }
     $barrierDir = realpath($barrierDir);
     $tempRoot = rtrim(realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     if (false === $barrierDir || 0 !== strpos($barrierDir, $tempRoot)
         || 0 !== strpos(basename($barrierDir), 'u2-p2-report-barrier-')) {
-        throw new RuntimeException('report barrier directory escaped private temp root');
+        throw new \RuntimeException('report barrier directory escaped private temp root');
     }
     $worker = __DIR__ . '/fixtures/u2-p2-report-barrier-worker.php';
     $verifiedBody = $body;
@@ -201,7 +201,7 @@ try {
             json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)],
             [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__));
         if (!is_resource($process)) {
-            throw new RuntimeException('cannot start report barrier worker');
+            throw new \RuntimeException('cannot start report barrier worker');
         }
         fclose($pipes[0]);
         $processes[] = [$process, $pipes];
@@ -276,7 +276,7 @@ try {
         do {
             $q = $pdo->prepare('SELECT STATE,INFO FROM information_schema.PROCESSLIST WHERE ID=?');
             $q->execute([(int)$saveReady['connection_id']]);
-            $proc = $q->fetch(PDO::FETCH_ASSOC) ?: [];
+            $proc = $q->fetch(\PDO::FETCH_ASSOC) ?: [];
             $waitingOnLock = false !== strpos(strtolower((string)($proc['INFO'] ?? '')), 'get_lock')
                 && false !== strpos(strtolower((string)($proc['STATE'] ?? '')), 'lock');
             if (!$waitingOnLock) { usleep(10000); }

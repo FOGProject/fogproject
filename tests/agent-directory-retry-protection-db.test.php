@@ -14,10 +14,10 @@ $host = (new FOG\Items\Host())
     ->set('agentFingerprint', str_repeat('f', 64));
 $pdo->exec("UPDATE hosts SET hostName='B',hostADDomain='corp.example',hostUseAD=1,hostAgentFingerprint='" . str_repeat('f', 64) . "' WHERE hostID=7");
 $pdo->exec('UPDATE hostDirectory SET hdRejoinConfig=NULL,hdRejoinState=NULL WHERE hdHostID=7');
-FOGTestHarness::setStatic('FOGBase', '_settingsCache', [
+FogTestHarness::setStatic('FOGBase', '_settingsCache', [
     'FOG_AGENT_INVENTORY_ENABLED' => ['value' => '1']
 ]);
-FOGTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
+FogTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
 
 $retryPhaseCases = [
     'verified state' => [['phase' => 'verified', 'attempt_id' => str_repeat('a', 32)], true],
@@ -38,7 +38,7 @@ foreach ($retryPhaseCases as $label => $case) {
     );
 }
 
-$configure = new ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'configureTarget');
+$configure = new \ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'configureTarget');
 $configure->setAccessible(true);
 $configure->invoke(null, $host, [], 'retry-protection-db-test');
 $baseConfig = FOG\Agent\DirectoryRejoin::settings($host)['config'];
@@ -91,9 +91,9 @@ foreach (['started', 'awaiting_reboot', 'unknown', 'failed', 'may_have_run', 're
     $error = null;
     try {
         $configure->invoke(null, $host, ['rejoin_retry' => true], 'retry-protection-db-test');
-    } catch (ReflectionException $e) {
+    } catch (\ReflectionException $e) {
         throw $e;
-    } catch (RuntimeException $e) {
+    } catch (\RuntimeException $e) {
         $error = $e->getMessage();
     }
     $after = FOG\Agent\DirectoryRejoin::settings($host);

@@ -1,7 +1,7 @@
 <?php
 /** Claim/name-save barrier workers; restricted to opted-in fog_mj1 scratch DB. */
 
-class U2P2ClaimPauseStatement extends PDOStatement
+class U2P2ClaimPauseStatement extends \PDOStatement
 {
     public static $barrierDir = '';
     public static $pauseClaimSelect = false;
@@ -15,7 +15,7 @@ class U2P2ClaimPauseStatement extends PDOStatement
         $json = json_encode($value, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         if (false === file_put_contents($tmp, $json, LOCK_EX) || !rename($tmp, $path)) {
             @unlink($tmp);
-            throw new RuntimeException('cannot atomically write claim barrier signal');
+            throw new \RuntimeException('cannot atomically write claim barrier signal');
         }
     }
 
@@ -39,7 +39,7 @@ class U2P2ClaimPauseStatement extends PDOStatement
             $deadline = microtime(true) + 15.0;
             while (!is_file($resume)) {
                 if (microtime(true) >= $deadline) {
-                    throw new RuntimeException('parent did not release claim barrier');
+                    throw new \RuntimeException('parent did not release claim barrier');
                 }
                 usleep(10000);
             }
@@ -52,24 +52,24 @@ function u2p2ClaimWorkerPdo($pauseClaim = false)
 {
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:') || '' === $dsn) {
-        throw new RuntimeException('claim worker requires explicit MySQL scratch opt-in');
+        throw new \RuntimeException('claim worker requires explicit MySQL scratch opt-in');
     }
-    $pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    $pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
     if ($pauseClaim) {
         U2P2ClaimPauseStatement::$pauseClaimSelect = true;
-        $pdo->setAttribute(PDO::ATTR_STATEMENT_CLASS, [U2P2ClaimPauseStatement::class, []]);
+        $pdo->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [U2P2ClaimPauseStatement::class, []]);
     }
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-        throw new RuntimeException('claim worker database is outside scratch prefix');
+        throw new \RuntimeException('claim worker database is outside scratch prefix');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+        throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
     }
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -101,7 +101,7 @@ try {
 
     if ('save-name' === $mode) {
         if (!isset($input['host_id'], $input['new_name'])) {
-            throw new RuntimeException('name saver arguments are incomplete');
+            throw new \RuntimeException('name saver arguments are incomplete');
         }
         $connectionID = (int)$pdo->query('SELECT CONNECTION_ID()')->fetchColumn();
         U2P2ClaimPauseStatement::$readyFile = 'save-started.json';
@@ -120,7 +120,7 @@ try {
             if (!$saved) {
                 $reason = 'name_save_did_not_update_one_row';
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
         echo json_encode(['saved' => $saved, 'reason' => $reason]), "\n";
@@ -130,7 +130,7 @@ try {
     if ('retry-paused' === $mode) {
         foreach (['host_id','name','fingerprint','domain'] as $key) {
             if (!array_key_exists($key, $input)) {
-                throw new RuntimeException('Retry worker arguments are incomplete');
+                throw new \RuntimeException('Retry worker arguments are incomplete');
             }
         }
         $host = (new FOG\Items\Host())->set('id', (int)$input['host_id'])
@@ -140,7 +140,7 @@ try {
             FOG\Agent\DirectoryRejoin::configure($host, ['rejoin_retry' => true], 'u2-p2-b07-fixture');
             echo json_encode(['configured' => true]), "\n";
             exit(0);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             echo json_encode(['configured' => false, 'reason' => $e->getMessage()]), "\n";
             exit(0);
         }
@@ -148,7 +148,7 @@ try {
 
     foreach (['host_id','name','fingerprint','domain','body'] as $key) {
         if (!array_key_exists($key, $input)) {
-            throw new RuntimeException('claim worker arguments are incomplete');
+            throw new \RuntimeException('claim worker arguments are incomplete');
         }
     }
     $host = (new FOG\Items\Host())->set('id', (int)$input['host_id'])
@@ -160,13 +160,13 @@ try {
         $after = FOG\Agent\DirectoryRejoin::settings($host);
         echo json_encode(['claimed' => true, 'phase' => $after['state']['phase'] ?? null]), "\n";
         exit(0);
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $after = FOG\Agent\DirectoryRejoin::settings($host);
         echo json_encode(['claimed' => false, 'reason' => $e->getMessage(),
             'phase' => $after['state']['phase'] ?? null]), "\n";
         exit(0);
     }
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     fwrite(STDERR, json_encode(['class' => get_class($e), 'reason' => $e->getMessage()]) . "\n");
     exit(1);
 }

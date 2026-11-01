@@ -89,7 +89,7 @@ if ('ドメイン参加状態' !== _('Domain Join Status')) {
     error_log(sprintf(
         'directory UI gettext probe failed: locale=%s domain=%s result=%s',
         (string)setlocale(LC_MESSAGES, '0'),
-        textdomain(null),
+        textdomain('messages'),
         _('Domain Join Status')
     ));
     http_response_code(500);

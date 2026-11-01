@@ -10,31 +10,31 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-P2 barrier test requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-P2 barrier test requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-fence-main');
 
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD'),
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('database name must use the fog_mj1 scratch prefix');
+    throw new \RuntimeException('database name must use the fog_mj1 scratch prefix');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
 // Inject the already guarded PDO into the real wrapper. The normal PDODB
 // query path (including DirectoryNameFence::beforeSQL) remains in use.
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -95,12 +95,12 @@ $t->check(
 // same-value update against an impossible scratch PK is intentionally inert.
 $table = $pdo->query("SHOW TABLES LIKE 'multicastSessions'")->fetchColumn();
 if (false === $table) {
-    throw new RuntimeException('scratch schema is missing multicastSessions');
+    throw new \RuntimeException('scratch schema is missing multicastSessions');
 }
 $nonHostHash = static function () use ($pdo) {
     $rows = $pdo->query(
         'SELECT msID,msMaxwait FROM multicastSessions ORDER BY msID'
-    )->fetchAll(PDO::FETCH_ASSOC);
+    )->fetchAll(\PDO::FETCH_ASSOC);
     return hash('sha256', serialize($rows));
 };
 $beforeNonHost = $nonHostHash();
@@ -120,7 +120,7 @@ $worker = __DIR__ . '/fixtures/u2-p2-barrier-worker.php';
 $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
     . DIRECTORY_SEPARATOR . 'u2-p2-barrier-' . bin2hex(random_bytes(12));
 if (!mkdir($barrierDir, 0700)) {
-    throw new RuntimeException('cannot create private barrier directory');
+    throw new \RuntimeException('cannot create private barrier directory');
 }
 $resolvedBarrierDir = realpath($barrierDir);
 $tempRoot = rtrim(realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR)
@@ -128,7 +128,7 @@ $tempRoot = rtrim(realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR)
 if (false === $resolvedBarrierDir || 0 !== strpos($resolvedBarrierDir, $tempRoot)
     || 0 !== strpos(basename($resolvedBarrierDir), 'u2-p2-barrier-')
 ) {
-    throw new RuntimeException('barrier directory escaped the private temp root');
+    throw new \RuntimeException('barrier directory escaped the private temp root');
 }
 
 $startWorker = static function ($mode) use ($worker, $resolvedBarrierDir) {
@@ -140,7 +140,7 @@ $startWorker = static function ($mode) use ($worker, $resolvedBarrierDir) {
         dirname(__DIR__)
     );
     if (!is_resource($process)) {
-        throw new RuntimeException('cannot start barrier worker process');
+        throw new \RuntimeException('cannot start barrier worker process');
     }
     fclose($pipes[0]);
     return [$process, $pipes];
@@ -217,7 +217,7 @@ try {
         && false === ($contenderResult['ok'] ?? null)
         && 'directory_fence_timeout' === ($contenderResult['reason'] ?? '')
         && empty($contenderResult['callback_entered']);
-    $configuredWait = (new ReflectionClass(FOG\Agent\DirectoryNameFence::class))
+    $configuredWait = (new \ReflectionClass(FOG\Agent\DirectoryNameFence::class))
         ->getConstant('WAIT_SECONDS');
     $t->check(
         'contending process gets the configured three-second lock timeout',

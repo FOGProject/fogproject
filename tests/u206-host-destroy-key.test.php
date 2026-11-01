@@ -6,30 +6,30 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-06 Host destroy key requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-06 Host destroy key requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u206-host-destroy-key');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-06 Host destroy key requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-06 Host destroy key requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 require_once __DIR__ . '/fixtures/u2-p2-intent-schema.php';
 mj1InstallIntentFixture($pdo);
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -61,7 +61,7 @@ $ensureCascade = static function (array $edge) use ($pdo, &$ownedConstraints, $f
         . 'WHERE k.CONSTRAINT_SCHEMA=DATABASE() AND k.TABLE_NAME=? AND k.COLUMN_NAME=?'
     );
     $q->execute([$edge['table'], $edge['column']]);
-    $found = $q->fetchAll(PDO::FETCH_ASSOC);
+    $found = $q->fetchAll(\PDO::FETCH_ASSOC);
     foreach ($found as $fk) {
         if ('hosts' === $fk['REFERENCED_TABLE_NAME'] && 'hostID' === $fk['REFERENCED_COLUMN_NAME']
             && 'CASCADE' === strtoupper($fk['DELETE_RULE'])) {
@@ -69,7 +69,7 @@ $ensureCascade = static function (array $edge) use ($pdo, &$ownedConstraints, $f
         }
     }
     if ($found) {
-        throw new RuntimeException('Existing FK for ' . $edge['table'] . '.' . $edge['column']
+        throw new \RuntimeException('Existing FK for ' . $edge['table'] . '.' . $edge['column']
             . ' is incompatible; test will not replace it');
     }
     $orphans = (int)$pdo->query(
@@ -77,7 +77,7 @@ $ensureCascade = static function (array $edge) use ($pdo, &$ownedConstraints, $f
         . 'ON h.hostID=c.`' . $edge['column'] . '` WHERE c.`' . $edge['column'] . '` IS NOT NULL AND h.hostID IS NULL'
     )->fetchColumn();
     if ($orphans) {
-        throw new RuntimeException('Cannot add approved FK while orphan rows exist in ' . $edge['table']);
+        throw new \RuntimeException('Cannot add approved FK while orphan rows exist in ' . $edge['table']);
     }
     $name = $edge['name'] . '_' . $fixtureToken;
     $pdo->exec('ALTER TABLE `' . $edge['table'] . '` ADD CONSTRAINT `' . $name . '` '
@@ -92,7 +92,7 @@ $guid = static function () {
 $blocked = static function (callable $fn) {
     try {
         $fn();
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return $e;
     }
     return null;
@@ -116,7 +116,7 @@ $createImage = static function () use ($pdo, &$typeIDs, &$partitionIDs, &$imageI
     $imageIDs[] = $imageID;
     return $imageID;
 };
-$createHost = static function ($imageID, $active, $prefix) use ($pdo, $guid, &$hostIDs, &$directoryIDs, &$wakeIDs, &$intentGUIDs) {
+$createHost = static function ($imageID, $active, $prefix) use ($pdo, $guid, &$hostIDs, &$directoryIDs, &$wakeIDs) {
     do {
         $id = random_int(1500000000, 1800000000);
         $q = $pdo->prepare('SELECT COUNT(*) FROM hosts WHERE hostID=?');
@@ -167,7 +167,7 @@ $snapshot = static function (array $ids, $imageID) use ($pdo) {
     $read = static function ($sql, array $params) use ($pdo) {
         $q = $pdo->prepare($sql);
         $q->execute($params);
-        $rows = $q->fetchAll(PDO::FETCH_ASSOC);
+        $rows = $q->fetchAll(\PDO::FETCH_ASSOC);
         foreach ($rows as &$row) {
             ksort($row);
         }
@@ -189,7 +189,7 @@ $snapshot = static function (array $ids, $imageID) use ($pdo) {
     $columnsByTable = [];
     $availableTables = array_fill_keys($pdo->query(
         'SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE()'
-    )->fetchAll(PDO::FETCH_COLUMN), true);
+    )->fetchAll(\PDO::FETCH_COLUMN), true);
     $constraints = require dirname(__DIR__) . '/packages/web/commons/schema-constraints.php';
     foreach ($constraints as $edge) {
         if ('hosts' === ($edge['parent'] ?? null) && isset($edge['child'], $edge['column'])
@@ -200,7 +200,7 @@ $snapshot = static function (array $ids, $imageID) use ($pdo) {
     $fkRows = $pdo->query(
         'SELECT TABLE_NAME,COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE '
         . 'WHERE TABLE_SCHEMA=DATABASE() AND REFERENCED_TABLE_NAME=\'hosts\' AND REFERENCED_COLUMN_NAME=\'hostID\''
-    )->fetchAll(PDO::FETCH_ASSOC);
+    )->fetchAll(\PDO::FETCH_ASSOC);
     foreach ($fkRows as $edge) {
         $columnsByTable[$edge['TABLE_NAME']][$edge['COLUMN_NAME']] = true;
     }
@@ -208,13 +208,13 @@ $snapshot = static function (array $ids, $imageID) use ($pdo) {
     ksort($columnsByTable);
     foreach ($columnsByTable as $table => $columns) {
         if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/D', $table)) {
-            throw new RuntimeException('unsafe dependency table name in schema map');
+            throw new \RuntimeException('unsafe dependency table name in schema map');
         }
         $predicates = [];
         $params = [];
         foreach (array_keys($columns) as $column) {
             if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/D', $column)) {
-                throw new RuntimeException('unsafe dependency column name in schema map');
+                throw new \RuntimeException('unsafe dependency column name in schema map');
             }
             $predicates[] = '`' . $column . '` IN (' . $marks . ')';
             array_push($params, ...$ids);
@@ -248,7 +248,7 @@ try {
     $after = $snapshot([$a['id'], $b['id']], $imageID);
     $t->check(
         'A->destroy(imageID) refuses mixed inactive/protected matches before any Host/HD/task/intent/dependency row changes',
-        $singleError instanceof Throwable && $before === $after
+        $singleError instanceof \Throwable && $before === $after
     );
     if ($singleError && $before !== $after) {
         echo 'DIAGNOSTIC non-ID Host destroy changed snapshot before refusal: '
@@ -292,7 +292,7 @@ try {
     $routeAfter = $snapshot([$routeA['id'], $routeB['id']], $routeImageID);
     $t->check(
         'Route mass non-unique imageID filter rejects mixed inactive/protected set without any row mutation',
-        $routeError instanceof Throwable && $routeBefore === $routeAfter
+        $routeError instanceof \Throwable && $routeBefore === $routeAfter
     );
 
     // Empty target-set regression: the Host model still holds image X, while

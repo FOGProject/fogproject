@@ -40,21 +40,21 @@ try {
     FogTestHarness::boot('u206-writer-intent-worker');
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || '' === $dsn || 0 !== strpos($dsn, 'mysql:')) {
-        throw new RuntimeException('worker requires explicit MySQL scratch opt-in');
+        throw new \RuntimeException('worker requires explicit MySQL scratch opt-in');
     }
-    $pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    $pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ($database !== $input['database']
         || ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_'))) {
-        throw new RuntimeException('worker database differs from validated scratch database');
+        throw new \RuntimeException('worker database differs from validated scratch database');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('worker DATABASE_NAME mismatch');
+        throw new \RuntimeException('worker DATABASE_NAME mismatch');
     }
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -76,14 +76,14 @@ try {
     ], JSON_THROW_ON_ERROR), LOCK_EX);
     if (false === $bytes || !rename($readyTmp, $ready)) {
         @unlink($readyTmp);
-        throw new RuntimeException('failed to publish worker readiness');
+        throw new \RuntimeException('failed to publish worker readiness');
     }
 
     $deadline = microtime(true) + 30.0;
     $go = $resolvedDir . DIRECTORY_SEPARATOR . 'resume';
     while (!is_file($go)) {
         if (microtime(true) >= $deadline) {
-            throw new RuntimeException('parent did not resume paused worker');
+            throw new \RuntimeException('parent did not resume paused worker');
         }
         usleep(10000);
     }
@@ -92,8 +92,8 @@ try {
     $dispatchReason = '';
     try {
         // Opaque identity only. This process does not construct or connect LDAP.
-        $token = FOG\Agent\DirectoryPlacementIntent::dispatch($input['ticket'], new stdClass());
-    } catch (Throwable $e) {
+        $token = FOG\Agent\DirectoryPlacementIntent::dispatch($input['ticket'], new \stdClass());
+    } catch (\Throwable $e) {
         $dispatchReason = $e->getMessage();
     }
     $intent = $pdo->prepare(
@@ -105,7 +105,7 @@ try {
         $input['ticket']['sid'],
         (int)$input['ticket']['payload']['host_id']
     ]);
-    $row = $intent->fetch(PDO::FETCH_ASSOC) ?: null;
+    $row = $intent->fetch(\PDO::FETCH_ASSOC) ?: null;
     echo json_encode([
         'dispatch_token_issued' => is_object($token),
         'dispatch_reason' => $dispatchReason,
@@ -113,7 +113,7 @@ try {
         'intent' => $row
     ], JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR), "\n";
     exit(0);
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     fwrite(STDERR, json_encode(['class' => get_class($e), 'reason' => $e->getMessage()]) . "\n");
     exit(1);
 }

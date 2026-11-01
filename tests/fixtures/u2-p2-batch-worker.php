@@ -15,28 +15,28 @@ if (false === $resolved || 0 !== strpos($resolved, $tempRoot)
 $report = ['ok' => false, 'fence_held' => false, 'updated' => false];
 try {
     if (!is_file($resolved . DIRECTORY_SEPARATOR . 'parent-paused')) {
-        throw new RuntimeException('parent statement did not reach its pause point');
+        throw new \RuntimeException('parent statement did not reach its pause point');
     }
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-        throw new RuntimeException('explicit scratch MySQL opt-in is required');
+        throw new \RuntimeException('explicit scratch MySQL opt-in is required');
     }
     require_once dirname(__DIR__) . '/lib/fog-test-harness.php';
     FogTestHarness::boot('u2-p2-batch-worker');
-    $pdo = new PDO(
+    $pdo = new \PDO(
         $dsn,
         getenv('MJ1_DB_USER') ?: 'root',
         getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-        throw new RuntimeException('database must use the fog_mj1 scratch prefix');
+        throw new \RuntimeException('database must use the fog_mj1 scratch prefix');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+        throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
     }
     $namespace = (string)$pdo->query(
         'SELECT CASE WHEN @@lower_case_table_names=0 THEN DATABASE() ELSE LOWER(DATABASE()) END'
@@ -46,10 +46,10 @@ try {
     $lockQuery->execute([$key]);
     $report['fence_held'] = (int)$lockQuery->fetchColumn() > 0;
     if (!$report['fence_held']) {
-        throw new RuntimeException('parent did not hold the global name fence during the child write');
+        throw new \RuntimeException('parent did not hold the global name fence during the child write');
     }
 
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -64,10 +64,10 @@ try {
     $verify->execute([$hostID]);
     $report['updated'] = true === $result && $tag === $verify->fetchColumn();
     if (!$report['updated']) {
-        throw new RuntimeException('child noncritical description update did not persist');
+        throw new \RuntimeException('child noncritical description update did not persist');
     }
     $report['ok'] = true;
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     $report['error'] = get_class($e) . ': ' . $e->getMessage();
 }
 

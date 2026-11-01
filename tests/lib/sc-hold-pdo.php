@@ -17,7 +17,7 @@ class ScHoldPdoDb extends FogFakeDb
         parent::__construct();
         $this->pdo = $pdo;
         $events = array_merge(self::KNOWN_EVENTS, ['DIRECTORY_CONNECTION', 'HOST_EDIT_AD_FIELDS']);
-        $known = new ReflectionProperty(FOG\Base\HookManager::class, 'knownEvents');
+        $known = new \ReflectionProperty(FOG\Base\HookManager::class, 'knownEvents');
         $known->setAccessible(true);
         $known->setValue(null, array_fill_keys($events, true));
     }
@@ -28,7 +28,7 @@ class ScHoldPdoDb extends FogFakeDb
         if ($this->pdo !== $pdo) {
             throw new FOG\Agent\DirectoryFenceRefusal('directory_fence_connection_changed');
         }
-        if ($this->statement instanceof PDOStatement) {
+        if ($this->statement instanceof \PDOStatement) {
             $this->statement->closeCursor();
         }
     }
@@ -40,7 +40,7 @@ class ScHoldPdoDb extends FogFakeDb
         $this->directoryInsertID = null;
         try {
             $this->log[] = $sql;
-            if ($this->statement instanceof PDOStatement) {
+            if ($this->statement instanceof \PDOStatement) {
                 $this->statement->closeCursor();
             }
             $this->statement = null;
@@ -55,7 +55,7 @@ class ScHoldPdoDb extends FogFakeDb
                     $sql = vsprintf($sql, $data);
                 }
                 if (!$sql) {
-                    throw new PDOException('No query passed');
+                    throw new \PDOException('No query passed');
                 }
                 FOG\Agent\DirectoryNameFence::beforeSQL($this->pdo, $sql, $params);
                 if (false !== strpos($sql, 'hookEvents')) {
@@ -69,7 +69,7 @@ class ScHoldPdoDb extends FogFakeDb
                 $this->statement = $this->pdo->prepare($sql);
                 $this->statement->execute($params);
                 $this->affectedCount = $this->statement->rowCount();
-            } catch (PDOException $e) {
+            } catch (\PDOException $e) {
                 $this->error = $e->getMessage();
                 $this->errorCode = $e->getCode();
                 $this->result = false;
@@ -85,7 +85,7 @@ class ScHoldPdoDb extends FogFakeDb
         }
     }
 
-    public function fetch($mode = PDO::FETCH_ASSOC, $type = 'fetch_assoc')
+    public function fetch($mode = \PDO::FETCH_ASSOC, $type = 'fetch_assoc')
     {
         if ($this->manualResult || false === $this->result || !$this->statement) {
             if ($this->manualResult && 'fetch_all' !== strtolower((string)$type)) {
@@ -94,7 +94,7 @@ class ScHoldPdoDb extends FogFakeDb
             }
             return $this;
         }
-        $mode = $mode ?: PDO::FETCH_ASSOC;
+        $mode = $mode ?: \PDO::FETCH_ASSOC;
         if ('fetch_all' === strtolower((string)$type)) {
             $this->result = $this->statement->fetchAll($mode);
         } else {
@@ -125,8 +125,13 @@ class ScHoldPdoDb extends FogFakeDb
 
     public function insertId()
     {
-        return null !== $this->directoryInsertID
-            ? $this->directoryInsertID : (int)$this->pdo->lastInsertId();
+        if (null !== $this->directoryInsertID) {
+            return $this->directoryInsertID;
+        }
+        if (!$this->pdo instanceof \PDO) {
+            throw new \LogicException('ScHoldPdoDb requires a real PDO connection for insertId');
+        }
+        return (int)$this->pdo->lastInsertId();
     }
 
     public function affectedRows()

@@ -7,25 +7,25 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('transaction crash test requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('transaction crash test requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-transaction-crash');
 
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('transaction crash test requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('transaction crash test requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -121,13 +121,13 @@ $workerPipes = null;
 $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
     . 'u2-p2-transaction-crash-' . bin2hex(random_bytes(12));
 if (!mkdir($barrierDir, 0700)) {
-    throw new RuntimeException('cannot create private transaction crash directory');
+    throw new \RuntimeException('cannot create private transaction crash directory');
 }
 $resolvedDir = realpath($barrierDir);
 $tempRoot = rtrim(realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 if (false === $resolvedDir || 0 !== strpos($resolvedDir, $tempRoot)
     || 0 !== strpos(basename($resolvedDir), 'u2-p2-transaction-crash-')) {
-    throw new RuntimeException('transaction crash directory escaped private temp root');
+    throw new \RuntimeException('transaction crash directory escaped private temp root');
 }
 
 $waitForReadyJSON = static function ($path, $process, $seconds) {
@@ -181,7 +181,7 @@ $rawDirectory = static function () use ($pdo, $hostID) {
     $q = $pdo->prepare('SELECT hdRejoinConfig,hdRejoinState FROM hostDirectory WHERE hdHostID=?');
     $q->execute([$hostID]);
     try {
-        return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+        return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
     } finally {
         $q->closeCursor();
     }
@@ -227,7 +227,7 @@ try {
         dirname(__DIR__)
     );
     if (!is_resource($workerProcess)) {
-        throw new RuntimeException('cannot start transaction crash worker');
+        throw new \RuntimeException('cannot start transaction crash worker');
     }
     fclose($pipes[0]);
     $workerPipes = $pipes;
@@ -287,7 +287,7 @@ try {
         $reacquired = true === FOG\Agent\DirectoryNameFence::run(static function () {
             return true;
         });
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $reacquired = false;
     }
 

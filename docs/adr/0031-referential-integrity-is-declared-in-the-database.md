@@ -15,9 +15,9 @@ windowskey 2, ldap 6, oidc 8, capone 2, subnetgroup 1 -- are declared in
 core's map and applied by a step in each plugin's own `schema()` in
 `FOGProject/fog-plugins`.
 
-**127 of the map's 143 relationships are declared.** The other 16 are not
+**127 of the map's 144 relationships are declared.** The other 17 are not
 pending work: they carry action `none`, which the map's docblock defines as a
-decision rather than an omission. Ten are audit rows, which MUST NOT
+decision rather than an omission. Eleven are audit rows, which MUST NOT
 constrain the thing they record (ADR 0021, `schema.php` step 341); six are
 polymorphic columns whose target table is chosen by a sibling column, where
 no constraint is expressible at all. Nothing in the map is waiting on a
@@ -117,9 +117,10 @@ CASCADE while `tasks.taskStateID` is RESTRICT, and `hosts.hostImage` is SET
 NULL while `scheduledTasks.stImageID` is RESTRICT. A column that holds an id
 and is not in that file is a bug, not an omission.
 
-Current totals: 66 CASCADE, 14 RESTRICT, 9 SET NULL, 16 no constraint
-(`audit` and `poly`). All 67 core relationships are declared as of schema
-step 390; the remaining 22 belong to plugins and land with them.
+Current map action totals: 101 CASCADE, 15 RESTRICT, 11 SET NULL, 17 no
+constraint (`audit` and `poly`). As of schema step 390, all 67 core
+relationships in that release were declared; the remaining 22 at that point
+belonged to plugins and landed with them.
 
 "Holds an id" is not the same as "ends in ID". `multicastSessions.msState`
 and `fileDeleteQueue.fdqState` are references to `taskStates` spelled without
@@ -205,9 +206,10 @@ would make a diagnostic artifact block operational cleanup. `SET NULL` buys
 what a `LEFT JOIN` already gives and adds a write to the delete path.
 
 The class covers `taskLog` (3 columns), `auditChange.acAuditID`,
-`userTracking.utHostID` and all four `nfsFailures` columns. Orphans in these
-tables are the design working, not a defect, and the scanner reports them as
-such.
+`userTracking.utHostID`, all four `nfsFailures` columns,
+`hostPerfTests.hptTaskID` and `directoryPlacementIntent.dpiHostID`. Orphans in
+these tables are the design working, not a defect, and the scanner reports
+them as such.
 
 ### 4. Constraints are added by ALTER, never inline in a CREATE
 

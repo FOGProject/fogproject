@@ -65,7 +65,7 @@ if (!is_array($ddl447) || array_keys($ddl447) !== [0, 1, 2]
 foreach ($ddl447 as $statement) {
     $pdo->exec($statement);
 }
-$actualIntentColumns = $pdo->query('SHOW COLUMNS FROM directoryPlacementIntent')->fetchAll(PDO::FETCH_COLUMN);
+$actualIntentColumns = $pdo->query('SHOW COLUMNS FROM directoryPlacementIntent')->fetchAll(\PDO::FETCH_COLUMN);
 if (array_diff(array_keys($manifest['tables']['directoryPlacementIntent']['columns']), $actualIntentColumns)) {
     throw new \RuntimeException('schema 447 intent table differs from schema-expected.php');
 }

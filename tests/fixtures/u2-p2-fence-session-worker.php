@@ -1,7 +1,7 @@
 <?php
 /** Isolated process fault worker for u2-p2-fence-session.test.php. */
 
-class U2P2FenceSessionStatement extends PDOStatement
+class U2P2FenceSessionStatement extends \PDOStatement
 {
     public static $fault = '';
     public static $getLockExecutes = 0;
@@ -57,7 +57,7 @@ class U2P2FenceSessionStatement extends PDOStatement
             self::$actualGetLock = $rows[0]['acquired'];
             self::$faultInjected = true;
             if ('get-lock-exception' === self::$fault) {
-                throw new RuntimeException('fixture_get_lock_reply_exception');
+                throw new \RuntimeException('fixture_get_lock_reply_exception');
             }
             return [['acquired' => null]];
         }
@@ -67,7 +67,7 @@ class U2P2FenceSessionStatement extends PDOStatement
             self::$actualRelease = $rows[0]['released'];
             self::$faultInjected = true;
             if ('release-exception' === self::$fault) {
-                throw new RuntimeException('fixture_release_reply_exception');
+                throw new \RuntimeException('fixture_release_reply_exception');
             }
             return [['released' => 'release-zero' === self::$fault ? 0 : null]];
         }
@@ -79,35 +79,35 @@ function u2p2FenceSessionPdo()
 {
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('' === $dsn || '1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-        throw new RuntimeException('explicit scratch opt-in and mysql DSN are required');
+        throw new \RuntimeException('explicit scratch opt-in and mysql DSN are required');
     }
-    $pdo = new PDO(
+    $pdo = new \PDO(
         $dsn,
         getenv('MJ1_DB_USER') ?: 'root',
         getenv('MJ1_DB_PASSWORD') ?: '',
         [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_STATEMENT_CLASS => [U2P2FenceSessionStatement::class, []]
+            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+            \PDO::ATTR_STATEMENT_CLASS => [U2P2FenceSessionStatement::class, []]
         ]
     );
     $identity = $pdo->query(
         'SELECT DATABASE() AS db, CASE WHEN @@lower_case_table_names=0 THEN DATABASE() ELSE LOWER(DATABASE()) END AS namespace_db, CONNECTION_ID() AS id'
-    )->fetch(PDO::FETCH_ASSOC);
+    )->fetch(\PDO::FETCH_ASSOC);
     if (!is_array($identity)
         || ('fog_mj1' !== $identity['db'] && 0 !== strpos($identity['db'], 'fog_mj1_'))) {
-        throw new RuntimeException('database name must use the fog_mj1 scratch prefix');
+        throw new \RuntimeException('database name must use the fog_mj1 scratch prefix');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $identity['db']);
     } elseif (DATABASE_NAME !== $identity['db']) {
-        throw new RuntimeException('DATABASE_NAME differs from the validated scratch DB');
+        throw new \RuntimeException('DATABASE_NAME differs from the validated scratch DB');
     }
     return [$pdo, $identity];
 }
 
 function u2p2FenceSessionInstall(PDO $pdo)
 {
-    $property = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $property = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $property->setAccessible(true);
     $property->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -120,7 +120,7 @@ function u2p2FenceSessionLockKey(PDO $pdo)
 {
     $row = $pdo->query(
         'SELECT CASE WHEN @@lower_case_table_names=0 THEN DATABASE() ELSE LOWER(DATABASE()) END AS namespace_db'
-    )->fetch(PDO::FETCH_ASSOC);
+    )->fetch(\PDO::FETCH_ASSOC);
     return 'fog.mj1.name.v1:' . substr(hash('sha256', $row['namespace_db']), 0, 40);
 }
 
@@ -149,20 +149,20 @@ try {
         $hostID = (int)($argv[2] ?? 0);
         $replacementName = (string)($argv[3] ?? '');
         if ($hostID <= 0 || !preg_match('/^P2FS[A-F0-9]{12}$/D', $replacementName)) {
-            throw new RuntimeException('invalid fixture arguments');
+            throw new \RuntimeException('invalid fixture arguments');
         }
-        $secondPdo = new PDO(
+        $secondPdo = new \PDO(
             (string)getenv('MJ1_DB_DSN'),
             getenv('MJ1_DB_USER') ?: 'root',
             getenv('MJ1_DB_PASSWORD') ?: '',
             [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_STATEMENT_CLASS => [U2P2FenceSessionStatement::class, []]
+                \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                \PDO::ATTR_STATEMENT_CLASS => [U2P2FenceSessionStatement::class, []]
             ]
         );
         $before = $pdo->prepare('SELECT * FROM hosts WHERE hostID=?');
         $before->execute([$hostID]);
-        $beforeRow = $before->fetch(PDO::FETCH_ASSOC);
+        $beforeRow = $before->fetch(\PDO::FETCH_ASSOC);
         $oldName = is_array($beforeRow) && array_key_exists('hostName', $beforeRow)
             ? $beforeRow['hostName'] : '__missing__';
         $beforeHash = hash('sha256', serialize($beforeRow));
@@ -171,7 +171,7 @@ try {
         try {
             FOG\Agent\DirectoryNameFence::run(static function () use ($secondPdo, $hostID, $replacementName, $db, &$callback) {
                 $callback = true;
-                $property = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+                $property = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
                 $property->setAccessible(true);
                 $property->setValue(null, $secondPdo);
                 $db->query(
@@ -180,21 +180,21 @@ try {
                     ['new_name' => $replacementName, 'host_id' => $hostID]
                 );
             });
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
         $after = $secondPdo->prepare('SELECT * FROM hosts WHERE hostID=?');
         $after->execute([$hostID]);
-        $afterRow = $after->fetch(PDO::FETCH_ASSOC);
+        $afterRow = $after->fetch(\PDO::FETCH_ASSOC);
         $newName = is_array($afterRow) && array_key_exists('hostName', $afterRow)
             ? $afterRow['hostName'] : '__missing__';
         $afterHash = hash('sha256', serialize($afterRow));
         $secondReason = '';
         try {
             FOG\Agent\DirectoryNameFence::run(static function () {
-                throw new RuntimeException('poisoned fence callback must not run');
+                throw new \RuntimeException('poisoned fence callback must not run');
             });
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $secondReason = $e->getMessage();
         }
         u2p2FenceSessionEmit([
@@ -218,7 +218,7 @@ try {
         $key = u2p2FenceSessionLockKey($pdo);
         $q = $pdo->prepare('SELECT GET_LOCK(?,0) AS acquired');
         $q->execute([$key]);
-        $acquired = $q->fetch(PDO::FETCH_ASSOC);
+        $acquired = $q->fetch(\PDO::FETCH_ASSOC);
         $acquiredPresent = is_array($acquired) && array_key_exists('acquired', $acquired);
         $callback = false;
         $reason = '';
@@ -226,7 +226,7 @@ try {
             FOG\Agent\DirectoryNameFence::run(static function () use (&$callback) {
                 $callback = true;
             });
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
         $owner = $pdo->prepare('SELECT IS_USED_LOCK(?) AS owner');
@@ -245,17 +245,17 @@ try {
     }
 
     if ('autocommit-off' === $mode) {
-        $pdo->setAttribute(PDO::ATTR_AUTOCOMMIT, false);
+        $pdo->setAttribute(\PDO::ATTR_AUTOCOMMIT, false);
         $callback = false;
         $reason = '';
         try {
             FOG\Agent\DirectoryNameFence::run(static function () use (&$callback) {
                 $callback = true;
             });
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
-        $session = $pdo->query('SELECT @@autocommit AS autocommit')->fetch(PDO::FETCH_ASSOC);
+        $session = $pdo->query('SELECT @@autocommit AS autocommit')->fetch(\PDO::FETCH_ASSOC);
         u2p2FenceSessionEmit([
             'mode' => $mode,
             'autocommit' => (int)$session['autocommit'],
@@ -274,7 +274,7 @@ try {
             FOG\Agent\DirectoryNameFence::run(static function () use (&$callback) {
                 $callback = true;
             });
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $firstReason = $e->getMessage();
         }
         $secondCallback = false;
@@ -283,7 +283,7 @@ try {
             FOG\Agent\DirectoryNameFence::run(static function () use (&$secondCallback) {
                 $secondCallback = true;
             });
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $secondReason = $e->getMessage();
         }
         $key = u2p2FenceSessionLockKey($pdo);
@@ -308,7 +308,7 @@ try {
         $hostID = (int)($argv[2] ?? 0);
         $newName = (string)($argv[3] ?? '');
         if ($hostID <= 0 || !preg_match('/^P2FS[A-F0-9]{12}$/D', $newName)) {
-            throw new RuntimeException('invalid fixture arguments');
+            throw new \RuntimeException('invalid fixture arguments');
         }
         U2P2FenceSessionStatement::$fault = $mode;
         $callback = false;
@@ -325,7 +325,7 @@ try {
                 $callbackQuerySucceeded = false === $db->error;
                 return $callbackQuerySucceeded;
             });
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $firstReason = $e->getMessage();
         }
         $row = $pdo->prepare('SELECT hostName FROM hosts WHERE hostID=?');
@@ -342,7 +342,7 @@ try {
             FOG\Agent\DirectoryNameFence::run(static function () use (&$secondCallback) {
                 $secondCallback = true;
             });
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $secondReason = $e->getMessage();
         }
         u2p2FenceSessionEmit([
@@ -375,7 +375,7 @@ try {
             'connection_id' => $identity['id']
         ]);
     }
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     u2p2FenceSessionEmit([
         'mode' => $mode,
         'worker_error' => get_class($e),

@@ -19,26 +19,26 @@ try {
     FogTestHarness::boot('u2-p2-claim-race-worker');
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:') || '' === $dsn) {
-        throw new RuntimeException('claim race worker requires explicit MySQL scratch opt-in');
+        throw new \RuntimeException('claim race worker requires explicit MySQL scratch opt-in');
     }
     foreach (['database','host_id','name','domain','fingerprint','body'] as $key) {
         if (!array_key_exists($key, $input)) {
-            throw new RuntimeException('claim race worker arguments are incomplete');
+            throw new \RuntimeException('claim race worker arguments are incomplete');
         }
     }
-    $pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+    $pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ($database !== $input['database']
         || ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_'))) {
-        throw new RuntimeException('claim race worker database differs from validated scratch database');
+        throw new \RuntimeException('claim race worker database differs from validated scratch database');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+        throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
     }
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -61,14 +61,14 @@ try {
         'phase_before_go' => $saved['state']['phase'] ?? null
     ], JSON_THROW_ON_ERROR), LOCK_EX) || !rename($readyTemp, $readyPath)) {
         @unlink($readyTemp);
-        throw new RuntimeException('could not publish complete claim race readiness record');
+        throw new \RuntimeException('could not publish complete claim race readiness record');
     }
 
     $go = $resolvedDir . DIRECTORY_SEPARATOR . 'go';
     $deadline = microtime(true) + 20.0;
     while (!is_file($go)) {
         if (microtime(true) >= $deadline) {
-            throw new RuntimeException('parent did not release claim race barrier');
+            throw new \RuntimeException('parent did not release claim race barrier');
         }
         usleep(10000);
     }
@@ -78,7 +78,7 @@ try {
     try {
         FOG\Agent\DirectoryOperation::claim($host, $saved, $input['body']);
         $claimed = true;
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $reason = $e->getMessage();
     }
     $after = FOG\Agent\DirectoryRejoin::settings($host);
@@ -93,7 +93,7 @@ try {
         'connection_id' => $connectionID
     ]), "\n";
     exit(0);
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     fwrite(STDERR, json_encode(['class' => get_class($e), 'reason' => $e->getMessage()]) . "\n");
     exit(1);
 }

@@ -6,28 +6,28 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-P2 hook-owner test requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-P2 hook-owner test requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-hook-owner');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-P2 hook-owner test requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-P2 hook-owner test requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -100,12 +100,12 @@ $insertHost = static function ($description = '') use ($pdo, $name, &$hostIDs) {
 $rawHost = static function ($id) use ($pdo) {
     $q = $pdo->prepare('SELECT * FROM hosts WHERE hostID=?');
     $q->execute([$id]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $blocked = static function (callable $fn) {
     try {
         $fn();
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return $e;
     }
     return null;
@@ -147,7 +147,7 @@ try {
     $beforeB = $rawHost($outsideOwnerID);
     $beforeDirectoryB = $pdo->prepare('SELECT * FROM hostDirectory WHERE hdHostID=?');
     $beforeDirectoryB->execute([$outsideOwnerID]);
-    $beforeDirectoryB = $beforeDirectoryB->fetch(PDO::FETCH_ASSOC);
+    $beforeDirectoryB = $beforeDirectoryB->fetch(\PDO::FETCH_ASSOC);
     $hookMode = 'outside_hostdirectory';
     $rootCallbackOrder = [];
     $hookDispatches = 0;
@@ -160,7 +160,7 @@ try {
     $outsideMap = $observerMaps[0]['removeItems'] ?? [];
     $t->check(
         'real delete hook cannot add another host blank HostDirectory row to A decommission',
-        $outsideError instanceof RuntimeException
+        $outsideError instanceof \RuntimeException
             && false !== strpos($outsideError->getMessage(), 'directory_dependency_outside_decommission')
             && is_array($beforeA) && $beforeA === $rawHost($deleteA)
             && is_array($beforeB) && $beforeB === $rawHost($outsideOwnerID)
@@ -168,7 +168,7 @@ try {
             && $beforeDirectoryB === (function () use ($pdo, $outsideOwnerID) {
                 $q = $pdo->prepare('SELECT * FROM hostDirectory WHERE hdHostID=?');
                 $q->execute([$outsideOwnerID]);
-                return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+                return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
             })()
             && ['mutator', 'observer'] === $rootCallbackOrder
             && 2 === $hookDispatches
@@ -208,7 +208,7 @@ try {
     $beforeC = $rawHost($deleteC);
     $imageBeforeQuery = $pdo->prepare('SELECT * FROM images WHERE imageID=?');
     $imageBeforeQuery->execute([$imageID]);
-    $imageBefore = $imageBeforeQuery->fetch(PDO::FETCH_ASSOC);
+    $imageBefore = $imageBeforeQuery->fetch(\PDO::FETCH_ASSOC);
     $hookMode = 'unknown_image';
     $rootCallbackOrder = [];
     $hookDispatches = 0;
@@ -223,10 +223,10 @@ try {
     $imageAfterQuery->execute([$imageID]);
     $t->check(
         'real delete hook cannot add an ownerless image dependency to Host decommission',
-        $imageError instanceof RuntimeException
+        $imageError instanceof \RuntimeException
             && false !== strpos($imageError->getMessage(), 'directory_dependency_owner_unknown')
             && is_array($beforeC) && $beforeC === $rawHost($deleteC)
-            && is_array($imageBefore) && $imageBefore === $imageAfterQuery->fetch(PDO::FETCH_ASSOC)
+            && is_array($imageBefore) && $imageBefore === $imageAfterQuery->fetch(\PDO::FETCH_ASSOC)
             && ['mutator', 'observer'] === $rootCallbackOrder
             && 2 === $hookDispatches
             && isset($imageMap['image'])

@@ -7,23 +7,23 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('claim race test requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('claim race test requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-claim-race');
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('claim race test requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('claim race test requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -154,7 +154,7 @@ $createFixture = static function ($count, $identityKind = null) use ($pdo, $guid
                 'directory_inserted' => $directoryInserted
             ];
             $rows[] = $fixture;
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             if ($directoryInserted) {
                 $q = $pdo->prepare('DELETE FROM hostDirectory WHERE hdHostID=?');
                 $q->execute([$hostID]);
@@ -179,7 +179,7 @@ $startWorker = static function ($barrierDir, $workerKey, array $input) use ($wor
         dirname(__DIR__)
     );
     if (!is_resource($process)) {
-        throw new RuntimeException('cannot start claim race worker');
+        throw new \RuntimeException('cannot start claim race worker');
     }
     fclose($pipes[0]);
     $activeWorkers[$workerKey] = [$process, $pipes];
@@ -248,7 +248,7 @@ $runRace = static function ($fixtures, $scenario) use (
     $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
         . 'u2-p2-claim-race-' . bin2hex(random_bytes(8)) . '-' . $scenario;
     if (!mkdir($barrierDir, 0700)) {
-        throw new RuntimeException('cannot create claim race barrier directory');
+        throw new \RuntimeException('cannot create claim race barrier directory');
     }
     $barrierDir = realpath($barrierDir);
     $barrierDirs[] = $barrierDir;

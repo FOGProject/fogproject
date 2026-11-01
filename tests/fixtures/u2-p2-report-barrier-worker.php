@@ -31,7 +31,7 @@ class U2P2ReportBarrierFakeLdap
 }
 class_alias(U2P2ReportBarrierFakeLdap::class, 'FOG\\Net\\FOGLdap', false);
 
-class U2P2ReportBarrierStatement extends PDOStatement
+class U2P2ReportBarrierStatement extends \PDOStatement
 {
     public static $armed = false;
     public static $barrierDir = '';
@@ -56,7 +56,7 @@ class U2P2ReportBarrierStatement extends PDOStatement
                 'pid' => getmypid(),
                 'connection_id' => self::$connectionID,
                 'actual_update_executed' => true,
-                'transaction_open' => self::$pdo instanceof PDO && self::$pdo->inTransaction(),
+                'transaction_open' => self::$pdo instanceof \PDO && self::$pdo->inTransaction(),
                 'phase_in_update' => is_array($updatedState) ? ($updatedState['phase'] ?? null) : null,
                 'last_deploy_task_id' => is_array($updatedState) ? ($updatedState['last_deploy_task_id'] ?? null) : null,
                 'target_guid' => $updatedState['target']['guid'] ?? null,
@@ -64,13 +64,13 @@ class U2P2ReportBarrierStatement extends PDOStatement
             ], JSON_THROW_ON_ERROR), LOCK_EX);
             if (false === $published || !rename($readyTemp, $readyPath)) {
                 @unlink($readyTemp);
-                throw new RuntimeException('could not publish complete report readiness record');
+                throw new \RuntimeException('could not publish complete report readiness record');
             }
             $go = self::$barrierDir . DIRECTORY_SEPARATOR . 'go-report';
             $deadline = microtime(true) + 25.0;
             while (!is_file($go)) {
                 if (microtime(true) >= $deadline) {
-                    throw new RuntimeException('parent did not release report commit barrier');
+                    throw new \RuntimeException('parent did not release report commit barrier');
                 }
                 usleep(10000);
             }
@@ -96,29 +96,29 @@ try {
     FogTestHarness::boot('u2-p2-report-barrier-worker');
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:') || '' === $dsn) {
-        throw new RuntimeException('report barrier worker requires explicit MySQL scratch opt-in');
+        throw new \RuntimeException('report barrier worker requires explicit MySQL scratch opt-in');
     }
     foreach (['database','host_id','name','domain','fingerprint','directory_target','old_name'] as $key) {
         if (!array_key_exists($key, $input)) {
-            throw new RuntimeException('report barrier worker arguments are incomplete');
+            throw new \RuntimeException('report barrier worker arguments are incomplete');
         }
     }
-    $pdoOptions = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+    $pdoOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
     if ('report-pause' === $mode) {
-        $pdoOptions[PDO::ATTR_STATEMENT_CLASS] = [U2P2ReportBarrierStatement::class, []];
+        $pdoOptions[\PDO::ATTR_STATEMENT_CLASS] = [U2P2ReportBarrierStatement::class, []];
     }
-    $pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '', $pdoOptions);
+    $pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '', $pdoOptions);
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ($database !== $input['database']
         || ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_'))) {
-        throw new RuntimeException('report barrier worker database differs from validated scratch database');
+        throw new \RuntimeException('report barrier worker database differs from validated scratch database');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+        throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
     }
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -152,7 +152,7 @@ try {
         try {
             FOG\Agent\DirectoryOperation::report($host, $input['body']);
             $reported = true;
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
         $after = FOG\Agent\DirectoryRejoin::settings($host);
@@ -169,7 +169,7 @@ try {
     }
 
     if (!isset($input['competitor_id'])) {
-        throw new RuntimeException('name saver competitor ID is missing');
+        throw new \RuntimeException('name saver competitor ID is missing');
     }
     $connectionID = (int)$pdo->query('SELECT CONNECTION_ID()')->fetchColumn();
     $startedPath = $resolvedDir . DIRECTORY_SEPARATOR . 'save-started.json';
@@ -179,7 +179,7 @@ try {
     ], JSON_THROW_ON_ERROR), LOCK_EX);
     if (false === $published || !rename($startedTemp, $startedPath)) {
         @unlink($startedTemp);
-        throw new RuntimeException('could not publish complete name-save readiness record');
+        throw new \RuntimeException('could not publish complete name-save readiness record');
     }
     $saved = false;
     $reason = '';
@@ -193,12 +193,12 @@ try {
         if (!$saved) {
             $reason = is_string($result->error) ? $result->error : 'name_save_did_not_update_one_row';
         }
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $reason = $e->getMessage();
     }
     echo json_encode(['saved' => $saved, 'reason' => $reason, 'connection_id' => $connectionID]), "\n";
     exit(0);
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     fwrite(STDERR, json_encode(['class' => get_class($e), 'reason' => $e->getMessage()]) . "\n");
     exit(1);
 }

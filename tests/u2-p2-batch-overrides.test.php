@@ -7,22 +7,22 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('batch override test requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('batch override test requires explicit scratch opt-in and mysql DSN');
 }
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-batch-overrides');
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('batch override test requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('batch override test requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME differs from validated scratch DB');
+    throw new \RuntimeException('DATABASE_NAME differs from validated scratch DB');
 }
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -76,7 +76,7 @@ try {
     $hostNameBefore = $rawHost->fetchColumn();
     $rawDirectory = $pdo->prepare('SELECT hdID,hdRejoinConfig,hdRejoinState FROM hostDirectory WHERE hdHostID=?');
     $rawDirectory->execute([$hostID]);
-    $directoryBefore = $rawDirectory->fetch(PDO::FETCH_ASSOC);
+    $directoryBefore = $rawDirectory->fetch(\PDO::FETCH_ASSOC);
 
     // This is the valid HostManager map compiled to its explicit physical
     // table argument. The duplicate-PK upsert would rename a protected Host.
@@ -85,7 +85,7 @@ try {
         (new FOG\Managers\HostManager())->insertBatch(
             ['id', 'name'], [[$hostID, 'P2OVX' . strtoupper(bin2hex(random_bytes(3)))]], 'hosts'
         );
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $hostManagerReason = $e->getMessage();
     }
     $rawHost->execute([$hostID]);
@@ -104,11 +104,11 @@ try {
             ['id', 'rejoinState'], [[(int)$directoryBefore['hdID'], json_encode($changedState, JSON_THROW_ON_ERROR)]],
             'hostDirectory'
         );
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $hdManagerReason = $e->getMessage();
     }
     $rawDirectory->execute([$hostID]);
-    $directoryAfter = $rawDirectory->fetch(PDO::FETCH_ASSOC);
+    $directoryAfter = $rawDirectory->fetch(\PDO::FETCH_ASSOC);
     $t->check('B36 HostDirectoryManager insertBatch explicit hostDirectory override preserves authority history',
         'directory_authority_history_protected' === $hdManagerReason
         && $directoryBefore === $directoryAfter);

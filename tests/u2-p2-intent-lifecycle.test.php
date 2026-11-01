@@ -11,31 +11,31 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('intent lifecycle requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('intent lifecycle requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-intent-lifecycle');
 
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('intent lifecycle requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('intent lifecycle requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
 // Install the live scratch PDO in the actual PDODB wrapper. DirectoryNameFence
 // and DirectoryPlacementIntent therefore use their production PDO path.
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -68,14 +68,14 @@ $readIntent = static function ($targetGuid) use ($pdo, $guidBytes) {
         'SELECT dpiGUID,dpiSID,dpiHostID,dpiGeneration,dpiStatus,dpiPayload,dpiHash,dpiResult '
         . 'FROM directoryPlacementIntent WHERE dpiGUID=?'
     );
-    $q->bindValue(1, $guidBytes($targetGuid), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($targetGuid), \PDO::PARAM_LOB);
     $q->execute();
-    return $q->fetch(PDO::FETCH_ASSOC);
+    return $q->fetch(\PDO::FETCH_ASSOC);
 };
 $readHost = static function ($hostID) use ($pdo) {
     $q = $pdo->prepare('SELECT hostID,hostName FROM hosts WHERE hostID=?');
     $q->execute([$hostID]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $expectClaimRefusal = static function ($hostID, array $state, $expected) use ($throwReason) {
     $throwReason($expected, $expected, static function () use ($hostID, $state) {
@@ -84,7 +84,7 @@ $expectClaimRefusal = static function ($hostID, array $state, $expected) use ($t
             try {
                 FOG\Agent\DirectoryPlacementIntent::assertClaim($db, $hostID, $state);
                 $db->commit();
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 if ($db->inTransaction()) {
                     $db->rollBack();
                 }
@@ -148,7 +148,7 @@ $createFixture = static function () use ($pdo, $guid, &$fixtures) {
         ->set('ADOU', 'OU=Managed,DC=u2p2,DC=invalid')
         ->set('useAD', 1)
         ->set('agentFingerprint', $fingerprint);
-    $snapshotMethod = new ReflectionMethod(
+    $snapshotMethod = new \ReflectionMethod(
         FOG\Agent\DirectoryPlacementIntent::class,
         'snapshot'
     );
@@ -217,18 +217,18 @@ try {
                 $cancel['state']
             );
             $db->commit();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
             throw $e;
         }
     });
-    $cancelled = $readIntent($cancel['target']['guid']);
+    $canceled = $readIntent($cancel['target']['guid']);
     $t->check(
         'assertClaim cancels PREPARED without a dispatch token',
-        is_array($cancelled) && 'CANCELLED' === $cancelled['dpiStatus']
-            && 1 === (int)$cancelled['dpiGeneration']
+        is_array($canceled) && 'CANCELLED' === $canceled['dpiStatus']
+            && 1 === (int)$canceled['dpiGeneration']
     );
     $cancelNext = FOG\Agent\DirectoryPlacementIntent::prepare($cancel['payload']);
     $cancelNextRow = $readIntent($cancel['target']['guid']);
@@ -254,7 +254,7 @@ try {
     // Ordinary facts may change after reservation. Dispatch must cancel only
     // its exact PREPARED generation and return no token; a later caller may
     // prepare again from a freshly loaded snapshot as a new generation.
-    $snapshotMethod = new ReflectionMethod(
+    $snapshotMethod = new \ReflectionMethod(
         FOG\Agent\DirectoryPlacementIntent::class,
         'snapshot'
     );
@@ -276,13 +276,13 @@ try {
             new FOG\Net\FOGLdap()
         );
     });
-    $snapshotCancelled = $readIntent($snapshotChanged['target']['guid']);
+    $snapshotCanceled = $readIntent($snapshotChanged['target']['guid']);
     $t->check(
         'changed facts cancel only the saved PREPARED row and return no dispatch token',
         false !== $factsUpdateResult && null === $unissuedToken
             && $updatedObservedAt !== $snapshotTicket['payload']['snapshot']['hdObservedAt']
-            && is_array($snapshotCancelled) && 'CANCELLED' === $snapshotCancelled['dpiStatus']
-            && $snapshotTicket['generation'] === (int)$snapshotCancelled['dpiGeneration']
+            && is_array($snapshotCanceled) && 'CANCELLED' === $snapshotCanceled['dpiStatus']
+            && $snapshotTicket['generation'] === (int)$snapshotCanceled['dpiGeneration']
     );
     $freshSnapshot = $snapshotMethod->invoke(null, $pdo, $snapshotChanged['host_id']);
     $freshPayload = $snapshotChanged['payload'];
@@ -317,22 +317,22 @@ try {
         'AND',
         ['name' => $renameClaim]
     );
-    $renameCancelled = $readIntent($renameCancel['target']['guid']);
+    $renameCanceled = $readIntent($renameCancel['target']['guid']);
     $t->check(
         'normal HostManager rename commits PREPARED cancellation with the name change',
-        true === $renameResult && is_array($renameCancelled)
-            && 'CANCELLED' === $renameCancelled['dpiStatus']
+        true === $renameResult && is_array($renameCanceled)
+            && 'CANCELLED' === $renameCanceled['dpiStatus']
             && is_array($renameBefore) && $renameBefore['hostName'] !== $renameClaim
             && $renameClaim === ($readHost($renameHost['host_id'])['hostName'] ?? null)
     );
-    $throwReason('cancelled reservation ticket cannot dispatch after name reassignment', 'directory_placement_dispatch_changed', static function () use ($renameTicket) {
+    $throwReason('canceled reservation ticket cannot dispatch after name reassignment', 'directory_placement_dispatch_changed', static function () use ($renameTicket) {
         FOG\Agent\DirectoryPlacementIntent::dispatch(
             $renameTicket,
             new FOG\Net\FOGLdap()
         );
     });
     $t->check(
-        'failed stale dispatch leaves the name-cancelled intent terminal',
+        'failed stale dispatch leaves the name-canceled intent terminal',
         'CANCELLED' === ($readIntent($renameCancel['target']['guid'])['dpiStatus'] ?? null)
             && $renameClaim === ($readHost($renameHost['host_id'])['hostName'] ?? null)
     );
@@ -377,14 +377,14 @@ try {
     $newHost = (new FOG\Items\Host())->set('name', $insertClaim);
     $insertResult = $newHost->save();
     $insertedHostID = (int)$newHost->get('id');
-    $insertCancelled = $readIntent($insertIntent['target']['guid']);
+    $insertCanceled = $readIntent($insertIntent['target']['guid']);
     $t->check(
         'name-colliding Host INSERT returns its real auto-increment ID and commits cancellation',
         $insertResult instanceof FOG\Items\Host && $insertedHostID > 0
             && $insertClaim === ($readHost($insertedHostID)['hostName'] ?? null)
-            && is_array($insertCancelled) && 'CANCELLED' === $insertCancelled['dpiStatus']
-            && 1 === (int)$insertCancelled['dpiGeneration']
-            && $insertTicket['generation'] === (int)$insertCancelled['dpiGeneration']
+            && is_array($insertCanceled) && 'CANCELLED' === $insertCanceled['dpiStatus']
+            && 1 === (int)$insertCanceled['dpiGeneration']
+            && $insertTicket['generation'] === (int)$insertCanceled['dpiGeneration']
     );
 
     // MAY_HAVE_RUN survives both the owner-edit and same-target claim probes.
@@ -451,7 +451,7 @@ try {
     $wrongEntryToken = FOG\Agent\DirectoryPlacementIntent::dispatch($wrongEntryTicket, $wrongEntryLdap);
     $wrongEntryDN = FOG\Net\FOGLdap::guidDN($wrongEntry['target']['guid']);
     $wrongParentDN = FOG\Net\FOGLdap::guidDN($wrongEntry['destination']['guid']);
-    $throwReason('permit rejects a different entry GUID DN', 'directory_move_dispatch_binding_changed', static function () use ($wrongEntryToken, $wrongEntryLdap, $wrongEntryDN, $wrongParentDN) {
+    $throwReason('permit rejects a different entry GUID DN', 'directory_move_dispatch_binding_changed', static function () use ($wrongEntryToken, $wrongEntryLdap, $wrongParentDN) {
         FOG\Agent\DirectoryPlacementIntent::consumePermit(
             $wrongEntryToken,
             $wrongEntryLdap,
@@ -470,7 +470,7 @@ try {
     $wrongParentToken = FOG\Agent\DirectoryPlacementIntent::dispatch($wrongParentTicket, $wrongParentLdap);
     $wrongParentEntryDN = FOG\Net\FOGLdap::guidDN($wrongParent['target']['guid']);
     $wrongParentDN = FOG\Net\FOGLdap::guidDN($wrongParent['destination']['guid']);
-    $throwReason('permit rejects a different parent GUID DN', 'directory_move_dispatch_binding_changed', static function () use ($wrongParentToken, $wrongParentLdap, $wrongParentEntryDN, $wrongParentDN) {
+    $throwReason('permit rejects a different parent GUID DN', 'directory_move_dispatch_binding_changed', static function () use ($wrongParentToken, $wrongParentLdap, $wrongParentEntryDN) {
         FOG\Agent\DirectoryPlacementIntent::consumePermit(
             $wrongParentToken,
             $wrongParentLdap,
@@ -567,7 +567,7 @@ try {
         'SELECT hdComputerDN,hdObservedAt,hdPlacementAt FROM hostDirectory WHERE hdHostID=?'
     );
     $factsBeforeQuery->execute([$factsCas['host_id']]);
-    $factsBefore = $factsBeforeQuery->fetch(PDO::FETCH_ASSOC);
+    $factsBefore = $factsBeforeQuery->fetch(\PDO::FETCH_ASSOC);
     $factsBeforeQuery->closeCursor();
     $newerDN = 'CN=' . $factsCas['host_name'] . ',OU=NewerFacts,DC=u2p2,DC=invalid';
     $newerObservedAt = gmdate('Y-m-d H:i:s');
@@ -585,7 +585,7 @@ try {
         'SELECT hdComputerDN,hdObservedAt,hdPlacementAt FROM hostDirectory WHERE hdHostID=?'
     );
     $factsAfterQuery->execute([$factsCas['host_id']]);
-    $factsAfter = $factsAfterQuery->fetch(PDO::FETCH_ASSOC);
+    $factsAfter = $factsAfterQuery->fetch(\PDO::FETCH_ASSOC);
     $factsAfterQuery->closeCursor();
     $factsCasResult = $readIntent($factsCas['target']['guid']);
     echo "CONTRACT H-01: finish atomically records LDAP outcome and facts-CAS diagnostic; CAS miss preserves newer facts and old placementAt\n";
@@ -603,7 +603,7 @@ try {
     foreach ($fixtures as $fixture) {
         if (!empty($fixture['target']['guid'])) {
             $deleteIntent = $pdo->prepare('DELETE FROM directoryPlacementIntent WHERE dpiGUID=?');
-            $deleteIntent->bindValue(1, $guidBytes($fixture['target']['guid']), PDO::PARAM_LOB);
+            $deleteIntent->bindValue(1, $guidBytes($fixture['target']['guid']), \PDO::PARAM_LOB);
             $deleteIntent->execute();
         }
         if (!empty($fixture['directory_inserted'])) {

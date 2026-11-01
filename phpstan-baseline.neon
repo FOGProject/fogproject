@@ -1652,6 +1652,14 @@ parameters:
 			count: 1
 			path: packages/web/src/Db/Mysqldump.php
 
+		# The installer-generated Config supplies this secret at bootstrap.
+		# Keep it out of constants.stub.php, like the Mysqldump read above.
+		-
+			message: '#^Constant DATABASE_PASSWORD not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: packages/web/src/Db/PDODB.php
+
 		-
 			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType

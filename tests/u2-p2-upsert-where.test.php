@@ -6,29 +6,29 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-P2 upsert/where requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-P2 upsert/where requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-upsert-where');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-P2 upsert/where requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-P2 upsert/where requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
 // Keep the real PDO path installed for both the ORM and DirectoryNameFence.
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -94,11 +94,11 @@ $create = static function ($active = false) use ($pdo, $guid, &$fixtures) {
 $row = static function ($table, $key, $id) use ($pdo) {
     if (!in_array($table, ['hosts', 'hostDirectory'], true)
         || !in_array($key, ['hostID', 'hdID'], true)) {
-        throw new InvalidArgumentException('invalid fixture row selector');
+        throw new \InvalidArgumentException('invalid fixture row selector');
     }
     $q = $pdo->prepare('SELECT * FROM `' . $table . '` WHERE `' . $key . '`=?');
     $q->execute([$id]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $same = static function ($a, $b) {
     return hash_equals(hash('sha256', serialize($a)), hash('sha256', serialize($b)));
@@ -106,7 +106,7 @@ $same = static function ($a, $b) {
 $attempt = static function (callable $fn) {
     try {
         return ['result' => $fn(), 'error' => null];
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return ['result' => null, 'error' => $e];
     }
 };
@@ -132,7 +132,7 @@ try {
         $save = $attempt(static function () use ($stale) { return $stale->save(); });
         $t->check(
             'B09 stale ' . ($dirty ? 'dirty' : 'clean') . ' Host save cannot overwrite a fresh protected footprint',
-            (false === $save['result'] || $save['error'] instanceof Throwable)
+            (false === $save['result'] || $save['error'] instanceof \Throwable)
                 && $freshHostBefore === $row('hosts', 'hostID', $f['id'])
                 && $same($freshMarkerBefore, $row('hostDirectory', 'hdID', $f['hdid']))
         );
@@ -147,7 +147,7 @@ try {
     $pkUpsert = $attempt(static function () use ($pkCandidate) { return $pkCandidate->save(); });
     $t->check(
         'B10 Host upsert colliding by PK cannot change the protected row',
-        (false === $pkUpsert['result'] || $pkUpsert['error'] instanceof Throwable)
+        (false === $pkUpsert['result'] || $pkUpsert['error'] instanceof \Throwable)
             && $activeHostBefore === $row('hosts', 'hostID', $active['id'])
     );
 
@@ -158,7 +158,7 @@ try {
     $nameUpsert = $attempt(static function () use ($nameCandidate) { return $nameCandidate->save(); });
     $t->check(
         'B10 Host upsert colliding by UNIQUE hostname cannot change the protected owner',
-        (false === $nameUpsert['result'] || $nameUpsert['error'] instanceof Throwable)
+        (false === $nameUpsert['result'] || $nameUpsert['error'] instanceof \Throwable)
             && $activeHostBefore === $row('hosts', 'hostID', $active['id'])
     );
 
@@ -171,7 +171,7 @@ try {
     $pkHDUpsert = $attempt(static function () use ($hdByPK) { return $hdByPK->save(); });
     $t->check(
         'B10 HostDirectory upsert colliding by PK cannot reparent protected owner',
-        (false === $pkHDUpsert['result'] || $pkHDUpsert['error'] instanceof Throwable)
+        (false === $pkHDUpsert['result'] || $pkHDUpsert['error'] instanceof \Throwable)
             && $same($protectedHD, $row('hostDirectory', 'hdID', $active['hdid']))
     );
 
@@ -180,7 +180,7 @@ try {
     $ownerHDUpsert = $attempt(static function () use ($ownerCandidate) { return $ownerCandidate->save(); });
     $t->check(
         'B10 HostDirectory upsert colliding by UNIQUE owner cannot replace protected row',
-        (false === $ownerHDUpsert['result'] || $ownerHDUpsert['error'] instanceof Throwable)
+        (false === $ownerHDUpsert['result'] || $ownerHDUpsert['error'] instanceof \Throwable)
             && $same($protectedHD, $row('hostDirectory', 'hdID', $active['hdid']))
     );
 

@@ -1,5 +1,5 @@
 <?php
-/** B39 same-ticket dispatch race and claim-cancelled PREPARED ticket barrier. */
+/** B39 same-ticket dispatch race and claim-canceled PREPARED ticket barrier. */
 
 $dsn = (string)getenv('MJ1_DB_DSN');
 if ('' === $dsn) {
@@ -7,22 +7,22 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('placement dispatch race requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('placement dispatch race requires explicit scratch opt-in and mysql DSN');
 }
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-placement-dispatch-race');
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('placement dispatch race requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('placement dispatch race requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME differs from validated scratch DB');
+    throw new \RuntimeException('DATABASE_NAME differs from validated scratch DB');
 }
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -105,7 +105,7 @@ $createFixture = static function () use ($pdo, $guid, $newHostID, &$fixtures) {
     return $fixture;
 };
 $intentPayload = static function (array $fixture) use ($pdo, $guid) {
-    $method = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+    $method = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
     $method->setAccessible(true);
     return [
         'version' => 1,
@@ -129,7 +129,7 @@ $ticketFor = static function ($ticket) {
 $readIntent = static function ($target) use ($pdo) {
     $q = $pdo->prepare('SELECT dpiGeneration,dpiStatus,dpiHostID,dpiHash FROM directoryPlacementIntent WHERE dpiGUID=? AND dpiSID=?');
     $q->execute([hex2bin(str_replace('-', '', strtolower($target['guid']))), $target['sid']]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $taskCount = static function ($hostID) use ($pdo) {
     $q = $pdo->prepare('SELECT COUNT(*) FROM tasks WHERE taskHostID=?');
@@ -139,13 +139,13 @@ $taskCount = static function ($hostID) use ($pdo) {
 $workerPath = __DIR__ . '/fixtures/u2-p2-placement-dispatch-worker.php';
 $barrierDir = null;
 $activeWorkers = [];
-$startWorker = static function ($mode, $key, array $ticket) use ($workerPath, &$barrierDir, &$activeWorkers, $database) {
+$startWorker = static function (string $mode, string $key, array $ticket, string $barrierDir) use ($workerPath, &$activeWorkers, $database) {
     $pipes = [];
     $process = proc_open([PHP_BINARY, '-d', 'display_errors=stderr', $workerPath, $mode, $barrierDir,
         $key, json_encode(['database' => $database, 'ticket' => $ticket], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)],
         [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__));
     if (!is_resource($process)) {
-        throw new RuntimeException('cannot start placement dispatch worker');
+        throw new \RuntimeException('cannot start placement dispatch worker');
     }
     fclose($pipes[0]);
     $activeWorkers[$key] = [$process, $pipes];
@@ -198,13 +198,13 @@ try {
     $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
         . 'u2-p2-placement-dispatch-' . bin2hex(random_bytes(10));
     if (!mkdir($barrierDir, 0700)) {
-        throw new RuntimeException('cannot create private placement dispatch barrier directory');
+        throw new \RuntimeException('cannot create private placement dispatch barrier directory');
     }
     $barrierDir = realpath($barrierDir);
     $tempRoot = rtrim(realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     if (false === $barrierDir || 0 !== strpos($barrierDir, $tempRoot)
         || 0 !== strpos(basename($barrierDir), 'u2-p2-placement-dispatch-')) {
-        throw new RuntimeException('placement dispatch barrier escaped private temp root');
+        throw new \RuntimeException('placement dispatch barrier escaped private temp root');
     }
 
     // A single PREPARED ticket is loaded by two independent PHP/PDO processes.
@@ -215,7 +215,7 @@ try {
     $raceWorkers = [];
     $raceReady = [];
     foreach (['dispatch-a', 'dispatch-b'] as $key) {
-        list($process, $pipes) = $startWorker('race', $key, $ticketData);
+        list($process, $pipes) = $startWorker('race', $key, $ticketData, $barrierDir);
         $raceWorkers[$key] = [$process, $pipes];
     }
     foreach ($raceWorkers as $key => $worker) {
@@ -270,11 +270,11 @@ try {
     $cancelFixture = $createFixture();
     $cancelTicket = FOG\Agent\DirectoryPlacementIntent::prepare($intentPayload($cancelFixture));
     $cancelTicketData = $ticketFor($cancelTicket);
-    list($cancelWorker, $cancelPipes) = $startWorker('stale', 'stale-prepared', $cancelTicketData);
+    list($cancelWorker, $cancelPipes) = $startWorker('stale', 'stale-prepared', $cancelTicketData, $barrierDir);
     $staleReady = $waitReady($barrierDir . DIRECTORY_SEPARATOR . 'ready-stale-prepared.json', $cancelWorker, 15.0);
     $saved = FOG\Agent\DirectoryRejoin::settings($cancelFixture['host']);
     FOG\Agent\DirectoryOperation::claim($cancelFixture['host'], $saved, $cancelFixture['body']);
-    $cancelledRow = $readIntent($cancelFixture['target']);
+    $canceledRow = $readIntent($cancelFixture['target']);
     file_put_contents($barrierDir . DIRECTORY_SEPARATOR . 'go-stale', 'go', LOCK_EX);
     list($staleDone, $staleOut, $staleErr, $staleExit) = $waitWorker($cancelWorker, $cancelPipes, 20.0);
     unset($activeWorkers['stale-prepared']);
@@ -286,14 +286,14 @@ try {
         && 'directory_placement_dispatch_changed' === ($staleResult['dispatch_reason'] ?? null)
         && 'directory_move_dispatch_permit_required' === ($staleResult['move_denied_reason'] ?? null)
         && false === ($staleResult['move_attempted'] ?? true)
-        && is_array($cancelledRow) && 'CANCELLED' === $cancelledRow['dpiStatus']
+        && is_array($canceledRow) && 'CANCELLED' === $canceledRow['dpiStatus']
         && 'started' === ($claimedState['phase'] ?? null)
         && 'CANCELLED' === ($readIntent($cancelFixture['target'])['dpiStatus'] ?? null)
         && 0 === $taskCount($cancelFixture['host_id']);
     if (!$stalePass) {
-        fwrite(STDERR, 'cancelled PREPARED ticket diagnostic: ' . json_encode([
+        fwrite(STDERR, 'canceled PREPARED ticket diagnostic: ' . json_encode([
             'ready' => $staleReady, 'result' => $staleResult, 'stderr' => $staleErr,
-            'cancelled_row' => $cancelledRow, 'claimed_state' => $claimedState
+            'cancelled_row' => $canceledRow, 'claimed_state' => $claimedState
         ], JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR) . "\n");
     }
     $t->check('real claim cancels PREPARED while worker waits; resumed stale ticket has no permit', $stalePass);

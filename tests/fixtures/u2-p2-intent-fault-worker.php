@@ -1,7 +1,7 @@
 <?php
 /** Child worker for real-PDO intent fault tests; scratch DB only. */
 
-class U2P2IntentAckLossPdo extends PDO
+class U2P2IntentAckLossPdo extends \PDO
 {
     public $ackLossArmed = false;
     public $parentCommitCount = 0;
@@ -12,13 +12,13 @@ class U2P2IntentAckLossPdo extends PDO
         $this->parentCommitCount++;
         if ($this->ackLossArmed) {
             $this->ackLossArmed = false;
-            throw new RuntimeException('fixture_simulated_commit_ack_loss_after_parent_commit');
+            throw new \RuntimeException('fixture_simulated_commit_ack_loss_after_parent_commit');
         }
         return $committed;
     }
 }
 
-class U2P2IntentCommitFalsePdo extends PDO
+class U2P2IntentCommitFalsePdo extends \PDO
 {
     public $returnFalseArmed = false;
     public $parentCommitCount = 0;
@@ -37,7 +37,7 @@ class U2P2IntentCommitFalsePdo extends PDO
     }
 }
 
-class U2P2IntentPreCommitThrowPdo extends PDO
+class U2P2IntentPreCommitThrowPdo extends \PDO
 {
     public $throwBeforeParentArmed = false;
     public $commitAttempts = 0;
@@ -48,7 +48,7 @@ class U2P2IntentPreCommitThrowPdo extends PDO
         $this->commitAttempts++;
         if ($this->throwBeforeParentArmed) {
             $this->throwBeforeParentArmed = false;
-            throw new RuntimeException('fixture_commit_exception_before_parent_commit');
+            throw new \RuntimeException('fixture_commit_exception_before_parent_commit');
         }
         $committed = parent::commit();
         $this->parentCommitCount++;
@@ -56,7 +56,7 @@ class U2P2IntentPreCommitThrowPdo extends PDO
     }
 }
 
-class U2P2IntentReleaseAckLossStatement extends PDOStatement
+class U2P2IntentReleaseAckLossStatement extends \PDOStatement
 {
     public static $armed = false;
     public static $releaseExecuted = false;
@@ -72,7 +72,7 @@ class U2P2IntentReleaseAckLossStatement extends PDOStatement
             && preg_match('/^\\s*SELECT\\s+RELEASE_LOCK\\s*\\(/i', $this->queryString)) {
             self::$armed = false;
             self::$releaseExecuted = true;
-            throw new RuntimeException('fixture_release_ack_loss_after_parent_release');
+            throw new \RuntimeException('fixture_release_ack_loss_after_parent_release');
         }
         return $ok;
     }
@@ -83,17 +83,17 @@ function u2p2IntentFaultPdo($mode = '')
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')
         || '' === $dsn) {
-        throw new RuntimeException('intent worker requires explicit MySQL scratch opt-in');
+        throw new \RuntimeException('intent worker requires explicit MySQL scratch opt-in');
     }
     $pdoClass = in_array($mode, ['prepare-commit-ack-loss', 'dispatch-commit-ack-loss',
         'finish-success-commit-ack-loss'], true)
         ? U2P2IntentAckLossPdo::class
         : ('dispatch-commit-false' === $mode ? U2P2IntentCommitFalsePdo::class
             : ('finish-before-parent-commit-throw' === $mode
-                ? U2P2IntentPreCommitThrowPdo::class : PDO::class));
-    $options = [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION];
+                ? U2P2IntentPreCommitThrowPdo::class : \PDO::class));
+    $options = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
     if ('dispatch-release-ack-loss' === $mode) {
-        $options[PDO::ATTR_STATEMENT_CLASS] = [U2P2IntentReleaseAckLossStatement::class, []];
+        $options[\PDO::ATTR_STATEMENT_CLASS] = [U2P2IntentReleaseAckLossStatement::class, []];
     }
     $pdo = new $pdoClass(
         $dsn,
@@ -103,14 +103,14 @@ function u2p2IntentFaultPdo($mode = '')
     );
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-        throw new RuntimeException('intent worker database is outside the scratch prefix');
+        throw new \RuntimeException('intent worker database is outside the scratch prefix');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+        throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
     }
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -123,7 +123,7 @@ function u2p2IntentFaultPdo($mode = '')
 function u2p2IntentFaultStatus(PDO $pdo, array $ticket)
 {
     $q = $pdo->prepare('SELECT dpiStatus FROM directoryPlacementIntent WHERE dpiGUID=?');
-    $q->bindValue(1, $ticket['guid'], PDO::PARAM_LOB);
+    $q->bindValue(1, $ticket['guid'], \PDO::PARAM_LOB);
     $q->execute();
     return $q->fetchColumn();
 }
@@ -131,7 +131,7 @@ function u2p2IntentFaultStatus(PDO $pdo, array $ticket)
 function u2p2IntentFaultStatusForGuid(PDO $pdo, $guid)
 {
     $q = $pdo->prepare('SELECT dpiStatus FROM directoryPlacementIntent WHERE dpiGUID=?');
-    $q->bindValue(1, hex2bin(str_replace('-', '', strtolower((string)$guid))), PDO::PARAM_LOB);
+    $q->bindValue(1, hex2bin(str_replace('-', '', strtolower((string)$guid))), \PDO::PARAM_LOB);
     $q->execute();
     return $q->fetchColumn();
 }
@@ -178,7 +178,7 @@ try {
         try {
             $ticket = FOG\Agent\DirectoryPlacementIntent::prepare($payload);
             $ticketReturned = is_array($ticket);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
         echo json_encode([
@@ -197,7 +197,7 @@ try {
         try {
             $ticket = FOG\Agent\DirectoryPlacementIntent::prepare($payload);
             $ticketReturned = is_array($ticket);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
         echo json_encode([
@@ -215,7 +215,7 @@ try {
         try {
             $token = FOG\Agent\DirectoryPlacementIntent::dispatch($ticket, $ldap);
             $tokenReturned = is_object($token);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
         echo json_encode([
@@ -235,7 +235,7 @@ try {
         try {
             $token = FOG\Agent\DirectoryPlacementIntent::dispatch($ticket, $ldap);
             $tokenReturned = is_object($token);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
         echo json_encode([
@@ -257,7 +257,7 @@ try {
         try {
             $token = FOG\Agent\DirectoryPlacementIntent::dispatch($ticket, $ldap);
             $tokenReturned = is_object($token);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $reason = $e->getMessage();
         }
         $sameProcessReason = '';
@@ -265,7 +265,7 @@ try {
             FOG\Agent\DirectoryNameFence::run(static function () {
                 return true;
             });
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $sameProcessReason = $e->getMessage();
         }
         $namespace = (string)$pdo->query(
@@ -297,28 +297,28 @@ try {
         $finishReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::finish($token, true, 'injected-success-result');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $finishReason = $e->getMessage();
         }
 
         $changedReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::finish($token, false, 'different-result');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $changedReason = $e->getMessage();
         }
 
         $sameReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::finish($token, true, 'injected-success-result');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $sameReason = $e->getMessage();
         }
 
         $duplicateConsumeReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::consumePermit($token, $ldap, $entry, $parent);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $duplicateConsumeReason = $e->getMessage();
         }
 
@@ -329,7 +329,7 @@ try {
             'durable_status' => u2p2IntentFaultStatus($pdo, $ticket),
             'durable_result' => (function () use ($pdo, $ticket) {
                 $q = $pdo->prepare('SELECT dpiResult FROM directoryPlacementIntent WHERE dpiGUID=?');
-                $q->bindValue(1, $ticket['guid'], PDO::PARAM_LOB);
+                $q->bindValue(1, $ticket['guid'], \PDO::PARAM_LOB);
                 $q->execute();
                 return $q->fetchColumn();
             })(),
@@ -356,25 +356,25 @@ try {
         $firstReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::finish($token, true, 'injected-success-result');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $firstReason = $e->getMessage();
         }
         $statusAfterRollback = u2p2IntentFaultStatus($pdo, $ticket);
         $retryReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::finish($token, true, 'injected-success-result');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $retryReason = $e->getMessage();
         }
         $duplicateConsumeReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::consumePermit($token, $ldap, $entry, $parent);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $duplicateConsumeReason = $e->getMessage();
         }
 
         $q = $pdo->prepare('SELECT dpiResult FROM directoryPlacementIntent WHERE dpiGUID=?');
-        $q->bindValue(1, $ticket['guid'], PDO::PARAM_LOB);
+        $q->bindValue(1, $ticket['guid'], \PDO::PARAM_LOB);
         $q->execute();
         echo json_encode([
             'first_finish_reason' => $firstReason,
@@ -418,7 +418,7 @@ try {
         $parent = FOG\Net\FOGLdap::guidDN($ticket['payload']['destination']['guid']);
         FOG\Agent\DirectoryPlacementIntent::consumePermit($token, $ldap, $entry, $parent);
         $connectionID = (int)$pdo->query('SELECT CONNECTION_ID()')->fetchColumn();
-        $pdodbLink = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+        $pdodbLink = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
         $pdodbLink->setAccessible(true);
         $originalLinkSame = $pdodbLink->getValue() === $pdo;
         file_put_contents($resolvedDir . DIRECTORY_SEPARATOR . 'consumed-awaiting-kill.json', json_encode([
@@ -433,7 +433,7 @@ try {
         $deadline = microtime(true) + 20.0;
         while (!is_file($resume)) {
             if (microtime(true) >= $deadline) {
-                throw new RuntimeException('parent did not release finish-after-kill barrier');
+                throw new \RuntimeException('parent did not release finish-after-kill barrier');
             }
             usleep(10000);
         }
@@ -444,7 +444,7 @@ try {
             // This result is injected to model a possible completed LDAP side
             // effect. No LDAP connection or request exists in this fixture.
             FOG\Agent\DirectoryPlacementIntent::finish($token, true, 'injected-ldap-success');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $finishThrew = true;
             $finishReason = $e->getMessage();
         }
@@ -452,21 +452,21 @@ try {
         $retryReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::finish($token, true, 'injected-ldap-success');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $retryThrew = true;
             $retryReason = $e->getMessage();
         }
         $changedOutcomeReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::finish($token, false, 'different-after-kill');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $changedOutcomeReason = $e->getMessage();
         }
         $connectionProbeThrew = false;
         $connectionProbeID = null;
         try {
             $connectionProbeID = (int)$pdo->query('SELECT CONNECTION_ID()')->fetchColumn();
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $connectionProbeThrew = true;
         }
         $linkStillOriginal = $pdodbLink->getValue() === $pdo;
@@ -497,26 +497,26 @@ try {
 
         // Fixture-only substitution: the production code must refuse to use
         // this replacement PDO to complete a receipt bound to the original.
-        $replacement = new PDO(
+        $replacement = new \PDO(
             (string)getenv('MJ1_DB_DSN'),
             getenv('MJ1_DB_USER') ?: 'root',
             getenv('MJ1_DB_PASSWORD') ?: '',
-            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+            [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
         );
         $replacementDatabase = (string)$replacement->query('SELECT DATABASE()')->fetchColumn();
         if ($replacementDatabase !== DATABASE_NAME
             || ('fog_mj1' !== $replacementDatabase && 0 !== strpos($replacementDatabase, 'fog_mj1_'))) {
-            throw new RuntimeException('replacement PDO selected a different or non-scratch database');
+            throw new \RuntimeException('replacement PDO selected a different or non-scratch database');
         }
         $replacementConnectionID = (int)$replacement->query('SELECT CONNECTION_ID()')->fetchColumn();
-        $pdodbLink = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+        $pdodbLink = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
         $pdodbLink->setAccessible(true);
         $pdodbLink->setValue(null, $replacement);
 
         $finishReason = '';
         try {
             FOG\Agent\DirectoryPlacementIntent::finish($token, true, 'injected-success-result');
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $finishReason = $e->getMessage();
         }
         echo json_encode([
@@ -529,7 +529,7 @@ try {
             'original_status' => u2p2IntentFaultStatus($pdo, $ticket),
             'original_result' => (function () use ($pdo, $ticket) {
                 $q = $pdo->prepare('SELECT dpiResult FROM directoryPlacementIntent WHERE dpiGUID=?');
-                $q->bindValue(1, $ticket['guid'], PDO::PARAM_LOB);
+                $q->bindValue(1, $ticket['guid'], \PDO::PARAM_LOB);
                 $q->execute();
                 return $q->fetchColumn();
             })(),
@@ -544,7 +544,7 @@ try {
     try {
         $token = FOG\Agent\DirectoryPlacementIntent::dispatch($ticket, $ldap);
         $tokenReturned = is_object($token);
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $reason = $e->getMessage();
     }
     echo json_encode([
@@ -553,7 +553,7 @@ try {
         'status' => u2p2IntentFaultStatus($pdo, $ticket)
     ]), "\n";
     exit(0);
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     fwrite(STDERR, json_encode(['class' => get_class($e), 'reason' => $e->getMessage()]) . "\n");
     exit(1);
 }

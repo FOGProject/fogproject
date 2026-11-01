@@ -1,7 +1,7 @@
 <?php
 /** Real scratch-DB batch and multi-payload writer boundary checks. */
 
-class U2P2BatchBarrierStatement extends PDOStatement
+class U2P2BatchBarrierStatement extends \PDOStatement
 {
     public static $workerReport;
     public static $barrierError;
@@ -37,7 +37,7 @@ class U2P2BatchBarrierStatement extends PDOStatement
                 dirname(__DIR__)
             );
             if (!is_resource($process)) {
-                throw new RuntimeException('cannot start child description update process');
+                throw new \RuntimeException('cannot start child description update process');
             }
             fclose($pipes[0]);
             $resultPath = $this->barrierDir . DIRECTORY_SEPARATOR . 'child-result.json';
@@ -83,7 +83,7 @@ class U2P2BatchBarrierStatement extends PDOStatement
             if (!is_array(self::$workerReport) || empty(self::$workerReport['ok'])) {
                 self::$barrierError = self::$barrierError ?: 'child did not confirm its real PDODB update';
             }
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             self::$barrierError = get_class($e) . ': ' . $e->getMessage();
         }
         return $result;
@@ -96,35 +96,35 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-P2 batch requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-P2 batch requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-batch');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-P2 batch requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-P2 batch requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 $intentTable = $pdo->prepare(
     'SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_SCHEMA=DATABASE() AND TABLE_NAME=?'
 );
 $intentTable->execute(['directoryPlacementIntent']);
 if (1 !== (int)$intentTable->fetchColumn()) {
-    throw new RuntimeException('scratch intent schema must be installed before U2-P2 batch tests');
+    throw new \RuntimeException('scratch intent schema must be installed before U2-P2 batch tests');
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -171,7 +171,7 @@ $insertHost = static function ($hostName, $description, $ou = 'OU=Before,DC=u2p2
 $rawHost = static function ($hostID) use ($pdo) {
     $q = $pdo->prepare('SELECT * FROM hosts WHERE hostID=?');
     $q->execute([$hostID]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $removeBarrierDirs = static function () use (&$barrierDirs) {
     foreach ($barrierDirs as $dir) {
@@ -230,7 +230,7 @@ try {
     $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR)
         . DIRECTORY_SEPARATOR . 'u2-p2-batch-' . bin2hex(random_bytes(8));
     if (!mkdir($barrierDir, 0700)) {
-        throw new RuntimeException('cannot create isolated batch barrier directory');
+        throw new \RuntimeException('cannot create isolated batch barrier directory');
     }
     $barrierDirs[] = $barrierDir;
     U2P2BatchBarrierStatement::$workerReport = null;
@@ -238,18 +238,18 @@ try {
     // Statement class must be installed before this connection prepares any
     // statements. Keep the single PDODB instance and swap only its shared PDO
     // handle for the parent update window.
-    $racePDO = new PDO(
+    $racePDO = new \PDO(
         $dsn,
         getenv('MJ1_DB_USER') ?: 'root',
         getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
-    $racePDO->setAttribute(PDO::ATTR_STATEMENT_CLASS, [
+    $racePDO->setAttribute(\PDO::ATTR_STATEMENT_CLASS, [
         U2P2BatchBarrierStatement::class,
         [$barrierDir, __DIR__ . '/fixtures/u2-p2-batch-worker.php', $raceY['id'], $raceTag]
     ]);
     if ((string)$racePDO->query('SELECT DATABASE()')->fetchColumn() !== $database) {
-        throw new RuntimeException('barrier PDO selected a different scratch database');
+        throw new \RuntimeException('barrier PDO selected a different scratch database');
     }
     $link->setValue(null, $racePDO);
     $raceResult = $manager->update(
@@ -357,7 +357,7 @@ try {
     $batchFailure = null;
     try {
         $manager->insertBatch(['id', 'name'], $batchValues);
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $batchFailure = $e;
     }
     $newBatchCount = (int)$pdo->query(
@@ -390,7 +390,7 @@ try {
     $ordinaryBatchResult = null;
     try {
         $ordinaryBatchResult = $manager->insertBatch(['name'], $sqlFailureValues);
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $ordinaryBatchFailure = $e;
     }
     $firstChunkQ = $pdo->prepare('SELECT COUNT(*) FROM hosts WHERE hostName LIKE ?');

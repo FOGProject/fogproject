@@ -8,33 +8,33 @@ function u2p2ScratchPdo()
 {
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-        throw new RuntimeException('scratch database opt-in and mysql DSN are required');
+        throw new \RuntimeException('scratch database opt-in and mysql DSN are required');
     }
     if ('' === $dsn) {
-        throw new RuntimeException('MJ1_DB_DSN is required');
+        throw new \RuntimeException('MJ1_DB_DSN is required');
     }
 
-    $pdo = new PDO(
+    $pdo = new \PDO(
         $dsn,
         getenv('MJ1_DB_USER') ?: 'root',
         getenv('MJ1_DB_PASSWORD'),
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-        throw new RuntimeException('database name must use the fog_mj1 scratch prefix');
+        throw new \RuntimeException('database name must use the fog_mj1 scratch prefix');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+        throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
     }
     return $pdo;
 }
 
 function u2p2InstallPdo(PDO $pdo)
 {
-    $property = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $property = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $property->setAccessible(true);
     $property->setValue(null, $pdo);
 
@@ -82,26 +82,26 @@ try {
         FOG\Agent\DirectoryNameFence::run(function (PDO $db) use ($barrierDir) {
             $identity = $db->query(
                 'SELECT DATABASE() AS db, CONNECTION_ID() AS connection_id'
-            )->fetch(PDO::FETCH_ASSOC);
+            )->fetch(\PDO::FETCH_ASSOC);
             u2p2WriteSignal($barrierDir . '/ready-exit.json', $identity);
             // Deliberately terminate while holding GET_LOCK. PHP process exit
             // must close the owning connection; there is no test-side unlock.
             exit(0);
         });
-        throw new RuntimeException('exit-held callback unexpectedly returned');
+        throw new \RuntimeException('exit-held callback unexpectedly returned');
     }
 
     $result = FOG\Agent\DirectoryNameFence::run(
         function (PDO $db) use ($mode, $barrierDir) {
             $identity = $db->query(
                 'SELECT DATABASE() AS db, CONNECTION_ID() AS connection_id'
-            )->fetch(PDO::FETCH_ASSOC);
+            )->fetch(\PDO::FETCH_ASSOC);
             if ('hold' === $mode) {
                 u2p2WriteSignal($barrierDir . '/ready-hold.json', $identity);
                 $deadline = microtime(true) + 15.0;
                 while (!is_file($barrierDir . '/release-hold')) {
                     if (microtime(true) >= $deadline) {
-                        throw new RuntimeException('parent did not release hold barrier');
+                        throw new \RuntimeException('parent did not release hold barrier');
                     }
                     usleep(10000);
                 }
@@ -110,7 +110,7 @@ try {
         }
     );
     echo json_encode(['ok' => true, 'identity' => $result]), "\n";
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     echo json_encode([
         'ok' => false,
         'class' => get_class($e),

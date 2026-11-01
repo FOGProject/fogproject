@@ -11,30 +11,30 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-08c performance cascade requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-08c performance cascade requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u208c-perf-cascade');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-08c performance cascade requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-08c performance cascade requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
 $version = (int)$pdo->query('SELECT `vValue` FROM `schemaVersion` LIMIT 1')->fetchColumn();
 if (447 !== $version) {
-    throw new RuntimeException('U2-08c performance cascade requires a full-fresh schema 447 scratch DB');
+    throw new \RuntimeException('U2-08c performance cascade requires a full-fresh schema 447 scratch DB');
 }
 $fk = $pdo->prepare(
     'SELECT k.REFERENCED_TABLE_NAME,k.REFERENCED_COLUMN_NAME,r.DELETE_RULE '
@@ -45,18 +45,18 @@ $fk = $pdo->prepare(
     . 'WHERE k.CONSTRAINT_SCHEMA=DATABASE() AND k.TABLE_NAME=? AND k.COLUMN_NAME=?'
 );
 $fk->execute(['hostPerfTests', 'hptHostID']);
-$fkRows = $fk->fetchAll(PDO::FETCH_ASSOC);
+$fkRows = $fk->fetchAll(\PDO::FETCH_ASSOC);
 if (1 !== count($fkRows)
     || 'hosts' !== $fkRows[0]['REFERENCED_TABLE_NAME']
     || 'hostID' !== $fkRows[0]['REFERENCED_COLUMN_NAME']
     || 'CASCADE' !== strtoupper($fkRows[0]['DELETE_RULE'])
 ) {
-    throw new RuntimeException('hostPerfTests.hptHostID must already have its installed CASCADE FK to hosts.hostID');
+    throw new \RuntimeException('hostPerfTests.hptHostID must already have its installed CASCADE FK to hosts.hostID');
 }
 
 // Install the actual application PDO path used by Host and the decommission
 // guard. No fake SQL behavior is involved in these assertions.
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -135,11 +135,11 @@ $raw = static function ($table, $column, $id) use ($pdo) {
         'hostPerfTests' => 'hptID'
     ];
     if (!isset($allowed[$table]) || $allowed[$table] !== $column) {
-        throw new InvalidArgumentException('raw fixture selector invalid');
+        throw new \InvalidArgumentException('raw fixture selector invalid');
     }
     $q = $pdo->prepare('SELECT * FROM `' . $table . '` WHERE `' . $column . '`=?');
     $q->execute([$id]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $snapshot = static function (array $fixture) use ($raw) {
     return [
@@ -151,7 +151,7 @@ $snapshot = static function (array $fixture) use ($raw) {
 $attempt = static function (callable $fn) {
     try {
         return ['result' => $fn(), 'error' => null];
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return ['result' => null, 'error' => $e];
     }
 };
@@ -235,7 +235,7 @@ try {
     $protectedAfter = $snapshot($protected);
     // Host::destroy goes through Route::asValue, whose public boundary wraps
     // the internal DirectoryFenceRefusal as this RuntimeException response.
-    $protectedRefusal = $blockedDelete['error'] instanceof RuntimeException
+    $protectedRefusal = $blockedDelete['error'] instanceof \RuntimeException
         && 409 === $blockedDelete['error']->getCode()
         && '{"error":"directory_host_operation_protected"}'
             === $blockedDelete['error']->getMessage();
@@ -255,7 +255,7 @@ try {
             $storedState = is_array($storedDirectory)
                 ? FOG\Agent\DirectoryRejoin::decode($storedDirectory['hdRejoinState'] ?? null)
                 : [];
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             $markerDecodeFailure = [get_class($e), $e->getMessage()];
         }
         // Emit only the refusal identity and per-row change names. Do not dump

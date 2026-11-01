@@ -10,30 +10,30 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('slot bindings require explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('slot bindings require explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-slot-bindings');
 
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('slot bindings require a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('slot bindings require a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
 // Install this scratch connection in the production PDODB path.
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -65,9 +65,9 @@ $readSlot = static function ($targetGuid) use ($pdo, $guidBytes) {
         'SELECT dpiGUID,dpiSID,dpiHostID,dpiGeneration,dpiStatus,dpiPayload,dpiHash,dpiResult,dpiUpdated '
         . 'FROM directoryPlacementIntent WHERE dpiGUID=?'
     );
-    $q->bindValue(1, $guidBytes($targetGuid), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($targetGuid), \PDO::PARAM_LOB);
     $q->execute();
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $readHostDirectoryID = static function ($hostID) use ($pdo) {
     $q = $pdo->prepare('SELECT hdID FROM hostDirectory WHERE hdHostID=?');
@@ -75,7 +75,7 @@ $readHostDirectoryID = static function ($hostID) use ($pdo) {
     return (int)$q->fetchColumn();
 };
 $fixtures = [];
-$snapshotMethod = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+$snapshotMethod = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
 $snapshotMethod->setAccessible(true);
 $createFixture = static function () use ($pdo, $guid, &$fixtures, $snapshotMethod) {
     do {
@@ -298,7 +298,7 @@ try {
                     ['operation' => 'join', 'name' => $sameTargetHost['name'], 'target' => $unknownOwner['target']]
                 );
                 $db->commit();
-            } catch (Throwable $e) {
+            } catch (\Throwable $e) {
                 if ($db->inTransaction()) {
                     $db->rollBack();
                 }
@@ -349,7 +349,7 @@ try {
             'OU=Managed,DC=u2p2,DC=invalid'
         );
     });
-    $ldapLink = new ReflectionProperty(FOG\Net\FOGLdap::class, '_ld');
+    $ldapLink = new \ReflectionProperty(FOG\Net\FOGLdap::class, '_ld');
     $ldapLink->setAccessible(true);
     $t->check(
         'raw FOGLdap moveTo without permit refuses before connection and reports not_sent',
@@ -362,7 +362,7 @@ try {
     foreach ($fixtures as $fixture) {
         if (!empty($fixture['target_guid'])) {
             $q = $pdo->prepare('DELETE FROM directoryPlacementIntent WHERE dpiGUID=?');
-            $q->bindValue(1, $guidBytes($fixture['target_guid']), PDO::PARAM_LOB);
+            $q->bindValue(1, $guidBytes($fixture['target_guid']), \PDO::PARAM_LOB);
             $q->execute();
         }
         if (!empty($fixture['directory_inserted'])) {

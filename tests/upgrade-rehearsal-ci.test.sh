@@ -51,6 +51,7 @@
 # Exit status 0 = pass or skip, 1 = fail.
 
 set -u
+set -o pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/.." && pwd)"
@@ -95,11 +96,27 @@ echo "upgrade rehearsal: one starting point (schema 278, profile decade)"
 R makeconfig --host="$HOST" --user="$USER_" --pass="$PASS" >/dev/null || {
     echo "  FAIL  makeconfig did not write a lab config"; exit 1; }
 
-if ! R build --db="$DB" --to=278 | grep -q 'landed on schema 278'; then
-    echo "  FAIL  build did not land on schema 278"; exit 1
+if ! buildout="$(R build --db="$DB" --to=278)"; then
+    echo "  FAIL  build did not complete:"
+    printf '%s\n' "$buildout"
+    exit 1
+fi
+if ! grep -q 'landed on schema 278' <<<"$buildout" \
+    || ! grep -Eq 'foreign keys present at this starting point:[[:space:]]+0$' <<<"$buildout"; then
+    echo "  FAIL  build did not land on schema 278 without foreign keys"; exit 1
 fi
 
-seedout="$(R seed --db="$DB" --profile=decade)"
+if ! seedout="$(R seed --db="$DB" --profile=decade)"; then
+    echo "  FAIL  the seed command did not complete:"
+    printf '%s\n' "$seedout"
+    exit 1
+fi
+if ! grep -Eq '^seed[[:space:]]+done$' <<<"$seedout" \
+    || ! grep -q '^  planted ' <<<"$seedout"; then
+    echo "  FAIL  the seed did not confirm completion and planted rows"
+    printf '%s\n' "$seedout"
+    exit 1
+fi
 # A REFUSED row is the vacuous case: the starting schema already enforces what
 # the upgrade is supposed to introduce, so every later assertion passes for the
 # wrong reason. This is the single most important check in the file.
@@ -110,7 +127,10 @@ if grep -q 'REFUSED' <<<"$seedout"; then
 fi
 echo "  ok    every seeded row landed (no REFUSED)"
 
-R upgrade --db="$DB" >/dev/null
+if ! R upgrade --db="$DB" >/dev/null; then
+    echo "  FAIL  the upgrade command did not complete"
+    exit 1
+fi
 
 # The header line carries the database name and the current FOG_SCHEMA, so
 # baselining it would redden every pull request that adds a schema step --

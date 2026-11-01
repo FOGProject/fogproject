@@ -4,7 +4,7 @@
  * and a one-shot fake LDAP permit boundary; it never opens an LDAP connection.
  */
 
-class U205ProjectionAckPdo extends PDO
+class U205ProjectionAckPdo extends \PDO
 {
     public $loseNextCommitAck = false;
 
@@ -13,7 +13,7 @@ class U205ProjectionAckPdo extends PDO
         $committed = parent::commit();
         if ($this->loseNextCommitAck) {
             $this->loseNextCommitAck = false;
-            throw new RuntimeException('u205_commit_ack_lost_after_commit');
+            throw new \RuntimeException('u205_commit_ack_lost_after_commit');
         }
         return $committed;
     }
@@ -56,7 +56,7 @@ $write = static function ($name, array $value) use ($barrierDir) {
     $tmp = $path . '.tmp';
     if (false === file_put_contents($tmp, json_encode($value, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR), LOCK_EX)
         || !rename($tmp, $path)) {
-        throw new RuntimeException('cannot write U2-05 barrier signal');
+        throw new \RuntimeException('cannot write U2-05 barrier signal');
     }
 };
 $waitFor = static function ($name) use ($barrierDir) {
@@ -74,7 +74,7 @@ $waitFor = static function ($name) use ($barrierDir) {
 try {
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:') || '' === $dsn) {
-        throw new RuntimeException('U2-05 worker requires explicit MySQL scratch opt-in');
+        throw new \RuntimeException('U2-05 worker requires explicit MySQL scratch opt-in');
     }
     require_once dirname(__DIR__) . '/lib/fog-test-harness.php';
     FogTestHarness::boot('u205-projection-worker');
@@ -82,18 +82,18 @@ try {
         $dsn,
         getenv('MJ1_DB_USER') ?: 'root',
         getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-        throw new RuntimeException('U2-05 worker database is outside scratch prefix');
+        throw new \RuntimeException('U2-05 worker database is outside scratch prefix');
     }
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('U2-05 worker database does not match DATABASE_NAME');
+        throw new \RuntimeException('U2-05 worker database does not match DATABASE_NAME');
     }
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -110,7 +110,7 @@ try {
     $write('ldap-returned.json', ['move_calls' => U205ProjectionLdapStub::$moves,
         'permit_consumed' => true, 'ldap_transport' => 'fake']);
     if (!$waitFor('facts-saved')) {
-        throw new RuntimeException('facts-save barrier timed out');
+        throw new \RuntimeException('facts-save barrier timed out');
     }
 
     // The parent has completed an ordinary, fenced HostDirectory facts save
@@ -119,19 +119,19 @@ try {
     $finishReason = '';
     try {
         FOG\Agent\DirectoryPlacementIntent::finish($token, true, 'ldap_success');
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $finishReason = $e->getMessage();
     }
 
     $stored = $pdo->prepare('SELECT dpiGeneration,dpiStatus,dpiResult FROM directoryPlacementIntent WHERE dpiGUID=?');
-    $stored->bindValue(1, $ticket['guid'], PDO::PARAM_LOB);
+    $stored->bindValue(1, $ticket['guid'], \PDO::PARAM_LOB);
     $stored->execute();
-    $row = $stored->fetch(PDO::FETCH_ASSOC) ?: [];
+    $row = $stored->fetch(\PDO::FETCH_ASSOC) ?: [];
     $connectionAfterAckLoss = (int)$pdo->query('SELECT CONNECTION_ID()')->fetchColumn();
     $write('finish-ack-loss.json', ['reason' => $finishReason, 'row' => $row,
         'connection_id' => $connectionAfterAckLoss]);
     if (!$waitFor('retry-finish')) {
-        throw new RuntimeException('old-receipt retry barrier timed out');
+        throw new \RuntimeException('old-receipt retry barrier timed out');
     }
 
     // Retry the retained receipt on the same original, still-healthy PDO and
@@ -139,23 +139,23 @@ try {
     $retryReason = '';
     try {
         FOG\Agent\DirectoryPlacementIntent::finish($token, true, 'ldap_success');
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $retryReason = $e->getMessage();
     }
     $connectionAfterRetry = (int)$pdo->query('SELECT CONNECTION_ID()')->fetchColumn();
     $after = $pdo->prepare('SELECT dpiGeneration,dpiStatus,dpiResult FROM directoryPlacementIntent WHERE dpiGUID=?');
-    $after->bindValue(1, $ticket['guid'], PDO::PARAM_LOB);
+    $after->bindValue(1, $ticket['guid'], \PDO::PARAM_LOB);
     $after->execute();
-    $finalRow = $after->fetch(PDO::FETCH_ASSOC) ?: [];
+    $finalRow = $after->fetch(\PDO::FETCH_ASSOC) ?: [];
     $hostFacts = $pdo->prepare('SELECT hdComputerDN,hdObservedAt,hdPlacementAt FROM hostDirectory WHERE hdHostID=?');
     $hostFacts->execute([(int)$ticket['payload']['host_id']]);
-    $facts = $hostFacts->fetch(PDO::FETCH_ASSOC) ?: [];
+    $facts = $hostFacts->fetch(\PDO::FETCH_ASSOC) ?: [];
     $write('worker-result.json', ['finish_reason' => $finishReason,
         'retry_reason' => $retryReason, 'row' => $finalRow, 'facts' => $facts,
         'original_pdo_connection_preserved' => $originalConnectionId === $connectionAfterAckLoss
             && $originalConnectionId === $connectionAfterRetry]);
     echo "PASS U2-05 projection worker\n";
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     fwrite(STDERR, get_class($e) . ': ' . $e->getMessage() . "\n");
     exit(1);
 }

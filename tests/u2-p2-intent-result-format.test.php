@@ -6,28 +6,28 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('intent result format requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('intent result format requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-intent-result-format');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('intent result format requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('intent result format requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -81,7 +81,7 @@ $createFixture = static function () use ($pdo, $guid, &$fixtures) {
     $directory->execute([$hostID, $domain, $oldDN, $name . '$']);
     $fixtures[$index]['directory_inserted'] = true;
 
-    $snapshotMethod = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+    $snapshotMethod = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
     $snapshotMethod->setAccessible(true);
     $snapshot = $snapshotMethod->invoke(null, $pdo, $hostID);
     $target = [
@@ -112,9 +112,9 @@ $readSlot = static function ($targetGuid) use ($pdo, $guidBytes) {
         'SELECT dpiGeneration,dpiStatus,dpiPayload,dpiHash,dpiResult '
         . 'FROM directoryPlacementIntent WHERE dpiGUID=?'
     );
-    $q->bindValue(1, $guidBytes($targetGuid), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($targetGuid), \PDO::PARAM_LOB);
     $q->execute();
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $readDirectory = static function ($hostID) use ($pdo) {
     $q = $pdo->prepare(
@@ -122,7 +122,7 @@ $readDirectory = static function ($hostID) use ($pdo) {
         . 'FROM hostDirectory WHERE hdHostID=?'
     );
     $q->execute([$hostID]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $finish = static function (array $fixture, $success, $rawResult, $mutateFacts = false) use (
     $pdo,
@@ -144,7 +144,7 @@ $finish = static function (array $fixture, $success, $rawResult, $mutateFacts = 
             'SELECT hdComputerDN,hdObservedAt,hdPlacementAt FROM hostDirectory WHERE hdHostID=?'
         );
         $factsBefore->execute([$fixture['host_id']]);
-        $factsBefore = $factsBefore->fetch(PDO::FETCH_ASSOC);
+        $factsBefore = $factsBefore->fetch(\PDO::FETCH_ASSOC);
         $update = $pdo->prepare(
             'UPDATE hostDirectory SET hdComputerDN=?,hdObservedAt=? WHERE hdHostID=?'
         );
@@ -239,11 +239,11 @@ try {
     $pdoSwapLdap = new FOG\Net\FOGLdap();
     $pdoSwapPermit = FOG\Agent\DirectoryPlacementIntent::dispatch($pdoSwapTicket, $pdoSwapLdap);
     $pdoSwapBefore = $readSlot($pdoSwap['guid']);
-    $alternatePDO = new PDO(
+    $alternatePDO = new \PDO(
         $dsn,
         getenv('MJ1_DB_USER') ?: 'root',
         getenv('MJ1_DB_PASSWORD') ?: '',
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
     );
     $dispatchReason = '';
     $link->setValue(null, $alternatePDO);
@@ -282,7 +282,7 @@ try {
     foreach (array_reverse($fixtures) as $fixture) {
         if (!empty($fixture['guid'])) {
             $delete = $pdo->prepare('DELETE FROM directoryPlacementIntent WHERE dpiGUID=?');
-            $delete->bindValue(1, $guidBytes($fixture['guid']), PDO::PARAM_LOB);
+            $delete->bindValue(1, $guidBytes($fixture['guid']), \PDO::PARAM_LOB);
             $delete->execute();
         }
         if (!empty($fixture['directory_inserted'])) {

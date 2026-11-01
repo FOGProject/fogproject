@@ -1,7 +1,7 @@
 <?php
 /** Isolated real-PDO worker for U2-06; LDAP is represented by one inert permit use. */
 
-class U206DeadlockStatement extends PDOStatement
+class U206DeadlockStatement extends \PDOStatement
 {
     private $barrierDirectory;
     private $intentGuidHex;
@@ -14,7 +14,7 @@ class U206DeadlockStatement extends PDOStatement
         $this->intentGuidHex = (string)$intentGuidHex;
     }
 
-    public function bindValue($param, $value, $type = PDO::PARAM_STR): bool
+    public function bindValue($param, $value, $type = \PDO::PARAM_STR): bool
     {
         $bound = parent::bindValue($param, $value, $type);
         if ($bound) {
@@ -51,7 +51,7 @@ class U206DeadlockStatement extends PDOStatement
 }
 
 /** A genuine PDO connection with no behavior overrides beyond its test statement class. */
-class U206DeadlockPdo extends PDO
+class U206DeadlockPdo extends \PDO
 {
 }
 
@@ -81,7 +81,7 @@ function u206WriteBarrier($directory, $name, array $data)
     $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     if (false === file_put_contents($tmp, $json, LOCK_EX) || !rename($tmp, $path)) {
         @unlink($tmp);
-        throw new RuntimeException('U2-06 worker cannot atomically publish ' . $name);
+        throw new \RuntimeException('U2-06 worker cannot atomically publish ' . $name);
     }
 }
 
@@ -119,35 +119,35 @@ unset($ticket['guid_hex']);
 try {
     $dsn = (string)getenv('MJ1_DB_DSN');
     if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || '' === $dsn || 0 !== strpos($dsn, 'mysql:')) {
-        throw new RuntimeException('U2-06 worker requires explicit MySQL scratch opt-in');
+        throw new \RuntimeException('U2-06 worker requires explicit MySQL scratch opt-in');
     }
     require_once dirname(__DIR__) . '/lib/fog-test-harness.php';
     FogTestHarness::boot('u206-deadlock-worker');
     $pdo = new U206DeadlockPdo($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '', [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_EMULATE_PREPARES => false,
-        PDO::ATTR_STATEMENT_CLASS => [U206DeadlockStatement::class,
+        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+        \PDO::ATTR_EMULATE_PREPARES => false,
+        \PDO::ATTR_STATEMENT_CLASS => [U206DeadlockStatement::class,
             [$barrierDirectory, $guidHex]]
     ]);
     $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
     if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-        throw new RuntimeException('U2-06 worker database is outside the scratch prefix');
+        throw new \RuntimeException('U2-06 worker database is outside the scratch prefix');
     }
     $serverVersion = (string)$pdo->query('SELECT VERSION()')->fetchColumn();
     if (false === stripos($serverVersion, 'MariaDB')) {
-        throw new RuntimeException('U2-06 worker requires MariaDB');
+        throw new \RuntimeException('U2-06 worker requires MariaDB');
     }
     if (!(int)$pdo->query('SELECT @@innodb_deadlock_detect')->fetchColumn()) {
-        throw new RuntimeException('U2-06 worker requires InnoDB deadlock detection enabled');
+        throw new \RuntimeException('U2-06 worker requires InnoDB deadlock detection enabled');
     }
     $pdo->exec('SET SESSION innodb_lock_wait_timeout=10');
     if (!defined('DATABASE_NAME')) {
         define('DATABASE_NAME', $database);
     } elseif (DATABASE_NAME !== $database) {
-        throw new RuntimeException('U2-06 worker DATABASE_NAME mismatch');
+        throw new \RuntimeException('U2-06 worker DATABASE_NAME mismatch');
     }
 
-    $link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+    $link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
     $link->setAccessible(true);
     $link->setValue(null, $pdo);
     $db = new FOG\Db\PDODB();
@@ -166,7 +166,7 @@ try {
     ]);
 
     if (null === u206WaitFor($barrierDirectory, 'go-finish.json', 20.0)) {
-        throw new RuntimeException('U2-06 go-finish barrier timed out');
+        throw new \RuntimeException('U2-06 go-finish barrier timed out');
     }
 
     $finishCalls = 0;
@@ -176,9 +176,9 @@ try {
     $finishCalls++;
     try {
         FOG\Agent\DirectoryPlacementIntent::finish($permit, true, 'ldap_success');
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $finishError = get_class($e);
-        if ($e instanceof PDOException) {
+        if ($e instanceof \PDOException) {
             $info = is_array($e->errorInfo ?? null) ? $e->errorInfo : [];
             $sqlstate = (string)($info[0] ?? $e->getCode());
             $driverCode = isset($info[1]) ? (int)$info[1] : null;
@@ -196,7 +196,7 @@ try {
         'simulated_count' => $ldap->simulatedCount
     ]);
     echo "U2-06 worker recorded finish outcome\n";
-} catch (Throwable $e) {
+} catch (\Throwable $e) {
     fwrite(STDERR, get_class($e) . ': ' . $e->getMessage() . "\n");
     exit(1);
 }

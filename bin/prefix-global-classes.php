@@ -128,6 +128,12 @@ function collectFiles($root, array $paths)
 function findRefs(array $tokens)
 {
     $n = count($tokens);
+    $nullsafeObjectOperator = defined('T_NULLSAFE_OBJECT_OPERATOR')
+        ? T_NULLSAFE_OBJECT_OPERATOR : null;
+    $ignoredTypes = [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT];
+    if ($nullsafeObjectOperator !== null) {
+        $ignoredTypes[] = $nullsafeObjectOperator;
+    }
 
     // Index of the significant tokens, so "the previous token" means the
     // previous real one rather than a run of whitespace.
@@ -135,7 +141,7 @@ function findRefs(array $tokens)
     for ($i = 0; $i < $n; $i++) {
         $t = $tokens[$i];
         if (is_array($t)
-            && in_array($t[0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)
+            && in_array($t[0], $ignoredTypes, true)
         ) {
             continue;
         }
@@ -162,7 +168,7 @@ function findRefs(array $tokens)
         }
         // A method call, a property fetch, or the name being declared.
         if ($pv === T_OBJECT_OPERATOR
-            || $pv === T_NULLSAFE_OBJECT_OPERATOR
+            || ($nullsafeObjectOperator !== null && $pv === $nullsafeObjectOperator)
             || $pv === T_FUNCTION
             || $pv === T_CONST
             || $pv === T_CLASS

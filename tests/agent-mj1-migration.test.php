@@ -272,7 +272,7 @@ $taskPermissionRows = array_map(
     function ($row) {
         return [(int)$row[0], $row[1]];
     },
-    $pdo->query("SELECT rpRoleID,rpName FROM rolePermissions WHERE rpName='tasktype.*' ORDER BY rpRoleID")->fetchAll(PDO::FETCH_NUM)
+    $pdo->query("SELECT rpRoleID,rpName FROM rolePermissions WHERE rpName='tasktype.*' ORDER BY rpRoleID")->fetchAll(\PDO::FETCH_NUM)
 );
 if ($taskPermissionRows !== [[51, 'tasktype.*'], [52, 'tasktype.*'], [53, 'tasktype.*']]) {
     throw new \RuntimeException('schema 441 must backfill tasktype.* once for task-capable roles and preserve an existing grant');
@@ -297,13 +297,13 @@ $pdo->exec('DROP TABLE IF EXISTS hostPerfTests');
 foreach ($step443 as $ddl) {
     $pdo->exec($ddl);
 }
-$task = $pdo->query('SELECT `ttID`,`ttName`,`ttKernelArgs`,`ttIsAdvanced`,`ttIsAccess` FROM `taskTypes` WHERE `ttID`=27')->fetch(PDO::FETCH_ASSOC);
+$task = $pdo->query('SELECT `ttID`,`ttName`,`ttKernelArgs`,`ttIsAdvanced`,`ttIsAccess` FROM `taskTypes` WHERE `ttID`=27')->fetch(\PDO::FETCH_ASSOC);
 if (!$task || (int)$task['ttID'] !== 27 || $task['ttName'] !== 'Performance Test'
     || $task['ttKernelArgs'] !== 'mode=perftest' || (int)$task['ttIsAdvanced'] !== 1
     || $task['ttIsAccess'] !== 'both') {
     throw new \RuntimeException('schema 444 did not install official Performance Test task type 27');
 }
-$perfColumns = $pdo->query('SHOW COLUMNS FROM hostPerfTests')->fetchAll(PDO::FETCH_COLUMN);
+$perfColumns = $pdo->query('SHOW COLUMNS FROM hostPerfTests')->fetchAll(\PDO::FETCH_COLUMN);
 if (array_diff(array_keys($manifest['tables']['hostPerfTests']['columns']), $perfColumns)) {
     throw new \RuntimeException('schema 444 hostPerfTests columns differ from schema-expected.php');
 }
@@ -312,7 +312,7 @@ if (array_diff(array_keys($manifest['tables']['hostPerfTests']['columns']), $per
 $setting = 'FOG_KERNEL_RAMDISK_SIZE';
 $pdo->exec("INSERT INTO globalSettings (settingKey,settingDesc,settingValue,settingCategory) VALUES ('$setting','legacy description','321000','FOG Linux Service')");
 $pdo->exec($step444[0]);
-$settingRow = $pdo->query("SELECT settingDesc,settingValue FROM globalSettings WHERE settingKey='$setting'")->fetch(PDO::FETCH_ASSOC);
+$settingRow = $pdo->query("SELECT settingDesc,settingValue FROM globalSettings WHERE settingKey='$setting'")->fetch(\PDO::FETCH_ASSOC);
 if (!$settingRow || $settingRow['settingValue'] !== '321000'
     || false === strpos($settingRow['settingDesc'], '/tmp RAM disk')) {
     throw new \RuntimeException('schema 445 must update the ramdisk description and preserve its configured value');
@@ -324,8 +324,8 @@ $oldName = str_repeat('n', 40);
 $oldCreator = str_repeat('c', 40);
 $pdo->exec("INSERT INTO users (uName,uPass,uCreateBy) VALUES ('$oldName','hash','$oldCreator')");
 $pdo->exec($step445[0]);
-$user = $pdo->query('SELECT uName,uCreateBy FROM users')->fetch(PDO::FETCH_ASSOC);
-$userColumns = $pdo->query('SHOW COLUMNS FROM users')->fetchAll(PDO::FETCH_ASSOC);
+$user = $pdo->query('SELECT uName,uCreateBy FROM users')->fetch(\PDO::FETCH_ASSOC);
+$userColumns = $pdo->query('SHOW COLUMNS FROM users')->fetchAll(\PDO::FETCH_ASSOC);
 foreach (['uName', 'uCreateBy'] as $field) {
     $column = $userColumns[array_search($field, array_column($userColumns, 'Field'), true)];
     if (strtolower($column['Type']) !== 'varchar(255)' || $column['Null'] !== 'YES') {
@@ -353,15 +353,15 @@ $pdo->exec('SET FOREIGN_KEY_CHECKS=1');
 foreach ($ddl447 as $ddl) {
     $pdo->exec($ddl);
 }
-$directoryColumns = $pdo->query('SHOW COLUMNS FROM hostDirectory')->fetchAll(PDO::FETCH_COLUMN);
+$directoryColumns = $pdo->query('SHOW COLUMNS FROM hostDirectory')->fetchAll(\PDO::FETCH_COLUMN);
 if (array_diff(['hdRejoinConfig', 'hdRejoinState'], $directoryColumns)) {
     throw new \RuntimeException('schema 447 did not add both hostDirectory rejoin columns');
 }
-$intentColumns = $pdo->query('SHOW COLUMNS FROM directoryPlacementIntent')->fetchAll(PDO::FETCH_COLUMN);
+$intentColumns = $pdo->query('SHOW COLUMNS FROM directoryPlacementIntent')->fetchAll(\PDO::FETCH_COLUMN);
 if (array_diff(array_keys($manifest['tables']['directoryPlacementIntent']['columns']), $intentColumns)) {
     throw new \RuntimeException('schema 447 directoryPlacementIntent columns differ from schema-expected.php');
 }
-$intentIndexes = $pdo->query('SHOW INDEX FROM directoryPlacementIntent')->fetchAll(PDO::FETCH_ASSOC);
+$intentIndexes = $pdo->query('SHOW INDEX FROM directoryPlacementIntent')->fetchAll(\PDO::FETCH_ASSOC);
 if (!in_array('PRIMARY', array_column($intentIndexes, 'Key_name'), true)
     || !in_array('uq_directoryPlacementIntent_sid', array_column($intentIndexes, 'Key_name'), true)
     || !in_array('idx_directoryPlacementIntent_host_status', array_column($intentIndexes, 'Key_name'), true)) {

@@ -146,26 +146,26 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-05 projection flow requires explicit scratch opt-in and MySQL DSN');
+    throw new \RuntimeException('U2-05 projection flow requires explicit scratch opt-in and MySQL DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u205-projection-flow');
 require_once __DIR__ . '/lib/sc-hold-pdo.php';
 
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-05 projection flow requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-05 projection flow requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new ScHoldPdoDb($pdo);
@@ -248,7 +248,7 @@ $createFixture = static function ($label) use ($pdo, $guid, $rootDN, $managedDN,
         ->set('joined', 1)->set('kind', 'domain')->set('domain', 'U205')->set('computerDN', $oldDN)
         ->set('machineAccount', $name . '$')->set('observedAt', $observedAt)
         ->set('placementAt', null)->set('placementError', '')->set('rejoinConfig', null)->set('rejoinState', null);
-    $snapshotMethod = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+    $snapshotMethod = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
     $snapshotMethod->setAccessible(true);
     $snapshot = $snapshotMethod->invoke(null, $pdo, $hostID);
     $payload = ['version' => 1, 'host_id' => $hostID, 'snapshot' => $snapshot,
@@ -264,24 +264,24 @@ $createFixture = static function ($label) use ($pdo, $guid, $rootDN, $managedDN,
 };
 $readIntent = static function (array $fixture) use ($pdo, $guidBytes) {
     $q = $pdo->prepare('SELECT dpiGUID,dpiSID,dpiHostID,dpiGeneration,dpiStatus,dpiPayload,dpiHash,dpiResult FROM directoryPlacementIntent WHERE dpiGUID=?');
-    $q->bindValue(1, $guidBytes($fixture['target']['guid']), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($fixture['target']['guid']), \PDO::PARAM_LOB);
     $q->execute();
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $readFacts = static function (array $fixture) use ($pdo) {
     $q = $pdo->prepare('SELECT hdComputerDN,hdObservedAt,hdPlacementAt,hdPlacementError FROM hostDirectory WHERE hdHostID=?');
     $q->execute([$fixture['host_id']]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $freshModels = static function (array $fixture) use ($pdo) {
     $q = $pdo->prepare('SELECT hostName,hostUseAD,hostADDomain,hostADOU,hostAgentFingerprint FROM hosts WHERE hostID=?');
     $q->execute([$fixture['host_id']]);
-    $h = $q->fetch(PDO::FETCH_ASSOC);
+    $h = $q->fetch(\PDO::FETCH_ASSOC);
     $q = $pdo->prepare('SELECT hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt,hdPlacementAt,hdPlacementError,hdRejoinConfig,hdRejoinState FROM hostDirectory WHERE hdHostID=?');
     $q->execute([$fixture['host_id']]);
-    $d = $q->fetch(PDO::FETCH_ASSOC);
+    $d = $q->fetch(\PDO::FETCH_ASSOC);
     if (!is_array($h) || !is_array($d)) {
-        throw new RuntimeException('fixture models could not be reloaded');
+        throw new \RuntimeException('fixture models could not be reloaded');
     }
     $host = (new FOG\Items\Host())->set('id', $fixture['host_id'])->set('name', $h['hostName'])
         ->set('useAD', $h['hostUseAD'])->set('ADDomain', $h['hostADDomain'])->set('ADOU', $h['hostADOU'])
@@ -296,7 +296,7 @@ $freshModels = static function (array $fixture) use ($pdo) {
 };
 $ticketForWorker = static function (array $ticket) {
     if (!isset($ticket['guid']) || 16 !== strlen($ticket['guid'])) {
-        throw new RuntimeException('intent ticket GUID is not 16 bytes');
+        throw new \RuntimeException('intent ticket GUID is not 16 bytes');
     }
     $ticket['guid_hex'] = bin2hex($ticket['guid']);
     unset($ticket['guid']);
@@ -323,13 +323,13 @@ $waitForFile = static function ($path, $process, $seconds) {
 $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
     . 'u205-projection-' . bin2hex(random_bytes(12));
 if (!mkdir($barrierDir, 0700)) {
-    throw new RuntimeException('cannot create private U2-05 barrier directory');
+    throw new \RuntimeException('cannot create private U2-05 barrier directory');
 }
 $resolvedBarrierDir = realpath($barrierDir);
 $resolvedTemp = rtrim((string)realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 if (false === $resolvedBarrierDir || 0 !== strpos($resolvedBarrierDir, $resolvedTemp)
     || 0 !== strpos(basename($resolvedBarrierDir), 'u205-projection-')) {
-    throw new RuntimeException('U2-05 barrier directory escaped private temp root');
+    throw new \RuntimeException('U2-05 barrier directory escaped private temp root');
 }
 $worker = __DIR__ . '/fixtures/u205-projection-worker.php';
 $process = null;
@@ -347,13 +347,13 @@ try {
     $process = proc_open([PHP_BINARY, '-d', 'error_reporting=E_ALL & ~E_DEPRECATED', $worker, $resolvedBarrierDir, $workerInput],
         [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__));
     if (!is_resource($process)) {
-        throw new RuntimeException('cannot start U2-05 barrier worker');
+        throw new \RuntimeException('cannot start U2-05 barrier worker');
     }
     fclose($pipes[0]);
     $pipes = [1 => $pipes[1], 2 => $pipes[2]];
     $ldapReturned = $waitForFile($resolvedBarrierDir . DIRECTORY_SEPARATOR . 'ldap-returned.json', $process, 15.0);
     if (!is_array($ldapReturned)) {
-        throw new RuntimeException('fake LDAP success barrier was not reached');
+        throw new \RuntimeException('fake LDAP success barrier was not reached');
     }
 
     // This is a normal HostDirectory model save through the real PDODB and
@@ -366,7 +366,7 @@ try {
     file_put_contents($resolvedBarrierDir . DIRECTORY_SEPARATOR . 'facts-saved', 'go', LOCK_EX);
     $ackLoss = $waitForFile($resolvedBarrierDir . DIRECTORY_SEPARATOR . 'finish-ack-loss.json', $process, 15.0);
     if (!is_array($ackLoss)) {
-        throw new RuntimeException('finish acknowledgement-loss barrier was not reached');
+        throw new \RuntimeException('finish acknowledgement-loss barrier was not reached');
     }
     $intentAfterFinish = $readIntent($fixture);
     $projection = is_array($intentAfterFinish) ? json_decode((string)$intentAfterFinish['dpiResult'], true) : null;
@@ -543,7 +543,7 @@ try {
     }
 
     // Target identity changes on the authoritative post-PREPARED lookup.
-    // The unsent generation must be cancelled and no fake Move called.
+    // The unsent generation must be canceled and no fake Move called.
     $targetChange = $createFixture('changed-target');
     U205ProjectionLdapStub::$records[strtolower($targetChange['name'])] = [
         'status' => 'found', 'record' => $targetChange['target']

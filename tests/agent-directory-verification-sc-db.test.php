@@ -38,7 +38,7 @@ foreach (['join', 'rebind', 'rename'] as $operation) {
             'task_id' => 71, 'status' => 'verified', 'native_status' => 0, 'secure_channel' => $secure,
             'boot_changed' => true, 'current_name' => 'B', 'domain' => 'corp.example', 'netbios' => 'CORP'];
         $reason = '';
-        try { FOG\Agent\DirectoryOperation::report($host, $body); } catch (RuntimeException $e) { $reason = $e->getMessage(); }
+        try { FOG\Agent\DirectoryOperation::report($host, $body); } catch (\RuntimeException $e) { $reason = $e->getMessage(); }
         $t->check('T14 ' . $operation . ' rejects postboot ' . $secure,
             'rejoin_verification_incomplete' === $reason && $before === FOG\Agent\DirectoryRejoin::settings($host));
     }

@@ -10,28 +10,28 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-P2 cascade requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-P2 cascade requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-cascade');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-P2 cascade requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-P2 cascade requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -58,11 +58,11 @@ $guid = static function () {
 $raw = static function ($table, $column, $id) use ($pdo) {
     $allowed = ['hosts' => 'hostID', 'hostDirectory' => 'hdID', 'agentWake' => 'awID'];
     if (!isset($allowed[$table]) || $allowed[$table] !== $column) {
-        throw new InvalidArgumentException('raw fixture selector invalid');
+        throw new \InvalidArgumentException('raw fixture selector invalid');
     }
     $q = $pdo->prepare('SELECT * FROM `' . $table . '` WHERE `' . $column . '`=?');
     $q->execute([$id]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $ensureEdge = static function (array $edge) use ($pdo, &$ownedConstraints, $fixtureToken) {
     $q = $pdo->prepare(
@@ -74,7 +74,7 @@ $ensureEdge = static function (array $edge) use ($pdo, &$ownedConstraints, $fixt
         . 'WHERE k.CONSTRAINT_SCHEMA=DATABASE() AND k.TABLE_NAME=? AND k.COLUMN_NAME=?'
     );
     $q->execute([$edge['table'], $edge['column']]);
-    $found = $q->fetchAll(PDO::FETCH_ASSOC);
+    $found = $q->fetchAll(\PDO::FETCH_ASSOC);
     foreach ($found as $fk) {
         if ('hosts' === $fk['REFERENCED_TABLE_NAME'] && 'hostID' === $fk['REFERENCED_COLUMN_NAME']
             && 'CASCADE' === strtoupper($fk['DELETE_RULE'])) {
@@ -82,7 +82,7 @@ $ensureEdge = static function (array $edge) use ($pdo, &$ownedConstraints, $fixt
         }
     }
     if ($found) {
-        throw new RuntimeException('Existing FK for ' . $edge['table'] . '.' . $edge['column']
+        throw new \RuntimeException('Existing FK for ' . $edge['table'] . '.' . $edge['column']
             . ' is incompatible; test will not replace it');
     }
     $orphans = (int)$pdo->query(
@@ -90,7 +90,7 @@ $ensureEdge = static function (array $edge) use ($pdo, &$ownedConstraints, $fixt
         . 'ON h.hostID=c.`' . $edge['column'] . '` WHERE h.hostID IS NULL'
     )->fetchColumn();
     if ($orphans) {
-        throw new RuntimeException('Cannot add approved FK while orphan rows exist in ' . $edge['table']);
+        throw new \RuntimeException('Cannot add approved FK while orphan rows exist in ' . $edge['table']);
     }
     $name = $edge['name'] . '_' . $fixtureToken;
     $pdo->exec('ALTER TABLE `' . $edge['table'] . '` ADD CONSTRAINT `' . $name . '` '
@@ -149,7 +149,7 @@ $createHost = static function ($active) use ($pdo, $guid, &$fixtures) {
 $blocked = static function (callable $fn) {
     try {
         $fn();
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return $e;
     }
     return null;
@@ -257,7 +257,7 @@ try {
     });
     $t->check(
         'actual Host::destroy refuses shared agentWake cascade while other endpoint has started rename',
-        $routeError instanceof RuntimeException
+        $routeError instanceof \RuntimeException
             && false !== strpos($routeError->getMessage(), 'directory_host_operation_protected')
             && $before['hostA'] === $raw('hosts', 'hostID', $a['id'])
             && $authorityA === $raw('hostDirectory', 'hdID', $a['directory_id'])

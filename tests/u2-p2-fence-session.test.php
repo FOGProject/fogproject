@@ -10,19 +10,19 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('fence session checks require explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('fence session checks require explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('fence session checks require a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('fence session checks require a fog_mj1-prefixed scratch DB');
 }
 
 $t = new FogChecks();
@@ -53,7 +53,7 @@ $readName = static function ($hostID) use ($pdo) {
 $authoritySnapshot = static function () use ($pdo) {
     $rows = [];
     foreach (['hostDirectory' => 'hdID', 'tasks' => 'taskID', 'directoryPlacementIntent' => 'dpiGUID'] as $table => $pk) {
-        $rows[$table] = $pdo->query('SELECT * FROM `' . $table . '` ORDER BY `' . $pk . '`')->fetchAll(PDO::FETCH_ASSOC);
+        $rows[$table] = $pdo->query('SELECT * FROM `' . $table . '` ORDER BY `' . $pk . '`')->fetchAll(\PDO::FETCH_ASSOC);
     }
     return hash('sha256', serialize($rows));
 };

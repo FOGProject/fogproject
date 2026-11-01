@@ -7,23 +7,23 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('claim barriers require explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('claim barriers require explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-claim-barriers');
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('claim barriers require a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('claim barriers require a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -149,7 +149,7 @@ $createFixture = static function () use ($pdo, $guid, $hostModel, &$fixtures) {
         $taskCheck = $pdo->prepare('SELECT COUNT(*) FROM tasks WHERE taskHostID IN (?,?)');
         $taskCheck->execute([$primaryID, $otherID]);
         if ((int)$taskCheck->fetchColumn() !== 0) {
-            throw new RuntimeException('random claim fixture unexpectedly has Tasks');
+            throw new \RuntimeException('random claim fixture unexpectedly has Tasks');
         }
         $fixtures[] = ['primary' => $primaryID, 'other' => $otherID,
             'primary_hd' => $primaryHDInserted, 'other_hd' => $otherHDInserted,
@@ -167,7 +167,7 @@ $createFixture = static function () use ($pdo, $guid, $hostModel, &$fixtures) {
             'body' => ['attempt_id' => $attempt, 'config_revision' => $revision,
                 'operation' => 'rename', 'task_id' => 0, 'target_guid' => $target['guid']]
         ];
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         if ($primaryHDInserted) {
             $q = $pdo->prepare('DELETE FROM hostDirectory WHERE hdHostID=?');
             $q->execute([$primaryID]);
@@ -190,13 +190,13 @@ $worker = __DIR__ . '/fixtures/u2-p2-claim-worker.php';
 $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
     . 'u2-p2-claim-' . bin2hex(random_bytes(12));
 if (!mkdir($barrierDir, 0700)) {
-    throw new RuntimeException('cannot create private claim barrier directory');
+    throw new \RuntimeException('cannot create private claim barrier directory');
 }
 $resolvedDir = realpath($barrierDir);
 $tempRoot = rtrim(realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 if (false === $resolvedDir || 0 !== strpos($resolvedDir, $tempRoot)
     || 0 !== strpos(basename($resolvedDir), 'u2-p2-claim-')) {
-    throw new RuntimeException('claim barrier directory escaped private temp root');
+    throw new \RuntimeException('claim barrier directory escaped private temp root');
 }
 $startWorker = static function ($mode, array $input) use ($worker, $resolvedDir) {
     $pipes = [];
@@ -208,7 +208,7 @@ $startWorker = static function ($mode, array $input) use ($worker, $resolvedDir)
         dirname(__DIR__)
     );
     if (!is_resource($process)) {
-        throw new RuntimeException('cannot start claim barrier worker');
+        throw new \RuntimeException('cannot start claim barrier worker');
     }
     fclose($pipes[0]);
     return [$process, $pipes];
@@ -260,7 +260,7 @@ $waitForUserLock = static function ($connectionID, $seconds) use ($pdo) {
     do {
         $q = $pdo->prepare('SELECT STATE,INFO FROM information_schema.PROCESSLIST WHERE ID=?');
         $q->execute([(int)$connectionID]);
-        $row = $q->fetch(PDO::FETCH_ASSOC) ?: [];
+        $row = $q->fetch(\PDO::FETCH_ASSOC) ?: [];
         $state = strtolower((string)($row['STATE'] ?? ''));
         $info = strtolower((string)($row['INFO'] ?? ''));
         if (false !== strpos($info, 'get_lock') && false !== strpos($state, 'lock')) {
@@ -278,7 +278,7 @@ $readState = static function ($hostID) use ($pdo) {
 $snapshotRows = static function ($sql, array $params) use ($pdo) {
     $q = $pdo->prepare($sql);
     $q->execute($params);
-    return $q->fetchAll(PDO::FETCH_ASSOC);
+    return $q->fetchAll(\PDO::FETCH_ASSOC);
 };
 $rawSnapshot = static function (array $fixture) use ($snapshotRows, $guidBytes) {
     $ids = [(int)$fixture['primary_id'], (int)$fixture['other_id']];
@@ -319,7 +319,7 @@ $expectReadyClaim = static function (array $snapshot, $hostID) {
         }
         $state = json_decode((string)$row['hdRejoinState'], true);
         if (!is_array($state) || 'ready' !== ($state['phase'] ?? null)) {
-            throw new RuntimeException('B02 fixture did not begin in ready state');
+            throw new \RuntimeException('B02 fixture did not begin in ready state');
         }
         $state['phase'] = 'started';
         $state['reason'] = 'mutation_may_have_run';
@@ -331,7 +331,7 @@ $expectReadyClaim = static function (array $snapshot, $hostID) {
 $clearBarrierFiles = static function () use ($resolvedDir) {
     foreach (glob($resolvedDir . DIRECTORY_SEPARATOR . '*') ?: [] as $path) {
         if (is_file($path) && !@unlink($path)) {
-            throw new RuntimeException('cannot clear stale barrier file: ' . basename($path));
+            throw new \RuntimeException('cannot clear stale barrier file: ' . basename($path));
         }
     }
 };
@@ -365,7 +365,7 @@ try {
     $claimReason = '';
     try {
         FOG\Agent\DirectoryOperation::claim($primary, $saved, $saveFirst['body']);
-    } catch (RuntimeException $e) {
+    } catch (\RuntimeException $e) {
         $claimReason = $e->getMessage();
     }
     $afterSaveFirst = $readState($saveFirst['primary_id']);

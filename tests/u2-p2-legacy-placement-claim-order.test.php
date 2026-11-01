@@ -7,23 +7,23 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('legacy placement/claim test requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('legacy placement/claim test requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-legacy-placement-claim-order');
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('legacy placement/claim test requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('legacy placement/claim test requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME differs from validated scratch DB');
+    throw new \RuntimeException('DATABASE_NAME differs from validated scratch DB');
 }
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -83,7 +83,7 @@ $targetFor = static function ($name) use ($guid) {
     ];
 };
 $placementPayload = static function (array $legacy, array $target) use ($pdo, $guid) {
-    $snapshotMethod = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+    $snapshotMethod = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
     $snapshotMethod->setAccessible(true);
     return [
         'version' => 1,
@@ -109,7 +109,7 @@ $readLegacyIdentity = static function ($id) use ($pdo) {
         . 'FROM hosts h JOIN hostDirectory d ON d.hdHostID=h.hostID WHERE h.hostID=?'
     );
     $q->execute([$id]);
-    $row = $q->fetch(PDO::FETCH_ASSOC);
+    $row = $q->fetch(\PDO::FETCH_ASSOC);
     $q->closeCursor();
     if (!$row) {
         return null;
@@ -122,9 +122,9 @@ $readIntent = static function ($target) use ($pdo, $guidBytes) {
         'SELECT dpiGeneration,dpiStatus,dpiHostID,dpiSID,dpiPayload,dpiHash '
         . 'FROM directoryPlacementIntent WHERE dpiGUID=?'
     );
-    $q->bindValue(1, $guidBytes($target['guid']), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($target['guid']), \PDO::PARAM_LOB);
     $q->execute();
-    $row = $q->fetch(PDO::FETCH_ASSOC);
+    $row = $q->fetch(\PDO::FETCH_ASSOC);
     $q->closeCursor();
     return $row ?: null;
 };
@@ -140,7 +140,7 @@ $saveHostName = static function (array $fixture, $name) {
     $host->set('name', $name);
     try {
         return ['result' => $host->save(), 'error' => null];
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return ['result' => false, 'error' => $e];
     }
 };
@@ -150,7 +150,7 @@ $attemptNameGuard = static function ($name, $ownID) {
             FOG\Agent\DirectoryPlacementIntent::assertNameIdle($db, $name, $ownID);
         });
         return '';
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         return $e->getMessage();
     }
 };
@@ -158,13 +158,13 @@ $startPausedPrepare = static function (array $payload) use ($database) {
     $dir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
         . 'u2-p2-placement-claim-' . bin2hex(random_bytes(10));
     if (!mkdir($dir, 0700)) {
-        throw new RuntimeException('cannot create private stale-placement barrier directory');
+        throw new \RuntimeException('cannot create private stale-placement barrier directory');
     }
     $resolved = realpath($dir);
     $tempRoot = rtrim(realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     if (false === $resolved || 0 !== strpos($resolved, $tempRoot)
         || 0 !== strpos(basename($resolved), 'u2-p2-placement-claim-')) {
-        throw new RuntimeException('stale-placement barrier escaped private temp root');
+        throw new \RuntimeException('stale-placement barrier escaped private temp root');
     }
     $worker = __DIR__ . '/fixtures/u2-p2-placement-claim-worker.php';
     $pipes = [];
@@ -172,7 +172,7 @@ $startPausedPrepare = static function (array $payload) use ($database) {
         json_encode(['database' => $database, 'payload' => $payload], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)],
         [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__));
     if (!is_resource($process)) {
-        throw new RuntimeException('cannot start stale-placement worker');
+        throw new \RuntimeException('cannot start stale-placement worker');
     }
     fclose($pipes[0]);
     return [$resolved, $process, $pipes];
@@ -313,7 +313,7 @@ try {
     $uniqueBefore = $countName($targetName);
     $ticketA = FOG\Agent\DirectoryPlacementIntent::prepare($payloadA);
     $prepared = $readIntent($targetA);
-    $permit = FOG\Agent\DirectoryPlacementIntent::dispatch($ticketA, new stdClass());
+    $permit = FOG\Agent\DirectoryPlacementIntent::dispatch($ticketA, new \stdClass());
     $may = $readIntent($targetA);
     $nameGuardReason = $attemptNameGuard($targetName, $legacyB['id']);
     $saveB = $saveHostName($legacyB, $targetName);
@@ -346,7 +346,7 @@ try {
     $stalePayload = $placementPayload($legacyA2, $targetA2);
     $targetName2 = rtrim($targetA2['account'], '$');
     if (0 !== $countName($targetName2)) {
-        throw new RuntimeException('Target X unexpectedly already has a FOG hostname before the save-first case');
+        throw new \RuntimeException('Target X unexpectedly already has a FOG hostname before the save-first case');
     }
     list($barrierDir, $workerProcess, $workerPipes) = $startPausedPrepare($stalePayload);
     $ready = $awaitReady($barrierDir, $workerProcess);
@@ -376,7 +376,7 @@ try {
     $claimReason = '';
     try {
         FOG\Agent\DirectoryOperation::claim($bPlan['host'], $bPlan['saved'], $bPlan['body']);
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $claimReason = $e->getMessage();
     }
     $bAfter = FOG\Agent\DirectoryRejoin::settings($bPlan['host']);
@@ -406,8 +406,8 @@ try {
     foreach ([$targetA ?? null, $targetA2 ?? null] as $target) {
         if (is_array($target)) {
             $q = $pdo->prepare('DELETE FROM directoryPlacementIntent WHERE dpiGUID=? AND dpiSID=?');
-            $q->bindValue(1, $guidBytes($target['guid']), PDO::PARAM_LOB);
-            $q->bindValue(2, $target['sid'], PDO::PARAM_STR);
+            $q->bindValue(1, $guidBytes($target['guid']), \PDO::PARAM_LOB);
+            $q->bindValue(2, $target['sid'], \PDO::PARAM_STR);
             $q->execute();
         }
     }

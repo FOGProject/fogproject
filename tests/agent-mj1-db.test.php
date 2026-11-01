@@ -50,7 +50,7 @@ foreach (['hdRejoinConfig', 'hdRejoinState'] as $field) {
     $index = array_search($field, array_column($actualColumns, 'Field'), true);
     if ($actualColumns[$index]['Default'] !== null) { throw new \RuntimeException('migration column must default to NULL: '.$field); }
 }
-$intentColumns = $pdo->query('SHOW COLUMNS FROM directoryPlacementIntent')->fetchAll(PDO::FETCH_COLUMN);
+$intentColumns = $pdo->query('SHOW COLUMNS FROM directoryPlacementIntent')->fetchAll(\PDO::FETCH_COLUMN);
 if (array_diff(array_keys($manifest['tables']['directoryPlacementIntent']['columns']), $intentColumns)) { throw new \RuntimeException('schema 447 directoryPlacementIntent columns differ from schema-expected.php'); }
 $pdo->exec("INSERT INTO hosts (hostID,hostName,hostADDomain,hostUseAD,hostAgentFingerprint) VALUES (7,'B','corp.example',1,'".str_repeat('f',64)."')");
 $legacy = ['version'=>1,'phase'=>'ready','attempt_id'=>str_repeat('a',32),'source'=>['guid'=>'11111111-1111-1111-1111-111111111111','sid'=>'S-1-5-21-1-1'],'target'=>['guid'=>'22222222-2222-2222-2222-222222222222','sid'=>'S-1-5-21-1-2'],'clone_status'=>'detected','clone_origin'=>['host_id'=>99],'origin_host_id'=>99];

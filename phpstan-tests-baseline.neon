@@ -1349,3 +1349,806 @@ parameters:
 			identifier: identical.alwaysTrue
 			count: 1
 			path: tests/storage-report.test.php
+# Reviewed structural test-analysis findings; exact path/message/count only.
+# Independent scripts are scanned together; PHPStan cannot model guarded include-time globals, mutable fake state, DB results, or callbacks.
+# Runtime assertions remain enabled. No level, path, or rule is broadly ignored.
+		-
+			message: '#^Offset\ ''attempt_id''\ on\ array\{version:\ 1,\ protocol:\ 2,\ check_dc:\ ''dc1\.corp\.example'',\ last_deploy_task_id:\ 0,\ placement_hold:\ true}\ in\ empty\(\)\ does\ not\ exist\.$#'
+			identifier: empty.offset
+			count: 2
+			path: tests/agent-directory-local-marker-db.test.php
+		-
+			message: '#^Variable\ \$fake\ might\ not\ be\ defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: tests/agent-directory-local-marker-db.test.php
+		-
+			message: '#^Variable\ \$manifest\ might\ not\ be\ defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: tests/agent-directory-local-marker-db.test.php
+		-
+			message: '#^Result\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 13
+			path: tests/agent-directory-observation-placement-db.test.php
+		-
+			message: '#^Result\ of\ &&\ is\ always\ true\.$#'
+			identifier: booleanAnd.alwaysTrue
+			count: 2
+			path: tests/agent-directory-observation-placement-db.test.php
+		-
+			message: '#^Result\ of\ \|\|\ is\ always\ true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: tests/agent-directory-observation-placement-db.test.php
+		-
+			message: '#^Strict\ comparison\ using\ !==\ between\ 1\ and\ 0\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 3
+			path: tests/agent-directory-observation-placement-db.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ 0\ and\ 0\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 9
+			path: tests/agent-directory-observation-placement-db.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ 1\ and\ 0\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: identical.alwaysFalse
+			count: 6
+			path: tests/agent-directory-observation-placement-db.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ array\{}\ and\ array\{}\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 4
+			path: tests/agent-directory-observation-placement-db.test.php
+		-
+			message: '#^Variable\ \$fake\ might\ not\ be\ defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: tests/agent-directory-observation-placement-db.test.php
+		-
+			message: '#^Variable\ \$fake\ might\ not\ be\ defined\.$#'
+			identifier: variable.undefined
+			count: 6
+			path: tests/agent-directory-operation-db.test.php
+		-
+			message: '#^Variable\ \$manifest\ might\ not\ be\ defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: tests/agent-directory-operation-db.test.php
+		-
+			message: '#^Offset\ ''last_deploy_task_id''\ on\ array\{operation:\ ''rebind'',\ mode:\ ''existing'',\ target:\ array\{guid:\ ''aaaaaaaa-aaaa-aaaa…'',\ sid:\ ''S-1-5-21-1-1001'',\ account:\ ''B\$'',\ dn:\ ''CN=B,OU=Computers…''},\ host_id:\ 7,\ name:\ ''B'',\ domain:\ ''corp\.example'',\ dc:\ ''dc1\.corp\.example'',\ attempt_id:\ ''4444444444444444444…'',\ \.\.\.}\|array\{version:\ 1,\ protocol:\ 2,\ phase:\ mixed,\ last_deploy_task_id:\ 120,\ placement_hold:\ true,\ attempt_id:\ ''4444444444444444444…'',\ trigger_task_id:\ 119}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-directory-retry-protection-db.test.php
+		-
+			message: '#^Offset\ ''last_deploy_task_id''\ on\ array\{operation:\ ''rebind'',\ mode:\ ''existing'',\ target:\ array\{guid:\ ''aaaaaaaa-aaaa-aaaa…'',\ sid:\ ''S-1-5-21-1-1001'',\ account:\ ''B\$'',\ dn:\ ''CN=B,OU=Computers…''},\ host_id:\ 7,\ name:\ ''B'',\ domain:\ ''corp\.example'',\ dc:\ ''dc1\.corp\.example'',\ attempt_id:\ mixed,\ \.\.\.}\|array\{version:\ 1,\ protocol:\ 2,\ phase:\ mixed,\ last_deploy_task_id:\ 120,\ placement_hold:\ true}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 4
+			path: tests/agent-directory-retry-protection-db.test.php
+		-
+			message: '#^Offset\ ''last_deploy_task_id''\ on\ array\{operation:\ ''rebind'',\ mode:\ ''existing'',\ target:\ array\{guid:\ ''aaaaaaaa-aaaa-aaaa…'',\ sid:\ ''S-1-5-21-1-1001'',\ account:\ ''B\$'',\ dn:\ ''CN=B,OU=Computers…''},\ host_id:\ 7,\ name:\ ''B'',\ domain:\ ''corp\.example'',\ dc:\ ''dc1\.corp\.example'',\ attempt_id\?:\ mixed,\ \.\.\.}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/agent-directory-retry-protection-db.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ 120\ and\ 120\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 6
+			path: tests/agent-directory-retry-protection-db.test.php
+		-
+			message: '#^Variable\ \$fake\ might\ not\ be\ defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: tests/agent-directory-retry-protection-db.test.php
+		-
+			message: '#^Variable\ \$manifest\ might\ not\ be\ defined\.$#'
+			identifier: variable.undefined
+			count: 1
+			path: tests/agent-directory-retry-protection-db.test.php
+		-
+			message: '#^Variable\ \$pdo\ might\ not\ be\ defined\.$#'
+			identifier: variable.undefined
+			count: 2
+			path: tests/agent-directory-verification-sc-db.test.php
+		-
+			message: '#^Strict\ comparison\ using\ !==\ between\ array\{version:\ 1,\ phase:\ ''ready'',\ attempt_id:\ ''aaaaaaaaaaaaaaaaaaa…'',\ source:\ array\{guid:\ ''11111111-1111-1111…'',\ sid:\ ''S-1-5-21-1-1''},\ target:\ array\{guid:\ ''22222222-2222-2222…'',\ sid:\ ''S-1-5-21-1-2''}}\ and\ array\{version:\ 1,\ phase:\ ''ready'',\ attempt_id:\ ''aaaaaaaaaaaaaaaaaaa…'',\ source:\ array\{guid:\ ''11111111-1111-1111…'',\ sid:\ ''S-1-5-21-1-1''},\ target:\ array\{guid:\ ''22222222-2222-2222…'',\ sid:\ ''S-1-5-21-1-2''}}\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: notIdentical.alwaysFalse
+			count: 2
+			path: tests/agent-mj1-db.test.php
+		-
+			message: '#^Call\ to\ function\ in_array\(\)\ with\ arguments\ ''hdRejoinConfig'',\ array<mixed>\ and\ true\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/agent-mj1-migration.test.php
+		-
+			message: '#^Offset\ ''dc_reachable''\ on\ array\{revision:\ mixed,\ dc:\ ''dc1\.corp\.example'',\ dc_reachable:\ true,\ current_name:\ string,\ pending_name:\ string,\ domain:\ '''',\ netbios:\ ''''\|''CORP'',\ role:\ ''workstation'',\ \.\.\.}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Offset\ ''domain''\ on\ array\{revision:\ mixed,\ dc:\ ''dc1\.corp\.example'',\ dc_reachable:\ true,\ current_name:\ string,\ pending_name:\ string,\ domain:\ string,\ netbios:\ ''''\|''CORP'',\ role:\ ''workstation'',\ \.\.\.}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Offset\ ''mode''\ on\ non-empty-array<mixed>\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Offset\ ''operation''\ on\ non-empty-array<mixed>\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Offset\ ''secure_channel''\ on\ array\{revision:\ mixed,\ dc:\ ''dc1\.corp\.example'',\ dc_reachable:\ true,\ current_name:\ string,\ pending_name:\ string,\ domain:\ '''',\ netbios:\ ''''\|''CORP'',\ role:\ ''workstation'',\ \.\.\.}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Offset\ ''secure_channel''\ on\ array\{revision:\ mixed,\ dc:\ ''dc1\.corp\.example'',\ dc_reachable:\ true,\ current_name:\ string,\ pending_name:\ string,\ domain:\ string,\ netbios:\ ''''\|''CORP'',\ role:\ ''workstation'',\ \.\.\.}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Offset\ ''value''\ on\ array\{value:\ ''''\|''ldaps://dc1\.corp…''}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Result\ of\ \|\|\ is\ always\ true\.$#'
+			identifier: booleanOr.alwaysTrue
+			count: 1
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Strict\ comparison\ using\ !==\ between\ ''awaiting_reboot''\ and\ ''started''\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Unreachable\ statement\ -\ code\ above\ always\ terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: tests/fixtures/directory-operation-flow.php
+		-
+			message: '#^Call\ to\ an\ undefined\ static\ method\ Initiator::language\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: tests/fixtures/directory-operation-ui.php
+		-
+			message: '#^Negated\ boolean\ expression\ is\ always\ false\.$#'
+			identifier: booleanNot.alwaysFalse
+			count: 1
+			path: tests/fixtures/u2-p2-intent-fault-worker.php
+		-
+			message: '#^Result\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 2
+			path: tests/fixtures/u2-p2-intent-fault-worker.php
+		-
+			message: '#^Strict\ comparison\ using\ !==\ between\ ''fog_mj1''\ and\ ''''\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: tests/fixtures/u2-p2-intent-fault-worker.php
+		-
+			message: '#^While\ loop\ condition\ is\ always\ true\.$#'
+			identifier: while.alwaysTrue
+			count: 1
+			path: tests/fixtures/u2-p2-intent-fault-worker.php
+		-
+			message: '#^Call\ to\ function\ class_exists\(\)\ with\ ''Host''\|''HostDirectory''\ and\ false\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/fixtures/u2-p2-like-baseline-worker.php
+		-
+			message: '#^Call\ to\ function\ is_bool\(\)\ with\ bool\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/fixtures/u2-p2-like-baseline-worker.php
+		-
+			message: '#^Offset\ ''params''\ on\ null\ on\ left\ side\ of\ \?\?\ does\ not\ exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/fixtures/u2-p2-like-baseline-worker.php
+		-
+			message: '#^Offset\ ''sql''\ on\ null\ on\ left\ side\ of\ \?\?\ does\ not\ exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/fixtures/u2-p2-like-baseline-worker.php
+		-
+			message: '#^Result\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 2
+			path: tests/fixtures/u2-p2-like-baseline-worker.php
+		-
+			message: '#^Strict\ comparison\ using\ !==\ between\ null\ and\ null\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: notIdentical.alwaysFalse
+			count: 1
+			path: tests/fixtures/u2-p2-like-baseline-worker.php
+		-
+			message: '#^Ternary\ operator\ condition\ is\ always\ false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: tests/fixtures/u2-p2-like-baseline-worker.php
+		-
+			message: '#^Offset\ ''guid''\ on\ non-empty-array<mixed>\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/fixtures/u2-p2-placement-dispatch-worker.php
+		-
+			message: '#^Offset\ ''sid''\ on\ non-empty-array<mixed>\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/fixtures/u2-p2-placement-dispatch-worker.php
+		-
+			message: '#^While\ loop\ condition\ is\ always\ true\.$#'
+			identifier: while.alwaysTrue
+			count: 1
+			path: tests/fixtures/u2-p2-transaction-crash-worker.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ false\ and\ false\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/lib/sc-hold-pdo.php
+		-
+			message: '#^Call\ to\ function\ is_array\(\)\ with\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/u2-p2-barriers.test.php
+		-
+			message: '#^Call\ to\ function\ is_array\(\)\ with\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/u2-p2-barriers.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ 0\ and\ 0\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 2
+			path: tests/u2-p2-barriers.test.php
+		-
+			message: '#^Call\ to\ function\ is_array\(\)\ with\ array\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/u2-p2-batch-overrides.test.php
+		-
+			message: '#^Call\ to\ function\ is_array\(\)\ with\ array\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/u2-p2-batch.test.php
+		-
+			message: '#^Call\ to\ function\ is_array\(\)\ with\ null\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/u2-p2-batch.test.php
+		-
+			message: '#^Empty\ array\ passed\ to\ foreach\.$#'
+			identifier: foreach.emptyArray
+			count: 1
+			path: tests/u2-p2-batch.test.php
+		-
+			message: '#^Result\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 3
+			path: tests/u2-p2-batch.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ null\ and\ null\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/u2-p2-batch.test.php
+		-
+			message: '#^Offset\ ''inserted_host''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ directory_id:\ int,\ inserted_host:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-cascade.test.php
+		-
+			message: '#^Strict\ comparison\ using\ !==\ between\ null\ and\ int\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: notIdentical.alwaysTrue
+			count: 1
+			path: tests/u2-p2-cascade.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-claim-barriers.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-claim-barriers.test.php
+		-
+			message: '#^If\ condition\ is\ always\ false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: tests/u2-p2-claim-race.test.php
+		-
+			message: '#^Offset\ ''directory_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-claim-race.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-claim-race.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-claim-race.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-claim-race.test.php
+		-
+			message: '#^Call\ to\ function\ array_key_exists\(\)\ with\ ''naming_contexts''\ and\ array\{status:\ ''found'',\ base_dn:\ ''DC=corp,DC=example'',\ dc\?:\ string,\ reason\?:\ string}\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/u2-p2-guid-context.test.php
+		-
+			message: '#^Offset\ ''status''\ on\ array\{status:\ string,\ base_dn\?:\ string,\ dc\?:\ string,\ reason\?:\ string}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u2-p2-guid-context.test.php
+		-
+			message: '#^Call\ to\ function\ array_key_exists\(\)\ with\ ''hostdirectory''\ and\ array\{}\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Call\ to\ function\ array_key_exists\(\)\ with\ ''image''\ and\ array\{}\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: function.impossibleType
+			count: 1
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Comparison\ operation\ ">"\ between\ 0\ and\ 2\ is\ always\ false\.$#'
+			identifier: greater.alwaysFalse
+			count: 1
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Offset\ ''hostdirectory''\ on\ array\{}\ in\ isset\(\)\ does\ not\ exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Offset\ ''image''\ on\ array\{}\ in\ isset\(\)\ does\ not\ exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Offset\ 0\ on\ array\{}\ on\ left\ side\ of\ \?\?\ does\ not\ exist\.$#'
+			identifier: nullCoalesce.offset
+			count: 3
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Result\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 13
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ ''outside…''\ and\ ''harmless''\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ ''unknown_image''\ and\ ''harmless''\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ 2\ and\ 0\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: identical.alwaysFalse
+			count: 2
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ array\{''mutator'',\ ''observer''}\ and\ array\{}\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: identical.alwaysFalse
+			count: 3
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ non-empty-list<''groupassociation''\|''hostautologout''\|''inventory''\|''macaddressassociati…''\|''moduleassociation''\|''nodefailure''\|''powermanagement''\|''printerassociation''\|''scheduledtask''\|''sitehostmember''\|''snapinassociation''\|''snapinjob''\|''snapintask''\|''task''>\ and\ array\{}\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: tests/u2-p2-hook-owner.test.php
+		-
+			message: '#^Offset\ ''directory_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ host_inserted:\ true,\ directory_inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-intent-faults.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-intent-faults.test.php
+		-
+			message: '#^Offset\ ''guid''\ on\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-intent-faults.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ host_inserted:\ true,\ directory_inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-intent-faults.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-intent-faults.test.php
+		-
+			message: '#^Offset\ ''directory_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_name:\ non-falsy-string,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ payload:\ array\{version:\ 1,\ host_id:\ int<1500000000,\ 1800000000>,\ snapshot:\ mixed,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ dc:\ ''dc1\.u2p2\.invalid'',\ nc:\ ''DC=u2p2,DC=invalid'',\ rdn:\ non-falsy-string},\ state:\ array\{operation:\ ''join'',\ name:\ non-falsy-string,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string}},\ host_inserted:\ true,\ directory_inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-intent-lifecycle.test.php
+		-
+			message: '#^Offset\ ''guid''\ on\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-intent-lifecycle.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_name:\ non-falsy-string,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ payload:\ array\{version:\ 1,\ host_id:\ int<1500000000,\ 1800000000>,\ snapshot:\ mixed,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ dc:\ ''dc1\.u2p2\.invalid'',\ nc:\ ''DC=u2p2,DC=invalid'',\ rdn:\ non-falsy-string},\ state:\ array\{operation:\ ''join'',\ name:\ non-falsy-string,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string}},\ host_inserted:\ true,\ directory_inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-intent-lifecycle.test.php
+		-
+			message: '#^Offset\ ''directory_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ guid:\ non-falsy-string,\ slot_inserted:\ false,\ payload:\ array\{version:\ 1,\ host_id:\ int<1500000000,\ 1800000000>,\ snapshot:\ mixed,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ dc:\ ''dc1\.u2p2\.invalid'',\ nc:\ ''DC=u2p2,DC=invalid'',\ rdn:\ non-falsy-string}}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-intent-result-format.test.php
+		-
+			message: '#^Offset\ ''guid''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ guid:\ non-falsy-string,\ slot_inserted:\ false,\ payload:\ array\{version:\ 1,\ host_id:\ int<1500000000,\ 1800000000>,\ snapshot:\ mixed,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ dc:\ ''dc1\.u2p2\.invalid'',\ nc:\ ''DC=u2p2,DC=invalid'',\ rdn:\ non-falsy-string}}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-intent-result-format.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ guid:\ non-falsy-string,\ slot_inserted:\ false,\ payload:\ array\{version:\ 1,\ host_id:\ int<1500000000,\ 1800000000>,\ snapshot:\ mixed,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ dc:\ ''dc1\.u2p2\.invalid'',\ nc:\ ''DC=u2p2,DC=invalid'',\ rdn:\ non-falsy-string}}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-intent-result-format.test.php
+		-
+			message: '#^Offset\ ''dpiStatus''\ on\ non-empty-array<mixed,\ mixed>\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u2-p2-intent-schema-negative.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ ''PREPARED''\ and\ ''PREPARED''\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/u2-p2-intent-schema-negative.test.php
+		-
+			message: '#^Left\ side\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.leftAlwaysFalse
+			count: 1
+			path: tests/u2-p2-legacy-placement-claim-order.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-legacy-placement-claim-order.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-legacy-placement-claim-order.test.php
+		-
+			message: '#^Result\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 8
+			path: tests/u2-p2-legacy-placement-claim-order.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ 1\ and\ 0\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: tests/u2-p2-legacy-placement-claim-order.test.php
+		-
+			message: '#^Left\ side\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.leftAlwaysFalse
+			count: 2
+			path: tests/u2-p2-load.test.php
+		-
+			message: '#^Call\ to\ function\ is_array\(\)\ with\ array<mixed,\ mixed>\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/u2-p2-move-aba-seam.test.php
+		-
+			message: '#^Offset\ ''directory_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ old_dn:\ non-falsy-string,\ payload:\ array\{version:\ 1,\ host_id:\ int<1500000000,\ 1800000000>,\ snapshot:\ mixed,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ dc:\ ''dc1\.u2p2\.invalid'',\ nc:\ ''DC=u2p2,DC=invalid'',\ rdn:\ non-falsy-string}}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-move-aba-seam.test.php
+		-
+			message: '#^Offset\ ''guid''\ on\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-move-aba-seam.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ old_dn:\ non-falsy-string,\ payload:\ array\{version:\ 1,\ host_id:\ int<1500000000,\ 1800000000>,\ snapshot:\ mixed,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ destination:\ array\{guid:\ non-falsy-string,\ dn:\ ''OU=Managed,DC=u2p2…''},\ dc:\ ''dc1\.u2p2\.invalid'',\ nc:\ ''DC=u2p2,DC=invalid'',\ rdn:\ non-falsy-string}}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-move-aba-seam.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-placement-claim-barriers.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ false}\|array\{host_id:\ int<1500000000,\ 1800000000>,\ host_name:\ non-falsy-string,\ domain:\ ''u2p2\.invalid'',\ fingerprint:\ non-falsy-string,\ host:\ mixed,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ config:\ array\{version:\ 1,\ protocol:\ 2,\ allow_create:\ false,\ name:\ non-falsy-string,\ domain:\ ''u2p2\.invalid'',\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ config_revision:\ non-empty-string,\ confirmed_by:\ ''u2-p2-placement…'',\ \.\.\.},\ state:\ array\{version:\ 1,\ protocol:\ 2,\ operation:\ ''rebind'',\ mode:\ ''existing'',\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ host_id:\ int<1500000000,\ 1800000000>,\ name:\ non-falsy-string,\ domain:\ ''u2p2\.invalid'',\ \.\.\.},\ \.\.\.}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-placement-claim-barriers.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-placement-claim-barriers.test.php
+		-
+			message: '#^Offset\ ''directory_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ host_inserted:\ true,\ directory_inserted:\ true,\ host:\ mixed,\ config:\ array\{version:\ 1,\ protocol:\ 2,\ allow_create:\ false,\ name:\ non-falsy-string,\ domain:\ ''u2p2\.invalid'',\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ config_revision:\ non-empty-string,\ confirmed_by:\ ''u2-p2-placement…'',\ \.\.\.},\ state:\ array\{version:\ 1,\ protocol:\ 2,\ operation:\ ''rebind'',\ mode:\ ''existing'',\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ host_id:\ int<1500000000,\ 1800000000>,\ name:\ non-falsy-string,\ domain:\ ''u2p2\.invalid'',\ \.\.\.},\ body:\ array\{attempt_id:\ non-empty-string,\ config_revision:\ mixed,\ operation:\ ''rebind'',\ task_id:\ 0,\ target_guid:\ non-falsy-string}}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-placement-dispatch-race.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-placement-dispatch-race.test.php
+		-
+			message: '#^Offset\ ''guid''\ on\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-placement-dispatch-race.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ host_inserted:\ true,\ directory_inserted:\ true,\ host:\ mixed,\ config:\ array\{version:\ 1,\ protocol:\ 2,\ allow_create:\ false,\ name:\ non-falsy-string,\ domain:\ ''u2p2\.invalid'',\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ config_revision:\ non-empty-string,\ confirmed_by:\ ''u2-p2-placement…'',\ \.\.\.},\ state:\ array\{version:\ 1,\ protocol:\ 2,\ operation:\ ''rebind'',\ mode:\ ''existing'',\ target:\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string},\ host_id:\ int<1500000000,\ 1800000000>,\ name:\ non-falsy-string,\ domain:\ ''u2p2\.invalid'',\ \.\.\.},\ body:\ array\{attempt_id:\ non-empty-string,\ config_revision:\ mixed,\ operation:\ ''rebind'',\ task_id:\ 0,\ target_guid:\ non-falsy-string}}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-placement-dispatch-race.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-placement-dispatch-race.test.php
+		-
+			message: '#^Offset\ ''sid''\ on\ array\{guid:\ non-falsy-string,\ sid:\ non-falsy-string,\ account:\ non-falsy-string,\ dn:\ non-falsy-string}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-placement-dispatch-race.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ 2\ and\ 2\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 2
+			path: tests/u2-p2-placement-dispatch-race.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-report-barrier.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-report-barrier.test.php
+		-
+			message: '#^Offset\ ''directory_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ target_guid:\ non-falsy-string}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-slot-bindings.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ target_guid:\ non-falsy-string}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-slot-bindings.test.php
+		-
+			message: '#^Offset\ ''target_guid''\ on\ array\{host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ target_guid:\ non-falsy-string}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-slot-bindings.test.php
+		-
+			message: '#^Call\ to\ function\ is_array\(\)\ with\ non-empty-array\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/u2-p2-transaction-crash.test.php
+		-
+			message: '#^If\ condition\ is\ always\ true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: tests/u2-p2-transaction-crash.test.php
+		-
+			message: '#^Offset\ ''actual_update…''\ on\ non-empty-array<mixed,\ mixed>\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u2-p2-transaction-crash.test.php
+		-
+			message: '#^Offset\ ''callback_phase''\ on\ non-empty-array<mixed>\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u2-p2-transaction-crash.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-transaction-crash.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u2-p2-transaction-crash.test.php
+		-
+			message: '#^Offset\ ''transaction_open''\ on\ non-empty-array<mixed>\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u2-p2-transaction-crash.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ true\ and\ true\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 2
+			path: tests/u2-p2-transaction-crash.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{host_id:\ int<1,\ max>,\ host_inserted:\ true,\ directory_inserted:\ bool,\ directory_id\?:\ int<1,\ max>}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u2-p2-writers.test.php
+		-
+			message: '#^Call\ to\ function\ is_array\(\)\ with\ array<mixed,\ mixed>\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: tests/u205-projection-flow.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u205-projection-flow.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u205-projection-flow.test.php
+		-
+			message: '#^Call\ to\ function\ is_array\(\)\ with\ array\{}\|array\{array\{host_id:\ int,\ hd_id:\ int\|null,\ task_id:\ int\|null,\ guid:\ non-falsy-string,\ name:\ non-falsy-string,\ inserted:\ true}}\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^If\ condition\ is\ always\ false\.$#'
+			identifier: if.alwaysFalse
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Left\ side\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.leftAlwaysFalse
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Offset\ ''completed''\ on\ array\{completed:\ false,\ sqlstate:\ string,\ driver_code:\ int\|null,\ message:\ string}\|array\{completed:\ true,\ sqlstate:\ null,\ driver_code:\ null}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\|array\{running:\ false,\ exitcode:\ -1}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 2
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Offset\ ''inserted''\ on\ array\{host_id:\ int,\ hd_id:\ int\|null,\ task_id:\ int\|null,\ guid:\ non-falsy-string,\ name:\ non-falsy-string,\ inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\|array\{running:\ false,\ exitcode:\ -1}\ in\ empty\(\)\ always\ exists\ and\ is\ always\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Offset\ ''simulated_count''\ on\ non-empty-array<mixed>\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Offset\ 1\ on\ array\{}\ in\ isset\(\)\ does\ not\ exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Offset\ 1\|2\ on\ array\{}\ in\ isset\(\)\ does\ not\ exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Offset\ 2\ on\ array\{}\ in\ isset\(\)\ does\ not\ exist\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Result\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 3
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ 1\ and\ 1\ will\ always\ evaluate\ to\ true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^Ternary\ operator\ condition\ is\ always\ false\.$#'
+			identifier: ternary.alwaysFalse
+			count: 1
+			path: tests/u206-deadlock.test.php
+		-
+			message: '#^If\ condition\ is\ always\ true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: tests/u206-host-destroy-key.test.php
+		-
+			message: '#^Offset\ ''exitcode''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ false,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''hostDirectory''\ on\ array\{hosts:\ array\{},\ hostDirectory:\ array\|false,\ tasks:\ array\{},\ intent:\ array\|false}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''hostDirectory''\ on\ array\{hosts:\ array\{},\ hostDirectory:\ array\|false,\ tasks:\ array\|false,\ intent:\ array\|false}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''hostDirectory''\ on\ array\{hosts:\ array\|false,\ hostDirectory:\ array\|false,\ tasks:\ array\|false,\ intent:\ array\|false}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''hosts''\ on\ array\{hosts:\ array\|false,\ hostDirectory:\ array\|false,\ tasks:\ array\{},\ intent:\ array\|false}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''hosts''\ on\ array\{hosts:\ array\|false,\ hostDirectory:\ array\|false,\ tasks:\ array\|false,\ intent:\ array\|false}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 3
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''intent''\ on\ array\{hosts:\ array\{},\ hostDirectory:\ array\{},\ tasks:\ array\{},\ intent:\ array\|false}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''intent''\ on\ array\{hosts:\ array\|false,\ hostDirectory:\ array\|false,\ tasks:\ array\|false,\ intent:\ array\|false}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 2
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''running''\ on\ array\{command:\ string,\ pid:\ int,\ running:\ bool,\ signaled:\ bool,\ stopped:\ bool,\ exitcode:\ int,\ termsig:\ int,\ stopsig:\ int}\ in\ isset\(\)\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: isset.offset
+			count: 1
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''tasks''\ on\ array\{hosts:\ array\|false,\ hostDirectory:\ array\|false,\ tasks:\ array\|false,\ intent:\ array\|false}\ on\ left\ side\ of\ \?\?\ always\ exists\ and\ is\ not\ nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 4
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Result\ of\ &&\ is\ always\ false\.$#'
+			identifier: booleanAnd.alwaysFalse
+			count: 6
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Strict\ comparison\ using\ ===\ between\ ''directory_claim…''\ and\ ''''\ will\ always\ evaluate\ to\ false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: tests/u206-writer-intent.test.php
+		-
+			message: '#^Offset\ ''directory_inserted''\ on\ array\{label:\ mixed,\ host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ perf_inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u208c-perf-cascade.test.php
+		-
+			message: '#^Offset\ ''host_inserted''\ on\ array\{label:\ mixed,\ host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ perf_inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u208c-perf-cascade.test.php
+		-
+			message: '#^Offset\ ''perf_inserted''\ on\ array\{label:\ mixed,\ host_id:\ int<1500000000,\ 1800000000>,\ host_inserted:\ true,\ directory_inserted:\ true,\ perf_inserted:\ true}\ in\ empty\(\)\ always\ exists\ and\ is\ not\ falsy\.$#'
+			identifier: empty.offset
+			count: 1
+			path: tests/u208c-perf-cascade.test.php

@@ -7,22 +7,22 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('placement claim barriers require explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('placement claim barriers require explicit scratch opt-in and mysql DSN');
 }
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-placement-claim-barriers');
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '',
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('placement claim barriers require a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('placement claim barriers require a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME differs from validated scratch DB');
+    throw new \RuntimeException('DATABASE_NAME differs from validated scratch DB');
 }
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -113,7 +113,7 @@ $createFixture = static function ($targetAccount = null) use ($pdo, $guid, $newH
     return $fixture;
 };
 $intentPayload = static function (array $fixture) use ($pdo, $guid) {
-    $method = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+    $method = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
     $method->setAccessible(true);
     $snapshot = $method->invoke(null, $pdo, $fixture['host_id']);
     return [
@@ -128,9 +128,9 @@ $intentPayload = static function (array $fixture) use ($pdo, $guid) {
 };
 $readIntent = static function ($targetGuid) use ($pdo, $guidBytes) {
     $q = $pdo->prepare('SELECT dpiGeneration,dpiStatus,dpiHostID,dpiHash FROM directoryPlacementIntent WHERE dpiGUID=?');
-    $q->bindValue(1, $guidBytes($targetGuid), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($targetGuid), \PDO::PARAM_LOB);
     $q->execute();
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 $taskCount = static function ($hostID) use ($pdo) {
     $q = $pdo->prepare('SELECT COUNT(*) FROM tasks WHERE taskHostID=?');
@@ -155,8 +155,8 @@ try {
     $preparedStateAfterClaim = FOG\Agent\DirectoryRejoin::settings($preparedForClaim['host'])['state'];
     $staleDispatchReason = '';
     try {
-        FOG\Agent\DirectoryPlacementIntent::dispatch($preparedTicket, new stdClass());
-    } catch (Throwable $e) {
+        FOG\Agent\DirectoryPlacementIntent::dispatch($preparedTicket, new \stdClass());
+    } catch (\Throwable $e) {
         $staleDispatchReason = $e->getMessage();
     }
     $t->check('B39-03 real claim cancels PREPARED before dispatch and starts the exact operation',
@@ -171,13 +171,13 @@ try {
     $mayForClaim = $createFixture();
     $mayPayload = $intentPayload($mayForClaim);
     $mayTicket = FOG\Agent\DirectoryPlacementIntent::prepare($mayPayload);
-    FOG\Agent\DirectoryPlacementIntent::dispatch($mayTicket, new stdClass());
+    FOG\Agent\DirectoryPlacementIntent::dispatch($mayTicket, new \stdClass());
     $mayBeforeState = FOG\Agent\DirectoryRejoin::settings($mayForClaim['host']);
     $mayBeforeRow = $readIntent($mayForClaim['target']['guid']);
     $mayClaimReason = '';
     try {
         $claim($mayForClaim);
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $mayClaimReason = $e->getMessage();
     }
     $t->check('B39-04 real claim refuses MAY_HAVE_RUN placement and preserves both durable rows',
@@ -190,12 +190,12 @@ try {
     // B39-05: active work for Target A does not serialize an unrelated Target B.
     $targetA = $createFixture();
     $ticketA = FOG\Agent\DirectoryPlacementIntent::prepare($intentPayload($targetA));
-    FOG\Agent\DirectoryPlacementIntent::dispatch($ticketA, new stdClass());
+    FOG\Agent\DirectoryPlacementIntent::dispatch($ticketA, new \stdClass());
     $targetBClaim = $createFixture();
     $claim($targetBClaim);
     $targetCDispatch = $createFixture();
     $ticketC = FOG\Agent\DirectoryPlacementIntent::prepare($intentPayload($targetCDispatch));
-    FOG\Agent\DirectoryPlacementIntent::dispatch($ticketC, new stdClass());
+    FOG\Agent\DirectoryPlacementIntent::dispatch($ticketC, new \stdClass());
     $t->check('B39-05 different Targets permit independent claim and dispatch while A remains MAY_HAVE_RUN',
         'MAY_HAVE_RUN' === ($readIntent($targetA['target']['guid'])['dpiStatus'] ?? null)
         && 'started' === (FOG\Agent\DirectoryRejoin::settings($targetBClaim['host'])['state']['phase'] ?? null)
@@ -229,13 +229,13 @@ try {
     $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
         . 'u2-p2-placement-claim-' . bin2hex(random_bytes(10));
     if (!mkdir($barrierDir, 0700)) {
-        throw new RuntimeException('cannot create placement claim barrier directory');
+        throw new \RuntimeException('cannot create placement claim barrier directory');
     }
     $barrierDir = realpath($barrierDir);
     $tempRoot = rtrim(realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     if (false === $barrierDir || 0 !== strpos($barrierDir, $tempRoot)
         || 0 !== strpos(basename($barrierDir), 'u2-p2-placement-claim-')) {
-        throw new RuntimeException('placement claim barrier escaped private temp root');
+        throw new \RuntimeException('placement claim barrier escaped private temp root');
     }
     $worker = __DIR__ . '/fixtures/u2-p2-placement-claim-worker.php';
     $pipes = [];
@@ -243,7 +243,7 @@ try {
         json_encode(['database' => $database, 'payload' => $payload], JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR)],
         [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes, dirname(__DIR__));
     if (!is_resource($workerProcess)) {
-        throw new RuntimeException('cannot start stale placement lookup worker');
+        throw new \RuntimeException('cannot start stale placement lookup worker');
     }
     fclose($pipes[0]);
     $workerPipes = $pipes;

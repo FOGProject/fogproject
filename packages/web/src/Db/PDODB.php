@@ -77,9 +77,10 @@ class PDODB extends DatabaseManager
     public $lastParams = array();
 
     /**
-     * Stores the current connection
+     * Stores the current PDO connection, false after failure, or null before
+     * connection and after disconnect.
      *
-     * @var resource
+     * @var \PDO|false|null
      */
     private static $_link;
 
@@ -308,7 +309,7 @@ class PDODB extends DatabaseManager
                 $pass,
                 self::$_options
             );
-            if (self::$_link && !self::currentDb($this)) {
+            if (!self::currentDb($this)) {
                 if (preg_match('#schema#', self::$querystring)) {
                     self::redirect('../management/index.php?node=schema');
                 }
@@ -919,7 +920,7 @@ class PDODB extends DatabaseManager
     /**
      * Returns the primary link
      *
-     * @return object
+     * @return \PDO|false|null
      */
     public static function peekLink()
     {

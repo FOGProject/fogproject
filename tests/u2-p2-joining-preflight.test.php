@@ -8,29 +8,29 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-P2 joining preflight requires explicit scratch opt-in and mysql DSN');
+    throw new \RuntimeException('U2-P2 joining preflight requires explicit scratch opt-in and mysql DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u2-p2-joining-preflight');
-$pdo = new PDO(
+$pdo = new \PDO(
     $dsn,
     getenv('MJ1_DB_USER') ?: 'root',
     getenv('MJ1_DB_PASSWORD') ?: '',
-    [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+    [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
 );
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-P2 joining preflight requires a fog_mj1-prefixed scratch DB');
+    throw new \RuntimeException('U2-P2 joining preflight requires a fog_mj1-prefixed scratch DB');
 }
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match validated scratch database');
 }
 
 // Use real PDODB, real Host models and Route's real database-backed list path.
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -78,11 +78,11 @@ $createHost = static function ($prefix, $fixedName = null) use ($pdo, &$fixtures
 $read = static function ($table, $column, $id) use ($pdo) {
     if (!in_array($table, ['hosts', 'hostDirectory'], true)
         || !in_array($column, ['hostID', 'hdID'], true)) {
-        throw new InvalidArgumentException('fixture row selector invalid');
+        throw new \InvalidArgumentException('fixture row selector invalid');
     }
     $q = $pdo->prepare('SELECT * FROM `' . $table . '` WHERE `' . $column . '`=?');
     $q->execute([$id]);
-    return $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    return $q->fetch(\PDO::FETCH_ASSOC) ?: null;
 };
 
 try {
@@ -150,7 +150,7 @@ try {
         Route::asValue(static function () use ($classVars, $body) {
             FogTestHarness::callStatic('Route', '_joiningUpdate', ['host', $classVars, $body]);
         });
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $failure = $e;
     }
     $idleAfter = $read('hosts', 'hostID', $idle['id']);

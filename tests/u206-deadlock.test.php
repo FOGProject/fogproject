@@ -13,32 +13,32 @@ if ('' === $dsn) {
     exit(0);
 }
 if ('1' !== getenv('MJ1_DB_ALLOW_RESET') || 0 !== strpos($dsn, 'mysql:')) {
-    throw new RuntimeException('U2-06 requires explicit scratch opt-in and a MySQL PDO DSN');
+    throw new \RuntimeException('U2-06 requires explicit scratch opt-in and a MySQL PDO DSN');
 }
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('u206-deadlock');
 
-$pdo = new PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '', [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_EMULATE_PREPARES => false
+$pdo = new \PDO($dsn, getenv('MJ1_DB_USER') ?: 'root', getenv('MJ1_DB_PASSWORD') ?: '', [
+    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+    \PDO::ATTR_EMULATE_PREPARES => false
 ]);
 $database = (string)$pdo->query('SELECT DATABASE()')->fetchColumn();
 if ('fog_mj1' !== $database && 0 !== strpos($database, 'fog_mj1_')) {
-    throw new RuntimeException('U2-06 requires a fog_mj1-prefixed scratch database');
+    throw new \RuntimeException('U2-06 requires a fog_mj1-prefixed scratch database');
 }
 $serverVersion = (string)$pdo->query('SELECT VERSION()')->fetchColumn();
 if (false === stripos($serverVersion, 'MariaDB')) {
-    throw new RuntimeException('U2-06 requires MariaDB to assert MariaDB deadlock behavior');
+    throw new \RuntimeException('U2-06 requires MariaDB to assert MariaDB deadlock behavior');
 }
 if (!(int)$pdo->query('SELECT @@innodb_deadlock_detect')->fetchColumn()) {
-    throw new RuntimeException('U2-06 requires MariaDB InnoDB deadlock detection enabled');
+    throw new \RuntimeException('U2-06 requires MariaDB InnoDB deadlock detection enabled');
 }
 $pdo->exec('SET SESSION innodb_lock_wait_timeout=10');
 if (!defined('DATABASE_NAME')) {
     define('DATABASE_NAME', $database);
 } elseif (DATABASE_NAME !== $database) {
-    throw new RuntimeException('DATABASE_NAME does not match the validated scratch database');
+    throw new \RuntimeException('DATABASE_NAME does not match the validated scratch database');
 }
 
 $engineQuery = $pdo->prepare(
@@ -46,16 +46,16 @@ $engineQuery = $pdo->prepare(
 );
 $engineQuery->execute([$database, 'hosts', 'hostDirectory', 'directoryPlacementIntent', 'tasks']);
 $engines = [];
-foreach ($engineQuery->fetchAll(PDO::FETCH_ASSOC) as $engineRow) {
+foreach ($engineQuery->fetchAll(\PDO::FETCH_ASSOC) as $engineRow) {
     $engines[$engineRow['TABLE_NAME']] = strtoupper((string)$engineRow['ENGINE']);
 }
 foreach (['hosts', 'hostDirectory', 'directoryPlacementIntent', 'tasks'] as $table) {
     if ('INNODB' !== ($engines[$table] ?? null)) {
-        throw new RuntimeException('U2-06 requires InnoDB for ' . $table);
+        throw new \RuntimeException('U2-06 requires InnoDB for ' . $table);
     }
 }
 
-$link = new ReflectionProperty(FOG\Db\PDODB::class, '_link');
+$link = new \ReflectionProperty(FOG\Db\PDODB::class, '_link');
 $link->setAccessible(true);
 $link->setValue(null, $pdo);
 $db = new FOG\Db\PDODB();
@@ -92,25 +92,25 @@ $snapshot = static function ($hostID, $taskID, $intentGuid) use ($pdo, $guidByte
         'SELECT hostID,hostName,hostUseAD,hostADDomain,hostADOU,hostAgentFingerprint FROM hosts WHERE hostID=?'
     );
     $q->execute([$hostID]);
-    $host = $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    $host = $q->fetch(\PDO::FETCH_ASSOC) ?: null;
     $q = $pdo->prepare(
         'SELECT hdID,hdHostID,hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt,hdPlacementAt,hdPlacementError,hdRejoinConfig,hdRejoinState FROM hostDirectory WHERE hdHostID=?'
     );
     $q->execute([$hostID]);
-    $directory = $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    $directory = $q->fetch(\PDO::FETCH_ASSOC) ?: null;
     $q = $pdo->prepare(
         'SELECT taskID,taskName,taskHostID,taskStateID,taskTypeID,taskStateChangedTime FROM tasks WHERE taskID=? AND taskHostID=?'
     );
     $q->execute([$taskID, $hostID]);
-    $task = $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    $task = $q->fetch(\PDO::FETCH_ASSOC) ?: null;
     $q = $pdo->prepare(
         'SELECT dpiGUID,dpiSID,dpiHostID,dpiGeneration,dpiStatus,dpiPayload,dpiHash,dpiResult,dpiUpdated FROM directoryPlacementIntent WHERE dpiGUID=?'
     );
-    $q->bindValue(1, $guidBytes($intentGuid), PDO::PARAM_LOB);
+    $q->bindValue(1, $guidBytes($intentGuid), \PDO::PARAM_LOB);
     $q->execute();
-    $intent = $q->fetch(PDO::FETCH_ASSOC) ?: null;
+    $intent = $q->fetch(\PDO::FETCH_ASSOC) ?: null;
     if (!is_array($host) || !is_array($directory) || !is_array($task) || !is_array($intent)) {
-        throw new RuntimeException('U2-06 fresh fixture snapshot is incomplete');
+        throw new \RuntimeException('U2-06 fresh fixture snapshot is incomplete');
     }
     $intent['dpiGUID'] = bin2hex((string)$intent['dpiGUID']);
     return ['host' => $host, 'directory' => $directory, 'task' => $task, 'intent' => $intent];
@@ -121,7 +121,7 @@ $writeBarrier = static function ($directory, $name, array $data) {
     $json = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
     if (false === file_put_contents($tmp, $json, LOCK_EX) || !rename($tmp, $path)) {
         @unlink($tmp);
-        throw new RuntimeException('U2-06 could not atomically publish ' . $name);
+        throw new \RuntimeException('U2-06 could not atomically publish ' . $name);
     }
 };
 $lastWorkerStatus = null;
@@ -151,14 +151,14 @@ $fixtures = [];
 $barrierDir = rtrim(sys_get_temp_dir(), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR
     . 'u206-deadlock-' . bin2hex(random_bytes(12));
 if (!mkdir($barrierDir, 0700)) {
-    throw new RuntimeException('U2-06 cannot create its private temporary barrier directory');
+    throw new \RuntimeException('U2-06 cannot create its private temporary barrier directory');
 }
 $resolvedBarrierDir = realpath($barrierDir);
 $tempRoot = rtrim((string)realpath(sys_get_temp_dir()), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
 if (false === $resolvedBarrierDir || 0 !== strpos($resolvedBarrierDir, $tempRoot)
     || 0 !== strpos(basename($resolvedBarrierDir), 'u206-deadlock-')) {
     @rmdir($barrierDir);
-    throw new RuntimeException('U2-06 barrier directory is outside the private temporary root');
+    throw new \RuntimeException('U2-06 barrier directory is outside the private temporary root');
 }
 $process = null;
 $pipes = [];
@@ -197,7 +197,7 @@ $failWithWorkerDiagnostics = static function ($reason) use (&$process, &$pipes, 
     $diagnostic = "U2-06 child diagnostics (exit " . $exitCode . ")\n"
         . "--- stdout ---\n" . $stdout . "\n--- stderr ---\n" . $stderr . "\n";
     fwrite(STDERR, $diagnostic);
-    throw new RuntimeException($reason . '; child exit=' . $exitCode
+    throw new \RuntimeException($reason . '; child exit=' . $exitCode
         . '; child stdout/stderr were emitted above');
 };
 
@@ -234,7 +234,7 @@ try {
     $target = ['guid' => $fixtureGuid, 'sid' => 'S-1-5-21-206-' . $hostID,
         'account' => $hostName . '$', 'dn' => $oldDN];
     $destination = ['guid' => $guid(), 'dn' => $managedDN];
-    $snapshotMethod = new ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+    $snapshotMethod = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
     $snapshotMethod->setAccessible(true);
     $directorySnapshot = $snapshotMethod->invoke(null, $pdo, $hostID);
     $payload = ['version' => 1, 'host_id' => $hostID, 'snapshot' => $directorySnapshot,
@@ -262,7 +262,7 @@ try {
         dirname(__DIR__)
     );
     if (!is_resource($process)) {
-        throw new RuntimeException('U2-06 could not start its isolated worker');
+        throw new \RuntimeException('U2-06 could not start its isolated worker');
     }
     fclose($pipes[0]);
     unset($pipes[0]);
@@ -278,19 +278,19 @@ try {
     $hdLock = $pdo->prepare('SELECT hdID FROM hostDirectory WHERE hdHostID=? FOR UPDATE');
     $hdLock->execute([$hostID]);
     if ((int)$hdLock->fetchColumn() !== $hdID) {
-        throw new RuntimeException('U2-06 parent did not lock the exact fixture HostDirectory row');
+        throw new \RuntimeException('U2-06 parent did not lock the exact fixture HostDirectory row');
     }
     $placeholders = implode(',', array_fill(0, count($heavyHostIDs), '?'));
     $hostLock = $pdo->prepare('SELECT hostID FROM hosts WHERE hostID IN (' . $placeholders . ') FOR UPDATE');
     $hostLock->execute($heavyHostIDs);
-    if (count($hostLock->fetchAll(PDO::FETCH_COLUMN)) !== count($heavyHostIDs)) {
-        throw new RuntimeException('U2-06 parent did not lock every allocated fixture Host row');
+    if (count($hostLock->fetchAll(\PDO::FETCH_COLUMN)) !== count($heavyHostIDs)) {
+        throw new \RuntimeException('U2-06 parent did not lock every allocated fixture Host row');
     }
 
     // Capture the exact durable MAY_HAVE_RUN state before forming the cycle.
     $beforeCycle = $snapshot($hostID, $taskID, $fixtureGuid);
     if ('MAY_HAVE_RUN' !== ($beforeCycle['intent']['dpiStatus'] ?? null)) {
-        throw new RuntimeException('U2-06 dispatch did not durably reach MAY_HAVE_RUN');
+        throw new \RuntimeException('U2-06 dispatch did not durably reach MAY_HAVE_RUN');
     }
     $writeBarrier($resolvedBarrierDir, 'go-finish.json', ['host_id' => $hostID]);
 
@@ -307,7 +307,7 @@ try {
         );
         $intentUpdate->execute([$guidBytes($fixtureGuid)]);
         $parentUpdate['completed'] = true;
-    } catch (PDOException $e) {
+    } catch (\PDOException $e) {
         $info = is_array($e->errorInfo ?? null) ? $e->errorInfo : [];
         $parentUpdate['sqlstate'] = (string)($info[0] ?? $e->getCode());
         $parentUpdate['driver_code'] = isset($info[1]) ? (int)$info[1] : null;
