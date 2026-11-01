@@ -88,13 +88,69 @@ operation only where no protected directory operation requires the new
 contract. Linux behavior and unrelated FOG operations are unchanged by the
 Windows feature, subject to their existing protocol contracts.
 
+## Initial configuration
+
+Before configuration, confirm the Server uses schema 447 and exposes the MJ-1 API
+feature contracts. The compatible Agent requires both `directory-join-mj1` and
+`directory-task-operations-v3`.
+
+1. In the FOG UI, open **FOG Configuration → FOG Settings → Active Directory
+   Defaults**. Set `FOG_AD_DEFAULT_DOMAINNAME`, `FOG_AD_DEFAULT_USER`, and
+   `FOG_AD_DEFAULT_PASSWORD`, unless valid Host-specific values will supply them.
+   `FOG_AD_DEFAULT_OU` is optional. `FOG_AD_DEFAULT_PASSWORD_LEGACY` is normally
+   unnecessary. Treat `FOG_ENFORCE_HOST_CHANGES` as an operational policy choice
+   based on reboot and logged-in-user handling.
+2. In the FOG UI, open **FOG Configuration → FOG Settings → FOG Agent -
+   Directory Placement**. Configure this LDAP connection even if automatic OU
+   placement will remain disabled: MJ-1 uses it for AD Target lookup and GUID/SID
+   checks.
+   - `FOG_DIRECTORY_BASE_DN`: for example, `DC=example,DC=com`.
+   - `FOG_DIRECTORY_BIND_DN`: for example, `CN=fog-ldap,CN=Users,DC=example,DC=com`.
+   - `FOG_DIRECTORY_BIND_PASSWORD`: set the secret through the configuration
+     interface; do not put a password in documentation or examples.
+   - `FOG_DIRECTORY_CA_CERT`: for example, `/path/to/ad-ca.crt`; the file must
+     be readable by the Server, and the LDAPS server certificate must be
+     correctly validated.
+   - `FOG_DIRECTORY_LDAP_URI`: for example, `ldaps://dc.example.com`.
+3. The LDAP bind account and Windows domain-join/Rebind account have separate
+   roles and need not be the same account. Grant the Windows account the rights
+   required for its Join/Rebind operations. Grant the LDAP account read
+   permissions for Target lookup; grant OU-move rights only when automatic
+   placement is used.
+
+Setting `FOG_DIRECTORY_PLACEMENT_ENABLED=0` disables automatic OU placement,
+not the LDAP connection or Target lookup. Target search, Create/Existing selection,
+and ordinary Rename remain available.
+
+Host-side prerequisites:
+
+- A compatible Agent is successfully enrolled and authenticates with its
+  enrollment certificate.
+- AD management is enabled for the Host.
+- Create permission is enabled when selecting a newly created Target.
+- Existing Target selection has explicit administrator confirmation and the
+  required permissions.
+- Automatic image-deployment Rebind is authorized by a normally completed, eligible Deploy task.
+
+The Server implementation attempts StartTLS for `ldap://` URIs and aborts on StartTLS failure before bind. That code path was not hardware-validated; hardware validation covered LDAPS only.
+
 ## Acceptance boundaries
 
+The latest bounded ten-case hardware acceptance for the recorded Server/Agent
+pair is **PASS WITH NOTES**. A normal GUID-addressed OU move and return is also
+**PASS WITH NOTES**. These results apply only to the tested pair and scope; they
+do not transfer to another build or establish general rollout safety.
+
+The recorded `msDS-KeyCredentialLink` (KCL) change was accepted only as a
+scoped exception under the lab criteria; the modifying actor was not
+conclusively identified. This does not validate similar KCL changes generally.
+
 Isolated PHP/Go, fake LDAP/native, standard-updater and Windows mutex tests are
-separate from real AD/Windows acceptance. Previous ten-case hardware results
-belong to their recorded binaries and are not transferred to this integration.
-Multiple-DC semantics, real upgrade request-drain evidence and new-binary
-hardware acceptance remain separate gates. The long-duration Netlogon/PDC1311
-cause and `msDS-KeyCredentialLink` behavior remain documented observations.
+separate from real AD/Windows acceptance. Real-AD failure injection for
+UNKNOWN/LDAP response loss, legacy-Agent hardware acceptance, and multi-DC
+behavior were not tested. Overlapping native execution was not demonstrated in
+the short-interval hardware boot case. These results also do not establish
+real upgrade request-drain evidence or the cause of long-duration
+Netlogon/PDC1311 behavior.
 This feature adds neither SID generalization nor Sysprep, and does not change
 FOS or Multicast behavior.
