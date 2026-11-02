@@ -169,6 +169,141 @@ foreach ($raw as $cls => $def) {
     $intent[strtolower($def['table'])] = $map;
 }
 
+/*
+ * The placement-intent table is a deliberately raw-SQL store, not a
+ * FOGController model, so the model scan above cannot infer its required
+ * fields. Keep this one explicit storage contract tied to the product's
+ * prepare() INSERT column list and the generated schema manifest. This is a
+ * specialized durable-record contract; it does not exempt arbitrary
+ * non-model tables or relax the schema's NOT NULL requirements.
+ */
+$intentRequiredColumns = [
+    'dpiguid', 'dpisid', 'dpihostid', 'dpigeneration', 'dpistatus',
+    'dpipayload', 'dpihash', 'dpiupdated',
+];
+$storageRequired = [
+    'directoryplacementintent' => array_fill_keys($intentRequiredColumns, true),
+];
+$intentTable = $manifest['tables']['directoryPlacementIntent'] ?? null;
+$intentExpectedColumns = [
+    'dpiGUID', 'dpiSID', 'dpiHostID', 'dpiGeneration', 'dpiStatus',
+    'dpiPayload', 'dpiHash', 'dpiResult', 'dpiUpdated',
+];
+$intentModelPath = $root . '/src/Agent/DirectoryPlacementIntent.php';
+$intentModelSource = is_file($intentModelPath)
+    ? (string)file_get_contents($intentModelPath)
+    : '';
+$insertColumns = [];
+if (preg_match(
+    '/\$db->prepare\(\s*\'INSERT INTO directoryPlacementIntent\s*\(([^)]*)\)\s*VALUES/s',
+    $intentModelSource,
+    $insertMatch
+)) {
+    $insertColumns = array_map('strtolower', array_map('trim', explode(',', $insertMatch[1])));
+}
+$checks++;
+if (!is_array($intentTable)
+    || array_keys((array)($intentTable['columns'] ?? [])) !== $intentExpectedColumns
+    || $insertColumns !== $intentRequiredColumns) {
+    $failures[] = 'directoryPlacementIntent storage contract must match the actual '
+        . 'DirectoryPlacementIntent::prepare() INSERT and schema manifest columns';
+} else {
+    foreach ($intentRequiredColumns as $column) {
+        $name = array_search($column, array_map('strtolower', array_keys($intentTable['columns'])), true);
+        $definition = false === $name ? '' : (string)$intentTable['columns'][array_keys($intentTable['columns'])[$name]];
+        if (!preg_match('/\bNOT\s+NULL\b/i', $definition)
+            || preg_match('/\bDEFAULT\b/i', $definition)) {
+            $failures[] = 'directoryPlacementIntent.' . $column
+                . ' must remain storage-required (NOT NULL without DEFAULT)';
+        }
+    }
+    if (preg_match('/\bNOT\s+NULL\b/i', (string)$intentTable['columns']['dpiResult'])) {
+        $failures[] = 'directoryPlacementIntent.dpiResult must remain nullable';
+    }
+}
+
+// When the test database is configured, prove the storage contract with a
+// real strict-mode omission. The probe uses a temporary copy of the generated
+// table, so it cannot leave rows or schema changes behind.
+if (getenv('FOG_TEST_DSN')) {
+    try {
+        $probeDb = new \PDO(
+            getenv('FOG_TEST_DSN'),
+            getenv('FOG_TEST_USER') ?: 'root',
+            getenv('FOG_TEST_PASS') ?: '',
+            [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
+        );
+        if (!is_array($intentTable)) {
+            throw new \RuntimeException('directoryPlacementIntent manifest definition is missing');
+        }
+        $temporaryCreate = preg_replace(
+            '/^CREATE TABLE IF NOT EXISTS `directoryPlacementIntent`/i',
+            'CREATE TEMPORARY TABLE `oc_directoryPlacementIntent_probe`',
+            (string)$intentTable['create'],
+            1,
+            $createCount
+        );
+        if (1 !== $createCount) {
+            throw new \RuntimeException('could not derive strict-mode probe table from the schema manifest');
+        }
+        $oldSqlMode = (string)$probeDb->query('SELECT @@SESSION.sql_mode')->fetchColumn();
+        $probeDb->exec($temporaryCreate);
+        try {
+            $probeColumns = $probeDb->query(
+                'SHOW COLUMNS FROM `oc_directoryPlacementIntent_probe`'
+            )->fetchAll(\PDO::FETCH_ASSOC);
+            if (array_column($probeColumns, 'Field') !== $intentExpectedColumns) {
+                $failures[] = 'strict-mode probe table columns differ from the schema manifest';
+            }
+            foreach ($intentRequiredColumns as $requiredColumn) {
+                $columnIndex = array_search(
+                    $requiredColumn,
+                    array_map('strtolower', array_column($probeColumns, 'Field')),
+                    true
+                );
+                if (false === $columnIndex || 'NO' !== $probeColumns[$columnIndex]['Null']
+                    || null !== $probeColumns[$columnIndex]['Default']) {
+                    $failures[] = 'actual directoryPlacementIntent column must be NOT NULL without DEFAULT: '
+                        . $requiredColumn;
+                }
+            }
+            $resultIndex = array_search('dpiResult', array_column($probeColumns, 'Field'), true);
+            if (false === $resultIndex || 'YES' !== $probeColumns[$resultIndex]['Null']) {
+                $failures[] = 'actual directoryPlacementIntent.dpiResult column must remain nullable';
+            }
+
+            $probeDb->exec("SET SESSION sql_mode='STRICT_ALL_TABLES'");
+            $omissionRejected = false;
+            try {
+                $probe = $probeDb->prepare(
+                    'INSERT INTO `oc_directoryPlacementIntent_probe` '
+                    . '(dpiGUID,dpiSID,dpiHostID,dpiGeneration,dpiStatus,dpiPayload,dpiHash) '
+                    . 'VALUES (?,?,?,?,?,?,?)'
+                );
+                $payload = '{}';
+                $probe->execute([
+                    random_bytes(16), 'S-1-5-21-1', 1, 1, 'PREPARED',
+                    $payload, hash('sha256', $payload),
+                ]);
+            } catch (\PDOException $e) {
+                $omissionRejected = isset($e->errorInfo[1])
+                    && (int)$e->errorInfo[1] === 1364;
+            }
+            if (!$omissionRejected) {
+                $failures[] = 'strict SQL mode accepted an INSERT omitting directoryPlacementIntent.dpiUpdated';
+            }
+        } finally {
+            $probeDb->exec('SET SESSION sql_mode=' . $probeDb->quote($oldSqlMode));
+            $probeDb->exec('DROP TEMPORARY TABLE IF EXISTS `oc_directoryPlacementIntent_probe`');
+        }
+        $checks++;
+    } catch (\Throwable $e) {
+        $failures[] = 'directoryPlacementIntent strict-mode omission probe failed: ' . $e->getMessage();
+    }
+} else {
+    echo "SKIP: directoryPlacementIntent strict-mode omission probe requires FOG_TEST_DSN\n";
+}
+
 $checks++;
 if (count($intent) < 40) {
     $failures[] = 'only ' . count($intent) . ' models were parsed, so this '
@@ -194,7 +329,8 @@ foreach ($manifest['tables'] as $table => $def) {
         $isFk = (bool) preg_match('/ID$/', $column)
             && (bool) preg_match('/^(tiny|small|medium|big)?int\b/i', $type);
         $declared = $intent[strtolower($table)][strtolower($column)] ?? null;
-        $required = $isFk || (true === $declared);
+        $explicitStorageRequired = $storageRequired[strtolower($table)][strtolower($column)] ?? false;
+        $required = $isFk || (true === $declared) || (true === $explicitStorageRequired);
 
         $checks++;
         if (!$required && !$hasDefault) {

@@ -237,6 +237,7 @@ const TABLE = [
     'DirectoryTask' => 'Agent',
     'DirectoryOperation' => 'Agent',
     'DirectoryRejoin' => 'Agent',
+    'DirectoryPlacementIntent' => 'Agent',
     // The certificate-to-host identity check: its parent chain does not
     // select an Agent bucket, so it is placed here explicitly.
     'MachineIdentity' => 'Agent',
