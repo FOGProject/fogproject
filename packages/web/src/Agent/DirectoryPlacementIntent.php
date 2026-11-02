@@ -591,7 +591,9 @@ class DirectoryPlacementIntent extends FOGBase
         $guid = self::guid($payload['target']['guid']);
         $sid = self::sid($payload['target']['sid']);
         $owner = (int)$payload['host_id'];
-        $encoded = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+        // Non-ASCII stays escaped: the table is utf8mb3, which cannot store a
+        // four-byte character such as an emoji in an OU name.
+        $encoded = json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
         if (strlen($encoded) > 65536) {
             throw new \RuntimeException('directory_placement_payload_too_large', 409);
         }
@@ -757,7 +759,9 @@ class DirectoryPlacementIntent extends FOGBase
             'ldap_result' => $preview, 'ldap_result_sha256' => hash('sha256', (string)$result),
             'facts_projection' => $projection, 'truncated' => strlen((string)$result) > 512];
         do {
-            $encoded = json_encode($record, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+            // ASCII only (\uXXXX escapes): the column is utf8mb3 and a
+            // four-byte character in a directory answer would fail the write.
+            $encoded = json_encode($record, JSON_UNESCAPED_SLASHES
                 | JSON_INVALID_UTF8_SUBSTITUTE | JSON_THROW_ON_ERROR);
             if (strlen($encoded) <= 512) {
                 return $encoded;

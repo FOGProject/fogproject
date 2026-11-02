@@ -746,6 +746,10 @@ class FOGLdap
             $this->_error = 'a move needs both an object and a destination';
             return false;
         }
+        if ('' === trim((string)$rdn) && 0 === stripos($dn, '<GUID=')) {
+            $this->_error = 'a Move by GUID needs the RDN';
+            return false;
+        }
         $rdn = '' === trim((string)$rdn) ? self::rdn($dn) : trim((string)$rdn);
         if ('' === $rdn) {
             $this->_error = 'cannot read the RDN of ' . $dn;
