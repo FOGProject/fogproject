@@ -1668,6 +1668,9 @@ class Route extends FOGBase
         self::_registerRoute($r, 'GET', '/system/openapi', [__CLASS__, 'openapi'], 'openapi');
         // fog-agent (protocol v1). The enroll route is public, listed in
         // $unauthexact above; the other two are the admin's side of it.
+        // GET on the same path is public too: a static probe of the
+        // directory features this server understands. identity/check, like
+        // poll, needs the agent's client certificate.
         self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
         self::_registerRoute($r, 'GET', '/agent/v1/enroll', [__CLASS__, 'agentFeatures'], 'agentfeatures');
         self::_registerRoute($r, 'POST', '/agent/v1/identity/check', [__CLASS__, 'agentIdentityCheck'], 'agentidentitycheck');
@@ -3004,8 +3007,9 @@ class Route extends FOGBase
      */
     public static function agentFeatures()
     {
-        header('X-FOG-Agent-Features: directory-join-target-v1');
-        HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => ['directory-join-target-v1']]));
+        $features = [\FOG\Agent\MachineIdentity::FEATURE];
+        header('X-FOG-Agent-Features: ' . implode(', ', $features));
+        HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => $features]));
     }
     /**
      * fog-agent's check that its live identity still resolves to its host.
