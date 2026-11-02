@@ -161,4 +161,41 @@ $t->check('page documents _unadjustednote', isset($schemas['HostPage']['properti
 $t->check('PUT /system/userpref/{key}', isset($paths['/system/userpref/{key}']['put']));
 $t->check('POST /unisearch', isset($paths['/unisearch']['post']));
 
+// 10. The public feature header is a comma-separated token list. Its example
+// is tied to the literal emitted by the Route handler; the JSON body
+// advertises the same single directory identity feature.
+$enroll = $paths['/agent/v1/enroll']['get'];
+$featureHeader = $enroll['responses']['200']['headers']['X-FOG-Agent-Features'] ?? [];
+$featureHeaderSchema = $featureHeader['schema'] ?? [];
+// The handler cannot run here (it sends headers and exits), so read its
+// source: it must build the header from MachineIdentity::FEATURE joined by
+// ', ', and the example must equal what that produces.
+$featuresMethod = new \ReflectionMethod(\FOG\Router\Route::class, 'agentFeatures');
+$featuresSource = implode('', array_slice(
+    file((string)$featuresMethod->getFileName()),
+    $featuresMethod->getStartLine() - 1,
+    $featuresMethod->getEndLine() - $featuresMethod->getStartLine() + 1
+));
+$advertisedFeatureHeader = \FOG\Agent\MachineIdentity::FEATURE;
+$t->check('enrollment feature handler builds its header from MachineIdentity::FEATURE',
+    false !== strpos($featuresSource, 'MachineIdentity::FEATURE')
+    && false !== strpos($featuresSource, "header('X-FOG-Agent-Features: ' . implode(', ', \$features))"));
+$t->check('enrollment feature header is a string without individual-token enum',
+    ($featureHeaderSchema['type'] ?? '') === 'string' && !isset($featureHeaderSchema['enum']));
+$t->check('enrollment feature header example matches the advertised feature',
+    ($featureHeaderSchema['example'] ?? null) === $advertisedFeatureHeader);
+$enrollBodyFeatures = $enroll['responses']['200']['content']['application/json']['schema']['properties']['features'] ?? [];
+$t->check('enrollment JSON body advertises the single identity feature',
+    ($enrollBodyFeatures['type'] ?? '') === 'array'
+    && ($enrollBodyFeatures['items']['enum'] ?? []) === ['directory-join-target-v1']);
+$enrollPost = $paths['/agent/v1/enroll']['post'];
+$t->check('POST /agent/v1/enroll documents the 409 refusal with a reason',
+    isset($enrollPost['responses']['409']['content']['application/json']['schema']['properties']['reason']));
+$t->check('POST /agent/v1/enroll accepts the features list',
+    ($enrollPost['requestBody']['content']['application/json']['schema']['properties']['features']['items']['enum'] ?? [])
+    === ['directory-join-target-v1']);
+$identityCheck = $paths['/agent/v1/identity/check']['post'] ?? [];
+$t->check('identity/check answers 200 and 409',
+    isset($identityCheck['responses']['200'], $identityCheck['responses']['409']));
+
 $t->finish();

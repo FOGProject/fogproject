@@ -1767,6 +1767,9 @@ msgstr "FOG_TFTP_PXE_KERNEL_DIR を確認してください。"
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr "キャプチャ先フォルダーの所有者がストレージノードのユーザーであり、そのユーザーに書き込み権限があることを確認してください"
 
+msgid "Check the live agent identity"
+msgstr ""
+
 msgid "Check the password stored for this node"
 msgstr "このノードに保存されているパスワードを確認してください"
 
@@ -1885,6 +1888,9 @@ msgid "Column type lookup failed"
 msgstr "列の型の取得に失敗しました"
 
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
+msgstr ""
+
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity)."
 msgstr ""
 
 msgid "Command"
@@ -3027,6 +3033,10 @@ msgstr "FOG エージェントのペイロード"
 msgid "FOG Agent poll"
 msgstr "FOG エージェントのポーリング"
 
+#, fuzzy
+msgid "FOG Agent protocol features"
+msgstr "FOG エージェントの登録"
+
 msgid "FOG Client"
 msgstr "FOG クライアント"
 
@@ -4067,6 +4077,9 @@ msgstr "識別情報"
 
 msgid "Identity Provider"
 msgstr "ID プロバイダー"
+
+msgid "Identity mismatch, conflict or unresolved live identity. host_id is 0."
+msgstr ""
 
 #, php-format
 msgid "Ids for %s"
@@ -6340,6 +6353,9 @@ msgstr "%s に対する操作。"
 msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
 msgstr "任意。パッケージマネージャーに --source として渡すフィード URL、フォルダー、または共有を指定します。空欄の場合はパッケージマネージャーに設定済みのソースを使用します。"
 
+msgid "Optional. Declares directory-join-target-v1 to bind this request to a live directory identity."
+msgstr ""
+
 msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
 msgstr "任意。空欄の場合は、上で指定した種類とアドレスから自動生成します。例:"
 
@@ -6997,6 +7013,9 @@ msgstr "プロバイダーを更新しました！"
 msgid "Providers"
 msgstr "プロバイダー"
 
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity feature. This does not issue a certificate or change trust."
+msgstr ""
+
 msgid "Publisher"
 msgstr "発行元"
 
@@ -7267,6 +7286,9 @@ msgstr "必須のデータベースフィールドが空です"
 
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
 msgstr "必須項目です。また、このアカウント内で一意である必要があります &mdash; トークンを失効させる際に、ほかのトークンと区別できる唯一の情報です。"
+
+msgid "Requires the existing fog-agent client certificate, verified by the web server and bound to its host principal. Resolves the supplied live identity without check-in, inventory, AD or certificate writes. host_id is the resolved host only when the identity matched; otherwise it is 0."
+msgstr ""
 
 msgid "Reset Encryption Data"
 msgstr "暗号化データをリセット"
@@ -9046,6 +9068,9 @@ msgstr ""
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr "パッケージマネージャーが認識するパッケージ ID です。例: googlechrome。"
 
+msgid "The identity or required AD directory feature declaration is invalid."
+msgstr ""
+
 msgid "The identity provider could not be reached"
 msgstr "ID プロバイダーに接続できませんでした"
 
@@ -9108,6 +9133,12 @@ msgstr "このキーは、次の場合に登録済みホストへ割り当てら
 
 msgid "The leaf followed by the agent CA, PEM."
 msgstr "リーフ証明書と、それに続くエージェント CA 証明書（PEM 形式）。"
+
+msgid "The live SMBIOS and MAC identity reported by fog-agent."
+msgstr ""
+
+msgid "The live identity matches the certificate principal."
+msgstr ""
 
 msgid "The logical sector size of the disk this image was captured from."
 msgstr "このイメージをキャプチャしたディスクの論理セクターサイズです。"
@@ -9216,6 +9247,9 @@ msgstr ""
 msgid "The request body is not a JSON object."
 msgstr ""
 
+msgid "The request declares directory-join-target-v1 inconsistently with the stored request for this key, or its identity no longer resolves to one host. The request is not changed; the agent enrolls again with a new key."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
 msgstr "対象のリソースはキャンセル可能な状態ではありません。"
 
@@ -9242,6 +9276,9 @@ msgstr "保存済みフィルター。"
 
 msgid "The selected site no longer exists"
 msgstr "選択したサイトは既に存在しません"
+
+msgid "The server advertises the AD directory identity feature."
+msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
 msgstr "サーバーはこのホストのハードウェアインベントリのハッシュ値を保持していないため、次回のポーリングで情報ブロックの送信を要求します。"
