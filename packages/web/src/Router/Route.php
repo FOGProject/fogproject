@@ -1667,10 +1667,11 @@ class Route extends FOGBase
         self::_registerRoute($r, 'HEAD|GET', '/system/[status|info]', [__CLASS__, 'status'], 'status');
         self::_registerRoute($r, 'GET', '/system/openapi', [__CLASS__, 'openapi'], 'openapi');
         // fog-agent (protocol v1). The enroll route is public, listed in
-        // $unauthexact above; the other two are the admin's side of it.
-        // GET on the same path is public too: a static probe of the
-        // directory features this server understands. identity/check, like
-        // poll, needs the agent's client certificate.
+        // $unauthexact above. GET on the same path is public too: a static
+        // probe of the directory features this server understands. The other
+        // /agent/v1/* routes, identity/check among them, need the agent's
+        // client certificate; /agent/enrollment* and /agent/token* are the
+        // admin's side of enrollment.
         self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
         self::_registerRoute($r, 'GET', '/agent/v1/enroll', [__CLASS__, 'agentFeatures'], 'agentfeatures');
         self::_registerRoute($r, 'POST', '/agent/v1/identity/check', [__CLASS__, 'agentIdentityCheck'], 'agentidentitycheck');
