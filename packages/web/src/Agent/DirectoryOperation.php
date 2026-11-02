@@ -580,6 +580,7 @@ class DirectoryOperation extends \FOG\Base\FOGBase
                 throw new \RuntimeException('rejoin_plan_changed', 409);
             }
             self::assertNoOverlap((int)$host->get('id'), $state);
+            DirectoryPlacementIntent::assertClaim(self::$DB->link(), (int)$host->get('id'), $state);
             self::claimable($host, ['config' => $c, 'state' => $state], $body);
             $task = DirectoryTask::read($host, $state, $state['observation'], true);
             if (!empty($state['trigger_task_id'])) {
@@ -643,7 +644,7 @@ class DirectoryOperation extends \FOG\Base\FOGBase
                 self::logFault('directory state unreadable for host ' . (int)$row['hdHostID']);
                 continue;
             }
-            if (!in_array($other['phase'] ?? '', ['started', 'awaiting_reboot', 'unknown', 'failed'], true)
+            if (!in_array($other['phase'] ?? '', DirectoryRejoin::PROTECTED_PHASES, true)
                 || (int)$row['hdHostID'] !== ($other['host_id'] ?? null)) {
                 continue;
             }

@@ -15,6 +15,7 @@
 
 namespace FOG\Pages;
 
+use FOG\Agent\DirectoryPlacementIntent;
 use FOG\Agent\DirectoryRejoin;
 use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
@@ -3024,6 +3025,15 @@ class HostManagement extends FOGPage
                 );
                 return;
             }
+            if ($checkbox('rejoin_clear_intent')) {
+                // Same rule for an unknown OU placement result.
+                DirectoryPlacementIntent::clearIntentReview(
+                    $this->obj,
+                    $text('rejoin_clear_intent_guid'),
+                    (string)self::$FOGUser->get('name')
+                );
+                return;
+            }
             DirectoryRejoin::configure(
                 $this->obj,
                 [
@@ -3310,6 +3320,54 @@ class HostManagement extends FOGPage
                 )
                 . '<p class="small text-muted">'
                 . \Initiator::e(_('The previous operation may have changed this computer or its directory account. Clearing records your decision; it does not undo anything. The agent may still hold a local review marker until its own review.'))
+                . '</p>';
+        }
+        // An OU placement (Move) request that may have run, or whose result is
+        // unknown. An operator reads the directory, then clears an unknown
+        // one, or one stuck as may-have-run, so the next check-in may try again.
+        try {
+            $moves = DirectoryPlacementIntent::pendingReview($this->obj);
+        } catch (\Throwable $e) {
+            // The rest of the form still renders; the operator can see why
+            // the placement review is missing.
+            self::logFault('directory placement review unreadable for host ' . (int)$this->obj->get('id') . ': ' . $e->getMessage());
+            $moves = [];
+        }
+        if ($moves) {
+            $move = $moves[0];
+            $candidatePanel .= '<p class="small text-muted">'
+                . \Initiator::e(
+                    'UNKNOWN' === $move['status']
+                        ? sprintf(_('A request to move this computer object to %s has an unknown result. Read the directory to see where the object is.'), $move['destination'])
+                        : sprintf(_('A request to move this computer object to %s may have run, or may still be running.'), $move['destination'])
+                )
+                . '</p>';
+            $fields[self::makeLabel(
+                $labelClass,
+                'rejoin_clear_intent',
+                _('Clear OU placement review')
+            )] = '<div class="form-check">'
+                . self::makeInput(
+                    'form-check-input',
+                    'rejoin_clear_intent',
+                    '',
+                    'checkbox',
+                    'rejoin_clear_intent',
+                    '1'
+                ) . '</div>'
+                . self::makeInput(
+                    '',
+                    'rejoin_clear_intent_guid',
+                    '',
+                    'hidden',
+                    'rejoin_clear_intent_guid',
+                    $move['guid']
+                )
+                . '<p class="small text-muted">'
+                . \Initiator::e(sprintf(
+                    _('Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minutes after its last change, because the directory may still apply it.'),
+                    DirectoryPlacementIntent::CLEAR_REVIEW_AFTER / 60
+                ))
                 . '</p>';
         }
         if ($retryAllowed) {

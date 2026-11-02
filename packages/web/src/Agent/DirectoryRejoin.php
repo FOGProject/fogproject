@@ -33,6 +33,13 @@ class DirectoryRejoin extends FOGBase
     const LIMIT = 16384;
 
     /**
+     * The phases of an operation that may have changed the computer or its
+     * directory account. An operator must review one before the host is
+     * deleted, and no Move may start while one exists.
+     */
+    const PROTECTED_PHASES = ['started', 'awaiting_reboot', 'unknown', 'failed'];
+
+    /**
      * Decodes and validates a stored config or state value.
      *
      * @param mixed $raw the stored JSON; anything but a string is refused
@@ -204,6 +211,10 @@ class DirectoryRejoin extends FOGBase
     /**
      * Whether a stored state is an operation that may have changed the
      * computer or its directory account, or one nobody can read.
+     *
+     * @param mixed $raw the stored hdRejoinState
+     *
+     * @return bool
      */
     private static function protectedState($raw)
     {
@@ -212,7 +223,7 @@ class DirectoryRejoin extends FOGBase
         } catch (\Throwable $e) {
             return true;
         }
-        return in_array($state['phase'] ?? '', ['started', 'awaiting_reboot', 'unknown', 'failed'], true);
+        return in_array($state['phase'] ?? '', self::PROTECTED_PHASES, true);
     }
 
     /**
@@ -240,7 +251,9 @@ class DirectoryRejoin extends FOGBase
                 $out[] = (int)$row['hdHostID'];
             }
         }
-        return $out;
+        // A Move that may have run, or whose result is unknown, protects its
+        // owner the same way.
+        return array_values(array_unique(array_merge($out, DirectoryPlacementIntent::protectedOwners($ids))));
     }
 
     /**
@@ -690,7 +703,7 @@ class DirectoryRejoin extends FOGBase
             }
             $config['target'] = $t['record'];
         }
-        self::change($host, function (&$c, &$s) use ($saved, $config, $input) {
+        self::change($host, function (&$c, &$s) use ($saved, $config, $input, $host) {
             if ($c !== $saved['config'] || $s !== $saved['state']) {
                 throw new \RuntimeException('rejoin_config_changed', 409);
             }
@@ -705,6 +718,9 @@ class DirectoryRejoin extends FOGBase
             } elseif (!empty($s['attempt_id']) && 'verified' !== ($s['phase'] ?? '')) {
                 throw new \RuntimeException('rejoin_attempt_requires_review', 409);
             }
+            // A PREPARED Move was built from the old config. A Move that may
+            // have run refuses the change instead.
+            DirectoryPlacementIntent::cancelOwnerPrepared(self::$DB->link(), (int)$host->get('id'));
             $c = $config;
         });
     }

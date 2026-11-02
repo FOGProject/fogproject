@@ -169,6 +169,59 @@ foreach ($raw as $cls => $def) {
     $intent[strtolower($def['table'])] = $map;
 }
 
+/*
+ * The placement-intent table is a deliberately raw-SQL store, not a
+ * FOGController model, so the model scan above cannot infer its required
+ * fields. Keep this one explicit storage contract tied to the product's
+ * prepare() INSERT column list and the generated schema manifest. This is a
+ * specialized durable-record contract; it does not exempt arbitrary
+ * non-model tables or relax the schema's NOT NULL requirements.
+ */
+$intentRequiredColumns = [
+    'dpiguid', 'dpisid', 'dpihostid', 'dpigeneration', 'dpistatus',
+    'dpipayload', 'dpihash', 'dpiupdated',
+];
+$storageRequired = [
+    'directoryplacementintent' => array_fill_keys($intentRequiredColumns, true),
+];
+$intentTable = $manifest['tables']['directoryPlacementIntent'] ?? null;
+$intentExpectedColumns = [
+    'dpiGUID', 'dpiSID', 'dpiHostID', 'dpiGeneration', 'dpiStatus',
+    'dpiPayload', 'dpiHash', 'dpiResult', 'dpiUpdated',
+];
+$intentModelPath = $root . '/src/Agent/DirectoryPlacementIntent.php';
+$intentModelSource = is_file($intentModelPath)
+    ? (string)file_get_contents($intentModelPath)
+    : '';
+$insertColumns = [];
+if (preg_match(
+    '/\$db->prepare\(\s*\'INSERT INTO directoryPlacementIntent\s*\(([^)]*)\)\s*VALUES/s',
+    $intentModelSource,
+    $insertMatch
+)) {
+    $insertColumns = array_map('strtolower', array_map('trim', explode(',', $insertMatch[1])));
+}
+$checks++;
+if (!is_array($intentTable)
+    || array_keys((array)($intentTable['columns'] ?? [])) !== $intentExpectedColumns
+    || $insertColumns !== $intentRequiredColumns) {
+    $failures[] = 'directoryPlacementIntent storage contract must match the actual '
+        . 'DirectoryPlacementIntent::prepare() INSERT and schema manifest columns';
+} else {
+    foreach ($intentRequiredColumns as $column) {
+        $name = array_search($column, array_map('strtolower', array_keys($intentTable['columns'])), true);
+        $definition = false === $name ? '' : (string)$intentTable['columns'][array_keys($intentTable['columns'])[$name]];
+        if (!preg_match('/\bNOT\s+NULL\b/i', $definition)
+            || preg_match('/\bDEFAULT\b/i', $definition)) {
+            $failures[] = 'directoryPlacementIntent.' . $column
+                . ' must remain storage-required (NOT NULL without DEFAULT)';
+        }
+    }
+    if (preg_match('/\bNOT\s+NULL\b/i', (string)$intentTable['columns']['dpiResult'])) {
+        $failures[] = 'directoryPlacementIntent.dpiResult must remain nullable';
+    }
+}
+
 $checks++;
 if (count($intent) < 40) {
     $failures[] = 'only ' . count($intent) . ' models were parsed, so this '
@@ -194,7 +247,8 @@ foreach ($manifest['tables'] as $table => $def) {
         $isFk = (bool) preg_match('/ID$/', $column)
             && (bool) preg_match('/^(tiny|small|medium|big)?int\b/i', $type);
         $declared = $intent[strtolower($table)][strtolower($column)] ?? null;
-        $required = $isFk || (true === $declared);
+        $explicitStorageRequired = $storageRequired[strtolower($table)][strtolower($column)] ?? false;
+        $required = $isFk || (true === $declared) || (true === $explicitStorageRequired);
 
         $checks++;
         if (!$required && !$hasDefault) {

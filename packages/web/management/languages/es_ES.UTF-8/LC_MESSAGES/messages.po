@@ -569,6 +569,14 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A request is pending since %s for %s."
 msgstr ""
 
+#, php-format
+msgid "A request to move this computer object to %s has an unknown result. Read the directory to see where the object is."
+msgstr ""
+
+#, php-format
+msgid "A request to move this computer object to %s may have run, or may still be running."
+msgstr ""
+
 msgid "A revoked token can never approve an enrollment again."
 msgstr ""
 
@@ -2121,6 +2129,9 @@ msgstr "Tareas"
 msgid "Clear Fields"
 msgstr ""
 
+msgid "Clear OU placement review"
+msgstr ""
+
 msgid "Clear directory operation review"
 msgstr ""
 
@@ -2133,6 +2144,10 @@ msgstr ""
 #, fuzzy
 msgid "Clear schedules from member hosts"
 msgstr "Programador"
+
+#, php-format
+msgid "Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minutes after its last change, because the directory may still apply it."
+msgstr ""
 
 msgid "Click"
 msgstr "Hacer clic"
@@ -11013,7 +11028,7 @@ msgstr ""
 msgid "The payload bytes."
 msgstr ""
 
-msgid "The plan is no longer ready or its host, identity, configuration or directory records changed."
+msgid "The plan is no longer ready or its host, identity, configuration or directory records changed. The reason codes include these: an OU placement request that may have run still holds the same computer object (directory_placement_target_protected)."
 msgstr ""
 
 #, fuzzy
