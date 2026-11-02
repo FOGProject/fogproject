@@ -28,7 +28,7 @@ FogTestHarness::setStatic('FOGBase', '_settingsCache', [
     'FOG_AGENT_INVENTORY_ENABLED' => ['value' => '1']
 ]);
 FogTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
-$configure = new \ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'configureTarget');
+$configure = new \ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'configure');
 $configure->setAccessible(true);
 $configure->invoke(null, $host, [], 'local-marker-db-test');
 $config = FOG\Agent\DirectoryRejoin::settings($host)['config'];

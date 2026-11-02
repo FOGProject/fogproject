@@ -383,7 +383,7 @@ class DirectoryOperation extends \FOG\Base\FOGBase
     public static function plan(Host $host, array $body = [])
     {
         $saved = DirectoryRejoin::settings($host);
-        $c =$saved['config'];
+        $c = $saved['config'];
         $s = $saved['state'];
         $local = self::localAttempt($body);
         if (!$host->get('useAD') || !State::factsEnabled()) {
@@ -490,7 +490,7 @@ class DirectoryOperation extends \FOG\Base\FOGBase
                 ? $s['target'] : [];
             $choice['target'] = self::renameObject($host, $o['current_name'], $expected);
         }
-        $p =$choice + ['version' => 1, 'protocol' => 2, 'host_id' => (int)$host->get('id'),
+        $p = $choice + ['version' => 1, 'protocol' => 2, 'host_id' => (int)$host->get('id'),
             'attempt_id' => bin2hex(random_bytes(16)), 'config_revision' => $o['revision'],
             'fingerprint' => (string)$host->get('agentFingerprint'), 'name' => $name,
             'domain' => strtolower($workgroup ? trim((string)$host->get('ADDomain')) : $o['domain']), 'dc' => $o['dc'], 'phase' => 'ready',

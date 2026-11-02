@@ -19,7 +19,7 @@ $manifest = $GLOBALS['manifest'];
 $t = new FogChecks();
 $pdo = $fake->pdo;
 $fake->pdo = $pdo;
-$configure = new \ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'configureTarget');
+$configure = new \ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'configure');
 $configure->setAccessible(true);
 
 $host = (new FOG\Items\Host())
