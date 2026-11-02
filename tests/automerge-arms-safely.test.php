@@ -25,8 +25,10 @@
  *     back;
  *   - a missing same-repo guard: a fork's token is read-only so this cannot
  *     work anyway, and a fork's merge is a maintainer's decision;
- *   - a widened base: dev-branch and stable must not start merging
- *     themselves as a side effect of this file.
+ *   - a widened base: stable must not start merging itself as a side
+ *     effect of this file;
+ *   - a missing gate check: on a base with no required checks, auto-merge
+ *     merges the moment a pull request opens.
  *
  * Static: this reads the workflow, so it needs no runner and no network.
  *
@@ -105,7 +107,8 @@ $results[] = [
         . 'instead of being a one-way door',
 ];
 
-// Scope. Same-repo, working-1.6 only, long-lived heads excluded.
+// Scope. Same-repo, dev-branch only (it took working-1.6's ruleset at the
+// 1.6.0 release), long-lived heads excluded.
 $results[] = [
     false !== strpos(
         $code,
@@ -115,11 +118,20 @@ $results[] = [
 ];
 $results[] = [
     (bool)preg_match(
-        "#base\.ref\s*==\s*'working-1\.6'#",
+        "#base\.ref\s*==\s*'dev-branch'#",
         $code
     ),
-    'only pull requests based on working-1.6, whose ruleset created the '
+    'only pull requests based on dev-branch, whose ruleset carries the '
         . 'queue this works around',
+];
+// Arming waits only for REQUIRED checks, so on a base with none it merges
+// at once, untested (#2031 and #2033, at the 1.6.0 cut). The job must read
+// the base's enforced rules and refuse to arm without a required check.
+$results[] = [
+    (bool)preg_match('#rules/branches/\$BASE#', $code)
+        && (bool)preg_match('#required_status_checks#', $code)
+        && (bool)preg_match('#exit 1#', $code),
+    'it refuses to arm on a base that enforces no required check',
 ];
 $results[] = [
     (bool)preg_match('#contains\(fromJson\(.+stable.+dev-branch#', $code),
