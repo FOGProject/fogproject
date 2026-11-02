@@ -2756,6 +2756,41 @@ class OpenAPI extends FOGBase
                 )
             ],
             '/agent/v1/enroll' => [
+                'get' => self::_op(
+                    '',
+                    'agentfeatures',
+                    _('FOG Agent protocol features'),
+                    _('Public and read-only. Over the existing HTTPS server '
+                        . 'connection, advertises the AD directory identity feature. '
+                        . 'This does not issue a certificate or change trust.'),
+                    [
+                        '200' => [
+                            'description' => _('The server advertises the AD directory identity feature.'),
+                            'headers' => [
+                                'X-FOG-Agent-Features' => [
+                                    'description' => _('Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity).'),
+                                    'schema' => [
+                                        'type' => 'string',
+                                        'example' => 'directory-join-target-v1'
+                                    ],
+                                ]
+                            ],
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['ok']],
+                                    'features' => [
+                                        'type' => 'array',
+                                        'items' => [
+                                            'type' => 'string',
+                                            'enum' => ['directory-join-target-v1']
+                                        ]
+                                    ]
+                                ]
+                            ]]]
+                        ]
+                    ]
+                ) + ['security' => []],
                 'post' => self::_op(
                     '',
                     'agentenroll',
@@ -2810,6 +2845,19 @@ class OpenAPI extends FOGBase
                         ],
                         '400' => ['description' => _('The CSR is not a usable P-256 request, or a required field is missing.')],
                         '403' => ['description' => _('Denied by an admin. The agent backs off to hourly.')],
+                        '409' => [
+                            'description' => _('The request declares directory-join-target-v1 '
+                                . 'inconsistently with the stored request for this key, or its '
+                                . 'identity no longer resolves to one host. The request is not '
+                                . 'changed; the agent enrolls again with a new key.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['error']],
+                                    'reason' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
                         '426' => ['description' => _('The agent speaks a protocol this server does not.')],
                         '503' => ['description' => _('Approved but the signer is unavailable; the agent retries.')]
                     ],
@@ -2821,6 +2869,11 @@ class OpenAPI extends FOGBase
                             'required' => ['protocol', 'csr_pem', 'identity'],
                             'properties' => [
                                 'protocol' => ['type' => 'integer', 'enum' => [1]],
+                                'features' => [
+                                    'type' => 'array',
+                                    'description' => _('Optional. Declares directory-join-target-v1 to bind this request to a live directory identity.'),
+                                    'items' => ['type' => 'string', 'enum' => ['directory-join-target-v1']]
+                                ],
                                 'agent_version' => ['type' => 'string'],
                                 'os' => ['type' => 'string'],
                                 'arch' => ['type' => 'string'],
@@ -2840,6 +2893,93 @@ class OpenAPI extends FOGBase
                         ]]]
                     ]
                 )
+            ],
+            '/agent/v1/identity/check' => [
+                'post' => self::_op(
+                    '',
+                    'agentidentitycheck',
+                    _('Check the live agent identity'),
+                    _('Requires the existing fog-agent client certificate, '
+                        . 'verified by the web server and bound to its host '
+                        . 'principal. Resolves the supplied live identity '
+                        . 'without check-in, inventory, AD or certificate '
+                        . 'writes. host_id is the resolved host only when '
+                        . 'the identity matched; otherwise it is 0.'),
+                    [
+                        '200' => [
+                            'description' => _('The live identity matches the certificate principal.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['ok']],
+                                    'identity' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'status' => ['type' => 'string', 'enum' => ['matched']],
+                                            'host_id' => ['type' => 'integer'],
+                                            'principal_host_id' => ['type' => 'integer']
+                                        ]
+                                    ]
+                                ]
+                            ]]]
+                        ],
+                        '400' => [
+                            'description' => _('The identity or required AD directory feature declaration is invalid.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['blocked']],
+                                    'reason' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '409' => [
+                            'description' => _('Identity mismatch, conflict or unresolved live identity. host_id is 0.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['identity_blocked']],
+                                    'identity' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'status' => ['type' => 'string', 'enum' => ['mismatch', 'conflict', 'unresolved']],
+                                            'host_id' => ['type' => 'integer'],
+                                            'principal_host_id' => ['type' => 'integer']
+                                        ]
+                                    ]
+                                ]
+                            ]]]
+                        ]
+                    ],
+                    [],
+                    [
+                        'required' => true,
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['identity', 'features'],
+                            'properties' => [
+                                'identity' => [
+                                    'type' => 'object',
+                                    'description' => _('The live SMBIOS and MAC identity reported by fog-agent.'),
+                                    'properties' => [
+                                        'system_uuid' => ['type' => 'string'],
+                                        'system_serial' => ['type' => 'string'],
+                                        'board_serial' => ['type' => 'string'],
+                                        'chassis_asset' => ['type' => 'string'],
+                                        'smbios_version' => ['type' => 'string'],
+                                        'macs' => ['type' => 'array', 'items' => ['type' => 'string']],
+                                        'warnings' => ['type' => 'array', 'items' => ['type' => 'string']]
+                                    ]
+                                ],
+                                'features' => [
+                                    'type' => 'array',
+                                    'items' => ['type' => 'string', 'enum' => ['directory-join-target-v1']]
+                                ]
+                            ]
+                        ]]]
+                    ]
+                ) + ['security' => []]
             ],
             '/agent/v1/poll' => [
                 'post' => self::_op(
