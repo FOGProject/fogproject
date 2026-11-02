@@ -592,6 +592,15 @@ class Route extends FOGBase
         'user' => [
             'token',
         ],
+        // The rejoin config and state are written only by DirectoryRejoin
+        // and DirectoryOperation, under a row lock. A generic edit that
+        // could set them would bypass the claim and report checks. hostID
+        // is the row's identity and is never rebound by a client.
+        'hostdirectory' => [
+            'hostID',
+            'rejoinConfig',
+            'rejoinState',
+        ],
         // Both record what the installer DID, and are written by it only
         // after it succeeded. PluginManagementPage::installPost() sets
         // state, then runs Plugin::installdb() to create the tables, and
@@ -1667,8 +1676,15 @@ class Route extends FOGBase
         self::_registerRoute($r, 'HEAD|GET', '/system/[status|info]', [__CLASS__, 'status'], 'status');
         self::_registerRoute($r, 'GET', '/system/openapi', [__CLASS__, 'openapi'], 'openapi');
         // fog-agent (protocol v1). The enroll route is public, listed in
-        // $unauthexact above; the other two are the admin's side of it.
+        // $unauthexact above. GET on the same path is public too: a static
+        // probe of the directory features this server understands. The other
+        // /agent/v1/* routes, identity/check among them, need the agent's
+        // client certificate; /agent/enrollment* and /agent/token* are the
+        // admin's side of enrollment.
         self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
+        self::_registerRoute($r, 'GET', '/agent/v1/enroll', [__CLASS__, 'agentFeatures'], 'agentfeatures');
+        self::_registerRoute($r, 'POST', '/agent/v1/identity/check', [__CLASS__, 'agentIdentityCheck'], 'agentidentitycheck');
+        self::_registerRoute($r, 'POST', '/agent/v1/directory/rejoin/start', [__CLASS__, 'agentRejoinStart'], 'agentrejoinstart');
         self::_registerRoute($r, 'POST', '/agent/v1/poll', [__CLASS__, 'agentPoll'], 'agentpoll');
         self::_registerRoute($r, 'POST', '/agent/v1/renew', [__CLASS__, 'agentRenew'], 'agentrenew');
         self::_registerRoute($r, 'POST', '/agent/v1/result', [__CLASS__, 'agentResult'], 'agentresult');
@@ -2980,8 +2996,62 @@ class Route extends FOGBase
         $remoteIP = filter_var((string)self::$remoteaddr, FILTER_VALIDATE_IP)
             ? (string)self::$remoteaddr
             : '';
-        list($code, $payload) = \FOG\Agent\Enrollment::handle(self::_jsonBody(), $remoteIP);
+        try {
+            list($code, $payload) = \FOG\Agent\Enrollment::handle(self::_jsonBody(), $remoteIP);
+        } catch (\RuntimeException $e) {
+            // A refusal the handler throws: 400, 403 or 409 as thrown.
+            $thrown = (int)$e->getCode();
+            HTTPResponseCodes::breakHead(
+                in_array($thrown, [400, 403, 409], true) ? $thrown : HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(['status' => 'error', 'reason' => $e->getMessage()])
+            );
+            return;
+        }
         HTTPResponseCodes::breakHead($code, json_encode($payload));
+    }
+    /**
+     * The directory features this server's enroll route understands.
+     *
+     * Public and read-only, so an agent can probe before it enrolls.
+     *
+     * @return void
+     */
+    public static function agentFeatures()
+    {
+        $features = [\FOG\Agent\MachineIdentity::FEATURE, \FOG\Agent\DirectoryOperation::FEATURE];
+        header('X-FOG-Agent-Features: ' . implode(', ', $features));
+        HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => $features]));
+    }
+    /**
+     * fog-agent's claim of one planned directory operation.
+     *
+     * Returns the join credential only after the claim commits, so one
+     * plan releases it once.
+     *
+     * @return void
+     */
+    public static function agentRejoinStart()
+    {
+        try {
+            $answer = \FOG\Agent\DirectoryRejoin::start(self::$agentHost, self::_jsonBody());
+            HTTPResponseCodes::breakHead(200, json_encode($answer));
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(self::_agentErrorCode($e), json_encode(['status' => 'blocked', 'reason' => $e->getMessage()]));
+        }
+    }
+    /**
+     * fog-agent's check that its live identity still resolves to its host.
+     *
+     * @return void
+     */
+    public static function agentIdentityCheck()
+    {
+        try {
+            $answer = \FOG\Agent\MachineIdentity::check(self::$agentHost, self::_jsonBody());
+            HTTPResponseCodes::breakHead('ok' === $answer['status'] ? 200 : 409, json_encode($answer));
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(self::_agentErrorCode($e), json_encode(['status' => 'blocked', 'reason' => $e->getMessage()]));
+        }
     }
     /**
      * The host behind this request's client certificate, or null.
@@ -3064,6 +3134,12 @@ class Route extends FOGBase
     {
         $Host = self::$agentHost;
         $body = self::_jsonBody();
+        try {
+            \FOG\Agent\DirectoryRejoin::beforePoll($Host, $body);
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(self::_agentErrorCode($e), json_encode(['status' => 'blocked', 'reason' => $e->getMessage()]));
+            return;
+        }
         // Canonical form on the way in: the agent stamps itself from the
         // release tag and so reports `v0.1.6`, while every version the
         // server is given is written `0.1.6`. Storing the spelling the
@@ -3139,6 +3215,27 @@ class Route extends FOGBase
         try {
             $answer += \FOG\Agent\State::facts($Host, $body);
             $answer += \FOG\Agent\State::sessions($Host, $body);
+            if (\FOG\Agent\MachineIdentity::requested($body)) {
+                try {
+                    $answer['directory_rejoin'] = \FOG\Agent\DirectoryRejoin::plan($Host, $body);
+                } catch (\RuntimeException $rejoinError) {
+                    // Only a host with directory membership on has a row to note it on.
+                    if ($Host->get('useAD')) {
+                        \FOG\Agent\DirectoryRejoin::blocked($Host, $rejoinError->getMessage());
+                    }
+                    $answer['directory_rejoin'] = ['phase' => 'blocked', 'reason' => $rejoinError->getMessage()];
+                }
+                if (\FOG\Agent\DirectoryOperation::requested($body)) {
+                    $answer['directory_check'] = \FOG\Agent\DirectoryOperation::check($Host);
+                    try {
+                        $directorySaved = \FOG\Agent\DirectoryRejoin::settings($Host);
+                        $answer['directory_hold'] = !empty($directorySaved['state']['placement_hold']);
+                    } catch (\RuntimeException $holdError) {
+                        // Unreadable state: hold placement rather than fail the poll.
+                        $answer['directory_hold'] = true;
+                    }
+                }
+            }
         } catch (\RuntimeException $e) {
             HTTPResponseCodes::breakHead(
                 self::_agentErrorCode($e),
@@ -9840,6 +9937,51 @@ class Route extends FOGBase
         return $vars;
     }
     /**
+     * Refuses to delete a host whose directory operation may have changed the
+     * computer or its account, or whose state is unreadable. An operator
+     * clears it first on the host's Active Directory tab.
+     *
+     * @param string $classname lower-case class being deleted
+     * @param array  $itemIDs   ids being deleted
+     *
+     * @throws \Exception 409 when a host is protected
+     *
+     * @return void
+     */
+    private static function _assertNoDirectoryReview($classname, array $itemIDs)
+    {
+        if (!in_array($classname, ['host', 'hostdirectory'], true) || !$itemIDs) {
+            return;
+        }
+        $hostIDs = array_map('intval', $itemIDs);
+        if ('hostdirectory' === $classname) {
+            $marks = implode(',', array_fill(0, count($hostIDs), '?'));
+            $q = self::$DB->link()->prepare(
+                'SELECT hdHostID FROM hostDirectory WHERE hdID IN (' . $marks . ')'
+            );
+            $q->execute($hostIDs);
+            $hostIDs = array_map('intval', $q->fetchAll(\PDO::FETCH_COLUMN));
+            $q->closeCursor();
+        }
+        $protected = \FOG\Agent\DirectoryRejoin::protectedHosts($hostIDs);
+        if (!$protected) {
+            return;
+        }
+        $q = self::$DB->link()->prepare(
+            'SELECT hostName FROM hosts WHERE hostID = ?'
+        );
+        $q->execute([(int)$protected[0]]);
+        $name = (string)$q->fetchColumn();
+        $q->closeCursor();
+        throw new \Exception(
+            sprintf(
+                _('Host %s has a directory operation in progress or awaiting review. Clear it on the Active Directory tab before deleting.'),
+                $name
+            ),
+            HTTPResponseCodes::HTTP_CONFLICT
+        );
+    }
+    /**
      * Delete items in mass.
      *
      * Four phases, in order: announce what is going, work out what else has
@@ -9888,6 +10030,7 @@ class Route extends FOGBase
                     $classname,
                     $itemIDs
                 );
+                self::_assertNoDirectoryReview($classname, (array)$itemIDs);
             }
             self::$_deleteDepth++;
 

@@ -449,6 +449,9 @@ msgstr "An image name is required!"
 msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
 msgstr ""
 
+msgid "A directory rejoin result the server refuses. The reason codes include these: it names another attempt, revision, task or fingerprint than the stored plan (rejoin_result_mismatch), arrives out of order (rejoin_result_out_of_order), changed meanwhile (rejoin_result_changed), reports a native failure as success (rejoin_native_success_required), finds a different or unverifiable directory account (rejoin_target_changed, rename_identity_unverified, rename_target_unverified), or reports verified without a healthy secure channel, a changed boot, the planned name and the planned domain (rejoin_verification_incomplete). A directory outage or a lookup error (rejoin_directory_unavailable, rejoin_lookup_failed), a concurrent change (rejoin_plan_changed, rejoin_deadlock_retry) or an unreadable stored state (rejoin_state_invalid) is also a 409; retry later. Nothing is recorded."
+msgstr ""
+
 msgid "A disabled entry stops being managed; it does not remove the package."
 msgstr ""
 
@@ -566,6 +569,14 @@ msgstr "An image already exists with this name!"
 
 #, php-format
 msgid "A request is pending since %s for %s."
+msgstr ""
+
+#, php-format
+msgid "A request to move this computer object to %s has an unknown result. Read the directory to see where the object is."
+msgstr ""
+
+#, php-format
+msgid "A request to move this computer object to %s may have run, or may still be running."
 msgstr ""
 
 msgid "A revoked token can never approve an enrollment again."
@@ -1236,6 +1247,9 @@ msgstr "Primary Storage Group"
 msgid "Allow API"
 msgstr ""
 
+msgid "Allow Computer Account Creation"
+msgstr ""
+
 #, fuzzy
 msgid "Allowed"
 msgstr "No node associated"
@@ -1547,6 +1561,9 @@ msgstr ""
 msgid "Available downloads"
 msgstr "No file was uploaded"
 
+msgid "Awaiting reboot"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr "BIOS Date"
 
@@ -1596,6 +1613,9 @@ msgid "Blank starts at the domain root"
 msgstr ""
 
 msgid "Blank: each host joins with its own account"
+msgstr ""
+
+msgid "Blocked"
 msgstr ""
 
 msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
@@ -2028,6 +2048,9 @@ msgstr ""
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+msgid "Check the live agent identity"
+msgstr ""
+
 #, fuzzy
 msgid "Check the password stored for this node"
 msgstr "No FOGPage Class found for this node"
@@ -2088,6 +2111,12 @@ msgstr "Clear"
 msgid "Clear Fields"
 msgstr ""
 
+msgid "Clear OU placement review"
+msgstr ""
+
+msgid "Clear directory operation review"
+msgstr ""
+
 msgid "Clear on all"
 msgstr ""
 
@@ -2097,6 +2126,12 @@ msgstr ""
 #, fuzzy
 msgid "Clear schedules from member hosts"
 msgstr "Scheduler"
+
+#, php-format
+msgid "Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minute after its last change, because the directory may still apply it."
+msgid_plural "Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minutes after its last change, because the directory may still apply it."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Click"
 msgstr "Click"
@@ -2158,6 +2193,9 @@ msgstr "User update failed"
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity) and directory-task-operations-v1 (target operations)."
+msgstr ""
+
 #, fuzzy
 msgid "Command"
 msgstr "Snapin Command"
@@ -2179,7 +2217,15 @@ msgid "Computed field. Returned by the API but not a column, and not settable."
 msgstr ""
 
 #, fuzzy
+msgid "Computer GUID"
+msgstr "Printer Model"
+
+#, fuzzy
 msgid "Computer Model"
+msgstr "Printer Model"
+
+#, fuzzy
+msgid "Computer SID"
 msgstr "Printer Model"
 
 #, fuzzy
@@ -2209,8 +2255,15 @@ msgid "Confirm Download"
 msgstr "Management Password"
 
 #, fuzzy
+msgid "Confirm Retry"
+msgstr "Invalid task"
+
+#, fuzzy
 msgid "Confirm delete"
 msgstr "Invalid task"
+
+msgid "Confirm that this account is assigned to this host or its handoff is approved. Do not select an account belonging to another computer by mistake."
+msgstr ""
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
 msgstr ""
@@ -2652,6 +2705,9 @@ msgstr "Current Records"
 msgid "Current Records"
 msgstr "Current Records"
 
+msgid "Current directory observation does not match this host"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -2949,12 +3005,51 @@ msgid "Directory Membership"
 msgstr "Membership"
 
 #, fuzzy
+msgid "Directory operation history"
+msgstr "Active Directory"
+
+#, fuzzy
+msgid "Directory operation phase"
+msgstr "Active Directory"
+
+msgid "Directory operation state is unreadable"
+msgstr ""
+
+msgid "Directory rejoin result: healthy is required for verified."
+msgstr ""
+
+msgid "Directory rejoin result: the Windows API status; 0 is required for awaiting_reboot and verified."
+msgstr ""
+
+msgid "Directory rejoin result: the attempt the start returned. An item that carries it is recorded against that attempt."
+msgstr ""
+
+msgid "Directory rejoin result: the computer name now in effect; must equal the planned name for verified."
+msgstr ""
+
+msgid "Directory rejoin result: the config revision of the plan."
+msgstr ""
+
+msgid "Directory rejoin result: the domain now joined; with netbios, must equal the planned domain for verified."
+msgstr ""
+
+msgid "Directory rejoin result: true is required for verified."
+msgstr ""
+
+msgid "Directory-task-operations-v1 plan; absent or null when no operation is planned."
+msgstr ""
+
+#, fuzzy
 msgid "Disable on all hosts"
 msgstr "Enabled"
 
 #, fuzzy
 msgid "Disable selected"
 msgstr "Delete Selected"
+
+#, fuzzy
+msgid "Disabled"
+msgstr "Enabled"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
@@ -3012,6 +3107,10 @@ msgstr "Snapin updated"
 #, fuzzy
 msgid "Domain Create Success"
 msgstr "Install / Update Successful!"
+
+#, fuzzy
+msgid "Domain Join Status"
+msgstr "Domain name"
 
 #, fuzzy
 msgid "Domain Joining"
@@ -3374,6 +3473,9 @@ msgstr ""
 msgid "Existence check failed"
 msgstr "Private key failed"
 
+msgid "Existing Rebind and ordinary Rename pin the existing computer object's GUID/SID. Target is null for Create before the computer account exists and for Workgroup Join."
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -3497,6 +3599,10 @@ msgstr "No file was uploaded"
 
 msgid "FOG Agent poll"
 msgstr ""
+
+#, fuzzy
+msgid "FOG Agent protocol features"
+msgstr "has been successfully updated"
 
 #, fuzzy
 msgid "FOG Client"
@@ -3879,6 +3985,9 @@ msgstr "FOG Settings"
 #, fuzzy
 msgid "Flush the settings cache"
 msgstr "FOG Settings"
+
+msgid "For a directory rejoin result: awaiting_reboot, verified, failed or unknown."
+msgstr ""
 
 msgid "For a live-USB enrollment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
 msgstr ""
@@ -4382,6 +4491,10 @@ msgstr "Printer already exists"
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "Printer already exists"
 
+#, php-format
+msgid "Host %s has a directory operation in progress or awaiting review. Clear it on the Active Directory tab before deleting."
+msgstr ""
+
 msgid "Host Agent Activity"
 msgstr ""
 
@@ -4715,6 +4828,9 @@ msgid "Identity"
 msgstr "Server Shell"
 
 msgid "Identity Provider"
+msgstr ""
+
+msgid "Identity mismatch, conflict or unresolved live identity. host_id is 0."
 msgstr ""
 
 #, php-format
@@ -5141,6 +5257,9 @@ msgstr "In "
 msgid "In FOG"
 msgstr "In "
 
+msgid "In progress"
+msgstr ""
+
 msgid "In use as"
 msgstr ""
 
@@ -5190,6 +5309,12 @@ msgstr "Update"
 #, fuzzy
 msgid "Initrd Update Fail"
 msgstr "Printer update failed!"
+
+msgid "Inspect target candidate"
+msgstr ""
+
+msgid "Inspect the current directory candidate before confirming it."
+msgstr ""
 
 msgid "Install Plugins"
 msgstr "Install Plugins"
@@ -5543,6 +5668,12 @@ msgstr "Domain Password"
 msgid "Join Username"
 msgstr "Domain Username"
 
+msgid "Join operation verified; current status not confirmed"
+msgstr ""
+
+msgid "Joined and secure channel healthy"
+msgstr ""
+
 msgid "Kbps"
 msgstr ""
 
@@ -5789,6 +5920,9 @@ msgstr ""
 msgid "Last imaged"
 msgstr "Images"
 
+msgid "Last operation result time (UTC)"
+msgstr ""
+
 #, fuzzy
 msgid "Last ring"
 msgstr "Images"
@@ -5809,6 +5943,12 @@ msgstr "Latest Version"
 
 msgid "Latest Version"
 msgstr "Latest Version"
+
+msgid "Latest secure channel check passed; directory actions are on hold"
+msgstr ""
+
+msgid "Latest secure channel check returned False"
+msgstr ""
 
 msgid "Leave blank to keep the current password"
 msgstr ""
@@ -6551,6 +6691,9 @@ msgstr ""
 msgid "Must have a name to create the table"
 msgstr ""
 
+msgid "Must match the operation in the current ready plan."
+msgstr ""
+
 msgid "MySQL Administrator or by running"
 msgstr ""
 
@@ -6584,10 +6727,16 @@ msgstr ""
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
+msgid "Native status (history)"
+msgstr ""
+
 msgid "Need the table name to drop"
 msgstr ""
 
 msgid "Needs a 256-bit key!"
+msgstr ""
+
+msgid "Needs operator review"
 msgstr ""
 
 #, fuzzy
@@ -6855,6 +7004,9 @@ msgstr "No master nodes are enabled to delete this image"
 msgid "No master nodes available"
 msgstr "No hash available"
 
+msgid "No matching computer account was found."
+msgstr ""
+
 msgid "No need to sync"
 msgstr ""
 
@@ -6939,6 +7091,10 @@ msgstr "Snapin updated"
 #, fuzzy
 msgid "No snapins associated with this group as master"
 msgstr "There are no snapins associated with this host"
+
+#, fuzzy
+msgid "No status reported"
+msgstr "Inventory"
 
 #, fuzzy
 msgid "No storage node can serve the file."
@@ -7375,7 +7531,13 @@ msgstr ""
 msgid "Operations on %s."
 msgstr "Operation Field not set: %s"
 
+msgid "Optional read-only Windows observation sent in response to directory_check. It carries no credentials."
+msgstr ""
+
 msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+msgstr ""
+
+msgid "Optional. Declares directory-join-target-v1 to bind this request to a live directory identity."
 msgstr ""
 
 msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
@@ -8151,6 +8313,9 @@ msgstr "Printer updated!"
 msgid "Providers"
 msgstr ""
 
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity and target-operation features. This does not issue a certificate or change trust."
+msgstr ""
+
 msgid "Publisher"
 msgstr ""
 
@@ -8234,6 +8399,12 @@ msgstr ""
 msgid "Read one saved filter"
 msgstr "Delete Selected"
 
+msgid "Read-only context for the directory-task-operations-v1 observation. Present only when the poll declares directory-task-operations-v1 and the host is eligible for observation; null when no check is requested."
+msgstr ""
+
+msgid "Ready"
+msgstr ""
+
 #, fuzzy
 msgid "Real Time"
 msgstr "Host Update Failed"
@@ -8268,6 +8439,9 @@ msgstr ""
 #, fuzzy
 msgid "Recorded in range"
 msgstr "Record not found, Error: %s"
+
+msgid "Recorded operation result (history)"
+msgstr ""
 
 msgid "Recorded; outcome present for an item report."
 msgstr ""
@@ -8455,6 +8629,12 @@ msgid "Required database field is empty"
 msgstr "Required database field is empty"
 
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
+
+msgid "Requires the existing fog-agent client certificate, verified and bound to its host principal. A valid ready plan is durably claimed before its existing directory credential and rejoin plan are returned. A repeated start does not return the credential again."
+msgstr ""
+
+msgid "Requires the existing fog-agent client certificate, verified by the web server and bound to its host principal. Resolves the supplied live identity without check-in, inventory, AD or certificate writes. host_id is the resolved host only when the identity matched; otherwise it is 0."
 msgstr ""
 
 msgid "Reset Encryption Data"
@@ -8739,6 +8919,9 @@ msgstr ""
 msgid "Save the site before setting catch-all"
 msgstr ""
 
+msgid "Saved diagnostic reason (may be historical)"
+msgstr ""
+
 msgid "Saved filters for one grid"
 msgstr ""
 
@@ -8917,6 +9100,9 @@ msgstr "There are no images on this server."
 msgid "Secure Boot: signing FOS with your own key"
 msgstr "There are no images on this server."
 
+msgid "Secure channel status unknown"
+msgstr ""
+
 #, fuzzy
 msgid "See all results"
 msgstr "List All %s"
@@ -8940,6 +9126,9 @@ msgid "Selected tasks canceled!"
 msgstr "has been successfully updated"
 
 msgid "Self-signed"
+msgstr ""
+
+msgid "Sensitive one-shot credential; returned only after the mTLS host has claimed the ready attempt."
 msgstr ""
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
@@ -9628,6 +9817,9 @@ msgstr "Download Failed"
 msgid "Start Time"
 msgstr "Start Time"
 
+msgid "Start one directory rejoin attempt"
+msgstr ""
+
 #, fuzzy
 msgid "Started"
 msgstr "Start"
@@ -10076,6 +10268,13 @@ msgstr "Task Name"
 msgid "Takes a list of names and returns an id for each: the existing object where the name is already taken, a newly created one otherwise. That pattern is often called an upsert -- update or insert -- and because the object may not exist yet it matches on the name rather than on an id. Safe to send repeatedly: the same names give the same ids back and no duplicates are made. Group only; every other class answers 400."
 msgstr ""
 
+msgid "Target computer account"
+msgstr ""
+
+#, fuzzy
+msgid "Target lookup is unavailable."
+msgstr "No hash available"
+
 msgid "Task"
 msgstr "Task"
 
@@ -10486,6 +10685,9 @@ msgstr "No file was uploaded"
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
+msgid "The confirmed existing Target pin, or null before creation is confirmed."
+msgstr ""
+
 #, fuzzy
 msgid "The count."
 msgstr "CPU Count"
@@ -10547,6 +10749,9 @@ msgid "The id as \"row_<id>\", for DataTables."
 msgstr ""
 
 msgid "The id the package manager knows, e.g. googlechrome."
+msgstr ""
+
+msgid "The identity or required AD directory feature declaration is invalid."
 msgstr ""
 
 #, fuzzy
@@ -10616,6 +10821,12 @@ msgstr ""
 msgid "The leaf followed by the agent CA, PEM."
 msgstr ""
 
+msgid "The live SMBIOS and MAC identity reported by fog-agent."
+msgstr ""
+
+msgid "The live identity matches the certificate principal."
+msgstr ""
+
 msgid "The logical sector size of the disk this image was captured from."
 msgstr ""
 
@@ -10645,6 +10856,9 @@ msgstr ""
 msgid "The older spelling of /unisearch?q=. An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
 msgstr ""
 
+msgid "The one-shot start was claimed; includes the directory credential and public rejoin plan."
+msgstr ""
+
 msgid "The order software is applied in when the agent reconciles this host."
 msgstr ""
 
@@ -10658,6 +10872,9 @@ msgid "The path requested is already in use by another image!"
 msgstr ""
 
 msgid "The payload bytes."
+msgstr ""
+
+msgid "The plan is no longer ready or its host, identity, configuration or directory records changed. The reason codes include these: an OU placement request that may have run still holds the same computer object (directory_placement_target_protected)."
 msgstr ""
 
 #, fuzzy
@@ -10685,6 +10902,15 @@ msgid "The preference was cleared."
 msgstr ""
 
 msgid "The preference was stored."
+msgstr ""
+
+msgid "The previous directory operation requires review. Preserve its evidence and obtain a separate recovery decision; Retry cannot clear it."
+msgstr ""
+
+msgid "The previous directory operation requires review. Preserve its evidence, then use \"Clear directory operation review\" to record your decision. Retry cannot clear it."
+msgstr ""
+
+msgid "The previous operation may have changed this computer or its directory account. Clearing records your decision; it does not undo anything. The agent may still hold a local review marker until its own review."
 msgstr ""
 
 msgid "The primary mac associated is"
@@ -10722,6 +10948,10 @@ msgstr "Create New %s"
 msgid "The reported software list is larger than the server accepts."
 msgstr ""
 
+#, fuzzy
+msgid "The request body is invalid."
+msgstr "Task type is not valid"
+
 msgid "The request body is not a JSON object, or a required field is missing or empty. The message names the field."
 msgstr ""
 
@@ -10729,6 +10959,9 @@ msgid "The request body is not a JSON object, or it sets name to an empty value.
 msgstr ""
 
 msgid "The request body is not a JSON object."
+msgstr ""
+
+msgid "The request declares directory-join-target-v1 inconsistently with the stored request for this key, or its identity no longer resolves to one host. The request is not changed; the agent enrolls again with a new key."
 msgstr ""
 
 msgid "The resource is not in a cancellable state."
@@ -10741,6 +10974,9 @@ msgid "The root CA has been imported, but this host's system trust store could n
 msgstr ""
 
 msgid "The row goes, so the token can never match again. Audited as agent.token."
+msgstr ""
+
+msgid "The row the report is about; for a directory rejoin result, the host's own id."
 msgstr ""
 
 msgid "The same as POST: the body is {\"value\": \"...\"}, an empty value clears the preference, and a request with no value at all answers 400."
@@ -10759,6 +10995,9 @@ msgstr "Printer update failed!"
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr " no longer exists"
+
+msgid "The server advertises AD directory identity and target-operation features."
+msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
 msgstr ""
@@ -11002,6 +11241,9 @@ msgid "This is a cron style task that should not run now."
 msgstr ""
 
 msgid "This is a cron style task that should run now."
+msgstr ""
+
+msgid "This is a point-in-time observation, not proof of online authentication or a confirmed credential mismatch. Confirm the target and use explicit administrator judgment before retrying."
 msgstr ""
 
 msgid "This is a single run task that should not run now."
@@ -11459,7 +11701,7 @@ msgstr "Unknown upload error occurred.  Return code: "
 msgid "Unknown action"
 msgstr "Unknown upload error occurred.  Return code: "
 
-msgid "Unknown capability or status, or an item for a capability with no item reports."
+msgid "Unknown capability or status, or an item for a capability with no item reports. For a directory rejoin result (the item carries attempt_id), also an item status other than awaiting_reboot, verified, failed or unknown."
 msgstr ""
 
 #, php-format
@@ -11896,6 +12138,9 @@ msgstr "Value"
 msgid "Variable contains"
 msgstr ""
 
+msgid "Verified"
+msgstr ""
+
 msgid "Version"
 msgstr "Version"
 
@@ -12101,6 +12346,9 @@ msgstr "Windows 8"
 #, fuzzy
 msgid "Windows Product key"
 msgstr "Host Product Key"
+
+msgid "Windows directory polls declare directory-join-target-v1 and directory-task-operations-v1 when supported."
+msgstr ""
 
 #, fuzzy
 msgid "Windows keys is a plugin that associates product keys"

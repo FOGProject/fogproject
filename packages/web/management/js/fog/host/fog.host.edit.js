@@ -1260,6 +1260,20 @@
             ADClearBtn.prop('disabled', false);
         });
     });
+    // The directory lookup is a POST, so it carries the CSRF token.
+    // The button stays off while the lookup runs, so a second click cannot
+    // start a second directory query.
+    $('#rejoin-inspect').on('click', function() {
+        var inspectBtn = $(this);
+        inspectBtn.prop('disabled', true);
+        $.post(ADForm.attr('action'), {rejoin_inspect_target: 1}, function(d) {
+            $('#rejoin-target-candidate').html(d.html);
+        }, 'json').fail(function(jqXHR) {
+            $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+        }).always(function() {
+            inspectBtn.prop('disabled', false);
+        });
+    });
     ADClearBtn.on('click',function() {
         ADClearBtn.prop('disabled', true);
         ADFormBtn.prop('disabled', true);

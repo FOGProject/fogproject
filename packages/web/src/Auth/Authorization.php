@@ -352,6 +352,9 @@ class Authorization extends FOGBase
         // approve -- see FOG\Agent\Enrollment. The admin side reads and
         // edits hosts, so it carries the host permissions.
         'agentenroll' => null,
+        'agentfeatures' => null,             // public, read-only enrollment feature probe
+        'agentidentitycheck' => null,        // existing /agent/v1/ client-certificate gate
+        'agentrejoinstart' => null,          // same gate; per-host one-shot authorization is in DirectoryRejoin
         'agentpoll' => null,                 // fog-agent: gated by the client certificate in Route, not by a token
         'agentrenew' => null,                // fog-agent: same gate
         'agentresult' => null,               // fog-agent: same gate

@@ -178,10 +178,15 @@ if (!preg_match(
     $fails[] = 'the cancel operation does not document its 409, so the spec'
         . ' describes a route that always succeeds';
 }
-if (preg_match(
-    '#private static function _errorResponses\(\).*?\'409\'#s',
-    $openapi
+// Bound this check to the shared map. Later agent paths may independently
+// document a 409 without adding it to every ordinary API operation.
+if (!preg_match(
+    '#private static function _errorResponses\(\)\s*\{(.*?)\n    \}#s',
+    $openapi,
+    $sharedErrors
 )) {
+    $fails[] = 'the shared error response map could not be inspected';
+} elseif (false !== strpos($sharedErrors[1], "'409'")) {
     $fails[] = 'the 409 has leaked into the shared error map, so every'
         . ' operation now claims a status only cancel and delete can return';
 }
