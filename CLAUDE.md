@@ -17,20 +17,25 @@ FOG Project is an open-source network imaging and endpoint management system. It
 - Frontend: **jQuery + Bootstrap + AdminLTE** (no build step — plain JS served directly)
 - Background services: **PHP CLI daemons**
 - ~435 PHP files, ~200 JS files
-- Current working branch: `working-1.6`
+- Current working branch: `dev-branch`
 
 ---
 
 ## Feature development order
 
-**New features land here first.** Until this branch is promoted to become
-the project's stable/patches line (superseding `dev-branch`), develop new
-capability against `working-1.6` and open the PR here before porting it to
-`dev-branch`. `dev-branch` is the actively-patched 1.5.x line today, but this
-branch is where the project's future lives — landing new features here
-first, then porting backward, keeps it from falling further behind and
-avoids reconciling divergence after the fact instead of designing around it
-from the start.
+**All work lands on `dev-branch`.** 1.6.0 shipped on `stable`, so `dev-branch`
+is now the 1.6 patch line. Base every branch and every pull request on it,
+for features and fixes alike. Do not port anything to `working-1.6`.
+
+`working-1.6` is frozen. The `working-1.6: frozen after 1.6.0` ruleset
+refuses every update to it, with no bypass. It is deleted once the FOGUpdater
+change in #2043 (Beta finds the newest `working-*` branch) reaches `stable`.
+Until then, `stable`'s updater still names `working-1.6` for the Beta
+channel, so the branch must stay readable. The next beta line gets its own
+`working-*` name.
+
+The old rule, "features land on `working-1.6` first, then port back", made
+every feature land twice. A doc or a memory that still says it is out of date.
 
 ---
 
@@ -126,6 +131,10 @@ PRs and direct pushes for those two, and skips the version on any branch
 carrying `write-version-file.sh`.
 
 ### `working-1.6` is gated by a branch ruleset
+
+`working-1.6` is frozen (see **Feature development order**). This section
+records how its gate worked. `dev-branch` carries its own pull request,
+merge queue, and required-check rules.
 
 `working-1.6` carries a ruleset (`working-1.6 pull request gate`), so landing work
 there is not a plain `git push`:
