@@ -49,6 +49,69 @@ class DirectoryPlacementIntent extends FOGBase
     const ACTIVE = ['PREPARED', 'MAY_HAVE_RUN', 'UNKNOWN'];
 
     /**
+     * Seconds a MAY_HAVE_RUN row is protected from an operator's clear.
+     *
+     * A Move that was just sent may still be running: its worker waits at
+     * most FOGLdap::MOVE_TIMEOUT for the directory. Clearing the row inside
+     * that window lets the next check-in send a second Move while the first
+     * can still apply. Ten minutes is comfortably above the timeout, so by
+     * then the first Move has either answered or been abandoned. The age is
+     * read from the DB clock, the one that wrote dpiUpdated.
+     */
+    const CLEAR_MAY_HAVE_RUN_AFTER = 600;
+
+    /**
+     * The quoted SQL list of the ACTIVE statuses. The values are constants,
+     * never input.
+     *
+     * @return string
+     */
+    private static function _activeList()
+    {
+        return "'" . implode("','", self::ACTIVE) . "'";
+    }
+
+    /**
+     * Moves one row from one status to another, only if it still matches the
+     * ticket and is still in the status the caller read.
+     *
+     * @param \PDO   $db         the connection, inside the caller's transaction
+     * @param string $guid       dpiGUID
+     * @param string $sid        dpiSID
+     * @param int    $generation dpiGeneration
+     * @param string $hash       dpiHash
+     * @param string $from       the status the row must hold now
+     * @param string $to         the status to set
+     *
+     * @return int the number of rows changed: 1, or 0 when the row moved on
+     */
+    private static function _cas(\PDO $db, $guid, $sid, $generation, $hash, $from, $to)
+    {
+        $q = $db->prepare('UPDATE directoryPlacementIntent SET dpiStatus=?,dpiUpdated=UTC_TIMESTAMP(6) WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? AND dpiStatus=?');
+        $q->execute([$to, $guid, $sid, $generation, $hash, $from]);
+        return $q->rowCount();
+    }
+
+    /**
+     * Writes the new DN of a moved object into the host's directory row, only
+     * if the row still holds what the request read.
+     *
+     * @param \PDO   $db       the connection, inside the caller's transaction
+     * @param array  $snapshot the request's snapshot
+     * @param int    $host     the owner's host id
+     * @param string $dn       the DN to store
+     * @param string $at       the placement time, in the storage time zone
+     *
+     * @return int the number of rows changed: 1, or 0 when the row moved on
+     */
+    private static function _projectDn(\PDO $db, array $snapshot, $host, $dn, $at)
+    {
+        $q = $db->prepare('UPDATE hostDirectory SET hdComputerDN=?,hdPlacementAt=?,hdPlacementError=\'\' WHERE hdHostID=? AND hdComputerDN <=> ? AND hdObservedAt <=> ?');
+        $q->execute([$dn, $at, $host, $snapshot['hdComputerDN'], $snapshot['hdObservedAt']]);
+        return $q->rowCount();
+    }
+
+    /**
      * Runs $fn inside one short DB-only transaction.
      *
      * A deadlock (1213) or a changed-since-read error (1020) answers 409, as
@@ -62,7 +125,7 @@ class DirectoryPlacementIntent extends FOGBase
      *                           rejoin_deadlock_retry or rejoin_plan_changed
      *                           (all 409), or whatever $fn throws
      */
-    private static function transaction(callable $fn)
+    private static function _transaction(callable $fn)
     {
         $db = self::$DB->link();
         if ($db->inTransaction()) {
@@ -104,7 +167,7 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @return array<int,array<string,mixed>>
      */
-    private static function rows(\PDO $db, $sql, array $params = [])
+    private static function _rows(\PDO $db, $sql, array $params = [])
     {
         $q = $db->prepare($sql);
         $q->execute($params);
@@ -122,12 +185,12 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @throws \RuntimeException directory_intent_guid_invalid (409)
      */
-    private static function guid($guid)
+    private static function _guid($guid)
     {
         if (!is_string($guid) || !DirectoryRejoin::guid($guid)) {
             throw new \RuntimeException('directory_intent_guid_invalid', 409);
         }
-        return hex2bin(str_replace('-', '', strtolower($guid)));
+        return FOGLdap::guidBytes($guid);
     }
 
     /**
@@ -137,7 +200,7 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @return string
      */
-    private static function uuid($bytes)
+    private static function _uuid($bytes)
     {
         $hex = bin2hex($bytes);
         return substr($hex, 0, 8) . '-' . substr($hex, 8, 4) . '-' . substr($hex, 12, 4)
@@ -153,7 +216,7 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @throws \RuntimeException directory_intent_sid_invalid (409)
      */
-    private static function sid($sid)
+    private static function _sid($sid)
     {
         if (!is_string($sid) || strlen($sid) > 184
             || !preg_match('/^S-1-(?:0|[1-9][0-9]*)(?:-(?:0|[1-9][0-9]*))+$/D', $sid)
@@ -172,12 +235,12 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @throws \RuntimeException directory_intent_state_invalid (409)
      */
-    private static function payload(array $row)
+    private static function _payload(array $row)
     {
         $payload = json_decode((string)$row['dpiPayload'], true);
         if (!is_array($payload) || !isset($payload['target']['guid'], $payload['target']['sid'], $payload['host_id'])
-            || self::guid($payload['target']['guid']) !== $row['dpiGUID']
-            || self::sid($payload['target']['sid']) !== $row['dpiSID']
+            || self::_guid($payload['target']['guid']) !== $row['dpiGUID']
+            || self::_sid($payload['target']['sid']) !== $row['dpiSID']
             || (int)$payload['host_id'] !== (int)$row['dpiHostID']
             || !hash_equals((string)$row['dpiHash'], hash('sha256', (string)$row['dpiPayload']))
             || !in_array($row['dpiStatus'], array_merge(self::ACTIVE, ['SUCCEEDED', 'CANCELED']), true)
@@ -206,9 +269,7 @@ class DirectoryPlacementIntent extends FOGBase
             throw new \RuntimeException('directory_placement_cancel_boundary_required', 409);
         }
         foreach ($rows as $row) {
-            $q = $db->prepare('UPDATE directoryPlacementIntent SET dpiStatus=\'CANCELED\',dpiUpdated=UTC_TIMESTAMP(6) WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? AND dpiStatus=\'PREPARED\'');
-            $q->execute([$row['dpiGUID'], $row['dpiSID'], $row['dpiGeneration'], $row['dpiHash']]);
-            if (1 !== $q->rowCount()) {
+            if (1 !== self::_cas($db, $row['dpiGUID'], $row['dpiSID'], $row['dpiGeneration'], $row['dpiHash'], 'PREPARED', 'CANCELED')) {
                 throw new \RuntimeException('directory_placement_cancel_changed', 409);
             }
         }
@@ -229,7 +290,7 @@ class DirectoryPlacementIntent extends FOGBase
     public static function cancelOwnerPrepared(\PDO $db, $host)
     {
         $cancel = [];
-        foreach (self::rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (\'PREPARED\',\'MAY_HAVE_RUN\',\'UNKNOWN\') FOR UPDATE', [(int)$host]) as $row) {
+        foreach (self::_rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (' . self::_activeList() . ') FOR UPDATE', [(int)$host]) as $row) {
             if ('PREPARED' !== $row['dpiStatus']) {
                 throw new \RuntimeException('directory_placement_owner_protected', 409);
             }
@@ -258,12 +319,12 @@ class DirectoryPlacementIntent extends FOGBase
     public static function assertClaim(\PDO $db, $own, array $state)
     {
         $cancel = [];
-        foreach (self::rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiStatus IN (\'PREPARED\',\'MAY_HAVE_RUN\',\'UNKNOWN\') FOR UPDATE') as $row) {
+        foreach (self::_rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiStatus IN (' . self::_activeList() . ') FOR UPDATE') as $row) {
             $same = !empty($state['target']['guid']) && DirectoryRejoin::guid($state['target']['guid'])
-                && self::guid($state['target']['guid']) === $row['dpiGUID'];
+                && self::_guid($state['target']['guid']) === $row['dpiGUID'];
             $same = $same || (!empty($state['target']['sid']) && $state['target']['sid'] === $row['dpiSID']);
             try {
-                $account = rtrim((string)(self::payload($row)['target']['account'] ?? ''), '$');
+                $account = rtrim((string)(self::_payload($row)['target']['account'] ?? ''), '$');
                 $same = $same || ('' !== $account && !strcasecmp($account, (string)($state['name'] ?? '')));
                 $same = $same || ('rename' === ($state['operation'] ?? '')
                     && '' !== $account && !strcasecmp($account, (string)($state['expected_current'] ?? '')));
@@ -295,7 +356,7 @@ class DirectoryPlacementIntent extends FOGBase
         if (!$ids) {
             return [];
         }
-        $rows = self::rows(
+        $rows = self::_rows(
             self::$DB->link(),
             'SELECT DISTINCT dpiHostID FROM directoryPlacementIntent WHERE dpiStatus IN (\'MAY_HAVE_RUN\',\'UNKNOWN\') AND dpiHostID IN ('
             . implode(',', array_fill(0, count($ids), '?')) . ')',
@@ -315,17 +376,17 @@ class DirectoryPlacementIntent extends FOGBase
     public static function pendingReview(Host $host)
     {
         $out = [];
-        foreach (self::rows(
+        foreach (self::_rows(
             self::$DB->link(),
             'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (\'MAY_HAVE_RUN\',\'UNKNOWN\') ORDER BY dpiUpdated',
             [(int)$host->get('id')]
         ) as $row) {
             try {
-                $destination = (string)(self::payload($row)['destination']['dn'] ?? '');
+                $destination = (string)(self::_payload($row)['destination']['dn'] ?? '');
             } catch (\RuntimeException $e) {
                 $destination = '';
             }
-            $out[] = ['guid' => self::uuid($row['dpiGUID']), 'status' => (string)$row['dpiStatus'],
+            $out[] = ['guid' => self::_uuid($row['dpiGUID']), 'status' => (string)$row['dpiStatus'],
                 'updated' => (string)$row['dpiUpdated'], 'destination' => $destination];
         }
         return $out;
@@ -345,33 +406,39 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @return void
      *
-     * @throws \RuntimeException directory_intent_review_not_required or
-     *                           directory_intent_review_changed (409)
+     * @throws \RuntimeException directory_intent_review_not_required,
+     *                           directory_intent_review_changed or
+     *                           directory_placement_move_may_be_running (409);
+     *                           the last when a MAY_HAVE_RUN row is younger
+     *                           than CLEAR_MAY_HAVE_RUN_AFTER
      */
     public static function clearIntentReview(Host $host, $expectedGuid, $actor)
     {
         $id = (int)$host->get('id');
-        $cleared = self::transaction(function ($db) use ($id, $expectedGuid) {
-            self::lockOwner($db, $id);
-            $rows = self::rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (\'UNKNOWN\',\'MAY_HAVE_RUN\') FOR UPDATE', [$id]);
+        $cleared = self::_transaction(function ($db) use ($id, $expectedGuid) {
+            self::_lockOwner($db, $id);
+            $rows = self::_rows($db, 'SELECT *,TIMESTAMPDIFF(SECOND,dpiUpdated,UTC_TIMESTAMP(6)) AS dpiAge FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (\'UNKNOWN\',\'MAY_HAVE_RUN\') FOR UPDATE', [$id]);
             if (!$rows) {
                 throw new \RuntimeException('directory_intent_review_not_required', 409);
             }
             $row = null;
             foreach ($rows as $candidate) {
-                if (!strcasecmp(self::uuid($candidate['dpiGUID']), (string)$expectedGuid)) {
+                if (!strcasecmp(self::_uuid($candidate['dpiGUID']), (string)$expectedGuid)) {
                     $row = $candidate;
                 }
             }
             if (null === $row) {
                 throw new \RuntimeException('directory_intent_review_changed', 409);
             }
-            $q = $db->prepare('UPDATE directoryPlacementIntent SET dpiStatus=\'CANCELED\',dpiUpdated=UTC_TIMESTAMP(6) WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? AND dpiStatus=?');
-            $q->execute([$row['dpiGUID'], $row['dpiSID'], $row['dpiGeneration'], $row['dpiHash'], $row['dpiStatus']]);
-            if (1 !== $q->rowCount()) {
+            // The Move of a MAY_HAVE_RUN row may still be waiting on the
+            // directory. UNKNOWN has an answer, so it clears at once.
+            if ('MAY_HAVE_RUN' === $row['dpiStatus'] && (int)$row['dpiAge'] < self::CLEAR_MAY_HAVE_RUN_AFTER) {
+                throw new \RuntimeException('directory_placement_move_may_be_running', 409);
+            }
+            if (1 !== self::_cas($db, $row['dpiGUID'], $row['dpiSID'], $row['dpiGeneration'], $row['dpiHash'], $row['dpiStatus'], 'CANCELED')) {
                 throw new \RuntimeException('directory_intent_review_changed', 409);
             }
-            return [self::uuid($row['dpiGUID']), (string)$row['dpiStatus']];
+            return [self::_uuid($row['dpiGUID']), (string)$row['dpiStatus']];
         });
         Audit::record([
             'type' => 'host.directory.intent_review_cleared',
@@ -395,12 +462,12 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @throws \RuntimeException rejoin_host_missing (409)
      */
-    private static function lockOwner(\PDO $db, $host)
+    private static function _lockOwner(\PDO $db, $host)
     {
-        if (!self::rows($db, 'SELECT hostID FROM hosts WHERE hostID=? FOR UPDATE', [(int)$host])) {
+        if (!self::_rows($db, 'SELECT hostID FROM hosts WHERE hostID=? FOR UPDATE', [(int)$host])) {
             throw new \RuntimeException('rejoin_host_missing', 409);
         }
-        self::rows($db, 'SELECT hdID FROM hostDirectory WHERE hdHostID=? FOR UPDATE', [(int)$host]);
+        self::_rows($db, 'SELECT hdID FROM hostDirectory WHERE hdHostID=? FOR UPDATE', [(int)$host]);
     }
 
     /**
@@ -420,11 +487,11 @@ class DirectoryPlacementIntent extends FOGBase
      *                           directory_placement_held or
      *                           directory_placement_observation_required (409)
      */
-    private static function snapshot(\PDO $db, $host, $lock = false)
+    private static function _snapshot(\PDO $db, $host, $lock = false)
     {
         $suffix = $lock ? ' FOR UPDATE' : '';
-        $hosts = self::rows($db, 'SELECT hostID,hostName,hostADDomain,hostADOU,hostUseAD,hostAgentFingerprint FROM hosts WHERE hostID=?' . $suffix, [(int)$host]);
-        $dirs = self::rows($db, 'SELECT hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt,hdRejoinConfig,hdRejoinState FROM hostDirectory WHERE hdHostID=?' . $suffix, [(int)$host]);
+        $hosts = self::_rows($db, 'SELECT hostID,hostName,hostADDomain,hostADOU,hostUseAD,hostAgentFingerprint FROM hosts WHERE hostID=?' . $suffix, [(int)$host]);
+        $dirs = self::_rows($db, 'SELECT hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt,hdRejoinConfig,hdRejoinState FROM hostDirectory WHERE hdHostID=?' . $suffix, [(int)$host]);
         if (1 !== count($hosts) || 1 !== count($dirs) || !(int)$hosts[0]['hostUseAD'] || !(int)$dirs[0]['hdJoined']) {
             throw new \RuntimeException('directory_placement_snapshot_unavailable', 409);
         }
@@ -439,7 +506,7 @@ class DirectoryPlacementIntent extends FOGBase
                 throw new \RuntimeException('directory_placement_observation_required', 409);
             }
         }
-        $row['directory_authority'] = self::nativeAuthority($state);
+        $row['directory_authority'] = self::_nativeAuthority($state);
         unset($row['hdRejoinState']);
         return $row;
     }
@@ -451,7 +518,7 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @return array
      */
-    private static function nativeAuthority(array $state)
+    private static function _nativeAuthority(array $state)
     {
         return array_intersect_key($state, array_flip(['protocol', 'phase', 'attempt_id',
             'target', 'operation', 'mode', 'fingerprint', 'last_deploy_task_id',
@@ -472,7 +539,7 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @throws \RuntimeException directory_placement_request_changed (409)
      */
-    private static function assertRequestSnapshot(Host $host, HostDirectory $directory, array $saved, array $snapshot)
+    private static function _assertRequestSnapshot(Host $host, HostDirectory $directory, array $saved, array $snapshot)
     {
         $fields = ['hostName' => $host->get('name'), 'hostADDomain' => $host->get('ADDomain'),
             'hostADOU' => $host->get('ADOU'), 'hostAgentFingerprint' => $host->get('agentFingerprint'),
@@ -488,7 +555,7 @@ class DirectoryPlacementIntent extends FOGBase
             || (int)$snapshot['hostUseAD'] !== (int)$host->get('useAD')
             || (int)$snapshot['hdJoined'] !== (int)$directory->get('joined')
             || DirectoryRejoin::decode($snapshot['hdRejoinConfig']) !== $saved['config']
-            || $snapshot['directory_authority'] !== self::nativeAuthority($saved['state'])
+            || $snapshot['directory_authority'] !== self::_nativeAuthority($saved['state'])
         ) {
             throw new \RuntimeException('directory_placement_request_changed', 409);
         }
@@ -504,9 +571,9 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @throws \RuntimeException directory_placement_account_reassigned (409)
      */
-    private static function checkPlacementOwner(\PDO $db, array $p)
+    private static function _checkPlacementOwner(\PDO $db, array $p)
     {
-        $others = self::rows(
+        $others = self::_rows(
             $db,
             'SELECT hostID FROM hosts WHERE hostName=? AND hostID<>?',
             [rtrim($p['target']['account'], '$'), $p['host_id']]
@@ -527,14 +594,14 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @return bool
      */
-    private static function stale(\PDO $db, array $row, $owner, array $snapshot)
+    private static function _stale(\PDO $db, array $row, $owner, array $snapshot)
     {
-        $payload = self::payload($row);
+        $payload = self::_payload($row);
         if ((int)$row['dpiHostID'] === (int)$owner) {
             return $payload['snapshot'] !== $snapshot;
         }
         try {
-            return $payload['snapshot'] !== self::snapshot($db, (int)$row['dpiHostID']);
+            return $payload['snapshot'] !== self::_snapshot($db, (int)$row['dpiHostID']);
         } catch (\RuntimeException $e) {
             return true;
         }
@@ -550,26 +617,23 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @throws \RuntimeException when the request no longer holds
      */
-    private static function learnPlacement(array $payload)
+    private static function _learnPlacement(array $payload)
     {
-        return self::transaction(function ($db) use ($payload) {
-            if (self::snapshot($db, $payload['host_id'], true) !== $payload['snapshot']) {
+        return self::_transaction(function ($db) use ($payload) {
+            if (self::_snapshot($db, $payload['host_id'], true) !== $payload['snapshot']) {
                 throw new \RuntimeException('directory_placement_snapshot_changed', 409);
             }
-            self::checkPlacementOwner($db, $payload);
-            $active = self::rows(
+            self::_checkPlacementOwner($db, $payload);
+            $active = self::_rows(
                 $db,
-                'SELECT dpiGUID FROM directoryPlacementIntent WHERE dpiStatus IN (\'PREPARED\',\'MAY_HAVE_RUN\',\'UNKNOWN\') AND (dpiHostID=? OR dpiGUID=? OR dpiSID=?) FOR UPDATE',
-                [$payload['host_id'], self::guid($payload['target']['guid']), $payload['target']['sid']]
+                'SELECT dpiGUID FROM directoryPlacementIntent WHERE dpiStatus IN (' . self::_activeList() . ') AND (dpiHostID=? OR dpiGUID=? OR dpiSID=?) FOR UPDATE',
+                [$payload['host_id'], self::_guid($payload['target']['guid']), $payload['target']['sid']]
             );
             if ($active) {
                 throw new \RuntimeException('directory_placement_target_protected', 409);
             }
             $at = self::niceDate()->setTimezone(self::storageTimeZone())->format('Y-m-d H:i:s');
-            $q = $db->prepare('UPDATE hostDirectory SET hdComputerDN=?,hdPlacementAt=?,hdPlacementError=\'\' WHERE hdHostID=? AND hdComputerDN <=> ? AND hdObservedAt <=> ?');
-            $q->execute([$payload['target']['dn'], $at, $payload['host_id'],
-                $payload['snapshot']['hdComputerDN'], $payload['snapshot']['hdObservedAt']]);
-            return 1 === $q->rowCount() ? $at : null;
+            return 1 === self::_projectDn($db, $payload['snapshot'], $payload['host_id'], $payload['target']['dn'], $at) ? $at : null;
         });
     }
 
@@ -591,8 +655,8 @@ class DirectoryPlacementIntent extends FOGBase
      */
     public static function prepare(array $payload)
     {
-        $guid = self::guid($payload['target']['guid']);
-        $sid = self::sid($payload['target']['sid']);
+        $guid = self::_guid($payload['target']['guid']);
+        $sid = self::_sid($payload['target']['sid']);
         $owner = (int)$payload['host_id'];
         // Non-ASCII stays escaped: the table is utf8mb3, which cannot store a
         // four-byte character such as an emoji in an OU name.
@@ -601,19 +665,19 @@ class DirectoryPlacementIntent extends FOGBase
             throw new \RuntimeException('directory_placement_payload_too_large', 409);
         }
         $hash = hash('sha256', $encoded);
-        return self::transaction(function ($db) use ($payload, $guid, $sid, $owner, $encoded, $hash) {
-            $current = self::snapshot($db, $owner, true);
+        return self::_transaction(function ($db) use ($payload, $guid, $sid, $owner, $encoded, $hash) {
+            $current = self::_snapshot($db, $owner, true);
             if ($current !== $payload['snapshot']) {
                 throw new \RuntimeException('directory_placement_snapshot_changed', 409);
             }
-            self::checkPlacementOwner($db, $payload);
+            self::_checkPlacementOwner($db, $payload);
             if (in_array($current['directory_authority']['phase'] ?? '', DirectoryRejoin::PROTECTED_PHASES, true)) {
                 throw new \RuntimeException('directory_placement_native_in_progress', 409);
             }
             DirectoryOperation::assertNoOverlap($owner, ['name' => (string)$current['hostName'], 'target' => $payload['target']]);
             $generation = 1;
             $existing = false;
-            foreach (self::rows(
+            foreach (self::_rows(
                 $db,
                 'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? OR dpiGUID=? OR dpiSID=? FOR UPDATE',
                 [$owner, $guid, $sid]
@@ -624,7 +688,7 @@ class DirectoryPlacementIntent extends FOGBase
                     throw new \RuntimeException('directory_placement_identity_collision', 409);
                 }
                 if (in_array($row['dpiStatus'], self::ACTIVE, true)) {
-                    if ('PREPARED' !== $row['dpiStatus'] || !self::stale($db, $row, $owner, $current)) {
+                    if ('PREPARED' !== $row['dpiStatus'] || !self::_stale($db, $row, $owner, $current)) {
                         throw new \RuntimeException($sameGuid ? 'directory_placement_unresolved' : 'directory_placement_owner_protected', 409);
                     }
                     self::cancelPrepared($db, [$row]);
@@ -663,15 +727,15 @@ class DirectoryPlacementIntent extends FOGBase
      */
     public static function abandonUndispatched(array $ticket)
     {
-        self::transaction(function ($db) use ($ticket) {
-            self::lockOwner($db, (int)$ticket['payload']['host_id']);
-            $rows = self::rows(
+        self::_transaction(function ($db) use ($ticket) {
+            self::_lockOwner($db, (int)$ticket['payload']['host_id']);
+            $rows = self::_rows(
                 $db,
                 'SELECT * FROM directoryPlacementIntent WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? FOR UPDATE',
                 [$ticket['guid'], $ticket['sid'], $ticket['generation'], $ticket['hash']]
             );
             if (1 !== count($rows) || 'PREPARED' !== $rows[0]['dpiStatus']
-                || self::payload($rows[0]) !== $ticket['payload']
+                || self::_payload($rows[0]) !== $ticket['payload']
             ) {
                 throw new \RuntimeException('directory_placement_cancel_changed', 409);
             }
@@ -698,15 +762,15 @@ class DirectoryPlacementIntent extends FOGBase
     public static function dispatch(array $ticket)
     {
         $refusal = null;
-        self::transaction(function ($db) use ($ticket, &$refusal) {
+        self::_transaction(function ($db) use ($ticket, &$refusal) {
             $p = $ticket['payload'];
             $current = null;
             try {
-                $current = self::snapshot($db, (int)$p['host_id'], true);
+                $current = self::_snapshot($db, (int)$p['host_id'], true);
             } catch (\RuntimeException $e) {
                 $refusal = $e;
             }
-            $stored = self::rows(
+            $stored = self::_rows(
                 $db,
                 'SELECT * FROM directoryPlacementIntent WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? FOR UPDATE',
                 [$ticket['guid'], $ticket['sid'], $ticket['generation'], $ticket['hash']]
@@ -714,7 +778,7 @@ class DirectoryPlacementIntent extends FOGBase
             if (1 !== count($stored) || 'PREPARED' !== $stored[0]['dpiStatus']) {
                 throw new \RuntimeException('directory_placement_dispatch_changed', 409);
             }
-            if (self::payload($stored[0]) !== $p) {
+            if (self::_payload($stored[0]) !== $p) {
                 throw new \RuntimeException('directory_placement_ticket_changed', 409);
             }
             if (null === $refusal) {
@@ -722,7 +786,7 @@ class DirectoryPlacementIntent extends FOGBase
                     if ($current !== $p['snapshot']) {
                         throw new \RuntimeException('directory_placement_snapshot_changed', 409);
                     }
-                    self::checkPlacementOwner($db, $p);
+                    self::_checkPlacementOwner($db, $p);
                 } catch (\RuntimeException $e) {
                     $refusal = $e;
                 }
@@ -733,9 +797,7 @@ class DirectoryPlacementIntent extends FOGBase
                 self::cancelPrepared($db, [$stored[0]]);
                 return;
             }
-            $q = $db->prepare('UPDATE directoryPlacementIntent SET dpiStatus=\'MAY_HAVE_RUN\',dpiUpdated=UTC_TIMESTAMP(6) WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? AND dpiStatus=\'PREPARED\'');
-            $q->execute([$ticket['guid'], $ticket['sid'], $ticket['generation'], $ticket['hash']]);
-            if (1 !== $q->rowCount()) {
+            if (1 !== self::_cas($db, $ticket['guid'], $ticket['sid'], $ticket['generation'], $ticket['hash'], 'PREPARED', 'MAY_HAVE_RUN')) {
                 throw new \RuntimeException('directory_placement_dispatch_changed', 409);
             }
         });
@@ -755,7 +817,7 @@ class DirectoryPlacementIntent extends FOGBase
      *
      * @return string
      */
-    private static function resultRecord($success, $result, $projection)
+    private static function _resultRecord($success, $result, $projection)
     {
         $preview = substr((string)$result, 0, 512);
         $record = ['version' => 1, 'ldap_success' => $success,
@@ -799,27 +861,29 @@ class DirectoryPlacementIntent extends FOGBase
         if (!is_bool($success)) {
             throw new \RuntimeException('directory_placement_result_invalid', 409);
         }
-        self::transaction(function ($db) use ($ticket, $success, $result) {
+        self::_transaction(function ($db) use ($ticket, $success, $result) {
             $p = $ticket['payload'];
-            self::lockOwner($db, (int)$p['host_id']);
-            $stored = self::rows(
+            self::_lockOwner($db, (int)$p['host_id']);
+            $stored = self::_rows(
                 $db,
                 'SELECT * FROM directoryPlacementIntent WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? AND dpiStatus=\'MAY_HAVE_RUN\' FOR UPDATE',
                 [$ticket['guid'], $ticket['sid'], $ticket['generation'], $ticket['hash']]
             );
-            if (1 !== count($stored) || self::payload($stored[0]) !== $p) {
+            if (1 !== count($stored) || self::_payload($stored[0]) !== $p) {
                 throw new \RuntimeException('directory_placement_result_generation_changed', 409);
             }
             $projection = 'not_attempted';
             if ($success) {
-                $q = $db->prepare('UPDATE hostDirectory SET hdComputerDN=?,hdPlacementAt=?,hdPlacementError=\'\' WHERE hdHostID=? AND hdComputerDN <=> ? AND hdObservedAt <=> ?');
-                $q->execute([$p['rdn'] . ',' . $p['destination']['dn'],
-                    self::niceDate()->setTimezone(self::storageTimeZone())->format('Y-m-d H:i:s'), $p['host_id'],
-                    $p['snapshot']['hdComputerDN'], $p['snapshot']['hdObservedAt']]);
-                $projection = 1 === $q->rowCount() ? 'applied' : 'cas_miss';
+                $projection = 1 === self::_projectDn(
+                    $db,
+                    $p['snapshot'],
+                    $p['host_id'],
+                    $p['rdn'] . ',' . $p['destination']['dn'],
+                    self::niceDate()->setTimezone(self::storageTimeZone())->format('Y-m-d H:i:s')
+                ) ? 'applied' : 'cas_miss';
             }
             $q = $db->prepare('UPDATE directoryPlacementIntent SET dpiStatus=?,dpiResult=?,dpiUpdated=UTC_TIMESTAMP(6) WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? AND dpiStatus=\'MAY_HAVE_RUN\'');
-            $q->execute([$success ? 'SUCCEEDED' : 'UNKNOWN', self::resultRecord($success, $result, $projection),
+            $q->execute([$success ? 'SUCCEEDED' : 'UNKNOWN', self::_resultRecord($success, $result, $projection),
                 $ticket['guid'], $ticket['sid'], $ticket['generation'], $ticket['hash']]);
             if (1 !== $q->rowCount()) {
                 throw new \RuntimeException('directory_placement_result_generation_changed', 409);
@@ -846,9 +910,21 @@ class DirectoryPlacementIntent extends FOGBase
             return;
         }
         $ou = trim((string)$host->get('ADOU'));
-        if ('' === $ou || ('' !== $directory->containerDN() && !$directory->ouDrifted($ou))) {
+        if ('' === $ou) {
+            // No OU expressed. An admin who never set one is not a machine in
+            // the wrong place, and moving it somewhere would be FOG inventing
+            // an intention.
             return;
         }
+        if ('' !== $directory->containerDN() && !$directory->ouDrifted($ou)) {
+            // The host reported its own DN and it is the right one. Nothing to
+            // ask the directory, so no connection and no cooldown: a healthy
+            // Windows fleet never dials LDAP at all.
+            return;
+        }
+        // Resolved only now, past the free checks above, because a plugin may
+        // answer it from its own table and a healthy host should not cost
+        // that query on every poll.
         $connection = DirectoryPlacement::connection($host);
         if ('' === $connection['uri']) {
             return;
@@ -881,13 +957,13 @@ class DirectoryPlacementIntent extends FOGBase
                 throw new \RuntimeException('rejoin_target_changed', 409);
             }
             $currentParent = FOGLdap::parentDn($target['record']['dn']);
-            $snapshot = self::snapshot(self::$DB->link(), (int)$host->get('id'));
-            self::assertRequestSnapshot($host, $directory, $saved, $snapshot);
+            $snapshot = self::_snapshot(self::$DB->link(), (int)$host->get('id'));
+            self::_assertRequestSnapshot($host, $directory, $saved, $snapshot);
             $payload = ['version' => 1, 'host_id' => (int)$host->get('id'), 'snapshot' => $snapshot,
                 'target' => $target['record'], 'destination' => $destination,
                 'dc' => $context['dc'], 'nc' => $context['base_dn'], 'rdn' => FOGLdap::rdn($target['record']['dn'])];
             if (!strcasecmp($currentParent, $destination['dn'])) {
-                $learnedAt = self::learnPlacement($payload);
+                $learnedAt = self::_learnPlacement($payload);
                 if (null !== $learnedAt) {
                     $directory->set('computerDN', $target['record']['dn'])
                         ->set('placementAt', $learnedAt)->set('placementError', '');

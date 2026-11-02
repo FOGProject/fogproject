@@ -284,11 +284,11 @@ return [
             ],
         ],
         'directoryPlacementIntent' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `directoryPlacementIntent` ( `dpiGUID` binary(16) NOT NULL, `dpiSID` varbinary(184) NOT NULL, `dpiHostID` int(10) unsigned NOT NULL, `dpiGeneration` bigint(20) unsigned NOT NULL, `dpiStatus` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, `dpiPayload` mediumtext NOT NULL, `dpiHash` char(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, `dpiResult` varchar(512) DEFAULT NULL, `dpiUpdated` datetime(6) NOT NULL, PRIMARY KEY (`dpiGUID`), UNIQUE KEY `uq_directoryPlacementIntent_sid` (`dpiSID`), KEY `idx_directoryPlacementIntent_host_status` (`dpiHostID`,`dpiStatus`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `directoryPlacementIntent` ( `dpiGUID` binary(16) NOT NULL, `dpiSID` varbinary(184) NOT NULL, `dpiHostID` int(11) NOT NULL, `dpiGeneration` bigint(20) unsigned NOT NULL, `dpiStatus` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, `dpiPayload` mediumtext NOT NULL, `dpiHash` char(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, `dpiResult` varchar(512) DEFAULT NULL, `dpiUpdated` datetime(6) NOT NULL, PRIMARY KEY (`dpiGUID`), UNIQUE KEY `uq_directoryPlacementIntent_sid` (`dpiSID`), KEY `idx_directoryPlacementIntent_host_status` (`dpiHostID`,`dpiStatus`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'dpiGUID' => 'binary(16) NOT NULL',
                 'dpiSID' => 'varbinary(184) NOT NULL',
-                'dpiHostID' => 'int(10) unsigned NOT NULL',
+                'dpiHostID' => 'int(11) NOT NULL',
                 'dpiGeneration' => 'bigint(20) unsigned NOT NULL',
                 'dpiStatus' => 'varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL',
                 'dpiPayload' => 'mediumtext NOT NULL',

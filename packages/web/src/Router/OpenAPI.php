@@ -3061,7 +3061,7 @@ class OpenAPI extends FOGBase
                         ],
                         '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
                         '409' => [
-                            'description' => _('The plan is no longer ready or its host, identity, configuration or directory records changed.'),
+                            'description' => _('The plan is no longer ready or its host, identity, configuration or directory records changed. The reason codes include these: an OU placement request that may have run still holds the same computer object (directory_placement_target_protected).'),
                             'content' => ['application/json' => ['schema' => [
                                 'type' => 'object',
                                 'properties' => [

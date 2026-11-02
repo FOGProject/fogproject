@@ -31,7 +31,7 @@ function intentFixtureBytes($guid)
  */
 function intentFixtureSnapshot(\PDO $pdo, $host)
 {
-    $method = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, 'snapshot');
+    $method = new \ReflectionMethod(FOG\Agent\DirectoryPlacementIntent::class, '_snapshot');
     $method->setAccessible(true);
     return $method->invoke(null, $pdo, $host);
 }

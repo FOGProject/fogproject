@@ -36,7 +36,7 @@ $t->check(
     'identity columns are binary and the generation is unsigned',
     'binary(16)' === $columns['dpiGUID']['type'] && 'varbinary(184)' === $columns['dpiSID']['type']
         && preg_match('/^bigint(?:\(\d+\))? unsigned$/', $columns['dpiGeneration']['type'])
-        && preg_match('/^int(?:\(\d+\))? unsigned$/', $columns['dpiHostID']['type'])
+        && preg_match('/^int(?:\(\d+\))?$/', $columns['dpiHostID']['type'])
 );
 $t->check(
     'status and hash compare byte for byte',

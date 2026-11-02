@@ -15,6 +15,7 @@
 
 namespace FOG\Pages;
 
+use FOG\Agent\DirectoryPlacementIntent;
 use FOG\Agent\DirectoryRejoin;
 use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
@@ -3026,7 +3027,7 @@ class HostManagement extends FOGPage
             }
             if ($checkbox('rejoin_clear_intent')) {
                 // Same rule for an unknown OU placement result.
-                \FOG\Agent\DirectoryPlacementIntent::clearIntentReview(
+                DirectoryPlacementIntent::clearIntentReview(
                     $this->obj,
                     $text('rejoin_clear_intent_guid'),
                     (string)self::$FOGUser->get('name')
@@ -3325,11 +3326,15 @@ class HostManagement extends FOGPage
         // unknown. An operator reads the directory, then clears an unknown
         // one, or one stuck as may-have-run, so the next check-in may try again.
         try {
-            $moves = \FOG\Agent\DirectoryPlacementIntent::pendingReview($this->obj);
+            $moves = DirectoryPlacementIntent::pendingReview($this->obj);
         } catch (\Throwable $e) {
+            // The rest of the form still renders; the operator can see why
+            // the placement review is missing.
+            self::logFault('directory placement review unreadable for host ' . (int)$this->obj->get('id'));
             $moves = [];
         }
-        foreach ($moves as $move) {
+        if ($moves) {
+            $move = $moves[0];
             $candidatePanel .= '<p class="small text-muted">'
                 . \Initiator::e(
                     'UNKNOWN' === $move['status']
@@ -3359,9 +3364,8 @@ class HostManagement extends FOGPage
                     $move['guid']
                 )
                 . '<p class="small text-muted">'
-                . \Initiator::e(_('Clearing records your decision and undoes nothing. The move may have run, or may still be running. FOG may then try the move again.'))
+                . \Initiator::e(_('Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request that may still be running cannot be cleared until ten minutes after it was sent.'))
                 . '</p>';
-            break;
         }
         if ($retryAllowed) {
             $fields[self::makeLabel($labelClass, 'rejoin_retry', _('Confirm Retry'))]
