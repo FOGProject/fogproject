@@ -1684,6 +1684,7 @@ class Route extends FOGBase
         self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
         self::_registerRoute($r, 'GET', '/agent/v1/enroll', [__CLASS__, 'agentFeatures'], 'agentfeatures');
         self::_registerRoute($r, 'POST', '/agent/v1/identity/check', [__CLASS__, 'agentIdentityCheck'], 'agentidentitycheck');
+        self::_registerRoute($r, 'POST', '/agent/v1/directory/rejoin/start', [__CLASS__, 'agentRejoinStart'], 'agentrejoinstart');
         self::_registerRoute($r, 'POST', '/agent/v1/poll', [__CLASS__, 'agentPoll'], 'agentpoll');
         self::_registerRoute($r, 'POST', '/agent/v1/renew', [__CLASS__, 'agentRenew'], 'agentrenew');
         self::_registerRoute($r, 'POST', '/agent/v1/result', [__CLASS__, 'agentResult'], 'agentresult');
@@ -3017,9 +3018,26 @@ class Route extends FOGBase
      */
     public static function agentFeatures()
     {
-        $features = [\FOG\Agent\MachineIdentity::FEATURE];
+        $features = ['directory-join-target-v1', 'directory-task-operations-v1'];
         header('X-FOG-Agent-Features: ' . implode(', ', $features));
         HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => $features]));
+    }
+    /**
+     * fog-agent's claim of one planned directory operation.
+     *
+     * Returns the join credential only after the claim commits, so one
+     * plan releases it once.
+     *
+     * @return void
+     */
+    public static function agentRejoinStart()
+    {
+        try {
+            $answer = \FOG\Agent\DirectoryRejoin::start(self::$agentHost, self::_jsonBody());
+            HTTPResponseCodes::breakHead(200, json_encode($answer));
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(self::_agentErrorCode($e), json_encode(['status' => 'blocked', 'reason' => $e->getMessage()]));
+        }
     }
     /**
      * fog-agent's check that its live identity still resolves to its host.
@@ -3116,6 +3134,12 @@ class Route extends FOGBase
     {
         $Host = self::$agentHost;
         $body = self::_jsonBody();
+        try {
+            \FOG\Agent\DirectoryRejoin::beforePoll($Host, $body);
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(self::_agentErrorCode($e), json_encode(['status' => 'blocked', 'reason' => $e->getMessage()]));
+            return;
+        }
         // Canonical form on the way in: the agent stamps itself from the
         // release tag and so reports `v0.1.6`, while every version the
         // server is given is written `0.1.6`. Storing the spelling the
@@ -3191,6 +3215,27 @@ class Route extends FOGBase
         try {
             $answer += \FOG\Agent\State::facts($Host, $body);
             $answer += \FOG\Agent\State::sessions($Host, $body);
+            if (\FOG\Agent\MachineIdentity::requested($body)) {
+                try {
+                    $answer['directory_rejoin'] = \FOG\Agent\DirectoryRejoin::plan($Host, $body);
+                } catch (\RuntimeException $rejoinError) {
+                    // Only a host with directory membership on has a row to note it on.
+                    if ($Host->get('useAD')) {
+                        \FOG\Agent\DirectoryRejoin::blocked($Host, $rejoinError->getMessage());
+                    }
+                    $answer['directory_rejoin'] = ['phase' => 'blocked', 'reason' => $rejoinError->getMessage()];
+                }
+                if (\FOG\Agent\DirectoryOperation::requested($body)) {
+                    $answer['directory_check'] = \FOG\Agent\DirectoryOperation::check($Host);
+                    try {
+                        $directorySaved = \FOG\Agent\DirectoryRejoin::settings($Host);
+                        $answer['directory_hold'] = !empty($directorySaved['state']['placement_hold']);
+                    } catch (\RuntimeException $holdError) {
+                        // Unreadable state: hold placement rather than fail the poll.
+                        $answer['directory_hold'] = true;
+                    }
+                }
+            }
         } catch (\RuntimeException $e) {
             HTTPResponseCodes::breakHead(
                 self::_agentErrorCode($e),

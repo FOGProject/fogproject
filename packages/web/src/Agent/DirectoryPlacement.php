@@ -140,6 +140,24 @@ class DirectoryPlacement extends FOGBase
     public static function ensure(Host $Host, HostDirectory $Directory)
     {
         try {
+            $state = DirectoryRejoin::decode($Directory->get('rejoinState'));
+            if (!empty($state['placement_hold'])) {
+                return;
+            }
+            if (2 === ($state['protocol'] ?? 1)) {
+                // A previously loaded ORM row is not current operation authority.
+                $saved = DirectoryRejoin::settings($Host);
+                if (2 !== ($saved['state']['protocol'] ?? 1)
+                    || !empty($saved['state']['placement_hold'])
+                    || !DirectoryOperation::placementHealthy($Host, $saved['config'], $saved['state'])) {
+                    return;
+                }
+            }
+        } catch (\Throwable $e) {
+            // Missing/unreadable authority must not reach LDAP or start its cooldown.
+            return;
+        }
+        try {
             self::_ensure($Host, $Directory);
         } catch (\Throwable $e) {
             // Recorded, not raised. Whatever went wrong here, the host has
