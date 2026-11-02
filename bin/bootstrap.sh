@@ -342,8 +342,10 @@ newestBranch() {
     # empty match -- "none published" would be a guess, not a finding.
     local heads
     heads=$(git ls-remote --heads "$repo" "refs/heads/${prefix}-*" 2>/dev/null) || return 3
+    # Same charset as functions.sh newestBranch: a git ref may legally contain
+    # # or %, and only [0-9A-Za-z._-] is a branch name FOG publishes.
     ref=$(printf '%s\n' "$heads" \
-        | sed -n "s#^[0-9a-f]\\{7,\\}[[:space:]]\\{1,\\}refs/heads/\\(${prefix}-[^/]\\{1,\\}\\)\$#\\1#p" \
+        | sed -n "s#^[0-9a-f]\\{7,\\}[[:space:]]\\{1,\\}refs/heads/\\(${prefix}-[0-9A-Za-z._-]\\{1,\\}\\)\$#\\1#p" \
         | sort -Vr \
         | head -n1)
     [[ -n $ref ]] || return 1

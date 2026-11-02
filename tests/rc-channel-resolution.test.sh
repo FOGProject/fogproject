@@ -192,6 +192,16 @@ check "a feat/working-* branch is not offered as the beta line" \
 check "beta and rc stay independent" \
     "$([[ $(channelToBranch rc) == rc-1.6.10 ]]; echo $?)"
 
+# The name is put into raw.githubusercontent.com and archive URLs. # and % are
+# legal in a git ref and would cut or alter such a URL, so a head carrying one
+# is ignored even when its version sorts highest.
+publish 'working-1.99#x'
+publish 'rc-1.6.99%2F'
+check "a head with # is not offered as the beta line" \
+    "$([[ $(betaBranch) == working-1.10 ]]; echo $?)"
+check "a head with % is not offered as the release candidate" \
+    "$([[ $(rcBranch) == rc-1.6.10 ]]; echo $?)"
+
 # ---------------------------------------------------------------------------
 # The checkout's own origin wins over the built-in constant.
 #
