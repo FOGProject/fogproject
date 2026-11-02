@@ -201,9 +201,9 @@ select_branch() (
         # Read through env(1), not the shell: the real git is a child process
         # and sees only EXPORTED variables, so an unexported one must read unset.
         printf 'PROTO=%s LIMIT=%s TIME=%s\n' \
-            "$(env | sed -n 's/^GIT_ALLOW_PROTOCOL=//p' | grep . || echo unset)" \
-            "$(env | sed -n 's/^GIT_HTTP_LOW_SPEED_LIMIT=//p' | grep . || echo unset)" \
-            "$(env | sed -n 's/^GIT_HTTP_LOW_SPEED_TIME=//p' | grep . || echo unset)" >> "$STUB_ENV_FILE"
+            "$(printenv GIT_ALLOW_PROTOCOL || echo unset)" \
+            "$(printenv GIT_HTTP_LOW_SPEED_LIMIT || echo unset)" \
+            "$(printenv GIT_HTTP_LOW_SPEED_TIME || echo unset)" >> "$STUB_ENV_FILE"
         [[ -n $STUB_UNREACHABLE ]] && return 128
         local n i=0
         for n in $STUB_HEADS; do
@@ -250,6 +250,9 @@ check_branch() {
 check_branch "Patches" ""  ""              "stable"
 check_branch "Patches" "1" ""              "dev-branch"
 export STUB_ARGS_FILE="$tmp_args" STUB_ENV_FILE="$tmp_args.env"
+# The environment checks below must see only what newestBranch sets, not
+# whatever the shell running the suite happens to export.
+unset GIT_ALLOW_PROTOCOL GIT_HTTP_LOW_SPEED_LIMIT GIT_HTTP_LOW_SPEED_TIME
 # Beta follows the newest working-* branch, version-sorted, anchored at
 # refs/heads/ (feat/working-x is not a beta line). working-1.6.1 < working-1.7.
 STUB_HEADS="stable dev-branch working-1.6 working-1.6.1 working-1.7 feat/working-x zz/working-9 working-1.9#x" \
@@ -293,6 +296,21 @@ if grep -q 'ls-remote --heads https://github.com/FOGProject/fogproject.git refs/
     ok "ls-remote asks the https GitHub remote for refs/heads/working-*"
 else
     bad "unexpected ls-remote arguments: $(cat "$STUB_ARGS_FILE")"
+fi
+# The origin path (rcBranch, betaBranch: no remote argument) keeps whatever
+# scheme the checkout uses, and an explicit call made earlier in the same shell
+# must not leak its restriction into it.
+: > "$STUB_ENV_FILE"
+(
+    git() { printf 'PROTO=%s\n' "$(printenv GIT_ALLOW_PROTOCOL || echo unset)" >> "$STUB_ENV_FILE"; }
+    eval "$(body newestBranch "$FUNCS")"
+    newestBranch working https://github.com/FOGProject/fogproject.git
+    newestBranch rc
+) >/dev/null 2>&1
+if [[ $(head -n1 "$STUB_ENV_FILE") == "PROTO=https" && $(tail -n1 "$STUB_ENV_FILE") == "PROTO=unset" ]]; then
+    ok "the origin path is unrestricted, even after an explicit lookup"
+else
+    bad "origin-path ls-remote environment: $(tr '\n' ' ' < "$STUB_ENV_FILE")"
 fi
 check_branch "Patches" ""  "my-branch"     "my-branch"
 # No branch is derivable for these, so they must stop. A non-empty $branch here
