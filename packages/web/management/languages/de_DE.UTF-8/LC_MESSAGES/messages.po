@@ -7852,6 +7852,10 @@ msgid "Please physically associate"
 msgstr "Bitte ordnen Sie physisch"
 
 #, fuzzy
+msgid "Please select a printer level!"
+msgstr "Wählen Sie ein gültiges Abbild"
+
+#, fuzzy
 msgid "Please select a valid backend."
 msgstr "Wählen Sie ein gültiges Abbild"
 

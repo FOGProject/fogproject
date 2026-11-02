@@ -6784,6 +6784,10 @@ msgstr "このデータは次の内容を示すものではないことに注意
 msgid "Please physically associate"
 msgstr "物理的に関連付けてください"
 
+#, fuzzy
+msgid "Please select a printer level!"
+msgstr "有効なプリンタータイプを選択してください。"
+
 msgid "Please select a valid backend."
 msgstr "有効なバックエンドを選択してください。"
 
