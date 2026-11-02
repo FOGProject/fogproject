@@ -176,14 +176,33 @@ else
 fi
 
 echo
+tmp=$(mktemp -d) || { echo "cannot create a temp directory"; exit 1; }
+trap 'rm -rf "$tmp"' EXIT
+tmp_args="$tmp/git-args"
+
 echo "3. the tracked branch follows the installed channel"
 
 # The selection block, executed for real against each channel. Stubs make the
 # two exits observable: handleError prints and returns, so a fall-through to
 # stable is visible as a branch value where a refusal was required.
+#
+# Beta asks the remote, so git is stubbed from the real `git ls-remote --heads`
+# output format, "<sha><TAB>refs/heads/<name>". $STUB_HEADS holds the names the
+# remote advertises; $STUB_UNREACHABLE makes ls-remote fail as it does with no
+# network (exit 128). The stub records its arguments in $STUB_ARGS_FILE.
 select_branch() (
     channel="$1"; trunk="$2"; updatebranch="$3"; branch=""
-    handleError() { echo "REFUSED" >&2; return 0; }
+    handleError() { echo "REFUSED $2" >&2; return 0; }
+    git() {
+        printf '%s\n' "$*" >> "$STUB_ARGS_FILE"
+        [[ -n $STUB_UNREACHABLE ]] && return 128
+        local n i=0
+        for n in $STUB_HEADS; do
+            i=$((i + 1))
+            printf '%040d\trefs/heads/%s\n' "$i" "$n"
+        done
+    }
+    eval "$(body newestWorkingBranch "$UPD")"
     eval "$(joined "$UPD" | awk '
         /^if \[\[ -n \$updatebranch \]\]; then/ { inside = 1 }
         inside { print }
@@ -191,6 +210,17 @@ select_branch() (
     ')"
     echo "$branch"
 )
+
+# The stderr line select_branch's handleError stub prints, for the stop cases.
+check_exit() {
+    local got
+    got=$(select_branch "$1" "$2" "$3" 2>&1 >/dev/null)
+    if [[ $got == "$4" ]]; then
+        ok "channel='$1' -> $4"
+    else
+        bad "channel='$1' -> '$got', expected '$4'"
+    fi
+}
 
 check_branch() {
     local got
@@ -204,10 +234,38 @@ check_branch() {
 
 check_branch "Patches" ""  ""              "stable"
 check_branch "Patches" "1" ""              "dev-branch"
-check_branch "Beta"    ""  ""              "working-1.6"
+export STUB_ARGS_FILE="$tmp_args"
+# Beta follows the newest working-* branch, version-sorted, anchored at
+# refs/heads/ (feat/working-x is not a beta line). working-1.6.1 < working-1.7.
+STUB_HEADS="stable dev-branch working-1.6 working-1.6.1 working-1.7 feat/working-x zz/working-9" \
+    check_branch "Beta" "" "" "working-1.7"
 # The one that used to install 1.5 over a 1.6 server: $trunk must not drag a
 # beta install onto the 1.5 patch line either.
-check_branch "Beta"    "1" ""              "working-1.6"
+STUB_HEADS="working-1.6 working-1.7" check_branch "Beta" "1" "" "working-1.7"
+# Version sort, not lexical: 1.10 beats 1.9.
+STUB_HEADS="working-1.9 working-1.10" check_branch "Beta" "" "" "working-1.10"
+# No working-* branch: stop, do not fall through to stable or dev-branch.
+STUB_HEADS="stable dev-branch feat/working-x" check_branch "Beta" "" "" ""
+STUB_HEADS="stable dev-branch feat/working-x" check_exit "Beta" "" "" "REFUSED 10"
+# Remote unreachable: a distinct stop.
+STUB_UNREACHABLE=1 check_branch "Beta" "" "" ""
+STUB_UNREACHABLE=1 check_exit "Beta" "" "" "REFUSED 11"
+# updatebranch still wins, and never asks the remote.
+: > "$STUB_ARGS_FILE"
+STUB_HEADS="working-1.7" check_branch "Beta" "" "my-branch" "my-branch"
+if [[ ! -s $STUB_ARGS_FILE ]]; then
+    ok "updatebranch set: the remote is not asked"
+else
+    bad "updatebranch set but git was still called: $(cat "$STUB_ARGS_FILE")"
+fi
+# The lookup is https-only, against the same host the download uses, anchored.
+: > "$STUB_ARGS_FILE"
+STUB_HEADS="working-1.7" select_branch "Beta" "" "" >/dev/null 2>&1
+if grep -q 'ls-remote --heads https://github.com/FOGProject/fogproject.git refs/heads/working-\*' "$STUB_ARGS_FILE"; then
+    ok "ls-remote asks the https GitHub remote for refs/heads/working-*"
+else
+    bad "unexpected ls-remote arguments: $(cat "$STUB_ARGS_FILE")"
+fi
 check_branch "Patches" ""  "my-branch"     "my-branch"
 # No branch is derivable for these, so they must stop. A non-empty $branch here
 # means a release candidate would be overwritten with whatever stable is.
@@ -255,8 +313,6 @@ verify_case() {
     fi
 }
 
-tmp=$(mktemp -d) || { echo "cannot create a temp directory"; exit 1; }
-trap 'rm -rf "$tmp"' EXIT
 # Two trees per case, because verifyPayload has to read either spelling: core
 # became PSR-4 on working-1.6 and System moved to packages/web/src/Base, while
 # dev-branch and stable still ship packages/web/lib/fog/system.class.php. A
