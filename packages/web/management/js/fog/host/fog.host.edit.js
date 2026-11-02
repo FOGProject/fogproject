@@ -1260,6 +1260,12 @@
             ADClearBtn.prop('disabled', false);
         });
     });
+    // The directory lookup is a POST, so it carries the CSRF token.
+    $('#rejoin-inspect').on('click', function() {
+        $.post(ADForm.attr('action'), {rejoin_inspect_target: 1}, function(d) {
+            $('#rejoin-target-candidate').html(d.html);
+        }, 'json');
+    });
     ADClearBtn.on('click',function() {
         ADClearBtn.prop('disabled', true);
         ADFormBtn.prop('disabled', true);
