@@ -13,6 +13,8 @@ if (!getenv('FOG_TEST_DSN')) {
 }
 $directoryDbName = 'agent-directory-operation-db';
 require __DIR__ . '/lib/directory-db.php';
+$fake = $GLOBALS['fake']; // left by directory-db.php
+$manifest = $GLOBALS['manifest'];
 
 $t = new FogChecks();
 $pdo = $fake->pdo;

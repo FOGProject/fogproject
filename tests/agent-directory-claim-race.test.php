@@ -18,6 +18,8 @@ if (!getenv('FOG_TEST_DSN')) {
 }
 $directoryDbName = 'agent-directory-claim-race';
 require __DIR__ . '/lib/directory-db.php';
+$pdo = $GLOBALS['pdo']; // left by directory-db.php
+$database = $GLOBALS['database'];
 directoryTestBindPdodb($pdo);
 
 $t = new FogChecks();

@@ -15,6 +15,8 @@ if (!getenv('FOG_TEST_DSN')) {
 }
 $directoryDbName = 'agent-directory-bootstrap-db';
 require __DIR__ . '/lib/directory-db.php';
+$pdo = $GLOBALS['pdo']; // left by directory-db.php
+$manifest = $GLOBALS['manifest'];
 
 $t = new FogChecks();
 
@@ -67,8 +69,8 @@ try {
     $error = $e->getMessage();
 }
 $t->check(
-    'an old agent cannot poll past a pending operation',
-    'directory_target_feature_required' === $error
+    'a poll without the directory features is not refused while an operation is pending',
+    null === $error
 );
 $error = null;
 try {
@@ -121,8 +123,8 @@ try {
     $error = $e->getMessage();
 }
 $t->check(
-    'an old agent cannot poll past a current v2 unknown state',
-    'directory_target_feature_required' === $error
+    'a poll without the directory features is not refused on a current v2 unknown state',
+    null === $error
 );
 
 // Give the host a configured server through the plugin hook, so the guard,

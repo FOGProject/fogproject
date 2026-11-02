@@ -8,6 +8,7 @@
 if (!getenv('FOG_TEST_DSN')) { echo "SKIP UI save: FOG_TEST_DSN not set\n"; exit(0); }
 $directoryDbName = 'host-ad-ui-save';
 require __DIR__ . '/lib/directory-db.php';
+$pdo = $GLOBALS['pdo']; // left by directory-db.php
 // The server process inherits FOG_TEST_DSN and opens its own connection to the
 // same scratch database. Host 701 is the one its fixture edits.
 $pdo->exec("INSERT INTO hosts (hostID,hostName,hostADDomain,hostUseAD,hostAgentFingerprint) VALUES (701,'UI-SCRATCH','corp.example',1,'" . str_repeat('f', 64) . "')");

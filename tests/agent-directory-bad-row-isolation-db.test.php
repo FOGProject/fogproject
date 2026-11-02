@@ -16,6 +16,7 @@ if (!getenv('FOG_TEST_DSN')) {
 }
 $directoryDbName = 'agent-directory-bad-row-isolation-db';
 require __DIR__ . '/lib/directory-db.php';
+$pdo = $GLOBALS['pdo']; // left by directory-db.php
 directoryTestBindPdodb($pdo);
 $t = new FogChecks();
 
