@@ -198,8 +198,12 @@ select_branch() (
     handleError() { echo "REFUSED $2" >&2; exit 0; }
     git() {
         printf '%s\n' "$*" >> "$STUB_ARGS_FILE"
-        printf 'PROTO=%s LIMIT=%s TIME=%s\n' "${GIT_ALLOW_PROTOCOL-unset}" \
-            "${GIT_HTTP_LOW_SPEED_LIMIT-unset}" "${GIT_HTTP_LOW_SPEED_TIME-unset}" >> "$STUB_ENV_FILE"
+        # Read through env(1), not the shell: the real git is a child process
+        # and sees only EXPORTED variables, so an unexported one must read unset.
+        printf 'PROTO=%s LIMIT=%s TIME=%s\n' \
+            "$(env | sed -n 's/^GIT_ALLOW_PROTOCOL=//p' | grep . || echo unset)" \
+            "$(env | sed -n 's/^GIT_HTTP_LOW_SPEED_LIMIT=//p' | grep . || echo unset)" \
+            "$(env | sed -n 's/^GIT_HTTP_LOW_SPEED_TIME=//p' | grep . || echo unset)" >> "$STUB_ENV_FILE"
         [[ -n $STUB_UNREACHABLE ]] && return 128
         local n i=0
         for n in $STUB_HEADS; do
@@ -278,7 +282,6 @@ else
 fi
 # The lookup is https-only, against the same host the download uses, anchored.
 : > "$STUB_ARGS_FILE"
-STUB_HEADS="working-1.7" select_branch "Beta" "" "" >/dev/null 2>&1
 : > "$STUB_ENV_FILE"
 STUB_HEADS="working-1.7" select_branch "Beta" "" "" >/dev/null 2>&1
 if [[ $(cat "$STUB_ENV_FILE") == "PROTO=https LIMIT=1000 TIME=15" ]]; then
@@ -286,8 +289,6 @@ if [[ $(cat "$STUB_ENV_FILE") == "PROTO=https LIMIT=1000 TIME=15" ]]; then
 else
     bad "ls-remote environment is not https-only and bounded: $(cat "$STUB_ENV_FILE")"
 fi
-: > "$STUB_ARGS_FILE"
-STUB_HEADS="working-1.7" select_branch "Beta" "" "" >/dev/null 2>&1
 if grep -q 'ls-remote --heads https://github.com/FOGProject/fogproject.git refs/heads/working-\*' "$STUB_ARGS_FILE"; then
     ok "ls-remote asks the https GitHub remote for refs/heads/working-*"
 else

@@ -192,28 +192,25 @@ newestBranch() {
     # release candidate its origin does not carry -- gitUpdateToBranch would
     # then fail at `git checkout` -- and an air-gapped one must not reach for
     # github.com.
-    local explicit="$remote"
-    if [[ -z $explicit ]]; then
-        remote=$(git -C "${FOG_git_path}" remote get-url origin 2>/dev/null)
-        [[ -n $remote ]] || remote="${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}"
-    fi
-    # ls-remote runs on its own, not at the head of the pipe: a pipeline's
-    # status is its LAST command's, so a remote that refused us (root with no
-    # key for an SSH origin, or no network) came back as an empty match and
-    # read as "none published". Return 3 for it instead.
     #
     # With an explicit remote the lookup is https only and bounded. The
     # checkout path keeps whatever scheme origin uses (an SSH origin is
     # legitimate there), so it is not restricted. fetch() in fogupdater.sh uses
     # --connect-timeout 15; an unattended update must not hang on a stalled
     # network either, so a transfer under 1000 B/s for 15 s is abandoned.
-    local heads
-    if [[ -n $explicit ]]; then
-        heads=$(GIT_ALLOW_PROTOCOL=https GIT_HTTP_LOW_SPEED_LIMIT=1000 GIT_HTTP_LOW_SPEED_TIME=15 \
-            git ls-remote --heads "$remote" "refs/heads/${prefix}-*" 2>/dev/null) || return 3
+    # `local -x` exports these to git only for the life of this function.
+    if [[ -z $remote ]]; then
+        remote=$(git -C "${FOG_git_path}" remote get-url origin 2>/dev/null)
+        [[ -n $remote ]] || remote="${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}"
     else
-        heads=$(git ls-remote --heads "$remote" "refs/heads/${prefix}-*" 2>/dev/null) || return 3
+        local -x GIT_ALLOW_PROTOCOL=https GIT_HTTP_LOW_SPEED_LIMIT=1000 GIT_HTTP_LOW_SPEED_TIME=15
     fi
+    # ls-remote runs on its own, not at the head of the pipe: a pipeline's
+    # status is its LAST command's, so a remote that refused us (root with no
+    # key for an SSH origin, or no network) came back as an empty match and
+    # read as "none published". Return 3 for it instead.
+    local heads
+    heads=$(git ls-remote --heads "$remote" "refs/heads/${prefix}-*" 2>/dev/null) || return 3
     # The name is put into raw.githubusercontent.com and archive URLs by
     # fogupdater.sh. A git ref may legally contain # or %, which would cut or
     # alter that URL, so only [0-9A-Za-z._-] is accepted after the prefix.
