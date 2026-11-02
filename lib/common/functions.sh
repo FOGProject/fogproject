@@ -10459,7 +10459,7 @@ _separateCommKey() {
 # Anything else is an admin's deliberate choice (ACME, /etc/pki, a mounted
 # secret) and is left exactly as it is.
 _resolveWebLeafPaths() {
-    local webdir leafdir f
+    local webdir leafdir f cur leaf fullchain
     webdir="$(_pkiZoneDir web)"
     leafdir="${webdir}/leaf"
     mkdir -p "$leafdir" >>$error_log 2>&1
@@ -10474,9 +10474,17 @@ _resolveWebLeafPaths() {
     # points at the old flat pki/web/.webLeaf.* path (from before this zone
     # had a leaf/ subfolder) and repoints it at the new location, same as the
     # other two catch the pre-separation comm-key/web-tree paths.
+    #
+    # Compared resolved, not as strings. GH-1121 moved the tree to
+    # /etc/fog/pki and left $fogprogramdir/pki as a symlink, and a .fogsettings
+    # written before that still spells these paths /opt/fog/pki/... -- so a
+    # string compare against $(_pkiZoneDir web) never matched, and the repair
+    # never ran (GH-2026).
+    fullchain="${leafdir}/.webFullChain.pem"
+    cur="$(readlink -f "${PKI_web_vhost_key}" 2>/dev/null)"
     if [[ -z ${PKI_web_vhost_key} \
-        || "$(readlink -f "${PKI_web_vhost_key}" 2>/dev/null)" == "$(readlink -f "${PKI_client_cert_dir}/.srvprivate.key" 2>/dev/null)" \
-        || ${PKI_web_vhost_key} == "${webdir}/.webLeaf.key" ]]; then
+        || $cur == "$(readlink -f "${PKI_client_cert_dir}/.srvprivate.key" 2>/dev/null)" \
+        || $cur == "$(readlink -f "${webdir}/.webLeaf.key" 2>/dev/null)" ]]; then
         PKI_web_vhost_key="${leafdir}/.webLeaf.key"
     fi
     # The fourth comparison repairs a server whose ${PKI_web_vhost_cert} was pointed at
@@ -10487,11 +10495,42 @@ _resolveWebLeafPaths() {
     # ACME client's own fullchain.pem is a real and supported value here, and
     # repointing that at FOG's leaf would swap the admin's certificate for one
     # nothing is renewing.
+    cur="$(readlink -f "${PKI_web_vhost_cert}" 2>/dev/null)"
     if [[ -z ${PKI_web_vhost_cert} \
-        || "$(readlink -f "${PKI_web_vhost_cert}" 2>/dev/null)" == "$(readlink -f "$webdirdest/management/other/ssl/srvpublic.crt" 2>/dev/null)" \
-        || ${PKI_web_vhost_cert} == "${webdir}/.webLeaf.pem" \
-        || ${PKI_web_vhost_cert} == "${leafdir}/.webFullChain.pem" ]]; then
+        || $cur == "$(readlink -f "$webdirdest/management/other/ssl/srvpublic.crt" 2>/dev/null)" \
+        || $cur == "$(readlink -f "${webdir}/.webLeaf.pem" 2>/dev/null)" \
+        || $cur == "$(readlink -f "$fullchain" 2>/dev/null)" ]]; then
         PKI_web_vhost_cert="${leafdir}/.webLeaf.pem"
+    fi
+    # The same adoption, done to the FILE rather than the setting. Signal 2 of
+    # _detectExternalCertManagement() missed /etc/fog/pki (GH-2026), so on an
+    # nginx server -- whose vhost names .webFullChain.pem -- createSSLCA() ran
+    # `_linkCanonical .webFullChain.pem .webLeaf.pem` and left the leaf a
+    # symlink to FOG's own bundle. _linkCanonical keeps that link on every later
+    # run, and a re-issue writes the new leaf through it into the bundle.
+    #
+    # Only that exact link is undone: a symlink to anything else is an admin
+    # pointing FOG at their own certificate, which is supported. The bundle
+    # must be a real file too -- if both names link to one outside file, that
+    # is the admin's, and copying it here would hand it to FOG to re-issue.
+    #
+    # The leaf is the bundle's first certificate, because _writeWebChainFiles()
+    # writes it leaf-first. It is kept only if it matches the key: a re-issue
+    # that minted a new key and then failed to sign leaves the old leaf first.
+    # Written beside and then moved, so a refused or failed extract leaves the
+    # link in place rather than no leaf at all.
+    leaf="${leafdir}/.webLeaf.pem"
+    if [[ -L $leaf && -f $fullchain && ! -L $fullchain && -s $fullchain \
+        && "$(readlink -f "$leaf" 2>/dev/null)" == "$(readlink -f "$fullchain" 2>/dev/null)" ]]; then
+        if openssl x509 -in "$fullchain" -out "${leaf}.new" >>$error_log 2>&1 \
+            && [[ -s ${leaf}.new ]] \
+            && [[ "$(openssl x509 -in "${leaf}.new" -noout -pubkey 2>/dev/null)" \
+                == "$(openssl pkey -in "${PKI_web_vhost_key}" -pubout 2>/dev/null)" ]]; then
+            chmod 0644 "${leaf}.new" >>$error_log 2>&1
+            mv -f "${leaf}.new" "$leaf" >>$error_log 2>&1
+        else
+            rm -f "${leaf}.new" >>$error_log 2>&1
+        fi
     fi
 }
 # The certificate the web server actually serves.
@@ -11287,7 +11326,7 @@ _leafChainsToFogRoot() {
     return 1
 }
 _detectExternalCertManagement() {
-    local p leaf vhostcert customdir
+    local p leaf vhostcert customdir pkiroot
     # 0. A leaf and its key dropped into the customizations tree, under the two
     #    documented names. This is the only signal that fires when FOG is not
     #    already pointed at the admin's file and the vhost does not name it
@@ -11336,9 +11375,18 @@ _detectExternalCertManagement() {
     #    Matched on the pki/ tree rather than on each zone's leaf directory:
     #    the question is "did FOG write this", and every zone under pki/ is
     #    FOG's, including ones added later.
+    #
+    #    Both spellings of that tree count. GH-1121 moved it to /etc/fog/pki
+    #    (${PKI_root_dir}) and left $fogprogramdir/pki as a symlink to it, and
+    #    this test again did not follow: it matched only the symlink's name. So
+    #    every HTTPS install whose vhost names the real path was told, on every
+    #    run, that its own leaf was managed outside FOG (forum 18297). The
+    #    literal is _pkiRootDir()'s own default; that function is not called
+    #    here because it can run the tree migration.
+    pkiroot="${PKI_root_dir:-/etc/fog/pki}"
     vhostcert=$(_vhostCertPath)
     if [[ -n $vhostcert && -n ${PKI_client_cert_dir} && $vhostcert != "${PKI_client_cert_dir}"* \
-        && $vhostcert != "${fogprogramdir%/}/pki/"* ]]; then
+        && $vhostcert != "${fogprogramdir%/}/pki/"* && $vhostcert != "${pkiroot%/}/"* ]]; then
         echo "the vhost serves $vhostcert, outside FOG's ${PKI_client_cert_dir} and PKI tree"
         return 0
     fi
