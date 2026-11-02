@@ -1,5 +1,16 @@
 <?php
-/** Live directory identity resolution; authentication remains the existing certificate. */
+/**
+ * Live directory identity resolution for an enrolled agent.
+ *
+ * PHP version 7.4+
+ *
+ * @category DirectoryMembership
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
+
 namespace FOG\Agent;
 
 use FOG\Base\FOGBase;
@@ -7,16 +18,51 @@ use FOG\Base\SmbiosIdentity;
 use FOG\Items\Host;
 use FOG\Router\Route;
 
+/**
+ * Decides which host a machine's live SMBIOS and MAC values name.
+ *
+ * Authentication remains the existing client certificate. This class only
+ * answers whether the identity the machine reports still names the host the
+ * certificate is bound to, so a directory join cannot act on the wrong host.
+ *
+ * @category DirectoryMembership
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class MachineIdentity extends FOGBase
 {
+    /**
+     * The feature token an agent sends to opt in to this check.
+     *
+     * @var string
+     */
     const FEATURE = 'directory-join-target-v1';
 
+    /**
+     * Did the request declare the directory identity feature?
+     *
+     * @param array $body the decoded JSON body
+     *
+     * @return bool
+     */
     public static function requested(array $body)
     {
         return in_array(self::FEATURE, (array)($body['features'] ?? []), true);
     }
 
-    /** Unlike the legacy MAC resolver, never vote between different hosts. */
+    /**
+     * Resolves the host a live identity names.
+     *
+     * Unlike the legacy MAC resolver, it never votes between different
+     * hosts: any disagreement is a conflict.
+     *
+     * @param array $identity     the identity block from the request
+     * @param bool  $allowPending whether a pending host may resolve
+     *
+     * @return array [status => resolved|unresolved|conflict, host_id => int]
+     */
     public static function resolve(array $identity, $allowPending = false)
     {
         foreach (array_keys(Enrollment::IDENTITY_MAP) as $key) {
@@ -60,6 +106,13 @@ class MachineIdentity extends FOGBase
         return $answer;
     }
 
+    /**
+     * The host id of one association row, from an object or an array.
+     *
+     * @param object|array $row a Route::getList() row
+     *
+     * @return int 0 when the row names no host
+     */
     public static function candidateHostID($row)
     {
         if (is_object($row) && method_exists($row, 'get')) {
@@ -69,10 +122,22 @@ class MachineIdentity extends FOGBase
         return (int)($row['hostID'] ?? 0);
     }
 
+    /**
+     * Decides whether an enroll request may use the stored row.
+     *
+     * A key enrolled with the feature cannot drop it, and a key enrolled
+     * without it cannot acquire it or change its identity afterward.
+     *
+     * @param array $saved    the identity stored with the row
+     * @param array $incoming the identity in this request
+     * @param bool  $required whether this request declares the feature
+     *
+     * @return string allowed, feature_required or upgrade_blocked
+     */
     public static function enrollmentGate(array $saved, array $incoming, $required)
     {
-        $meta = $saved['_mj1'] ?? [];
-        unset($saved['_mj1']);
+        $meta = $saved['_directoryIdentity'] ?? [];
+        unset($saved['_directoryIdentity']);
         if (!empty($meta['required']) && !$required) {
             return 'feature_required';
         }
@@ -82,6 +147,15 @@ class MachineIdentity extends FOGBase
         return 'allowed';
     }
 
+    /**
+     * Combines the SMBIOS answer and the MAC answers into one host.
+     *
+     * @param int|null $smbios    the host SMBIOS names, or null
+     * @param bool     $ambiguous whether SMBIOS matched several hosts
+     * @param array    $macHosts  the host ids the MACs name
+     *
+     * @return array [status => resolved|unresolved|conflict, host_id => int]
+     */
     public static function choose($smbios, $ambiguous, array $macHosts)
     {
         $macHosts = array_values(array_unique(array_map('intval', $macHosts)));
@@ -93,6 +167,19 @@ class MachineIdentity extends FOGBase
         return ['status' => $id > 0 ? 'resolved' : 'unresolved', 'host_id' => $id];
     }
 
+    /**
+     * Answers POST /agent/v1/identity/check for the calling host.
+     *
+     * host_id is the resolved host only on a match; otherwise it is 0, so a
+     * mismatch does not reveal which host owns the values sent.
+     *
+     * @param Host  $host the host the client certificate is bound to
+     * @param array $body the decoded JSON body
+     *
+     * @throws \RuntimeException 400 when the request is not a valid check
+     *
+     * @return array [status => ok|identity_blocked, identity => array]
+     */
     public static function check(Host $host, array $body)
     {
         if (!self::requested($body) || !is_array($body['identity'] ?? null)) {

@@ -168,24 +168,31 @@ $enroll = $paths['/agent/v1/enroll']['get'];
 $featureHeader = $enroll['responses']['200']['headers']['X-FOG-Agent-Features'] ?? [];
 $featureHeaderSchema = $featureHeader['schema'] ?? [];
 $featureHeaderDescription = (string)($featureHeader['description'] ?? '');
+// The handler cannot run here (it sends headers and exits), so read its
+// source: it must build the header from the two FEATURE constants joined by
+// ', ', and the example must equal what that produces.
 $featuresMethod = new \ReflectionMethod(\FOG\Router\Route::class, 'agentFeatures');
 $featuresSource = implode('', array_slice(
-    file($featuresMethod->getFileName()),
+    file((string)$featuresMethod->getFileName()),
     $featuresMethod->getStartLine() - 1,
     $featuresMethod->getEndLine() - $featuresMethod->getStartLine() + 1
 ));
-$actualFeatureHeader = '';
-if (preg_match("/header\\('X-FOG-Agent-Features:\\s*([^']+)'\\);/", $featuresSource, $headerMatch)) {
-    $actualFeatureHeader = trim($headerMatch[1]);
-}
+$advertisedFeatureHeader = implode(', ', [
+    \FOG\Agent\MachineIdentity::FEATURE,
+    \FOG\Agent\DirectoryOperation::FEATURE
+]);
+$t->check('enrollment feature handler builds its header from both FEATURE constants',
+    false !== strpos($featuresSource, 'MachineIdentity::FEATURE')
+    && false !== strpos($featuresSource, 'DirectoryOperation::FEATURE')
+    && false !== strpos($featuresSource, "header('X-FOG-Agent-Features: ' . implode(', ', \$features))"));
 $t->check('enrollment feature header is a string without individual-token enum',
     ($featureHeaderSchema['type'] ?? '') === 'string' && !isset($featureHeaderSchema['enum']));
 $t->check('enrollment feature header description lists both comma-separated tokens',
     false !== stripos($featureHeaderDescription, 'comma-separated')
     && false !== strpos($featureHeaderDescription, 'directory-join-target-v1')
     && false !== strpos($featureHeaderDescription, 'directory-task-operations-v1'));
-$t->check('enrollment feature header example matches the Route handler literal',
-    $actualFeatureHeader !== '' && ($featureHeaderSchema['example'] ?? null) === $actualFeatureHeader);
+$t->check('enrollment feature header example matches the advertised features',
+    ($featureHeaderSchema['example'] ?? null) === $advertisedFeatureHeader);
 $enrollBodyFeatures = $enroll['responses']['200']['content']['application/json']['schema']['properties']['features'] ?? [];
 $t->check('enrollment JSON body advertises both directory features',
     ($enrollBodyFeatures['type'] ?? '') === 'array'

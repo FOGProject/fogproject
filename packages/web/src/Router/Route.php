@@ -1676,7 +1676,11 @@ class Route extends FOGBase
         self::_registerRoute($r, 'HEAD|GET', '/system/[status|info]', [__CLASS__, 'status'], 'status');
         self::_registerRoute($r, 'GET', '/system/openapi', [__CLASS__, 'openapi'], 'openapi');
         // fog-agent (protocol v1). The enroll route is public, listed in
-        // $unauthexact above; the other two are the admin's side of it.
+        // $unauthexact above. GET on the same path is public too: a static
+        // probe of the directory features this server understands. The other
+        // /agent/v1/* routes, identity/check among them, need the agent's
+        // client certificate; /agent/enrollment* and /agent/token* are the
+        // admin's side of enrollment.
         self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
         self::_registerRoute($r, 'GET', '/agent/v1/enroll', [__CLASS__, 'agentFeatures'], 'agentfeatures');
         self::_registerRoute($r, 'POST', '/agent/v1/identity/check', [__CLASS__, 'agentIdentityCheck'], 'agentidentitycheck');
@@ -3014,11 +3018,9 @@ class Route extends FOGBase
      */
     public static function agentFeatures()
     {
-        header('X-FOG-Agent-Features: directory-join-target-v1, directory-task-operations-v1');
-        HTTPResponseCodes::breakHead(200, json_encode([
-            'status' => 'ok',
-            'features' => ['directory-join-target-v1', 'directory-task-operations-v1']
-        ]));
+        $features = [\FOG\Agent\MachineIdentity::FEATURE, \FOG\Agent\DirectoryOperation::FEATURE];
+        header('X-FOG-Agent-Features: ' . implode(', ', $features));
+        HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => $features]));
     }
     /**
      * fog-agent's claim of one planned directory operation.
