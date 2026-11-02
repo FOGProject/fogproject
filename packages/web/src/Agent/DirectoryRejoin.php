@@ -126,6 +126,23 @@ class DirectoryRejoin extends FOGBase
             if ($db->inTransaction()) {
                 $db->rollBack();
             }
+            if ($e instanceof \PDOException) {
+                $driverCode = (int)($e->errorInfo[1] ?? 0);
+                // 1213: InnoDB picked this transaction as a deadlock victim
+                // (an imaging task write can be the other side). Nothing was
+                // written, so the agent is told to retry (409), not given a
+                // server error.
+                if (1213 === $driverCode) {
+                    throw new \RuntimeException('rejoin_deadlock_retry', 409, $e);
+                }
+                // 1020: MariaDB with snapshot isolation (the 11.8 default)
+                // refuses a locking read of a row another session changed
+                // after this transaction's snapshot. That is the same loser
+                // of a race that MySQL reports by re-reading the new state.
+                if (1020 === $driverCode) {
+                    throw new \RuntimeException('rejoin_plan_changed', 409, $e);
+                }
+            }
             throw $e;
         }
     }
