@@ -115,13 +115,39 @@ $t->check(
     })
 );
 
-// A request that may have run is not an UNKNOWN request: the clear refuses it.
-list($running) = $inStatus('MAY_HAVE_RUN');
+// A request stuck as MAY_HAVE_RUN (a crashed worker) blocks deletion until an operator clears it.
+list($running, $runningTicket) = $inStatus('MAY_HAVE_RUN');
+$runningHost = $hostOf($running);
 $t->check(
-    'a clear does not cancel a request that may have run',
-    'directory_intent_review_not_required' === intentFixtureRefusal(static function () use ($hostOf, $running) {
-        Intent::clearIntentReview($hostOf($running), $running['target']['guid'], 'operator');
+    'a MAY_HAVE_RUN request blocks the host\'s deletion and is listed for review',
+    [$running['host_id']] === DirectoryRejoin::protectedHosts([$running['host_id']])
+        && 1 === count(Intent::pendingReview($runningHost)) && 'MAY_HAVE_RUN' === Intent::pendingReview($runningHost)[0]['status']
+);
+$t->check(
+    'a clear with another GUID is refused for a MAY_HAVE_RUN request and changes nothing',
+    'directory_intent_review_changed' === intentFixtureRefusal(static function () use ($runningHost) {
+        Intent::clearIntentReview($runningHost, intentFixtureGuid(), 'operator');
     }) && 'MAY_HAVE_RUN' === intentFixtureStatus($pdo, $running['target']['guid'])
+        && [$running['host_id']] === DirectoryRejoin::protectedHosts([$running['host_id']])
+);
+Intent::clearIntentReview($runningHost, $running['target']['guid'], 'operator');
+$audit = intentFixtureAll(
+    $pdo,
+    'SELECT alText FROM auditLog WHERE alType = ? AND alSubjectID = ? AND alText LIKE ?',
+    ['host.directory.intent_review_cleared', $running['host_id'], '%' . strtolower($running['target']['guid']) . '%']
+);
+$t->check(
+    'a clear turns MAY_HAVE_RUN into CANCELED, lets the host be deleted, and the audit text names the status',
+    'CANCELED' === intentFixtureStatus($pdo, $running['target']['guid'])
+        && [] === DirectoryRejoin::protectedHosts([$running['host_id']])
+        && 1 === count($audit) && false !== strpos($audit[0]['alText'], 'MAY_HAVE_RUN')
+);
+$rowAfterClear = intentFixtureRow($pdo, $running['target']['guid']);
+$t->check(
+    'a worker that finishes after the clear loses its CAS and cannot overwrite CANCELED',
+    'directory_placement_result_generation_changed' === intentFixtureRefusal(static function () use ($runningTicket) {
+        Intent::finish($runningTicket, true, 'ldap_success');
+    }) && $rowAfterClear === intentFixtureRow($pdo, $running['target']['guid'])
 );
 
 // A config change cancels a request that was never sent.
