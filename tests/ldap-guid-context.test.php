@@ -99,7 +99,7 @@ namespace {
         $domainContext = $ldap->domainContext('corp.example');
         $check(
             'default domainContext preserves its original RootDSE attributes and result shape',
-            'found' === ($domainContext['status'] ?? null)
+            'found' === $domainContext['status']
                 && 'DC=corp,DC=example' === ($domainContext['base_dn'] ?? null)
                 && !array_key_exists('naming_contexts', $domainContext)
                 && ['defaultNamingContext', 'dnsHostName'] === $GLOBALS['guidContext']['reads'][0][3]
@@ -144,14 +144,14 @@ namespace {
         $configurationNC = $ldap->placementContext('CN=Configuration,DC=corp,DC=example');
         $check(
             'Configuration container sharing the domain DN suffix is rejected as a different NC',
-            'error' === ($configurationNC['status'] ?? null)
+            'error' === $configurationNC['status']
                 && 'search_base_nc_mismatch' === ($configurationNC['reason'] ?? null)
         );
 
         $crossNc = $ldap->placementContext('OU=Managed,DC=other,DC=example');
         $check(
             'configured search base in another naming context is refused',
-            'error' === ($crossNc['status'] ?? null)
+            'error' === $crossNc['status']
                 && 'search_base_nc_mismatch' === ($crossNc['reason'] ?? null)
         );
     } finally {
