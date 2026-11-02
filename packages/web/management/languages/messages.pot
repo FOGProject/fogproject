@@ -1892,7 +1892,7 @@ msgstr ""
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
-msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity)."
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity) and directory-task-operations-v1 (target operations)."
 msgstr ""
 
 msgid "Command"
@@ -2586,6 +2586,9 @@ msgstr ""
 msgid "Directory operation state is unreadable"
 msgstr ""
 
+msgid "Directory-task-operations-v1 plan; absent or null when no operation is planned."
+msgstr ""
+
 msgid "Disable on all hosts"
 msgstr ""
 
@@ -2963,6 +2966,9 @@ msgid "Every preference belonging to the CALLING user, as a key/value map. There
 msgstr ""
 
 msgid "Existence check failed"
+msgstr ""
+
+msgid "Existing Rebind and ordinary Rename pin the existing computer object's GUID/SID. Target is null for Create before the computer account exists and for Workgroup Join."
 msgstr ""
 
 msgid "Exists item must be boolean"
@@ -5675,6 +5681,9 @@ msgstr ""
 msgid "Must have a name to create the table"
 msgstr ""
 
+msgid "Must match the operation in the current ready plan."
+msgstr ""
+
 msgid "MySQL Administrator or by running"
 msgstr ""
 
@@ -6409,6 +6418,9 @@ msgstr ""
 msgid "Operations on %s."
 msgstr ""
 
+msgid "Optional read-only Windows observation sent in response to directory_check. It carries no credentials."
+msgstr ""
+
 msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
 msgstr ""
 
@@ -7071,7 +7083,7 @@ msgstr ""
 msgid "Providers"
 msgstr ""
 
-msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity feature. This does not issue a certificate or change trust."
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity and target-operation features. This does not issue a certificate or change trust."
 msgstr ""
 
 msgid "Publisher"
@@ -7145,6 +7157,9 @@ msgid "Read one of your preferences"
 msgstr ""
 
 msgid "Read one saved filter"
+msgstr ""
+
+msgid "Read-only context for the directory-task-operations-v1 observation. Present only when the poll declares directory-task-operations-v1 and the host is eligible for observation; null when no check is requested."
 msgstr ""
 
 msgid "Ready"
@@ -7348,6 +7363,9 @@ msgid "Required database field is empty"
 msgstr ""
 
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
+
+msgid "Requires the existing fog-agent client certificate, verified and bound to its host principal. A valid ready plan is durably claimed before its existing directory credential and rejoin plan are returned. A repeated start does not return the credential again."
 msgstr ""
 
 msgid "Requires the existing fog-agent client certificate, verified by the web server and bound to its host principal. Resolves the supplied live identity without check-in, inventory, AD or certificate writes. host_id is the resolved host only when the identity matched; otherwise it is 0."
@@ -7776,6 +7794,9 @@ msgid "Selected tasks canceled!"
 msgstr ""
 
 msgid "Self-signed"
+msgstr ""
+
+msgid "Sensitive one-shot credential; returned only after the mTLS host has claimed the ready attempt."
 msgstr ""
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
@@ -8352,6 +8373,9 @@ msgid "Start Download Fail"
 msgstr ""
 
 msgid "Start Time"
+msgstr ""
+
+msgid "Start one directory rejoin attempt"
 msgstr ""
 
 msgid "Started"
@@ -9083,6 +9107,9 @@ msgstr ""
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
 
+msgid "The confirmed existing Target pin, or null before creation is confirmed."
+msgstr ""
+
 msgid "The count."
 msgstr ""
 
@@ -9099,6 +9126,9 @@ msgid "The default printer for hosts in this group. A host that has its own defa
 msgstr ""
 
 msgid "The desired state: revision, capabilities, and one block per capability listed. Absent when the agent is current."
+msgstr ""
+
+msgid "The directory service or required server-side provider is unavailable."
 msgstr ""
 
 msgid "The enrollment is no longer pending."
@@ -9240,6 +9270,9 @@ msgstr ""
 msgid "The older spelling of /unisearch?q=. An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
 msgstr ""
 
+msgid "The one-shot start was claimed; includes the directory credential and public rejoin plan."
+msgstr ""
+
 msgid "The order software is applied in when the agent reconciles this host."
 msgstr ""
 
@@ -9253,6 +9286,9 @@ msgid "The path requested is already in use by another image!"
 msgstr ""
 
 msgid "The payload bytes."
+msgstr ""
+
+msgid "The plan is no longer ready or its host, identity, configuration or directory records changed."
 msgstr ""
 
 msgid "The plugin directory"
@@ -9319,6 +9355,9 @@ msgstr ""
 msgid "The reported software list is larger than the server accepts."
 msgstr ""
 
+msgid "The request body is invalid."
+msgstr ""
+
 msgid "The request body is not a JSON object, or a required field is missing or empty. The message names the field."
 msgstr ""
 
@@ -9358,7 +9397,7 @@ msgstr ""
 msgid "The selected site no longer exists"
 msgstr ""
 
-msgid "The server advertises the AD directory identity feature."
+msgid "The server advertises AD directory identity and target-operation features."
 msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
@@ -10554,6 +10593,9 @@ msgid "Windows Keys"
 msgstr ""
 
 msgid "Windows Product key"
+msgstr ""
+
+msgid "Windows directory polls declare directory-join-target-v1 and directory-task-operations-v1 when supported."
 msgstr ""
 
 msgid "Windows keys is a plugin that associates product keys"
