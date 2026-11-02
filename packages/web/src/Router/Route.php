@@ -9933,6 +9933,51 @@ class Route extends FOGBase
         return $vars;
     }
     /**
+     * Refuses to delete a host whose directory operation may have changed the
+     * computer or its account, or whose state is unreadable. An operator
+     * clears it first on the host's Active Directory tab.
+     *
+     * @param string $classname lower-case class being deleted
+     * @param array  $itemIDs   ids being deleted
+     *
+     * @throws \Exception 409 when a host is protected
+     *
+     * @return void
+     */
+    private static function _assertNoDirectoryReview($classname, array $itemIDs)
+    {
+        if (!in_array($classname, ['host', 'hostdirectory'], true) || !$itemIDs) {
+            return;
+        }
+        $hostIDs = array_map('intval', $itemIDs);
+        if ('hostdirectory' === $classname) {
+            $marks = implode(',', array_fill(0, count($hostIDs), '?'));
+            $q = self::$DB->link()->prepare(
+                'SELECT hdHostID FROM hostDirectory WHERE hdID IN (' . $marks . ')'
+            );
+            $q->execute($hostIDs);
+            $hostIDs = array_map('intval', $q->fetchAll(\PDO::FETCH_COLUMN));
+            $q->closeCursor();
+        }
+        $protected = \FOG\Agent\DirectoryRejoin::protectedHosts($hostIDs);
+        if (!$protected) {
+            return;
+        }
+        $q = self::$DB->link()->prepare(
+            'SELECT hostName FROM hosts WHERE hostID = ?'
+        );
+        $q->execute([(int)$protected[0]]);
+        $name = (string)$q->fetchColumn();
+        $q->closeCursor();
+        throw new \Exception(
+            sprintf(
+                _('Host %s has a directory operation in progress or awaiting review. Clear it on the Active Directory tab before deleting.'),
+                $name
+            ),
+            HTTPResponseCodes::HTTP_CONFLICT
+        );
+    }
+    /**
      * Delete items in mass.
      *
      * Four phases, in order: announce what is going, work out what else has
@@ -9981,6 +10026,7 @@ class Route extends FOGBase
                     $classname,
                     $itemIDs
                 );
+                self::_assertNoDirectoryReview($classname, (array)$itemIDs);
             }
             self::$_deleteDepth++;
 

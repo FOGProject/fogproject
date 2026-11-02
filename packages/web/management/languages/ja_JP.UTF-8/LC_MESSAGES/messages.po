@@ -1083,6 +1083,10 @@ msgstr "ストレージグループごとの割り当て済みバイト数"
 msgid "Allow API"
 msgstr "API を許可"
 
+#, fuzzy
+msgid "Allow Computer Account Creation"
+msgstr "コンピューター情報"
+
 msgid "Allowed"
 msgstr "許可済み"
 
@@ -1355,6 +1359,9 @@ msgstr "自動登録（セットアップ/カスタムモード）"
 msgid "Available downloads"
 msgstr "ダウンロード可能なファイル"
 
+msgid "Awaiting reboot"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr "BIOS 日付"
 
@@ -1402,6 +1409,9 @@ msgstr "空欄の場合はドメインルートから開始します"
 
 msgid "Blank: each host joins with its own account"
 msgstr "空欄の場合、各ホストは自身のアカウントでドメインに参加します"
+
+msgid "Blocked"
+msgstr ""
 
 #, fuzzy
 msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
@@ -1767,6 +1777,9 @@ msgstr "FOG_TFTP_PXE_KERNEL_DIR を確認してください。"
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr "キャプチャ先フォルダーの所有者がストレージノードのユーザーであり、そのユーザーに書き込み権限があることを確認してください"
 
+msgid "Check the live agent identity"
+msgstr ""
+
 msgid "Check the password stored for this node"
 msgstr "このノードに保存されているパスワードを確認してください"
 
@@ -1823,6 +1836,9 @@ msgstr "クリア"
 
 msgid "Clear Fields"
 msgstr "フィールドをクリア"
+
+msgid "Clear directory operation review"
+msgstr ""
 
 msgid "Clear on all"
 msgstr "すべての対象でクリア"
@@ -1887,6 +1903,9 @@ msgstr "列の型の取得に失敗しました"
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity)."
+msgstr ""
+
 msgid "Command"
 msgstr "コマンド"
 
@@ -1905,7 +1924,15 @@ msgstr "完了時刻"
 msgid "Computed field. Returned by the API but not a column, and not settable."
 msgstr "計算フィールドです。API から返されますが、データベースの列ではなく、値を設定することもできません。"
 
+#, fuzzy
+msgid "Computer GUID"
+msgstr "コンピューターモデル"
+
 msgid "Computer Model"
+msgstr "コンピューターモデル"
+
+#, fuzzy
+msgid "Computer SID"
 msgstr "コンピューターモデル"
 
 msgid "Computer Search Base"
@@ -1929,8 +1956,15 @@ msgstr "確認"
 msgid "Confirm Download"
 msgstr "ダウンロードの確認"
 
+#, fuzzy
+msgid "Confirm Retry"
+msgstr "削除の確認"
+
 msgid "Confirm delete"
 msgstr "削除の確認"
+
+msgid "Confirm that this account is assigned to this host or its handoff is approved. Do not select an account belonging to another computer by mistake."
+msgstr ""
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
 msgstr "MAC ベンダー一覧を削除してもよろしいですか？"
@@ -2303,6 +2337,9 @@ msgstr "更新状況"
 msgid "Current Records"
 msgstr "現在のレコード"
 
+msgid "Current directory observation does not match this host"
+msgstr ""
+
 msgid "DMI Field"
 msgstr "DMI フィールド"
 
@@ -2554,11 +2591,26 @@ msgstr "ディレクトリグループ: 1 つ以上のドメインにまたが�
 msgid "Directory Membership"
 msgstr "ディレクトリグループの所属情報"
 
+#, fuzzy
+msgid "Directory operation history"
+msgstr "ディレクトリのドメイン"
+
+#, fuzzy
+msgid "Directory operation phase"
+msgstr "ディレクトリのドメイン"
+
+msgid "Directory operation state is unreadable"
+msgstr ""
+
 msgid "Disable on all hosts"
 msgstr "すべてのホストで無効化"
 
 msgid "Disable selected"
 msgstr "選択した項目を無効化"
+
+#, fuzzy
+msgid "Disabled"
+msgstr "無効"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr "無効な項目は表示されません。従来の項目は削除されます。"
@@ -2607,6 +2659,10 @@ msgstr "ドメインの作成に失敗しました"
 
 msgid "Domain Create Success"
 msgstr "ドメインを作成しました"
+
+#, fuzzy
+msgid "Domain Join Status"
+msgstr "ドメイン参加"
 
 msgid "Domain Joining"
 msgstr "ドメイン参加"
@@ -3026,6 +3082,10 @@ msgstr "FOG エージェントのペイロード"
 
 msgid "FOG Agent poll"
 msgstr "FOG エージェントのポーリング"
+
+#, fuzzy
+msgid "FOG Agent protocol features"
+msgstr "FOG エージェントの登録"
 
 msgid "FOG Client"
 msgstr "FOG クライアント"
@@ -3784,6 +3844,10 @@ msgstr "ホスト %1$s でイメージ %2$s のキャプチャが完了しまし
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "ホスト %1$s へのイメージ %2$s の展開が完了しました。"
 
+#, php-format
+msgid "Host %s has a directory operation in progress or awaiting review. Clear it on the Active Directory tab before deleting."
+msgstr ""
+
 msgid "Host Agent Activity"
 msgstr "ホストのエージェントアクティビティ"
 
@@ -4067,6 +4131,9 @@ msgstr "識別情報"
 
 msgid "Identity Provider"
 msgstr "ID プロバイダー"
+
+msgid "Identity mismatch, conflict or unresolved live identity. host_id is 0."
+msgstr ""
 
 #, php-format
 msgid "Ids for %s"
@@ -4417,6 +4484,10 @@ msgstr "内"
 msgid "In FOG"
 msgstr "FOG 内"
 
+#, fuzzy
+msgid "In progress"
+msgstr "進行状況"
+
 msgid "In use as"
 msgstr "使用用途"
 
@@ -4460,6 +4531,12 @@ msgstr "Initrd 更新"
 
 msgid "Initrd Update Fail"
 msgstr "Initrd の更新に失敗しました"
+
+msgid "Inspect target candidate"
+msgstr ""
+
+msgid "Inspect the current directory candidate before confirming it."
+msgstr ""
 
 msgid "Install Plugins"
 msgstr "プラグインをインストール"
@@ -4762,6 +4839,12 @@ msgstr "ドメイン参加用パスワード"
 msgid "Join Username"
 msgstr "ドメイン参加用ユーザー名"
 
+msgid "Join operation verified; current status not confirmed"
+msgstr ""
+
+msgid "Joined and secure channel healthy"
+msgstr ""
+
 msgid "Kbps"
 msgstr "Kbps"
 
@@ -4966,6 +5049,9 @@ msgstr "最終フラッシュ日時"
 msgid "Last imaged"
 msgstr "最終イメージ処理日時"
 
+msgid "Last operation result time (UTC)"
+msgstr ""
+
 msgid "Last ring"
 msgstr "前回の更新リング"
 
@@ -4983,6 +5069,12 @@ msgstr "最新開発版"
 
 msgid "Latest Version"
 msgstr "最新バージョン"
+
+msgid "Latest secure channel check passed; directory actions are on hold"
+msgstr ""
+
+msgid "Latest secure channel check returned False"
+msgstr ""
 
 msgid "Leave blank to keep the current password"
 msgstr "現在のパスワードを維持する場合は空欄にしてください"
@@ -5638,11 +5730,17 @@ msgstr "証明書に含める必要がある名前を 1 行に 1 つずつ入力
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr "解決する名前を指定します。同じ名前のオブジェクトが存在しない場合は、それぞれ新規作成されます。"
 
+msgid "Native status (history)"
+msgstr ""
+
 msgid "Need the table name to drop"
 msgstr "削除するテーブル名が必要です"
 
 msgid "Needs a 256-bit key!"
 msgstr "256 ビットキーが必要です！"
+
+msgid "Needs operator review"
+msgstr ""
 
 msgid "Nested Depth"
 msgstr "ネストの階層数"
@@ -5876,6 +5974,9 @@ msgstr "このイメージを削除できる有効なマスターノードがあ
 msgid "No master nodes available"
 msgstr "利用可能なマスターノードがありません"
 
+msgid "No matching computer account was found."
+msgstr ""
+
 msgid "No need to sync"
 msgstr "同期は不要です"
 
@@ -5948,6 +6049,10 @@ msgstr "関連付けられたスナップインがありません"
 
 msgid "No snapins associated with this group as master"
 msgstr "このグループにマスターとして関連付けられたスナップインはありません"
+
+#, fuzzy
+msgid "No status reported"
+msgstr "未報告"
 
 msgid "No storage node can serve the file."
 msgstr "ファイルを配信できるストレージノードがありません。"
@@ -6339,6 +6444,9 @@ msgstr "%s に対する操作。"
 
 msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
 msgstr "任意。パッケージマネージャーに --source として渡すフィード URL、フォルダー、または共有を指定します。空欄の場合はパッケージマネージャーに設定済みのソースを使用します。"
+
+msgid "Optional. Declares directory-join-target-v1 to bind this request to a live directory identity."
+msgstr ""
 
 msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
 msgstr "任意。空欄の場合は、上で指定した種類とアドレスから自動生成します。例:"
@@ -6997,6 +7105,9 @@ msgstr "プロバイダーを更新しました！"
 msgid "Providers"
 msgstr "プロバイダー"
 
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity feature. This does not issue a certificate or change trust."
+msgstr ""
+
 msgid "Publisher"
 msgstr "発行元"
 
@@ -7071,6 +7182,9 @@ msgstr "個人設定を 1 件取得"
 msgid "Read one saved filter"
 msgstr "保存済みフィルターを 1 件取得"
 
+msgid "Ready"
+msgstr ""
+
 msgid "Real Time"
 msgstr "リアルタイム"
 
@@ -7100,6 +7214,9 @@ msgstr "記録者"
 
 msgid "Recorded in range"
 msgstr "指定期間内に記録"
+
+msgid "Recorded operation result (history)"
+msgstr ""
 
 msgid "Recorded; outcome present for an item report."
 msgstr "記録しました。項目レポート用の結果が含まれています。"
@@ -7267,6 +7384,9 @@ msgstr "必須のデータベースフィールドが空です"
 
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
 msgstr "必須項目です。また、このアカウント内で一意である必要があります &mdash; トークンを失効させる際に、ほかのトークンと区別できる唯一の情報です。"
+
+msgid "Requires the existing fog-agent client certificate, verified by the web server and bound to its host principal. Resolves the supplied live identity without check-in, inventory, AD or certificate writes. host_id is the resolved host only when the identity matched; otherwise it is 0."
+msgstr ""
 
 msgid "Reset Encryption Data"
 msgstr "暗号化データをリセット"
@@ -7512,6 +7632,9 @@ msgstr "順序を保存"
 msgid "Save the site before setting catch-all"
 msgstr "キャッチオールを設定する前にサイトを保存してください"
 
+msgid "Saved diagnostic reason (may be historical)"
+msgstr ""
+
 msgid "Saved filters for one grid"
 msgstr "1 つのグリッドの保存済みフィルター"
 
@@ -7668,6 +7791,9 @@ msgstr "このサーバーでは Secure Boot 用のカーネル署名が設定�
 
 msgid "Secure Boot: signing FOS with your own key"
 msgstr "Secure Boot: 独自の鍵で FOS に署名する"
+
+msgid "Secure channel status unknown"
+msgstr ""
 
 msgid "See all results"
 msgstr "すべての結果を表示"
@@ -8639,6 +8765,13 @@ msgstr "タグ名"
 msgid "Takes a list of names and returns an id for each: the existing object where the name is already taken, a newly created one otherwise. That pattern is often called an upsert -- update or insert -- and because the object may not exist yet it matches on the name rather than on an id. Safe to send repeatedly: the same names give the same ids back and no duplicates are made. Group only; every other class answers 400."
 msgstr "名前の一覧を受け取り、それぞれの ID を返します。同じ名前のオブジェクトが既に存在する場合はその ID を、存在しない場合は新規作成したオブジェクトの ID を返します。この処理は一般にアップサート（更新または挿入）と呼ばれます。対象がまだ存在しない場合があるため、ID ではなく名前で照合します。同じ名前を繰り返し送信しても同じ ID が返され、重複したオブジェクトは作成されません。グループにのみ対応し、ほかのクラスでは 400 を返します。"
 
+msgid "Target computer account"
+msgstr ""
+
+#, fuzzy
+msgid "Target lookup is unavailable."
+msgstr "パスは利用できません"
+
 msgid "Task"
 msgstr "タスク"
 
@@ -9046,6 +9179,9 @@ msgstr ""
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr "パッケージマネージャーが認識するパッケージ ID です。例: googlechrome。"
 
+msgid "The identity or required AD directory feature declaration is invalid."
+msgstr ""
+
 msgid "The identity provider could not be reached"
 msgstr "ID プロバイダーに接続できませんでした"
 
@@ -9108,6 +9244,12 @@ msgstr "このキーは、次の場合に登録済みホストへ割り当てら
 
 msgid "The leaf followed by the agent CA, PEM."
 msgstr "リーフ証明書と、それに続くエージェント CA 証明書（PEM 形式）。"
+
+msgid "The live SMBIOS and MAC identity reported by fog-agent."
+msgstr ""
+
+msgid "The live identity matches the certificate principal."
+msgstr ""
 
 msgid "The logical sector size of the disk this image was captured from."
 msgstr "このイメージをキャプチャしたディスクの論理セクターサイズです。"
@@ -9176,6 +9318,15 @@ msgstr "個人設定をクリアしました。"
 msgid "The preference was stored."
 msgstr "個人設定を保存しました。"
 
+msgid "The previous directory operation requires review. Preserve its evidence and obtain a separate recovery decision; Retry cannot clear it."
+msgstr ""
+
+msgid "The previous directory operation requires review. Preserve its evidence, then use \"Clear directory operation review\" to record your decision. Retry cannot clear it."
+msgstr ""
+
+msgid "The previous operation may have changed this computer or its directory account. Clearing records your decision; it does not undo anything. The agent may still hold a local review marker until its own review."
+msgstr ""
+
 msgid "The primary mac associated is"
 msgstr "関連付けられたプライマリ MAC アドレス:"
 
@@ -9216,6 +9367,9 @@ msgstr ""
 msgid "The request body is not a JSON object."
 msgstr ""
 
+msgid "The request declares directory-join-target-v1 inconsistently with the stored request for this key, or its identity no longer resolves to one host. The request is not changed; the agent enrolls again with a new key."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
 msgstr "対象のリソースはキャンセル可能な状態ではありません。"
 
@@ -9242,6 +9396,9 @@ msgstr "保存済みフィルター。"
 
 msgid "The selected site no longer exists"
 msgstr "選択したサイトは既に存在しません"
+
+msgid "The server advertises the AD directory identity feature."
+msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
 msgstr "サーバーはこのホストのハードウェアインベントリのハッシュ値を保持していないため、次回のポーリングで情報ブロックの送信を要求します。"
@@ -9473,6 +9630,9 @@ msgstr "これは cron 形式のタスクで、現時点では実行対象では
 
 msgid "This is a cron style task that should run now."
 msgstr "これは cron 形式のタスクで、現在実行する条件を満たしています。"
+
+msgid "This is a point-in-time observation, not proof of online authentication or a confirmed credential mismatch. Confirm the target and use explicit administrator judgment before retrying."
+msgstr ""
 
 msgid "This is a single run task that should not run now."
 msgstr "これは単発実行タスクで、現時点では実行対象ではありません。"
@@ -10252,6 +10412,10 @@ msgstr "値"
 
 msgid "Variable contains"
 msgstr "変数に含まれる内容"
+
+#, fuzzy
+msgid "Verified"
+msgstr "更新日時"
 
 msgid "Version"
 msgstr "バージョン"
@@ -11890,9 +12054,6 @@ msgstr "{node}"
 
 #~ msgid "Compression"
 #~ msgstr "圧縮"
-
-#~ msgid "Computer Information"
-#~ msgstr "コンピューター情報"
 
 #~ msgid "Confirm password"
 #~ msgstr "パスワードの確認"

@@ -1211,6 +1211,9 @@ msgstr "Immagini in un gruppo di archiviazione"
 msgid "Allow API"
 msgstr ""
 
+msgid "Allow Computer Account Creation"
+msgstr ""
+
 #, fuzzy
 msgid "Allowed"
 msgstr "Host associato"
@@ -1517,6 +1520,9 @@ msgstr ""
 msgid "Available downloads"
 msgstr "Nessun file è stato caricato"
 
+msgid "Awaiting reboot"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr "BIOS Data"
 
@@ -1565,6 +1571,9 @@ msgid "Blank starts at the domain root"
 msgstr ""
 
 msgid "Blank: each host joins with its own account"
+msgstr ""
+
+msgid "Blocked"
 msgstr ""
 
 msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
@@ -1987,6 +1996,9 @@ msgstr ""
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+msgid "Check the live agent identity"
+msgstr ""
+
 #, fuzzy
 msgid "Check the password stored for this node"
 msgstr "Nessun FOGPage Classe trovato per questo nodo"
@@ -2044,6 +2056,9 @@ msgstr "Pulire"
 
 msgid "Clear Fields"
 msgstr "Cancellare campi"
+
+msgid "Clear directory operation review"
+msgstr ""
 
 msgid "Clear on all"
 msgstr ""
@@ -2113,6 +2128,9 @@ msgstr "Aggiornamento tipo attività fallita"
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity)."
+msgstr ""
+
 msgid "Command"
 msgstr "Comando"
 
@@ -2132,7 +2150,15 @@ msgstr "Completato"
 msgid "Computed field. Returned by the API but not a column, and not settable."
 msgstr ""
 
+#, fuzzy
+msgid "Computer GUID"
+msgstr "Modello di computer"
+
 msgid "Computer Model"
+msgstr "Modello di computer"
+
+#, fuzzy
+msgid "Computer SID"
 msgstr "Modello di computer"
 
 #, fuzzy
@@ -2160,8 +2186,15 @@ msgid "Confirm Download"
 msgstr "Cambia password"
 
 #, fuzzy
+msgid "Confirm Retry"
+msgstr "Conferma il task"
+
+#, fuzzy
 msgid "Confirm delete"
 msgstr "Conferma il task"
+
+msgid "Confirm that this account is assigned to this host or its handoff is approved. Do not select an account belonging to another computer by mistake."
+msgstr ""
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
 msgstr ""
@@ -2595,6 +2628,9 @@ msgstr "Current Records"
 msgid "Current Records"
 msgstr "Current Records"
 
+msgid "Current directory observation does not match this host"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -2885,12 +2921,27 @@ msgid "Directory Membership"
 msgstr "membri"
 
 #, fuzzy
+msgid "Directory operation history"
+msgstr "Active Directory"
+
+#, fuzzy
+msgid "Directory operation phase"
+msgstr "Active Directory"
+
+msgid "Directory operation state is unreadable"
+msgstr ""
+
+#, fuzzy
 msgid "Disable on all hosts"
 msgstr "Disabilitato"
 
 #, fuzzy
 msgid "Disable selected"
 msgstr "Cancella selezionato"
+
+#, fuzzy
+msgid "Disabled"
+msgstr "Disabilitato"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
@@ -2948,6 +2999,10 @@ msgstr "Creazione posizione fallita"
 #, fuzzy
 msgid "Domain Create Success"
 msgstr "Modifica posizione riuscita"
+
+#, fuzzy
+msgid "Domain Join Status"
+msgstr "Abilita invio posizione "
 
 #, fuzzy
 msgid "Domain Joining"
@@ -3427,6 +3482,10 @@ msgstr "Nessun file è stato caricato"
 
 msgid "FOG Agent poll"
 msgstr ""
+
+#, fuzzy
+msgid "FOG Agent protocol features"
+msgstr "è stato cancellato"
 
 #, fuzzy
 msgid "FOG Client"
@@ -4290,6 +4349,10 @@ msgstr "Questo host esiste già"
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "Questo host esiste già"
 
+#, php-format
+msgid "Host %s has a directory operation in progress or awaiting review. Clear it on the Active Directory tab before deleting."
+msgstr ""
+
 msgid "Host Agent Activity"
 msgstr ""
 
@@ -4612,6 +4675,9 @@ msgid "Identity"
 msgstr "Server Shell"
 
 msgid "Identity Provider"
+msgstr ""
+
+msgid "Identity mismatch, conflict or unresolved live identity. host_id is 0."
 msgstr ""
 
 #, php-format
@@ -5019,6 +5085,9 @@ msgstr "In"
 msgid "In FOG"
 msgstr "In FOG"
 
+msgid "In progress"
+msgstr ""
+
 msgid "In use as"
 msgstr ""
 
@@ -5067,6 +5136,12 @@ msgstr "Aggiornare"
 #, fuzzy
 msgid "Initrd Update Fail"
 msgstr "Aggiornamento della stampante non riuscito"
+
+msgid "Inspect target candidate"
+msgstr ""
+
+msgid "Inspect the current directory candidate before confirming it."
+msgstr ""
 
 msgid "Install Plugins"
 msgstr "installare plugin"
@@ -5406,6 +5481,12 @@ msgstr "password di dominio"
 msgid "Join Username"
 msgstr "dominio Nome utente"
 
+msgid "Join operation verified; current status not confirmed"
+msgstr ""
+
+msgid "Joined and secure channel healthy"
+msgstr ""
+
 msgid "Kbps"
 msgstr ""
 
@@ -5643,6 +5724,9 @@ msgstr ""
 msgid "Last imaged"
 msgstr "immagini"
 
+msgid "Last operation result time (UTC)"
+msgstr ""
+
 #, fuzzy
 msgid "Last ring"
 msgstr "immagini"
@@ -5662,6 +5746,12 @@ msgstr "Ultima versione di sviluppo"
 
 msgid "Latest Version"
 msgstr "Ultima versione"
+
+msgid "Latest secure channel check passed; directory actions are on hold"
+msgstr ""
+
+msgid "Latest secure channel check returned False"
+msgstr ""
 
 msgid "Leave blank to keep the current password"
 msgstr ""
@@ -6403,10 +6493,16 @@ msgstr ""
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
+msgid "Native status (history)"
+msgstr ""
+
 msgid "Need the table name to drop"
 msgstr "Necessario il nome tabella da cancellare"
 
 msgid "Needs a 256-bit key!"
+msgstr ""
+
+msgid "Needs operator review"
 msgstr ""
 
 #, fuzzy
@@ -6667,6 +6763,9 @@ msgstr "Non nodi master sono abilitati per eliminare questa immagine"
 msgid "No master nodes available"
 msgstr "Percorso non disponibile"
 
+msgid "No matching computer account was found."
+msgstr ""
+
 msgid "No need to sync"
 msgstr "Non è necessario sincronizzare"
 
@@ -6749,6 +6848,10 @@ msgstr "Snapin Protetto"
 
 msgid "No snapins associated with this group as master"
 msgstr "Nessun snapins associato a questo gruppo come master"
+
+#, fuzzy
+msgid "No status reported"
+msgstr "Consigliato"
 
 #, fuzzy
 msgid "No storage node can serve the file."
@@ -7178,6 +7281,9 @@ msgid "Operations on %s."
 msgstr "Campo operazione non impostato"
 
 msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+msgstr ""
+
+msgid "Optional. Declares directory-join-target-v1 to bind this request to a live directory identity."
 msgstr ""
 
 msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
@@ -7935,6 +8041,9 @@ msgstr "aggiornato stampante!"
 msgid "Providers"
 msgstr ""
 
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity feature. This does not issue a certificate or change trust."
+msgstr ""
+
 msgid "Publisher"
 msgstr ""
 
@@ -8018,6 +8127,9 @@ msgstr ""
 msgid "Read one saved filter"
 msgstr "Cancella selezionato"
 
+msgid "Ready"
+msgstr ""
+
 #, fuzzy
 msgid "Real Time"
 msgstr "Data e Ora"
@@ -8051,6 +8163,9 @@ msgstr ""
 #, fuzzy
 msgid "Recorded in range"
 msgstr "Record non trovato"
+
+msgid "Recorded operation result (history)"
+msgstr ""
 
 msgid "Recorded; outcome present for an item report."
 msgstr ""
@@ -8234,6 +8349,9 @@ msgid "Required database field is empty"
 msgstr "campo del database richiesto è vuoto"
 
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
+
+msgid "Requires the existing fog-agent client certificate, verified by the web server and bound to its host principal. Resolves the supplied live identity without check-in, inventory, AD or certificate writes. host_id is the resolved host only when the identity matched; otherwise it is 0."
 msgstr ""
 
 msgid "Reset Encryption Data"
@@ -8512,6 +8630,9 @@ msgstr ""
 msgid "Save the site before setting catch-all"
 msgstr ""
 
+msgid "Saved diagnostic reason (may be historical)"
+msgstr ""
+
 msgid "Saved filters for one grid"
 msgstr ""
 
@@ -8683,6 +8804,9 @@ msgstr "Non ci sono immagini su questo server"
 #, fuzzy
 msgid "Secure Boot: signing FOS with your own key"
 msgstr "Non ci sono immagini su questo server"
+
+msgid "Secure channel status unknown"
+msgstr ""
 
 #, fuzzy
 msgid "See all results"
@@ -9800,6 +9924,13 @@ msgstr "Nome attività"
 msgid "Takes a list of names and returns an id for each: the existing object where the name is already taken, a newly created one otherwise. That pattern is often called an upsert -- update or insert -- and because the object may not exist yet it matches on the name rather than on an id. Safe to send repeatedly: the same names give the same ids back and no duplicates are made. Group only; every other class answers 400."
 msgstr ""
 
+msgid "Target computer account"
+msgstr ""
+
+#, fuzzy
+msgid "Target lookup is unavailable."
+msgstr "Percorso non disponibile"
+
 msgid "Task"
 msgstr "Compito"
 
@@ -10259,6 +10390,9 @@ msgstr ""
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr ""
 
+msgid "The identity or required AD directory feature declaration is invalid."
+msgstr ""
+
 #, fuzzy
 msgid "The identity provider could not be reached"
 msgstr "Impossibile leggere il file temporaneo"
@@ -10323,6 +10457,12 @@ msgid "The key will be assigned to registered hosts when a"
 msgstr "La chiave verrà assegnata agli host registrati quando una"
 
 msgid "The leaf followed by the agent CA, PEM."
+msgstr ""
+
+msgid "The live SMBIOS and MAC identity reported by fog-agent."
+msgstr ""
+
+msgid "The live identity matches the certificate principal."
 msgstr ""
 
 msgid "The logical sector size of the disk this image was captured from."
@@ -10396,6 +10536,15 @@ msgstr ""
 msgid "The preference was stored."
 msgstr ""
 
+msgid "The previous directory operation requires review. Preserve its evidence and obtain a separate recovery decision; Retry cannot clear it."
+msgstr ""
+
+msgid "The previous directory operation requires review. Preserve its evidence, then use \"Clear directory operation review\" to record your decision. Retry cannot clear it."
+msgstr ""
+
+msgid "The previous operation may have changed this computer or its directory account. Clearing records your decision; it does not undo anything. The agent may still hold a local review marker until its own review."
+msgstr ""
+
 msgid "The primary mac associated is"
 msgstr "Il MAC primario associato è"
 
@@ -10440,6 +10589,9 @@ msgstr ""
 msgid "The request body is not a JSON object."
 msgstr ""
 
+msgid "The request declares directory-join-target-v1 inconsistently with the stored request for this key, or its identity no longer resolves to one host. The request is not changed; the agent enrolls again with a new key."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -10468,6 +10620,9 @@ msgstr "Aggiornamento della stampante non è riuscito!"
 #, fuzzy
 msgid "The selected site no longer exists"
 msgstr "non è più in esecuzione"
+
+msgid "The server advertises the AD directory identity feature."
+msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
 msgstr ""
@@ -10708,6 +10863,9 @@ msgid "This is a cron style task that should not run now."
 msgstr ""
 
 msgid "This is a cron style task that should run now."
+msgstr ""
+
+msgid "This is a point-in-time observation, not proof of online authentication or a confirmed credential mismatch. Confirm the target and use explicit administrator judgment before retrying."
 msgstr ""
 
 msgid "This is a single run task that should not run now."
@@ -11578,6 +11736,9 @@ msgstr "Valore"
 
 msgid "Variable contains"
 msgstr "La variabile contiene"
+
+msgid "Verified"
+msgstr ""
 
 msgid "Version"
 msgstr "Versione"

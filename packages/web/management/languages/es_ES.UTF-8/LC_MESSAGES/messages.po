@@ -1250,6 +1250,9 @@ msgstr "Grupo de almacenamiento primaria"
 msgid "Allow API"
 msgstr ""
 
+msgid "Allow Computer Account Creation"
+msgstr ""
+
 #, fuzzy
 msgid "Allowed"
 msgstr "No nodo asociado"
@@ -1561,6 +1564,9 @@ msgstr ""
 msgid "Available downloads"
 msgstr "Ningún archivo fue subido"
 
+msgid "Awaiting reboot"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr "Fecha del BIOS"
 
@@ -1611,6 +1617,9 @@ msgid "Blank starts at the domain root"
 msgstr ""
 
 msgid "Blank: each host joins with its own account"
+msgstr ""
+
+msgid "Blocked"
 msgstr ""
 
 msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
@@ -2045,6 +2054,9 @@ msgstr ""
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+msgid "Check the live agent identity"
+msgstr ""
+
 msgid "Check the password stored for this node"
 msgstr ""
 
@@ -2104,6 +2116,9 @@ msgid "Clear"
 msgstr "Tareas"
 
 msgid "Clear Fields"
+msgstr ""
+
+msgid "Clear directory operation review"
 msgstr ""
 
 msgid "Clear on all"
@@ -2178,6 +2193,9 @@ msgstr "actualización Valoración falló"
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity)."
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
@@ -2199,7 +2217,15 @@ msgid "Computed field. Returned by the API but not a column, and not settable."
 msgstr ""
 
 #, fuzzy
+msgid "Computer GUID"
+msgstr "Modelo de impresora"
+
+#, fuzzy
 msgid "Computer Model"
+msgstr "Modelo de impresora"
+
+#, fuzzy
+msgid "Computer SID"
 msgstr "Modelo de impresora"
 
 #, fuzzy
@@ -2230,8 +2256,15 @@ msgid "Confirm Download"
 msgstr "La gestión de contraseñas"
 
 #, fuzzy
+msgid "Confirm Retry"
+msgstr "tarea no válido"
+
+#, fuzzy
 msgid "Confirm delete"
 msgstr "tarea no válido"
+
+msgid "Confirm that this account is assigned to this host or its handoff is approved. Do not select an account belonging to another computer by mistake."
+msgstr ""
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
 msgstr ""
@@ -2671,6 +2704,9 @@ msgstr "Registros actuales"
 msgid "Current Records"
 msgstr "Registros actuales"
 
+msgid "Current directory observation does not match this host"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -2977,12 +3013,27 @@ msgid "Directory Membership"
 msgstr "miembros"
 
 #, fuzzy
+msgid "Directory operation history"
+msgstr "Directorio Activo"
+
+#, fuzzy
+msgid "Directory operation phase"
+msgstr "Directorio Activo"
+
+msgid "Directory operation state is unreadable"
+msgstr ""
+
+#, fuzzy
 msgid "Disable on all hosts"
 msgstr "habilitado"
 
 #, fuzzy
 msgid "Disable selected"
 msgstr "Eliminar seleccionado"
+
+#, fuzzy
+msgid "Disabled"
+msgstr "habilitado"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
@@ -3041,6 +3092,10 @@ msgstr "Nombre snapin"
 #, fuzzy
 msgid "Domain Create Success"
 msgstr "actualización de servicio no pudo"
+
+#, fuzzy
+msgid "Domain Join Status"
+msgstr "Nombre de dominio"
 
 #, fuzzy
 msgid "Domain Joining"
@@ -3530,6 +3585,10 @@ msgstr "Ningún archivo fue subido"
 
 msgid "FOG Agent poll"
 msgstr ""
+
+#, fuzzy
+msgid "FOG Agent protocol features"
+msgstr "se ha actualizado correctamente"
 
 #, fuzzy
 msgid "FOG Client"
@@ -4431,6 +4490,10 @@ msgstr "Impresora ya existe"
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "Impresora ya existe"
 
+#, php-format
+msgid "Host %s has a directory operation in progress or awaiting review. Clear it on the Active Directory tab before deleting."
+msgstr ""
+
 msgid "Host Agent Activity"
 msgstr ""
 
@@ -4780,6 +4843,9 @@ msgid "Identity"
 msgstr "servidor TFTP"
 
 msgid "Identity Provider"
+msgstr ""
+
+msgid "Identity mismatch, conflict or unresolved live identity. host_id is 0."
 msgstr ""
 
 #, php-format
@@ -5215,6 +5281,9 @@ msgstr "En "
 msgid "In FOG"
 msgstr "En "
 
+msgid "In progress"
+msgstr ""
+
 msgid "In use as"
 msgstr ""
 
@@ -5264,6 +5333,12 @@ msgstr "Actualizar"
 #, fuzzy
 msgid "Initrd Update Fail"
 msgstr "actualización de la impresora ha fallado!"
+
+msgid "Inspect target candidate"
+msgstr ""
+
+msgid "Inspect the current directory candidate before confirming it."
+msgstr ""
 
 msgid "Install Plugins"
 msgstr ""
@@ -5627,6 +5702,12 @@ msgstr "Contraseña de dominio"
 msgid "Join Username"
 msgstr "Nombre de dominio usuario"
 
+msgid "Join operation verified; current status not confirmed"
+msgstr ""
+
+msgid "Joined and secure channel healthy"
+msgstr ""
+
 msgid "Kbps"
 msgstr ""
 
@@ -5881,6 +5962,9 @@ msgstr ""
 msgid "Last imaged"
 msgstr "Imagen"
 
+msgid "Last operation result time (UTC)"
+msgstr ""
+
 #, fuzzy
 msgid "Last ring"
 msgstr "Imagen"
@@ -5902,6 +5986,12 @@ msgstr "Versión del sistema"
 #, fuzzy
 msgid "Latest Version"
 msgstr "Versión del sistema"
+
+msgid "Latest secure channel check passed; directory actions are on hold"
+msgstr ""
+
+msgid "Latest secure channel check returned False"
+msgstr ""
 
 msgid "Leave blank to keep the current password"
 msgstr ""
@@ -6683,10 +6773,16 @@ msgstr ""
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
+msgid "Native status (history)"
+msgstr ""
+
 msgid "Need the table name to drop"
 msgstr ""
 
 msgid "Needs a 256-bit key!"
+msgstr ""
+
+msgid "Needs operator review"
 msgstr ""
 
 #, fuzzy
@@ -6958,6 +7054,9 @@ msgstr ""
 msgid "No master nodes available"
 msgstr "No se dispone de hash"
 
+msgid "No matching computer account was found."
+msgstr ""
+
 msgid "No need to sync"
 msgstr ""
 
@@ -7043,6 +7142,10 @@ msgstr "Nombre snapin"
 #, fuzzy
 msgid "No snapins associated with this group as master"
 msgstr "No hay snapins asociados con este anfitrión"
+
+#, fuzzy
+msgid "No status reported"
+msgstr "ID de inventario"
 
 #, fuzzy
 msgid "No storage node can serve the file."
@@ -7481,6 +7584,9 @@ msgid "Operations on %s."
 msgstr "Operación de no activado: %s"
 
 msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+msgstr ""
+
+msgid "Optional. Declares directory-join-target-v1 to bind this request to a live directory identity."
 msgstr ""
 
 msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
@@ -8266,6 +8372,9 @@ msgstr "Impresora actualiza!"
 msgid "Providers"
 msgstr ""
 
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity feature. This does not issue a certificate or change trust."
+msgstr ""
+
 msgid "Publisher"
 msgstr ""
 
@@ -8350,6 +8459,9 @@ msgstr ""
 msgid "Read one saved filter"
 msgstr "Eliminar seleccionado"
 
+msgid "Ready"
+msgstr ""
+
 #, fuzzy
 msgid "Real Time"
 msgstr "Tiempo de actividad del sistema"
@@ -8385,6 +8497,9 @@ msgstr ""
 #, fuzzy
 msgid "Recorded in range"
 msgstr "Registro no encontrado, error: %s"
+
+msgid "Recorded operation result (history)"
+msgstr ""
 
 msgid "Recorded; outcome present for an item report."
 msgstr ""
@@ -8576,6 +8691,9 @@ msgid "Required database field is empty"
 msgstr ""
 
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
+
+msgid "Requires the existing fog-agent client certificate, verified by the web server and bound to its host principal. Resolves the supplied live identity without check-in, inventory, AD or certificate writes. host_id is the resolved host only when the identity matched; otherwise it is 0."
 msgstr ""
 
 msgid "Reset Encryption Data"
@@ -8860,6 +8978,9 @@ msgstr ""
 msgid "Save the site before setting catch-all"
 msgstr ""
 
+msgid "Saved diagnostic reason (may be historical)"
+msgstr ""
+
 msgid "Saved filters for one grid"
 msgstr ""
 
@@ -9038,6 +9159,9 @@ msgstr "No hay grupos en este servidor."
 #, fuzzy
 msgid "Secure Boot: signing FOS with your own key"
 msgstr "No hay grupos en este servidor."
+
+msgid "Secure channel status unknown"
+msgstr ""
 
 #, fuzzy
 msgid "See all results"
@@ -10228,6 +10352,13 @@ msgstr "Nombre de la tarea"
 msgid "Takes a list of names and returns an id for each: the existing object where the name is already taken, a newly created one otherwise. That pattern is often called an upsert -- update or insert -- and because the object may not exist yet it matches on the name rather than on an id. Safe to send repeatedly: the same names give the same ids back and no duplicates are made. Group only; every other class answers 400."
 msgstr ""
 
+msgid "Target computer account"
+msgstr ""
+
+#, fuzzy
+msgid "Target lookup is unavailable."
+msgstr "No se dispone de hash"
+
 #, fuzzy
 msgid "Task"
 msgstr "Tareas"
@@ -10704,6 +10835,9 @@ msgstr ""
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr ""
 
+msgid "The identity or required AD directory feature declaration is invalid."
+msgstr ""
+
 #, fuzzy
 msgid "The identity provider could not be reached"
 msgstr "No se pudo leer el archivo temporal"
@@ -10770,6 +10904,12 @@ msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
 msgid "The leaf followed by the agent CA, PEM."
+msgstr ""
+
+msgid "The live SMBIOS and MAC identity reported by fog-agent."
+msgstr ""
+
+msgid "The live identity matches the certificate principal."
 msgstr ""
 
 msgid "The logical sector size of the disk this image was captured from."
@@ -10843,6 +10983,15 @@ msgstr ""
 msgid "The preference was stored."
 msgstr ""
 
+msgid "The previous directory operation requires review. Preserve its evidence and obtain a separate recovery decision; Retry cannot clear it."
+msgstr ""
+
+msgid "The previous directory operation requires review. Preserve its evidence, then use \"Clear directory operation review\" to record your decision. Retry cannot clear it."
+msgstr ""
+
+msgid "The previous operation may have changed this computer or its directory account. Clearing records your decision; it does not undo anything. The agent may still hold a local review marker until its own review."
+msgstr ""
+
 #, fuzzy
 msgid "The primary mac associated is"
 msgstr "Error, es una imagen asociada con este anfitrión"
@@ -10888,6 +11037,9 @@ msgstr ""
 msgid "The request body is not a JSON object."
 msgstr ""
 
+msgid "The request declares directory-join-target-v1 inconsistently with the stored request for this key, or its identity no longer resolves to one host. The request is not changed; the agent enrolls again with a new key."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -10914,6 +11066,9 @@ msgid "The saved filter."
 msgstr "actualización de la impresora ha fallado!"
 
 msgid "The selected site no longer exists"
+msgstr ""
+
+msgid "The server advertises the AD directory identity feature."
 msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
@@ -11160,6 +11315,9 @@ msgid "This is a cron style task that should not run now."
 msgstr ""
 
 msgid "This is a cron style task that should run now."
+msgstr ""
+
+msgid "This is a point-in-time observation, not proof of online authentication or a confirmed credential mismatch. Confirm the target and use explicit administrator judgment before retrying."
 msgstr ""
 
 msgid "This is a single run task that should not run now."
@@ -12053,6 +12211,9 @@ msgid "Value"
 msgstr "Valor"
 
 msgid "Variable contains"
+msgstr ""
+
+msgid "Verified"
 msgstr ""
 
 msgid "Version"

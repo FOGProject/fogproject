@@ -28,7 +28,8 @@ class DirectoryRejoin extends FOGBase
             'target','source','config_revision','placement_hold','host_id',
             'fingerprint','dc','mode','phase','attempt_id','reason','native_status','secure_channel','boot_changed','boot','updated_at',
             'protocol','operation','expected_current','expected_pending','observation','observed_at','check_dc',
-            'last_deploy_task_id','trigger_task_id','retry_authorized','workgroup'];
+            'last_deploy_task_id','trigger_task_id','retry_authorized','workgroup',
+            'cleared_attempt','cleared_phase','cleared_by','cleared_at'];
         if (array_diff(array_keys($value), $keys)) {
             throw new \RuntimeException('rejoin_state_invalid', 409);
         }
@@ -58,7 +59,7 @@ class DirectoryRejoin extends FOGBase
                 throw new \RuntimeException('rejoin_state_invalid', 409);
             }
         }
-        foreach (['name','domain','config_revision','fingerprint','dc','mode','attempt_id','reason','phase','confirmed_by','confirmed_at','secure_channel','updated_at'] as $key) {
+        foreach (['name','domain','config_revision','fingerprint','dc','mode','attempt_id','reason','phase','confirmed_by','confirmed_at','secure_channel','updated_at','cleared_attempt','cleared_phase','cleared_by','cleared_at'] as $key) {
             if (isset($value[$key]) && (!is_string($value[$key]) || strlen($value[$key]) > 1024)) {
                 throw new \RuntimeException('rejoin_state_invalid', 409);
             }
@@ -127,6 +128,151 @@ class DirectoryRejoin extends FOGBase
             }
             throw $e;
         }
+    }
+
+    /**
+     * Whether a stored state is an operation that may have changed the
+     * computer or its directory account, or one nobody can read.
+     */
+    private static function protectedState($raw)
+    {
+        try {
+            $state = self::decode($raw);
+        } catch (\Throwable $e) {
+            return true;
+        }
+        return DirectoryOperation::legacyPending($state)
+            || in_array($state['phase'] ?? '', ['started', 'awaiting_reboot', 'unknown', 'failed'], true);
+    }
+
+    /**
+     * The hosts among $ids whose directory state must be cleared by an
+     * operator before the host is deleted.
+     *
+     * @param int[] $ids host ids
+     *
+     * @return int[]
+     */
+    public static function protectedHosts(array $ids)
+    {
+        $ids = array_values(array_unique(array_filter(array_map('intval', $ids))));
+        if (!$ids) {
+            return [];
+        }
+        $q = self::$DB->link()->prepare('SELECT hdHostID,hdRejoinState FROM hostDirectory WHERE hdHostID IN ('
+            . implode(',', array_fill(0, count($ids), '?')) . ') AND hdRejoinState IS NOT NULL');
+        $q->execute($ids);
+        $rows = $q->fetchAll(\PDO::FETCH_ASSOC);
+        $q->closeCursor();
+        $out = [];
+        foreach ($rows as $row) {
+            if (self::protectedState($row['hdRejoinState'])) {
+                $out[] = (int)$row['hdHostID'];
+            }
+        }
+        return $out;
+    }
+
+    /**
+     * Records an operator's decision that a stored operation needs no more
+     * review. Nothing is undone. The attempt's evidence is kept in the
+     * cleared_* keys and the deploy task counters never move backward.
+     *
+     * Works on an unreadable row, which no other writer can touch.
+     *
+     * @param Host   $host            the host
+     * @param string $expectedAttempt the attempt the operator was shown
+     * @param string $actor           the operator's name
+     *
+     * @return void
+     */
+    public static function clearReview(Host $host, $expectedAttempt, $actor)
+    {
+        $id = (int)$host->get('id');
+        $db = self::$DB->link();
+        if ($db->inTransaction()) {
+            throw new \RuntimeException('rejoin_nested_transaction', 409);
+        }
+        $db->beginTransaction();
+        try {
+            $q = $db->prepare('SELECT hostID FROM hosts WHERE hostID = ? FOR UPDATE');
+            $q->execute([$id]);
+            $found = $q->fetchColumn();
+            $q->closeCursor();
+            if (false === $found) {
+                throw new \RuntimeException('rejoin_host_missing', 409);
+            }
+            $q = $db->prepare('SELECT hdRejoinConfig, hdRejoinState FROM hostDirectory WHERE hdHostID = ? FOR UPDATE');
+            $q->execute([$id]);
+            $row = $q->fetch(\PDO::FETCH_ASSOC);
+            $q->closeCursor();
+            if (!$row) {
+                throw new \RuntimeException('rejoin_review_not_required', 409);
+            }
+            $state = [];
+            $readable = true;
+            try {
+                $state = self::decode($row['hdRejoinState']);
+            } catch (\Throwable $e) {
+                $readable = false;
+            }
+            if ($readable) {
+                if (!self::protectedState($row['hdRejoinState'])) {
+                    throw new \RuntimeException('rejoin_review_not_required', 409);
+                }
+                if (($state['attempt_id'] ?? '') !== (string)$expectedAttempt) {
+                    throw new \RuntimeException('rejoin_review_changed', 409);
+                }
+            }
+            try {
+                $config = self::decode($row['hdRejoinConfig']);
+            } catch (\Throwable $e) {
+                $config = null;
+            }
+            if ($config) {
+                $config['retry_authorized'] = false;
+                $config = self::encoded($config + ['version' => 1]);
+            } else {
+                $config = null;
+            }
+            $q = $db->prepare('SELECT MAX(taskID) FROM tasks WHERE taskHostID = ? AND taskTypeID IN ('
+                . implode(',', array_map('intval', \FOG\Items\TaskType::DEPLOYTASKS)) . ')');
+            $q->execute([$id]);
+            $latest = (int)$q->fetchColumn();
+            $q->closeCursor();
+            $cleared = [
+                'version' => 1,
+                'protocol' => 2,
+                'reason' => 'operator_cleared',
+                'last_deploy_task_id' => max(
+                    $latest,
+                    (int)($state['last_deploy_task_id'] ?? 0),
+                    (int)($state['trigger_task_id'] ?? 0)
+                ),
+                'cleared_attempt' => (string)($state['attempt_id'] ?? ''),
+                'cleared_phase' => $readable ? (string)($state['phase'] ?? '') : 'unreadable',
+                'cleared_by' => substr((string)$actor, 0, 100),
+                'cleared_at' => gmdate('c')
+            ];
+            $q = $db->prepare('UPDATE hostDirectory SET hdRejoinConfig = ?, hdRejoinState = ? WHERE hdHostID = ?');
+            $q->execute([$config, self::encoded($cleared), $id]);
+            $db->commit();
+        } catch (\Throwable $e) {
+            if ($db->inTransaction()) {
+                $db->rollBack();
+            }
+            throw $e;
+        }
+        \FOG\Audit\Audit::record([
+            'type' => 'host.directory.review_cleared',
+            'subjectType' => 'host',
+            'subjectID' => $id,
+            'subjectLabel' => (string)$host->get('name'),
+            'permission' => 'host.edit',
+            'affectedCount' => 1,
+            'renderable' => 1,
+            'text' => substr('cleared the directory review of attempt ' . $cleared['cleared_attempt'], 0, \FOG\Audit\Audit::MAX_DETAIL)
+        ]);
     }
 
     public static function guid($value)
