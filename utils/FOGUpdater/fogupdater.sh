@@ -81,40 +81,18 @@ fetch() {
 # have no branch this can derive, so they stop rather than guess -- same
 # reason, one step further out.
 channel=$(awk -F\' /"define\('FOG_CHANNEL'[,](.*)"/'{print $4}' "$configpath" | tr -d '[[:space:]]')
-# The newest refs/heads/working-* branch on GitHub, or nothing. Returns 1 when
-# no such branch exists and 3 when the remote cannot be asked.
-#
-# This is a copy of newestBranch() in lib/common/functions.sh (the twin: keep
-# the anchoring and the version sort in step with it), not a call to it. That
-# function asks the checkout's own origin, which can be a fork, an internal
-# mirror or an SSH URL that root has no key for. This script downloads from
-# GitHub over https no matter what origin says, so the beta branch has to be
-# looked up at that same place, over https only.
-#
-# working-1.6 is frozen and is deleted after the 1.6.0 release; the next beta
-# line has its own name. A constant here would point beta servers at a branch
-# that is gone. The pattern is anchored at refs/heads/ so that
-# refs/heads/feat/working-x is not offered as the beta line, and the sed
-# checks it again on the way out. `sort -Vr` rather than git's --sort, which
-# needs git 2.18. ls-remote runs on its own, not at the head of a pipe, so a
-# remote that refused us is not read as "none published".
-newestWorkingBranch() {
-    local heads
-    heads=$(GIT_ALLOW_PROTOCOL=https git ls-remote --heads "https://github.com/FOGProject/fogproject.git" "refs/heads/working-*" 2>/dev/null) || return 3
-    local ref
-    ref=$(printf '%s\n' "$heads" \
-        | sed -n 's#^[0-9a-f]\{7,\}[[:space:]]\{1,\}refs/heads/\(working-[^/]\{1,\}\)$#\1#p' \
-        | sort -Vr \
-        | head -n1)
-    [[ -n $ref ]] || return 1
-    echo "$ref"
-}
 if [[ -n $updatebranch ]]; then
     branch="$updatebranch"
 elif [[ $channel == Beta ]]; then
     # Never fall through to stable or dev-branch: that installs 1.5 over a 1.6
     # server (see above).
-    branch=$(newestWorkingBranch)
+    # newestBranch (lib/common/functions.sh, sourced through utils.sh) is given
+    # GitHub's URL because this script downloads from there over https whatever
+    # the checkout's origin says. working-1.6 is frozen and is deleted after the
+    # 1.6.0 release, so the branch is looked up, not named. Only this path needs
+    # git: updatebranch never calls it.
+    command -v git >/dev/null 2>&1 || handleError " * git is required to find the beta branch -- install git, or set updatebranch in .fogsettings" 12
+    branch=$(newestBranch working "https://github.com/FOGProject/fogproject.git")
     case $? in
         0) ;;
         3) handleError " * Could not reach the remote to find the beta branch -- check the network, or set updatebranch in .fogsettings" 11 ;;

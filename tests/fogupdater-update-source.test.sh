@@ -51,6 +51,7 @@
 
 cd "$(dirname "$0")/.." || exit 1
 UPD="utils/FOGUpdater/fogupdater.sh"
+FUNCS="lib/common/functions.sh"
 [[ -r $UPD ]] || { echo "cannot read $UPD -- run this from the repository"; exit 1; }
 
 PASS=0
@@ -183,8 +184,8 @@ tmp_args="$tmp/git-args"
 echo "3. the tracked branch follows the installed channel"
 
 # The selection block, executed for real against each channel. Stubs make the
-# two exits observable: handleError prints and returns, so a fall-through to
-# stable is visible as a branch value where a refusal was required.
+# two exits observable: handleError prints its exit code and stops the block,
+# so a refusal shows as an empty branch and a fall-through to stable as a value.
 #
 # Beta asks the remote, so git is stubbed from the real `git ls-remote --heads`
 # output format, "<sha><TAB>refs/heads/<name>". $STUB_HEADS holds the names the
@@ -192,9 +193,13 @@ echo "3. the tracked branch follows the installed channel"
 # network (exit 128). The stub records its arguments in $STUB_ARGS_FILE.
 select_branch() (
     channel="$1"; trunk="$2"; updatebranch="$3"; branch=""
-    handleError() { echo "REFUSED $2" >&2; return 0; }
+    # Exits like the real one: a stop that falls through would also run the
+    # next lookup and report a second, misleading code.
+    handleError() { echo "REFUSED $2" >&2; exit 0; }
     git() {
         printf '%s\n' "$*" >> "$STUB_ARGS_FILE"
+        printf 'PROTO=%s LIMIT=%s TIME=%s\n' "${GIT_ALLOW_PROTOCOL-unset}" \
+            "${GIT_HTTP_LOW_SPEED_LIMIT-unset}" "${GIT_HTTP_LOW_SPEED_TIME-unset}" >> "$STUB_ENV_FILE"
         [[ -n $STUB_UNREACHABLE ]] && return 128
         local n i=0
         for n in $STUB_HEADS; do
@@ -202,12 +207,18 @@ select_branch() (
             printf '%040d\trefs/heads/%s\n' "$i" "$n"
         done
     }
-    eval "$(body newestWorkingBranch "$UPD")"
-    eval "$(joined "$UPD" | awk '
+    # newestBranch is the real one from functions.sh, not a copy.
+    eval "$(body newestBranch "$FUNCS")"
+    block=$(joined "$UPD" | awk '
         /^if \[\[ -n \$updatebranch \]\]; then/ { inside = 1 }
         inside { print }
         inside && /^fi$/ { exit }
-    ')"
+    ')
+    if [[ -n $STUB_NOGIT ]]; then
+        unset -f git
+        PATH=/nonexistent/for/test
+    fi
+    eval "$block"
     echo "$branch"
 )
 
@@ -234,16 +245,23 @@ check_branch() {
 
 check_branch "Patches" ""  ""              "stable"
 check_branch "Patches" "1" ""              "dev-branch"
-export STUB_ARGS_FILE="$tmp_args"
+export STUB_ARGS_FILE="$tmp_args" STUB_ENV_FILE="$tmp_args.env"
 # Beta follows the newest working-* branch, version-sorted, anchored at
 # refs/heads/ (feat/working-x is not a beta line). working-1.6.1 < working-1.7.
-STUB_HEADS="stable dev-branch working-1.6 working-1.6.1 working-1.7 feat/working-x zz/working-9" \
+STUB_HEADS="stable dev-branch working-1.6 working-1.6.1 working-1.7 feat/working-x zz/working-9 working-1.9#x" \
     check_branch "Beta" "" "" "working-1.7"
 # The one that used to install 1.5 over a 1.6 server: $trunk must not drag a
 # beta install onto the 1.5 patch line either.
 STUB_HEADS="working-1.6 working-1.7" check_branch "Beta" "1" "" "working-1.7"
 # Version sort, not lexical: 1.10 beats 1.9.
 STUB_HEADS="working-1.9 working-1.10" check_branch "Beta" "" "" "working-1.10"
+# git is needed only on the Beta path; its absence is its own stop, not "remote
+# unreachable".
+STUB_NOGIT=1 check_exit "Beta" "" "" "REFUSED 12"
+STUB_NOGIT=1 check_branch "Beta" "" "" ""
+STUB_NOGIT=1 check_branch "Beta" "" "my-branch" "my-branch"
+# Branch names go into URLs: # and % are legal in a ref but never accepted.
+STUB_HEADS="working-1.9#x working-1.8%2F" check_exit "Beta" "" "" "REFUSED 10"
 # No working-* branch: stop, do not fall through to stable or dev-branch.
 STUB_HEADS="stable dev-branch feat/working-x" check_branch "Beta" "" "" ""
 STUB_HEADS="stable dev-branch feat/working-x" check_exit "Beta" "" "" "REFUSED 10"
@@ -259,6 +277,15 @@ else
     bad "updatebranch set but git was still called: $(cat "$STUB_ARGS_FILE")"
 fi
 # The lookup is https-only, against the same host the download uses, anchored.
+: > "$STUB_ARGS_FILE"
+STUB_HEADS="working-1.7" select_branch "Beta" "" "" >/dev/null 2>&1
+: > "$STUB_ENV_FILE"
+STUB_HEADS="working-1.7" select_branch "Beta" "" "" >/dev/null 2>&1
+if [[ $(cat "$STUB_ENV_FILE") == "PROTO=https LIMIT=1000 TIME=15" ]]; then
+    ok "the lookup is limited to https and bounded against a stalled network"
+else
+    bad "ls-remote environment is not https-only and bounded: $(cat "$STUB_ENV_FILE")"
+fi
 : > "$STUB_ARGS_FILE"
 STUB_HEADS="working-1.7" select_branch "Beta" "" "" >/dev/null 2>&1
 if grep -q 'ls-remote --heads https://github.com/FOGProject/fogproject.git refs/heads/working-\*' "$STUB_ARGS_FILE"; then
