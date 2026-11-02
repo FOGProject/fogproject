@@ -1669,6 +1669,8 @@ class Route extends FOGBase
         // fog-agent (protocol v1). The enroll route is public, listed in
         // $unauthexact above; the other two are the admin's side of it.
         self::_registerRoute($r, 'POST', '/agent/v1/enroll', [__CLASS__, 'agentEnroll'], 'agentenroll');
+        self::_registerRoute($r, 'GET', '/agent/v1/enroll', [__CLASS__, 'agentFeatures'], 'agentfeatures');
+        self::_registerRoute($r, 'POST', '/agent/v1/identity/check', [__CLASS__, 'agentIdentityCheck'], 'agentidentitycheck');
         self::_registerRoute($r, 'POST', '/agent/v1/poll', [__CLASS__, 'agentPoll'], 'agentpoll');
         self::_registerRoute($r, 'POST', '/agent/v1/renew', [__CLASS__, 'agentRenew'], 'agentrenew');
         self::_registerRoute($r, 'POST', '/agent/v1/result', [__CLASS__, 'agentResult'], 'agentresult');
@@ -2980,8 +2982,44 @@ class Route extends FOGBase
         $remoteIP = filter_var((string)self::$remoteaddr, FILTER_VALIDATE_IP)
             ? (string)self::$remoteaddr
             : '';
-        list($code, $payload) = \FOG\Agent\Enrollment::handle(self::_jsonBody(), $remoteIP);
+        try {
+            list($code, $payload) = \FOG\Agent\Enrollment::handle(self::_jsonBody(), $remoteIP);
+        } catch (\RuntimeException $e) {
+            // A refusal the handler throws: 400, 403 or 409 as thrown.
+            $thrown = (int)$e->getCode();
+            HTTPResponseCodes::breakHead(
+                in_array($thrown, [400, 403, 409], true) ? $thrown : HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(['status' => 'error', 'reason' => $e->getMessage()])
+            );
+            return;
+        }
         HTTPResponseCodes::breakHead($code, json_encode($payload));
+    }
+    /**
+     * The directory features this server's enroll route understands.
+     *
+     * Public and read-only, so an agent can probe before it enrolls.
+     *
+     * @return void
+     */
+    public static function agentFeatures()
+    {
+        header('X-FOG-Agent-Features: directory-join-target-v1');
+        HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => ['directory-join-target-v1']]));
+    }
+    /**
+     * fog-agent's check that its live identity still resolves to its host.
+     *
+     * @return void
+     */
+    public static function agentIdentityCheck()
+    {
+        try {
+            $answer = \FOG\Agent\MachineIdentity::check(self::$agentHost, self::_jsonBody());
+            HTTPResponseCodes::breakHead('ok' === $answer['status'] ? 200 : 409, json_encode($answer));
+        } catch (\RuntimeException $e) {
+            HTTPResponseCodes::breakHead(self::_agentErrorCode($e), json_encode(['status' => 'blocked', 'reason' => $e->getMessage()]));
+        }
     }
     /**
      * The host behind this request's client certificate, or null.
