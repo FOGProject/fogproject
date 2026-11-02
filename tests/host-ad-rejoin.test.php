@@ -38,12 +38,8 @@ class HostAdRejoinPdo extends FogFakePdo
         'allow_create' => true,
         'target' => [
             'guid' => '11111111-2222-3333-4444-555555555555',
-            'sid' => 'S-1-5-21-10-20-30'
-        ],
-        'source' => [
-            'account' => '<img src=x onerror="alert(1)">',
-            'guid' => 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
-            'sid' => 'S-1-5-21-40-50-60'
+            'sid' => 'S-1-5-21-10-20-30',
+            'account' => '<img src=x onerror="alert(1)">'
         ]
     ];
     public static $state = [
@@ -141,12 +137,8 @@ HostAdRejoinPdo::$config = [
     'allow_create' => true,
     'target' => [
         'guid' => '11111111-2222-3333-4444-555555555555',
-        'sid' => 'S-1-5-21-10-20-30'
-    ],
-    'source' => [
-        'account' => '<img src=x onerror="alert(1)">',
-        'guid' => 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
-        'sid' => 'S-1-5-21-40-50-60'
+        'sid' => 'S-1-5-21-10-20-30',
+        'account' => '<img src=x onerror="alert(1)">'
     ]
 ];
 HostAdRejoinPdo::$state = [
@@ -547,5 +539,17 @@ foreach ($translated as $msgid) {
 $t->check('new UI strings have gettext entries',
     $catalogsPresent
 );
+
+// The Inspect button is a plain secondary button, and its handler keeps it
+// off while the request runs, then shows a failure the usual way.
+$t->check('the Inspect button is btn btn-secondary',
+    false !== strpos($source, 'id="rejoin-inspect" class="btn btn-secondary">')
+    && false === strpos($source, 'id="rejoin-inspect" class="btn btn-outline-secondary"'));
+$js = file_get_contents(dirname(__DIR__) . '/packages/web/management/js/fog/host/fog.host.edit.js');
+$inspectJsAt = strpos($js, "$('#rejoin-inspect').on('click'");
+$inspectJs = false === $inspectJsAt ? '' : substr($js, $inspectJsAt, 700);
+$t->check('the Inspect handler disables the button, reports a failure and re-enables it',
+    '' !== $inspectJs
+    && 1 === preg_match("/prop\('disabled', true\);.*\\\$\.post\(.*\.fail\(.*notifyFromAPI\(.*\.always\(.*prop\('disabled', false\)/s", $inspectJs));
 
 $t->finish();

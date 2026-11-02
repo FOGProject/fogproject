@@ -82,7 +82,12 @@ class HostDirectory extends FOGController
         'host'
     ];
 
-    /** Facts/placement saves must not overwrite a concurrently claimed operation. */
+    /**
+     * Facts and placement saves must not overwrite a concurrently claimed
+     * operation, so the rejoin columns are left out of the save.
+     *
+     * @return mixed what the parent save returns
+     */
     public function save()
     {
         $fields = $this->databaseFields;

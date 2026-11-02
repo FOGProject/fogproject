@@ -446,6 +446,9 @@ msgstr "È richiesto un nome di gruppo!"
 msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
 msgstr ""
 
+msgid "A directory rejoin result the server refuses: it names another attempt, revision, task or fingerprint than the stored plan (rejoin_result_mismatch), arrives out of order (rejoin_result_out_of_order), changed meanwhile (rejoin_result_changed), reports a native failure as success (rejoin_native_success_required), finds a different or unverifiable directory account (rejoin_target_changed, rename_identity_unverified, rename_target_unverified), or reports verified without a healthy secure channel, a changed boot, the planned name and the planned domain (rejoin_verification_incomplete). Nothing is recorded."
+msgstr ""
+
 msgid "A disabled entry stops being managed; it does not remove the package."
 msgstr ""
 
@@ -2931,6 +2934,27 @@ msgstr "Active Directory"
 msgid "Directory operation state is unreadable"
 msgstr ""
 
+msgid "Directory rejoin result: healthy is required for verified."
+msgstr ""
+
+msgid "Directory rejoin result: the Windows API status; 0 is required for awaiting_reboot and verified."
+msgstr ""
+
+msgid "Directory rejoin result: the attempt the start returned. An item that carries it is recorded against that attempt."
+msgstr ""
+
+msgid "Directory rejoin result: the computer name now in effect; must equal the planned name for verified."
+msgstr ""
+
+msgid "Directory rejoin result: the config revision of the plan."
+msgstr ""
+
+msgid "Directory rejoin result: the domain now joined; with netbios, must equal the planned domain for verified."
+msgstr ""
+
+msgid "Directory rejoin result: true is required for verified."
+msgstr ""
+
 msgid "Directory-task-operations-v1 plan; absent or null when no operation is planned."
 msgstr ""
 
@@ -3865,6 +3889,9 @@ msgstr "Impostazioni FOG"
 #, fuzzy
 msgid "Flush the settings cache"
 msgstr "Impostazioni FOG"
+
+msgid "For a directory rejoin result: awaiting_reboot, verified, failed or unknown."
+msgstr ""
 
 msgid "For a live-USB enrollment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
 msgstr ""
@@ -10374,9 +10401,6 @@ msgstr ""
 msgid "The desired state: revision, capabilities, and one block per capability listed. Absent when the agent is current."
 msgstr ""
 
-msgid "The directory service or required server-side provider is unavailable."
-msgstr ""
-
 #, fuzzy
 msgid "The enrollment is no longer pending."
 msgstr "non è più in esecuzione"
@@ -10642,6 +10666,9 @@ msgid "The root CA has been imported, but this host's system trust store could n
 msgstr ""
 
 msgid "The row goes, so the token can never match again. Audited as agent.token."
+msgstr ""
+
+msgid "The row the report is about; for a directory rejoin result, the host's own id."
 msgstr ""
 
 msgid "The same as POST: the body is {\"value\": \"...\"}, an empty value clears the preference, and a request with no value at all answers 400."
@@ -11351,7 +11378,7 @@ msgstr "Si è verificato errore di caricamento sconosciuto"
 msgid "Unknown action"
 msgstr "Si è verificato errore di caricamento sconosciuto"
 
-msgid "Unknown capability or status, or an item for a capability with no item reports."
+msgid "Unknown capability or status, or an item for a capability with no item reports. For a directory rejoin result (the item carries attempt_id), also an item status other than awaiting_reboot, verified, failed or unknown."
 msgstr ""
 
 #, php-format

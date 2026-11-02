@@ -3185,7 +3185,7 @@ class HostManagement extends FOGPage
         $candidatePanel = '<details class="mb-3"><summary>'
             . \Initiator::e(_('Target computer account')) . '</summary><div class="pt-2">'
             . '<p>' . \Initiator::e(_('Inspect the current directory candidate before confirming it.'))
-            . '</p><button type="button" id="rejoin-inspect" class="btn btn-outline-secondary">'
+            . '</p><button type="button" id="rejoin-inspect" class="btn btn-secondary">'
             . \Initiator::e(_('Inspect target candidate')) . '</button>'
             . '<div id="rejoin-target-candidate"></div>'
             . '</div></details>';
@@ -3276,7 +3276,6 @@ class HostManagement extends FOGPage
         // account, or one nobody can read, is cleared by an operator's
         // explicit decision. Nothing else clears it.
         $needsReview = $unreadable
-            || \FOG\Agent\DirectoryOperation::legacyPending($state)
             || in_array($phase, ['started', 'awaiting_reboot', 'unknown', 'failed'], true);
         if (!$unreadable && !\FOG\Agent\DirectoryRejoin::canConfirmRetry($state)) {
             $candidatePanel .= '<p class="small text-muted">'

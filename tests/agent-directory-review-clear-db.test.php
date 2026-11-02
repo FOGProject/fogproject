@@ -13,6 +13,20 @@ if (!getenv('FOG_TEST_DSN')) {
     echo "SKIP directory review clear DB: FOG_TEST_DSN not set\n";
     exit(0);
 }
+
+/** A directory with no computer account, so a planned rebind would create one. */
+class ReviewClearFakeLdap
+{
+    public function connect($uri, $bind, $password, $ca = '') { return true; }
+    public function domainContext($domain)
+    {
+        return ['status' => 'found', 'base_dn' => 'DC=corp,DC=example', 'dc' => 'dc1.corp.example'];
+    }
+    public function computerRecord($base, $account) { return ['status' => 'absent']; }
+    public function close() { }
+}
+class_alias(ReviewClearFakeLdap::class, 'FOG\\Net\\FOGLdap', false);
+
 $directoryDbName = 'agent-directory-review-clear-db';
 require __DIR__ . '/lib/directory-db.php';
 $pdo = $GLOBALS['pdo']; // left by directory-db.php
@@ -38,7 +52,7 @@ $put = static function ($hostID, $state) use ($pdo) {
     $pdo->prepare('INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain) VALUES (?,?,1,?)')
         ->execute([$hostID, 'RV' . $hostID, 'corp.example']);
     $pdo->prepare('INSERT INTO hostDirectory (hdHostID,hdRejoinConfig,hdRejoinState) VALUES (?,?,?)')
-        ->execute([$hostID, json_encode(['version' => 1, 'enabled' => true, 'retry_authorized' => true]), $state]);
+        ->execute([$hostID, json_encode(['version' => 1, 'protocol' => 2, 'retry_authorized' => true]), $state]);
 };
 $state = static function ($phase, $extra = []) use ($attempt) {
     return json_encode($extra + [
@@ -76,8 +90,25 @@ $t->check('a class other than host does not run the guard', 0 === $refusal('imag
 // Clearing a review: the wrong attempt is refused, the right one unblocks the
 // delete and moves the deploy counters forward, never back.
 $put(70, $state('failed'));
-$pdo->exec('INSERT INTO tasks (taskID,taskHostID,taskTypeID,taskStateID) VALUES (900,70,1,1)');
-$host = (new FOG\Items\Host())->set('id', 70)->set('name', 'RV70');
+// A deploy task that COMPLETED ten minutes ago: the state DirectoryTask treats
+// as eligible when it is newer than the host's deploy high-water mark.
+$taskEnd = (new \DateTimeImmutable('now', FOG\Base\FOGBase::storageTimeZone()))->sub(new \DateInterval('PT10M'));
+$pdo->prepare('INSERT INTO tasks (taskID,taskHostID,taskTypeID,taskStateID,taskStateChangedTime) VALUES (900,70,?,4,?)')
+    ->execute([FOG\Items\TaskType::DEPLOY, $taskEnd->format('Y-m-d H:i:s')]);
+$host = (new FOG\Items\Host())->set('id', 70)->set('name', 'RV70')->set('useAD', 1)
+    ->set('ADDomain', 'corp.example')->set('agentFingerprint', '');
+$settingsCache = [FOG\Agent\State::FACTS_SETTING => ['value' => '1']];
+foreach ([
+    'FOG_DIRECTORY_LDAP_URI' => 'ldaps://dc1.corp.example',
+    'FOG_DIRECTORY_BIND_DN' => 'CN=fixture',
+    'FOG_DIRECTORY_BIND_PASSWORD' => 'fixture-only',
+    'FOG_DIRECTORY_BASE_DN' => 'DC=corp,DC=example',
+    'FOG_DIRECTORY_CA_CERT' => ''
+] as $key => $value) {
+    $settingsCache[$key] = ['value' => $value];
+}
+FogTestHarness::setStatic('FOGBase', '_settingsCache', $settingsCache);
+FogTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
 $reason = '';
 try {
     FOG\Agent\DirectoryRejoin::clearReview($host, str_repeat('e', 32), 'operator');
@@ -101,9 +132,26 @@ $t->check(
     'the deploy highwater covers the latest deploy task on the host',
     (int)($cleared['state']['last_deploy_task_id'] ?? 0) >= 900
 );
-$t->check(
-    'plan() on the cleared state does not consume the old attempt again',
-    null === FOG\Agent\DirectoryRejoin::plan($host)
+// A fresh, healthy observation taken after the task ended, so the only thing
+// that can keep plan() from binding a new attempt to task 900 is the cleared
+// high-water mark.
+$dc = 'dc1.corp.example';
+$bootStarted = $taskEnd->add(new \DateInterval('PT5M'))->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM);
+// The first poll with the feature initializes the config (a new revision); the
+// agent then observes against that revision, as directory_check tells it to.
+FOG\Agent\DirectoryOperation::observe($host, []);
+$observation = [
+    'revision' => FOG\Agent\DirectoryOperation::revision($host, FOG\Agent\DirectoryRejoin::settings($host)['config'], ''),
+    'current_name' => 'RV70', 'pending_name' => 'RV70', 'domain' => 'corp.example', 'netbios' => 'CORP',
+    'role' => 'workstation', 'secure_channel' => 'true', 'dc' => $dc, 'dc_reachable' => true,
+    'boot' => ['marker' => 'review-clear-boot', 'started' => $bootStarted]
+];
+FOG\Agent\DirectoryOperation::observe($host, ['directory_observation' => $observation]);
+$beforePlan = FOG\Agent\DirectoryRejoin::settings($host)['state'];
+$planned = FOG\Agent\DirectoryRejoin::plan($host);
+$afterPlan = FOG\Agent\DirectoryRejoin::settings($host)['state'];$t->check(
+    'plan() on the cleared state does not bind a new attempt to the cleared deploy task',
+    null === $planned && empty($afterPlan['attempt_id']) && $beforePlan === $afterPlan
 );
 $again = '';
 try {

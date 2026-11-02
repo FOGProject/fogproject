@@ -3069,16 +3069,6 @@ class OpenAPI extends FOGBase
                                     'reason' => ['type' => 'string']
                                 ]
                             ]]]
-                        ],
-                        '503' => [
-                            'description' => _('The directory service or required server-side provider is unavailable.'),
-                            'content' => ['application/json' => ['schema' => [
-                                'type' => 'object',
-                                'properties' => [
-                                    'status' => ['type' => 'string', 'enum' => ['blocked']],
-                                    'reason' => ['type' => 'string']
-                                ]
-                            ]]]
                         ]
                     ],
                     [],
@@ -3344,9 +3334,19 @@ class OpenAPI extends FOGBase
                                 ]
                             ]]]
                         ],
-                        '400' => ['description' => _('Unknown capability or status, or an item for a capability with no item reports.')],
+                        '400' => ['description' => _('Unknown capability or status, or an item for a capability with no item reports. For a directory rejoin result (the item carries attempt_id), also an item status other than awaiting_reboot, verified, failed or unknown.')],
                         '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
-                        '404' => ['description' => _('The item is not a live row of this host.')]
+                        '404' => ['description' => _('The item is not a live row of this host.')],
+                        '409' => [
+                            'description' => _('A directory rejoin result the server refuses: it names another attempt, revision, task or fingerprint than the stored plan (rejoin_result_mismatch), arrives out of order (rejoin_result_out_of_order), changed meanwhile (rejoin_result_changed), reports a native failure as success (rejoin_native_success_required), finds a different or unverifiable directory account (rejoin_target_changed, rename_identity_unverified, rename_target_unverified), or reports verified without a healthy secure channel, a changed boot, the planned name and the planned domain (rejoin_verification_incomplete). Nothing is recorded.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['error']],
+                                    'error' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ]
                     ],
                     [],
                     [
@@ -3362,13 +3362,29 @@ class OpenAPI extends FOGBase
                                     'type' => 'object',
                                     'required' => ['id', 'status'],
                                     'properties' => [
-                                        'id' => ['type' => 'integer'],
-                                        'status' => ['type' => 'string'],
+                                        'id' => [
+                                            'type' => 'integer',
+                                            'description' => _('The row the report is about; for a directory rejoin result, the host\'s own id.')
+                                        ],
+                                        'status' => [
+                                            'type' => 'string',
+                                            'description' => _('For a directory rejoin result: awaiting_reboot, verified, failed or unknown.')
+                                        ],
                                         'exit_code' => ['type' => 'integer'],
                                         'installed_version' => ['type' => 'string'],
                                         'details' => ['type' => 'string'],
                                         'task_id' => ['type' => 'integer'],
-                                        'netbios' => ['type' => 'string']
+                                        'netbios' => ['type' => 'string'],
+                                        'attempt_id' => [
+                                            'type' => 'string',
+                                            'description' => _('Directory rejoin result: the attempt the start returned. An item that carries it is recorded against that attempt.')
+                                        ],
+                                        'config_revision' => ['type' => 'string', 'description' => _('Directory rejoin result: the config revision of the plan.')],
+                                        'native_status' => ['type' => 'integer', 'description' => _('Directory rejoin result: the Windows API status; 0 is required for awaiting_reboot and verified.')],
+                                        'secure_channel' => ['type' => 'string', 'description' => _('Directory rejoin result: healthy is required for verified.')],
+                                        'boot_changed' => ['type' => 'boolean', 'description' => _('Directory rejoin result: true is required for verified.')],
+                                        'current_name' => ['type' => 'string', 'description' => _('Directory rejoin result: the computer name now in effect; must equal the planned name for verified.')],
+                                        'domain' => ['type' => 'string', 'description' => _('Directory rejoin result: the domain now joined; with netbios, must equal the planned domain for verified.')]
                                     ]
                                 ]
                             ]
