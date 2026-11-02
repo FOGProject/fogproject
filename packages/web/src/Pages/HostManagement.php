@@ -15,6 +15,7 @@
 
 namespace FOG\Pages;
 
+use FOG\Agent\DirectoryRejoin;
 use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
@@ -3004,6 +3005,384 @@ class HostManagement extends FOGPage
             true,
             true
         );
+        // Older forms and integrations do not submit the marker. Keep their
+        // AD update path unchanged and do not read directory-operation POST fields.
+        if ('1' === (string)filter_input(INPUT_POST, 'rejoin_settings_present')) {
+            $checkbox = static function ($key) {
+                return '1' === (string)filter_input(INPUT_POST, $key);
+            };
+            $text = static function ($key) {
+                return trim((string)filter_input(INPUT_POST, $key));
+            };
+            if ($checkbox('rejoin_clear_review')) {
+                // The operator's decision about a stored operation. It is
+                // its own action: no other setting is applied with it.
+                DirectoryRejoin::clearReview(
+                    $this->obj,
+                    $text('rejoin_clear_attempt'),
+                    (string)self::$FOGUser->get('name')
+                );
+                return;
+            }
+            DirectoryRejoin::configure(
+                $this->obj,
+                [
+                    'rejoin_allow_create' => $checkbox(
+                        'rejoin_allow_create'
+                    ),
+                    'rejoin_confirm_target' => $checkbox(
+                        'rejoin_confirm_target'
+                    ),
+                    'rejoin_target_guid' => $text('rejoin_target_guid'),
+                    'rejoin_retry' => $checkbox('rejoin_retry')
+                ],
+                (string)self::$FOGUser->get('name')
+            );
+        }
+    }
+    /**
+     * Answers the "Inspect target candidate" button with its details.
+     *
+     * A POST, not a link: the lookup contacts the directory server, so it
+     * needs the same authentication and CSRF check as every other action.
+     *
+     * @return void
+     */
+    public function hostADInspectPost()
+    {
+        self::checkAuthAndCSRF();
+        $candidate = $this->obj->get('useAD')
+            ? DirectoryRejoin::targetCandidate($this->obj)
+            : ['status' => 'unavailable'];
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode(['html' => $this->rejoinCandidateHtml($candidate)])
+        );
+    }
+    /**
+     * The confirm block for one directory candidate.
+     *
+     * @param array $candidate the answer of DirectoryRejoin::targetCandidate()
+     *
+     * @return string
+     */
+    private function rejoinCandidateHtml(array $candidate)
+    {
+        $status = (string)($candidate['status'] ?? 'unavailable');
+        $record = is_array($candidate['record'] ?? null)
+            ? $candidate['record'] : [];
+        if ('found' !== $status) {
+            return 'absent' === $status
+                ? '<p>' . \Initiator::e(_('No matching computer account was found.')) . '</p>'
+                : '<p>' . \Initiator::e(_('Target lookup is unavailable.')) . '</p>';
+        }
+        $guid = (string)($record['guid'] ?? '');
+        $html = '<dl class="row mb-2">';
+        foreach ([
+            _('Account') => (string)($record['account'] ?? ''),
+            _('Computer GUID') => $guid,
+            _('Computer SID') => (string)($record['sid'] ?? ''),
+            _('Distinguished Name') => (string)($record['dn'] ?? '')
+        ] as $label => $value) {
+            $html .= '<dt class="col-sm-3">' . \Initiator::e($label)
+                . '</dt><dd class="col-sm-9">'
+                . \Initiator::e($value) . '</dd>';
+        }
+        return $html . '</dl>'
+            . self::makeInput(
+                '',
+                'rejoin_target_guid',
+                '',
+                'hidden',
+                'rejoin_target_guid',
+                $guid
+            )
+            . '<div class="form-check">'
+            . self::makeInput(
+                'form-check-input',
+                'rejoin_confirm_target',
+                '',
+                'checkbox',
+                'rejoin_confirm_target',
+                '1'
+            )
+            . '<label class="form-check-label" for="rejoin_confirm_target">'
+            . \Initiator::e(_(
+                'Confirm that this account is assigned to this host or its handoff is approved. Do not select an account belonging to another computer by mistake.'
+            ))
+            . '</label></div>';
+    }
+    /**
+     * Displays the AD form together with directory account settings.
+     *
+     * The base renderer echoes its own form, so get its field map and render
+     * the same hook/form scaffold here to keep the new controls in that form.
+     *
+     * @return void
+     */
+    private function hostAD()
+    {
+        global $node;
+
+        // An unreadable stored state must not stop the form from rendering:
+        // the operator needs this tab to clear it.
+        $unreadable = false;
+        try {
+            $settings = DirectoryRejoin::settings($this->obj);
+        } catch (\Throwable $e) {
+            $settings = [];
+            $unreadable = true;
+        }
+        $config = is_array($settings['config'] ?? null)
+            ? $settings['config'] : [];
+        $state = is_array($settings['state'] ?? null)
+            ? $settings['state'] : [];
+        $fields = $this->adFieldsToDisplay(
+            $this->obj->get('useAD'),
+            $this->obj->get('ADDomain'),
+            $this->obj->get('ADOU'),
+            $this->obj->get('ADUser'),
+            '',
+            false,
+            true
+        );
+        $labelClass = 'col-sm-3 col-form-label';
+        $marker = self::makeInput(
+            '',
+            'rejoin_settings_present',
+            '',
+            'hidden',
+            'rejoin_settings_present',
+            '1'
+        );
+        $allowCreate = DirectoryRejoin::allowsCreate($config);
+        $fields[
+            self::makeLabel(
+                $labelClass,
+                'rejoin_allow_create',
+                _('Allow Computer Account Creation')
+            )
+        ] = '<div class="form-check">'
+            . self::makeInput(
+                'form-check-input',
+                'rejoin_allow_create',
+                '',
+                'checkbox',
+                'rejoin_allow_create',
+                '1',
+                false,
+                false,
+                -1,
+                -1,
+                $allowCreate ? 'checked' : ''
+            ) . '</div>';
+
+        $formAction = self::makeTabUpdateURL(
+            $node . '-active-directory',
+            (int)$this->obj->get('id')
+        );
+        // The button posts rejoin_inspect_target and fills the second div.
+        $candidatePanel = '<details class="mb-3"><summary>'
+            . \Initiator::e(_('Target computer account')) . '</summary><div class="pt-2">'
+            . '<p>' . \Initiator::e(_('Inspect the current directory candidate before confirming it.'))
+            . '</p><button type="button" id="rejoin-inspect" class="btn btn-secondary">'
+            . \Initiator::e(_('Inspect target candidate')) . '</button>'
+            . '<div id="rejoin-target-candidate"></div>'
+            . '</div></details>';
+
+        $phase = strtolower((string)($state['phase'] ?? ''));
+        $phaseLabels = [
+            'ready' => _('Ready'),
+            'started' => _('In progress'),
+            'awaiting_reboot' => _('Awaiting reboot'),
+            'verified' => _('Verified'),
+            'failed' => _('Failed'),
+            'unknown' => _('Unknown'),
+            'blocked' => _('Blocked')
+        ];
+        $observation = is_array($state['observation'] ?? null)
+            ? $state['observation'] : [];
+        $hostName = (string)$this->obj->get('name');
+        $domain = (string)$this->obj->get('ADDomain');
+        $checkDc = (string)($state['check_dc'] ?? '');
+        $observedDc = (string)($observation['dc'] ?? '');
+        $observationContextMatches = '' !== $hostName
+            && 0 === strcasecmp(
+                (string)($observation['current_name'] ?? ''),
+                $hostName
+            )
+            && 0 === strcasecmp(
+                (string)($observation['pending_name'] ?? ''),
+                $hostName
+            )
+            && \FOG\Agent\DirectoryOperation::sameDomain(
+                $observation,
+                $domain
+            )
+            && ('' === $checkDc
+                ? '' !== $observedDc
+                : 0 === strcasecmp($observedDc, $checkDc));
+        $currentObservation = \FOG\Agent\DirectoryOperation::observationFresh(
+            $this->obj,
+            $config,
+            $state
+        ) && $observationContextMatches;
+        if ($unreadable) {
+            $domainStatus = _('Directory operation state is unreadable');
+        } elseif (!$this->obj->get('useAD')) {
+            $domainStatus = _('Disabled');
+        } elseif ($currentObservation
+            && 'false' === ($observation['secure_channel'] ?? '')
+        ) {
+            $domainStatus = _('Latest secure channel check returned False');
+        } elseif ($currentObservation
+            && 'unknown' === ($observation['secure_channel'] ?? '')
+        ) {
+            $domainStatus = _('Secure channel status unknown');
+        } elseif ($currentObservation
+            && 'true' === ($observation['secure_channel'] ?? '')
+            && true === ($observation['dc_reachable'] ?? false)
+            && empty($state['placement_hold'])
+        ) {
+            $domainStatus = _('Joined and secure channel healthy');
+        } elseif ($currentObservation
+            && 'true' === ($observation['secure_channel'] ?? '')
+            && !empty($state['placement_hold'])
+        ) {
+            $domainStatus = _('Latest secure channel check passed; directory actions are on hold');
+        } elseif (!$observationContextMatches && !empty($observation)) {
+            $domainStatus = _('Current directory observation does not match this host');
+        } elseif ('verified' === $phase && !$currentObservation) {
+            $domainStatus = _('Join operation verified; current status not confirmed');
+        } elseif ('' === $phase) {
+            $domainStatus = !empty($state['reason'])
+                ? _('Needs operator review') : _('No status reported');
+        } else {
+            $domainStatus = $phaseLabels[$phase] ?? _('Unknown');
+        }
+        $candidatePanel .= '<p class="mb-3"><strong>'
+            . \Initiator::e(_('Domain Join Status')) . ':</strong> '
+            . \Initiator::e($domainStatus) . '</p>';
+
+        $candidatePanel .= '<p class="small text-muted">'
+            . \Initiator::e(_('This is a point-in-time observation, not proof of online authentication or a confirmed credential mismatch. Confirm the target and use explicit administrator judgment before retrying.'))
+            . '</p>';
+
+        $retryAllowed = !$unreadable
+            && \FOG\Agent\DirectoryRejoin::canConfirmRetry($state)
+            && $currentObservation
+            && 'false' === ($observation['secure_channel'] ?? '');
+        // A stored operation that may have changed the computer or its
+        // account, or one nobody can read, is cleared by an operator's
+        // explicit decision. Nothing else clears it.
+        $needsReview = $unreadable
+            || in_array($phase, ['started', 'awaiting_reboot', 'unknown', 'failed'], true);
+        if (!$unreadable && !\FOG\Agent\DirectoryRejoin::canConfirmRetry($state)) {
+            $candidatePanel .= '<p class="small text-muted">'
+                . \Initiator::e(
+                    $needsReview
+                        ? _('The previous directory operation requires review. Preserve its evidence, then use "Clear directory operation review" to record your decision. Retry cannot clear it.')
+                        : _('The previous directory operation requires review. Preserve its evidence and obtain a separate recovery decision; Retry cannot clear it.')
+                )
+                . '</p>';
+        }
+        if ($needsReview) {
+            $fields[self::makeLabel(
+                $labelClass,
+                'rejoin_clear_review',
+                _('Clear directory operation review')
+            )] = '<div class="form-check">'
+                . self::makeInput(
+                    'form-check-input',
+                    'rejoin_clear_review',
+                    '',
+                    'checkbox',
+                    'rejoin_clear_review',
+                    '1'
+                ) . '</div>'
+                . self::makeInput(
+                    '',
+                    'rejoin_clear_attempt',
+                    '',
+                    'hidden',
+                    'rejoin_clear_attempt',
+                    (string)($state['attempt_id'] ?? '')
+                )
+                . '<p class="small text-muted">'
+                . \Initiator::e(_('The previous operation may have changed this computer or its directory account. Clearing records your decision; it does not undo anything. The agent may still hold a local review marker until its own review.'))
+                . '</p>';
+        }
+        if ($retryAllowed) {
+            $fields[self::makeLabel($labelClass, 'rejoin_retry', _('Confirm Retry'))]
+                = '<div class="form-check">'
+                . self::makeInput(
+                    'form-check-input',
+                    'rejoin_retry',
+                    '',
+                    'checkbox',
+                    'rejoin_retry',
+                    '1'
+                ) . '</div>';
+        }
+
+        $statusDetails = '';
+        foreach ([
+            _('Directory operation phase') => '' === $phase
+                ? '' : ($phaseLabels[$phase] ?? _('Unknown')),
+            _('Saved diagnostic reason (may be historical)') => (string)($state['reason'] ?? ''),
+            _('Recorded operation result (history)') => (string)($state['secure_channel'] ?? ''),
+            _('Native status (history)') => isset($state['native_status'])
+                ? sprintf('0x%08x', $state['native_status']) : '',
+            _('Last operation result time (UTC)') => (string)($state['updated_at'] ?? '')
+        ] as $label => $value) {
+            if ('' !== $value) {
+                $statusDetails .= '<dt class="col-sm-3">' . \Initiator::e($label)
+                    . '</dt><dd class="col-sm-9">'
+                    . \Initiator::e($value) . '</dd>';
+            }
+        }
+        if ('' !== $statusDetails) {
+            $candidatePanel .= '<details class="mb-3"><summary>'
+                . \Initiator::e(_('Directory operation history')) . '</summary><dl class="row pt-2">'
+                . $statusDetails . '</dl></details>';
+        }
+        $fields[''] = $candidatePanel;
+
+        $ucclass = strtoupper($this->childClass);
+        $buttons = self::makeButton(
+            'ad-send',
+            _('Update'),
+            'btn btn-primary float-end'
+        ) . self::makeButton(
+            'ad-clear',
+            _('Clear Fields'),
+            'btn btn-danger float-start'
+        );
+        self::$HookManager->processEvent(
+            "{$ucclass}_EDIT_AD_FIELDS",
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'obj' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields) . $marker;
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header"><h4 class="card-title">';
+        echo $this->childClass . ' ' . _('Active Directory');
+        echo '</h4></div>';
+        echo self::makeFormTag(
+            '',
+            'active-directory-form',
+            $formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div id="' . $node . '-active-directory" class="">';
+        echo '<div class="card-body">' . $rendered . '</div>';
+        echo '<div class="card-footer">' . $buttons . '</div>';
+        echo '</form></div></div>';
     }
     /**
      * Host groups dispay.
@@ -4837,12 +5216,7 @@ class HostManagement extends FOGPage
                         'name' =>  _('Active Directory'),
                         'id' => 'host-active-directory',
                         'generator' => function () {
-                            $this->adFieldsToDisplay(
-                                $this->obj->get('useAD'),
-                                $this->obj->get('ADDomain'),
-                                $this->obj->get('ADOU'),
-                                $this->obj->get('ADUser')
-                            );
+                            $this->hostAD();
                         }
                     ],
                     [
@@ -4968,6 +5342,15 @@ class HostManagement extends FOGPage
      */
     public function editPost()
     {
+        global $tab;
+        // The target lookup is a read that answers the button. It is not an
+        // edit, so it skips the save path and its success hooks.
+        if ('host-active-directory' === $tab
+            && '1' === (string)filter_input(INPUT_POST, 'rejoin_inspect_target')
+        ) {
+            $this->hostADInspectPost();
+            return;
+        }
         $this->handleEditPost(
             'Host',
             'HOST_EDIT',

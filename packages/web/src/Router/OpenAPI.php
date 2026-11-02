@@ -2761,17 +2761,17 @@ class OpenAPI extends FOGBase
                     'agentfeatures',
                     _('FOG Agent protocol features'),
                     _('Public and read-only. Over the existing HTTPS server '
-                        . 'connection, advertises the AD directory identity feature. '
+                        . 'connection, advertises the AD directory identity and target-operation features. '
                         . 'This does not issue a certificate or change trust.'),
                     [
                         '200' => [
-                            'description' => _('The server advertises the AD directory identity feature.'),
+                            'description' => _('The server advertises AD directory identity and target-operation features.'),
                             'headers' => [
                                 'X-FOG-Agent-Features' => [
-                                    'description' => _('Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity).'),
+                                    'description' => _('Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity) and directory-task-operations-v1 (target operations).'),
                                     'schema' => [
                                         'type' => 'string',
-                                        'example' => 'directory-join-target-v1'
+                                        'example' => 'directory-join-target-v1, directory-task-operations-v1'
                                     ],
                                 ]
                             ],
@@ -2783,7 +2783,7 @@ class OpenAPI extends FOGBase
                                         'type' => 'array',
                                         'items' => [
                                             'type' => 'string',
-                                            'enum' => ['directory-join-target-v1']
+                                            'enum' => ['directory-join-target-v1', 'directory-task-operations-v1']
                                         ]
                                     ]
                                 ]
@@ -2981,6 +2981,117 @@ class OpenAPI extends FOGBase
                     ]
                 )
             ],
+            '/agent/v1/directory/rejoin/start' => [
+                'post' => self::_op(
+                    '',
+                    'agentrejoinstart',
+                    _('Start one directory rejoin attempt'),
+                    _('Requires the existing fog-agent client certificate, '
+                        . 'verified and bound to its host principal. A valid '
+                        . 'ready plan is durably claimed before its existing '
+                        . 'directory credential and rejoin plan are returned. '
+                        . 'A repeated start does not return the credential again.'),
+                    [
+                        '200' => [
+                            'description' => _('The one-shot start was claimed; includes the directory credential and public rejoin plan.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['ok']],
+                                    'directory' => [
+                                        'type' => 'object',
+                                        'properties' => [
+                                            'domain' => ['type' => 'string'],
+                                            'username' => ['type' => 'string'],
+                                            'password' => [
+                                                'type' => 'string',
+                                                'description' => _('Sensitive one-shot credential; returned only after the mTLS host has claimed the ready attempt.')
+                                            ],
+                                            'ou' => ['type' => 'string'],
+                                            'reboot' => ['type' => 'boolean'],
+                                            'rejoin' => [
+                                                'type' => 'object',
+                                                'required' => ['task_id'],
+                                                'properties' => [
+                                                    'attempt_id' => ['type' => 'string'],
+                                                    'host_id' => ['type' => 'integer'],
+                                                    'version' => ['type' => 'integer', 'enum' => [2]],
+                                                    'config_revision' => ['type' => 'string'],
+                                                    'phase' => ['type' => 'string'],
+                                                    'name' => ['type' => 'string'],
+                                                    'domain' => ['type' => 'string'],
+                                                    'operation' => ['type' => 'string', 'enum' => ['rebind', 'rename', 'join']],
+                                                    'mode' => ['type' => 'string', 'enum' => ['existing', 'create', 'rename', 'join']],
+                                                    'task_id' => ['type' => 'integer', 'minimum' => 0],
+                                                    'expected_current' => ['type' => 'string'],
+                                                    'expected_pending' => ['type' => 'string'],
+                                                    'dc' => ['type' => 'string'],
+                                                    'target' => [
+                                                        'type' => 'object',
+                                                        'nullable' => true,
+                                                        'description' => _('Existing Rebind and ordinary Rename pin the existing computer object\'s GUID/SID. Target is null for Create before the computer account exists and for Workgroup Join.'),
+                                                        'properties' => [
+                                                            'guid' => ['type' => 'string'],
+                                                            'sid' => ['type' => 'string'],
+                                                            'dn' => ['type' => 'string'],
+                                                            'account' => ['type' => 'string'],
+                                                            'dns' => ['type' => 'string'],
+                                                            'uac' => ['type' => 'integer'],
+                                                            'pwd_last_set' => ['type' => 'string'],
+                                                            'spns' => ['type' => 'array', 'items' => ['type' => 'string']]
+                                                        ]
+                                                    ],
+                                                    'reason' => ['type' => 'string']
+                                                ]
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]]]
+                        ],
+                        '400' => [
+                            'description' => _('The request body is invalid.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['blocked']],
+                                    'reason' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ],
+                        '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
+                        '409' => [
+                            'description' => _('The plan is no longer ready or its host, identity, configuration or directory records changed.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['blocked']],
+                                    'reason' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ]
+                    ],
+                    [],
+                    [
+                        'required' => true,
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['attempt_id', 'config_revision', 'target_guid', 'operation', 'task_id'],
+                            'properties' => [
+                                'attempt_id' => ['type' => 'string'],
+                                'config_revision' => ['type' => 'string'],
+                                'target_guid' => ['type' => 'string', 'format' => 'uuid', 'nullable' => true],
+                                'operation' => [
+                                    'type' => 'string',
+                                    'enum' => ['rebind', 'rename', 'join'],
+                                    'description' => _('Must match the operation in the current ready plan.')
+                                ],
+                                'task_id' => ['type' => 'integer', 'minimum' => 0]
+                            ]
+                        ]]]
+                    ]
+                ) + ['security' => []]
+            ],
             '/agent/v1/poll' => [
                 'post' => self::_op(
                     '',
@@ -3022,6 +3133,61 @@ class OpenAPI extends FOGBase
                                     'revision' => ['type' => 'string'],
                                     'poll_interval' => ['type' => 'integer'],
                                     'server_time' => ['type' => 'string'],
+                                    'directory_check' => [
+                                        'type' => 'object',
+                                        'nullable' => true,
+                                        'description' => _('Read-only context for the directory-task-operations-v1 observation. Present only when the poll declares directory-task-operations-v1 and the host is eligible for observation; null when no check is requested.'),
+                                        'required' => ['name', 'domain', 'dc', 'revision'],
+                                        'properties' => [
+                                            'name' => ['type' => 'string'],
+                                            'domain' => ['type' => 'string'],
+                                            'dc' => ['type' => 'string'],
+                                            'revision' => ['type' => 'string']
+                                        ]
+                                    ],
+                                    'directory_rejoin' => [
+                                        'type' => 'object',
+                                        'nullable' => true,
+                                        'description' => _('Directory-task-operations-v1 plan; absent or null when no operation is planned.'),
+                                        'anyOf' => [
+                                            [
+                                                'required' => ['phase', 'reason'],
+                                                'properties' => [
+                                                    'phase' => ['type' => 'string', 'enum' => ['blocked']],
+                                                    'reason' => ['type' => 'string']
+                                                ]
+                                            ],
+                                            [
+                                                'required' => ['version', 'attempt_id', 'operation', 'task_id'],
+                                                'properties' => [
+                                                    'phase' => ['type' => 'string', 'enum' => ['ready', 'started', 'awaiting_reboot', 'verified', 'failed', 'unknown']]
+                                                ]
+                                            ]
+                                        ],
+                                        'properties' => [
+                                            'version' => ['type' => 'integer', 'enum' => [2]],
+                                            'operation' => ['type' => 'string', 'enum' => ['rebind', 'rename', 'join']],
+                                            'task_id' => ['type' => 'integer', 'minimum' => 0],
+                                            'attempt_id' => ['type' => 'string'],
+                                            'host_id' => ['type' => 'integer'],
+                                            'config_revision' => ['type' => 'string'],
+                                            'phase' => ['type' => 'string'],
+                                            'name' => ['type' => 'string'],
+                                            'domain' => ['type' => 'string'],
+                                            'mode' => ['type' => 'string', 'enum' => ['existing', 'create', 'rename', 'join']],
+                                            'expected_current' => ['type' => 'string'],
+                                            'expected_pending' => ['type' => 'string'],
+                                            'dc' => ['type' => 'string'],
+                                            'target' => [
+                                                'type' => 'object',
+                                                'nullable' => true,
+                                                'description' => _('The confirmed existing Target pin, or null before creation is confirmed.'),
+                                                'additionalProperties' => true
+                                            ],
+                                            'reason' => ['type' => 'string']
+                                        ]
+                                    ],
+                                    'directory_hold' => ['type' => 'boolean'],
                                     'state' => [
                                         'type' => 'object',
                                         'description' => _('The desired state: revision, '
@@ -3075,6 +3241,46 @@ class OpenAPI extends FOGBase
                                 'agent_version' => ['type' => 'string'],
                                 'applied_revision' => ['type' => 'string'],
                                 'want_state' => ['type' => 'boolean'],
+                                'features' => [
+                                    'type' => 'array',
+                                    'description' => _('Windows directory polls declare directory-join-target-v1 and directory-task-operations-v1 when supported.'),
+                                    'items' => ['type' => 'string', 'enum' => ['directory-join-target-v1', 'directory-task-operations-v1']]
+                                ],
+                                'directory_attempt' => [
+                                    'type' => 'object',
+                                    'x-required-when-feature' => 'directory-task-operations-v1',
+                                    'required' => ['phase', 'attempt_id', 'host_id', 'fingerprint'],
+                                    'properties' => [
+                                        'phase' => ['type' => 'string', 'enum' => ['none', 'unreadable', 'reserved', 'may_have_run', 'unknown', 'failed', 'awaiting_reboot', 'verified']],
+                                        'attempt_id' => ['type' => 'string'],
+                                        'host_id' => ['type' => 'integer'],
+                                        'fingerprint' => ['type' => 'string']
+                                    ]
+                                ],
+                                'directory_observation' => [
+                                    'type' => 'object',
+                                    'description' => _('Optional read-only Windows observation sent in response to directory_check. It carries no credentials.'),
+                                    'required' => ['revision', 'dc', 'dc_reachable', 'current_name', 'pending_name', 'domain', 'netbios', 'role', 'secure_channel', 'boot'],
+                                    'properties' => [
+                                        'revision' => ['type' => 'string'],
+                                        'dc' => ['type' => 'string'],
+                                        'dc_reachable' => ['type' => 'boolean'],
+                                        'current_name' => ['type' => 'string'],
+                                        'pending_name' => ['type' => 'string'],
+                                        'domain' => ['type' => 'string'],
+                                        'netbios' => ['type' => 'string'],
+                                        'role' => ['type' => 'string'],
+                                        'secure_channel' => ['type' => 'string', 'enum' => ['true', 'false', 'unknown']],
+                                        'boot' => [
+                                            'type' => 'object',
+                                            'required' => ['marker', 'started'],
+                                            'properties' => [
+                                                'marker' => ['type' => 'string'],
+                                                'started' => ['type' => 'string']
+                                            ]
+                                        ]
+                                    ]
+                                ],
                                 'inventory' => [
                                     'type' => 'object',
                                     'description' => _('Hardware facts, sent only when the '
@@ -3128,9 +3334,19 @@ class OpenAPI extends FOGBase
                                 ]
                             ]]]
                         ],
-                        '400' => ['description' => _('Unknown capability or status, or an item for a capability with no item reports.')],
+                        '400' => ['description' => _('Unknown capability or status, or an item for a capability with no item reports. For a directory rejoin result (the item carries attempt_id), also an item status other than awaiting_reboot, verified, failed or unknown.')],
                         '401' => ['description' => _('No verified client certificate, or one bound to no live host.')],
-                        '404' => ['description' => _('The item is not a live row of this host.')]
+                        '404' => ['description' => _('The item is not a live row of this host.')],
+                        '409' => [
+                            'description' => _('A directory rejoin result the server refuses. The reason codes include these: it names another attempt, revision, task or fingerprint than the stored plan (rejoin_result_mismatch), arrives out of order (rejoin_result_out_of_order), changed meanwhile (rejoin_result_changed), reports a native failure as success (rejoin_native_success_required), finds a different or unverifiable directory account (rejoin_target_changed, rename_identity_unverified, rename_target_unverified), or reports verified without a healthy secure channel, a changed boot, the planned name and the planned domain (rejoin_verification_incomplete). A directory outage or a lookup error (rejoin_directory_unavailable, rejoin_lookup_failed), a concurrent change (rejoin_plan_changed, rejoin_deadlock_retry) or an unreadable stored state (rejoin_state_invalid) is also a 409; retry later. Nothing is recorded.'),
+                            'content' => ['application/json' => ['schema' => [
+                                'type' => 'object',
+                                'properties' => [
+                                    'status' => ['type' => 'string', 'enum' => ['error']],
+                                    'error' => ['type' => 'string']
+                                ]
+                            ]]]
+                        ]
                     ],
                     [],
                     [
@@ -3146,11 +3362,29 @@ class OpenAPI extends FOGBase
                                     'type' => 'object',
                                     'required' => ['id', 'status'],
                                     'properties' => [
-                                        'id' => ['type' => 'integer'],
-                                        'status' => ['type' => 'string'],
+                                        'id' => [
+                                            'type' => 'integer',
+                                            'description' => _('The row the report is about; for a directory rejoin result, the host\'s own id.')
+                                        ],
+                                        'status' => [
+                                            'type' => 'string',
+                                            'description' => _('For a directory rejoin result: awaiting_reboot, verified, failed or unknown.')
+                                        ],
                                         'exit_code' => ['type' => 'integer'],
                                         'installed_version' => ['type' => 'string'],
-                                        'details' => ['type' => 'string']
+                                        'details' => ['type' => 'string'],
+                                        'task_id' => ['type' => 'integer'],
+                                        'netbios' => ['type' => 'string'],
+                                        'attempt_id' => [
+                                            'type' => 'string',
+                                            'description' => _('Directory rejoin result: the attempt the start returned. An item that carries it is recorded against that attempt.')
+                                        ],
+                                        'config_revision' => ['type' => 'string', 'description' => _('Directory rejoin result: the config revision of the plan.')],
+                                        'native_status' => ['type' => 'integer', 'description' => _('Directory rejoin result: the Windows API status; 0 is required for awaiting_reboot and verified.')],
+                                        'secure_channel' => ['type' => 'string', 'description' => _('Directory rejoin result: healthy is required for verified.')],
+                                        'boot_changed' => ['type' => 'boolean', 'description' => _('Directory rejoin result: true is required for verified.')],
+                                        'current_name' => ['type' => 'string', 'description' => _('Directory rejoin result: the computer name now in effect; must equal the planned name for verified.')],
+                                        'domain' => ['type' => 'string', 'description' => _('Directory rejoin result: the domain now joined; with netbios, must equal the planned domain for verified.')]
                                     ]
                                 ]
                             ]

@@ -143,6 +143,8 @@ hostdirectory	12	hdPlacementAt	placementAt	-	-
 hostdirectory	13	hdPlacementError	placementError	-	-
 hostdirectory	14	hdJoinAt	joinAt	-	-
 hostdirectory	15	hdJoinError	joinError	-	-
+hostdirectory	16	hdRejoinConfig	rejoinConfig	-	-
+hostdirectory	17	hdRejoinState	rejoinState	-	-
 hostfactstate	0	hfsID	id	-	-
 hostfactstate	1	hfsID	DT_RowId	f	-
 hostfactstate	2	hfsHostID	hostID	-	-
