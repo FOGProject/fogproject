@@ -12076,3 +12076,12 @@ $this->schema[] = [
     . "MODIFY `uName` VARCHAR(255),"
     . "MODIFY `uCreateBy` VARCHAR(255)"
 ];
+// 447
+$this->schema[] = [
+    // Target-based directory rejoin keeps its operator config and its
+    // durable operation state beside the host's directory facts. Separate
+    // ALTERs keep the updater's duplicate-column retry (error 1060) working
+    // when an earlier run stopped after adding only one of the columns.
+    'ALTER TABLE `hostDirectory` ADD COLUMN `hdRejoinConfig` TEXT NULL DEFAULT NULL',
+    'ALTER TABLE `hostDirectory` ADD COLUMN `hdRejoinState` TEXT NULL DEFAULT NULL',
+];
