@@ -571,6 +571,14 @@ msgstr "图像已经存在具有此名称！"
 msgid "A request is pending since %s for %s."
 msgstr ""
 
+#, php-format
+msgid "A request to move this computer object to %s has an unknown result. Read the directory to see where the object is."
+msgstr ""
+
+#, php-format
+msgid "A request to move this computer object to %s may be in progress."
+msgstr ""
+
 msgid "A revoked token can never approve an enrollment again."
 msgstr ""
 
@@ -2104,6 +2112,9 @@ msgstr "明确"
 msgid "Clear Fields"
 msgstr "清除所有历史"
 
+msgid "Clear OU placement review"
+msgstr ""
+
 msgid "Clear directory operation review"
 msgstr ""
 
@@ -2116,6 +2127,9 @@ msgstr ""
 #, fuzzy
 msgid "Clear schedules from member hosts"
 msgstr "调度"
+
+msgid "Clearing records your decision; it does not undo anything. FOG may then try the move again."
+msgstr ""
 
 msgid "Click"
 msgstr "点击"

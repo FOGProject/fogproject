@@ -525,6 +525,14 @@ msgstr "この名前のプロバイダーは既に存在します！"
 msgid "A request is pending since %s for %s."
 msgstr "%s 以降、%s に対する要求が保留中です。"
 
+#, php-format
+msgid "A request to move this computer object to %s has an unknown result. Read the directory to see where the object is."
+msgstr ""
+
+#, php-format
+msgid "A request to move this computer object to %s may be in progress."
+msgstr ""
+
 msgid "A revoked token can never approve an enrollment again."
 msgstr "失効したトークンでは、再びエージェントの登録を承認することはできません。"
 
@@ -1840,6 +1848,9 @@ msgstr "クリア"
 msgid "Clear Fields"
 msgstr "フィールドをクリア"
 
+msgid "Clear OU placement review"
+msgstr ""
+
 msgid "Clear directory operation review"
 msgstr ""
 
@@ -1851,6 +1862,9 @@ msgstr "個人設定の項目を 1 つクリア"
 
 msgid "Clear schedules from member hosts"
 msgstr "所属ホストのスケジュールを削除"
+
+msgid "Clearing records your decision; it does not undo anything. FOG may then try the move again."
+msgstr ""
 
 msgid "Click"
 msgstr "クリック"

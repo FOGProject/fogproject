@@ -12085,3 +12085,25 @@ $this->schema[] = [
     'ALTER TABLE `hostDirectory` ADD COLUMN `hdRejoinConfig` TEXT NULL DEFAULT NULL',
     'ALTER TABLE `hostDirectory` ADD COLUMN `hdRejoinState` TEXT NULL DEFAULT NULL',
 ];
+// 448
+$this->schema[] = [
+    // Durable record of each OU placement (Move) request, so a Move that may
+    // have reached the directory is never re-sent or forgotten. Keyed by the
+    // computer object's GUID. No foreign key to hosts: the rows are history
+    // that outlives the host, so they are class audit in schema-constraints.
+    // dpiStatus and dpiHash are compared byte for byte, so they use utf8mb3_bin.
+    "CREATE TABLE IF NOT EXISTS `directoryPlacementIntent` ( "
+    . "`dpiGUID` binary(16) NOT NULL, "
+    . "`dpiSID` varbinary(184) NOT NULL, "
+    . "`dpiHostID` int(10) unsigned NOT NULL, "
+    . "`dpiGeneration` bigint(20) unsigned NOT NULL, "
+    . "`dpiStatus` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, "
+    . "`dpiPayload` mediumtext NOT NULL, "
+    . "`dpiHash` char(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, "
+    . "`dpiResult` varchar(512) DEFAULT NULL, "
+    . "`dpiUpdated` datetime(6) NOT NULL, "
+    . "PRIMARY KEY (`dpiGUID`), "
+    . "UNIQUE KEY `uq_directoryPlacementIntent_sid` (`dpiSID`), "
+    . "KEY `idx_directoryPlacementIntent_host_status` (`dpiHostID`,`dpiStatus`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];

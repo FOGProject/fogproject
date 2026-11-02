@@ -569,6 +569,14 @@ msgstr "Una imagen ya existe con este nombre!"
 msgid "A request is pending since %s for %s."
 msgstr ""
 
+#, php-format
+msgid "A request to move this computer object to %s has an unknown result. Read the directory to see where the object is."
+msgstr ""
+
+#, php-format
+msgid "A request to move this computer object to %s may be in progress."
+msgstr ""
+
 msgid "A revoked token can never approve an enrollment again."
 msgstr ""
 
@@ -2121,6 +2129,9 @@ msgstr "Tareas"
 msgid "Clear Fields"
 msgstr ""
 
+msgid "Clear OU placement review"
+msgstr ""
+
 msgid "Clear directory operation review"
 msgstr ""
 
@@ -2133,6 +2144,9 @@ msgstr ""
 #, fuzzy
 msgid "Clear schedules from member hosts"
 msgstr "Programador"
+
+msgid "Clearing records your decision; it does not undo anything. FOG may then try the move again."
+msgstr ""
 
 msgid "Click"
 msgstr "Hacer clic"
