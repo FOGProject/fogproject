@@ -710,7 +710,10 @@
             action = $(this).attr('action'),
             opts = {
                 confirmlevelup: 1,
-                level: $('.checked input[name="level"]').val()
+                // Read the checked radio itself. The old '.checked input'
+                // selector needed iCheck's wrapper div, which left with
+                // AdminLTE 4, so it matched nothing and sent no level (#2046).
+                level: $('input[name="level"]:checked').val()
             };
         $.apiCall(method,action,opts,function(err) {
             hostPrinterConfigBtn.prop('disabled', false);
