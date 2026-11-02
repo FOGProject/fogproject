@@ -75,6 +75,30 @@ class FOGLdap
     private $_error = '';
 
     /**
+     * What the last moveTo() learned about whether its request reached the
+     * directory: kind is not_sent, request_result_unknown, ldap_rejection,
+     * local_or_transport_error or ldap_success, and code is the LDAP error
+     * number when there is one.
+     *
+     * @var array{kind:string,code:int|null,message?:string}
+     */
+    private $_moveOutcome = ['kind' => 'not_sent', 'code' => null];
+
+    /**
+     * What the last moveTo() learned about its own request.
+     *
+     * A false return alone cannot tell "the directory refused" from "the
+     * request may have been applied". The placement intent record needs that
+     * difference, so it keeps this beside the result.
+     *
+     * @return array{kind:string,code:int|null,message?:string}
+     */
+    public function moveOutcome()
+    {
+        return $this->_moveOutcome;
+    }
+
+    /**
      * Opens and binds a connection.
      *
      * @param string $uri    ldaps://dc.example.com, or ldap:// to StartTLS
@@ -180,11 +204,13 @@ class FOGLdap
     /**
      * Reads the RootDSE context for the requested DNS domain.
      *
-     * @param string $wantedDnsDomain the DNS domain expected by the caller
+     * @param string $wantedDnsDomain      the DNS domain expected by the caller
+     * @param bool   $includeNamingContexts also read, and require, the
+     *                                      namingContexts the DC serves
      *
-     * @return array{status:string,base_dn?:string,dc?:string,reason?:string}
+     * @return array{status:string,base_dn?:string,dc?:string,naming_contexts?:array<int,string>,reason?:string}
      */
-    public function domainContext($wantedDnsDomain)
+    public function domainContext($wantedDnsDomain, $includeNamingContexts = false)
     {
         $wantedDnsDomain = strtolower(rtrim(trim((string)$wantedDnsDomain), '.'));
         if (!$this->_ld) {
@@ -197,7 +223,9 @@ class FOGLdap
             $this->_ld,
             '',
             '(objectClass=*)',
-            ['defaultNamingContext', 'dnsHostName']
+            $includeNamingContexts
+                ? ['defaultNamingContext', 'dnsHostName', 'namingContexts']
+                : ['defaultNamingContext', 'dnsHostName']
         );
         if (!$res) {
             return ['status' => 'error', 'reason' => 'rootdse_read_failed'];
@@ -225,7 +253,71 @@ class FOGLdap
         ) {
             return ['status' => 'error', 'reason' => 'rootdse_domain_mismatch'];
         }
-        return ['status' => 'found', 'base_dn' => $baseDn, 'dc' => $dc];
+        $context = ['status' => 'found', 'base_dn' => $baseDn, 'dc' => $dc];
+        if ($includeNamingContexts) {
+            $contexts = self::_values($entry, 'namingcontexts');
+            if (!$contexts || !array_filter($contexts, static function ($nc) use ($baseDn) {
+                return 0 === strcasecmp($nc, $baseDn);
+            })) {
+                return ['status' => 'error', 'reason' => 'naming_contexts_unavailable'];
+            }
+            $context['naming_contexts'] = $contexts;
+        }
+        return $context;
+    }
+
+    /**
+     * Validates the configured search scope against this connection's naming
+     * context.
+     *
+     * Legacy facts can contain a NetBIOS alias rather than a DNS domain. The
+     * configured base remains the search scope; it need not be the NC root.
+     *
+     * @param string $searchBase the configured search base
+     *
+     * @return array{status:string,base_dn?:string,dc?:string,naming_contexts?:array<int,string>,reason?:string}
+     */
+    public function placementContext($searchBase)
+    {
+        $parts = @ldap_explode_dn((string)$searchBase, 0);
+        if (!is_array($parts) || empty($parts['count'])) {
+            return ['status' => 'error', 'reason' => 'invalid_search_base'];
+        }
+        $labels = [];
+        for ($i = (int)$parts['count'] - 1; $i >= 0; --$i) {
+            if (!preg_match('/^DC=([A-Za-z0-9-]+)$/iD', $parts[$i], $m)) {
+                break;
+            }
+            array_unshift($labels, $m[1]);
+        }
+        $context = $this->domainContext(implode('.', $labels), true);
+        if ('found' !== $context['status']
+            || !self::samePlacementNC($searchBase, $context)) {
+            return ['status' => 'error', 'reason' => 'search_base_nc_mismatch'];
+        }
+        return $context;
+    }
+
+    /**
+     * Whether a DN lies in the domain naming context of this connection.
+     *
+     * The Configuration, Schema and application NCs can share a domain DN
+     * suffix. This matches the most specific NC the same DC advertises.
+     *
+     * @param string $dn      the distinguished name to place
+     * @param array  $context the result of domainContext() with naming contexts
+     *
+     * @return bool
+     */
+    public static function samePlacementNC($dn, array $context)
+    {
+        $best = '';
+        foreach ($context['naming_contexts'] ?? [] as $nc) {
+            if (is_string($nc) && strlen($nc) > strlen($best) && self::sameNamingContext($dn, $nc)) {
+                $best = $nc;
+            }
+        }
+        return '' !== $best && 0 === strcasecmp($best, $context['base_dn']);
     }
 
     /**
@@ -630,13 +722,20 @@ class FOGLdap
      * 0009's argument against the unjoin-and-rejoin an admin is reduced to
      * today.
      *
-     * @param string $dn       the object's current distinguished name
-     * @param string $parentDn the container to move it into
+     * A caller that names the object by guidDN() has no RDN to read from the
+     * name, so it passes the RDN it saw when it identified the object.
+     * moveOutcome() tells what this call learned about its request.
+     *
+     * @param string $dn       the object's current distinguished name, or its
+     *                         guidDN()
+     * @param string $parentDn the container to move it into, or its guidDN()
+     * @param string $rdn      the object's RDN; read from $dn when empty
      *
      * @return bool
      */
-    public function moveTo($dn, $parentDn)
+    public function moveTo($dn, $parentDn, $rdn = '')
     {
+        $this->_moveOutcome = ['kind' => 'not_sent', 'code' => null];
         if (!$this->_ld) {
             $this->_error = 'not connected';
             return false;
@@ -647,18 +746,95 @@ class FOGLdap
             $this->_error = 'a move needs both an object and a destination';
             return false;
         }
-        $rdn = self::rdn($dn);
+        $rdn = '' === trim((string)$rdn) ? self::rdn($dn) : trim((string)$rdn);
         if ('' === $rdn) {
             $this->_error = 'cannot read the RDN of ' . $dn;
             return false;
         }
         // deleteoldrdn=true: the name is not changing, so keeping the old
         // RDN as an extra value would leave a second name on the object.
+        $this->_moveOutcome = ['kind' => 'request_result_unknown', 'code' => null];
         if (!@ldap_rename($this->_ld, $dn, $rdn, $parentDn, true)) {
             $this->_error = ldap_error($this->_ld);
+            $code = (int)ldap_errno($this->_ld);
+            $this->_moveOutcome = [
+                'kind' => $code > 0 && $code <= 80 ? 'ldap_rejection' : 'local_or_transport_error',
+                'code' => $code, 'message' => $this->_error
+            ];
             return false;
         }
+        $this->_moveOutcome = ['kind' => 'ldap_success', 'code' => 0];
         return true;
+    }
+
+    /**
+     * The binary-GUID form of a DN for an Active Directory object.
+     *
+     * A DN can be reused by another object after a delete and re-create. The
+     * GUID cannot, so a caller that must act on one object names it this way.
+     * A reusable DN is never a fallback.
+     *
+     * @param string $guid the objectGUID as a UUID
+     *
+     * @return string
+     */
+    public static function guidDN($guid)
+    {
+        if (!\FOG\Agent\DirectoryRejoin::guid($guid)) {
+            throw new \InvalidArgumentException('invalid immutable LDAP identity');
+        }
+        $bytes = hex2bin(str_replace('-', '', strtolower($guid)));
+        $binary = strrev(substr($bytes, 0, 4)) . strrev(substr($bytes, 4, 2))
+            . strrev(substr($bytes, 6, 2)) . substr($bytes, 8);
+        return '<GUID=' . bin2hex($binary) . '>';
+    }
+
+    /**
+     * Whether a DN is the naming context or lies beneath it.
+     *
+     * @param mixed $dn the distinguished name
+     * @param mixed $nc the naming context
+     *
+     * @return bool
+     */
+    public static function sameNamingContext($dn, $nc)
+    {
+        return is_string($dn) && is_string($nc) && '' !== $nc
+            && (0 === strcasecmp($dn, $nc) || 0 === strcasecmp(substr($dn, -strlen($nc) - 1), ',' . $nc));
+    }
+
+    /**
+     * Resolves a destination container's identity on this connection.
+     *
+     * @param mixed $dn the container's DN or guidDN()
+     *
+     * @return array{status:string,guid?:string,dn?:string,reason?:string}
+     */
+    public function containerIdentity($dn)
+    {
+        if (!$this->_ld || !is_string($dn) || '' === trim($dn)) {
+            return ['status' => 'error', 'reason' => 'destination_unavailable'];
+        }
+        $result = @ldap_read(
+            $this->_ld,
+            $dn,
+            '(|(objectClass=organizationalUnit)(objectClass=container)(objectClass=domainDNS))',
+            ['objectGUID', 'distinguishedName', 'objectClass']
+        );
+        if (!$result || !self::_completeResult($this->_ld, $result)) {
+            return ['status' => 'error', 'reason' => 'destination_read_failed'];
+        }
+        $entries = ldap_get_entries($this->_ld, $result);
+        if (!is_array($entries) || 1 !== (int)($entries['count'] ?? -1)) {
+            return ['status' => 'error', 'reason' => 'destination_not_unique'];
+        }
+        $guids = self::_values($entries[0], 'objectguid');
+        $dns = self::_values($entries[0], 'distinguishedname');
+        if (!is_array($guids) || !is_array($dns) || count($guids) !== 1 || count($dns) !== 1
+            || null === ($guid = self::_guid($guids[0]))) {
+            return ['status' => 'error', 'reason' => 'destination_identity_incomplete'];
+        }
+        return ['status' => 'found', 'guid' => $guid, 'dn' => $dns[0]];
     }
 
     /**

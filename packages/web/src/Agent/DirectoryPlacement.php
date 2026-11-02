@@ -13,11 +13,9 @@
 
 namespace FOG\Agent;
 
-use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
 use FOG\Items\Host;
 use FOG\Items\HostDirectory;
-use FOG\Net\FOGLdap;
 
 /**
  * Moves a host's computer object into the OU the host record asks for
@@ -176,127 +174,7 @@ class DirectoryPlacement extends FOGBase
      */
     private static function _ensure(Host $Host, HostDirectory $Directory)
     {
-        if (!self::enabled() || !$Host->get('useAD')) {
-            return;
-        }
-        $wantOU = trim((string)$Host->get('ADOU'));
-        if ('' === $wantOU) {
-            // No OU expressed. An admin who never set one is not a machine
-            // in the wrong place, and moving it somewhere would be FOG
-            // inventing an intention.
-            return;
-        }
-        if (!$Directory->get('joined')) {
-            // Not joined: there is no object to move, and creating one is a
-            // join, which is section 6 and needs the machine.
-            return;
-        }
-        if ('' !== $Directory->containerDN() && !$Directory->ouDrifted($wantOU)) {
-            // The host reported its own DN and it is the right one. Nothing
-            // to ask the directory, so no connection and no cooldown: a
-            // healthy Windows fleet never dials LDAP at all.
-            return;
-        }
-        // Resolved only now, past the free checks above, because a plugin
-        // may answer it from its own table and a healthy host should not
-        // cost that query on every poll.
-        $connection = self::connection($Host);
-        if ('' === $connection['uri']) {
-            // No server for this host's domain: not configured, so nothing
-            // is stamped, exactly as when placement is switched off.
-            return;
-        }
-        if (self::_cooling($Directory)) {
-            return;
-        }
-
-        $ldap = new FOGLdap();
-        $ok = $ldap->connect(
-            $connection['uri'],
-            $connection['bindDN'],
-            $connection['password'],
-            $connection['caCert']
-        );
-        if (!$ok) {
-            self::_record($Directory, $ldap->error());
-            return;
-        }
-
-        try {
-            $dn = trim((string)$Directory->get('computerDN'));
-            if ('' === $dn) {
-                // Normal on Linux: no join tool there exposes the DN. The
-                // directory knows, though, and asking it is better than
-                // asking the machine -- it is the authority on where its own
-                // objects live, and it can answer for a machine that is off.
-                $dn = $ldap->findComputer(
-                    $connection['baseDN'],
-                    (string)$Directory->get('machineAccount')
-                );
-                if ('' === $dn) {
-                    self::_record($Directory, $ldap->error());
-                    return;
-                }
-                // Learned from the directory, so the report stops saying
-                // "unknown" for this host and the free comparison above
-                // works from the next poll on.
-                $Directory->set('computerDN', $dn);
-                if (!$Directory->ouDrifted($wantOU)) {
-                    self::_record($Directory, '');
-                    return;
-                }
-            }
-            if (!$ldap->moveTo($dn, $wantOU)) {
-                self::_record($Directory, $ldap->error());
-                return;
-            }
-            // Where the object now is, not where we asked it to go: a true
-            // return from ldap_rename is the directory confirming the object
-            // is there. Recording it keeps the next poll's free comparison
-            // correct -- leaving the old DN would make FOG move an object
-            // that has already moved, once every poll forever.
-            $Directory->set(
-                'computerDN',
-                FOGLdap::rdn($dn) . ',' . $wantOU
-            );
-        } finally {
-            $ldap->close();
-        }
-
-        self::_record($Directory, '');
-
-        Audit::record(
-            [
-                'type' => 'agent.directory.move',
-                'subjectType' => 'host',
-                'subjectID' => (int)$Host->get('id'),
-                'subjectLabel' => (string)$Host->get('name'),
-                'renderable' => 1,
-                'affectedCount' => 1,
-                'text' => substr(
-                    'moved the computer object to ' . $wantOU,
-                    0,
-                    Audit::MAX_DETAIL
-                ),
-                'authSource' => Principal::AUTH_SOURCE
-            ]
-        );
-    }
-
-    /**
-     * Whether this host was consulted about recently enough to leave alone.
-     *
-     * @param HostDirectory $Directory the observation
-     *
-     * @return bool
-     */
-    private static function _cooling(HostDirectory $Directory)
-    {
-        $at = (string)$Directory->get('placementAt');
-        if (!self::validDate($at)) {
-            return false;
-        }
-        return (time() - self::niceDate($at)->getTimestamp()) < self::RETRY_AFTER;
+        DirectoryPlacementIntent::ensure($Host, $Directory);
     }
 
     /**

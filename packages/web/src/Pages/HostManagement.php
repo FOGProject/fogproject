@@ -3024,6 +3024,15 @@ class HostManagement extends FOGPage
                 );
                 return;
             }
+            if ($checkbox('rejoin_clear_intent')) {
+                // Same rule for an unknown OU placement result.
+                \FOG\Agent\DirectoryPlacementIntent::clearIntentReview(
+                    $this->obj,
+                    $text('rejoin_clear_intent_guid'),
+                    (string)self::$FOGUser->get('name')
+                );
+                return;
+            }
             DirectoryRejoin::configure(
                 $this->obj,
                 [
@@ -3311,6 +3320,51 @@ class HostManagement extends FOGPage
                 . '<p class="small text-muted">'
                 . \Initiator::e(_('The previous operation may have changed this computer or its directory account. Clearing records your decision; it does not undo anything. The agent may still hold a local review marker until its own review.'))
                 . '</p>';
+        }
+        // An OU placement (Move) request that may have run, or whose result is
+        // unknown. An operator reads the directory, then clears an unknown
+        // one so the next check-in may try again.
+        try {
+            $moves = \FOG\Agent\DirectoryPlacementIntent::pendingReview($this->obj);
+        } catch (\Throwable $e) {
+            $moves = [];
+        }
+        foreach ($moves as $move) {
+            $candidatePanel .= '<p class="small text-muted">'
+                . \Initiator::e(
+                    'UNKNOWN' === $move['status']
+                        ? sprintf(_('A request to move this computer object to %s has an unknown result. Read the directory to see where the object is.'), $move['destination'])
+                        : sprintf(_('A request to move this computer object to %s may be in progress.'), $move['destination'])
+                )
+                . '</p>';
+            if ('UNKNOWN' !== $move['status']) {
+                continue;
+            }
+            $fields[self::makeLabel(
+                $labelClass,
+                'rejoin_clear_intent',
+                _('Clear OU placement review')
+            )] = '<div class="form-check">'
+                . self::makeInput(
+                    'form-check-input',
+                    'rejoin_clear_intent',
+                    '',
+                    'checkbox',
+                    'rejoin_clear_intent',
+                    '1'
+                ) . '</div>'
+                . self::makeInput(
+                    '',
+                    'rejoin_clear_intent_guid',
+                    '',
+                    'hidden',
+                    'rejoin_clear_intent_guid',
+                    $move['guid']
+                )
+                . '<p class="small text-muted">'
+                . \Initiator::e(_('Clearing records your decision; it does not undo anything. FOG may then try the move again.'))
+                . '</p>';
+            break;
         }
         if ($retryAllowed) {
             $fields[self::makeLabel($labelClass, 'rejoin_retry', _('Confirm Retry'))]
