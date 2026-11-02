@@ -3526,7 +3526,9 @@ class HostManagement extends FOGPage
 
         // =========================================================
         // Printer Configuration
-        $printerLevel = (
+        // Cast, because an empty stored level means 0 to every reader, and
+        // PHP 8 says '' == 0 is false, so no radio was checked (#2046).
+        $printerLevel = (int)(
             filter_input(INPUT_POST, 'level') ?:
             $this->obj->get('printerLevel')
         );
@@ -3656,6 +3658,11 @@ class HostManagement extends FOGPage
         }
         if (isset($_POST['confirmlevelup'])) {
             $level = filter_input(INPUT_POST, 'level');
+            // Refuse anything but the three levels. A missing level used to
+            // be stored as '' and logged as a success (#2046).
+            if (!in_array($level, ['0', '1', '2'], true)) {
+                throw new \Exception(_('Please select a printer level!'));
+            }
             $this->obj->set('printerLevel', $level);
         }
     }

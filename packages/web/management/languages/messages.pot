@@ -6751,6 +6751,9 @@ msgstr ""
 msgid "Please physically associate"
 msgstr ""
 
+msgid "Please select a printer level!"
+msgstr ""
+
 msgid "Please select a valid backend."
 msgstr ""
 

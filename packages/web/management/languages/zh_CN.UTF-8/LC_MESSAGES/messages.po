@@ -7848,6 +7848,10 @@ msgid "Please physically associate"
 msgstr ""
 
 #, fuzzy
+msgid "Please select a printer level!"
+msgstr "选择一个有效的图像"
+
+#, fuzzy
 msgid "Please select a valid backend."
 msgstr "选择一个有效的图像"
 
