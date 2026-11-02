@@ -3330,7 +3330,7 @@ class HostManagement extends FOGPage
         } catch (\Throwable $e) {
             // The rest of the form still renders; the operator can see why
             // the placement review is missing.
-            self::logFault('directory placement review unreadable for host ' . (int)$this->obj->get('id'));
+            self::logFault('directory placement review unreadable for host ' . (int)$this->obj->get('id') . ': ' . $e->getMessage());
             $moves = [];
         }
         if ($moves) {
@@ -3364,7 +3364,10 @@ class HostManagement extends FOGPage
                     $move['guid']
                 )
                 . '<p class="small text-muted">'
-                . \Initiator::e(_('Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request that may still be running cannot be cleared until ten minutes after it was sent.'))
+                . \Initiator::e(sprintf(
+                    _('Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minutes after its last change, because the directory may still apply it.'),
+                    DirectoryPlacementIntent::CLEAR_REVIEW_AFTER / 60
+                ))
                 . '</p>';
         }
         if ($retryAllowed) {

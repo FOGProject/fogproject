@@ -1863,7 +1863,8 @@ msgstr "個人設定の項目を 1 つクリア"
 msgid "Clear schedules from member hosts"
 msgstr "所属ホストのスケジュールを削除"
 
-msgid "Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request that may still be running cannot be cleared until ten minutes after it was sent."
+#, php-format
+msgid "Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minutes after its last change, because the directory may still apply it."
 msgstr ""
 
 msgid "Click"

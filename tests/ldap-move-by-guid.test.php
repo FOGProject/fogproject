@@ -86,7 +86,7 @@ namespace {
             'a Move bounds the directory\'s answer time before it sends',
             [[LDAP_OPT_TIMEOUT, \FOG\Net\FOGLdap::MOVE_TIMEOUT]] === ($GLOBALS['moveByGuid']['options'] ?? [])
         );
-        $check('a successful Move records ldap_success',['kind' => 'ldap_success', 'code' => 0] === $ldap->moveOutcome());
+        $check('a successful Move records ldap_success', ['kind' => 'ldap_success', 'code' => 0] === $ldap->moveOutcome());
 
         // Without an RDN argument the RDN is read from a DN.
         $GLOBALS['moveByGuid']['objects']['CN=PC2,OU=Old,DC=corp,DC=example'] = true;

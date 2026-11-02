@@ -49,26 +49,36 @@ class DirectoryPlacementIntent extends FOGBase
     const ACTIVE = ['PREPARED', 'MAY_HAVE_RUN', 'UNKNOWN'];
 
     /**
-     * Seconds a MAY_HAVE_RUN row is protected from an operator's clear.
-     *
-     * A Move that was just sent may still be running: its worker waits at
-     * most FOGLdap::MOVE_TIMEOUT for the directory. Clearing the row inside
-     * that window lets the next check-in send a second Move while the first
-     * can still apply. Ten minutes is comfortably above the timeout, so by
-     * then the first Move has either answered or been abandoned. The age is
-     * read from the DB clock, the one that wrote dpiUpdated.
+     * The statuses of a row that needs an operator before the object may be
+     * moved again.
      */
-    const CLEAR_MAY_HAVE_RUN_AFTER = 600;
+    const REVIEW = ['MAY_HAVE_RUN', 'UNKNOWN'];
 
     /**
-     * The quoted SQL list of the ACTIVE statuses. The values are constants,
+     * Seconds a review row is protected from an operator's clear.
+     *
+     * A Move that was just sent may still be running: its worker waits at
+     * most FOGLdap::MOVE_TIMEOUT for the directory. A timeout records
+     * UNKNOWN, but the directory can still apply the abandoned Move, so
+     * UNKNOWN is held as well as MAY_HAVE_RUN. Clearing the row inside that
+     * window lets the next check-in send a second Move while the first can
+     * still apply. Ten minutes is comfortably above the timeout, so by then
+     * the first Move has either answered or been abandoned. The age is read
+     * from the DB clock, the one that wrote dpiUpdated.
+     */
+    const CLEAR_REVIEW_AFTER = 600;
+
+    /**
+     * The quoted SQL list of a status constant. The values are constants,
      * never input.
+     *
+     * @param string[] $statuses self::ACTIVE or self::REVIEW
      *
      * @return string
      */
-    private static function _activeList()
+    private static function _statusList(array $statuses)
     {
-        return "'" . implode("','", self::ACTIVE) . "'";
+        return "'" . implode("','", $statuses) . "'";
     }
 
     /**
@@ -290,7 +300,7 @@ class DirectoryPlacementIntent extends FOGBase
     public static function cancelOwnerPrepared(\PDO $db, $host)
     {
         $cancel = [];
-        foreach (self::_rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (' . self::_activeList() . ') FOR UPDATE', [(int)$host]) as $row) {
+        foreach (self::_rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (' . self::_statusList(self::ACTIVE) . ') FOR UPDATE', [(int)$host]) as $row) {
             if ('PREPARED' !== $row['dpiStatus']) {
                 throw new \RuntimeException('directory_placement_owner_protected', 409);
             }
@@ -319,7 +329,7 @@ class DirectoryPlacementIntent extends FOGBase
     public static function assertClaim(\PDO $db, $own, array $state)
     {
         $cancel = [];
-        foreach (self::_rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiStatus IN (' . self::_activeList() . ') FOR UPDATE') as $row) {
+        foreach (self::_rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiStatus IN (' . self::_statusList(self::ACTIVE) . ') FOR UPDATE') as $row) {
             $same = !empty($state['target']['guid']) && DirectoryRejoin::guid($state['target']['guid'])
                 && self::_guid($state['target']['guid']) === $row['dpiGUID'];
             $same = $same || (!empty($state['target']['sid']) && $state['target']['sid'] === $row['dpiSID']);
@@ -358,7 +368,7 @@ class DirectoryPlacementIntent extends FOGBase
         }
         $rows = self::_rows(
             self::$DB->link(),
-            'SELECT DISTINCT dpiHostID FROM directoryPlacementIntent WHERE dpiStatus IN (\'MAY_HAVE_RUN\',\'UNKNOWN\') AND dpiHostID IN ('
+            'SELECT DISTINCT dpiHostID FROM directoryPlacementIntent WHERE dpiStatus IN (' . self::_statusList(self::REVIEW) . ') AND dpiHostID IN ('
             . implode(',', array_fill(0, count($ids), '?')) . ')',
             $ids
         );
@@ -378,7 +388,7 @@ class DirectoryPlacementIntent extends FOGBase
         $out = [];
         foreach (self::_rows(
             self::$DB->link(),
-            'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (\'MAY_HAVE_RUN\',\'UNKNOWN\') ORDER BY dpiUpdated',
+            'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (' . self::_statusList(self::REVIEW) . ') ORDER BY dpiUpdated',
             [(int)$host->get('id')]
         ) as $row) {
             try {
@@ -409,15 +419,15 @@ class DirectoryPlacementIntent extends FOGBase
      * @throws \RuntimeException directory_intent_review_not_required,
      *                           directory_intent_review_changed or
      *                           directory_placement_move_may_be_running (409);
-     *                           the last when a MAY_HAVE_RUN row is younger
-     *                           than CLEAR_MAY_HAVE_RUN_AFTER
+     *                           the last when the row is younger than
+     *                           CLEAR_REVIEW_AFTER
      */
     public static function clearIntentReview(Host $host, $expectedGuid, $actor)
     {
         $id = (int)$host->get('id');
         $cleared = self::_transaction(function ($db) use ($id, $expectedGuid) {
             self::_lockOwner($db, $id);
-            $rows = self::_rows($db, 'SELECT *,TIMESTAMPDIFF(SECOND,dpiUpdated,UTC_TIMESTAMP(6)) AS dpiAge FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (\'UNKNOWN\',\'MAY_HAVE_RUN\') FOR UPDATE', [$id]);
+            $rows = self::_rows($db, 'SELECT *,TIMESTAMPDIFF(SECOND,dpiUpdated,UTC_TIMESTAMP(6)) AS dpiAge FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (' . self::_statusList(self::REVIEW) . ') FOR UPDATE', [$id]);
             if (!$rows) {
                 throw new \RuntimeException('directory_intent_review_not_required', 409);
             }
@@ -430,9 +440,10 @@ class DirectoryPlacementIntent extends FOGBase
             if (null === $row) {
                 throw new \RuntimeException('directory_intent_review_changed', 409);
             }
-            // The Move of a MAY_HAVE_RUN row may still be waiting on the
-            // directory. UNKNOWN has an answer, so it clears at once.
-            if ('MAY_HAVE_RUN' === $row['dpiStatus'] && (int)$row['dpiAge'] < self::CLEAR_MAY_HAVE_RUN_AFTER) {
+            // The Move may still be waiting on the directory, or a timed-out
+            // Move may still apply. A NULL age (an unreadable dpiUpdated)
+            // counts as old, so a bad row cannot block the clear forever.
+            if (null !== $row['dpiAge'] && (int)$row['dpiAge'] < self::CLEAR_REVIEW_AFTER) {
                 throw new \RuntimeException('directory_placement_move_may_be_running', 409);
             }
             if (1 !== self::_cas($db, $row['dpiGUID'], $row['dpiSID'], $row['dpiGeneration'], $row['dpiHash'], $row['dpiStatus'], 'CANCELED')) {
@@ -626,7 +637,7 @@ class DirectoryPlacementIntent extends FOGBase
             self::_checkPlacementOwner($db, $payload);
             $active = self::_rows(
                 $db,
-                'SELECT dpiGUID FROM directoryPlacementIntent WHERE dpiStatus IN (' . self::_activeList() . ') AND (dpiHostID=? OR dpiGUID=? OR dpiSID=?) FOR UPDATE',
+                'SELECT dpiGUID FROM directoryPlacementIntent WHERE dpiStatus IN (' . self::_statusList(self::ACTIVE) . ') AND (dpiHostID=? OR dpiGUID=? OR dpiSID=?) FOR UPDATE',
                 [$payload['host_id'], self::_guid($payload['target']['guid']), $payload['target']['sid']]
             );
             if ($active) {
