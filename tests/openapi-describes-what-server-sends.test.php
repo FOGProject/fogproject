@@ -169,7 +169,7 @@ $featureHeader = $enroll['responses']['200']['headers']['X-FOG-Agent-Features'] 
 $featureHeaderSchema = $featureHeader['schema'] ?? [];
 $featureHeaderDescription = (string)($featureHeader['description'] ?? '');
 // The handler cannot run here (it sends headers and exits), so read its
-// source: it must build the header from the advertised features joined by
+// source: it must build the header from the two FEATURE constants joined by
 // ', ', and the example must equal what that produces.
 $featuresMethod = new \ReflectionMethod(\FOG\Router\Route::class, 'agentFeatures');
 $featuresSource = implode('', array_slice(
@@ -177,9 +177,13 @@ $featuresSource = implode('', array_slice(
     $featuresMethod->getStartLine() - 1,
     $featuresMethod->getEndLine() - $featuresMethod->getStartLine() + 1
 ));
-$advertisedFeatureHeader = 'directory-join-target-v1, directory-task-operations-v1';
-$t->check('enrollment feature handler builds its header from both directory features',
-    false !== strpos($featuresSource, "'directory-join-target-v1', 'directory-task-operations-v1'")
+$advertisedFeatureHeader = implode(', ', [
+    \FOG\Agent\MachineIdentity::FEATURE,
+    \FOG\Agent\DirectoryOperation::FEATURE
+]);
+$t->check('enrollment feature handler builds its header from both FEATURE constants',
+    false !== strpos($featuresSource, 'MachineIdentity::FEATURE')
+    && false !== strpos($featuresSource, 'DirectoryOperation::FEATURE')
     && false !== strpos($featuresSource, "header('X-FOG-Agent-Features: ' . implode(', ', \$features))"));
 $t->check('enrollment feature header is a string without individual-token enum',
     ($featureHeaderSchema['type'] ?? '') === 'string' && !isset($featureHeaderSchema['enum']));
