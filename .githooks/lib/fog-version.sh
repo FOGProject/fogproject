@@ -59,7 +59,7 @@ release_tag() {
     printf '%s\n' "$t"
 }
 
-# The base version a release tag gives the dev and stable arms. A 1.5 tag
+# The base version a release tag gives the dev arm. A 1.5 tag
 # carries the build count as a fourth field (1.5.10.2518 -> 1.5.10). The first
 # release of a line has three (1.6.0), and is the base as it stands: stripping
 # a field from it gave 1.6.<count>, which the installer then read as a pinned
@@ -71,11 +71,21 @@ release_base() {
     esac
 }
 
-git fetch origin master:master 2>/dev/null || true
-gitcount=$(git rev-list master..HEAD --count)
-
 branchon=$(echo "$gitbranch" | awk -F'-' '{print $1}')
 branchend=$(echo "$gitbranch" | awk -F'-' '{print $2}')
+
+# Only the count-based arms need master. stable reports its release tag and
+# rc its committed suffix, so neither may fail here: a plain stable clone
+# offline has no local master, and set -e would end the script before the
+# stable arm ran.
+gitcount=0
+case "$branchon" in
+    stable|rc) ;;
+    *)
+        git fetch origin master:master 2>/dev/null || true
+        gitcount=$(git rev-list master..HEAD --count)
+        ;;
+esac
 
 current_version=$(grep "define('FOG_VERSION'" "$system_file" | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
 current_channel=$(grep "define('FOG_CHANNEL'" "$system_file" | sed "s/.*FOG_CHANNEL', '\([^']*\)');/\1/")
@@ -83,8 +93,7 @@ current_channel=$(grep "define('FOG_CHANNEL'" "$system_file" | sed "s/.*FOG_CHAN
 # Computes trunkversion/channel using the given commit count for the
 # count-based branch types (dev/working/feature). rc ignores it (it
 # increments off the currently committed suffix, not a commit count) and
-# stable overrides it with its own dev-branch-relative count - both
-# unchanged from the original formula.
+# stable ignores it and reports the release tag it sits on.
 compute_version() {
     count="$1"
     verbegin=""
@@ -114,10 +123,14 @@ compute_version() {
             channel="Patches"
             ;;
         stable)
+            # A stable checkout sits on a release, so it reports that release
+            # tag; 1.6.0 reads as build 0. Not master..dev-branch: a plain
+            # clone has no local dev-branch to count.
             tagversion=$(release_tag)
-            baseversion=$(release_base "$tagversion")
-            count=$(git rev-list master..dev-branch --count) # Get the gitcount from dev-branch instead
-            trunkversion="${baseversion}.${count}"
+            case "$tagversion" in
+                *.*.*.*) trunkversion="$tagversion" ;;
+                *) trunkversion="${tagversion}.0" ;;
+            esac
             # "Stable", not "Patches" -- one channel vocabulary now, shared with
             # fog_update_channel (GH-1279). stable and dev-branch used to
             # compute the SAME label while their update channels differed, so
