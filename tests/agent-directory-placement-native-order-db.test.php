@@ -106,7 +106,7 @@ $t->check(
 // A protected operation of the same host keeps its own Move from being prepared.
 $own = intentFixtureCreate($pdo);
 $ownHost = (new FOG\Items\Host())->set('id', $own['host_id'])->set('name', $own['host_name']);
-FOG\Agent\DirectoryRejoin::change($ownHost, static function (&$config, &$state) use ($own) {
+FOG\Agent\DirectoryRejoin::change($ownHost, static function (&$config, &$state) {
     $state = ['version' => 1, 'phase' => 'started', 'attempt_id' => bin2hex(random_bytes(16))];
 });
 $own['payload']['snapshot'] = intentFixtureSnapshot($pdo, $own['host_id']);
