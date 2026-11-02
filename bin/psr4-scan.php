@@ -231,6 +231,12 @@ const TABLE = [
     // The join half of directory membership (design 0009 section 6): the
     // one class that decides whether a credential leaves this server.
     'DirectoryJoin' => 'Agent',
+    // Target-based rejoin: task eligibility, operation planning and
+    // claiming, and the durable rejoin state. Their parent chains do not
+    // select an Agent bucket, so they are placed here explicitly.
+    'DirectoryTask' => 'Agent',
+    'DirectoryOperation' => 'Agent',
+    'DirectoryRejoin' => 'Agent',
     // The certificate-to-host identity check: its parent chain does not
     // select an Agent bucket, so it is placed here explicitly.
     'MachineIdentity' => 'Agent',

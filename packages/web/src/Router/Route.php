@@ -592,6 +592,15 @@ class Route extends FOGBase
         'user' => [
             'token',
         ],
+        // The rejoin config and state are written only by DirectoryRejoin
+        // and DirectoryOperation, under a row lock. A generic edit that
+        // could set them would bypass the claim and report checks. hostID
+        // is the row's identity and is never rebound by a client.
+        'hostdirectory' => [
+            'hostID',
+            'rejoinConfig',
+            'rejoinState',
+        ],
         // Both record what the installer DID, and are written by it only
         // after it succeeded. PluginManagementPage::installPost() sets
         // state, then runs Plugin::installdb() to create the tables, and
