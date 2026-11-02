@@ -88,6 +88,20 @@ $t->check(
         Intent::clearIntentReview($host, intentFixtureGuid(), 'operator');
     }) && 'UNKNOWN' === intentFixtureStatus($pdo, $unknown['target']['guid'])
 );
+// A timed-out Move records UNKNOWN, but the directory can still apply it, so
+// a fresh UNKNOWN row is held behind the same window as MAY_HAVE_RUN.
+$t->check(
+    'a fresh UNKNOWN request cannot be cleared and nothing changes',
+    'directory_placement_move_may_be_running' === intentFixtureRefusal(static function () use ($host, $unknown) {
+        Intent::clearIntentReview($host, $unknown['target']['guid'], 'operator');
+    }) && 'UNKNOWN' === intentFixtureStatus($pdo, $unknown['target']['guid'])
+);
+// A zero date reads back as a NULL age. It must not block the clear forever.
+$sqlMode = $pdo->query('SELECT @@SESSION.sql_mode')->fetchColumn();
+$pdo->exec("SET SESSION sql_mode=''");
+$pdo->prepare("UPDATE directoryPlacementIntent SET dpiUpdated='0000-00-00 00:00:00' WHERE dpiGUID=?")
+    ->execute([intentFixtureBytes($unknown['target']['guid'])]);
+$pdo->prepare('SET SESSION sql_mode=?')->execute([$sqlMode]);
 Intent::clearIntentReview($host, strtoupper($unknown['target']['guid']), 'operator');
 // auditLog is not reset between runs, so find this run's row by the object's GUID.
 $audit = intentFixtureAll(
@@ -139,7 +153,7 @@ $t->check(
     }) && 'MAY_HAVE_RUN' === intentFixtureStatus($pdo, $running['target']['guid'])
 );
 $pdo->prepare('UPDATE directoryPlacementIntent SET dpiUpdated=DATE_SUB(UTC_TIMESTAMP(6),INTERVAL ? SECOND) WHERE dpiGUID=?')
-    ->execute([Intent::CLEAR_MAY_HAVE_RUN_AFTER + 60, hex2bin(str_replace('-', '', $running['target']['guid']))]);
+    ->execute([Intent::CLEAR_REVIEW_AFTER + 60, intentFixtureBytes($running['target']['guid'])]);
 Intent::clearIntentReview($runningHost, $running['target']['guid'], 'operator');
 $audit = intentFixtureAll(
     $pdo,

@@ -25,7 +25,8 @@ foreach ($pdo->query('SHOW FULL COLUMNS FROM `directoryPlacementIntent`')->fetch
     $columns[(string)$column['Field']] = [
         'type' => strtolower((string)$column['Type']),
         'null' => (string)$column['Null'],
-        'collation' => null === $column['Collation'] ? null : strtolower((string)$column['Collation'])
+        'collation' => null === $column['Collation'] ? null : strtolower((string)$column['Collation']),
+        'default' => $column['Default']
     ];
 }
 $t->check(
@@ -41,6 +42,14 @@ $t->check(
 $t->check(
     'status and hash compare byte for byte',
     'utf8mb3_bin' === $columns['dpiStatus']['collation'] && 'utf8mb3_bin' === $columns['dpiHash']['collation']
+);
+// Every writer names every column, so no column carries a default that could
+// stand in for a value FOG forgot to write (dpiUpdated above all).
+$t->check(
+    'no column has a default',
+    [] === array_filter(array_column($columns, 'default'), static function ($d) {
+        return null !== $d;
+    })
 );
 $t->check(
     'only the result may be NULL',
