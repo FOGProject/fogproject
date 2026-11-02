@@ -354,6 +354,7 @@ class Authorization extends FOGBase
         'agentenroll' => null,
         'agentfeatures' => null,             // public, read-only enrollment feature probe
         'agentidentitycheck' => null,        // existing /agent/v1/ client-certificate gate
+        'agentrejoinstart' => null,          // same gate; per-host one-shot authorization is in DirectoryRejoin
         'agentpoll' => null,                 // fog-agent: gated by the client certificate in Route, not by a token
         'agentrenew' => null,                // fog-agent: same gate
         'agentresult' => null,               // fog-agent: same gate
