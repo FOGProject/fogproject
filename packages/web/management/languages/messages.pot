@@ -1757,6 +1757,9 @@ msgstr ""
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+msgid "Check the live agent identity"
+msgstr ""
+
 msgid "Check the password stored for this node"
 msgstr ""
 
@@ -1875,6 +1878,9 @@ msgid "Column type lookup failed"
 msgstr ""
 
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
+msgstr ""
+
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity)."
 msgstr ""
 
 msgid "Command"
@@ -3017,6 +3023,9 @@ msgstr ""
 msgid "FOG Agent poll"
 msgstr ""
 
+msgid "FOG Agent protocol features"
+msgstr ""
+
 msgid "FOG Client"
 msgstr ""
 
@@ -4054,6 +4063,9 @@ msgid "Identity"
 msgstr ""
 
 msgid "Identity Provider"
+msgstr ""
+
+msgid "Identity mismatch, conflict or unresolved live identity. host_id is 0."
 msgstr ""
 
 #, php-format
@@ -6318,6 +6330,9 @@ msgstr ""
 msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
 msgstr ""
 
+msgid "Optional. Declares directory-join-target-v1 to bind this request to a live directory identity."
+msgstr ""
+
 msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
 msgstr ""
 
@@ -6974,6 +6989,9 @@ msgstr ""
 msgid "Providers"
 msgstr ""
 
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity feature. This does not issue a certificate or change trust."
+msgstr ""
+
 msgid "Publisher"
 msgstr ""
 
@@ -7242,6 +7260,9 @@ msgid "Required database field is empty"
 msgstr ""
 
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
+msgstr ""
+
+msgid "Requires the existing fog-agent client certificate, verified by the web server and bound to its host principal. Resolves the supplied live identity without check-in, inventory, AD or certificate writes. host_id is the resolved host only when the identity matched; otherwise it is 0."
 msgstr ""
 
 msgid "Reset Encryption Data"
@@ -9019,6 +9040,9 @@ msgstr ""
 msgid "The id the package manager knows, e.g. googlechrome."
 msgstr ""
 
+msgid "The identity or required AD directory feature declaration is invalid."
+msgstr ""
+
 msgid "The identity provider could not be reached"
 msgstr ""
 
@@ -9080,6 +9104,12 @@ msgid "The key will be assigned to registered hosts when a"
 msgstr ""
 
 msgid "The leaf followed by the agent CA, PEM."
+msgstr ""
+
+msgid "The live SMBIOS and MAC identity reported by fog-agent."
+msgstr ""
+
+msgid "The live identity matches the certificate principal."
 msgstr ""
 
 msgid "The logical sector size of the disk this image was captured from."
@@ -9189,6 +9219,9 @@ msgstr ""
 msgid "The request body is not a JSON object."
 msgstr ""
 
+msgid "The request declares directory-join-target-v1 inconsistently with the stored request for this key, or its identity no longer resolves to one host. The request is not changed; the agent enrolls again with a new key."
+msgstr ""
+
 msgid "The resource is not in a cancellable state."
 msgstr ""
 
@@ -9214,6 +9247,9 @@ msgid "The saved filter."
 msgstr ""
 
 msgid "The selected site no longer exists"
+msgstr ""
+
+msgid "The server advertises the AD directory identity feature."
 msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
