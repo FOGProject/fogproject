@@ -19,7 +19,6 @@ class PollRouteLdapStub
         return ['status' => 'found', 'base_dn' => 'DC=corp,DC=example', 'dc' => 'dc1.corp.example'];
     }
     public function computerRecord($baseDn, $account) { return ['status' => 'error']; }
-    public function findComputer($baseDn, $account) { return ''; }
     public function containerIdentity($dn) { return ['status' => 'error']; }
     public function moveTo($dn, $parentDn) { self::$moves++; return true; }
 }

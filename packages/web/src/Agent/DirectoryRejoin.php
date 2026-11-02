@@ -216,7 +216,7 @@ class DirectoryRejoin extends FOGBase
      *
      * @return bool
      */
-    public static function protectedState($raw)
+    private static function protectedState($raw)
     {
         try {
             $state = self::decode($raw);

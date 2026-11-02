@@ -56,6 +56,16 @@ class FOGLdap
     const TIMEOUT = 5;
 
     /**
+     * Seconds a Move may wait for the directory's answer.
+     *
+     * Without a bound a hung Modify DN holds the worker, and its MAY_HAVE_RUN
+     * row, for as long as the server stalls. DirectoryPlacementIntent keeps
+     * MAY_HAVE_RUN rows from an operator's clear for longer than this plus a
+     * margin, so the clear window is real.
+     */
+    const MOVE_TIMEOUT = 60;
+
+    /**
      * The connection, once bound.
      *
      * ldap_connect() hands back a resource on PHP 7.4 and an LDAP\Connection
@@ -155,50 +165,6 @@ class FOGLdap
         }
         $this->_ld = $ld;
         return true;
-    }
-
-    /**
-     * The distinguished name of the computer object with this machine
-     * account name, or '' if there is not exactly one.
-     *
-     * The fallback for a host that could not report its own DN, which is
-     * every Linux host: no join tool there exposes it. Exactly one match or
-     * nothing -- two objects with the same account name across a forest is
-     * a situation to report, never one to guess between.
-     *
-     * @param string $baseDn  where to search
-     * @param string $account the machine account, with or without its dollar
-     *
-     * @return string
-     */
-    public function findComputer($baseDn, $account)
-    {
-        if (!$this->_ld || '' === trim((string)$baseDn)) {
-            $this->_error = 'no search base configured';
-            return '';
-        }
-        $account = rtrim(trim((string)$account), '$');
-        if ('' === $account) {
-            return '';
-        }
-        $filter = sprintf(
-            '(&(objectClass=computer)(sAMAccountName=%s$))',
-            ldap_escape($account, '', LDAP_ESCAPE_FILTER)
-        );
-        $res = @ldap_search($this->_ld, $baseDn, $filter, ['distinguishedName']);
-        if (!$res) {
-            $this->_error = 'search failed: ' . ldap_error($this->_ld);
-            return '';
-        }
-        $entries = @ldap_get_entries($this->_ld, $res);
-        $count = (int)($entries['count'] ?? 0);
-        if (1 !== $count) {
-            $this->_error = 0 === $count
-                ? 'no computer object named ' . $account . '$'
-                : $count . ' computer objects named ' . $account . '$';
-            return '';
-        }
-        return (string)($entries[0]['distinguishedname'][0] ?? '');
     }
 
     /**
@@ -758,6 +724,9 @@ class FOGLdap
         // deleteoldrdn=true: the name is not changing, so keeping the old
         // RDN as an extra value would leave a second name on the object.
         $this->_moveOutcome = ['kind' => 'request_result_unknown', 'code' => null];
+        // Bounds the synchronous modify. Set here, not in connect(), so the
+        // short search timeout of every other caller stays as it is.
+        ldap_set_option($this->_ld, LDAP_OPT_TIMEOUT, self::MOVE_TIMEOUT);
         if (!@ldap_rename($this->_ld, $dn, $rdn, $parentDn, true)) {
             $this->_error = ldap_error($this->_ld);
             $code = (int)ldap_errno($this->_ld);
@@ -769,6 +738,19 @@ class FOGLdap
         }
         $this->_moveOutcome = ['kind' => 'ldap_success', 'code' => 0];
         return true;
+    }
+
+    /**
+     * The 16 raw bytes of a GUID given as a UUID. The caller has checked the
+     * shape.
+     *
+     * @param string $guid the UUID
+     *
+     * @return string
+     */
+    public static function guidBytes($guid)
+    {
+        return hex2bin(str_replace('-', '', strtolower($guid)));
     }
 
     /**
@@ -787,7 +769,7 @@ class FOGLdap
         if (!\FOG\Agent\DirectoryRejoin::guid($guid)) {
             throw new \InvalidArgumentException('invalid immutable LDAP identity');
         }
-        $bytes = hex2bin(str_replace('-', '', strtolower($guid)));
+        $bytes = self::guidBytes($guid);
         $binary = strrev(substr($bytes, 0, 4)) . strrev(substr($bytes, 4, 2))
             . strrev(substr($bytes, 6, 2)) . substr($bytes, 8);
         return '<GUID=' . bin2hex($binary) . '>';

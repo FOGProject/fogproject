@@ -2084,7 +2084,7 @@ msgstr ""
 msgid "Clear schedules from member hosts"
 msgstr "Pianifica spegnimento"
 
-msgid "Clearing records your decision and undoes nothing. The move may have run, or may still be running. FOG may then try the move again."
+msgid "Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request that may still be running cannot be cleared until ten minutes after it was sent."
 msgstr ""
 
 msgid "Click"
@@ -10580,7 +10580,7 @@ msgstr ""
 msgid "The payload bytes."
 msgstr ""
 
-msgid "The plan is no longer ready or its host, identity, configuration or directory records changed."
+msgid "The plan is no longer ready or its host, identity, configuration or directory records changed. The reason codes include these: an OU placement request that may have run still holds the same computer object (directory_placement_target_protected)."
 msgstr ""
 
 #, fuzzy

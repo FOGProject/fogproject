@@ -130,6 +130,16 @@ $t->check(
     }) && 'MAY_HAVE_RUN' === intentFixtureStatus($pdo, $running['target']['guid'])
         && [$running['host_id']] === DirectoryRejoin::protectedHosts([$running['host_id']])
 );
+// A fresh MAY_HAVE_RUN row may belong to a Move that is still waiting on the
+// directory, so clearing it would allow a second Move. It is refused.
+$t->check(
+    'a fresh MAY_HAVE_RUN request cannot be cleared and nothing changes',
+    'directory_placement_move_may_be_running' === intentFixtureRefusal(static function () use ($runningHost, $running) {
+        Intent::clearIntentReview($runningHost, $running['target']['guid'], 'operator');
+    }) && 'MAY_HAVE_RUN' === intentFixtureStatus($pdo, $running['target']['guid'])
+);
+$pdo->prepare('UPDATE directoryPlacementIntent SET dpiUpdated=DATE_SUB(UTC_TIMESTAMP(6),INTERVAL ? SECOND) WHERE dpiGUID=?')
+    ->execute([Intent::CLEAR_MAY_HAVE_RUN_AFTER + 60, hex2bin(str_replace('-', '', $running['target']['guid']))]);
 Intent::clearIntentReview($runningHost, $running['target']['guid'], 'operator');
 $audit = intentFixtureAll(
     $pdo,

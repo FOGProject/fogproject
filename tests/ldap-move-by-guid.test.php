@@ -24,6 +24,12 @@ namespace FOG\Net {
         return 0 === $state['answer_errno'];
     }
 
+    function ldap_set_option($ld, $option, $value)
+    {
+        $GLOBALS['moveByGuid']['options'][] = [$option, $value];
+        return true;
+    }
+
     function ldap_error($ld)
     {
         return (string)$GLOBALS['moveByGuid']['error'];
@@ -76,7 +82,11 @@ namespace {
             true === $moved && $targetDn === ($call['entry'] ?? null) && 'CN=PC1' === ($call['rdn'] ?? null)
                 && $destinationDn === ($call['parent'] ?? null) && true === ($call['delete_old_rdn'] ?? null)
         );
-        $check('a successful Move records ldap_success', ['kind' => 'ldap_success', 'code' => 0] === $ldap->moveOutcome());
+        $check(
+            'a Move bounds the directory\'s answer time before it sends',
+            [[LDAP_OPT_TIMEOUT, \FOG\Net\FOGLdap::MOVE_TIMEOUT]] === ($GLOBALS['moveByGuid']['options'] ?? [])
+        );
+        $check('a successful Move records ldap_success',['kind' => 'ldap_success', 'code' => 0] === $ldap->moveOutcome());
 
         // Without an RDN argument the RDN is read from a DN.
         $GLOBALS['moveByGuid']['objects']['CN=PC2,OU=Old,DC=corp,DC=example'] = true;

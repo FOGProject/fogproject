@@ -32,7 +32,6 @@ class ObsPlacementLdap
     {
         return self::$records[strtolower(rtrim((string)$account, '$'))] ?? ['status' => 'error', 'reason' => 'fixture_record_unspecified'];
     }
-    public function findComputer($baseDn, $account) { return ''; }
     public function containerIdentity($dn) { return ['status' => 'error', 'reason' => 'fixture_destination_unspecified']; }
     public function moveTo($dn, $parentDn) { self::$moves[] = [$dn, $parentDn]; return true; }
     public function error() { return 'obs_placement_fixture_error'; }

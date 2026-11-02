@@ -124,26 +124,38 @@ class DirectoryLdapStub
         return explode(',', (string)$dn, 2)[1] ?? '';
     }
 
+    public static function guidBytes($guid)
+    {
+        return self::real('guidBytes', [$guid]);
+    }
+
     public static function sameNamingContext($dn, $nc)
     {
-        $dn = trim((string)$dn);
-        $nc = trim((string)$nc);
-        return '' !== $nc && (0 === strcasecmp($dn, $nc)
-            || (strlen($dn) > strlen($nc) && 0 === strcasecmp(substr($dn, -strlen($nc) - 1), ',' . $nc)));
+        return self::real('sameNamingContext', [$dn, $nc]);
     }
 
     public static function samePlacementNC($dn, array $context)
     {
-        $root = (string)($context['base_dn'] ?? '');
-        if ('' === $root || !self::sameNamingContext($dn, $root)) {
-            return false;
+        return self::real('samePlacementNC', [$dn, $context]);
+    }
+
+    /**
+     * Calls the product's own static helper. The real class cannot load under
+     * its own name here, because the stub holds that name, so its source is
+     * loaded once under another name.
+     *
+     * @param string $method the static method
+     * @param array  $args   its arguments
+     *
+     * @return mixed
+     */
+    private static function real($method, array $args)
+    {
+        if (!class_exists('FOG\\Net\\DirectoryLdapReal', false)) {
+            $source = file_get_contents(dirname(__DIR__, 2) . '/packages/web/src/Net/FOGLdap.php');
+            $source = preg_replace('/^class FOGLdap\b/m', 'class DirectoryLdapReal', (string)$source, 1);
+            eval('?>' . $source);
         }
-        $best = '';
-        foreach ($context['naming_contexts'] ?? [] as $nc) {
-            if (is_string($nc) && strlen($nc) > strlen($best) && self::sameNamingContext($dn, $nc)) {
-                $best = $nc;
-            }
-        }
-        return '' !== $best && 0 === strcasecmp($best, $root);
+        return call_user_func_array(['FOG\\Net\\DirectoryLdapReal', $method], $args);
     }
 }

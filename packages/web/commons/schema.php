@@ -12095,7 +12095,7 @@ $this->schema[] = [
     "CREATE TABLE IF NOT EXISTS `directoryPlacementIntent` ( "
     . "`dpiGUID` binary(16) NOT NULL, "
     . "`dpiSID` varbinary(184) NOT NULL, "
-    . "`dpiHostID` int(10) unsigned NOT NULL, "
+    . "`dpiHostID` int(11) NOT NULL, "
     . "`dpiGeneration` bigint(20) unsigned NOT NULL, "
     . "`dpiStatus` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, "
     . "`dpiPayload` mediumtext NOT NULL, "

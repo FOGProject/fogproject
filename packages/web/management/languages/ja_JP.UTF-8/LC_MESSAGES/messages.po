@@ -1863,7 +1863,7 @@ msgstr "個人設定の項目を 1 つクリア"
 msgid "Clear schedules from member hosts"
 msgstr "所属ホストのスケジュールを削除"
 
-msgid "Clearing records your decision and undoes nothing. The move may have run, or may still be running. FOG may then try the move again."
+msgid "Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request that may still be running cannot be cleared until ten minutes after it was sent."
 msgstr ""
 
 msgid "Click"
@@ -9365,7 +9365,7 @@ msgstr "要求されたパスは既に別のイメージで使用されていま
 msgid "The payload bytes."
 msgstr "ペイロードの実データ。"
 
-msgid "The plan is no longer ready or its host, identity, configuration or directory records changed."
+msgid "The plan is no longer ready or its host, identity, configuration or directory records changed. The reason codes include these: an OU placement request that may have run still holds the same computer object (directory_placement_target_protected)."
 msgstr ""
 
 msgid "The plugin directory"
