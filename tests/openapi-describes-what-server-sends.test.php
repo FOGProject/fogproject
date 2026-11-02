@@ -167,13 +167,23 @@ $t->check('POST /unisearch', isset($paths['/unisearch']['post']));
 $enroll = $paths['/agent/v1/enroll']['get'];
 $featureHeader = $enroll['responses']['200']['headers']['X-FOG-Agent-Features'] ?? [];
 $featureHeaderSchema = $featureHeader['schema'] ?? [];
-// The handler builds the header from the constant, so the example is tied to
-// the constant's value, and the constant is pinned to the shipped token.
-$actualFeatureHeader = \FOG\Agent\MachineIdentity::FEATURE;
+// The handler cannot run here (it sends headers and exits), so read its
+// source: it must build the header from MachineIdentity::FEATURE joined by
+// ', ', and the example must equal what that produces.
+$featuresMethod = new \ReflectionMethod(\FOG\Router\Route::class, 'agentFeatures');
+$featuresSource = implode('', array_slice(
+    file((string)$featuresMethod->getFileName()),
+    $featuresMethod->getStartLine() - 1,
+    $featuresMethod->getEndLine() - $featuresMethod->getStartLine() + 1
+));
+$advertisedFeatureHeader = \FOG\Agent\MachineIdentity::FEATURE;
+$t->check('enrollment feature handler builds its header from MachineIdentity::FEATURE',
+    false !== strpos($featuresSource, 'MachineIdentity::FEATURE')
+    && false !== strpos($featuresSource, "header('X-FOG-Agent-Features: ' . implode(', ', \$features))"));
 $t->check('enrollment feature header is a string without individual-token enum',
     ($featureHeaderSchema['type'] ?? '') === 'string' && !isset($featureHeaderSchema['enum']));
 $t->check('enrollment feature header example matches the advertised feature',
-    ($featureHeaderSchema['example'] ?? null) === $actualFeatureHeader);
+    ($featureHeaderSchema['example'] ?? null) === $advertisedFeatureHeader);
 $enrollBodyFeatures = $enroll['responses']['200']['content']['application/json']['schema']['properties']['features'] ?? [];
 $t->check('enrollment JSON body advertises the single identity feature',
     ($enrollBodyFeatures['type'] ?? '') === 'array'
