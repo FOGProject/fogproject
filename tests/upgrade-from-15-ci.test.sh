@@ -193,6 +193,16 @@ if [[ $code != 2* || -z $got ]]; then
 fi
 echo "  ok    1.5 install: schema $got (FOG_SCHEMA $want15)"
 
+# --- 1b. real 1.5 data ------------------------------------------------------
+# 1.5 wrote '' into multicastSessions.msAnon3 and msAnon4 (VARCHAR(250) NOT
+# NULL). This 1.5 database sits past 1.6's step 268, so the reconciler does
+# the msShutdown (ENUM) and msMaxwait (INT) renames, and under 1.6's strict
+# sql_mode they fail with 1265 / 1292 unless it normalizes those rows first.
+# INSERT IGNORE fills the other NOT NULL columns, which have no default.
+sql "INSERT IGNORE INTO \`$DB\`.multicastSessions (msAnon3, msAnon4) VALUES ('', '')" \
+    || fail "could not seed a 1.5 multicastSessions row"
+echo "  ok    seeded a multicastSessions row with msAnon3='' and msAnon4=''"
+
 # --- 2. the upgrade --------------------------------------------------------
 code=$(deploy "$web16" "$WORK/deploy16.log")
 got=$(version)
