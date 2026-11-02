@@ -3018,9 +3018,11 @@ class Route extends FOGBase
      */
     public static function agentFeatures()
     {
-        $features = ['directory-join-target-v1', 'directory-task-operations-v1'];
-        header('X-FOG-Agent-Features: ' . implode(', ', $features));
-        HTTPResponseCodes::breakHead(200, json_encode(['status' => 'ok', 'features' => $features]));
+        header('X-FOG-Agent-Features: directory-join-target-v1, directory-task-operations-v1');
+        HTTPResponseCodes::breakHead(200, json_encode([
+            'status' => 'ok',
+            'features' => ['directory-join-target-v1', 'directory-task-operations-v1']
+        ]));
     }
     /**
      * fog-agent's claim of one planned directory operation.
