@@ -98,14 +98,17 @@ jobs:
   # Head denylist: workflows for a `pull_request` are read from the merge of
   # head into base, so a PR whose HEAD is a long-lived branch runs this file
   # too. stable-releases.yml opens exactly such a PR (`stable` -> `dev-branch`)
-  # to sync a release back. Without this list, widening the base allowlist to
-  # dev-branch would have this job push commits onto `stable` -- a branch whose
-  # version is owned exclusively by stable-releases.yml.
+  # to sync a release back. Without this list, the dev-branch base allowlist
+  # would have this job push commits onto `stable` -- a branch whose version
+  # is owned exclusively by stable-releases.yml.
+  #
+  # Base allowlist: dev-branch, the 1.6 patches line since the 1.6.0 release
+  # (it was working-1.6 before).
   regen:
     name: regenerate
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository
-      && github.event.pull_request.base.ref == 'working-1.6'
+      && github.event.pull_request.base.ref == 'dev-branch'
       && !contains(fromJson('["stable", "master", "dev-branch", "working-1.6"]'), github.event.pull_request.head.ref)
 
     # Least privilege, stated rather than inherited -- the same reasoning as
