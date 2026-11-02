@@ -87,7 +87,7 @@ else
         # rc-1.6.0 checkout, RC-1 and RC-2 alike.
         resolvable=no
         case "$(git -C "$repo" branch --show-current 2>/dev/null)" in
-            rc-*) resolvable=rc ;;
+            rc-*|master) resolvable=rc ;;
             working-*|dev-*|stable|feature-*) resolvable=yes ;;
         esac
         if [ "$resolvable" = "no" ]; then
@@ -109,6 +109,32 @@ else
     fi
     [ -n "$saved" ] && cp "$saved" "$generated"
     rm -rf "$tmp"
+fi
+
+# --- B2. a master checkout reports the release pin ------------------------
+# master is the release pin, and at a release it shares its commit with
+# dev-branch. Resolved by distance, it reported dev-branch's 1.6.0.0 and
+# Patches instead of the committed 1.6.0 and Stable (seen on the 1.6.0 lab
+# install of master, 2026-11-02). Built in a scratch clone so the check does
+# not depend on which branch this checkout is on.
+if [ -x "$writer" ]; then
+    scratch=$(mktemp -d)
+    if git clone -q --shared --no-checkout "$repo" "$scratch/r" 2>/dev/null &&
+        git -C "$scratch/r" checkout -q -B master HEAD 2>/dev/null &&
+        git -C "$scratch/r" branch -q -f dev-branch HEAD 2>/dev/null; then
+        (cd "$scratch/r" && sh "$writer" >/dev/null 2>&1)
+        mgen="$scratch/r/packages/web/commons/version.php"
+        msys="$scratch/r/packages/web/src/Base/System.php"
+        for key in FOG_VERSION FOG_CHANNEL; do
+            want=$(awk -F\' "/define\('$key'[,]/{print \$4; exit}" "$msys")
+            got=$(awk -F\' "/define\('$key'[,]/{print \$4; exit}" "$mgen" 2>/dev/null)
+            [ "$got" = "$want" ] ||
+                bad "a master checkout generated $key '$got', not the committed release value '$want'."
+        done
+    else
+        bad "could not build the scratch master clone for check B2."
+    fi
+    rm -rf "$scratch"
 fi
 
 # --- C. System.php defines the version only as a fallback ----------------

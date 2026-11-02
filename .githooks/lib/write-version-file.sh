@@ -58,10 +58,16 @@ out="$project_dir/packages/web/commons/version.php"
 # So an unrecognized name is resolved to the long-lived branch this work is
 # actually based on -- the one closest to HEAD by commit count. The COUNT is
 # unaffected either way, since fog-version.sh measures `master..HEAD` from the
-# tree rather than from the name.
+# tree rather than from the name. master is the one name kept as it is, not
+# resolved: it is the release pin, and it carries the committed release values.
 branch=$(git branch --show-current 2>/dev/null || true)
 case "$branch" in
-    working-*|dev-*|stable|rc-*|feature-*) ;;
+    # master is the release pin. fog-version.sh takes no arm for it, so the
+    # committed release values (1.6.0, Stable) stand. Resolving it to the
+    # nearest branch instead made a master install report dev-branch's
+    # 1.6.0.0 and Patches, because master and dev-branch share a commit at a
+    # release.
+    working-*|dev-*|stable|rc-*|feature-*|master) ;;
     *)
         nearest=""
         nearest_distance=""
