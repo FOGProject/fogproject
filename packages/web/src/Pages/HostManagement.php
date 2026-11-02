@@ -3335,6 +3335,7 @@ class HostManagement extends FOGPage
         }
         if ($moves) {
             $move = $moves[0];
+            $clearMinutes = (int)ceil(DirectoryPlacementIntent::CLEAR_REVIEW_AFTER / 60);
             $candidatePanel .= '<p class="small text-muted">'
                 . \Initiator::e(
                     'UNKNOWN' === $move['status']
@@ -3365,8 +3366,12 @@ class HostManagement extends FOGPage
                 )
                 . '<p class="small text-muted">'
                 . \Initiator::e(sprintf(
-                    _('Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minutes after its last change, because the directory may still apply it.'),
-                    DirectoryPlacementIntent::CLEAR_REVIEW_AFTER / 60
+                    ngettext(
+                        'Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minute after its last change, because the directory may still apply it.',
+                        'Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minutes after its last change, because the directory may still apply it.',
+                        $clearMinutes
+                    ),
+                    $clearMinutes
                 ))
                 . '</p>';
         }

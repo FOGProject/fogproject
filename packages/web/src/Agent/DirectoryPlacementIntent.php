@@ -62,7 +62,7 @@ class DirectoryPlacementIntent extends FOGBase
      * UNKNOWN, but the directory can still apply the abandoned Move, so
      * UNKNOWN is held as well as MAY_HAVE_RUN. Clearing the row inside that
      * window lets the next check-in send a second Move while the first can
-     * still apply. Ten minutes is comfortably above the timeout, so by then
+     * still apply. The window is comfortably above the timeout, so by then
      * the first Move has either answered or been abandoned. The age is read
      * from the DB clock, the one that wrote dpiUpdated.
      */
