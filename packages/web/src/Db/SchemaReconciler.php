@@ -299,6 +299,83 @@ class SchemaReconciler extends FOGBase
     }
 
     /**
+     * Builds the UPDATE that makes a renamed column's old values fit the
+     * type it is renamed to, or null when the target type needs none.
+     *
+     * ENUM target: a value outside the literals (or NULL) becomes the
+     * declared DEFAULT, else the first literal. Integer target: a value
+     * that is not an integer (or NULL) becomes 0. Any other type holds
+     * whatever the old column held.
+     *
+     * @param string $table Table name.
+     * @param string $from  Column being renamed.
+     * @param string $type  Target column type, as the manifest declares it.
+     *
+     * @return string|null SQL statement, or null.
+     */
+    private static function _legacyNormalizer($table, $from, $type)
+    {
+        $lit = "'(?:[^'\\\\]|''|\\\\.)*'";
+        if (preg_match(
+            '/^\s*ENUM\s*\(\s*((?:' . $lit . '\s*,?\s*)+)\)(.*)$/is',
+            $type,
+            $m
+        )) {
+            preg_match_all('/' . $lit . '/', $m[1], $found);
+            $values = [];
+            foreach ($found[0] as $raw) {
+                $values[] = self::_unquote($raw);
+            }
+            if (!$values) {
+                return null;
+            }
+            $default = $values[0];
+            if (preg_match('/\bDEFAULT\s+(' . $lit . ')/i', $m[2], $d)) {
+                $default = self::_unquote($d[1]);
+            }
+            $quote = static function ($v) {
+                return "'" . str_replace("'", "''", str_replace('\\', '\\\\', $v)) . "'";
+            };
+            return sprintf(
+                'UPDATE `%1$s` SET `%2$s` = %3$s WHERE `%2$s` IS NULL '
+                . 'OR `%2$s` NOT IN (%4$s)',
+                $table,
+                $from,
+                $quote($default),
+                implode(',', array_map($quote, $values))
+            );
+        }
+        if (preg_match(
+            '/^\s*(?:TINYINT|SMALLINT|MEDIUMINT|INTEGER|INT|BIGINT)\b/i',
+            $type
+        )) {
+            return sprintf(
+                'UPDATE `%1$s` SET `%2$s` = \'0\' WHERE `%2$s` IS NULL '
+                . 'OR `%2$s` NOT REGEXP \'^-?[0-9]+$\'',
+                $table,
+                $from
+            );
+        }
+        return null;
+    }
+
+    /**
+     * Strips the quotes from a SQL string literal and undoes its escapes.
+     *
+     * @param string $raw Literal including its quotes.
+     *
+     * @return string
+     */
+    private static function _unquote($raw)
+    {
+        return preg_replace(
+            ["/''/", '/\\\\(.)/s'],
+            ["'", '$1'],
+            substr($raw, 1, -1)
+        );
+    }
+
+    /**
      * Works out the statements needed to bring $have up to $manifest.
      *
      * Pure: touches nothing, and carries the effect of each statement into
@@ -353,6 +430,19 @@ class SchemaReconciler extends FOGBase
                 // Already renamed, or the source is gone and the column
                 // pass will add the target fresh.
                 continue;
+            }
+            // A 1.5 server never runs step 268, so these columns still hold
+            // 1.5's VARCHAR data, and 1.5 wrote '' into them. Under 1.6's
+            // strict sql_mode the CHANGE then fails (1265 Data truncated for
+            // an ENUM, 1292 Truncated incorrect INTEGER value for an INT) and
+            // the update halts. Normalize what the target cannot hold first.
+            $fix = self::_legacyNormalizer(
+                $rename['table'],
+                $rename['from'],
+                $rename['type']
+            );
+            if ($fix !== null) {
+                $plan[] = $fix;
             }
             $plan[] = sprintf(
                 'ALTER TABLE `%s` CHANGE `%s` `%s` %s',
