@@ -135,6 +135,28 @@ jobs:
           owner: FOGProject
           repositories: "fogproject"
 
+      # Arm only behind a gate. Auto-merge merges as soon as every REQUIRED
+      # check passes, so on a base with no required checks it merges the
+      # moment the pull request opens, with its tests still queued. That
+      # happened at the 1.6.0 cut: the base allowlist moved to dev-branch one
+      # step before the ruleset did, and #2031 and #2033 merged with no CI.
+      # Read the rules GitHub actually enforces on the base, rather than
+      # trusting that the ruleset and this file were moved together. Fails
+      # loudly (see below for why) and leaves the merge to a person.
+      - name: Refuse to arm without required checks
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          BASE: ${{ github.event.pull_request.base.ref }}
+        run: |
+          n=$(gh api "repos/${{ github.repository }}/rules/branches/$BASE" \
+            --jq '[.[] | select(.type == "required_status_checks")
+                   | .parameters.required_status_checks[]] | length')
+          if [ "${n:-0}" -lt 1 ]; then
+            echo "::error::$BASE has no required status checks, so auto-merge would merge untested. Not arming; move the pull request gate ruleset to $BASE first."
+            exit 1
+          fi
+          echo "$BASE enforces $n required checks; arming."
+
       # --merge, not the default, and not squash or rebase. The ruleset allows
       # merge commits ONLY, and asking for a method it forbids fails rather
       # than falling back.

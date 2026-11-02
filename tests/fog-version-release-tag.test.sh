@@ -79,7 +79,13 @@ want="1.5.10.$count"
 
 for arm in dev-branch stable; do
     got=$(cd "$fx" && sh .githooks/lib/fog-version.sh "$arm" head 2>/dev/null | sed -n '1p')
-    [ "$got" = "$want" ] || bad "$arm computed '$got', expected '$want'. A non-release or pre-release tag newer than the last release must not become the base version."
+    # stable reports the release tag itself (the fixture's 1.5.10.1, above);
+    # dev-branch counts from its base.
+    w="$want"
+    if [ "$arm" = stable ]; then
+        w="1.5.10.1"
+    fi
+    [ "$got" = "$w" ] || bad "$arm computed '$got', expected '$w'. A non-release or pre-release tag newer than the last release must not become the base version."
 done
 
 # A checkout whose HEAD reaches no release tag, while one exists elsewhere --
@@ -104,14 +110,27 @@ lcount=$(git -C "$fx" rev-list master..line16 --count)
 for arm in dev-branch stable; do
     got=$(cd "$fx" && sh .githooks/lib/fog-version.sh "$arm" head 2>/dev/null | sed -n '1p')
     if [ "$arm" = stable ]; then
-        # The stable arm counts master..dev-branch, not master..HEAD.
-        want16="1.6.0.$(git -C "$fx" rev-list master..dev-branch --count)"
+        # The stable arm reports the release it sits on: 1.6.0 is build 0.
+        want16="1.6.0.0"
     else
         want16="1.6.0.$lcount"
     fi
     [ "$got" = "$want16" ] || bad "$arm after a three-part release tag computed '$got', expected '$want16'."
 done
 git -C "$fx" checkout -q dev-branch
+
+# A plain clone of stable, the way bootstrap.sh and a 1.5 server's own
+# checkout get one: no local dev-branch. The stable arm used to count
+# master..dev-branch, which failed there, so no version.php was written and
+# every fresh 1.6.0 install reported the bare fallback 1.6.0.
+clone="$tmp/stableclone"
+# Its origin is unreachable, so the script cannot fetch a local master
+# either -- an offline server. Neither ref may be needed for stable.
+git clone -q --branch line16 "$fx" "$clone" 2>/dev/null &&
+    git -C "$clone" remote set-url origin "$tmp/unreachable" ||
+    bad "could not build the plain stable clone fixture."
+got=$(cd "$clone" && sh "$script" stable head 2>/dev/null | sed -n '1p')
+[ "$got" = "1.6.0.0" ] || bad "stable arm in a clone with no local dev-branch computed '$got', expected '1.6.0.0'."
 
 # A checkout with NO tags -- CI clones without them. The arms that do not use a
 # release tag must still compute. Looking the tag up at the top of the script

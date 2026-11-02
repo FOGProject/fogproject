@@ -193,6 +193,25 @@ if [[ $code != 2* || -z $got ]]; then
 fi
 echo "  ok    1.5 install: schema $got (FOG_SCHEMA $want15)"
 
+# --- 1b. real 1.5 data ------------------------------------------------------
+# 1.5 wrote '' into multicastSessions.msAnon3 and msAnon4 (VARCHAR(250) NOT
+# NULL). This 1.5 database sits past 1.6's step 268, so the reconciler does
+# the msShutdown (ENUM) and msMaxwait (INT) renames, and under 1.6's strict
+# sql_mode they fail with 1265 / 1292 unless it normalizes those rows first.
+# INSERT IGNORE fills the other NOT NULL columns, which have no default.
+# The rows belong to 1.5's seeded 'default' storage group: a session with no
+# group is an orphan, and 1.6's foreign-key sweep deletes it before the
+# values could be checked.
+sql "INSERT IGNORE INTO \`$DB\`.multicastSessions (msAnon3, msAnon4, msNFSGroupID) VALUES
+     ('', '', (SELECT MIN(ngID) FROM \`$DB\`.nfsGroups)),
+     ('1', '30', (SELECT MIN(ngID) FROM \`$DB\`.nfsGroups))" \
+    || fail "could not seed the 1.5 multicastSessions rows"
+# INSERT IGNORE can insert nothing without an error, so count what landed,
+# and only rows that carry a real storage group.
+seeded=$(sql "SELECT COUNT(*) FROM \`$DB\`.multicastSessions m JOIN \`$DB\`.nfsGroups g ON m.msNFSGroupID = g.ngID")
+[[ ${seeded:-0} -ge 2 ]] || fail "seeded ${seeded:-0} multicastSessions rows, expected 2"
+echo "  ok    seeded 2 multicastSessions rows: ('','') and ('1','30') in msAnon3, msAnon4"
+
 # --- 2. the upgrade --------------------------------------------------------
 code=$(deploy "$web16" "$WORK/deploy16.log")
 got=$(version)
@@ -214,6 +233,17 @@ if [[ -e $web16/fog_schema_update_error.log ]]; then
 fi
 [[ $got == "$want16" ]] || fail "the upgrade landed on schema $got, not FOG_SCHEMA $want16"
 echo "  ok    upgrade: HTTP $code, schema $got, no update error"
+
+# The rename must keep the data: the '' row becomes 0/0, the ('1','30') row
+# stays 1/30. Read as strings, so it holds whether msShutdown is still ENUM or
+# a later step has made it TINYINT.
+rows=$(sql "SELECT msShutdown, msMaxwait FROM \`$DB\`.multicastSessions ORDER BY msID")
+[[ -n $rows ]] || fail "multicastSessions is empty after the upgrade: the seeded rows were deleted"
+row1=$(sed -n 1p <<<"$rows")
+row2=$(sed -n 2p <<<"$rows")
+[[ $row1 == $'0\t0' ]] || fail "multicastSessions row ('','') has msShutdown/msMaxwait '${row1//$'\t'/ / }', expected '0 / 0'"
+[[ $row2 == $'1\t30' ]] || fail "multicastSessions row ('1','30') has msShutdown/msMaxwait '${row2//$'\t'/ / }', expected '1 / 30'"
+echo "  ok    multicastSessions values survived the rename: 0/0 and 1/30"
 
 # --- 3. the structure matches a fresh 1.6 install ---------------------------
 cp -r "$REPO/packages/web" "$WORK/webshape"
