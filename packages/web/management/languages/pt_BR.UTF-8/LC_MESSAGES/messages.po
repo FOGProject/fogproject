@@ -449,7 +449,7 @@ msgstr "Um nome de imagem é necessário!"
 msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
 msgstr ""
 
-msgid "A directory rejoin result the server refuses: it names another attempt, revision, task or fingerprint than the stored plan (rejoin_result_mismatch), arrives out of order (rejoin_result_out_of_order), changed meanwhile (rejoin_result_changed), reports a native failure as success (rejoin_native_success_required), finds a different or unverifiable directory account (rejoin_target_changed, rename_identity_unverified, rename_target_unverified), or reports verified without a healthy secure channel, a changed boot, the planned name and the planned domain (rejoin_verification_incomplete). Nothing is recorded."
+msgid "A directory rejoin result the server refuses. The reason codes include these: it names another attempt, revision, task or fingerprint than the stored plan (rejoin_result_mismatch), arrives out of order (rejoin_result_out_of_order), changed meanwhile (rejoin_result_changed), reports a native failure as success (rejoin_native_success_required), finds a different or unverifiable directory account (rejoin_target_changed, rename_identity_unverified, rename_target_unverified), or reports verified without a healthy secure channel, a changed boot, the planned name and the planned domain (rejoin_verification_incomplete). A directory outage or a lookup error (rejoin_directory_unavailable, rejoin_lookup_failed), a concurrent change (rejoin_plan_changed, rejoin_deadlock_retry) or an unreadable stored state (rejoin_state_invalid) is also a 409; retry later. Nothing is recorded."
 msgstr ""
 
 msgid "A disabled entry stops being managed; it does not remove the package."

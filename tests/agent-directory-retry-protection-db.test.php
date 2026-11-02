@@ -45,7 +45,7 @@ foreach ($retryPhaseCases as $label => $case) {
     );
 }
 
-$configure = new \ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'configureTarget');
+$configure = new \ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'configure');
 $configure->setAccessible(true);
 $configure->invoke(null, $host, [], 'retry-protection-db-test');
 $baseConfig = FOG\Agent\DirectoryRejoin::settings($host)['config'];
@@ -105,7 +105,7 @@ foreach (['started', 'awaiting_reboot', 'unknown', 'failed', 'may_have_run', 're
     }
     $after = FOG\Agent\DirectoryRejoin::settings($host);
     $t->check(
-        'configureTarget rejects destructive Retry for ' . $phase . ' and preserves config/state',
+        'configure rejects destructive Retry for ' . $phase . ' and preserves config/state',
         'rejoin_attempt_requires_review' === $error
             && $before['config'] === $after['config']
             && $before['state'] === $after['state']

@@ -427,21 +427,6 @@ class DirectoryRejoin extends FOGBase
     }
 
     /**
-     * Stores the operator's settings from the host Active Directory tab:
-     * whether creating an account is allowed, a confirmed target and a retry.
-     *
-     * @param Host   $host  the host
-     * @param array  $input the posted rejoin_* fields
-     * @param string $actor the operator's name
-     *
-     * @return mixed
-     */
-    public static function configure(Host $host, array $input, $actor)
-    {
-        return self::configureTarget($host, $input, $actor);
-    }
-
-    /**
      * Requires a name an AD computer account can have: letters, digits and
      * hyphens, 1 to 15 characters, not all digits, no leading or trailing hyphen.
      *
@@ -507,7 +492,6 @@ class DirectoryRejoin extends FOGBase
     }
 
 
-    /** Read LDAP outside transactions and build only the single current plan. */
     /**
      * The directory_rejoin block for a poll answer.
      *
@@ -674,7 +658,20 @@ class DirectoryRejoin extends FOGBase
         }
     }
 
-    private static function configureTarget(Host $host, array $input, $actor)
+    /**
+     * Stores the operator's settings from the host Active Directory tab:
+     * whether creating an account is allowed, a confirmed target and a retry.
+     *
+     * @param Host   $host  the host
+     * @param array  $input the posted rejoin_* fields
+     * @param string $actor the operator's name
+     *
+     * @return void
+     *
+     * @throws \RuntimeException rejoin_config_changed or
+     *                           rejoin_attempt_requires_review (409)
+     */
+    public static function configure(Host $host, array $input, $actor)
     {
         $saved = self::settings($host);
         $config = ['version' => 1, 'protocol' => 2,
@@ -693,7 +690,7 @@ class DirectoryRejoin extends FOGBase
             }
             $config['target'] = $t['record'];
         }
-        return self::change($host, function (&$c, &$s) use ($saved, $config, $input) {
+        self::change($host, function (&$c, &$s) use ($saved, $config, $input) {
             if ($c !== $saved['config'] || $s !== $saved['state']) {
                 throw new \RuntimeException('rejoin_config_changed', 409);
             }
