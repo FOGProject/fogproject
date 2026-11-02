@@ -1,21 +1,59 @@
 <?php
-/** Task/name-driven Windows directory operations with one-shot claims. */
+/**
+ * Task- and name-driven Windows directory operations with one-shot claims.
+ *
+ * PHP version 7.4+
+ *
+ * @category DirectoryMembership
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 namespace FOG\Agent;
 
 use FOG\Items\Host;
-use FOG\Items\TaskType;
 
+/**
+ * Plans, claims and records one directory operation (join, rename or rebind)
+ * for a host.
+ *
+ * The agent reports what it observes, the server decides, and the agent runs
+ * the operation once with a credential that only the claim releases. All
+ * state lives in DirectoryRejoin; LDAP and credentials stay outside its short
+ * transactions.
+ *
+ * @category DirectoryMembership
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class DirectoryOperation extends \FOG\Base\FOGBase
 {
     const FEATURE = 'directory-task-operations-v1';
     const OBSERVATION_MAX_AGE = 600;
 
+    /**
+     * Whether a poll declares the task-operations feature.
+     *
+     * @param array $body the decoded poll or result body
+     *
+     * @return bool
+     */
     public static function requested(array $body)
     {
         return in_array(self::FEATURE, (array)($body['features'] ?? []), true);
     }
 
-    /** A per-request view of the existing local native marker, never authority. */
+    /**
+     * A per-request view of the agent's local native marker. Never authority:
+     * it can only make the server more careful.
+     *
+     * @param array $body the decoded poll body
+     *
+     * @return array the validated directory_attempt block, or phase none
+     */
     public static function localAttempt(array $body)
     {
         if (!array_key_exists('directory_attempt', $body)) {
@@ -42,12 +80,17 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             && ($a['fingerprint'] ?? '') === ($s['fingerprint'] ?? '');
     }
 
-    public static function legacyPending(array $s)
-    {
-        return !empty($s['attempt_id']) && 2 !== ($s['protocol'] ?? 1)
-            && 'verified' !== ($s['phase'] ?? '');
-    }
-
+    /**
+     * A hash of everything an observation depends on, so the server can tell
+     * that an observation was taken against a different host, name, domain,
+     * fingerprint, config or domain controller than the current one.
+     *
+     * @param Host   $host the host
+     * @param array  $c    the stored config
+     * @param string $dc   the domain controller the agent should check
+     *
+     * @return string 32 hex characters
+     */
     public static function revision(Host $host, array $c, $dc)
     {
         return substr(hash('sha256', json_encode([(int)$host->get('id'),
@@ -55,7 +98,18 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             (string)$host->get('agentFingerprint'), $c, $dc])), 0, 32);
     }
 
-    /** Freshness is independent of SC and membership: Rename and Join differ. */
+    /**
+     * Whether the stored observation is recent and matches the current
+     * revision. Freshness is independent of secure-channel health and
+     * membership, because rename and join need different things from it.
+     *
+     * @param Host     $host the host
+     * @param array    $c    the stored config
+     * @param array    $s    the stored state
+     * @param int|null $now  a clock for tests; defaults to time()
+     *
+     * @return bool
+     */
     public static function observationFresh(Host $host, array $c, array $s, $now = null)
     {
         $o = $s['observation'] ?? null;
@@ -67,7 +121,16 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             && hash_equals(self::revision($host, $c, $s['check_dc'] ?? ''), $o['revision']);
     }
 
-    /** OU placement needs current, healthy membership, not merely a past result. */
+    /**
+     * Whether the host is a healthy domain member right now. OU placement
+     * needs this, not merely a past successful result.
+     *
+     * @param Host  $host the host
+     * @param array $c    the stored config
+     * @param array $s    the stored state
+     *
+     * @return bool
+     */
     public static function placementHealthy(Host $host, array $c, array $s)
     {
         $o = $s['observation'] ?? [];
@@ -83,6 +146,15 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             && ('' === $dc || 0 === strcasecmp($o['dc'], $dc));
     }
 
+    /**
+     * The directory_check block of a poll answer: what the agent should
+     * observe next and the revision to stamp on that observation.
+     *
+     * @param Host $host the host
+     *
+     * @return array|null null when directory membership is off or no
+     *                    protocol-2 state exists yet
+     */
     public static function check(Host $host)
     {
         if (!$host->get('useAD') || !State::factsEnabled()) {
@@ -90,7 +162,9 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         }
         $saved = DirectoryRejoin::settings($host);
         $s = $saved['state'];
-        if (2 !== ($s['protocol'] ?? 1) || self::legacyPending($s)) {
+        // No protocol-2 state yet: observe() writes it on the first poll that
+        // declares the feature, and nothing is asked of the agent before that.
+        if (2 !== ($s['protocol'] ?? 1)) {
             return null;
         }
         $dc = $s['check_dc'] ?? '';
@@ -98,15 +172,20 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             'dc' => $dc, 'revision' => self::revision($host, $saved['config'], $dc)];
     }
 
-    /** Before desired state and OU side effects; observations are never credentials. */
+    /**
+     * Stores the agent's observation and decides the placement hold. Runs
+     * before desired state and OU side effects. An observation is evidence,
+     * never a credential.
+     *
+     * @param Host  $host the host
+     * @param array $body the decoded poll body
+     *
+     * @return void
+     */
     public static function observe(Host $host, array $body)
     {
         $local = self::localAttempt($body);
         DirectoryRejoin::change($host, function (&$c, &$s) use ($host, $body, $local) {
-            if (self::legacyPending($s)) {
-                $s['placement_hold'] = true;
-                return;
-            }
             $contextChanged = strcasecmp($c['name'] ?? '', (string)$host->get('name'))
                 || strcasecmp($c['domain'] ?? '', trim((string)$host->get('ADDomain')));
             if (2 !== ($c['protocol'] ?? 1) || ($contextChanged && (empty($s['attempt_id']) || 'verified' === ($s['phase'] ?? '')))) {
@@ -119,9 +198,6 @@ class DirectoryOperation extends \FOG\Base\FOGBase
                 $c = $next;
             }
             $s['protocol'] = 2;
-            if ('verified' === ($s['phase'] ?? '')) {
-                unset($s['source']);
-            }
             $fresh = $body['directory'] ?? [];
             $workgroup = !empty($s['workgroup']);
             $isWorkgroup = false === ($fresh['joined'] ?? null) && 'workgroup' === ($fresh['kind'] ?? '');
@@ -171,19 +247,40 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         });
     }
 
+    /**
+     * Whether an observation names the wanted domain, by DNS name or NetBIOS name.
+     *
+     * @param array  $o    the observation
+     * @param string $want the domain the host record names
+     *
+     * @return bool
+     */
     public static function sameDomain(array $o, $want)
     {
         return '' !== $want && (0 === strcasecmp($o['domain'] ?? '', $want)
             || ('' !== ($o['netbios'] ?? '') && 0 === strcasecmp($o['netbios'], $want)));
     }
 
-    /** Pure selector shared by DB and contract tests. Never treats errors as absence. */
+    /**
+     * Chooses the operation for an observation. Pure, so the contract tests
+     * can run it without a database. A lookup error is never treated as an
+     * absent account.
+     *
+     * @param array  $o           the observation
+     * @param string $name        the host name the record wants
+     * @param bool   $deploy      whether an eligible deploy task triggers this
+     * @param bool   $reassigned  whether the observed name belongs to another host
+     * @param array  $target      the account lookup answer
+     * @param bool   $allowCreate whether a new account may be created
+     * @param bool   $confirmed   whether an operator confirmed the target
+     * @param bool   $authorized  whether a task or an operator authorized it
+     *
+     * @return array|null operation, mode and target, or null for nothing to do
+     */
     public static function select(array $o, $name, $deploy, $reassigned, array $target, $allowCreate, $confirmed, $authorized)
     {
-        if (!in_array($o['role'] ?? '', ['workstation','member_server'], true)
-            || empty($o['dc_reachable']) || 'unknown' === ($o['secure_channel'] ?? 'unknown')) {
-            throw new \RuntimeException('directory_observation_unknown', 409);
-        }
+        // plan() has already answered directory_observation_unknown for an
+        // observation without a role, a reachable DC or a known secure channel.
         $current = $o['current_name'] ?? '';
         $pending = $o['pending_name'] ?? '';
         if ('' === $current || '' === $pending || (strcasecmp($pending, $current) && strcasecmp($pending, $name))) {
@@ -222,6 +319,14 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         throw new \RuntimeException('absent' === $status ? 'rejoin_create_not_permitted' : 'rejoin_lookup_failed', 409);
     }
 
+    /**
+     * Looks up the computer account in the directory.
+     *
+     * @param Host        $host    the host
+     * @param string|null $account the account to find; defaults to the host name
+     *
+     * @return array the lookup answer (status, record) plus the dc used
+     */
     public static function candidate(Host $host, $account = null)
     {
         $config = DirectoryPlacement::connection($host);
@@ -258,27 +363,29 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         return $record;
     }
 
-    public static function deploy(Host $host, array $s, array $o)
-    {
-        $task = DirectoryTask::read($host, $s, $o);
-        return 'eligible' === $task['status'] ? $task['task_id'] : 0;
-    }
-
     private static function taskBlocked(array $task)
     {
         $reason = 'eligible' === $task['status'] ? 'changed' : $task['status'];
         return ['phase' => 'blocked', 'reason' => 'directory_task_'.$reason];
     }
 
+    /**
+     * The directory_rejoin block of a poll answer: nothing, a blocked reason,
+     * or the planned operation (stored as phase ready). LDAP reads happen
+     * here, outside any transaction, and the plan is stored only if the saved
+     * state has not changed meanwhile.
+     *
+     * @param Host  $host the host
+     * @param array $body the decoded poll body
+     *
+     * @return array|null
+     */
     public static function plan(Host $host, array $body = [])
     {
         $saved = DirectoryRejoin::settings($host);
-        $c = $saved['config'];
+        $c =$saved['config'];
         $s = $saved['state'];
         $local = self::localAttempt($body);
-        if (self::legacyPending($s)) {
-            return DirectoryRejoin::publicState($s);
-        }
         if (!$host->get('useAD') || !State::factsEnabled()) {
             return !empty($s['attempt_id']) && 'verified' !== ($s['phase'] ?? '')
                 ? ('ready' === $s['phase'] ? ['phase' => 'blocked', 'reason' => 'rejoin_disabled'] : DirectoryRejoin::publicState($s)) : null;
@@ -321,9 +428,10 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             throw new \RuntimeException('directory_domain_mismatch', 409);
         }
         $name = (string)$host->get('name');
-        if (!$host->isHostnameSafe()) {
-            throw new \RuntimeException('rejoin_name_invalid', 409);
-        }
+        // validName() is the stricter of the two name checks (letters, digits
+        // and hyphens, at most 15 characters, not all digits), so it replaces
+        // Host::isHostnameSafe() here and the one that used to follow select().
+        DirectoryRejoin::validName($name);
         $taskState = DirectoryTask::read($host, $s, $o);
         if (!in_array($taskState['status'], ['none','consumed','baseline','eligible'], true)) {
             return self::taskBlocked($taskState);
@@ -382,10 +490,7 @@ class DirectoryOperation extends \FOG\Base\FOGBase
                 ? $s['target'] : [];
             $choice['target'] = self::renameObject($host, $o['current_name'], $expected);
         }
-        if ('rebind' === $choice['operation']) {
-            DirectoryRejoin::validName($name);
-        }
-        $p = $choice + ['version' => 1, 'protocol' => 2, 'host_id' => (int)$host->get('id'),
+        $p =$choice + ['version' => 1, 'protocol' => 2, 'host_id' => (int)$host->get('id'),
             'attempt_id' => bin2hex(random_bytes(16)), 'config_revision' => $o['revision'],
             'fingerprint' => (string)$host->get('agentFingerprint'), 'name' => $name,
             'domain' => strtolower($workgroup ? trim((string)$host->get('ADDomain')) : $o['domain']), 'dc' => $o['dc'], 'phase' => 'ready',
@@ -403,6 +508,16 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         });
     }
 
+    /**
+     * Re-checks the plan against the directory, claims it and releases the
+     * join credential. The credential leaves the server only after the claim
+     * commits, so one plan releases it once.
+     *
+     * @param Host  $host the host
+     * @param array $body the decoded start body
+     *
+     * @return array status ok and the directory block
+     */
     public static function start(Host $host, array $body)
     {
         $saved = DirectoryRejoin::settings($host);
@@ -442,7 +557,17 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         return ['status' => 'ok', 'directory' => $credential + ['rejoin' => DirectoryRejoin::publicState($s)]];
     }
 
-    /** The DB-only authority boundary; LDAP and credentials stay outside the lock. */
+    /**
+     * The DB-only authority boundary: moves a ready plan to started inside
+     * one transaction, after the overlap check. LDAP and credentials stay
+     * outside the lock.
+     *
+     * @param Host  $host  the host
+     * @param array $saved the config and state the plan was made from
+     * @param array $body  the decoded start body
+     *
+     * @return void
+     */
     public static function claim(Host $host, array $saved, array $body)
     {
         DirectoryRejoin::change($host, function (&$c, &$state, $principal) use ($saved, $body, $host) {
@@ -497,6 +622,11 @@ class DirectoryOperation extends \FOG\Base\FOGBase
      * whose rename source name now belongs to another host. Runs inside the
      * claim's transaction. A row that cannot be decoded is logged and skipped
      * so one bad row never blocks every other host.
+     *
+     * @param int   $own   the claiming host's id
+     * @param array $state the state being claimed
+     *
+     * @return void
      */
     public static function assertNoOverlap($own, array $state)
     {
@@ -536,10 +666,20 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         }
     }
 
+    /**
+     * Refuses a start body that does not match the stored plan exactly:
+     * attempt, revision, operation, task, target, fingerprint and name.
+     *
+     * @param Host  $host  the host
+     * @param array $saved the stored config and state
+     * @param array $body  the decoded start body
+     *
+     * @return void
+     */
     public static function claimable(Host $host, array $saved, array $body)
     {
         $s = $saved['state'];
-        if ('ready' !== ($s['phase'] ?? '') || 2 !== ($s['protocol'] ?? 1)
+        if ('ready' !== ($s['phase'] ?? '')
             || ($body['attempt_id'] ?? '') !== ($s['attempt_id'] ?? null)
             || ($body['config_revision'] ?? '') !== ($s['config_revision'] ?? null)
             || ($body['operation'] ?? '') !== ($s['operation'] ?? null)
@@ -553,6 +693,16 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         }
     }
 
+    /**
+     * Records the agent's result for the claimed attempt. The directory is
+     * read again outside the transaction, so a result is accepted only for
+     * the same account the plan named.
+     *
+     * @param Host  $host the host
+     * @param array $body the decoded result body
+     *
+     * @return string always an empty string
+     */
     public static function report(Host $host, array $body)
     {
         $saved = DirectoryRejoin::settings($host);

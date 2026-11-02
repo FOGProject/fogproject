@@ -24,7 +24,7 @@ directoryTestBindPdodb($pdo);
 $t = new FogChecks();
 
 $fingerprint = str_repeat('f', 64);
-$config = ['version' => 1, 'protocol' => 2, 'enabled' => true, 'allow_create' => false, 'name' => 'B', 'domain' => 'corp.example'];
+$config = ['version' => 1, 'protocol' => 2, 'allow_create' => false, 'name' => 'B', 'domain' => 'corp.example'];
 $state = [
     'version' => 1, 'protocol' => 2, 'phase' => 'started', 'attempt_id' => str_repeat('c', 32),
     'host_id' => 7, 'fingerprint' => $fingerprint, 'last_deploy_task_id' => 3

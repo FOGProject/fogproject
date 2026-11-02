@@ -285,4 +285,37 @@ $t->check('result item documents task_id and netbios',
     ($resultItem['task_id']['type'] ?? '') === 'integer'
     && ($resultItem['netbios']['type'] ?? '') === 'string');
 
+// Every body field the rejoin report reads must be documented on the item.
+$reportMethod = new \ReflectionMethod(\FOG\Agent\DirectoryOperation::class, 'report');
+$reportSource = implode('', array_slice(
+    file((string)$reportMethod->getFileName()),
+    $reportMethod->getStartLine() - 1,
+    $reportMethod->getEndLine() - $reportMethod->getStartLine() + 1
+));
+preg_match_all('/\$body\[\'([a-z_]+)\'\]/', $reportSource, $reportFields);
+$readFields = array_values(array_unique($reportFields[1]));
+$t->check('the rejoin report reads the fields this test expects',
+    array_diff(['attempt_id', 'config_revision', 'native_status', 'secure_channel', 'boot_changed', 'current_name', 'domain', 'netbios', 'task_id', 'status', 'id'], $readFields) === []);
+$undocumented = array_diff($readFields, array_keys($resultItem));
+$t->check('result item documents every field the rejoin report reads',
+    [] === $undocumented);
+$resultResponses = $paths['/agent/v1/result']['post']['responses'] ?? [];
+$t->check('result documents the 409 refusal with its body shape',
+    isset($resultResponses['409'])
+    && ($resultResponses['409']['content']['application/json']['schema']['properties']['status']['enum'] ?? []) === ['error']
+    && isset($resultResponses['409']['content']['application/json']['schema']['properties']['error']));
+$t->check('result item status names the four rejoin values',
+    false !== strpos((string)($resultItem['status']['description'] ?? ''), 'awaiting_reboot')
+    && false !== strpos((string)($resultItem['status']['description'] ?? ''), 'verified')
+    && false !== strpos((string)($resultItem['status']['description'] ?? ''), 'failed')
+    && false !== strpos((string)($resultItem['status']['description'] ?? ''), 'unknown'));
+
+// rejoin/start answers 200, 400 (bad body or a RuntimeException with another
+// code), 401 (the gate) and 409. No code on that path sends 503. (Every
+// operation also carries the document-wide default 403 and 404.)
+$startStatuses = array_keys($start['responses'] ?? []);
+$t->check('rejoin/start documents 200, 400, 401 and 409 and no 503',
+    [] === array_diff(['200', '400', '401', '409'], $startStatuses)
+    && !isset($start['responses']['503']));
+
 $t->finish();

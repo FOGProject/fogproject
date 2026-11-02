@@ -1,12 +1,45 @@
 <?php
-/** Existing imaging tasks authorize one directory operation, not clone history. */
+/**
+ * Existing imaging tasks authorize one directory operation.
+ *
+ * PHP version 7.4+
+ *
+ * @category DirectoryMembership
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 namespace FOG\Agent;
 
 use FOG\Items\Host;
 use FOG\Items\TaskType;
 
+/**
+ * Reads a host's latest imaging and deploy tasks and says whether the latest
+ * deploy task may trigger one directory operation. A task counts once: the
+ * state keeps a high-water task id, and a task at or below it is consumed.
+ *
+ * @category DirectoryMembership
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class DirectoryTask extends \FOG\Base\FOGBase
 {
+    /**
+     * Pure decision over the two task rows, so tests need no database.
+     *
+     * @param array $imaging     the host's latest deploy or capture task row
+     * @param array $deploy      the host's latest deploy task row
+     * @param array $state       the stored directory state
+     * @param array $observation the agent's observation (its boot time matters)
+     * @param int   $now         the current Unix time
+     *
+     * @return array status (none, in_progress, consumed, expired, baseline,
+     *               unknown or eligible) and task_id
+     */
     public static function decision(array $imaging, array $deploy, array $state, array $observation, $now)
     {
         $high = (int)($state['last_deploy_task_id'] ?? 0);
@@ -58,6 +91,16 @@ class DirectoryTask extends \FOG\Base\FOGBase
         return $answer('eligible', $id);
     }
 
+    /**
+     * Reads the two task rows and decides.
+     *
+     * @param Host  $host        the host
+     * @param array $state       the stored directory state
+     * @param array $observation the agent's observation
+     * @param bool  $lock        whether to lock the task rows (inside a claim)
+     *
+     * @return array see decision()
+     */
     public static function read(Host $host, array $state, array $observation, $lock = false)
     {
         $db = self::$DB->link();

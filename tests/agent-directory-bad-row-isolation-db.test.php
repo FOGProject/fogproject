@@ -73,6 +73,45 @@ $t->check(
 );
 $t->check('the claim left no transaction open', !$pdo->inTransaction());
 
+// Host 1's plan and its poll with the directory features both work while
+// host 2's row is unreadable. The poll resolves the host by MAC, so the
+// tables a Host load joins must exist.
+$pdo->exec('SET FOREIGN_KEY_CHECKS=0');
+foreach ($GLOBALS['manifest']['tables'] as $table) {
+    $pdo->exec($table['create']);
+}
+$pdo->exec('SET FOREIGN_KEY_CHECKS=1');
+$mac = 'aa:bb:cc:dd:ee:01';
+$pdo->exec('DELETE FROM hostMAC');
+$pdo->prepare('INSERT INTO hostMAC (hmHostID,hmMAC,hmPending) VALUES (1,?,0)')->execute([$mac]);
+FogTestHarness::setStatic('FOGBase', '_settingsCache', [
+    'FOG_HOST_IDENTIFY_SMBIOS' => ['value' => 'off'],
+    FOG\Agent\State::FACTS_SETTING => ['value' => '1']
+]);
+FogTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
+$error = '';
+$planned = null;
+try {
+    $planned = FOG\Agent\DirectoryRejoin::plan($host1);
+} catch (\Throwable $e) {
+    $error = $e->getMessage();
+}
+$t->check(
+    'B3 host 1 plan() succeeds and returns its ready attempt while host 2 is unreadable',
+    '' === $error && is_array($planned) && $attempt === ($planned['attempt_id'] ?? null)
+);
+$error = '';
+try {
+    FOG\Agent\DirectoryRejoin::beforePoll($host1, [
+        'features' => [FOG\Agent\MachineIdentity::FEATURE, FOG\Agent\DirectoryOperation::FEATURE],
+        'identity' => ['macs' => [$mac]],
+        'directory_attempt' => ['phase' => 'none']
+    ]);
+} catch (\Throwable $e) {
+    $error = $e->getMessage();
+}
+$t->check('B3 host 1 beforePoll() with the directory features succeeds while host 2 is unreadable', '' === $error);
+
 $t->check(
     'B3 host 2 is the only protected host of the two',
     [2] === FOG\Agent\DirectoryRejoin::protectedHosts([1, 2])

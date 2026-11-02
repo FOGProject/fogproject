@@ -105,7 +105,7 @@ $t->check(
 $state = json_encode(['version' => 1, 'protocol' => 2, 'phase' => 'verified', 'attempt_id' => str_repeat('c', 32)]);
 $pdo->exec('DELETE FROM hostDirectory');
 $pdo->prepare('INSERT INTO hostDirectory (hdHostID,hdRejoinConfig,hdRejoinState) VALUES (7,?,?)')
-    ->execute([json_encode(['version' => 1, 'enabled' => true]), $state]);
+    ->execute([json_encode(['version' => 1, 'protocol' => 2]), $state]);
 $before = $pdo->query('SELECT * FROM hostDirectory WHERE hdHostID=7')->fetch(\PDO::FETCH_ASSOC);
 $logging->log = [];
 FOG\Agent\DirectoryRejoin::beforePoll($host, $body);

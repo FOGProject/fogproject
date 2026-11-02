@@ -347,36 +347,8 @@ $t->check(
     })
 );
 
-$t->check(
-    'unknown trust stops before selecting any native operation',
-    'directory_observation_unknown' === directoryOperationBlocked(function () use ($select) {
-        $select(
-            directoryOperationObservation(['secure_channel' => 'unknown']),
-            'C',
-            false,
-            false,
-            directoryOperationTarget('absent'),
-            true,
-            false,
-            false
-        );
-    })
-);
-$t->check(
-    'unreachable DC stops before treating Target as absent',
-    'directory_observation_unknown' === directoryOperationBlocked(function () use ($select) {
-        $select(
-            directoryOperationObservation(['dc_reachable' => false]),
-            'C',
-            false,
-            false,
-            directoryOperationTarget('absent'),
-            true,
-            false,
-            false
-        );
-    })
-);
+// The observation-trust guard (unknown secure channel, unreachable DC) is
+// plan()'s, and agent-directory-operation-db.test.php pins it there.
 $t->check(
     'pending name conflicting with desired name stops',
     'directory_pending_name_conflict' === directoryOperationBlocked(function () use ($select) {

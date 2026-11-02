@@ -92,16 +92,6 @@ $state = [
         'boot' => ['marker' => 'db-test-boot', 'started' => gmdate(DATE_ATOM)]
     ]
 ];
-$legacyClassification = $state + [
-    'clone_status' => 'detected',
-    'clone_origin' => ['host_id' => 99],
-    'origin_host_id' => 99
-];
-$legacyClassificationConfig = $config + [
-    'clone_status' => 'detected',
-    'clone_origin' => ['host_id' => 99],
-    'origin_host_id' => 99
-];
 $body = [
     'attempt_id' => $state['attempt_id'],
     'config_revision' => $revision,
@@ -112,20 +102,11 @@ $body = [
 $pdo->exec('DROP TABLE IF EXISTS tasks');
 $pdo->exec($manifest['tables']['tasks']['create']);
 $write = $pdo->prepare('UPDATE hostDirectory SET hdRejoinConfig=?,hdRejoinState=? WHERE hdHostID=7');
-$write->execute([json_encode($legacyClassificationConfig), json_encode($legacyClassification)]);
+$write->execute([json_encode($config), json_encode($state)]);
 $read = FOG\Agent\DirectoryRejoin::settings($host);
 $t->check(
-    'v2 config and state round-trip while legacy classification is discarded',
+    'v2 config and state round-trip',
     $state === $read['state'] && $config === $read['config']
-);
-$t->check(
-    'legacy classification aliases do not survive config or state decode',
-    !array_key_exists('clone_status', $read['state'])
-        && !array_key_exists('clone_origin', $read['state'])
-        && !array_key_exists('origin_host_id', $read['state'])
-        && !array_key_exists('clone_status', $read['config'])
-        && !array_key_exists('clone_origin', $read['config'])
-        && !array_key_exists('origin_host_id', $read['config'])
 );
 
 // Exercise the actual DB-only production claim boundary. LDAP and credentials
@@ -460,46 +441,52 @@ $insertTask = function ($id, $hostID, $typeID, $stateID) use ($pdo, $taskTime) {
     $q->execute([$id, 'directory operation DB fixture', $hostID, $stateID, $typeID, $taskTime]);
 };
 $emptyState = ['last_deploy_task_id' => 0];
+/** The deploy task id DirectoryTask treats as eligible, or 0. */
+function directoryEligibleDeploy($host, array $state, array $observation)
+{
+    $task = FOG\Agent\DirectoryTask::read($host, $state, $observation);
+    return 'eligible' === $task['status'] ? $task['task_id'] : 0;
+}
 $pdo->exec('DELETE FROM tasks');
 $insertTask(101, 7, FOG\Items\TaskType::DEPLOY, 4);
 $t->check(
     'completed host-7 Deploy before boot within 24 hours is eligible',
-    101 === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+    101 === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
 );
 $pdo->exec('DELETE FROM tasks');
 $insertTask(101, 7, FOG\Items\TaskType::DEPLOY, 4);
 $insertTask(102, 7, FOG\Items\TaskType::DEPLOY, FOG\Items\TaskState::getQueuedState());
 $t->check(
     'newer queued Deploy shadows an older unconsumed completed Deploy',
-    0 === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+    0 === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
 );
 $pdo->exec('DELETE FROM tasks');
 $insertTask(101, 7, FOG\Items\TaskType::DEPLOY, 4);
 $insertTask(103, 7, FOG\Items\TaskType::DEPLOY, FOG\Items\TaskState::getCancelledState());
 $t->check(
     'newer canceled Deploy shadows an older unconsumed completed Deploy',
-    0 === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+    0 === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
 );
 $pdo->exec('DELETE FROM tasks');
 $insertTask(101, 7, FOG\Items\TaskType::DEPLOY, 4);
 $insertTask(102, 7, FOG\Items\TaskType::CAPTURE, 4);
 $t->check(
     'newer completed Capture does not hide an unconsumed completed Deploy',
-    101 === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+    101 === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
 );
 $pdo->exec('DELETE FROM tasks');
 $insertTask(101, 7, FOG\Items\TaskType::DEPLOY, 4);
 $insertTask(104, 7, FOG\Items\TaskType::DEPLOY, 4);
 $t->check(
     'newer completed Deploy 104 is selected over older unconsumed Deploy 101',
-    104 === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+    104 === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
 );
 $pdo->exec('DELETE FROM tasks');
 $insertTask(101, 7, FOG\Items\TaskType::DEPLOY, 4);
 $insertTask(102, 7, FOG\Items\TaskType::ALL_SNAPINS, 4);
 $t->check(
     'newer Snapin task is outside the imaging-operation high-water query',
-    101 === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+    101 === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
 );
 
 $deployID = 110;
@@ -508,11 +495,11 @@ foreach (FOG\Items\TaskType::DEPLOYTASKS as $deployType) {
     $insertTask($deployID, 7, $deployType, 4);
     $t->check(
         'completed deploy task type ' . $deployType . ' advances high-water candidate',
-        $deployID === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+        $deployID === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
     );
     $t->check(
         'consumed deploy task type ' . $deployType . ' is not reused',
-        0 === FOG\Agent\DirectoryOperation::deploy(
+        0 === directoryEligibleDeploy(
             $host,
             ['last_deploy_task_id' => $deployID],
             ['boot' => $boot]
@@ -525,25 +512,25 @@ $pdo->exec('DELETE FROM tasks');
 $insertTask(102, 7, FOG\Items\TaskType::DEPLOY, FOG\Items\TaskState::getCancelledState());
 $t->check(
     'canceled Deploy is not eligible',
-    0 === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+    0 === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
 );
 $pdo->exec('DELETE FROM tasks');
 $insertTask(103, 7, FOG\Items\TaskType::CAPTURE, 4);
 $t->check(
     'completed Capture is not eligible',
-    0 === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+    0 === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
 );
 $pdo->exec('DELETE FROM tasks');
 $insertTask(104, 8, FOG\Items\TaskType::DEPLOY, 4);
 $t->check(
     'Deploy belonging to another host is not eligible',
-    0 === FOG\Agent\DirectoryOperation::deploy($host, $emptyState, ['boot' => $boot])
+    0 === directoryEligibleDeploy($host, $emptyState, ['boot' => $boot])
 );
 $pdo->exec('DELETE FROM tasks');
 $insertTask(105, 7, FOG\Items\TaskType::DEPLOY, 4);
 $t->check(
     'already-consumed Deploy ID is not eligible again',
-    0 === FOG\Agent\DirectoryOperation::deploy($host, ['last_deploy_task_id' => 105], ['boot' => $boot])
+    0 === directoryEligibleDeploy($host, ['last_deploy_task_id' => 105], ['boot' => $boot])
 );
 
 // Exercise the transactional claim recheck against real, guarded scratch DB
@@ -688,7 +675,7 @@ $assertClaimUnchanged('mismatched task_id in start body', 'rejoin_start_refused'
 list($deletedSaved, $deletedBody) = $storeTaskClaimSnapshot([], $freshClaimBoot);
 $assertClaimUnchanged('deleted Task after ready', 'directory_task_claim_changed', $deletedSaved, $deletedBody);
 
-// A legacy clone-only hold with no attempt is derived state. Fresh healthy
+// A placement hold with no attempt is derived state. Fresh healthy
 // facts plus no imaging Tasks must clear it without manufacturing a plan.
 $pdo->exec('DELETE FROM tasks');
 $derivedHoldConfig = $taskClaimConfig;
@@ -716,22 +703,53 @@ $derivedHoldState = [
     'observed_at' => time(),
     'last_deploy_task_id' => 0,
     'placement_hold' => true,
-    'clone_status' => 'unknown',
     'observation' => $taskClaimObservation
 ];
 $write->execute([json_encode($derivedHoldConfig), json_encode($derivedHoldState)]);
 FOG\Agent\DirectoryOperation::observe($host, ['directory_observation' => $taskClaimObservation]);
 $clearedDerivedHold = FOG\Agent\DirectoryRejoin::settings($host)['state'];
 $t->check(
-    'fresh healthy observation clears clone-only derived placement hold',
+    'fresh healthy observation clears a derived placement hold',
     false === ($clearedDerivedHold['placement_hold'] ?? true)
-        && !array_key_exists('clone_status', $clearedDerivedHold)
 );
 $t->check(
     'healthy no-Task state returns no operation plan',
     null === FOG\Agent\DirectoryOperation::plan($host)
         && empty(FOG\Agent\DirectoryRejoin::settings($host)['state']['attempt_id'])
 );
+
+// plan() applies the stricter DirectoryRejoin::validName() to every operation:
+// an underscore passes Host::isHostnameSafe() but is not an AD computer name.
+$host->set('name', 'B_1');
+$badName = $derivedHoldState;
+$badName['observed_at'] = time();
+$badName['observation']['current_name'] = 'B_1';
+$badName['observation']['pending_name'] = 'B_1';
+$badName['observation']['revision'] = FOG\Agent\DirectoryOperation::revision($host, $derivedHoldConfig, $taskClaimDC);
+$write->execute([json_encode($derivedHoldConfig), json_encode($badName)]);
+$badNameError = '';
+try {
+    FOG\Agent\DirectoryOperation::plan($host);
+} catch (\RuntimeException $e) {
+    $badNameError = $e->getMessage();
+}
+$host->set('name', 'B');
+$t->check('plan refuses a host name that is not a valid computer account name', 'rejoin_name_invalid' === $badNameError);
+
+// plan() owns the observation-trust guard: an observation with an unknown
+// secure channel or an unreachable DC is blocked before any operation is chosen.
+foreach (['secure_channel' => 'unknown', 'dc_reachable' => false] as $field => $value) {
+    $untrusted = $derivedHoldState;
+    $untrusted['observed_at'] = time();
+    $untrusted['observation'][$field] = $value;
+    $write->execute([json_encode($derivedHoldConfig), json_encode($untrusted)]);
+    $untrustedPlan = FOG\Agent\DirectoryOperation::plan($host);
+    $t->check(
+        'plan blocks an observation with ' . $field . ' ' . json_encode($value) . ' before choosing an operation',
+        'blocked' === ($untrustedPlan['phase'] ?? null)
+            && 'directory_observation_unknown' === ($untrustedPlan['reason'] ?? null)
+    );
+}
 
 // A genuine uncertain attempt remains authoritative even when a later Deploy
 // becomes eligible; it is not replaced by a new operation plan.
@@ -786,7 +804,6 @@ $oldState = [
     'operation' => 'rebind',
     'mode' => 'existing',
     'target' => $oldTarget,
-    'source' => $oldTarget,
     'host_id' => 7,
     'name' => 'A',
     'domain' => 'corp.example',

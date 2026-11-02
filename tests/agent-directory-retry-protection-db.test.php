@@ -173,7 +173,6 @@ foreach ([
         'blocked' === ($result['phase'] ?? null)
             && 'directory_observation_required' === ($result['reason'] ?? null)
             && $state === $after['state']
-            && 120 === ($after['state']['last_deploy_task_id'] ?? null)
     );
 }
 $readyState = $planState('ready', str_repeat('2', 32));
@@ -182,7 +181,6 @@ $t->check(
     'same-host/key reserved marker does not replace a Server ready snapshot',
     'ready' === ($readyPlan['phase'] ?? null)
         && $readyState === $readyAfter['state']
-        && 120 === ($readyAfter['state']['last_deploy_task_id'] ?? null)
 );
 
 foreach (['unknown', 'failed', 'may_have_run', 'unreadable'] as $localPhase) {
@@ -194,7 +192,6 @@ foreach (['unknown', 'failed', 'may_have_run', 'unreadable'] as $localPhase) {
             'blocked' === ($result['phase'] ?? null)
                 && 'directory_local_operation_requires_review' === ($result['reason'] ?? null)
                 && $state === $after['state']
-                && 120 === ($after['state']['last_deploy_task_id'] ?? null)
         );
     }
 }
@@ -209,7 +206,6 @@ foreach ([
         'blocked' === ($result['phase'] ?? null)
             && 'directory_local_operation_requires_review' === ($result['reason'] ?? null)
             && $state === $after['state']
-            && 120 === ($after['state']['last_deploy_task_id'] ?? null)
     );
 }
 
@@ -223,7 +219,6 @@ $t->check(
     'verified' === ($lostAckPlan['phase'] ?? null)
         && str_repeat('4', 32) === ($lostAckPlan['attempt_id'] ?? null)
         && $verifiedLostAck === $lostAckAfter['state']
-        && 120 === ($lostAckAfter['state']['last_deploy_task_id'] ?? null)
 );
 
 $pdo->exec("INSERT INTO tasks (taskID,taskName,taskHostID,taskStateID,taskTypeID,taskStateChangedTime) VALUES (121,'retry protection newer task',7,4," . (int)FOG\Items\TaskType::DEPLOY . ",'" . date('Y-m-d H:i:s') . "')");
@@ -246,7 +241,6 @@ $t->check(
     'blocked' === ($unknownPlan['phase'] ?? null)
         && 'directory_local_operation_requires_review' === ($unknownPlan['reason'] ?? null)
         && $unknownServerState === $unknownAfter['state']
-        && 120 === ($unknownAfter['state']['last_deploy_task_id'] ?? null)
         && 121 === (int)$pdo->query('SELECT MAX(taskID) FROM tasks WHERE taskHostID=7')->fetchColumn()
 );
 

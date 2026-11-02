@@ -1,6 +1,6 @@
 <?php
 /**
- * Schema 447 on a real server, then the legacy-state read and the rollback of
+ * Schema 447 on a real server, then the state read and the rollback of
  * a failed DirectoryRejoin::change() transaction.
  *
  * Needs FOG_TEST_DSN (and FOG_TEST_USER / FOG_TEST_PASS); skips without it.
@@ -44,24 +44,30 @@ $t->check(
     && 'text' === $byField['hdRejoinState']['Type'] && null === $byField['hdRejoinState']['Default']
 );
 
-$legacy = [
-    'version' => 1, 'phase' => 'ready', 'attempt_id' => str_repeat('a', 32),
-    'source' => ['guid' => '11111111-1111-1111-1111-111111111111', 'sid' => 'S-1-5-21-1-1'],
-    'target' => ['guid' => '22222222-2222-2222-2222-222222222222', 'sid' => 'S-1-5-21-1-2'],
-    'clone_status' => 'detected', 'clone_origin' => ['host_id' => 99], 'origin_host_id' => 99
+$stored = [
+    'version' => 1, 'protocol' => 2, 'phase' => 'ready', 'attempt_id' => str_repeat('a', 32),
+    'target' => ['guid' => '22222222-2222-2222-2222-222222222222', 'sid' => 'S-1-5-21-1-2']
 ];
-$legacyDecoded = $legacy;
-unset($legacyDecoded['clone_status'], $legacyDecoded['clone_origin'], $legacyDecoded['origin_host_id']);
 $pdo->prepare('UPDATE hostDirectory SET hdRejoinConfig=?, hdRejoinState=? WHERE hdHostID=7')
-    ->execute([json_encode(['version' => 1, 'enabled' => true]), json_encode($legacy)]);
+    ->execute([json_encode(['version' => 1, 'protocol' => 2]), json_encode($stored)]);
 $host = (new FOG\Items\Host())->set('id', 7);
 $change = new \ReflectionMethod(FOG\Agent\DirectoryRejoin::class, 'change');
 $change->setAccessible(true);
 
 $t->check(
-    'legacy state decode discards the clone classification',
-    FOG\Agent\DirectoryRejoin::settings($host)['state'] === $legacyDecoded
+    'a stored v2 state decodes as written',
+    FOG\Agent\DirectoryRejoin::settings($host)['state'] === $stored
 );
+$pdo->prepare('UPDATE hostDirectory SET hdRejoinState=? WHERE hdHostID=7')
+    ->execute([json_encode($stored + ['clone_status' => 'detected'])]);
+$error = null;
+try {
+    FOG\Agent\DirectoryRejoin::settings($host);
+} catch (\RuntimeException $e) {
+    $error = $e->getMessage();
+}
+$t->check('a state with a key this version does not write is unreadable', 'rejoin_state_invalid' === $error);
+$pdo->prepare('UPDATE hostDirectory SET hdRejoinState=? WHERE hdHostID=7')->execute([json_encode($stored)]);
 $error = null;
 try {
     FOG\Agent\DirectoryRejoin::beforePoll($host, []);
@@ -74,20 +80,20 @@ $t->check(
 );
 $error = null;
 try {
-    FOG\Agent\DirectoryRejoin::start($host, ['attempt_id' => $legacy['attempt_id']]);
+    FOG\Agent\DirectoryRejoin::start($host, ['attempt_id' => $stored['attempt_id']]);
 } catch (\RuntimeException $e) {
     $error = $e->getMessage();
 }
-$t->check('a legacy v1 attempt is never executed', 'legacy_directory_operation_requires_review' === $error);
+$t->check('a start for a host with directory membership off is refused', 'rejoin_disabled' === $error);
 $t->check(
-    'the refusal left the old operation as it was',
-    FOG\Agent\DirectoryRejoin::settings($host)['state'] === $legacyDecoded
+    'the refusal left the stored operation as it was',
+    FOG\Agent\DirectoryRejoin::settings($host)['state'] === $stored
 );
 $change->invoke(null, $host, function (&$config, &$state) {
 });
 $t->check(
-    'a no-op transaction leaves the legacy state unchanged',
-    FOG\Agent\DirectoryRejoin::settings($host)['state'] === $legacyDecoded
+    'a no-op transaction leaves the stored state unchanged',
+    FOG\Agent\DirectoryRejoin::settings($host)['state'] === $stored
 );
 $error = null;
 try {
@@ -98,10 +104,10 @@ try {
 } catch (\RuntimeException $e) {
     $error = $e->getMessage();
 }
-$stored = json_decode($pdo->query('SELECT hdRejoinState FROM hostDirectory WHERE hdHostID=7')->fetchColumn(), true);
+$afterFailure = json_decode($pdo->query('SELECT hdRejoinState FROM hostDirectory WHERE hdHostID=7')->fetchColumn(), true);
 $t->check(
     'a failed transaction rolls back and leaves no transaction open',
-    'injected' === $error && $stored === $legacyDecoded && !$pdo->inTransaction()
+    'injected' === $error && $afterFailure === $stored && !$pdo->inTransaction()
 );
 
 $pdo->exec('UPDATE hostDirectory SET hdRejoinConfig=NULL, hdRejoinState=NULL WHERE hdHostID=7');

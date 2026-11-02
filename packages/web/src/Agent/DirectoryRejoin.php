@@ -1,16 +1,47 @@
 <?php
-/** Transactional directory operation state and existing Target confirmations. */
+/**
+ * Transactional directory operation state and existing Target confirmations.
+ *
+ * PHP version 7.4+
+ *
+ * @category DirectoryMembership
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 namespace FOG\Agent;
 
 use FOG\Base\FOGBase;
 use FOG\Items\Host;
 use FOG\Net\FOGLdap;
 
+/**
+ * Owns the rejoin config and state stored on hostDirectory. Every write goes
+ * through change(), one short transaction holding the host and hostDirectory
+ * row locks, so two requests for one host never interleave. The operation
+ * logic is in DirectoryOperation.
+ *
+ * @category DirectoryMembership
+ * @package  FOGProject
+ * @author   Tom Elliott <tommygunsster@gmail.com>
+ * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
+ * @link     https://fogproject.org
+ */
 class DirectoryRejoin extends FOGBase
 {
     const LIMIT = 16384;
-    const TERMINAL = ['verified', 'failed', 'unknown'];
 
+    /**
+     * Decodes and validates a stored config or state value.
+     *
+     * @param mixed $raw the stored JSON; anything but a string is refused
+     *
+     * @return array empty for NULL or an empty string
+     *
+     * @throws \RuntimeException rejoin_state_invalid (409) for a value that
+     *                           is not JSON, has unknown keys or wrong types
+     */
     public static function decode($raw)
     {
         if (null === $raw || '' === $raw) {
@@ -23,9 +54,8 @@ class DirectoryRejoin extends FOGBase
         if (!is_array($value) || 1 !== ($value['version'] ?? null)) {
             throw new \RuntimeException('rejoin_state_invalid', 409);
         }
-        unset($value['clone_status'], $value['origin_host_id'], $value['clone_origin']);
-        $keys = ['version','enabled','allow_create','name','domain','confirmed_by','confirmed_at',
-            'target','source','config_revision','placement_hold','host_id',
+        $keys = ['version','allow_create','name','domain','confirmed_by','confirmed_at',
+            'target','config_revision','placement_hold','host_id',
             'fingerprint','dc','mode','phase','attempt_id','reason','native_status','secure_channel','boot_changed','boot','updated_at',
             'protocol','operation','expected_current','expected_pending','observation','observed_at','check_dc',
             'last_deploy_task_id','trigger_task_id','retry_authorized','workgroup',
@@ -54,7 +84,7 @@ class DirectoryRejoin extends FOGBase
         if (isset($value['observation']) && !is_array($value['observation'])) {
             throw new \RuntimeException('rejoin_state_invalid', 409);
         }
-        foreach (['enabled','allow_create','placement_hold','boot_changed'] as $key) {
+        foreach (['allow_create','placement_hold','boot_changed'] as $key) {
             if (isset($value[$key]) && !is_bool($value[$key])) {
                 throw new \RuntimeException('rejoin_state_invalid', 409);
             }
@@ -64,11 +94,9 @@ class DirectoryRejoin extends FOGBase
                 throw new \RuntimeException('rejoin_state_invalid', 409);
             }
         }
-        foreach (['source','target'] as $key) {
-            if (isset($value[$key]) && (!is_array($value[$key])
-                || !self::guid($value[$key]['guid'] ?? null) || !is_string($value[$key]['sid'] ?? null))) {
-                throw new \RuntimeException('rejoin_state_invalid', 409);
-            }
+        if (isset($value['target']) && (!is_array($value['target'])
+            || !self::guid($value['target']['guid'] ?? null) || !is_string($value['target']['sid'] ?? null))) {
+            throw new \RuntimeException('rejoin_state_invalid', 409);
         }
         return $value;
     }
@@ -83,6 +111,13 @@ class DirectoryRejoin extends FOGBase
         return $raw;
     }
 
+    /**
+     * The host's stored config and state, without locking.
+     *
+     * @param Host $host the host
+     *
+     * @return array with the keys config and state
+     */
     public static function settings(Host $host)
     {
         $q = self::$DB->link()->prepare('SELECT hdRejoinConfig, hdRejoinState FROM hostDirectory WHERE hdHostID = ?');
@@ -93,7 +128,21 @@ class DirectoryRejoin extends FOGBase
             'state' => self::decode($row['hdRejoinState'] ?? null)];
     }
 
-    /** Short DB-only transaction; LDAP, credentials and OS calls stay outside. */
+    /**
+     * Runs $fn on the locked config and state and stores what it leaves.
+     * A short DB-only transaction: LDAP, credentials and OS calls stay
+     * outside. A deadlock (1213) or a changed-since-read error (1020) answers
+     * 409 so the agent retries.
+     *
+     * @param Host     $host the host
+     * @param callable $fn   function (&$config, &$state, $principal): mixed
+     *
+     * @return mixed whatever $fn returns
+     *
+     * @throws \RuntimeException rejoin_nested_transaction, rejoin_host_missing,
+     *                           rejoin_deadlock_retry or rejoin_plan_changed
+     *                           (all 409), or whatever $fn throws
+     */
     public static function change(Host $host, callable $fn)
     {
         $db = self::$DB->link();
@@ -163,8 +212,7 @@ class DirectoryRejoin extends FOGBase
         } catch (\Throwable $e) {
             return true;
         }
-        return DirectoryOperation::legacyPending($state)
-            || in_array($state['phase'] ?? '', ['started', 'awaiting_reboot', 'unknown', 'failed'], true);
+        return in_array($state['phase'] ?? '', ['started', 'awaiting_reboot', 'unknown', 'failed'], true);
     }
 
     /**
@@ -299,11 +347,32 @@ class DirectoryRejoin extends FOGBase
         ]);
     }
 
+    /**
+     * Whether a value is a GUID in the 8-4-4-4-12 form.
+     *
+     * @param mixed $value the value to test
+     *
+     * @return bool
+     */
     public static function guid($value)
     {
         return is_string($value) && 1 === preg_match('/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/iD', $value);
     }
 
+    /**
+     * Opens the LDAP connection for the host's domain and checks that the
+     * configured search base sits inside it. Never call inside a transaction.
+     *
+     * @param Host        $host         the host
+     * @param string|null $wantedDomain the domain to verify; defaults to the host's
+     *
+     * @return array the FOGLdap connection, the base DN and the domain controller
+     *
+     * @throws \RuntimeException rejoin_directory_unconfigured,
+     *                           rejoin_directory_unavailable,
+     *                           rejoin_domain_unverified, rejoin_scope_invalid
+     *                           or directory_ldap_inside_transaction (409)
+     */
     public static function connection(Host $host, $wantedDomain = null)
     {
         $c = DirectoryPlacement::connection($host);
@@ -337,6 +406,17 @@ class DirectoryRejoin extends FOGBase
             && 0 === strcasecmp(substr($dn, -strlen($root) - 1), ',' . $root);
     }
 
+    /**
+     * Looks up one computer account. An error is never read as absence.
+     *
+     * @param FOGLdap $ldap    the open connection
+     * @param string  $base    the search base
+     * @param string  $account the account name
+     *
+     * @return array status found or absent, and the record when found
+     *
+     * @throws \RuntimeException rejoin_lookup_failed (409) for any other status
+     */
     public static function lookup(FOGLdap $ldap, $base, $account)
     {
         $answer = $ldap->computerRecord($base, $account);
@@ -346,16 +426,31 @@ class DirectoryRejoin extends FOGBase
         return $answer;
     }
 
+    /**
+     * Stores the operator's settings from the host Active Directory tab:
+     * whether creating an account is allowed, a confirmed target and a retry.
+     *
+     * @param Host   $host  the host
+     * @param array  $input the posted rejoin_* fields
+     * @param string $actor the operator's name
+     *
+     * @return mixed
+     */
     public static function configure(Host $host, array $input, $actor)
     {
-        foreach (['rejoin_enabled', 'rejoin_source_account', 'rejoin_source_guid', 'rejoin_source_sid'] as $key) {
-            if (array_key_exists($key, $input)) {
-                throw new \RuntimeException('legacy_directory_configuration_unsupported', 409);
-            }
-        }
         return self::configureTarget($host, $input, $actor);
     }
 
+    /**
+     * Requires a name an AD computer account can have: letters, digits and
+     * hyphens, 1 to 15 characters, not all digits, no leading or trailing hyphen.
+     *
+     * @param mixed $name the host name
+     *
+     * @return void
+     *
+     * @throws \RuntimeException rejoin_name_invalid (409)
+     */
     public static function validName($name)
     {
         if (!is_string($name) || !preg_match('/^(?=.{1,15}$)[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/iD', $name)
@@ -364,7 +459,20 @@ class DirectoryRejoin extends FOGBase
         }
     }
 
-    /** Called before any poll side effect, even when facts have not changed. */
+    /**
+     * Called before any poll side effect, even when facts have not changed.
+     * A poll without the directory features returns at once (it is never
+     * refused, so tasks and check-in still work). A poll with them must pass
+     * the identity check, then stores the observation.
+     *
+     * @param Host  $host the host
+     * @param array $body the decoded poll body
+     *
+     * @return void
+     *
+     * @throws \RuntimeException directory_target_feature_required,
+     *                           identity_not_matched or an observation error
+     */
     public static function beforePoll(Host $host, array $body)
     {
         if (DirectoryOperation::requested($body) && !MachineIdentity::requested($body)) {
@@ -400,39 +508,73 @@ class DirectoryRejoin extends FOGBase
 
 
     /** Read LDAP outside transactions and build only the single current plan. */
+    /**
+     * The directory_rejoin block for a poll answer.
+     *
+     * @param Host  $host the host
+     * @param array $body the decoded poll body
+     *
+     * @return array|null see DirectoryOperation::plan()
+     */
     public static function plan(Host $host, array $body = [])
     {
-        $saved = self::settings($host);
-        if (DirectoryOperation::legacyPending($saved['state'])) {
-            return self::publicState($saved['state']);
-        }
-        return 2 === ($saved['state']['protocol'] ?? 1) ? DirectoryOperation::plan($host, $body) : null;
+        // No protocol-2 state yet means no poll has declared the feature.
+        return 2 === (self::settings($host)['state']['protocol'] ?? 1) ? DirectoryOperation::plan($host, $body) : null;
     }
 
 
+    /**
+     * Whether two directory records are the same object: same GUID and SID.
+     *
+     * @param array $a a record
+     * @param array $b a record
+     *
+     * @return bool
+     */
     public static function sameObject(array $a, array $b)
     {
         return !empty($a['guid']) && !empty($a['sid'])
             && 0 === strcasecmp($a['guid'], $b['guid'] ?? '') && $a['sid'] === ($b['sid'] ?? '');
     }
 
+    /**
+     * The agent's claim of the planned operation.
+     *
+     * @param Host  $host the host
+     * @param array $body the decoded start body
+     *
+     * @return array see DirectoryOperation::start()
+     */
     public static function start(Host $host, array $body)
     {
-        if (2 !== (self::settings($host)['state']['protocol'] ?? 1)) {
-            throw new \RuntimeException('legacy_directory_operation_requires_review', 409);
-        }
         return DirectoryOperation::start($host, $body);
     }
 
 
+    /**
+     * The agent's result for the claimed operation.
+     *
+     * @param Host  $host the host
+     * @param array $body the decoded result body
+     *
+     * @return string see DirectoryOperation::report()
+     */
     public static function report(Host $host, array $body)
     {
-        if (2 !== (self::settings($host)['state']['protocol'] ?? 1)) {
-            throw new \RuntimeException('legacy_directory_operation_requires_review', 409);
-        }
         return DirectoryOperation::report($host, $body);
     }
 
+    /**
+     * Allows only the forward phase moves of a started attempt, so a late or
+     * repeated result cannot rewrite a finished one.
+     *
+     * @param string $from the stored phase
+     * @param string $to   the reported phase
+     *
+     * @return void
+     *
+     * @throws \RuntimeException rejoin_result_out_of_order (409)
+     */
     public static function transition($from, $to)
     {
         if ($from === $to) {
@@ -445,19 +587,32 @@ class DirectoryRejoin extends FOGBase
         }
     }
 
+    /**
+     * The part of a stored state the agent may see, as the version 2 object.
+     *
+     * @param array $s the stored state
+     *
+     * @return array|null null when there is no attempt
+     */
     public static function publicState(array $s)
     {
         if (empty($s['attempt_id'])) {
             return null;
         }
-        if (2 === ($s['protocol'] ?? 1)) {
-            $s['task_id'] = (int)($s['trigger_task_id'] ?? 0);
-            return ['version' => 2] + array_intersect_key($s, array_flip(['attempt_id','host_id','config_revision','phase',
-                'name','domain','mode','dc','target','reason','operation','expected_current','expected_pending','retry_authorized','task_id']));
-        }
-        return ['phase' => 'blocked', 'reason' => 'legacy_directory_operation_requires_review'];
+        $s['task_id'] = (int)($s['trigger_task_id'] ?? 0);
+        return ['version' => 2] + array_intersect_key($s, array_flip(['attempt_id','host_id','config_revision','phase',
+            'name','domain','mode','dc','target','reason','operation','expected_current','expected_pending','retry_authorized','task_id']));
     }
 
+    /**
+     * Notes why a poll was refused, for the operator. It never touches a
+     * running attempt, and it skips the write when the reason is unchanged.
+     *
+     * @param Host   $host   the host
+     * @param string $reason the refusal code
+     *
+     * @return void
+     */
     public static function blocked(Host $host, $reason)
     {
         // A poll repeats the same refusal every few seconds. Skip the locked
@@ -475,18 +630,41 @@ class DirectoryRejoin extends FOGBase
         });
     }
 
+    /**
+     * Whether the config lets the server create a missing account. Allowed
+     * unless the operator turned it off.
+     *
+     * @param array $config the stored config
+     *
+     * @return bool
+     */
     public static function allowsCreate(array $config)
     {
         return !array_key_exists('allow_create', $config) || true === $config['allow_create'];
     }
 
-    /** Retry permission never discards evidence of a possibly executed operation. */
+    /**
+     * Whether an operator may authorize a retry. Retry permission never
+     * discards evidence of a possibly executed operation.
+     *
+     * @param array $state the stored state
+     *
+     * @return bool
+     */
     public static function canConfirmRetry(array $state)
     {
         return 'verified' === ($state['phase'] ?? '')
             || ('' === ($state['phase'] ?? '') && empty($state['attempt_id']));
     }
 
+    /**
+     * The directory account the host would rebind to, for the operator to
+     * confirm on the Active Directory tab.
+     *
+     * @param Host $host the host
+     *
+     * @return array the lookup answer with name and domain, or status unavailable
+     */
     public static function targetCandidate(Host $host)
     {
         try {
@@ -499,9 +677,6 @@ class DirectoryRejoin extends FOGBase
     private static function configureTarget(Host $host, array $input, $actor)
     {
         $saved = self::settings($host);
-        if (DirectoryOperation::legacyPending($saved['state'])) {
-            throw new \RuntimeException('legacy_directory_operation_requires_review', 409);
-        }
         $config = ['version' => 1, 'protocol' => 2,
             'allow_create' => array_key_exists('rejoin_allow_create', $input) ? (bool)$input['rejoin_allow_create'] : self::allowsCreate($saved['config']),
             'name' => (string)$host->get('name'), 'domain' => strtolower(trim((string)$host->get('ADDomain'))),
