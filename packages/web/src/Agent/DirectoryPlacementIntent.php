@@ -332,9 +332,12 @@ class DirectoryPlacementIntent extends FOGBase
     }
 
     /**
-     * Records an operator's decision about a Move whose result is unknown:
-     * UNKNOWN becomes CANCELED, so the next check-in may try again. Nothing
-     * is undone in the directory. The row stays as history.
+     * Records an operator's decision about a Move whose result is unknown or
+     * that may still be running: UNKNOWN or MAY_HAVE_RUN becomes CANCELED, so
+     * the next check-in may try again and a crashed worker cannot protect the
+     * host forever. Nothing is undone in the directory. A worker that later
+     * calls finish() on the cleared row loses its CAS. The row stays as
+     * history, and the audit text names the status that was cleared.
      *
      * @param Host   $host         the host
      * @param string $expectedGuid the GUID the operator was shown
@@ -350,7 +353,7 @@ class DirectoryPlacementIntent extends FOGBase
         $id = (int)$host->get('id');
         $cleared = self::transaction(function ($db) use ($id, $expectedGuid) {
             self::lockOwner($db, $id);
-            $rows = self::rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus=\'UNKNOWN\' FOR UPDATE', [$id]);
+            $rows = self::rows($db, 'SELECT * FROM directoryPlacementIntent WHERE dpiHostID=? AND dpiStatus IN (\'UNKNOWN\',\'MAY_HAVE_RUN\') FOR UPDATE', [$id]);
             if (!$rows) {
                 throw new \RuntimeException('directory_intent_review_not_required', 409);
             }
@@ -363,12 +366,12 @@ class DirectoryPlacementIntent extends FOGBase
             if (null === $row) {
                 throw new \RuntimeException('directory_intent_review_changed', 409);
             }
-            $q = $db->prepare('UPDATE directoryPlacementIntent SET dpiStatus=\'CANCELED\',dpiUpdated=UTC_TIMESTAMP(6) WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? AND dpiStatus=\'UNKNOWN\'');
-            $q->execute([$row['dpiGUID'], $row['dpiSID'], $row['dpiGeneration'], $row['dpiHash']]);
+            $q = $db->prepare('UPDATE directoryPlacementIntent SET dpiStatus=\'CANCELED\',dpiUpdated=UTC_TIMESTAMP(6) WHERE dpiGUID=? AND dpiSID=? AND dpiGeneration=? AND dpiHash=? AND dpiStatus=?');
+            $q->execute([$row['dpiGUID'], $row['dpiSID'], $row['dpiGeneration'], $row['dpiHash'], $row['dpiStatus']]);
             if (1 !== $q->rowCount()) {
                 throw new \RuntimeException('directory_intent_review_changed', 409);
             }
-            return self::uuid($row['dpiGUID']);
+            return [self::uuid($row['dpiGUID']), (string)$row['dpiStatus']];
         });
         Audit::record([
             'type' => 'host.directory.intent_review_cleared',
@@ -378,7 +381,7 @@ class DirectoryPlacementIntent extends FOGBase
             'permission' => 'host.edit',
             'affectedCount' => 1,
             'renderable' => 1,
-            'text' => substr('cleared the OU placement review of computer object ' . $cleared . ' by ' . substr((string)$actor, 0, 100), 0, Audit::MAX_DETAIL)
+            'text' => substr('cleared the ' . $cleared[1] . ' OU placement review of computer object ' . $cleared[0] . ' by ' . substr((string)$actor, 0, 100), 0, Audit::MAX_DETAIL)
         ]);
     }
 

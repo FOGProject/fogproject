@@ -3323,7 +3323,7 @@ class HostManagement extends FOGPage
         }
         // An OU placement (Move) request that may have run, or whose result is
         // unknown. An operator reads the directory, then clears an unknown
-        // one so the next check-in may try again.
+        // one, or one stuck as may-have-run, so the next check-in may try again.
         try {
             $moves = \FOG\Agent\DirectoryPlacementIntent::pendingReview($this->obj);
         } catch (\Throwable $e) {
@@ -3334,12 +3334,9 @@ class HostManagement extends FOGPage
                 . \Initiator::e(
                     'UNKNOWN' === $move['status']
                         ? sprintf(_('A request to move this computer object to %s has an unknown result. Read the directory to see where the object is.'), $move['destination'])
-                        : sprintf(_('A request to move this computer object to %s may be in progress.'), $move['destination'])
+                        : sprintf(_('A request to move this computer object to %s may have run, or may still be running.'), $move['destination'])
                 )
                 . '</p>';
-            if ('UNKNOWN' !== $move['status']) {
-                continue;
-            }
             $fields[self::makeLabel(
                 $labelClass,
                 'rejoin_clear_intent',
@@ -3362,7 +3359,7 @@ class HostManagement extends FOGPage
                     $move['guid']
                 )
                 . '<p class="small text-muted">'
-                . \Initiator::e(_('Clearing records your decision; it does not undo anything. FOG may then try the move again.'))
+                . \Initiator::e(_('Clearing records your decision and undoes nothing. The move may have run, or may still be running. FOG may then try the move again.'))
                 . '</p>';
             break;
         }
