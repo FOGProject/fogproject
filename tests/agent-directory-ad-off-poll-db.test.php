@@ -42,6 +42,9 @@ class AdOffLoggingPdo extends \PDO
 
 $directoryDbName = 'agent-directory-ad-off-poll-db';
 require __DIR__ . '/lib/directory-db.php';
+// directory-db.php leaves these in the global scope.
+$pdo = $GLOBALS['pdo'];
+$manifest = $GLOBALS['manifest'];
 $t = new FogChecks();
 
 $user = getenv('FOG_TEST_USER');
@@ -90,7 +93,7 @@ $t->check('a poll from a host with directory membership off creates no hostDirec
 $locking = array_filter($logging->log, static function ($sql) {
     return (bool)preg_match('/\bFOR\s+UPDATE\b/i', $sql);
 });
-$t->check('the poll issues no locking read', [] === array_values($locking));
+$t->check('the poll issues no locking read', 0 === count($locking));
 $t->check(
     'the identity check ran, so the host was resolved and not skipped',
     (bool)array_filter($logging->log, static function ($sql) {
@@ -111,6 +114,6 @@ $t->check('an existing hostDirectory row is unchanged by the poll', $before === 
 $locking = array_filter($logging->log, static function ($sql) {
     return (bool)preg_match('/\bFOR\s+UPDATE\b|\bINSERT\b|\bUPDATE\b/i', $sql);
 });
-$t->check('the poll with an existing row writes and locks nothing', [] === array_values($locking));
+$t->check('the poll with an existing row writes and locks nothing', 0 === count($locking));
 
 $t->finish();

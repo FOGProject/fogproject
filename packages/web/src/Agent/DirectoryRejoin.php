@@ -123,8 +123,13 @@ class DirectoryRejoin extends FOGBase
             $db->commit();
             return $result;
         } catch (\Throwable $e) {
-            if ($db->inTransaction()) {
+            // Not inTransaction(): PHPStan cannot see that beginTransaction()
+            // changes the answer. rollBack() throws when the server already
+            // ended the transaction, which is the same end state.
+            try {
                 $db->rollBack();
+            } catch (\PDOException $ignored) {
+                // No transaction left to roll back.
             }
             if ($e instanceof \PDOException) {
                 $driverCode = (int)($e->errorInfo[1] ?? 0);
@@ -275,8 +280,10 @@ class DirectoryRejoin extends FOGBase
             $q->execute([$config, self::encoded($cleared), $id]);
             $db->commit();
         } catch (\Throwable $e) {
-            if ($db->inTransaction()) {
+            try {
                 $db->rollBack();
+            } catch (\PDOException $ignored) {
+                // No transaction left to roll back.
             }
             throw $e;
         }
@@ -364,24 +371,12 @@ class DirectoryRejoin extends FOGBase
             throw new \RuntimeException('directory_target_feature_required', 409);
         }
         if (!MachineIdentity::requested($body)) {
-            // Operation authority is current DB state, not a cached fact object.
-            $saved = self::settings($host);
-            $config = $saved['config'];
-            $state = $saved['state'];
-            $required = !empty($config['enabled']) || 2 === ($state['protocol'] ?? 0) || !empty($state['attempt_id']);
-            if (!$required && '' !== (string)$host->get('agentFingerprint')) {
-                foreach ((array)\FOG\Router\Route::getList('agentenrollment', ['fingerprint' => (string)$host->get('agentFingerprint')]) as $enrollment) {
-                    $fields = (array)$enrollment;
-                    $identity = json_decode((string)($fields['identity'] ?? ''), true) ?: [];
-                    if (!empty($identity['_directoryIdentity']['required'])) {
-                        $required = true;
-                        break;
-                    }
-                }
-            }
-            if ($required) {
-                throw new \RuntimeException('directory_target_feature_required', 409);
-            }
+            // A poll without the directory features is not refused: the
+            // agent sends one whenever its feature probe or identity check
+            // fails, and a 409 would stop that host's whole poll (tasks and
+            // check-in too). Nothing is planned, claimed or written for it,
+            // so a pending operation waits until the agent polls with the
+            // features again.
             return;
         }
         $identity = MachineIdentity::check($host, $body);

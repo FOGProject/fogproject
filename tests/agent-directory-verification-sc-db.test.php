@@ -15,6 +15,7 @@ if (!getenv('FOG_TEST_DSN')) {
 }
 $directoryDbName = 'agent-directory-verification-sc-db';
 require __DIR__ . '/lib/directory-db.php';
+$pdo = $GLOBALS['pdo']; // left by directory-db.php
 $t = new FogChecks();
 $host = (new FOG\Items\Host())->set('id', 7)->set('name', 'B')->set('ADDomain', 'corp.example')
     ->set('useAD', 1)->set('agentFingerprint', str_repeat('f', 64));

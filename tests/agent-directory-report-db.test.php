@@ -35,6 +35,7 @@ class_alias(DirectoryReportFakeLdap::class, 'FOG\\Net\\FOGLdap', false);
 
 $directoryDbName = 'agent-directory-report-db';
 require __DIR__ . '/lib/directory-db.php';
+$pdo = $GLOBALS['pdo']; // left by directory-db.php
 directoryTestBindPdodb($pdo);
 $t = new FogChecks();
 
