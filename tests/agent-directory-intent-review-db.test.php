@@ -102,6 +102,9 @@ $pdo->exec("SET SESSION sql_mode=''");
 $pdo->prepare("UPDATE directoryPlacementIntent SET dpiUpdated='0000-00-00 00:00:00' WHERE dpiGUID=?")
     ->execute([intentFixtureBytes($unknown['target']['guid'])]);
 $pdo->prepare('SET SESSION sql_mode=?')->execute([$sqlMode]);
+$zeroAge = $pdo->prepare('SELECT TIMESTAMPDIFF(SECOND,dpiUpdated,UTC_TIMESTAMP(6)) FROM directoryPlacementIntent WHERE dpiGUID=?');
+$zeroAge->execute([intentFixtureBytes($unknown['target']['guid'])]);
+$t->check('a zero-date row reads back as a NULL age', [[null]] === $zeroAge->fetchAll(\PDO::FETCH_NUM));
 Intent::clearIntentReview($host, strtoupper($unknown['target']['guid']), 'operator');
 // auditLog is not reset between runs, so find this run's row by the object's GUID.
 $audit = intentFixtureAll(
