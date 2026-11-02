@@ -18,7 +18,7 @@
 #
 # GH-1006. Gets FOG onto a machine that has nothing on it yet:
 #
-#   curl -fsSL https://raw.githubusercontent.com/FOGProject/fogproject/working-1.6/bin/bootstrap.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/FOGProject/fogproject/stable/bin/bootstrap.sh | bash
 #
 # Installs git, clones the repository, checks out the branch for the requested
 # channel, and runs installfog.sh. Nothing else -- once the clone exists,
@@ -114,7 +114,7 @@ repo="https://github.com/FOGProject/fogproject.git"
 # Where this script fetches ITSELF from, for the piped elevation path below.
 # Overridable, because the constant names one branch and a copy taken from
 # another would otherwise be replaced by working-1.6's.
-selfurl="${FOG_BOOTSTRAP_URL:-https://raw.githubusercontent.com/FOGProject/fogproject/working-1.6/bin/bootstrap.sh}"
+selfurl="${FOG_BOOTSTRAP_URL:-https://raw.githubusercontent.com/FOGProject/fogproject/stable/bin/bootstrap.sh}"
 gitpath="/root/fogproject"
 channel="stable"
 branch=""

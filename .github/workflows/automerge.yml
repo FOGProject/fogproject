@@ -79,9 +79,9 @@ jobs:
     # anything anyway, and a fork pull request is one whose merge is a
     # maintainer's decision rather than an automatic one.
     #
-    # Base allowlist: working-1.6 is the branch whose ruleset introduced the
-    # queue and therefore the problem. dev-branch and stable are not in scope
-    # and must not start merging themselves as a side effect of this file.
+    # Base allowlist: dev-branch is the branch whose ruleset carries the merge
+    # queue (it took over working-1.6's at the 1.6.0 release). stable is not in
+    # scope and must not start merging itself as a side effect of this file.
     #
     # Head denylist: workflows for a `pull_request` are read from the merge of
     # head into base, so a pull request whose HEAD is a long-lived branch runs
@@ -89,7 +89,7 @@ jobs:
     # sync a release back, and those are not merge-on-green material.
     if: >-
       github.event.pull_request.head.repo.full_name == github.repository
-      && github.event.pull_request.base.ref == 'working-1.6'
+      && github.event.pull_request.base.ref == 'dev-branch'
       && !github.event.pull_request.draft
       && !contains(fromJson('["stable", "master", "dev-branch", "working-1.6"]'), github.event.pull_request.head.ref)
 

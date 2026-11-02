@@ -23,7 +23,7 @@ version: 2
 updates:
   - package-ecosystem: composer
     directory: /packages/web
-    target-branch: working-1.6
+    target-branch: dev-branch
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
