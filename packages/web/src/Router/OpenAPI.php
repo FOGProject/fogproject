@@ -2790,7 +2790,7 @@ class OpenAPI extends FOGBase
                             ]]]
                         ]
                     ]
-                ) + ['security' => []],
+                ),
                 'post' => self::_op(
                     '',
                     'agentenroll',
@@ -2979,7 +2979,7 @@ class OpenAPI extends FOGBase
                             ]
                         ]]]
                     ]
-                ) + ['security' => []]
+                )
             ],
             '/agent/v1/poll' => [
                 'post' => self::_op(

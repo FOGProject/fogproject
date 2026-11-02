@@ -84,7 +84,7 @@ $t->check('directory identity feature is recognized', I::requested(['features' =
 $t->check('another feature name is not recognized', !I::requested(['features' => ['directory-join-mj1']]));
 $t->check('a missing feature list is not a request', !I::requested([]));
 $hardware = ['macs' => ['00:11:22:33:44:55']];
-$saved = $hardware + ['_mj1' => ['required' => true]];
+$saved = $hardware + ['_directoryIdentity' => ['required' => true]];
 $t->check('legacy unmanaged enrollment unchanged', 'allowed' === I::enrollmentGate($hardware, $hardware, false));
 $t->check('legacy pending cannot silently acquire feature', 'upgrade_blocked' === I::enrollmentGate($hardware, $hardware, true));
 $t->check('required enrollment cannot downgrade', 'feature_required' === I::enrollmentGate($saved, $hardware, false));

@@ -105,7 +105,7 @@ class Enrollment extends FOGBase
         }
         $identity = is_array($body['identity'] ?? null) ? $body['identity'] : [];
         // The server owns this marker; a caller never supplies it.
-        unset($identity['_mj1']);
+        unset($identity['_directoryIdentity']);
         $directoryIdentityRequired = MachineIdentity::requested($body);
         $macs = self::_macs($identity['macs'] ?? []);
         $token = trim((string)($body['token'] ?? ''));
@@ -170,13 +170,23 @@ class Enrollment extends FOGBase
         }
 
         // First contact for this key. Resolve the host the way boot does.
-        list($hostID, $reason) = self::_resolve($identity, $macs);
         if ($directoryIdentityRequired) {
+            // The live identity resolver never votes between hosts, so the
+            // legacy resolver is not consulted at all.
             $resolved = MachineIdentity::resolve($identity, true);
             $hostID = $resolved['host_id'];
-            $reason = 'conflict' === $resolved['status'] ? self::REASON_CONFLICT
-                : ($hostID > 0 ? ((new Host($hostID))->get('agentFingerprint') ? self::REASON_REBIND : self::REASON_KNOWN) : self::REASON_UNKNOWN);
-            $identity['_mj1'] = ['required' => true];
+            if ('conflict' === $resolved['status']) {
+                $reason = self::REASON_CONFLICT;
+            } elseif ($hostID < 1) {
+                $reason = self::REASON_UNKNOWN;
+            } elseif ((new Host($hostID))->get('agentFingerprint')) {
+                $reason = self::REASON_REBIND;
+            } else {
+                $reason = self::REASON_KNOWN;
+            }
+            $identity['_directoryIdentity'] = ['required' => true];
+        } else {
+            list($hostID, $reason) = self::_resolve($identity, $macs);
         }
 
         $Row = (new AgentEnrollment())
@@ -361,7 +371,7 @@ class Enrollment extends FOGBase
     public static function guardDirectoryIdentity(AgentEnrollment $row)
     {
         $identity = json_decode((string)$row->get('identity'), true) ?: [];
-        $meta = $identity['_mj1'] ?? [];
+        $meta = $identity['_directoryIdentity'] ?? [];
         if (empty($meta['required'])) {
             return;
         }
