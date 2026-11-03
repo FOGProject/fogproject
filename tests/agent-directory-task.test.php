@@ -122,8 +122,10 @@ directoryTaskPolicyCheck(
 );
 directoryTaskPolicyCheck(
     $t,
-    'old completed Deploy after an existing baseline remains an explicit blocker',
-    'expired',
+    // A late first boot still counts once a baseline exists. Before, this
+    // Deploy held the host for good.
+    'old completed Deploy after an existing baseline, booted later, is eligible',
+    'eligible',
     [],
     $deployOld,
     ['last_deploy_task_id' => 79],
@@ -192,10 +194,46 @@ foreach ([0, 1, 2, 3] as $activeState) {
     );
 }
 
+// A boot within 7 days of the Deploy counts. A boot more than 7 days after it
+// is a PC in daily use, so that Deploy is no trigger.
 directoryTaskPolicyCheck(
     $t,
-    'failed latest Deploy is unknown',
-    'unknown',
+    'completed Deploy whose boot started more than 7 days later is no trigger',
+    'none',
+    [],
+    $deployOld,
+    ['last_deploy_task_id' => 79],
+    ['boot' => ['started' => '2026-11-03T10:30:00Z']],
+    (new \DateTimeImmutable('2026-11-03T12:00:00Z'))->getTimestamp(),
+    80
+);
+directoryTaskPolicyCheck(
+    $t,
+    'completed Deploy whose boot started exactly 7 days later is eligible',
+    'eligible',
+    [],
+    $deployOld,
+    ['last_deploy_task_id' => 79],
+    ['boot' => ['started' => '2026-11-02T10:00:00Z']],
+    (new \DateTimeImmutable('2026-11-03T12:00:00Z'))->getTimestamp(),
+    80
+);
+directoryTaskPolicyCheck(
+    $t,
+    'completed Deploy whose boot started within 7 days is eligible',
+    'eligible',
+    [],
+    $deployOld,
+    ['last_deploy_task_id' => 79],
+    ['boot' => ['started' => '2026-11-01T10:30:00Z']],
+    (new \DateTimeImmutable('2026-11-03T12:00:00Z'))->getTimestamp(),
+    80
+);
+
+directoryTaskPolicyCheck(
+    $t,
+    'failed latest Deploy is no trigger',
+    'none',
     [],
     directoryTaskPolicyRow(104, \FOG\Items\TaskType::DEPLOY, 6, '2026-10-28T11:30:00Z'),
     ['last_deploy_task_id' => 101],

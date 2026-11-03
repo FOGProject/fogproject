@@ -370,6 +370,33 @@ class DirectoryOperation extends \FOG\Base\FOGBase
     }
 
     /**
+     * Removes a ready plan whose trigger Task no longer authorizes it. The
+     * high-water mark stays where it was, because the trigger was never
+     * consumed. The observation stays, so the same poll can plan again. The
+     * cleared_* keys keep the dropped attempt for the operator.
+     *
+     * @param Host  $host  the host
+     * @param array $saved the settings plan() read
+     *
+     * @return void
+     *
+     * @throws \RuntimeException rejoin_plan_changed (409) when the state moved
+     */
+    private static function dropSupersededPlan(Host $host, array $saved)
+    {
+        DirectoryRejoin::change($host, function (&$config, &$state) use ($saved) {
+            if ($config !== $saved['config'] || $state !== $saved['state'] || 'ready' !== ($state['phase'] ?? '')) {
+                throw new \RuntimeException('rejoin_plan_changed', 409);
+            }
+            $kept = array_intersect_key($state, array_flip(['last_deploy_task_id', 'observation', 'observed_at', 'check_dc', 'workgroup']));
+            $state = ['version' => 1, 'protocol' => 2, 'reason' => 'directory_task_superseded', 'placement_hold' => true,
+                'cleared_attempt' => (string)$state['attempt_id'], 'cleared_phase' => 'ready',
+                'cleared_by' => 'FOG', 'cleared_at' => gmdate('c')] + $kept;
+            return null;
+        });
+    }
+
+    /**
      * The directory_rejoin block of a poll answer: nothing, a blocked reason,
      * or the planned operation (stored as phase ready). LDAP reads happen
      * here, outside any transaction, and the plan is stored only if the saved
@@ -407,10 +434,28 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             }
         }
         if (!empty($s['attempt_id']) && 'verified' !== ($s['phase'] ?? '')) {
-            if ('ready' === ($s['phase'] ?? '') && !empty($s['trigger_task_id'])) {
+            if ('ready' === ($s['phase'] ?? '')) {
                 $task = DirectoryTask::read($host, $s, $s['observation'] ?? []);
-                if ('eligible' !== $task['status'] || $task['task_id'] !== $s['trigger_task_id']) {
-                    return self::taskBlocked($task);
+                // A plan with a trigger needs that Task to stay eligible. A
+                // plan without one (a retry or a rename) needs what claim()
+                // accepts, so a newer Deploy cannot strand it either.
+                $superseded = empty($s['trigger_task_id'])
+                    ? !in_array($task['status'], ['none','consumed'], true)
+                    : 'eligible' !== $task['status'] || $task['task_id'] !== $s['trigger_task_id'];
+                if ($superseded) {
+                    // A Deploy still running holds the plan until it ends.
+                    // So does an operation the agent reports as in progress.
+                    if ('in_progress' === $task['status'] || !in_array($local['phase'], ['none','verified'], true)) {
+                        return self::taskBlocked($task);
+                    }
+                    // Any other change means the trigger no longer authorizes
+                    // this plan, and no later poll can make it eligible again.
+                    // A ready plan was never claimed, so nothing ran and no
+                    // credential left the server. Drop it and plan again from
+                    // the current Task, so the host is not blocked for good.
+                    self::dropSupersededPlan($host, $saved);
+                    // The new state has no attempt, so this branch runs once.
+                    return self::plan($host, $body);
                 }
             }
             return DirectoryRejoin::publicState($s);
@@ -446,12 +491,19 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             });
         }
         $task = 'eligible' === $taskState['status'] ? $taskState['task_id'] : 0;
-        if ($workgroup && !$task) {
-            return null;
-        }
+        // A workgroup PC on a host set to join AD joins, Deploy or not. It
+        // has no directory identity to protect, and the host setting is the
+        // admin's instruction. It used to need an eligible Deploy, so a PC
+        // that missed that window could never join without a re-image.
         if ($workgroup && (!in_array($o['role'] ?? '', ['workstation','member_server','standalone_server'], true)
             || empty($o['dc_reachable']) || empty($o['current_name']) || empty($o['pending_name'])
             || (strcasecmp($o['pending_name'], $o['current_name']) && strcasecmp($o['pending_name'], $name)))) {
+            // With no eligible Deploy, an observation that cannot plan a join
+            // waits quietly. Example: an off-site laptop cannot reach a DC.
+            // The next poll tries again.
+            if (!$task) {
+                return null;
+            }
             throw new \RuntimeException('directory_join_observation_unknown', 409);
         }
         $same = !strcasecmp($o['current_name'], $name) && !strcasecmp($o['pending_name'], $name);
