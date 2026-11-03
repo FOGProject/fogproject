@@ -153,9 +153,8 @@ fi
 #
 # "Unrecognized" is a comparison, so with no bundled set to compare against
 # every plugin the admin has would be named as third-party. configureHttpd is
-# reached that way for real: configureMinHttpd() -- the storage node path at
-# installfog.sh:1353 -- calls it without downloadplugins ever running, and
-# lib/plugins is gitignored on 1.6, so a storage-node install from a clone
+# reached that way for real: lib/plugins is gitignored on 1.6, so an install
+# whose downloadplugins was skipped (a tarball with no fetcher) or failed
 # arrives here with $webdirsrc/lib/plugins empty.
 reset_old_tree
 mkdir -p "${DB_backup_path}/fog_web_${version}.BACKUP/lib/plugins/hostext"
