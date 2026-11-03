@@ -204,6 +204,32 @@ directoryTaskPolicyCheck(
     104
 );
 
+// A canceled latest Deploy is no trigger, at any age and with or without a
+// baseline. It used to answer unknown, which blocked the host for good.
+$deployCanceled =directoryTaskPolicyRow(105, \FOG\Items\TaskType::DEPLOY, 5, '2026-10-28T11:30:00Z');
+directoryTaskPolicyCheck(
+    $t,
+    'recent canceled latest Deploy after a baseline is no trigger',
+    'none',
+    [],
+    $deployCanceled,
+    ['last_deploy_task_id' => 101],
+    $bootAfterDeploy,
+    $now,
+    105
+);
+directoryTaskPolicyCheck(
+    $t,
+    'old canceled latest Deploy with no baseline is no trigger',
+    'none',
+    [],
+    directoryTaskPolicyRow(106, \FOG\Items\TaskType::DEPLOY, 5, '2026-09-05T10:00:00Z'),
+    [],
+    $bootAfterDeploy,
+    $now,
+    106
+);
+
 $none = directoryTaskPolicyCheck(
     $t,
     'no imaging or Deploy Task',
