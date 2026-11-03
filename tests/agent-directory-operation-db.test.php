@@ -635,14 +635,8 @@ $assertClaimUnchanged = function ($label, $expectedError, array $saved, array $b
 $claimNow = new \DateTimeImmutable('now', $storageTZ);
 $freshClaimTaskEnd = $claimNow->sub(new \DateInterval('PT2M'));
 $freshClaimBoot = $freshClaimTaskEnd->add(new \DateInterval('PT1M'));
-$expiredClaimTaskEnd = $claimNow->sub(new \DateInterval('PT25H'));
-$expiredClaimBoot = $expiredClaimTaskEnd->add(new \DateInterval('PT1M'));
-
-list($expiredSaved, $expiredBody) = $storeTaskClaimSnapshot(
-    [['id' => 120, 'changed' => $expiredClaimTaskEnd]],
-    $expiredClaimBoot
-);
-$assertClaimUnchanged('expired-after-ready Task', 'directory_task_claim_changed', $expiredSaved, $expiredBody);
+$lateClaimTaskEnd = $claimNow->sub(new \DateInterval('PT25H'));
+$lateClaimBoot = $lateClaimTaskEnd->add(new \DateInterval('PT1M'));
 
 $newerTaskEnd = $claimNow->sub(new \DateInterval('PT1M'));
 list($newerSaved, $newerBody, $newerReadyState) = $storeTaskClaimSnapshot(
@@ -653,16 +647,162 @@ list($newerSaved, $newerBody, $newerReadyState) = $storeTaskClaimSnapshot(
     $newerTaskEnd->add(new \DateInterval('PT30S'))
 );
 $assertClaimUnchanged('newer completed Deploy after ready', 'directory_task_claim_changed', $newerSaved, $newerBody);
-$stalePlan = FOG\Agent\DirectoryOperation::plan($host);
-$staleState = FOG\Agent\DirectoryRejoin::settings($host)['state'];
+// A ready plan whose trigger no longer authorizes it used to block on every
+// poll, and no operator action could clear it. It was never claimed, so plan()
+// now drops it and plans again from the current Task.
+$planOutcome = function () use ($host) {
+    try {
+        return ['answer' => FOG\Agent\DirectoryOperation::plan($host)];
+    } catch (\RuntimeException $e) {
+        return ['error' => $e->getMessage()];
+    }
+};
+$assertDropped = function ($label, array $readyState) use ($t, $host) {
+    $after = FOG\Agent\DirectoryRejoin::settings($host)['state'];
+    $t->check(
+        $label . ' drops the old attempt and keeps it for the operator',
+        $readyState['attempt_id'] !== ($after['attempt_id'] ?? null)
+            && $readyState['attempt_id'] === ($after['cleared_attempt'] ?? null)
+            && 'ready' === ($after['cleared_phase'] ?? null)
+    );
+    $t->check(
+        $label . ' does not consume the old trigger',
+        119 === ($after['last_deploy_task_id'] ?? null) && !isset($after['trigger_task_id'])
+    );
+};
+// The newer Deploy 121 is a new trigger. Planning it needs the account
+// lookup, which this scratch DB has no LDAP for, so the replan stops there.
+$stale = $planOutcome();
 $t->check(
-    'stale ready plan is blocked when a newer completed Deploy supersedes it',
-    'blocked' === ($stalePlan['phase'] ?? null)
+    'stale ready plan superseded by a newer completed Deploy plans again',
+    'rejoin_lookup_failed' === ($stale['error'] ?? null)
+);
+$assertDropped('stale ready plan superseded by a newer completed Deploy', $newerReadyState);
+
+// A trigger older than 24 hours still authorizes its plan once a baseline
+// exists: the PC booted late, and that boot still counts. Before, plan()
+// blocked such a plan for good.
+list(, , $lateReadyState) = $storeTaskClaimSnapshot(
+    [['id' => 120, 'changed' => $lateClaimTaskEnd]],
+    $lateClaimBoot
+);
+$stale = $planOutcome();
+$t->check(
+    'ready plan whose trigger is older than 24 hours stays ready',
+    'ready' === ($stale['answer']['phase'] ?? null)
+        && $lateReadyState['attempt_id'] === ($stale['answer']['attempt_id'] ?? null)
 );
 $t->check(
-    'stale ready plan preserves the original attempt without rewriting state',
-    $newerReadyState['attempt_id'] === ($staleState['attempt_id'] ?? null)
-        && $newerReadyState === $staleState
+    'ready plan whose trigger is older than 24 hours keeps its state',
+    $lateReadyState === FOG\Agent\DirectoryRejoin::settings($host)['state']
+);
+
+list(, , $canceledReadyState) = $storeTaskClaimSnapshot(
+    [
+        ['id' => 120, 'changed' => $freshClaimTaskEnd],
+        ['id' => 121, 'changed' => $newerTaskEnd, 'state' => FOG\Items\TaskState::getCancelledState()]
+    ],
+    $freshClaimBoot
+);
+$stale = $planOutcome();
+$t->check(
+    'ready plan superseded by a canceled Deploy plans nothing for a healthy member',
+    array_key_exists('answer', $stale) && null === $stale['answer']
+);
+$assertDropped('ready plan superseded by a canceled Deploy', $canceledReadyState);
+
+// A Deploy still running keeps holding the plan, unchanged, until it ends.
+list(, , $queuedReadyState) = $storeTaskClaimSnapshot(
+    [
+        ['id' => 120, 'changed' => $freshClaimTaskEnd],
+        ['id' => 121, 'changed' => $newerTaskEnd, 'state' => FOG\Items\TaskState::getQueuedState()]
+    ],
+    $freshClaimBoot
+);
+$stale = $planOutcome();
+$t->check(
+    'ready plan behind a queued Deploy stays blocked',
+    'blocked' === ($stale['answer']['phase'] ?? null)
+        && 'directory_task_in_progress' === ($stale['answer']['reason'] ?? null)
+);
+$t->check(
+    'ready plan behind a queued Deploy keeps its state',
+    $queuedReadyState === FOG\Agent\DirectoryRejoin::settings($host)['state']
+);
+
+list(, , $failedReadyState) = $storeTaskClaimSnapshot(
+    [
+        ['id' => 120, 'changed' => $freshClaimTaskEnd],
+        ['id' => 121, 'changed' => $newerTaskEnd, 'state' => FOG\Items\TaskState::getFailedState()]
+    ],
+    $freshClaimBoot
+);
+$stale = $planOutcome();
+$t->check(
+    'ready plan superseded by a failed Deploy plans nothing for a healthy member',
+    array_key_exists('answer', $stale) && null === $stale['answer']
+);
+$assertDropped('ready plan superseded by a failed Deploy', $failedReadyState);
+
+// A ready retry or rename plan has no trigger. A newer completed Deploy used
+// to strand it: plan() kept returning it and claim() refused it every time.
+list(, , $untriggeredReadyState) = $storeTaskClaimSnapshot(
+    [['id' => 120, 'changed' => $freshClaimTaskEnd]],
+    $freshClaimBoot,
+    'ready',
+    0
+);
+$stale = $planOutcome();
+$t->check(
+    'ready plan with no trigger behind a newer completed Deploy plans again',
+    'rejoin_lookup_failed' === ($stale['error'] ?? null)
+);
+$assertDropped('ready plan with no trigger behind a newer completed Deploy', $untriggeredReadyState);
+
+// The drop is a locked compare-and-swap. If a claim moved the plan first,
+// the drop refuses and leaves the claimed state alone.
+list($raceSaved, , $raceReadyState) = $storeTaskClaimSnapshot(
+    [
+        ['id' => 120, 'changed' => $freshClaimTaskEnd],
+        ['id' => 121, 'changed' => $newerTaskEnd]
+    ],
+    $newerTaskEnd->add(new \DateInterval('PT30S'))
+);
+$write->execute([json_encode($taskClaimConfig), json_encode(['phase' => 'started'] + $raceReadyState)]);
+$drop = new \ReflectionMethod(FOG\Agent\DirectoryOperation::class, 'dropSupersededPlan');
+$drop->setAccessible(true);
+$raceError = null;
+try {
+    $drop->invoke(null, $host, $raceSaved);
+} catch (\RuntimeException $e) {
+    $raceError = $e->getMessage();
+}
+$t->check(
+    'drop that loses the race to a claim refuses and keeps the claimed state',
+    'rejoin_plan_changed' === $raceError
+        && 'started' === (FOG\Agent\DirectoryRejoin::settings($host)['state']['phase'] ?? null)
+);
+
+// An agent with a reserved local marker for this plan, on the explicit retry
+// path, keeps the plan: the server must not drop what the agent may run.
+list(, , $reservedReadyState) = $storeTaskClaimSnapshot(
+    [
+        ['id' => 120, 'changed' => $freshClaimTaskEnd],
+        ['id' => 121, 'changed' => $newerTaskEnd]
+    ],
+    $newerTaskEnd->add(new \DateInterval('PT30S'))
+);
+$write->execute([json_encode(['retry_authorized' => true] + $taskClaimConfig), json_encode($reservedReadyState)]);
+$reservedAnswer = FOG\Agent\DirectoryOperation::plan($host, ['directory_attempt' => [
+    'phase' => 'reserved',
+    'attempt_id' => $reservedReadyState['attempt_id'],
+    'host_id' => 7,
+    'fingerprint' => str_repeat('f', 64)
+]]);
+$t->check(
+    'ready plan with a reserved local marker stays blocked and keeps its state',
+    'blocked' === ($reservedAnswer['phase'] ?? null)
+        && $reservedReadyState === FOG\Agent\DirectoryRejoin::settings($host)['state']
 );
 
 list($matchingSaved, $mismatchedBody) = $storeTaskClaimSnapshot(

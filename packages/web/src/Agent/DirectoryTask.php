@@ -37,8 +37,8 @@ class DirectoryTask extends \FOG\Base\FOGBase
      * @param array $observation the agent's observation (its boot time matters)
      * @param int   $now         the current Unix time
      *
-     * @return array status (none, in_progress, consumed, expired, baseline,
-     *               unknown or eligible) and task_id
+     * @return array status (none, in_progress, consumed, baseline, unknown
+     *               or eligible) and task_id
      */
     public static function decision(array $imaging, array $deploy, array $state, array $observation, $now)
     {
@@ -65,11 +65,11 @@ class DirectoryTask extends \FOG\Base\FOGBase
         if ((int)($deploy['taskStateID'] ?? -1) >= 0 && (int)$deploy['taskStateID'] <= 3) {
             return $answer('in_progress', $id);
         }
-        // A canceled Deploy (state 5) never authorizes an operation, and
-        // plan() never recorded it. Answering unknown here blocked the host
-        // and held placement for good. It is no trigger, so answer none.
+        // A canceled (5) or failed (6) Deploy never authorizes an operation,
+        // and plan() never recorded it. Answering unknown here blocked the
+        // host and held placement for good. It is no trigger, so answer none.
         // plan() then records it as the baseline when none exists yet.
-        if (5 === (int)($deploy['taskStateID'] ?? -1)) {
+        if (in_array((int)($deploy['taskStateID'] ?? -1), [5, 6], true)) {
             return $answer('none', $id);
         }
         if (4 !== (int)($deploy['taskStateID'] ?? -1) || empty($deploy['taskStateChangedTime'])) {
@@ -81,8 +81,13 @@ class DirectoryTask extends \FOG\Base\FOGBase
             if ($age < 0) {
                 return $answer('unknown', $id);
             }
-            if ($age > 86400) {
-                return $answer($initial ? 'baseline' : 'expired', $id);
+            // The 24-hour limit applies only before a baseline exists, so a
+            // host's old Deploy history does not trigger an operation. After
+            // that, a late first boot still counts (see the 7-day limit
+            // below). Example: a Deploy ends Friday and the PC boots Monday.
+            // Before, plan() blocked such a Deploy for good.
+            if ($age > 86400 && $initial) {
+                return $answer('baseline', $id);
             }
             $started = $observation['boot']['started'] ?? '';
             if (!is_string($started) || '' === $started) {
@@ -91,6 +96,14 @@ class DirectoryTask extends \FOG\Base\FOGBase
             $boot = new \DateTimeImmutable($started);
             if ($boot->getTimestamp() < $end->getTimestamp() || $boot->getTimestamp() > $now + 60) {
                 return $answer('unknown', $id);
+            }
+            // The current boot must start within 7 days of the Deploy, which
+            // covers the first boot after imaging, even a late one. A boot
+            // after that is a PC in daily use, and an old Deploy must not
+            // rebind it. That Deploy is no trigger. Confirm Retry still
+            // rebinds the PC when an admin asks for it.
+            if ($boot->getTimestamp() - $end->getTimestamp() > 7 * 86400) {
+                return $answer('none', $id);
             }
         } catch (\Throwable $e) {
             return $answer('unknown', $id);

@@ -259,6 +259,25 @@ $t->check(
         && $verifiedState['attempt_id'] !== ($nextTaskPlan['attempt_id'] ?? null)
 );
 
+// A workgroup PC on a host set to join AD joins with no eligible Deploy.
+// Task 500 is consumed here, so nothing triggers it. It used to plan nothing,
+// and the PC could never join without a new Deploy.
+$writeState->execute([json_encode($config), json_encode(['last_deploy_task_id' => 500] + $verifiedState)]);
+$untriggeredJoin = FOG\Agent\DirectoryOperation::plan($host, $verifiedBody);
+$t->check(
+    'workgroup PC with no eligible Deploy plans a join',
+    'ready' === ($untriggeredJoin['phase'] ?? null)
+        && 'join' === ($untriggeredJoin['operation'] ?? null)
+        && 0 === ($untriggeredJoin['task_id'] ?? null)
+);
+
+// With no Deploy, a workgroup PC that cannot reach a DC waits quietly, so an
+// off-site laptop does not report a refusal on every poll.
+$writeState->execute([json_encode($config), json_encode(['last_deploy_task_id' => 500,
+    'observation' => ['dc_reachable' => false] + $workgroupObservation] + $verifiedState)]);
+$offSite = FOG\Agent\DirectoryOperation::plan($host, $verifiedBody);
+$t->check('workgroup PC with no Deploy and no reachable DC plans nothing', null === $offSite);
+
 $malformed = $body;
 $malformed['directory_attempt']['unexpected'] = 'not-allowed';
 $malformedRejected = false;
