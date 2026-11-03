@@ -89,7 +89,24 @@ $t->check('legacy unmanaged enrollment unchanged', 'allowed' === I::enrollmentGa
 $t->check('legacy pending cannot silently acquire feature', 'upgrade_blocked' === I::enrollmentGate($hardware, $hardware, true));
 $t->check('required enrollment cannot downgrade', 'feature_required' === I::enrollmentGate($saved, $hardware, false));
 $t->check('same required request', 'allowed' === I::enrollmentGate($saved, $hardware, true));
-$t->check('changed pending identity cannot be signed', 'upgrade_blocked' === I::enrollmentGate($saved, ['macs' => ['00:11:22:33:44:66']], true));
+// The SMBIOS tuple binds a pending key to its machine; the MAC list does
+// not. A dock, or an agent that stops sending a VPN TAP's MAC, changes it.
+$smbios = ['system_uuid' => 'uuid-1', 'system_serial' => 'ser-1', 'board_serial' => 'mb-1', 'chassis_asset' => 'asset-1'];
+$savedFull = $smbios + $hardware + ['_directoryIdentity' => ['required' => true]];
+$t->check('a pending key may change its MAC list',
+    'allowed' === I::enrollmentGate($savedFull, $smbios + ['macs' => ['00:11:22:33:44:66']], true));
+$t->check('a pending key may drop a MAC',
+    'allowed' === I::enrollmentGate($savedFull, $smbios + ['macs' => []], true));
+foreach (array_keys($smbios) as $field) {
+    $changed = $smbios;
+    $changed[$field] = 'other';
+    $t->check("changed pending $field cannot be signed",
+        'upgrade_blocked' === I::enrollmentGate($savedFull, $changed + $hardware, true));
+    $missing = $smbios;
+    unset($missing[$field]);
+    $t->check("missing pending $field cannot be signed",
+        'upgrade_blocked' === I::enrollmentGate($savedFull, $missing + $hardware, true));
+}
 $unmanaged = (new AgentEnrollment())->set('identity', json_encode($hardware));
 $t->check('a request that never asked for the feature has nothing to guard',
     null === identityRefuses(function () use ($unmanaged) { Enrollment::guardDirectoryIdentity($unmanaged); }));
@@ -121,6 +138,46 @@ $refusal = identityRefuses(function () use ($csr, $hardware) {
 $t->check('feature request against a row without the marker answers 409',
     ['enrollment_upgrade_requires_new_key', 409] === $refusal);
 $t->check('the refused request wrote nothing to the enrollment table', 0 === identityEnrollmentWrites($fake->log));
+
+// A repeat for a feature row whose MAC list changed passes the gate, and the
+// stored identity keeps what the first request sent.
+$storedFull = json_encode($savedFull);
+$newMac = '00:11:22:33:44:66';
+$writes = [];
+$fake->responder = function ($sql, $params) use ($storedFull, &$writes) {
+    if (false === strpos($sql, '`agentEnrollment`')) {
+        return null;
+    }
+    if (0 !== stripos(ltrim($sql), 'SELECT')) {
+        $writes[] = json_encode($params);
+        return null;
+    }
+    if (false !== strpos($sql, 'SELECT `aeID`')) {
+        return [['aeID' => 5]];
+    }
+    return identityRow(AgentEnrollment::class, [
+        'aeID' => 5, 'aeHostID' => 7, 'aeFingerprint' => 'x', 'aeCSR' => 'csr', 'aeIdentity' => $storedFull,
+        'aeState' => 'pending', 'aeReason' => 'known-host'
+    ]);
+};
+// No inventory or MAC rows: the issuance guard then finds the stored
+// identity unresolved, which is after the gate and not what is tested here.
+$rowCount = $fake->pdo->rowCount;
+$fake->pdo->rowCount = 0;
+$refusal = identityRefuses(function () use ($csr, $smbios, $newMac) {
+    Enrollment::handle([
+        'protocol' => 1, 'csr_pem' => $csr, 'identity' => $smbios + ['macs' => [$newMac]],
+        'features' => ['directory-join-target-v1']
+    ], '203.0.113.9');
+});
+$fake->pdo->rowCount = $rowCount;
+$t->check('a changed MAC list is not refused as a new key',
+    ['enrollment_upgrade_requires_new_key', 409] !== $refusal);
+// The repeat saves the row (updated, remoteIP). This check proves $writes
+// captures writes, so the next check cannot pass on an empty list.
+$t->check('the repeat wrote the row', [] !== $writes);
+$t->check('the repeat never stores the request MAC list',
+    [] === array_filter($writes, function ($w) use ($newMac) { return false !== strpos($w, $newMac); }));
 
 // 4. F2: identity/check names a host only on a match.
 // Route::getList() reads through the fake PDO handle: one MAC row owned by
