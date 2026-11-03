@@ -148,11 +148,18 @@ class Svc
     public static $FOGFTP;
     public $procRef = [];
 
-    public static function outall($s) {}
+    public static function outall($s) { self::$log[] = $s; }
     public static function shortName($o) { return 'Snapin'; }
     public static function byteconvert($v) { return 0; }
     public static function globrecursive($p, $f = 0) { return []; }
     public static function fastmerge() { return []; }
+    // The real lookup is tested in tests/replication-running-guard. Here the
+    // test chooses the answer: null (nothing running) for the credential
+    // run, a handle for the run that proves the call site skips.
+    public static $running = null;
+    public static $log = [];
+    private function _transferRunning($t, $n, $i) { return self::$running; }
+    public function getPID($p) { return 4242; }
 HARNESS;
 
 $harness .= "\n" . $method . "\n}\n";
@@ -262,6 +269,26 @@ if (!$reached && !$failures) {
         . 'test asserted nothing';
 }
 
+// A transfer still running for the item: replicateItems() must skip it
+// before the FTP login. The old guard tested a key startTasking() never
+// writes, so it went on, deleted the half-copied file and restarted lftp
+// every cycle (forum 18301).
+\FOGTest\Svc::$running = 'lftp-handle';
+\FOGTest\Svc::$log = [];
+try {
+    $svc->replicateItems(1, 1, new ReplItem(), true);
+    $skipped = (bool)preg_grep('/Replication already running with PID: 4242/', \FOGTest\Svc::$log);
+    if (!$skipped) {
+        $failures[] = '  a running transfer was not reported as already running';
+    }
+} catch (\FOGTest\Connected $e) {
+    $failures[] = '  replicateItems() reached the FTP login while a transfer '
+        . 'for the item was still running';
+} catch (\Throwable $t) {
+    $failures[] = '  replicateItems() raised on the running-transfer run: '
+        . get_class($t) . ': ' . $t->getMessage();
+}
+
 @unlink("$dir/test");
 @rmdir($dir);
 
@@ -273,5 +300,5 @@ if ($failures) {
     exit(1);
 }
 
-echo "PASS: replication node credential (3 checks)\n";
+echo "PASS: replication node credential (4 checks)\n";
 exit(0);
