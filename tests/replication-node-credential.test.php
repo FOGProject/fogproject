@@ -153,6 +153,9 @@ class Svc
     public static function byteconvert($v) { return 0; }
     public static function globrecursive($p, $f = 0) { return []; }
     public static function fastmerge() { return []; }
+    // procRef is empty here, so no transfer is running -- the same answer
+    // the real _transferRunning() gives (tests/replication-running-guard).
+    private function _transferRunning($t, $n, $i) { return null; }
 HARNESS;
 
 $harness .= "\n" . $method . "\n}\n";

@@ -737,23 +737,16 @@ abstract class FOGService extends FOGBase
                 $name = $fileOverride;
                 $randind = "abcdef$i";
             }
-            if (isset($this->procRef[$itemType])
-                && isset($this->procRef[$itemType][$name])
-                && isset($this->procRef[$itemType][$randind])
-            ) {
-                $isRunning = $this->isRunning(
-                    $this->procRef[$itemType][$name][$randind]
+            // Skip an item whose transfer is still going. Without this the
+            // checks below see the half-copied remote file, delete it for a
+            // size mismatch, and killTasking() restarts lftp from nothing.
+            $running = $this->_transferRunning($itemType, $name, $randind);
+            if (null !== $running) {
+                self::outall(
+                    ' | ' . _('Replication already running with PID')
+                    . ': ' . $this->getPID($running)
                 );
-                if ($isRunning) {
-                    $pid = $this->getPID(
-                        $this->procRef[$itemType][$name][$randind]
-                    );
-                    self::outall(
-                        ' | ' . _('Replication already running with PID')
-                        . ': ' . $pid
-                    );
-                    continue;
-                }
+                continue;
             }
             if (!file_exists($myAdd) || !is_readable($myAdd)) {
                 self::outall(
@@ -1411,6 +1404,27 @@ abstract class FOGService extends FOGBase
         }
         $ar = proc_get_status($procRef);
         return $ar['running'];
+    }
+    /**
+     * The still-running transfer for one item, or null.
+     *
+     * Reads the path startTasking() writes: procRef[type][name][index].
+     * The guard in replicateItems() used to test procRef[type][index], a key
+     * nothing writes, so it never saw a running transfer (forum 18301).
+     *
+     * @param string $itemType the item type, as startTasking() was given it
+     * @param string $name     the item name
+     * @param mixed  $index    the transfer index
+     *
+     * @return mixed the process handle, or null
+     */
+    private function _transferRunning($itemType, $name, $index)
+    {
+        if (!isset($this->procRef[$itemType][$name][$index])) {
+            return null;
+        }
+        $procRef = $this->procRef[$itemType][$name][$index];
+        return $this->isRunning($procRef) ? $procRef : null;
     }
     /**
      * Returns the full process status (running flag and exit code).
