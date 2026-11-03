@@ -65,7 +65,7 @@ class DirectoryTask extends \FOG\Base\FOGBase
         if ((int)($deploy['taskStateID'] ?? -1) >= 0 && (int)$deploy['taskStateID'] <= 3) {
             return $answer('in_progress', $id);
         }
-        // A cancelled Deploy (state 5) never authorizes an operation, and
+        // A canceled Deploy (state 5) never authorizes an operation, and
         // plan() never recorded it. Answering unknown here blocked the host
         // and held placement for good. It is no trigger, so answer none.
         // plan() then records it as the baseline when none exists yet.
