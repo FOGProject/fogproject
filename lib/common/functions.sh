@@ -12897,10 +12897,9 @@ _warnUnrecognizedPlugins() {
     # "Unrecognized" is decided by comparison, so with nothing to compare
     # against there is no finding to report -- only a list of every plugin
     # the admin has, named as third-party. That is not hypothetical:
-    # configureMinHttpd() (the STORAGE NODE path, installfog.sh:1353) calls
-    # configureHttpd without downloadplugins ever running, and lib/plugins is
-    # gitignored on 1.6, so a storage-node install from a clone reaches here
-    # with an empty bundled set. Say nothing rather than cry wolf.
+    # lib/plugins is gitignored on 1.6, so an install whose downloadplugins
+    # was skipped (a tarball with no fetcher) or failed reaches here with an
+    # empty bundled set. Say nothing rather than cry wolf.
     compgen -G "${webdirsrc}/lib/plugins/*/" >/dev/null 2>&1 || return 0
     local dir name found=""
     for dir in "$oldplugins"/*/; do

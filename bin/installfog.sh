@@ -1413,6 +1413,14 @@ while [[ -z $blGo ]]; do
                 [Ss])
                     checkDatabaseConnection
                     backupReports
+                    # Before configureMinHttpd, for the same reason as on the
+                    # full-server branch: it re-lays the web root from
+                    # packages/web, and the plugins are fetched into that
+                    # package. A storage node serves boot.php to its own PXE
+                    # clients, so without them the location plugin's hook
+                    # never loads there and the task is pointed back at the
+                    # image's primary group (forum 18301).
+                    downloadplugins
                     configureMinHttpd
                     # GH-1580: configureMinHttpd calls configureHttpd, so the
                     # rm -rf $webdirdest applies to a storage node as well --
