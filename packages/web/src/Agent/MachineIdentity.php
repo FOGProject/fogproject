@@ -126,7 +126,14 @@ class MachineIdentity extends FOGBase
      * Decides whether an enroll request may use the stored row.
      *
      * A key enrolled with the feature cannot drop it, and a key enrolled
-     * without it cannot acquire it or change its identity afterward.
+     * without it cannot acquire it or change its SMBIOS identity afterward.
+     *
+     * The MAC list may change. Docks, USB adapters, and an agent that stops
+     * sending a software adapter (a VPN TAP copied in an image) all change
+     * it, and the agent keeps its key across each of them. Allowing the
+     * change never writes the stored identity: a repeat is answered from
+     * the stored row, and issuance revalidates the stored identity
+     * (Enrollment::guardDirectoryIdentity), never this request's.
      *
      * @param array $saved    the identity stored with the row
      * @param array $incoming the identity in this request
@@ -137,12 +144,18 @@ class MachineIdentity extends FOGBase
     public static function enrollmentGate(array $saved, array $incoming, $required)
     {
         $meta = $saved['_directoryIdentity'] ?? [];
-        unset($saved['_directoryIdentity']);
         if (!empty($meta['required']) && !$required) {
             return 'feature_required';
         }
-        if ($required && (empty($meta['required']) || $saved !== $incoming)) {
-            return 'upgrade_blocked';
+        if ($required) {
+            if (empty($meta['required'])) {
+                return 'upgrade_blocked';
+            }
+            foreach (array_keys(Enrollment::IDENTITY_MAP) as $key) {
+                if (($saved[$key] ?? null) !== ($incoming[$key] ?? null)) {
+                    return 'upgrade_blocked';
+                }
+            }
         }
         return 'allowed';
     }
