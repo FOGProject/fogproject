@@ -498,8 +498,9 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         if ($workgroup && (!in_array($o['role'] ?? '', ['workstation','member_server','standalone_server'], true)
             || empty($o['dc_reachable']) || empty($o['current_name']) || empty($o['pending_name'])
             || (strcasecmp($o['pending_name'], $o['current_name']) && strcasecmp($o['pending_name'], $name)))) {
-            // With no Deploy, wait quietly. An off-site laptop cannot reach
-            // a DC, and the next poll tries again.
+            // With no eligible Deploy, an observation that cannot plan a join
+            // waits quietly. Example: an off-site laptop cannot reach a DC.
+            // The next poll tries again.
             if (!$task) {
                 return null;
             }

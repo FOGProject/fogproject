@@ -271,12 +271,26 @@ $t->check(
         && 0 === ($untriggeredJoin['task_id'] ?? null)
 );
 
-// With no Deploy, a workgroup PC that cannot reach a DC waits quietly, so an
-// off-site laptop does not report a refusal on every poll.
+// With no eligible Deploy, a workgroup PC that cannot reach a DC waits
+// quietly, so an off-site laptop does not report a refusal on every poll.
+$offSiteObservation = ['dc_reachable' => false] + $workgroupObservation;
 $writeState->execute([json_encode($config), json_encode(['last_deploy_task_id' => 500,
-    'observation' => ['dc_reachable' => false] + $workgroupObservation] + $verifiedState)]);
+    'observation' => $offSiteObservation] + $verifiedState)]);
 $offSite = FOG\Agent\DirectoryOperation::plan($host, $verifiedBody);
-$t->check('workgroup PC with no Deploy and no reachable DC plans nothing', null === $offSite);
+$t->check('workgroup PC with no eligible Deploy and no reachable DC plans nothing', null === $offSite);
+
+// An eligible Deploy still reports the refusal, so the admin sees it.
+$writeState->execute([json_encode($config), json_encode(['observation' => $offSiteObservation] + $verifiedState)]);
+$deployRefusal = null;
+try {
+    FOG\Agent\DirectoryOperation::plan($host, $verifiedBody);
+} catch (\RuntimeException $e) {
+    $deployRefusal = $e->getMessage();
+}
+$t->check(
+    'workgroup PC with an eligible Deploy and no reachable DC reports the refusal',
+    'directory_join_observation_unknown' === $deployRefusal
+);
 
 $malformed = $body;
 $malformed['directory_attempt']['unexpected'] = 'not-allowed';

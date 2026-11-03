@@ -194,8 +194,8 @@ foreach ([0, 1, 2, 3] as $activeState) {
     );
 }
 
-// Only the first boot after imaging counts. A boot more than 7 days after the
-// Deploy is a PC in daily use, so that Deploy is no trigger.
+// A boot within 7 days of the Deploy counts. A boot more than 7 days after it
+// is a PC in daily use, so that Deploy is no trigger.
 directoryTaskPolicyCheck(
     $t,
     'completed Deploy whose boot started more than 7 days later is no trigger',
