@@ -114,6 +114,48 @@ $eq(
     '',
     Releases::latest(['0.1.8' => $now - $day], 7, 'da11e37', $now)
 );
+// A build that is not a release is in no manifest. Latest never moves it to
+// an older release, and moves it up only to a release newer than it.
+$eq(
+    'a release candidate is not replaced by an older release',
+    '',
+    Releases::latest($seen, 0, 'v0.1.20-rc.1', $now)
+);
+$eq(
+    'a release candidate moves up to its final release',
+    '0.1.8',
+    Releases::latest($seen, 0, '0.1.8-rc.2', $now)
+);
+$eq(
+    'a git-describe build moves up to a newer release',
+    '0.1.8',
+    Releases::latest($seen, 0, '0.1.7-2-gf344ed3', $now)
+);
+$eq(
+    'a git-describe build ahead of every release stays',
+    '',
+    Releases::latest($seen, 0, '0.1.8-2-gf344ed3', $now)
+);
+$eq(
+    'a dirty build on a release tag stays',
+    '',
+    Releases::latest($seen, 0, '0.1.8-dirty', $now)
+);
+$eq(
+    'a dirty release candidate moves up to its final release',
+    '0.1.8',
+    Releases::latest($seen, 0, '0.1.8-rc.1-dirty', $now)
+);
+$eq(
+    'build metadata on a release stays',
+    '',
+    Releases::latest($seen, 0, '0.1.8+abc', $now)
+);
+$eq(
+    'a lab build with no version is left alone',
+    '',
+    Releases::latest($seen, 0, 'da11e37', $now)
+);
 
 // ------------------------------------------------------------------ floor
 
@@ -150,6 +192,16 @@ $fleet = function ($mode, array $extra = []) use ($seen, $now) {
 $eq('Off names nothing', '', Update::resolve('', '', '0.1.6', $fleet(Update::MODE_OFF)));
 $eq('Pinned names the global version', '0.1.7', Update::resolve('', '', '0.1.6', $fleet(Update::MODE_PINNED)));
 $eq('Latest follows the ring', '0.1.8', Update::resolve('', '0', '0.1.6', $fleet(Update::MODE_LATEST)));
+$eq(
+    'Latest leaves a release candidate where it is',
+    '',
+    Update::resolve('', '0', 'v0.1.20-rc.1', $fleet(Update::MODE_LATEST))
+);
+$eq(
+    'a host override still moves a release candidate',
+    '0.1.7',
+    Update::resolve('0.1.7', '0', 'v0.1.20-rc.1', $fleet(Update::MODE_LATEST))
+);
 $eq(
     'the host override wins over every mode, even when lower',
     '0.1.6',
