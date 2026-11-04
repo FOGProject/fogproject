@@ -5853,6 +5853,86 @@ nfsDevExportHasNoRootSquash() {
         END { exit !found }
     ' "$exportsfile"
 }
+# Remove FOG's own entries (<share> and <share>/dev) from an admin's exports
+# file, leaving every other line, comment and blank line as it was. FOG used to
+# write those two lines into /etc/exports itself; they now live in
+# $nfsfogexports, so an older install still has them in the admin's file and
+# exportfs would see each path twice. The path is parsed as in
+# nfsDevExportHasNoRootSquash (first field, quotes and trailing slashes
+# stripped, backslash continuations joined), and the match is exact: /images2
+# and /images/devices are the admin's and stay. A file with no FOG entry is not
+# touched at all, no backup either. Otherwise the file is backed up and then
+# replaced through a temp file that starts as a copy of the original, so the
+# mode and owner survive the mv. Every failure path removes the temp file.
+# Returns 0 when the file is stripped or has nothing to strip, 1 on a failure
+# (the file is then unchanged).
+# Usage: _stripFogExportsFrom <exports file> <image share path>
+_stripFogExportsFrom() {
+    local exportsfile="$1"
+    local sharepath="$2"
+    local tmpfile="${exportsfile}.fogtmp.$$"
+    local rc
+    # Drop every trailing slash but keep "/" itself. An empty share path would
+    # make the match below hit "/dev" and nothing else sensible, so do nothing.
+    while [[ ${#sharepath} -gt 1 && $sharepath == */ ]]; do
+        sharepath="${sharepath%/}"
+    done
+    [[ -z $sharepath ]] && return 0
+    [[ -f $exportsfile ]] || return 0
+    cp -p "$exportsfile" "$tmpfile" >>$error_log 2>&1 || {
+        rm -f "$tmpfile" >>$error_log 2>&1
+        return 1
+    }
+    # Exit 3 means "no FOG entry"; any other non-zero status is an awk failure.
+    awk -v share="$sharepath" '
+        BEGIN { dev = (share == "/") ? "/dev" : share "/dev" }
+        { raw = raw $0 "\n"; line = line $0 }
+        /\\$/ { sub(/\\$/, "", line); next }
+        {
+            sub(/#.*/, "", line)
+            split(line, f, " ")
+            p = f[1]
+            gsub(/"/, "", p)
+            orig = p
+            sub(/\/+$/, "", p)
+            if (p == "" && orig != "") p = "/"
+            if (p == share || p == dev) {
+                removed = 1
+            } else {
+                printf "%s", raw
+            }
+            raw = ""
+            line = ""
+        }
+        # A file that ends on a backslash continuation leaves text pending.
+        # Write it out as it is. This adds a trailing newline the original did
+        # not have, as the normal path does for a last line without one.
+        END { if (raw != "") printf "%s", raw; exit (removed ? 0 : 3) }
+    ' "$exportsfile" >"$tmpfile" 2>>$error_log
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+        # 3: no FOG entry, leave the file alone. Anything else: awk failed.
+        rm -f "$tmpfile" >>$error_log 2>&1
+        [[ $rc -eq 3 ]] && return 0
+        return 1
+    fi
+    # The backup is named .fog-migrate.<timestamp>, not .<timestamp>, on
+    # purpose. restorePreFogConfig() (uninstall.sh) globs "<file>".[0-9]* for
+    # the oldest "pre-FOG" copy, and ".fog-migrate" does not start with a digit,
+    # so the glob skips it. A <file>.<timestamp> backup of the migrated file
+    # would be the oldest match on a box with no earlier backup, and uninstall
+    # would restore a file that still holds FOG's lines and revert the admin's
+    # later edits.
+    cp -p "$exportsfile" "${exportsfile}.fog-migrate.${timestamp}" >>$error_log 2>&1 || {
+        rm -f "$tmpfile" >>$error_log 2>&1
+        return 1
+    }
+    mv -f "$tmpfile" "$exportsfile" >>$error_log 2>&1 || {
+        rm -f "$tmpfile" >>$error_log 2>&1
+        return 1
+    }
+    return 0
+}
 configureNFS() {
     dots "Setting up NFS configuration file"
     if [[ -f "/etc/nfs.conf" ]]; then
@@ -5880,9 +5960,17 @@ EOF
     dots "Setting up exports file"
     if [[ ${STORAGE_rebuild_nfs_exports} != yes ]]; then
         echo "Skipped"
+        # The /dev export is in the drop-in on a current install and in the
+        # admin's file on an older one, so look in both.
+        local nrsfile=""
         if nfsDevExportHasNoRootSquash "$nfsconfig" "${STORAGE_image_share_path}"; then
+            nrsfile="$nfsconfig"
+        elif nfsDevExportHasNoRootSquash "$nfsfogexports" "${STORAGE_image_share_path}"; then
+            nrsfile="$nfsfogexports"
+        fi
+        if [[ -n $nrsfile ]]; then
             echo
-            echo "  ** WARNING: ${nfsconfig} still exports with no_root_squash."
+            echo "  ** WARNING: ${nrsfile} still exports with no_root_squash."
             echo "  ** Captures land as root, so moving the image out of"
             echo "  ** ${STORAGE_image_share_path}/dev fails with '550 Rename failed'."
             echo "  ** Replace the ${STORAGE_image_share_path}/dev export options with:"
@@ -5890,12 +5978,52 @@ EOF
             echo
         fi
     else
-        mv -fv "${nfsconfig}" "${nfsconfig}.${timestamp}" >>$error_log 2>&1
-        userId=$(id -u ${SVC_user})
-        groupId=$(id -g ${SVC_user})
-        echo -e "${STORAGE_image_share_path} *(ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonuid=${userId},anongid=${groupId},fsid=0)\n${STORAGE_image_share_path}/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=${userId},anongid=${groupId},fsid=1)" > "$nfsconfig"
-        diffconfig "${nfsconfig}"
-        errorStat $?
+        # FOG owns one file, $nfsfogexports, and rewrites only that. exportfs
+        # reads /etc/exports and then every /etc/exports.d/*.exports (exports(5),
+        # "Extra Export Tables"), the same drop-in pattern
+        # as /etc/nfs.conf.d/fog-nfs.conf above. The admin's /etc/exports is
+        # never replaced: it used to be moved aside and rebuilt with only FOG's
+        # two lines, which dropped every export the admin had added (forum 18303).
+        local nfsst=0 stripfailed=0
+        local newexports="${nfsfogexports}.fogtmp.$$"
+        mkdir -p "$(dirname "$nfsfogexports")" >>$error_log 2>&1 || nfsst=1
+        # Write the new drop-in to a temp file first. The strip below runs only
+        # once that write worked, so a failed write never leaves FOG's exports
+        # in neither file.
+        if [[ $nfsst -eq 0 ]]; then
+            userId=$(id -u ${SVC_user})
+            groupId=$(id -g ${SVC_user})
+            echo -e "# Written by the FOG installer. Edits to this file are replaced on the next install.\n${STORAGE_image_share_path} *(ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonuid=${userId},anongid=${groupId},fsid=0)\n${STORAGE_image_share_path}/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=${userId},anongid=${groupId},fsid=1)" > "$newexports" || nfsst=1
+        fi
+        # An install from before the drop-in has FOG's lines in $nfsconfig.
+        # Take them out (with a <file>.fog-migrate.<timestamp> backup) so the
+        # paths are not exported twice; the admin's own lines stay. If the strip
+        # fails, $nfsconfig still exports the share, so installing the drop-in
+        # as well would export it twice: discard it and warn below.
+        if [[ $nfsst -eq 0 ]]; then
+            _stripFogExportsFrom "$nfsconfig" "${STORAGE_image_share_path}" || stripfailed=1
+        fi
+        if [[ $nfsst -eq 0 && $stripfailed -eq 0 ]]; then
+            mv -f "$newexports" "$nfsfogexports" >>$error_log 2>&1 || nfsst=1
+            # The drop-in directory is new on most boxes; give the file the
+            # SELinux label of its neighbors so nfsd/mountd can read it. The
+            # status is ignored: restorecon is absent or a no-op elsewhere.
+            command -v restorecon >/dev/null 2>&1 && restorecon -F "$nfsfogexports" >>$error_log 2>&1
+        fi
+        rm -f "$newexports" >>$error_log 2>&1
+        errorStat $nfsst
+        # The end-of-install backup list prints <file>.<timestamp>, which is
+        # not the migration backup's name, so say it here instead.
+        if [[ -f ${nfsconfig}.fog-migrate.${timestamp} ]]; then
+            echo "  * Moved FOG's entries from ${nfsconfig} to ${nfsfogexports}."
+            echo "  * ${nfsconfig} before the change: ${nfsconfig}.fog-migrate.${timestamp}"
+        fi
+        if [[ $stripfailed -eq 1 ]]; then
+            echo "  ** WARNING: could not remove FOG's entries from ${nfsconfig}."
+            echo "  ** FOG's entries were left there and ${nfsfogexports} was not written."
+            echo "  ** Remove the ${STORAGE_image_share_path} and ${STORAGE_image_share_path}/dev lines from ${nfsconfig} by hand and re-run the installer."
+            echo "WARNING: could not strip FOG's entries from ${nfsconfig}; left in place, ${nfsfogexports} not written." >>$error_log
+        fi
         dots "Setting up and starting RPCBind"
         if [[ $systemctl == yes ]]; then
             systemctl is-enabled --quiet rpcbind && true || systemctl enable rpcbind.service >>$error_log 2>&1
