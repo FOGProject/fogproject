@@ -136,12 +136,7 @@ upgrade() {   # $1 persisted FOG_install_mode, $2 persisted WEB_url_proto, $3 --
     [[ -z ${BOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca="no"
     [[ -z $sinstallMode ]] && sinstallMode="${FOG_install_mode}"
     _applyInstallMode
-    if [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} \
-        || -n ${sBOOT_rebuild_ipxe_with_my_ca} || -n ${sBOOT_url_proto} ]]; then
-        FOG_install_mode=""
-    else
-        FOG_install_mode="$sinstallMode"
-    fi
+    _recordInstallMode
 }
 
 upgrade "" "http" "http-only"
@@ -178,12 +173,57 @@ sBOOT_url_proto=""; sBOOT_rebuild_ipxe_with_my_ca="no"
 [[ -z $sinstallMode ]] && sinstallMode="${FOG_install_mode}"
 _applyInstallMode
 [[ -n ${sBOOT_rebuild_ipxe_with_my_ca} ]] && BOOT_rebuild_ipxe_with_my_ca=${sBOOT_rebuild_ipxe_with_my_ca}
-if [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} \
-    || -n ${sBOOT_rebuild_ipxe_with_my_ca} || -n ${sBOOT_url_proto} ]]; then
-    FOG_install_mode=""
-fi
+_recordInstallMode
 is "${FOG_install_mode}|${BOOT_rebuild_ipxe_with_my_ca}" "|no" \
    "a discrete flag clears the mode and keeps its own value"
+
+# The same rule, through the first-install prompt. A forced --netboot-proto
+# does not stop the prompt, and the prompt used to record its answer
+# unconditionally. The next run then seeded that mode, _applyInstallMode
+# wrote the preset's BOOT_url_proto, and _resolveNetbootProto kept it because
+# BOOT_url_proto_forced was still yes: the forced value was gone for good.
+# Run one replays the prompt's tail (the prompt itself needs a tty); run two
+# is a plain upgrade with no flags. Both go through the real functions.
+FOG_install_mode=""; BOOT_url_proto=""; BOOT_url_proto_forced=""
+PKI_web_cert_publicly_trusted=""; BOOT_rebuild_ipxe_with_my_ca=""
+sWEB_https_redirect=""; sPKI_web_cert_publicly_trusted=""; sBOOT_rebuild_ipxe_with_my_ca=""
+sBOOT_url_proto="http"; sinstallMode="embed-ca"
+_applyInstallMode
+_resolveNetbootProto
+_recordInstallMode
+is "${FOG_install_mode}|${BOOT_url_proto}|${BOOT_url_proto_forced}" "|http|yes" \
+   "a prompt answer with a forced --netboot-proto records no mode"
+sBOOT_url_proto=""; sinstallMode=""
+[[ -z $sinstallMode ]] && sinstallMode="${FOG_install_mode}"
+_applyInstallMode
+_resolveNetbootProto
+is "${BOOT_url_proto}|${BOOT_rebuild_ipxe_with_my_ca}" "http|yes" \
+   "the next run keeps the forced netboot protocol and the prompt's other keys"
+# And with no flag, the prompt's answer is still recorded as a mode.
+FOG_install_mode=""; sBOOT_url_proto=""; sinstallMode="embed-ca"
+_recordInstallMode
+is "${FOG_install_mode}" "embed-ca" "a prompt answer with no flags records the mode"
+# A forced netboot value that matches the preset moves nothing, so the mode
+# stays. That matters for http-only, whose HTTP web UI exists only in the mode
+# name: WEB_url_proto is forced to https on every run before the seed.
+FOG_install_mode=""; BOOT_url_proto=""; BOOT_url_proto_forced=""
+sBOOT_url_proto="http"; sinstallMode="http-only"
+_applyInstallMode
+_resolveNetbootProto
+_recordInstallMode
+is "${FOG_install_mode}" "http-only" "a forced netboot value equal to the preset keeps the mode"
+sBOOT_url_proto=""; sinstallMode=""; WEB_url_proto="https"
+[[ -z $sinstallMode ]] && sinstallMode="${FOG_install_mode}"
+_applyInstallMode
+_resolveNetbootProto
+is "${WEB_url_proto}|${BOOT_url_proto}" "http|http" "http-only with a matching forced netboot survives the next run"
+FOG_install_mode=""; sinstallMode=""; BOOT_url_proto=""; BOOT_url_proto_forced=""; WEB_url_proto=""
+PKI_web_cert_publicly_trusted=""; BOOT_rebuild_ipxe_with_my_ca=""
+# The prompt cannot be driven from here, so pin that it records through the
+# shared rule rather than assigning the mode itself.
+promptbody=$(sed -n '/^promptInstallMode() {/,/^}/p' "$FUNCS")
+is "$(grep -c '^    _recordInstallMode$' <<<"$promptbody")|$(grep -c 'FOG_install_mode="\$sinstallMode"' <<<"$promptbody")" "1|0" \
+   "promptInstallMode records its answer through _recordInstallMode"
 
 # The backstop for the one upgrade the seed cannot cover -- a pre-1.6 server,
 # which has no ${FOG_install_mode} to seed from. Asserted on the source because

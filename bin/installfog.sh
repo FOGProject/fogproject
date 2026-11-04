@@ -1047,21 +1047,10 @@ _applyInstallMode
 #
 # A preference, not a record: it is the admin's declared answer to "how should
 # this server handle HTTPS, netboot and Secure Boot", and it has to carry
-# forward on every upgrade rather than only the run it was made on.
-#
-# CLEARED by any discrete transport flag, and that is what keeps it from
-# becoming the trap _resolveNetbootProto documents. Once a flag has moved one of
-# the four keys off its preset, the shape is no longer one of the four named
-# modes -- and leaving the mode set would have the next run's
-# _applyInstallMode overwrite that very key from a name that no longer
-# describes it. Empty means custom, which is exactly true, and the four keys
-# then stand on their own as the model they always were.
-if [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} \
-    || -n ${sBOOT_rebuild_ipxe_with_my_ca} || -n ${sBOOT_url_proto} ]]; then
-    FOG_install_mode=""
-else
-    FOG_install_mode="$sinstallMode"
-fi
+# forward on every upgrade rather than only the run it was made on. Any
+# discrete transport flag clears it; the rule and its reason live in
+# _recordInstallMode.
+_recordInstallMode
 # The external-CA IMPORT paths. GH-1120 collapsed six persisted keys
 # (extcacert/extcakey/extcaroot from the prompt, webExtCACert/webExtCAKey/
 # webExtCARoot from --web-ca-*) that only ever held three values -- and that
