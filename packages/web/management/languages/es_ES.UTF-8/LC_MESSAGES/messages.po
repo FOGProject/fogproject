@@ -1646,6 +1646,12 @@ msgstr "Contraseña de dominio"
 msgid "Blank starts at the domain root"
 msgstr ""
 
+msgid "Blank uses the global FOG_FTP_PORT"
+msgstr ""
+
+msgid "Blank uses the global FOG_SSH_PORT"
+msgstr ""
+
 msgid "Blank: each host joins with its own account"
 msgstr ""
 
@@ -3759,6 +3765,10 @@ msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
 msgid "FTP Path"
+msgstr "Camino"
+
+#, fuzzy
+msgid "FTP Port"
 msgstr "Camino"
 
 msgid "FTP login rejected by"
@@ -8198,6 +8208,9 @@ msgstr "Puerto"
 msgid "Port is not valid ldap/ldaps port"
 msgstr "Por favor seleccione una opción"
 
+msgid "Port must be a whole number from 1 to 65535"
+msgstr ""
+
 msgid "Post-Logout Redirect URI"
 msgstr ""
 
@@ -9052,6 +9065,10 @@ msgstr "Añadir fallidos SNAPin!"
 #, fuzzy
 msgid "SSH Connection has failed"
 msgstr "Añadir fallidos SNAPin!"
+
+#, fuzzy
+msgid "SSH Port"
+msgstr "Puerto"
 
 #, fuzzy
 msgid "SSL Path"

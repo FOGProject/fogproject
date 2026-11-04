@@ -522,7 +522,8 @@ class TaskQueue extends TaskingElement
         self::$FOGSSH->username = $this->StorageNode->get('user');
         self::$FOGSSH->password = $this->StorageNode->get('pass');
         self::$FOGSSH->host = $this->StorageNode->get('ip');
-        if (!self::$FOGSSH->connect()) {
+        // The node's own ssh port, not only FOG_SSH_PORT (forum 18303).
+        if (!self::$FOGSSH->connect('', $this->StorageNode->sshPort())) {
             throw new \Exception(_('Unable to connect to ssh during move upload'));
         }
         // Move any existing image aside instead of deleting it up front. If the

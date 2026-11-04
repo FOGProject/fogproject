@@ -15,6 +15,7 @@ namespace FOG\Service;
 
 use FOG\Base\FOGBase;
 use FOG\Db\DatabaseManager;
+use FOG\Items\StorageNode;
 use FOG\Router\Route;
 
 /**
@@ -776,7 +777,11 @@ abstract class FOGService extends FOGBase
                 $ip
             );
             $nodename = $StorageNode->name;
-            if (!self::$FOGFTP->connect()) {
+            // This target node's own ftp port (0 = FOG_FTP_PORT, then 21).
+            // $StorageNode is a router row, not a StorageNode, so the static
+            // resolver is used. The lftp call below dials the same port.
+            $ftpPort = StorageNode::resolveFtpPort($StorageNode->ftpport ?? 0);
+            if (!self::$FOGFTP->connect('', $ftpPort)) {
                 // A refused login used to be reported as "Cannot connect",
                 // which points at the network when the cause is nearly always
                 // a stale password for this node. Each master keeps its own
@@ -812,7 +817,9 @@ abstract class FOGService extends FOGBase
             unset($limit);
             $limit = $limitset;
             unset($limitset, $remItem, $includeFile);
-            $ftpstart = "ftp://{$username}:{$encpassword}@{$ip}";
+            // The port is in the URL too: file_exists() and the hash_file()
+            // fallback open ftp:// streams that would otherwise dial 21.
+            $ftpstart = "ftp://{$username}:{$encpassword}@{$ip}:{$ftpPort}";
             // Both lists are reset per NODE, not per item. Neither branch
             // below assigns unconditionally -- the remote one only fires
             // when the file is already there, and the local one writes
@@ -1077,16 +1084,12 @@ abstract class FOGService extends FOGBase
                 . self::_lftpQuote($remItem)
                 . ';';
             $script .= 'exit';
-            // FOG_FTP_PORT was never passed here, so replication always
-            // dialed port 21 while FOGFTP::connect() -- the other half of
-            // the same replication pass -- honored the setting. A node with
-            // vsftpd moved off 21 failed to replicate. An unset or invalid
-            // value keeps lftp's own default of 21, as before.
-            list($ftpPort) = self::getSetting(['FOG_FTP_PORT']);
-            $ftpPort = (int)$ftpPort;
-            if ($ftpPort < 1 || $ftpPort > 65535) {
-                $ftpPort = 21;
-            }
+            // The port was never passed here, so replication always dialed
+            // port 21 while FOGFTP::connect() -- the other half of the same
+            // replication pass -- honored the setting. A node with vsftpd
+            // moved off 21 failed to replicate. $ftpPort is the target
+            // node's own port (else FOG_FTP_PORT, else 21), resolved above
+            // for the FOGFTP connect, so both halves dial the same port.
             $cmd = [
                 'lftp',
                 '-e',

@@ -14,6 +14,7 @@
 namespace FOG\Service;
 
 use FOG\Items\FileDeleteQueue;
+use FOG\Items\StorageNode;
 use FOG\Router\Route;
 
 /**
@@ -271,7 +272,12 @@ class FileDeleter extends FOGService
                     self::$FOGSSH->username = $user;
                     self::$FOGSSH->password = $pass;
                     self::$FOGSSH->host = $ip;
-                    if (!self::$FOGSSH->connect()) {
+                    // A router row, not a StorageNode: resolve the node's
+                    // own SSH port here.
+                    $port = StorageNode::resolveSshPort(
+                        $StorageNode->sshport ?? 0
+                    );
+                    if (!self::$FOGSSH->connect('', $port)) {
                         self::outall(
                             sprintf(
                                 "%s: %s.\n\t - %s.",

@@ -1631,6 +1631,12 @@ msgstr "域密码"
 msgid "Blank starts at the domain root"
 msgstr ""
 
+msgid "Blank uses the global FOG_FTP_PORT"
+msgstr ""
+
+msgid "Blank uses the global FOG_SSH_PORT"
+msgstr ""
+
 msgid "Blank: each host joins with its own account"
 msgstr ""
 
@@ -3722,6 +3728,10 @@ msgid "FTP Connection Failed"
 msgstr "FTP连接失败"
 
 msgid "FTP Path"
+msgstr "FTP路径"
+
+#, fuzzy
+msgid "FTP Port"
 msgstr "FTP路径"
 
 msgid "FTP login rejected by"
@@ -8073,6 +8083,9 @@ msgstr "港口"
 msgid "Port is not valid ldap/ldaps port"
 msgstr "端口是无效的LDAP / LDAPS端口"
 
+msgid "Port must be a whole number from 1 to 65535"
+msgstr ""
+
 msgid "Post-Logout Redirect URI"
 msgstr ""
 
@@ -8919,6 +8932,10 @@ msgstr "FTP连接失败"
 #, fuzzy
 msgid "SSH Connection has failed"
 msgstr "FTP连接失败"
+
+#, fuzzy
+msgid "SSH Port"
+msgstr "港口"
 
 msgid "SSL Path"
 msgstr "SSL通道"

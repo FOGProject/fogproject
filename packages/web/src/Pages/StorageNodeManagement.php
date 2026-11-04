@@ -78,6 +78,8 @@ class StorageNodeManagement extends FOGPage
             '/fog';
         $maxClients = (int)filter_input(INPUT_POST, 'maxClients') ?:
             10;
+        $sshPort = filter_input(INPUT_POST, 'sshport');
+        $ftpPort = filter_input(INPUT_POST, 'ftpport');
         $isMaster = isset($_POST['isMaster']) ? ' checked' : '';
         $bandwidth = filter_input(INPUT_POST, 'bandwidth');
         $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
@@ -175,6 +177,48 @@ class StorageNodeManagement extends FOGPage
                 'number',
                 'maxClients',
                 $maxClients
+            ),
+            // Per-node ports (forum 18303). Blank or 0 keeps the global
+            // setting, so the help text names which one.
+            self::makeLabel(
+                $labelClass,
+                'sshport',
+                _('SSH Port')
+                . '<br/>('
+                . _('Blank uses the global FOG_SSH_PORT')
+                . ')'
+            ) => self::makeInput(
+                'form-control storagenodesshport-input',
+                'sshport',
+                '',
+                'number',
+                'sshport',
+                $sshPort,
+                false,
+                false,
+                -1,
+                -1,
+                'min="0" max="65535"'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'ftpport',
+                _('FTP Port')
+                . '<br/>('
+                . _('Blank uses the global FOG_FTP_PORT')
+                . ')'
+            ) => self::makeInput(
+                'form-control storagenodeftpport-input',
+                'ftpport',
+                '',
+                'number',
+                'ftpport',
+                $ftpPort,
+                false,
+                false,
+                -1,
+                -1,
+                'min="0" max="65535"'
             ),
             // Node Checkboxes
             self::makeLabel(
@@ -429,6 +473,37 @@ class StorageNodeManagement extends FOGPage
         );
     }
     /**
+     * Reads a per-node port from the POST data.
+     *
+     * Blank or 0 returns 0, which stores "use the global setting". Anything
+     * else must be an integer from 1 to 65535.
+     *
+     * @param string $key   The POST field.
+     * @param string $label The field name shown in the error.
+     *
+     * @throws \Exception When the value is not a valid port.
+     *
+     * @return int
+     */
+    private static function _postPort($key, $label)
+    {
+        $port = trim((string)filter_input(INPUT_POST, $key));
+        if ('' === $port || '0' === $port) {
+            return 0;
+        }
+        $port = filter_var(
+            $port,
+            FILTER_VALIDATE_INT,
+            ['options' => ['min_range' => 1, 'max_range' => 65535]]
+        );
+        if (false === $port) {
+            throw new \Exception(
+                sprintf('%s: %s', $label, _('Port must be a whole number from 1 to 65535'))
+            );
+        }
+        return $port;
+    }
+    /**
      * Actually save the new node.
      *
      * @return void
@@ -499,13 +574,16 @@ class StorageNodeManagement extends FOGPage
 
         $serverFault = false;
         try {
-            $testavail = self::$FOGURLRequests->isAvailable($ip);
+            $sshPort = self::_postPort('sshport', _('SSH Port'));
+            $ftpPort = self::_postPort('ftpport', _('FTP Port'));
+            // The posted ssh port (0 = global setting) for both checks.
+            $testavail = self::$FOGURLRequests->isAvailable($ip, 30, $sshPort);
             $warning = !array_shift($testavail);
             if (!$warning) {
                 self::$FOGSSH->username = $user;
                 self::$FOGSSH->password = $pass;
                 self::$FOGSSH->host = $ip;
-                $warning = !self::$FOGSSH->connect();
+                $warning = !self::$FOGSSH->connect('', $sshPort);
             }
             $exists = (new StorageNodeManager())
                 ->exists($storagenode);
@@ -543,6 +621,8 @@ class StorageNodeManagement extends FOGPage
                 ->set('user', $user)
                 ->set('pass', $pass)
                 ->set('bandwidth', $bandwidth)
+                ->set('sshport', $sshPort)
+                ->set('ftpport', $ftpPort)
                 ->set('graphcolor', $graphcolor);
             if (!$StorageNode->save()) {
                 $serverFault = true;
@@ -651,6 +731,15 @@ class StorageNodeManagement extends FOGPage
             (int)filter_input(INPUT_POST, 'maxClients') ?:
             $this->obj->get('maxClients')
         );
+        // 0 is stored for "use the global setting"; show it as blank.
+        $sshPort = (
+            filter_input(INPUT_POST, 'sshport') ?:
+            $this->obj->get('sshport')
+        ) ?: '';
+        $ftpPort = (
+            filter_input(INPUT_POST, 'ftpport') ?:
+            $this->obj->get('ftpport')
+        ) ?: '';
         $bandwidth = (
             filter_input(INPUT_POST, 'bandwidth') ?:
             $this->obj->get('bandwidth')
@@ -803,6 +892,48 @@ class StorageNodeManagement extends FOGPage
                 'number',
                 'maxClients',
                 $maxClients
+            ),
+            // Per-node ports (forum 18303). Blank or 0 keeps the global
+            // setting, so the help text names which one.
+            self::makeLabel(
+                $labelClass,
+                'sshport',
+                _('SSH Port')
+                . '<br/>('
+                . _('Blank uses the global FOG_SSH_PORT')
+                . ')'
+            ) => self::makeInput(
+                'form-control storagenodesshport-input',
+                'sshport',
+                '',
+                'number',
+                'sshport',
+                $sshPort,
+                false,
+                false,
+                -1,
+                -1,
+                'min="0" max="65535"'
+            ),
+            self::makeLabel(
+                $labelClass,
+                'ftpport',
+                _('FTP Port')
+                . '<br/>('
+                . _('Blank uses the global FOG_FTP_PORT')
+                . ')'
+            ) => self::makeInput(
+                'form-control storagenodeftpport-input',
+                'ftpport',
+                '',
+                'number',
+                'ftpport',
+                $ftpPort,
+                false,
+                false,
+                -1,
+                -1,
+                'min="0" max="65535"'
             ),
             // Node Checkboxes
             self::makeLabel(
@@ -1119,6 +1250,9 @@ class StorageNodeManagement extends FOGPage
         $pass = trim(
             (string)filter_input(INPUT_POST, 'pass')
         );
+        // Read before any connection check: they use the posted ssh port.
+        $sshPort = self::_postPort('sshport', _('SSH Port'));
+        $ftpPort = self::_postPort('ftpport', _('FTP Port'));
         // Three unrelated things can fail here -- the node can be off the
         // network, its SSH service can refuse the handshake, or the account
         // can be rejected -- and this used to report all three as
@@ -1130,7 +1264,7 @@ class StorageNodeManagement extends FOGPage
         // and merely contained a '>', which made it look like an escaping
         // bug. Say which stage actually failed instead.
         $warning = '';
-        $testavail = self::$FOGURLRequests->isAvailable($ip);
+        $testavail = self::$FOGURLRequests->isAvailable($ip, 30, $sshPort);
         if (!array_shift($testavail)) {
             $warning = sprintf(
                 '%s: %s',
@@ -1151,7 +1285,7 @@ class StorageNodeManagement extends FOGPage
             // the finally block whatever happens.
             try {
                 self::$FOGSSH->usekey = false;
-                if (!self::$FOGSSH->connect()) {
+                if (!self::$FOGSSH->connect('', $sshPort)) {
                     if (self::$FOGSSH->lastFailure() === 'login') {
                         $warning = sprintf(
                             '%s: %s@%s',
@@ -1179,7 +1313,7 @@ class StorageNodeManagement extends FOGPage
                     // key.
                     if (FOGSSH::hasKey()) {
                         self::$FOGSSH->usekey = true;
-                        if (self::$FOGSSH->connect()) {
+                        if (self::$FOGSSH->connect('', $sshPort)) {
                             if (self::$FOGSSH->authMethod() !== 'key') {
                                 $warning = sprintf(
                                     '%s: %s. %s',
@@ -1280,6 +1414,8 @@ class StorageNodeManagement extends FOGPage
             ->set('pass', $pass)
             ->set('key', trim((string)filter_input(INPUT_POST, 'apikey')))
             ->set('bandwidth', $bandwidth)
+            ->set('sshport', $sshPort)
+            ->set('ftpport', $ftpPort)
             ->set('graphcolor', $graphcolor);
         if ($this->obj->get('isMaster')) {
             $find = [

@@ -1424,6 +1424,12 @@ msgstr ""
 msgid "Blank starts at the domain root"
 msgstr ""
 
+msgid "Blank uses the global FOG_FTP_PORT"
+msgstr ""
+
+msgid "Blank uses the global FOG_SSH_PORT"
+msgstr ""
+
 msgid "Blank: each host joins with its own account"
 msgstr ""
 
@@ -3222,6 +3228,9 @@ msgid "FTP Connection Failed"
 msgstr ""
 
 msgid "FTP Path"
+msgstr ""
+
+msgid "FTP Port"
 msgstr ""
 
 msgid "FTP login rejected by"
@@ -6932,6 +6941,9 @@ msgstr ""
 msgid "Port is not valid ldap/ldaps port"
 msgstr ""
 
+msgid "Port must be a whole number from 1 to 65535"
+msgstr ""
+
 msgid "Post-Logout Redirect URI"
 msgstr ""
 
@@ -7667,6 +7679,9 @@ msgid "SSH Connection Failed"
 msgstr ""
 
 msgid "SSH Connection has failed"
+msgstr ""
+
+msgid "SSH Port"
 msgstr ""
 
 msgid "SSL Path"
