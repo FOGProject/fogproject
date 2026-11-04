@@ -24,12 +24,14 @@
 #      _installCATrustAnchor() has taught the system store about FOG's CA --
 #      hence _resolveSelfCacert(), which names the anchor file directly.
 #   C. The node<->master bootstrap -- registerStorageNode(),
-#      updateStorageNodeCredentials() and _requestNodeCert(). These are a
+#      updateStorageNodeCredentials(), _requestNodeCert() and
+#      _fetchFogSshKey(). These are a
 #      genuine chicken-and-egg: on a fresh storage node they run BEFORE
 #      _installNodeWebCert() and _installCATrustAnchor(), so there is no anchor
 #      for anything yet and verification cannot succeed. They keep -k, with the
-#      reasoning written at the call site, and _requestNodeCert() is separately
-#      protected by an HMAC keyed on ${DB_password}.
+#      reasoning written at the call site, and _requestNodeCert() and
+#      _fetchFogSshKey() are separately protected by an HMAC keyed on
+#      ${DB_password}.
 #
 # So this file does not say "never -k". It says: exactly the five Group C calls
 # -- registerStorageNode() makes two of them -- and no others. The count is pinned deliberately -- a NEW unverified
