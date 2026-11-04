@@ -6554,6 +6554,8 @@ _authorizeFogSshKey() {
     chown -R "${SVC_user}:" "$ssh_dir" >>$error_log 2>&1
     command -v restorecon >/dev/null 2>&1 && \
         restorecon -R "$ssh_dir" >>$error_log 2>&1
+    # Read by _warnSshPasswordAuth: the master and a node both end up here.
+    fogSshKeyAuthorized=yes
     return 0
 }
 # Print the hex HMAC-SHA256 of $2 keyed with $1.
@@ -7758,32 +7760,79 @@ EOF
 # account (GH-1945).
 #
 # An image capture is moved into place by the web tier, which logs in over SSH
-# as the storage user with ssh2_auth_password (TaskQueue.php, FOGSSH.php). When
-# sshd has PasswordAuthentication no for that user -- the default on many cloud
+# as the storage user (TaskQueue.php, FOGSSH.php). Since GH-2058 / PR #2060 it
+# tries FOG's key first, then the password. When the key is not usable and sshd
+# has PasswordAuthentication no for that user -- the default on many cloud
 # images and hardened servers -- the capture copies all of its data and then
 # fails with "Unable to connect to ssh during move upload".
+#
+# Call it after the SSH key step (_setupFogSshKey, _fetchFogSshKey) in the same
+# process, so fogSshKeyAuthorized is final. Silent when the key is authorized
+# and sshd will read it.
 #
 # Warning only. Whether to allow password login for an account is the admin's
 # call, so sshd_config is never edited here. Never fails the install: no sshd,
 # or an sshd -T that errors, is silent, and every path returns 0.
 _warnSshPasswordAuth() {
-    local sshd user addr pa
+    local sshd user addr cfg pa pk akf why
     user="${SVC_user:-fogproject}"
     addr="${ipaddress:-127.0.0.1}"
     # sshd lives in /usr/sbin, which a non-login root PATH often lacks.
     sshd=$(PATH="$PATH:${sshdSearchDirs:-/usr/sbin:/usr/local/sbin:/sbin}" command -v sshd 2>/dev/null)
     [[ -n $sshd ]] || return 0
-    pa=$("$sshd" -T -C "user=${user},host=localhost,addr=${addr}" 2>/dev/null | awk 'tolower($1) == "passwordauthentication" {print tolower($2); exit}')
+    # One sshd -T call; all three settings come from it.
+    cfg=$("$sshd" -T -C "user=${user},host=localhost,addr=${addr}" 2>/dev/null)
+    pa=$(echo "$cfg" | awk 'tolower($1) == "passwordauthentication" {print tolower($2); exit}')
     [[ $pa == no ]] || return 0
+    pk=$(echo "$cfg" | awk 'tolower($1) == "pubkeyauthentication" {print tolower($2); exit}')
+    akf=$(echo "$cfg" | awk 'tolower($1) == "authorizedkeysfile" {$1 = ""; sub(/^ /, ""); print; exit}')
+    # Since GH-2058 FOGSSH tries FOG's key first, so a user with the key
+    # needs no password login. The flag is set by _authorizeFogSshKey, which
+    # both the master and a node go through. The key helps only if sshd reads
+    # it, so check pubkeyauthentication and authorizedkeysfile as well.
+    why=""
+    if [[ ${fogSshKeyAuthorized:-} == yes ]]; then
+        # Accept only a whole entry spelled .ssh/authorized_keys or
+        # %h/.ssh/authorized_keys. Other spellings that reach the same file
+        # are not recognized and get the warning, which is the safe side. A
+        # substring test would also accept authorized_keys2, or an absolute
+        # path that only ends the same way.
+        local entry homefile=no
+        for entry in $akf; do
+            case $entry in
+                .ssh/authorized_keys|%h/.ssh/authorized_keys) homefile=yes ;;
+            esac
+        done
+        if [[ $pk == no ]]; then
+            why="public key login is off for ${user}"
+        elif [[ $homefile == no ]]; then
+            why="AuthorizedKeysFile does not include ~/.ssh/authorized_keys"
+        else
+            return 0
+        fi
+    fi
     echo
     echo "  ###################################################################"
     echo "  # WARNING: sshd does not allow password login for ${user}."
     echo "  #"
     echo "  # Image captures will FAIL: the data is copied, then the move step"
     echo "  # stops with \"Unable to connect to ssh during move upload\"."
-    echo "  # The web tier logs in over SSH as ${user} with a password."
     echo "  #"
-    echo "  # An administrator must allow password authentication for that user,"
+    if [[ -n $why ]]; then
+        echo "  # FOG's SSH key is authorized, but sshd will not use it:"
+        echo "  #     ${why}."
+        echo "  # Fix that in sshd_config, or use the password fallback below."
+    else
+        echo "  # FOG's SSH key is not authorized for ${user}. The SSH key"
+        echo "  # line above (\"Setting up FOG's SSH key\" on a master,"
+        echo "  # \"Installing the master's SSH key\" on a node) says Skipped"
+        echo "  # or Failed. Details are in:"
+        echo "  #     ${error_log:-the installer error log}"
+        echo "  # Fix that and re-run the installer. A storage node also needs"
+        echo "  # a reachable master that is new enough to serve FOG's SSH key."
+    fi
+    echo "  #"
+    echo "  # The password fallback is to allow password login for that user,"
     echo "  # for example in sshd_config:"
     echo "  #     Match User ${user}"
     echo "  #         PasswordAuthentication yes"
