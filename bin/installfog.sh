@@ -110,6 +110,9 @@ fi
 error_log=${workingdir}/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)
 backupconfig=""
+# Set only by _authorizeFogSshKey in this run; an exported value from the
+# caller's environment must not silence _warnSshPasswordAuth.
+fogSshKeyAuthorized=""
 . ../lib/common/functions.sh
 . ../lib/common/uninstall.sh
 usage() {
@@ -1403,8 +1406,6 @@ while [[ -z $blGo ]]; do
                 esac
             fi
             configureUsers
-            # GH-1945: sshd is installed by now; warn only, never fails.
-            _warnSshPasswordAuth
             # GH-964: before either branch configures a web tier. Storage nodes
             # get this too -- configureMinHttpd still runs as httpd_t and still
             # has to reach the master over HTTP.
@@ -1470,6 +1471,9 @@ while [[ -z $blGo ]]; do
                         # After registration, like the certificate: the master
                         # only answers a node it already knows.
                         _fetchFogSshKey
+                        # GH-1945: after the key step, so it sees the final
+                        # state. Warn only, never fails.
+                        _warnSshPasswordAuth
                         echo
                         echo "\n * Upgrade complete\n"
                         echo
@@ -1486,6 +1490,8 @@ while [[ -z $blGo ]]; do
                         # After registration, like the certificate: the master
                         # only answers a node it already knows.
                         _fetchFogSshKey
+                        # GH-1945: after the key step; see above.
+                        _warnSshPasswordAuth
                         [[ -n ${DB_host} ]] && fogserver=${DB_host} || fogserver="fog-server"
                         echo
                         echo " * Setup complete"
@@ -1652,6 +1658,8 @@ while [[ -z $blGo ]]; do
                     # with (GH-2058). Not part of the PKI zones, so it needs
                     # nothing from the permissions pass above.
                     _setupFogSshKey
+                    # GH-1945: after the key step; see the storage branch.
+                    _warnSshPasswordAuth
                     configureUDPCast
                     installInitScript
                     configureFOGService

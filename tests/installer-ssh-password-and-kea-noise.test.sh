@@ -105,6 +105,7 @@ echo "sshd -T:"
 declare -F _warnSshPasswordAuth >/dev/null && ok "_warnSshPasswordAuth exists" || bad "_warnSshPasswordAuth exists"
 SVC_user=fogproject ipaddress=10.0.45.2
 sshdSearchDirs="$WORK/empty"
+unset fogSshKeyAuthorized
 run() { # $1 = sshd answer; prints the function's stdout, sets rc
     : > "$SSHD_LOG"
     out=$(FAKE_SSHD_PA="$1" _warnSshPasswordAuth 2>&1)
