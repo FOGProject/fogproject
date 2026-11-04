@@ -1249,6 +1249,12 @@ echo "   ######################################################################"
 echo "   #             https://wiki.fogproject.org/wiki/index.php             #"
 echo "   ######################################################################"
 echo
+# Resolve netboot before the summary: without this the summary printed the
+# protocol persisted by the PREVIOUS run, so a re-run with --no-public-web-cert
+# announced https and then wrote chain http://. promptInstallMode resolves
+# again, which covers a mode chosen at the prompt below. It runs this early
+# because the external-DHCP boot file rows below depend on it too (GH-2064).
+_resolveNetbootProto
 echo " * Here are the settings FOG will use:"
 echo " * Base Linux: ${FOG_os_name}"
 echo " * Detected Linux Distribution: $linuxReleaseName"
@@ -1285,29 +1291,7 @@ case ${FOG_install_type} in
                 echo " * On a Windows DHCP server you must set options 066 and 067"
                 echo
                 echo " * Option 066/next-server is the IP of the FOG Server: (e.g. ${NET_fog_server_ip})"
-                uefistem="$(_uefiBootStem)"
-                echo " * Option 067/filename is the bootfile, per client architecture:"
-                echo " |   BIOS / legacy   $(_biosBootFile)"
-                echo " |   32-bit UEFI     $(_uefiBootFile i386)"
-                echo " |   64-bit UEFI     secureboot/${uefistem}-shimx64.efi"
-                echo " |   ARM64 UEFI      secureboot/arm64-efi/${uefistem}-shimaa64.efi"
-                echo
-                # The BIOS row goes through _biosBootFile because --boot-delay
-                # really does change it (10secdelay/) and that flag is parsed
-                # well before here. The 64-bit UEFI rows are spelled out rather
-                # than $(_uefiBootFile) for the opposite reason: this summary
-                # prints before downloadipxesecureboot has run, so the guard
-                # would be answering about the PREVIOUS install's staging tree.
-                # These are what this run is about to stage; if the fetch fails,
-                # that function says so itself. Only the stem comes from
-                # --uefi-bootfile, through _uefiBootStem. The 32-bit row
-                # has no staging guard, so it can ask _uefiBootFile directly.
-                echo " * The secureboot/ files are the signed chain. They boot the same"
-                echo " | whether Secure Boot is enabled or not, so they are the right"
-                echo " | answer for every 64-bit UEFI client, not just the ones enforcing"
-                echo " | it. There is no signed 32-bit chain -- those clients must have"
-                echo " | Secure Boot disabled to netboot at all."
-                echo " | See https://docs.fogproject.org/en/latest/secure-boot-netboot"
+                _printExternalDhcpBootFiles
                 ;;
         esac
         ;;
@@ -1329,12 +1313,6 @@ case ${FOG_send_reports} in
 esac
 # Echoed for unattended runs too, so `installfog.sh -y` leaves a record of what
 # it resolved rather than only what was passed.
-#
-# Resolve netboot here, not only in configureHttpd: without this the summary
-# printed the protocol persisted by the PREVIOUS run, so a re-run with
-# --no-public-web-cert announced https and then wrote chain http://.
-# configureHttpd resolves again, which covers a mode chosen at the prompt below.
-_resolveNetbootProto
 echo " * Web protocol: ${WEB_url_proto}"
 echo " * Netboot (PXE) protocol: ${BOOT_url_proto}"
 echo -n " * Force HTTP->HTTPS redirect: "; [[ ${WEB_https_redirect} == yes ]] && echo "Yes" || echo "No"
@@ -1431,7 +1409,8 @@ while [[ -z $blGo ]]; do
                     configureStorage
                     # Before configureDHCP, not with the rest of the TFTP
                     # staging in configureTFTPandPXE. The generated DHCP config
-                    # names the signed shim for UEFI clients, and _sbChainStaged
+                    # names the signed shim for UEFI clients (unless
+                    # _sbChainReachesBoot rules it out), and _sbChainStaged
                     # decides that by looking for the staged binary -- so the
                     # fetch has to have happened, or every install would fall
                     # back to the unsigned names. Non-fatal on its own; the
@@ -1575,7 +1554,8 @@ while [[ -z $blGo ]]; do
                     configureStorage
                     # Before configureDHCP, not with the rest of the TFTP
                     # staging in configureTFTPandPXE. The generated DHCP config
-                    # names the signed shim for UEFI clients, and _sbChainStaged
+                    # names the signed shim for UEFI clients (unless
+                    # _sbChainReachesBoot rules it out), and _sbChainStaged
                     # decides that by looking for the staged binary -- so the
                     # fetch has to have happened, or every install would fall
                     # back to the unsigned names. Non-fatal on its own; the

@@ -243,6 +243,23 @@ resolve=$(awk -v a="${flags:-0}" -v b="${summary:-0}" \
 [[ -n $flags && -n $summary && -n $resolve ]] \
     && ok "the summary prints the netboot protocol after resolving it" \
     || bad "the summary prints a persisted netboot protocol (no _resolveNetbootProto between the flags and the summary)"
+# The external-DHCP boot file rows in the same summary read BOOT_url_proto
+# through _sbChainReachesBoot (GH-2064). They print above the protocol line, so
+# the resolver has to sit above them too, or they answer from the previous run.
+sbrows=$(grep -n '^[[:space:]]*_printExternalDhcpBootFiles$' "$INSTALLER" | head -n1 | cut -d: -f1)
+[[ -n $flags && -n $sbrows && -n $resolve ]] && (( flags < resolve && resolve < sbrows )) \
+    && ok "the boot file rows print after the netboot protocol is resolved" \
+    || bad "the boot file rows read a persisted netboot protocol (no _resolveNetbootProto between the flags and _printExternalDhcpBootFiles)"
+
+# The first-install prompt applies a preset that writes BOOT_url_proto directly.
+# A forced --netboot-proto has to survive it before configureDHCP picks boot
+# files, so promptInstallMode must re-resolve after the preset (GH-2064).
+promptbody=$(sed -n '/^promptInstallMode() {/,/^}/p' "$FUNCS")
+applyline=$(grep -n '^    _applyInstallMode$' <<<"$promptbody" | cut -d: -f1)
+reline=$(grep -n '^    _resolveNetbootProto$' <<<"$promptbody" | cut -d: -f1)
+[[ -n $applyline && -n $reline ]] && (( applyline < reline )) \
+    && ok "promptInstallMode re-resolves netboot after applying its preset" \
+    || bad "promptInstallMode lets its preset override a forced --netboot-proto (no _resolveNetbootProto after _applyInstallMode)"
 is "$(nb no no '' https yes)"  "https" "a FORCED https survives with neither trigger set"
 
 # The old resolver keyed on $caCreated, a PERSISTED key that was "yes" on every
