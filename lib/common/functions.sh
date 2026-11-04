@@ -3492,10 +3492,10 @@ _printExternalDhcpBootFiles() {
         echo " | it. There is no signed 32-bit chain -- those clients must have"
         echo " | Secure Boot disabled to netboot at all."
     else
-        echo " * Netboot uses HTTPS with a private CA. Only FOG's own iPXE builds"
-        echo " | carry that CA, so the signed secureboot/ chain cannot fetch the"
-        echo " | boot menu here. A Secure Boot client must have this server's"
-        echo " | MOK enrolled before it loads these files."
+        echo " * Netboot uses HTTPS with a private CA. The signed secureboot/"
+        echo " | chain cannot trust that CA, so it is left out here. With"
+        echo " | --rebuild-ipxe-with-my-ca, FOG's own builds carry the CA, and a"
+        echo " | Secure Boot client needs this server's MOK enrolled first."
     fi
     echo " | See https://docs.fogproject.org/en/latest/secure-boot-netboot"
 }
@@ -10343,9 +10343,11 @@ _reportNetbootProto() {
             echo " ###################################################################"
             echo
         fi
-        # Said whenever the signed chain is dropped, so an install with FOG's
-        # own DHCP -- which prints no 067 rows -- still says so (GH-2064).
-        if ! _sbChainReachesBoot; then
+        # Said when the signed chain is dropped in rebuild mode, so an install
+        # with FOG's own DHCP -- which prints no 067 rows -- still says so
+        # (GH-2064). Without the rebuild, the WARNING above already covers it:
+        # FOG's builds carry no CA either.
+        if ! _sbChainReachesBoot && [[ ${BOOT_rebuild_ipxe_with_my_ca} == yes ]]; then
             echo " * UEFI clients get FOG's own iPXE builds, not the signed"
             echo "   secureboot/ chain: upstream's signed iPXE cannot trust a"
             echo "   private CA over HTTPS. A Secure Boot client needs this"

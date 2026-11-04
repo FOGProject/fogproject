@@ -202,7 +202,10 @@ is "$(grep -c '64-bit UEFI     snponly.efi$' <<<"$rows")" "1" "private CA: the 0
 # FOG-managed DHCP prints no 067 rows, so the netboot report has to say it.
 BOOT_rebuild_ipxe_with_my_ca=yes
 is "$(_reportNetbootProto 2>/dev/null | grep -c "UEFI clients get FOG's own iPXE builds")" "1" "private CA: the netboot report says the shim was dropped"
+# A forced https with no rebuild: FOG's builds carry no CA, so the note would
+# be false. The WARNING block covers that case instead.
 unset BOOT_rebuild_ipxe_with_my_ca
+is "$(_reportNetbootProto 2>/dev/null | grep -c "UEFI clients get FOG's own iPXE builds")" "0" "forced https, no rebuild: no claim that FOG's builds carry the CA"
 BOOT_uefi_bootfile=ipxe
 is "$(_uefiBootFile x64)" "ipxe.efi" "private CA: --uefi-bootfile ipxe still applies"
 BOOT_uefi_bootfile=""
