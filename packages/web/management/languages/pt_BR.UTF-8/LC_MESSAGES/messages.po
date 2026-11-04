@@ -3138,6 +3138,9 @@ msgstr "domínio usuário"
 msgid "Domain added!"
 msgstr "Localização Nome"
 
+msgid "Domain join skipped: it needs a FOG login that may create hosts."
+msgstr ""
+
 #, fuzzy
 msgid "Domain update failed!"
 msgstr "atualização Snapin falhou"

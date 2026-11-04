@@ -3136,6 +3136,9 @@ msgstr "Domänen-Benutzername"
 msgid "Domain added!"
 msgstr "Standort hinzugefügt"
 
+msgid "Domain join skipped: it needs a FOG login that may create hosts."
+msgstr ""
+
 #, fuzzy
 msgid "Domain update failed!"
 msgstr "Standortupdate fehlgeschlagen"

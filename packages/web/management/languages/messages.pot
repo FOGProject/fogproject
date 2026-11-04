@@ -2711,6 +2711,9 @@ msgstr ""
 msgid "Domain added!"
 msgstr ""
 
+msgid "Domain join skipped: it needs a FOG login that may create hosts."
+msgstr ""
+
 msgid "Domain update failed!"
 msgstr ""
 

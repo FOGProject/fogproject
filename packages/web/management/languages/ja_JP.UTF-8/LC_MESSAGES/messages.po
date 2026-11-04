@@ -2728,6 +2728,9 @@ msgstr "ドメインユーザー名"
 msgid "Domain added!"
 msgstr "ドメインを追加しました！"
 
+msgid "Domain join skipped: it needs a FOG login that may create hosts."
+msgstr ""
+
 msgid "Domain update failed!"
 msgstr "ドメインの更新に失敗しました！"
 
