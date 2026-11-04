@@ -1467,6 +1467,9 @@ while [[ -z $blGo ]]; do
                         # After it, not before: on a node the anchor is pulled
                         # out of the chain that call is what fetches.
                         _installCATrustAnchor
+                        # After registration, like the certificate: the master
+                        # only answers a node it already knows.
+                        _fetchFogSshKey
                         echo
                         echo "\n * Upgrade complete\n"
                         echo
@@ -1480,6 +1483,9 @@ while [[ -z $blGo ]]; do
                         # After it, not before: on a node the anchor is pulled
                         # out of the chain that call is what fetches.
                         _installCATrustAnchor
+                        # After registration, like the certificate: the master
+                        # only answers a node it already knows.
+                        _fetchFogSshKey
                         [[ -n ${DB_host} ]] && fogserver=${DB_host} || fogserver="fog-server"
                         echo
                         echo " * Setup complete"
@@ -1642,6 +1648,10 @@ while [[ -z $blGo ]]; do
                     # this host. Reads only ${PKI_root_ca_cert} -- no key -- so it is
                     # deliberately on the far side of _hardenPkiPermissions.
                     _installCATrustAnchor
+                    # Master only: the key pair storage nodes are authorized
+                    # with (GH-2058). Not part of the PKI zones, so it needs
+                    # nothing from the permissions pass above.
+                    _setupFogSshKey
                     configureUDPCast
                     installInitScript
                     configureFOGService

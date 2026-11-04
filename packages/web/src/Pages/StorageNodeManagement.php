@@ -17,6 +17,7 @@ use FOG\Base\FOGPage;
 use FOG\Items\StorageNode;
 use FOG\Managers\StorageGroupManager;
 use FOG\Managers\StorageNodeManager;
+use FOG\Net\FOGSSH;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -1140,27 +1141,62 @@ class StorageNodeManagement extends FOGPage
             self::$FOGSSH->username = $user;
             self::$FOGSSH->password = $pass;
             self::$FOGSSH->host = $ip;
-            if (!self::$FOGSSH->connect()) {
-                if (self::$FOGSSH->lastFailure() === 'login') {
-                    $warning = sprintf(
-                        '%s: %s@%s',
-                        _('The node refused the SSH login for'),
-                        $user,
-                        $ip
-                    );
+            // Two checks, because one login cannot prove both credentials.
+            // FOG offers its key first, and once the key is accepted the
+            // password is never sent, so a mistyped password would pass
+            // silently here and break FTP replication later (FOGService uses
+            // the same user and password for FTP). So the password is checked
+            // on its own with the key off, then the key is checked on its own.
+            // FOGSSH is a shared global, so the key is switched back on in
+            // the finally block whatever happens.
+            try {
+                self::$FOGSSH->usekey = false;
+                if (!self::$FOGSSH->connect()) {
+                    if (self::$FOGSSH->lastFailure() === 'login') {
+                        $warning = sprintf(
+                            '%s: %s@%s',
+                            _('The node refused the SSH login for'),
+                            $user,
+                            $ip
+                        );
+                    } else {
+                        $warning = sprintf(
+                            '%s: %s. %s',
+                            _('Could not open an SSH connection to'),
+                            $ip,
+                            _(
+                                'This is a transport failure -- no credentials '
+                                . 'were sent -- so check sshd on the node.'
+                            )
+                        );
+                    }
                 } else {
-                    $warning = sprintf(
-                        '%s: %s. %s',
-                        _('Could not open an SSH connection to'),
-                        $ip,
-                        _(
-                            'This is a transport failure -- no credentials '
-                            . 'were sent -- so check sshd on the node.'
-                        )
-                    );
+                    self::$FOGSSH->disconnect();
+                    // The password works. Now check the key on its own: FOG
+                    // offers it first (GH-2058), so a node that rejects it
+                    // still logs in by password. Say so now: the admin cannot
+                    // turn password logins off on the node until it has the
+                    // key.
+                    if (FOGSSH::hasKey()) {
+                        self::$FOGSSH->usekey = true;
+                        if (self::$FOGSSH->connect()) {
+                            if (self::$FOGSSH->authMethod() !== 'key') {
+                                $warning = sprintf(
+                                    '%s: %s. %s',
+                                    _('The node accepted the password but not the FOG SSH key'),
+                                    $ip,
+                                    _(
+                                        'Re-run the installer on that node to install the '
+                                        . 'key. After that, you can disable password logins.'
+                                    )
+                                );
+                            }
+                            self::$FOGSSH->disconnect();
+                        }
+                    }
                 }
-            } else {
-                self::$FOGSSH->disconnect();
+            } finally {
+                self::$FOGSSH->usekey = true;
             }
         }
         $bandwidth = trim(

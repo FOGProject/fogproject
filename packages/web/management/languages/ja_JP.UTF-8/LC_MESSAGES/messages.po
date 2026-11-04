@@ -7258,6 +7258,9 @@ msgstr "再確認間隔"
 msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
 msgstr "インストーラーを再実行し、「Publishing Secure Boot variable updates」の項目に表示される内容を確認してください。ここで適用された 3 つのうち、どれが適用されたかが示されます。"
 
+msgid "Re-run the installer on that node to install the key. After that, you can disable password logins."
+msgstr ""
+
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterward."
 msgstr "インストーラーを再実行してください。インストーラーによって、これらへのアクセスが root のみに制限されます。それでも問題が続く場合は、その後に別の処理が snapins ディレクトリのアクセス権を緩めていないか確認してください。"
 
@@ -9373,6 +9376,9 @@ msgstr "マニフェストではプラグイン名が「%s」ですが、ディ�
 
 msgid "The manual enrollment steps below are unaffected."
 msgstr "以下の手動登録手順には影響しません。"
+
+msgid "The node accepted the password but not the FOG SSH key"
+msgstr ""
 
 msgid "The node did not answer on the network"
 msgstr "ノードからネットワーク経由の応答がありませんでした"

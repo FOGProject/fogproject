@@ -7219,6 +7219,9 @@ msgstr ""
 msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
 msgstr ""
 
+msgid "Re-run the installer on that node to install the key. After that, you can disable password logins."
+msgstr ""
+
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterward."
 msgstr ""
 
@@ -9328,6 +9331,9 @@ msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must 
 msgstr ""
 
 msgid "The manual enrollment steps below are unaffected."
+msgstr ""
+
+msgid "The node accepted the password but not the FOG SSH key"
 msgstr ""
 
 msgid "The node did not answer on the network"
