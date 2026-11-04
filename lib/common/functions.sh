@@ -7650,9 +7650,11 @@ _warnSshPasswordAuth() {
     # it, so check pubkeyauthentication and authorizedkeysfile as well.
     why=""
     if [[ ${fogSshKeyAuthorized:-} == yes ]]; then
-        # sshd reads FOG's file only when one whole entry of the list names
-        # it relative to the home. A substring test would also accept
-        # authorized_keys2 or an absolute path that only ends the same way.
+        # Accept only a whole entry spelled .ssh/authorized_keys or
+        # %h/.ssh/authorized_keys. Other spellings that reach the same file
+        # are not recognized and get the warning, which is the safe side. A
+        # substring test would also accept authorized_keys2, or an absolute
+        # path that only ends the same way.
         local entry homefile=no
         for entry in $akf; do
             case $entry in
@@ -7685,7 +7687,7 @@ _warnSshPasswordAuth() {
         echo "  # or Failed. Details are in:"
         echo "  #     ${error_log:-the installer error log}"
         echo "  # Fix that and re-run the installer. A storage node also needs"
-        echo "  # to reach its master, on a master at this version or later."
+        echo "  # a reachable master that is new enough to serve FOG's SSH key."
     fi
     echo "  #"
     echo "  # The password fallback is to allow password login for that user,"

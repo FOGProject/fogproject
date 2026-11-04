@@ -82,7 +82,7 @@ fogSshKeyAuthorized=yes
 run no no "$DEF_AKF"
 warns "password no, flag, pubkeyauthentication no: warns" "public key login is off"
 
-# Each of these only looks like FOG's file; sshd never reads ~/.ssh/authorized_keys.
+# None of these makes sshd read ~/.ssh/authorized_keys; the last three only look like it.
 for akf in "/etc/ssh/keys/%u" ".ssh/authorized_keys2" \
            "/var/lib/keys/.ssh/authorized_keys" "/etc/ssh/.ssh/authorized_keys_%u"; do
     run no yes "$akf"
