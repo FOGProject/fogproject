@@ -2872,6 +2872,8 @@ abstract class FOGPage extends FOGBase
                     self::$FOGSSH->username = $tftpUser;
                     self::$FOGSSH->password = $tftpPass;
                     self::$FOGSSH->host = $tftpHost;
+                    // The TFTP host is not a storage node: it has no per-node
+                    // port, so this stays on the global FOG_SSH_PORT.
                     if (!self::$FOGSSH->connect()) {
                         throw new \Exception(_('Unable to connect to ssh'));
                     }

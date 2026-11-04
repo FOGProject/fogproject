@@ -644,10 +644,12 @@ storagenode	21	ngmInterface	interface	-	-
 storagenode	22	ngmBandwidthLimit	bandwidth	-	-
 storagenode	23	ngmWebroot	webroot	-	-
 storagenode	24	ngmGraphColor	graphcolor	-	-
-storagenode	25	ngID	storagegroupID	-	-
-storagenode	26	ngName	storagegroupName	-	-
-storagenode	27	ngmID	clientload	f	storagenode
-storagenode	28	ngmID	location_url	f	storagenode
+storagenode	25	ngmSshPort	sshport	-	-
+storagenode	26	ngmFtpPort	ftpport	-	-
+storagenode	27	ngID	storagegroupID	-	-
+storagenode	28	ngName	storagegroupName	-	-
+storagenode	29	ngmID	clientload	f	storagenode
+storagenode	30	ngmID	location_url	f	storagenode
 task	0	taskID	id	-	-
 task	1	taskID	DT_RowId	f	-
 task	2	taskName	name	-	-

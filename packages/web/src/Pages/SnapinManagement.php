@@ -1259,7 +1259,8 @@ class SnapinManagement extends FOGPage
             self::$FOGSSH->username = $StorageNode->get('user');
             self::$FOGSSH->password = $StorageNode->get('pass');
             self::$FOGSSH->host = $StorageNode->get('ip');
-            if (!self::$FOGSSH->connect()) {
+            // The node's own ssh port, not only FOG_SSH_PORT (forum 18303).
+            if (!self::$FOGSSH->connect('', $StorageNode->sshPort())) {
                 throw new \Exception(
                     sprintf(
                         '%s: %s: %s.',

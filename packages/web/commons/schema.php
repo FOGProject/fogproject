@@ -12168,3 +12168,14 @@ $this->schema[] = [
         return true;
     },
 ];
+// 451
+$this->schema[] = [
+    // Forum 18303: storage nodes that listen on different SSH and FTP ports.
+    // One global FOG_SSH_PORT / FOG_FTP_PORT cannot describe them, so each
+    // node may carry its own. 0 means "use the global setting", which is
+    // what every existing node keeps. Separate ALTERs keep the updater's
+    // duplicate-column retry (error 1060) working when an earlier run
+    // stopped after adding only one of the columns.
+    'ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmSshPort` INT(11) NOT NULL DEFAULT 0',
+    'ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmFtpPort` INT(11) NOT NULL DEFAULT 0',
+];

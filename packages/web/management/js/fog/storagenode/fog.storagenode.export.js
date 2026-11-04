@@ -18,6 +18,8 @@
         {data: 'interface'},
         {data: 'bandwidth', visible: false},
         {data: 'webroot'},
-        {data: 'graphcolor', visible: false}
+        {data: 'graphcolor', visible: false},
+        {data: 'sshport', visible: false},
+        {data: 'ftpport', visible: false}
     ]);
 })(jQuery);

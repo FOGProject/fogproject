@@ -232,10 +232,12 @@ class Snapins extends FOGBase
         self::$FOGFTP->username = $user;
         self::$FOGFTP->password = $pass;
         self::$FOGFTP->host = $host;
-        if (!self::$FOGFTP->connect()) {
+        // The node's own ftp port; the stream URL below must dial it too.
+        $ftpPort = $StorageNode->ftpPort();
+        if (!self::$FOGFTP->connect('', $ftpPort)) {
             self::_fail('cannot connect to the storage node', 503);
         }
-        $SnapinFile = sprintf('ftp://%s:%s@%s%s', $user, urlencode($pass), $host, $filepath);
+        $SnapinFile = sprintf('ftp://%s:%s@%s:%d%s', $user, urlencode($pass), $host, $ftpPort, $filepath);
         $fh = fopen($SnapinFile, 'rb');
         if (false === $fh) {
             self::_fail('cannot read the snapin file', 503);

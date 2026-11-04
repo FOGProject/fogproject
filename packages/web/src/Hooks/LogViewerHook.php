@@ -23,6 +23,7 @@
 namespace FOG\Hooks;
 
 use FOG\Base\Hook;
+use FOG\Items\StorageNode;
 
 /**
  * Just allows user to add in any logs they feel they need on the log viewer.
@@ -90,7 +91,11 @@ class LogViewerHook extends Hook
         self::$FOGSSH->username = $arguments['StorageNode']->user;
         self::$FOGSSH->password = $arguments['StorageNode']->pass;
         self::$FOGSSH->host = $arguments['StorageNode']->ip;
-        if (!self::$FOGSSH->connect()) {
+        // A router row, not a StorageNode: resolve the node's own SSH port here.
+        $port = StorageNode::resolveSshPort(
+            $arguments['StorageNode']->sshport ?? 0
+        );
+        if (!self::$FOGSSH->connect('', $port)) {
             return;
         }
         $fogfiles = self::$FOGSSH->scanFilesystem("/var/log");
