@@ -6422,11 +6422,13 @@ _authorizeFogSshKey() {
 # through the environment of one php process instead, which only root and the
 # same user can read, and the data goes in on stdin with printf, so a secret or
 # data holding & " > $ ` or a space is hashed byte for byte. nodesshkey.php
-# computes the same value with the same hash_hmac().
+# computes the same value with the same hash_hmac(). -n and display_errors=
+# stderr: with display_errors on, PHP CLI prints a startup warning to STDOUT,
+# ahead of the hex, and every signature would then fail to match.
 _fogHmacHex() {
     local secret="$1" data="$2"
     printf '%s' "$data" \
-        | FOG_HMAC_KEY="$secret" php -r \
+        | FOG_HMAC_KEY="$secret" php -n -d display_errors=stderr -r \
             'echo hash_hmac("sha256", stream_get_contents(STDIN), getenv("FOG_HMAC_KEY"));' \
             2>>$error_log
 }

@@ -31,7 +31,7 @@
 #      reasoning written at the call site, and _requestNodeCert() is separately
 #      protected by an HMAC keyed on ${DB_password}.
 #
-# So this file does not say "never -k". It says: exactly the four Group C calls
+# So this file does not say "never -k". It says: exactly the five Group C calls
 # -- registerStorageNode() makes two of them -- and no others. The count is pinned deliberately -- a NEW unverified
 # call cannot be added without also editing this number, which is a visible act
 # in the diff rather than a silent inheritance.
@@ -94,10 +94,10 @@ unverified() {
 
 echo "1. only the documented node-bootstrap calls skip verification"
 
-# The allowlist is by URL, not by line number: each of the three is the only
+# The allowlist is by URL, not by line number: each of the four is the only
 # call in this tree that talks to that endpoint.
 #
-# probeUrl is the fourth entry and the only one that is not a node bootstrap.
+# probeUrl is the fifth entry and the only one that is not a node bootstrap.
 # checkWebTier retries its liveness probe once with -k after a verification
 # failure, purely to establish whether the web tier renders at all -- a
 # certificate this host cannot verify says nothing about whether the site is
