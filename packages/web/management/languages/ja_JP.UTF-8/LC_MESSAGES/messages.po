@@ -9097,7 +9097,8 @@ msgstr "端末ごとにファームウェア設定画面を操作する必要が
 msgid "That is the recommended state. Restore it only to issue a new intermediate or a certificate for a new storage node, then move it back."
 msgstr "この状態が推奨されます。新しい中間証明書、または新しいストレージノード用の証明書を発行するときだけ復元し、作業後は元の場所へ戻してください。"
 
-msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
+#, fuzzy
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it. This applies to HTTP netboot and to HTTPS netboot with a publicly-issued certificate -- see below for a private CA"
 msgstr "これはインストーラーが配置した署名済みのブートチェーンです。既定のブートファイルには署名がなく、Secure Boot が有効なクライアントでは起動が拒否されます"
 
 msgid "That name is too long"
@@ -10765,6 +10766,9 @@ msgstr "Windows: MSI のサイレントインストール"
 msgid "Wipes"
 msgstr "消去回数"
 
+msgid "With HTTPS netboot and a private CA, do not use the secureboot/ chain: upstream's signed iPXE cannot trust that CA and stops at the boot menu with \"Permission denied\". Point the boot filename at"
+msgstr ""
+
 msgid "Within 30 days"
 msgstr "30 日以内"
 
@@ -11318,6 +11322,9 @@ msgstr "分単位"
 
 msgid "in seconds"
 msgstr "秒単位"
+
+msgid "in the TFTP root instead (arm64: arm64-efi/snponly.efi). The rebuilt iPXE carries your CA and is signed with this server's key, so a Secure Boot client needs this server's MOK enrolled before it can netboot"
+msgstr ""
 
 msgid "initrd (Initial Ramdisk) Update"
 msgstr "Initrd（初期 RAM ディスク）の更新"

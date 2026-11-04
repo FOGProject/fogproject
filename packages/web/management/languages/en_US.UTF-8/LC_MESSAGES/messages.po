@@ -10580,7 +10580,7 @@ msgstr ""
 msgid "That is the recommended state. Restore it only to issue a new intermediate or a certificate for a new storage node, then move it back."
 msgstr ""
 
-msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it. This applies to HTTP netboot and to HTTPS netboot with a publicly-issued certificate -- see below for a private CA"
 msgstr ""
 
 msgid "That name is too long"
@@ -12432,6 +12432,9 @@ msgstr ""
 msgid "Wipes"
 msgstr ""
 
+msgid "With HTTPS netboot and a private CA, do not use the secureboot/ chain: upstream's signed iPXE cannot trust that CA and stops at the boot menu with \"Permission denied\". Point the boot filename at"
+msgstr ""
+
 msgid "Within 30 days"
 msgstr ""
 
@@ -13055,6 +13058,9 @@ msgid "in minutes"
 msgstr "minutes"
 
 msgid "in seconds"
+msgstr ""
+
+msgid "in the TFTP root instead (arm64: arm64-efi/snponly.efi). The rebuilt iPXE carries your CA and is signed with this server's key, so a Secure Boot client needs this server's MOK enrolled before it can netboot"
 msgstr ""
 
 msgid "initrd (Initial Ramdisk) Update"
