@@ -79,6 +79,9 @@ fog_udpversion="20250223"
 # a server that cannot verify its own certificate is not a supported state, and
 # the opt-out mostly produced installs that failed in confusing ways later).
 [[ -z $nfsconfig ]] && nfsconfig="/etc/exports"
+# FOG's own exports live in a drop-in that exportfs reads after $nfsconfig, so
+# the admin's file is never rewritten. See configureNFS.
+[[ -z $nfsfogexports ]] && nfsfogexports="/etc/exports.d/fog.exports"
 [[ -z $nfsservice ]] && nfsservice="nfs-server nfs-kernel-server nfs"
 [[ -z $sqlclientlist ]] && sqlclientlist="mariadb-client mariadb MariaDB-client mysql"
 # "mariadb" is last deliberately. It is the SERVER package name on Alpine,
