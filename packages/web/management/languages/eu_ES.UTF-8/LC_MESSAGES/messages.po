@@ -1628,6 +1628,12 @@ msgstr "Passwort binden"
 msgid "Blank starts at the domain root"
 msgstr ""
 
+msgid "Blank uses the global FOG_FTP_PORT"
+msgstr ""
+
+msgid "Blank uses the global FOG_SSH_PORT"
+msgstr ""
+
 msgid "Blank: each host joins with its own account"
 msgstr ""
 
@@ -3721,6 +3727,10 @@ msgid "FTP Connection Failed"
 msgstr "FTP-Verbindung fehlgeschlagen"
 
 msgid "FTP Path"
+msgstr "FTP-Pfad"
+
+#, fuzzy
+msgid "FTP Port"
 msgstr "FTP-Pfad"
 
 msgid "FTP login rejected by"
@@ -8078,6 +8088,9 @@ msgstr "Port"
 msgid "Port is not valid ldap/ldaps port"
 msgstr "Dieser Port ist kein gültiger LDAP/LADPS Port"
 
+msgid "Port must be a whole number from 1 to 65535"
+msgstr ""
+
 msgid "Post-Logout Redirect URI"
 msgstr ""
 
@@ -8924,6 +8937,10 @@ msgstr "FTP-Verbindung fehlgeschlagen"
 #, fuzzy
 msgid "SSH Connection has failed"
 msgstr "FTP-Verbindung fehlgeschlagen"
+
+#, fuzzy
+msgid "SSH Port"
+msgstr "Port"
 
 msgid "SSL Path"
 msgstr "SSL-Pfad"

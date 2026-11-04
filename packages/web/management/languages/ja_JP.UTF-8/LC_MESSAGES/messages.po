@@ -1437,6 +1437,12 @@ msgstr "バインドパスワード"
 msgid "Blank starts at the domain root"
 msgstr "空欄の場合はドメインルートから開始します"
 
+msgid "Blank uses the global FOG_FTP_PORT"
+msgstr ""
+
+msgid "Blank uses the global FOG_SSH_PORT"
+msgstr ""
+
 msgid "Blank: each host joins with its own account"
 msgstr "空欄の場合、各ホストは自身のアカウントでドメインに参加します"
 
@@ -3244,6 +3250,10 @@ msgid "FTP Connection Failed"
 msgstr "FTP 接続に失敗しました"
 
 msgid "FTP Path"
+msgstr "FTP パス"
+
+#, fuzzy
+msgid "FTP Port"
 msgstr "FTP パス"
 
 msgid "FTP login rejected by"
@@ -6970,6 +6980,10 @@ msgstr "ポート"
 msgid "Port is not valid ldap/ldaps port"
 msgstr "LDAP/LDAPS ポートとして無効な値です"
 
+#, fuzzy
+msgid "Port must be a whole number from 1 to 65535"
+msgstr "0～100 の整数で指定してください"
+
 msgid "Post-Logout Redirect URI"
 msgstr "ログアウト後のリダイレクト URI"
 
@@ -7707,6 +7721,10 @@ msgstr "SSH 接続に失敗しました"
 
 msgid "SSH Connection has failed"
 msgstr "SSH 接続に失敗しました"
+
+#, fuzzy
+msgid "SSH Port"
+msgstr "ポート"
 
 msgid "SSL Path"
 msgstr "SSL パス"
