@@ -3051,6 +3051,120 @@ class HostManagement extends FOGPage
         }
     }
     /**
+     * Whether the legacy FOG Client's key may receive the domain join
+     * password, with the Approve FOG Client button while it may not.
+     *
+     * A first handshake is vouched for only when this server deployed the
+     * host recently (FOGPage::authorize()). Any other first key could have
+     * come from whoever sent this host's MAC first, so it waits for an
+     * administrator who knows the machine checked in (GHSA-97vv-f7hc-rp5m).
+     *
+     * @return string
+     */
+    private function _legacyClientVouchPanel()
+    {
+        $out = '<details class="mb-3"' . ($this->obj->get('sec_tok')
+            && !$this->obj->get('sec_vouched') ? ' open' : '') . '><summary>'
+            . \Initiator::e(_('FOG Client domain password')) . '</summary>'
+            . '<div class="pt-2" id="legacy-client-vouch">';
+        if (!$this->obj->get('sec_tok')) {
+            $out .= '<p>' . \Initiator::e(_(
+                'No FOG Client has checked in with a key yet.'
+            )) . '</p>';
+        } elseif ($this->obj->get('sec_vouched')) {
+            $out .= self::_legacyClientApprovedHtml();
+        } else {
+            $out .= '<p>' . \Initiator::e(_(
+                'Waiting for approval. A FOG Client checked in for this host,'
+                . ' but this server did not deploy it recently, so nothing'
+                . ' proves the key belongs to this machine. It is not sent'
+                . ' the domain join password until you approve it.'
+                . ' Approve only if you know this machine checked in just now.'
+            )) . '</p><button type="button" id="approve-client"'
+                . ' class="btn btn-success" data-client-key="'
+                . \Initiator::e(self::_legacyClientKeyId($this->obj)) . '">'
+                . \Initiator::e(_('Approve FOG Client')) . '</button>';
+        }
+        return $out . '</div></details>';
+    }
+    /**
+     * Names the key the administrator is looking at, so Approve vouches for
+     * that key and not one bound after the page was drawn. A hash, because
+     * the token itself is the client's secret.
+     *
+     * @param Host $Host the host
+     *
+     * @return string
+     */
+    private static function _legacyClientKeyId(Host $Host)
+    {
+        return hash('sha256', (string)$Host->get('sec_tok'));
+    }
+    /**
+     * The status line for an approved key. One place, because the panel
+     * renders it and the Approve FOG Client reply swaps it in.
+     *
+     * @return string
+     */
+    private static function _legacyClientApprovedHtml()
+    {
+        return '<p>' . \Initiator::e(_(
+            'Approved. The FOG Client on this host receives the domain join password.'
+        )) . '</p>';
+    }
+    /**
+     * Approves the legacy FOG Client's current key, so it receives the
+     * domain join password. Gated on host.edit, as the tab is.
+     *
+     * @return void
+     */
+    public function hostApproveClientPost()
+    {
+        self::checkAuthAndCSRF();
+        // Nothing to vouch for yet. Approving an empty slot would vouch for
+        // whichever caller binds next, which is the hole this closes.
+        if (!$this->obj->get('sec_tok')) {
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode([
+                    'error' => _('No FOG Client has checked in with a key yet.'),
+                    'title' => _('Approve FOG Client Fail')
+                ])
+            );
+        }
+        // The key must be the one the page showed. Otherwise a task that
+        // cleared the key, and whoever sent this MAC first after it, would be
+        // approved by a click meant for the earlier key.
+        $shown = (string)filter_input(INPUT_POST, 'client_key');
+        if (!hash_equals(self::_legacyClientKeyId($this->obj), $shown)) {
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_CONFLICT,
+                json_encode([
+                    'error' => _('The FOG Client key changed since this page loaded. Reload the page and check again.'),
+                    'title' => _('Approve FOG Client Fail')
+                ])
+            );
+        }
+        // save(), not a manager update, so the approval is in the audit trail.
+        if (!$this->obj->set('sec_vouched', 1)->save()) {
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode([
+                    'error' => _('The approval could not be saved.'),
+                    'title' => _('Approve FOG Client Fail')
+                ])
+            );
+        }
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_ACCEPTED,
+            json_encode([
+                'msg' => _('The FOG Client on this host now receives the domain join password.'),
+                'title' => _('Approve FOG Client Success'),
+                'html' => self::_legacyClientApprovedHtml()
+            ])
+        );
+    }
+    /**
      * Answers the "Inspect target candidate" button with its details.
      *
      * A POST, not a link: the lookup contacts the directory server, so it
@@ -3409,6 +3523,7 @@ class HostManagement extends FOGPage
                 . \Initiator::e(_('Directory operation history')) . '</summary><dl class="row pt-2">'
                 . $statusDetails . '</dl></details>';
         }
+        $candidatePanel .= $this->_legacyClientVouchPanel();
         $fields[''] = $candidatePanel;
 
         $ucclass = strtoupper($this->childClass);
@@ -5419,6 +5534,13 @@ class HostManagement extends FOGPage
             && '1' === (string)filter_input(INPUT_POST, 'rejoin_inspect_target')
         ) {
             $this->hostADInspectPost();
+            return;
+        }
+        // An action of its own, not a field of the AD form.
+        if ('host-active-directory' === $tab
+            && '1' === (string)filter_input(INPUT_POST, 'approve_client')
+        ) {
+            $this->hostApproveClientPost();
             return;
         }
         $this->handleEditPost(

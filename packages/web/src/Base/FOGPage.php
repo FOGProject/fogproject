@@ -14,6 +14,7 @@
 
 namespace FOG\Base;
 
+use FOG\Agent\Enrollment;
 use FOG\Auth\Authorization;
 use FOG\Boot\WakeOnLan;
 use FOG\Client\RegisterClient;
@@ -3543,6 +3544,23 @@ abstract class FOGPage extends FOGBase
             ) {
                 throw new \Exception('#!ist');
             }
+            /**
+             * A first handshake: no token yet, so nothing proves this caller
+             * is the machine. The MAC alone selected the host, and anyone can
+             * send a MAC (GHSA-97vv-f7hc-rp5m). The key is still accepted, so
+             * every module works, but it is vouched for -- and so sent the
+             * domain join password -- only when this server deployed the host
+             * within the agent's deploy window, the same rule fog-agent
+             * enrollment uses. Otherwise an administrator approves it on the
+             * host page. A later handshake proves it holds this key's token,
+             * so the answer carries over until the key is cleared.
+             */
+            if ($secTok === '') {
+                self::$Host->set(
+                    'sec_vouched',
+                    Enrollment::recentDeploy(self::$Host) ? 1 : 0
+                );
+            }
             $expire = self::niceDate(self::$Host->get('sec_time'));
             if (self::niceDate() > $expire
                 || !trim(self::$Host->get('pub_key'))
@@ -3851,7 +3869,9 @@ abstract class FOGPage extends FOGBase
                     // still accept, grace token included.
                     'prev_sec_tok' => '',
                     // GH-1245: no expiry, not an expiry in the year zero.
-                    'sec_time' => null
+                    'sec_time' => null,
+                    // The vouch belonged to the key just cleared.
+                    'sec_vouched' => 0
                 ]
             );
         $this->jsonSend(HTTPResponseCodes::HTTP_ACCEPTED, json_encode(
@@ -4996,6 +5016,7 @@ abstract class FOGPage extends FOGBase
                 $this->databaseFields
             );
             $comma_count = count(array_keys($this->databaseFields) ?: []);
+            $importServerOwned = Route::serverOwnedFields($this->childClass);
             $iterator = 0;
             $isHost = $Item instanceof Host;
             if ($isHost) {
@@ -5167,6 +5188,20 @@ abstract class FOGPage extends FOGBase
                         $lc = strtolower($field);
                         if (!array_key_exists($lc, $rowVals)) {
                             // Header file that omitted this column: keep default.
+                            continue;
+                        }
+                        // The fields the API refuses to write, refused here
+                        // too. Skipped, not dropped from $dbkeys, so a
+                        // headerless file keeps every column's slot. Writing
+                        // a host's sec_tok and sec_vouched from a CSV vouched
+                        // for a key with no approval (GHSA-97vv-f7hc-rp5m).
+                        if (in_array($field, $importServerOwned, true)) {
+                            if ('' !== trim((string)$rowVals[$lc])) {
+                                $rowWarnings[] = sprintf(
+                                    _('%s is set by the server; the imported value was ignored'),
+                                    $field
+                                );
+                            }
                             continue;
                         }
                         if (isset($fkConfig[$field])) {

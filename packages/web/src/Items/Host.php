@@ -149,7 +149,13 @@ class Host extends FOGController
         // opposed to agentVersion which says where it currently is
         // (schema 435). Written only by the agent's own poll and result
         // reports; see \FOG\Agent\Update::STATE_* for the vocabulary.
-        'agentUpdateState' => 'hostAgentUpdateState'
+        'agentUpdateState' => 'hostAgentUpdateState',
+        // Whether the legacy client's current key was vouched for: its first
+        // handshake came soon after this server deployed the host, or an
+        // administrator approved it. Only a vouched key is sent the domain
+        // join password (HostnameChanger::json()). Cleared with the key.
+        // Last, so a headerless CSV import keeps every older column's slot.
+        'sec_vouched' => 'hostSecVouched'
     ];
     /**
      * The required fields
