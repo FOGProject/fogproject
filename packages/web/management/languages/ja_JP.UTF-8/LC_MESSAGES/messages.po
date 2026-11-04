@@ -11580,8 +11580,8 @@ msgstr "reboot、shutdown、または空欄。"
 msgid "recommended"
 msgstr "推奨"
 
-#, php-format
-msgid "recorded before this server moved to UTC; written in %s"
+#, fuzzy, php-format
+msgid "recorded before or near the time this server moved to UTC; it can be in %s time or in UTC"
 msgstr "このサーバーが UTC に移行する前の記録です。%s で記録されました"
 
 msgid "register this at your provider"
