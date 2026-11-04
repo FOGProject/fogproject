@@ -1077,16 +1077,28 @@ abstract class FOGService extends FOGBase
                 . self::_lftpQuote($remItem)
                 . ';';
             $script .= 'exit';
+            // FOG_FTP_PORT was never passed here, so replication always
+            // dialed port 21 while FOGFTP::connect() -- the other half of
+            // the same replication pass -- honored the setting. A node with
+            // vsftpd moved off 21 failed to replicate. An unset or invalid
+            // value keeps lftp's own default of 21, as before.
+            list($ftpPort) = self::getSetting(['FOG_FTP_PORT']);
+            $ftpPort = (int)$ftpPort;
+            if ($ftpPort < 1 || $ftpPort > 65535) {
+                $ftpPort = 21;
+            }
             $cmd = [
                 'lftp',
                 '-e',
                 $script,
+                '-p',
+                (string)$ftpPort,
                 '-u',
                 "{$username},{$password}",
                 $ip
             ];
             self::outall(
-                " | CMD: lftp -e '$script' -u $username,[redacted] $ip"
+                " | CMD: lftp -e '$script' -p $ftpPort -u $username,[redacted] $ip"
             );
             unset($includeFile, $remItem, $myAddItem);
             $this->startTasking(
