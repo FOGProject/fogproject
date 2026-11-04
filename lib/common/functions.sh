@@ -6021,9 +6021,16 @@ EOF
         errorStat $nfsst
         # The end-of-install backup list prints <file>.<timestamp>, which is
         # not the migration backup's name, so say it here instead.
-        if [[ $nfsst -eq 0 && -f ${nfsconfig}.fog-migrate.${timestamp} ]]; then
-            echo "  * Moved FOG's entries from ${nfsconfig} to ${nfsfogexports}."
-            echo "  * ${nfsconfig} before the change: ${nfsconfig}.fog-migrate.${timestamp}"
+        if [[ -f ${nfsconfig}.fog-migrate.${timestamp} ]]; then
+            if [[ $nfsst -eq 0 && $stripfailed -eq 0 ]]; then
+                echo "  * Moved FOG's entries from ${nfsconfig} to ${nfsfogexports}."
+                echo "  * ${nfsconfig} before the change: ${nfsconfig}.fog-migrate.${timestamp}"
+            elif [[ $nfsst -ne 0 ]]; then
+                # Reached only with -X, where errorStat returns without the
+                # log tail; without -X it has already exited.
+                echo "  ** FOG's entries were removed from ${nfsconfig} but ${nfsfogexports} was not installed."
+                echo "  ** Restore from ${nfsconfig}.fog-migrate.${timestamp}."
+            fi
         fi
         if [[ $stripfailed -eq 1 ]]; then
             echo "  ** WARNING: could not remove FOG's entries from ${nfsconfig}."
