@@ -176,10 +176,14 @@ class InventoryStats extends WindowedStats
         \DateTimeInterface $start,
         \DateTimeInterface $end
     ) {
+        // inventory.iCreateDate is a TIMESTAMP, so it is UTC for every row.
         return self::dailySeries(
             self::readWindow(self::_recordedPerDaySql(), $start, $end),
             $start,
-            $end
+            $end,
+            'd',
+            'c',
+            false
         );
     }
 

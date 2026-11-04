@@ -236,7 +236,8 @@ class ImagingStats extends WindowedStats
     ) {
         $rows = self::_read(self::_runsPerDaySql(), $start, $end);
 
-        return self::dailySeries($rows, $start, $end);
+        // taskLog.createTime is a TIMESTAMP, so it is UTC for every row.
+        return self::dailySeries($rows, $start, $end, 'd', 'c', false);
     }
 
     /**

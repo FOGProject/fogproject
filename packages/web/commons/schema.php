@@ -17,6 +17,7 @@ use FOG\Items\Image;
 use FOG\Items\OS;
 use FOG\Items\Schema;
 use FOG\Items\TaskLog;
+use FOG\Items\TaskType;
 
 /**
  * Schema layout for creating the database.
@@ -12127,4 +12128,43 @@ $this->schema[] = [
     . "the shortcut, and every enrollment and every legacy key then waits "
     . "for an admin.' "
     . "WHERE `settingKey` = 'FOG_AGENT_ENROLL_DEPLOY_WINDOW'",
+];
+// 450
+$this->schema[] = [
+    // Forum 18305: backfill taskLog.logImageName on rows written before
+    // step 351 added it.
+    //
+    // ImagingStats' fold counts only rows with a name -- the name is how it
+    // tells an imaging run from every other task -- so every pre-351 run,
+    // which is all of an upgraded 1.5 install's history, was missing from
+    // the dashboard chart and the imaging report.
+    //
+    // Filled from the task's image, so only a run whose task and image both
+    // still exist can be recovered. Nothing else records which image ran.
+    // Same gates as TaskLog::recordStates(): state rows only, imaging task
+    // types only, and the type ids asked of TaskType so the two cannot
+    // drift. Ids only, as recordStates() does: a custom type that counts as
+    // imaging by its kernel args alone stays blank.
+    // Blank rows only, so a re-run is a no-op.
+    function () {
+        $TaskType = new TaskType();
+        $imagingTypes = array_map(
+            'intval',
+            array_merge(
+                (array)$TaskType->isDeploy(true),
+                (array)$TaskType->isCapture(true)
+            )
+        );
+        self::$DB->query(
+            "UPDATE `taskLog` "
+            . "JOIN `tasks` ON `tasks`.`taskID` = `taskLog`.`taskID` "
+            . "JOIN `images` ON `images`.`imageID` = `tasks`.`taskImageID` "
+            . "SET `taskLog`.`logImageName` = `images`.`imageName` "
+            . "WHERE `taskLog`.`logImageName` = '' "
+            . "AND `taskLog`.`logType` = '" . TaskLog::TYPE_STATE . "' "
+            . "AND `tasks`.`taskTypeID` IN (" . implode(',', $imagingTypes) . ")"
+        );
+
+        return true;
+    },
 ];
