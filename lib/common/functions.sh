@@ -5988,8 +5988,9 @@ EOF
         local newexports="${nfsfogexports}.fogtmp.$$"
         mkdir -p "$(dirname "$nfsfogexports")" >>$error_log 2>&1 || nfsst=1
         # Write the new drop-in to a temp file first. The strip below runs only
-        # once that write worked, so a failed write never leaves FOG's exports
-        # in neither file.
+        # once that write worked, so a failed mkdir or write leaves FOG's lines
+        # in $nfsconfig. Only the final mv, within one directory, can still
+        # fail after the strip; errorStat reports it and the backup remains.
         if [[ $nfsst -eq 0 ]]; then
             userId=$(id -u ${SVC_user})
             groupId=$(id -g ${SVC_user})
@@ -6011,10 +6012,16 @@ EOF
             command -v restorecon >/dev/null 2>&1 && restorecon -F "$nfsfogexports" >>$error_log 2>&1
         fi
         rm -f "$newexports" >>$error_log 2>&1
+        # errorStat prints the tail of $error_log on a failure, so put the
+        # backup's name there first: after a failed mv it is the only copy of
+        # FOG's lines.
+        if [[ $nfsst -ne 0 && -f ${nfsconfig}.fog-migrate.${timestamp} ]]; then
+            echo "FOG's entries were removed from ${nfsconfig} but ${nfsfogexports} was not installed. Restore from ${nfsconfig}.fog-migrate.${timestamp}." >>$error_log
+        fi
         errorStat $nfsst
         # The end-of-install backup list prints <file>.<timestamp>, which is
         # not the migration backup's name, so say it here instead.
-        if [[ -f ${nfsconfig}.fog-migrate.${timestamp} ]]; then
+        if [[ $nfsst -eq 0 && -f ${nfsconfig}.fog-migrate.${timestamp} ]]; then
             echo "  * Moved FOG's entries from ${nfsconfig} to ${nfsfogexports}."
             echo "  * ${nfsconfig} before the change: ${nfsconfig}.fog-migrate.${timestamp}"
         fi

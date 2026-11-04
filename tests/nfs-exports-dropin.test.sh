@@ -183,12 +183,12 @@ grep -q '_stripFogExportsFrom "\$nfsconfig"' <<<"$body"
 check "configureNFS() migrates FOG's lines out of \$nfsconfig" $?
 grep -q 'mv -f "\$newexports" "\$nfsfogexports"' <<<"$body"
 check "configureNFS() writes FOG's exports to \$nfsfogexports" $?
-# The strip must come after the new drop-in is written, so a failed write
-# never leaves FOG's exports in neither file.
+# The strip must come after the temp drop-in is written, so a failed mkdir or
+# write leaves FOG's lines in $nfsconfig.
 wline=$(grep -n '> "\$newexports"' <<<"$body" | head -1 | cut -d: -f1)
 sline=$(grep -n '_stripFogExportsFrom "\$nfsconfig"' <<<"$body" | head -1 | cut -d: -f1)
 [[ -n $wline && -n $sline && $wline -lt $sline ]]
-check "configureNFS() strips \$nfsconfig only after the drop-in is written" $?
+check "configureNFS() strips \$nfsconfig only after the temp drop-in is written" $?
 ! grep -q '> "\$nfsconfig"' <<<"$body"
 check "configureNFS() does not rewrite \$nfsconfig" $?
 grep -q '_stripFogExportsFrom "\$nfsconfig".*|| stripfailed=1' <<<"$body"
