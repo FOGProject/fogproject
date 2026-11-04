@@ -199,6 +199,15 @@ is "$(kea_file_for FOG-UEFI-ARM64)"  "arm64-efi/snponly.efi" "private CA: Kea FO
 rows=$(_printExternalDhcpBootFiles)
 is "$(grep -c 'shim' <<<"$rows")" "0" "private CA: the 067 rows name no shim"
 is "$(grep -c '64-bit UEFI     snponly.efi$' <<<"$rows")" "1" "private CA: the 067 row names FOG's own build"
+# The commented alternatives in both generated configs must not suggest a shim
+# either: alternative 1 used to name secureboot/ipxe-shimx64.efi, which fails
+# the same way, and alternative 2 described the config that is now active.
+is "$(isc_classes | grep '^#' | grep -c 'shim')" "0" "private CA: ISC alternatives name no shim"
+is "$(isc_classes | grep -c '^#    filename "ipxe.efi";$')" "1" "private CA: ISC alternative 1 is FOG's ipxe.efi"
+is "$(_keaBootFileFallbackComment | grep -c 'shim')" "0" "private CA: Kea alternatives name no shim"
+is "$(_keaBootFileFallbackComment | grep -c '"boot-file-name": "ipxe.efi"')" "1" "private CA: Kea alternative 1 is FOG's ipxe.efi"
+is "$(isc_classes | grep -c 'FogBuild')" "0" "private CA: ISC drops the alternative that is now active"
+is "$(_keaBootFileFallbackComment | grep -c 'FogBuild')" "0" "private CA: Kea drops the alternative that is now active"
 # FOG-managed DHCP prints no 067 rows, so the netboot report has to say it.
 BOOT_rebuild_ipxe_with_my_ca=yes
 is "$(_reportNetbootProto 2>/dev/null | grep -c "UEFI clients get FOG's own iPXE builds")" "1" "private CA: the netboot report says the shim was dropped"
@@ -216,6 +225,8 @@ is "$(_uefiBootFile x64)"        "secureboot/snponly-shimx64.efi" "public cert: 
 is "$(isc_file_for UEFI-64-1)"   "secureboot/snponly-shimx64.efi" "public cert: ISC UEFI-64-1 keeps the shim"
 is "$(kea_file_for FOG-UEFI-64-1)" "secureboot/snponly-shimx64.efi" "public cert: Kea FOG-UEFI-64-1 keeps the shim"
 is "$(_printExternalDhcpBootFiles | grep -c '64-bit UEFI     secureboot/snponly-shimx64.efi$')" "1" "public cert: the 067 row keeps the shim"
+is "$(isc_classes | grep -c '^#    filename "secureboot/ipxe-shimx64.efi";$')" "1" "public cert: ISC alternative 1 keeps the ipxe shim"
+is "$(_keaBootFileFallbackComment | grep -c '"boot-file-name": "secureboot/ipxe-shimx64.efi"')" "1" "public cert: Kea alternative 1 keeps the ipxe shim"
 is "$(_reportNetbootProto 2>/dev/null | grep -c "UEFI clients get FOG's own iPXE builds")" "0" "public cert: the netboot report keeps quiet"
 BOOT_url_proto=http
 PKI_web_cert_publicly_trusted=no
