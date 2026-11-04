@@ -136,6 +136,15 @@ abstract class WindowedStats extends FOGBase
      * @param \DateTimeInterface $end   the upper bound as given
      * @param string             $dateK the rows' date column
      * @param string             $countK the rows' count column
+     * @param bool               $isDatetime whether the charted column is
+     *                                  DATETIME rather than TIMESTAMP. It is
+     *                                  passed to toDisplayStored(), which can
+     *                                  only tell from the column type whether
+     *                                  a value near the UTC boundary is UTC.
+     *                                  A TIMESTAMP read as DATETIME there is
+     *                                  taken for pre-boundary local time and
+     *                                  lands on the wrong day, or past the
+     *                                  end of the series (forum 18305).
      *
      * @return array Ordered list of ['date' => 'Y-m-d', 'count' => int].
      */
@@ -144,7 +153,8 @@ abstract class WindowedStats extends FOGBase
         \DateTimeInterface $start,
         \DateTimeInterface $end,
         $dateK = 'd',
-        $countK = 'c'
+        $countK = 'c',
+        $isDatetime = true
     ) {
         // Clamped here as well as inside readWindow(), because this walks
         // the window itself -- an unclamped one would emit a point per day
@@ -163,7 +173,8 @@ abstract class WindowedStats extends FOGBase
             if (!isset($row[$dateK])) {
                 continue;
             }
-            $day = self::toDisplayStored((string)$row[$dateK])->format('Y-m-d');
+            $day = self::toDisplayStored((string)$row[$dateK], $isDatetime)
+                ->format('Y-m-d');
             $counts[$day] = (isset($counts[$day]) ? $counts[$day] : 0)
                 + (int)$row[$countK];
         }

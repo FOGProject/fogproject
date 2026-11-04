@@ -12992,7 +12992,7 @@ msgid "recommended"
 msgstr "Consigliato"
 
 #, php-format
-msgid "recorded before this server moved to UTC; written in %s"
+msgid "recorded before or near the time this server moved to UTC; it can be in %s time or in UTC"
 msgstr ""
 
 msgid "register this at your provider"

@@ -269,10 +269,14 @@ class StorageStats extends WindowedStats
         \DateTimeInterface $start,
         \DateTimeInterface $end
     ) {
+        // images.imageDateTime is a TIMESTAMP, so it is UTC for every row.
         return self::dailySeries(
             self::readWindow(self::_addedPerDaySql(), $start, $end),
             $start,
-            $end
+            $end,
+            'd',
+            'c',
+            false
         );
     }
 

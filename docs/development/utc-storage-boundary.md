@@ -244,8 +244,10 @@ narrow the band deliberately rather than rediscover this.
 **Proposed:**
 
 - **In a grid.** The value renders as it always did, with a small muted marker
-  after it and a tooltip naming the zone it was written in — "recorded before
-  this server moved to UTC; written in America/Chicago". Not hidden, not
+  after it and a tooltip naming the zone it can be in — "recorded before or
+  near the time this server moved to UTC; it can be in America/Chicago time
+  or in UTC". "Can be", because the band also marks the UTC values written in
+  the first 26 hours after the boundary (forum 18305). Not hidden, not
   blanked, not "No Data": the value is real and usually the reader knows
   perfectly well what it means. Sorting and filtering continue to work on the
   raw value, which is the honest behavior because within the pre-boundary era

@@ -125,4 +125,31 @@ $t->check(
     ['2026-10-22' => 1, '2026-10-23' => 3] === $days
 );
 
+// 4. Forum 18305: runs in the first 26 hours after the boundary. The
+//    install crossed it at 18:00 UTC on 3 Nov, and the three evening runs
+//    came back from taskLog.createTime, a TIMESTAMP, as UTC. Read as a
+//    DATETIME they were taken for pre-boundary New York time, moved to
+//    4 Nov, and fell off the end of a window that stopped on 3 Nov.
+FogTestHarness::setStatic(
+    'StorageEpoch',
+    '_row',
+    ['seBoundary' => '2026-11-03 18:00:00', 'seZone' => 'America/New_York']
+);
+FogTestHarness::setStatic('StorageEpoch', '_boundary', null);
+[$days] = seriesFor(
+    'America/New_York',
+    '2026-11-02',
+    '2026-11-03',
+    [
+        '2026-11-04 01:45' => 1,   // 20:52 EST on the 3rd
+        '2026-11-04 02:15' => 1,   // 21:27 EST on the 3rd
+        '2026-11-04 03:00' => 1,   // 22:07 EST on the 3rd
+    ],
+    $db
+);
+$t->check(
+    'a TIMESTAMP run near the boundary counts on its own day',
+    ['2026-11-02' => 0, '2026-11-03' => 3] === $days
+);
+
 $t->finish();

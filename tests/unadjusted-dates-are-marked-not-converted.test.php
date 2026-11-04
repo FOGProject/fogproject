@@ -167,7 +167,7 @@ if (!preg_match("#const MARKER = '[^<>&\"']*';#", $epoch)) {
 }
 
 // And the sentence must be a real msgid, not one assembled at runtime.
-if (!preg_match("#_\('recorded before this server moved to UTC; written in %s'\)#", $epoch)) {
+if (!preg_match("#_\('recorded before or near the time this server moved to UTC; it can be in %s time or in UTC'\)#", $epoch)) {
     $fails[] = 'the explanation is not a literal gettext msgid, so it never '
         . 'reaches the .pot and can never be translated';
 }

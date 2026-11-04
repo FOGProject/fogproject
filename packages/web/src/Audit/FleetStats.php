@@ -256,10 +256,14 @@ class FleetStats extends WindowedStats
         \DateTimeInterface $start,
         \DateTimeInterface $end
     ) {
+        // hosts.hostCreateDate is a TIMESTAMP, so it is UTC for every row.
         return self::dailySeries(
             self::readWindow(self::_addedPerDaySql(), $start, $end),
             $start,
-            $end
+            $end,
+            'd',
+            'c',
+            false
         );
     }
 
