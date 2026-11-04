@@ -10228,8 +10228,9 @@ promptInstallMode() {
     # --netboot-proto until configureDefaultiPXEfile re-resolves -- AFTER
     # configureDHCP has picked boot files from the preset's value (GH-2064).
     _resolveNetbootProto
-    # Persisted, so this is the last time the question gets asked.
-    FOG_install_mode="$sinstallMode"
+    # Persisted, so this is the last time the question gets asked -- unless a
+    # discrete flag was also given, which makes the shape custom.
+    _recordInstallMode
     echo
     echo " * Using install mode: $sinstallMode"
     echo "   web=${WEB_url_proto} netboot=${BOOT_url_proto:-http} redirect=${WEB_https_redirect:-no}"
@@ -10239,6 +10240,39 @@ promptInstallMode() {
     if [[ ${FOG_install_type} == N && ${DHCP_enabled} != yes ]]; then
         _printExternalDhcpBootFiles
         echo
+    fi
+}
+# Record the mode to persist, after the discrete flags have had their say.
+# Reads $sinstallMode and the run-scoped flag shadows sWEB_https_redirect,
+# sPKI_web_cert_publicly_trusted, sBOOT_rebuild_ipxe_with_my_ca and
+# sBOOT_url_proto; writes FOG_install_mode.
+#
+# CLEARED by any discrete transport flag: once a flag has moved one of the four
+# keys off its preset, the shape is no longer one of the named modes, and a name
+# left behind would have the NEXT run's _applyInstallMode overwrite the very key
+# that moved. Empty means custom. Shared by installfog.sh and promptInstallMode,
+# because the prompt used to record its answer unconditionally -- so a forced
+# --netboot-proto given alongside it was overwritten by the preset on the next
+# run, and BOOT_url_proto_forced then protected the preset's value.
+#
+# --netboot-proto clears it only when it moves BOOT_url_proto off the preset's
+# value. A matching value moves nothing, and clearing then would lose http-only
+# outright: its HTTP web UI is recorded nowhere but the mode name, because
+# installfog.sh forces WEB_url_proto to https before the seed. The one shape
+# that still loses it is http-only with --netboot-proto https: that clears the
+# mode, so the web UI returns to https on the next run.
+_recordInstallMode() {
+    # The preset's netboot protocol, without touching the live keys. An empty
+    # or unknown mode has no preset, so this falls back to the live value --
+    # harmless, because an empty mode records "" either way.
+    local presetNetboot
+    presetNetboot="$(_applyInstallMode; echo "${BOOT_url_proto}")"
+    if [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} \
+        || -n ${sBOOT_rebuild_ipxe_with_my_ca} \
+        || ( -n ${sBOOT_url_proto} && ${sBOOT_url_proto} != "$presetNetboot" ) ]]; then
+        FOG_install_mode=""
+    else
+        FOG_install_mode="$sinstallMode"
     fi
 }
 # The preset itself, factored out so installfog.sh's flag handling and the
