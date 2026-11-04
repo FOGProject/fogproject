@@ -31,6 +31,8 @@
 #   5. Fails on a failed or partial update, on a schema version short of
 #      FOG_SCHEMA, or on any column or UNIQUE index whose shape differs from
 #      commons/schema-expected.php (bin/upgrade-rehearsal.php shape).
+#      It also installs this tree fresh into a second database and fails on
+#      any globalSettings row the fresh install has and the upgrade does not.
 #
 # FROM_REF=origin/dev-branch rehearses the NEXT 1.5 release: a 1.5 schema
 # change lands there first, so that leg goes red before the change reaches
@@ -287,6 +289,40 @@ if [[ -n $lost ]]; then
     fail "column(s) that are AUTO_INCREMENT on a fresh install are not after the upgrade"
 fi
 echo "  ok    every AUTO_INCREMENT column a fresh install has"
+
+# --- 5. every setting a fresh install has -------------------------------------
+# The shape check above compares columns, not rows. A 1.6 step that INSERTs a
+# globalSettings row at an index below the 1.5 count never runs on an upgrade,
+# and the row is simply absent: the code falls back to a default, and FOG
+# Settings has nothing to change. Forum 18303 hit it with FOG_SSH_PORT. So build
+# a real fresh 1.6 install beside the upgraded one and compare the keys.
+FRESH="${DB}_fresh"
+sql "DROP DATABASE IF EXISTS \`$FRESH\`" || fail "could not drop $FRESH"
+cp -r "$REPO/packages/web" "$WORK/webfresh" || fail "could not copy this tree"
+DB="$FRESH" render_config "$REPO/lib/common/functions.sh" "$WORK/webfresh/commons/config.class.php"
+printf "<?php\ndefine('FOG_BASE_DIR', '%s/var');\n" "$WORK" > "$WORK/webfresh/commons/fogpaths.php"
+chmod -R a+rwX "$WORK/webfresh"
+code=$(deploy "$WORK/webfresh" "$WORK/deployfresh.log")
+freshver=$(sql "SELECT vValue FROM \`$FRESH\`.schemaVersion" 2>/dev/null | head -1)
+if [[ $code != 2* || $freshver != "$want16" ]]; then
+    sed 's/^/        /' "$WORK/deployfresh.log" "$WORK/deployfresh.log.body" 2>/dev/null | tail -20
+    fail "the fresh 1.6 install answered HTTP $code and left schema '${freshver:-none}'"
+fi
+# set -e is off, so a failed query would leave $missing empty and pass. Check
+# the exit status, and that the fresh install has rows to compare at all.
+freshrows=$(sql "SELECT COUNT(*) FROM \`$FRESH\`.globalSettings") \
+    || fail "could not count the fresh install's globalSettings"
+[[ ${freshrows:-0} -gt 0 ]] || fail "the fresh install has no globalSettings rows to compare"
+missing=$(sql "SELECT f.settingKey FROM \`$FRESH\`.globalSettings f
+    LEFT JOIN \`$DB\`.globalSettings u ON u.settingKey = f.settingKey
+    WHERE u.settingKey IS NULL ORDER BY f.settingKey") \
+    || fail "could not compare globalSettings between the fresh and upgraded databases"
+if [[ -n $missing ]]; then
+    sed 's/^/        /' <<<"$missing"
+    fail "globalSettings row(s) a fresh install has are missing after the upgrade (add them to Schema::_requiredRows())"
+fi
+echo "  ok    every globalSettings row a fresh install has"
+sql "DROP DATABASE IF EXISTS \`$FRESH\`" >/dev/null 2>&1 || true
 echo
 echo "  upgrade from $FROM_REF: pass"
 exit 0
