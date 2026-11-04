@@ -6382,6 +6382,188 @@ _installNodeWebCert() {
         echo "   to have it issued from the FOG Web CA instead."
     fi
 }
+# Add one public key line to ${SVC_user}'s authorized_keys.
+#
+# $1 is the .pub file. $2 optionally overrides the home directory; the test
+# passes a scratch one, and nothing else should.
+#
+# Idempotent: the line is appended only when that exact line is missing, so a
+# re-run (and the main server, which authorizes its own key every install)
+# changes nothing. sshd runs with StrictModes by default and refuses a key
+# file whose directory or file is writable by anyone else or owned by another
+# user, hence the explicit modes and the chown. SELinux is separate: sshd may
+# only read ssh_home_t, and a file made by this shell is not labeled that.
+_authorizeFogSshKey() {
+    local pubfile="$1" home="${2:-}" ssh_dir
+    [[ -r $pubfile ]] || return 1
+    [[ -z $home ]] && home=$(getent passwd "${SVC_user}" | cut -d: -f6)
+    [[ -z $home ]] && return 1
+    ssh_dir="${home%/}/.ssh"
+
+    mkdir -p "$ssh_dir" >>$error_log 2>&1 || return 1
+    chmod 0700 "$ssh_dir" >>$error_log 2>&1
+    touch "${ssh_dir}/authorized_keys" >>$error_log 2>&1 || return 1
+    chmod 0600 "${ssh_dir}/authorized_keys" >>$error_log 2>&1
+    local line
+    line=$(head -n1 "$pubfile")
+    [[ -n $line ]] || return 1
+    grep -qxF "$line" "${ssh_dir}/authorized_keys" 2>>$error_log || \
+        echo "$line" >> "${ssh_dir}/authorized_keys"
+    chown -R "${SVC_user}:" "$ssh_dir" >>$error_log 2>&1
+    command -v restorecon >/dev/null 2>&1 && \
+        restorecon -R "$ssh_dir" >>$error_log 2>&1
+    return 0
+}
+# Print the hex HMAC-SHA256 of $2 keyed with $1.
+#
+# The secret is the fogstorage database password, so it never goes on a
+# command line: `openssl dgst -hmac <secret>` would show it to any local user
+# in ps and /proc/<pid>/cmdline for as long as the process runs. It goes in
+# through the environment of one php process instead, which only root and the
+# same user can read, and the data goes in on stdin with printf, so a secret or
+# data holding & " > $ ` or a space is hashed byte for byte. nodesshkey.php
+# computes the same value with the same hash_hmac().
+_fogHmacHex() {
+    local secret="$1" data="$2"
+    printf '%s' "$data" \
+        | FOG_HMAC_KEY="$secret" php -r \
+            'echo hash_hmac("sha256", stream_get_contents(STDIN), getenv("FOG_HMAC_KEY"));' \
+            2>>$error_log
+}
+# Succeed only when the master's reply is signed over our nonce and its key.
+#
+# $1 secret, $2 nonce, $3 key, $4 the mac the master sent. The signed bytes are
+# the nonce, a newline, and the key; see service/nodesshkey.php.
+_fogSshReplyValid() {
+    local secret="$1" nonce="$2" key="$3" mac="$4" want
+    want=$(_fogHmacHex "$secret" "${nonce}"$'\n'"${key}")
+    [[ -n $want && $want == "$mac" ]]
+}
+# Create the FOG SSH key pair on the main server and trust it locally.
+#
+# Storage nodes are authorized with this key instead of the shared password
+# (GH-2058). The private key stays on the master; nodes only receive the public
+# half through _fetchFogSshKey.
+#
+# The pair lives in /etc/fog/ssh, not the FOG program directory. ADR 0037 puts
+# keys in /etc because they are configuration that a backup policy captures,
+# and losing this key locks FOG out of every node that trusts it. /etc/fog is a
+# fixed real directory on every install (GH-850). The path must match
+# FOGSSH::keyPath().
+#
+# An existing key is never regenerated: every node already trusts it, so a new
+# one would lock all of them out until each re-ran the installer. PEM format
+# on purpose -- ssh-keygen's default OpenSSH format is not read by older
+# libssh2 builds behind php-ssh2, while PEM is read by all of them.
+#
+# The private key is group-readable by the web user because both the web tier
+# and the FOG services (which run as that user) open it. The modes are applied
+# on every run, so a hand-edited mode is put back on the next install.
+_setupFogSshKey() {
+    local dir="/etc/fog/ssh" key
+    key="${dir}/fog_ssh_key"
+    dots "Setting up FOG's SSH key"
+    if ! command -v ssh-keygen >/dev/null 2>&1; then
+        echo "Skipped (no ssh-keygen)"
+        return 0
+    fi
+    local st=0
+    mkdir -p "$dir" >>$error_log 2>&1 || st=1
+    if [[ $st -eq 0 && ! -f $key ]]; then
+        ssh-keygen -q -t rsa -b 4096 -m PEM -N '' \
+            -C "fog@${NET_hostname:-$(hostname)}" -f "$key" >>$error_log 2>&1 || st=1
+    fi
+    # A private key without its .pub is rebuilt from the key. The private key
+    # itself is never regenerated.
+    if [[ $st -eq 0 && -f $key && ! -f ${key}.pub ]]; then
+        ssh-keygen -y -f "$key" > "${key}.pub" 2>>$error_log || st=1
+    fi
+    if [[ $st -eq 0 ]]; then
+        chown "root:${apacheuser}" "$dir" "$key" "${key}.pub" >>$error_log 2>&1 || st=1
+        chmod 0750 "$dir" >>$error_log 2>&1 || st=1
+        chmod 0640 "$key" >>$error_log 2>&1 || st=1
+        chmod 0644 "${key}.pub" >>$error_log 2>&1 || st=1
+        # The master is a storage node of itself.
+        _authorizeFogSshKey "${key}.pub" || st=1
+    fi
+    # Not errorStat: it exits the installer on failure, and a missing key
+    # costs nothing that worked before -- FOGSSH falls back to the password.
+    if [[ $st -eq 0 ]]; then
+        echo "Done"
+    else
+        echo "Failed"
+        echo " * FOG keeps using the storage node password for SSH. See ${error_log}."
+    fi
+    return 0
+}
+# Fetch the master's public SSH key, as a storage node, and trust it.
+#
+# Any failure leaves the node on password authentication and returns 0: a node
+# install must not break against a master that has not been updated yet, and
+# during a staged rollout that is the normal case.
+#
+# The request and its -k are modeled on _requestNodeCert; see the reasoning
+# there. The reply is checked against an HMAC over our own nonce BEFORE the key
+# is trusted, because anyone can answer a request made without TLS
+# verification and the key goes straight into authorized_keys.
+_fetchFogSshKey() {
+    [[ ${FOG_install_type} == [Ss] ]] || return 0
+    dots "Installing the master's SSH key"
+    if [[ -z ${DB_host} || -z ${DB_password} || ${DB_host} == localhost || ${DB_host} == 127.0.0.1 ]] \
+        || ! command -v curl >/dev/null 2>&1 \
+        || ! command -v jq >/dev/null 2>&1 \
+        || ! command -v openssl >/dev/null 2>&1 \
+        || ! command -v php >/dev/null 2>&1; then
+        echo "Skipped"
+        return 0
+    fi
+    local nonce mac resp key rmac why tmpkey rc=0
+    nonce=$(openssl rand -hex 16 2>>$error_log)
+    # The endpoint hashes exactly these bytes: "sshkey", a newline, the nonce.
+    mac=$(_fogHmacHex "${DB_password}" "sshkey"$'\n'"${nonce}")
+    # Bounded: a master that accepts the connection and never answers would
+    # otherwise hang the node install, and this step must never stop one.
+    resp=$(curl -sS --noproxy '*' -k --connect-timeout 15 --max-time 60 -X POST \
+        -d "nonce=${nonce}" \
+        -d "hmac=${mac}" \
+        "${WEB_url_proto:-http}://${DB_host}${WEB_root}service/nodesshkey.php" 2>>$error_log)
+    key=$(echo "$resp" | jq -r '.key // empty' 2>/dev/null)
+    rmac=$(echo "$resp" | jq -r '.hmac // empty' 2>/dev/null)
+    if [[ -z $key || -z $rmac ]]; then
+        echo "Skipped"
+        why=$(echo "$resp" | jq -r '.error // empty' 2>/dev/null)
+        [[ -n $why ]] && echo " * The master declined to send its SSH key: ${why}"
+        rc=1
+    else
+        if ! _fogSshReplyValid "${DB_password}" "$nonce" "$key" "$rmac"; then
+            echo "Failed"
+            echo " * The reply was not signed by the master; its SSH key was not installed."
+            rc=1
+        else
+            tmpkey=$(mktemp) || rc=1
+            if [[ $rc -eq 0 ]]; then
+                echo "$key" > "$tmpkey"
+                if command -v ssh-keygen >/dev/null 2>&1 \
+                    && ! ssh-keygen -l -f "$tmpkey" >>$error_log 2>&1; then
+                    echo "Failed"
+                    echo " * The master sent something that is not a public key."
+                    rc=1
+                elif _authorizeFogSshKey "$tmpkey"; then
+                    echo "Done"
+                else
+                    echo "Failed"
+                    rc=1
+                fi
+            fi
+            rm -f "$tmpkey" >>$error_log 2>&1
+        fi
+    fi
+    if [[ $rc -ne 0 ]]; then
+        echo " * FOG keeps using the password for this node. Update the master"
+        echo "   and re-run the installer here to switch to the SSH key."
+    fi
+    return 0
+}
 # Where this host keeps admin-supplied trust anchors, and what re-reads them.
 #
 # Chosen by what the box actually has rather than by ${FOG_os_id}. Derivatives

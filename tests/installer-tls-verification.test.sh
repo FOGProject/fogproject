@@ -106,7 +106,10 @@ echo "1. only the documented node-bootstrap calls skip verification"
 # body is written to a temp file, read for its size, and deleted. The
 # token-carrying schema post next to it still refuses to degrade, which is
 # what check 2 below pins.
-allowed_re='check_node_exists\.php|create_update_node\.php|nodecert\.php|probeUrl'
+# nodesshkey.php (GH-2058) is the same bootstrap as nodecert.php: a node with no
+# anchor yet fetches its master's SSH public key, and the HMAC over its own
+# nonce -- not TLS -- is what the node checks before it trusts the key.
+allowed_re='check_node_exists\.php|create_update_node\.php|nodecert\.php|nodesshkey\.php|probeUrl'
 
 found=0
 stray=0
@@ -129,19 +132,19 @@ fi
 # Pinning the count as well as the allowlist. Without this a fourth call to
 # create_update_node.php -- or a new one to nodecert.php -- would inherit the
 # exemption silently, which is exactly how the flag spread in the first place.
-if [[ $found -eq 5 ]]; then
-    ok "exactly 5 unverified calls remain (Group C node bootstrap + the liveness retry)"
+if [[ $found -eq 6 ]]; then
+    ok "exactly 6 unverified calls remain (Group C node bootstrap + the liveness retry)"
 else
-    bad "expected exactly 5 unverified calls, found $found -- if this is deliberate, say why here"
+    bad "expected exactly 6 unverified calls, found $found -- if this is deliberate, say why here"
 fi
 
 # And each of the four must actually be the one it claims to be, not four
 # copies of one. A regression that duplicated the check_node_exists call and
 # deleted the others would satisfy both assertions above.
-for ep in check_node_exists.php create_update_node.php nodecert.php; do
+for ep in check_node_exists.php create_update_node.php nodecert.php nodesshkey.php; do
     n=$( { unverified "$FUNCS"; } | grep -c -- "$ep")
     case "$ep:$n" in
-        create_update_node.php:2|check_node_exists.php:1|nodecert.php:1)
+        create_update_node.php:2|check_node_exists.php:1|nodecert.php:1|nodesshkey.php:1)
             ok "$ep: $n unverified call(s), as expected" ;;
         *)
             bad "$ep: $n unverified call(s), expected 1 (2 for create_update_node.php)" ;;
