@@ -713,6 +713,10 @@ class TaskQueue extends TaskingElement
                 // secret behind that nothing can use but that still sits in
                 // the database.
                 ->set('prev_sec_tok', '')
+                // The vouch belonged to the key just cleared. After a
+                // deploy the next first handshake earns it back
+                // (FOGPage::authorize()).
+                ->set('sec_vouched', 0)
                 // On completetion reset token and lock
                 ->set('token', self::createSecToken())
                 ->set('tokenlock', false);
@@ -720,6 +724,7 @@ class TaskQueue extends TaskingElement
                 'pub_key' => self::$Host->get('pub_key'),
                 'sec_tok' => self::$Host->get('sec_tok'),
                 'prev_sec_tok' => self::$Host->get('prev_sec_tok'),
+                'sec_vouched' => self::$Host->get('sec_vouched'),
                 'token' => self::$Host->get('token'),
                 'tokenlock' => self::$Host->get('tokenlock')
             ];

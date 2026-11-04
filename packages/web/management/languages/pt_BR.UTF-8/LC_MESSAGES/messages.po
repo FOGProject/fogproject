@@ -276,6 +276,10 @@ msgid "%s is required"
 msgstr "%s é necessária"
 
 #, php-format
+msgid "%s is set by the server; the imported value was ignored"
+msgstr ""
+
+#, php-format
 msgid "%s needs more than one host"
 msgstr ""
 
@@ -1406,6 +1410,18 @@ msgid "Approve Agent Fail"
 msgstr "hospedar aprovado"
 
 #, fuzzy
+msgid "Approve FOG Client"
+msgstr "FOG Cliente Wiki"
+
+#, fuzzy
+msgid "Approve FOG Client Fail"
+msgstr "hospedar aprovado"
+
+#, fuzzy
+msgid "Approve FOG Client Success"
+msgstr "usuário criado"
+
+#, fuzzy
 msgid "Approve MAC Fail"
 msgstr "hospedar aprovado"
 
@@ -1446,6 +1462,9 @@ msgstr "Aprovar Hosts selecionados"
 #, fuzzy
 msgid "Approved selected macs!"
 msgstr "Aprovar Hosts selecionados"
+
+msgid "Approved. The FOG Client on this host receives the domain join password."
+msgstr ""
 
 #, fuzzy
 msgid "Approving the selected pending hosts."
@@ -3617,6 +3636,10 @@ msgstr "FOG Download Client"
 
 msgid "FOG Client Wiki"
 msgstr "FOG Cliente Wiki"
+
+#, fuzzy
+msgid "FOG Client domain password"
+msgstr "senha de domínio"
 
 msgid "FOG Configuration"
 msgstr "Configuração FOG"
@@ -6827,6 +6850,9 @@ msgstr "No Data"
 #, fuzzy
 msgid "No Data Available"
 msgstr "Não disponível"
+
+msgid "No FOG Client has checked in with a key yet."
+msgstr ""
 
 #, php-format
 msgid "No FOG account exists for %s"
@@ -10574,6 +10600,12 @@ msgstr ""
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrolls outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
+msgid "The FOG Client key changed since this page loaded. Reload the page and check again."
+msgstr ""
+
+msgid "The FOG Client on this host now receives the domain join password."
+msgstr ""
+
 #, fuzzy
 msgid "The FOG account could not be created"
 msgstr "Não foi possível ler arquivo temporário"
@@ -10612,6 +10644,10 @@ msgstr ""
 
 msgid "The agent speaks a protocol this server does not."
 msgstr ""
+
+#, fuzzy
+msgid "The approval could not be saved."
+msgstr "Não foi possível ler arquivo temporário"
 
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
 msgstr ""
@@ -12165,6 +12201,9 @@ msgstr "todas as transmissões"
 #, fuzzy
 msgid "Wait time has changed to"
 msgstr "Tipo de impressora alterado para"
+
+msgid "Waiting for approval. A FOG Client checked in for this host, but this server did not deploy it recently, so nothing proves the key belongs to this machine. It is not sent the domain join password until you approve it. Approve only if you know this machine checked in just now."
+msgstr ""
 
 msgid "Waiting for mysql to be available"
 msgstr "Esperando mysql para estar disponível"

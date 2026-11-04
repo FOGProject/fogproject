@@ -407,7 +407,7 @@ class Enrollment extends FOGBase
         $hostID = (int)$Row->get('hostID');
         if ($hostID > 0
             && in_array($Row->get('reason'), [self::REASON_KNOWN, self::REASON_REBIND], true)
-            && self::_recentDeploy(new Host($hostID))
+            && self::recentDeploy(new Host($hostID))
         ) {
             return self::VIA_DEPLOY;
         }
@@ -421,11 +421,14 @@ class Enrollment extends FOGBase
      * exactly "this server put an operating system on that machine". The
      * window is FOG_AGENT_ENROLL_DEPLOY_WINDOW hours; 0 turns the path off.
      *
+     * Public because the legacy client's first handshake uses the same rule
+     * to decide whether its key is vouched for (FOGPage::authorize()).
+     *
      * @param Host $Host the host
      *
      * @return bool
      */
-    private static function _recentDeploy(Host $Host)
+    public static function recentDeploy(Host $Host)
     {
         $hours = (int)FOGCore::getSetting('FOG_AGENT_ENROLL_DEPLOY_WINDOW');
         $deployed = (string)$Host->get('deployed');

@@ -12107,3 +12107,24 @@ $this->schema[] = [
     . "KEY `idx_directoryPlacementIntent_host_status` (`dpiHostID`,`dpiStatus`) "
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
+// 449
+$this->schema[] = [
+    // The legacy client's first handshake trusts whoever sends the MAC, and
+    // the domain join password went to that key (GHSA-97vv-f7hc-rp5m). Now
+    // it goes only to a key that was vouched for: deployed by this server
+    // within the deploy window, or approved by an administrator.
+    'ALTER TABLE `hosts` ADD COLUMN `hostSecVouched` TINYINT(1) NOT NULL DEFAULT 0',
+    // A host that already holds a key keeps working. Nothing records how
+    // that key was bound, and withholding the password from every joined
+    // estate at upgrade would break renames on all of them.
+    "UPDATE `hosts` SET `hostSecVouched` = 1 WHERE `hostSecToken` <> ''",
+    // The deploy window now vouches for the legacy client too.
+    "UPDATE `globalSettings` SET `settingDesc` = 'Hours after this server "
+    . "completes a deploy to a host during which a client presenting that "
+    . "host''s identity is trusted without an admin approving it: a "
+    . "fog-agent is enrolled, and a legacy FOG Client''s first key is sent "
+    . "the domain join password. The deploy was the approval. 0 disables "
+    . "the shortcut, and every enrollment and every legacy key then waits "
+    . "for an admin.' "
+    . "WHERE `settingKey` = 'FOG_AGENT_ENROLL_DEPLOY_WINDOW'",
+];

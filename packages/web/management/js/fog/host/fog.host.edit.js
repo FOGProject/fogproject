@@ -1277,6 +1277,29 @@
             inspectBtn.prop('disabled', false);
         });
     });
+    // Approve the legacy FOG Client's key, so it receives the domain join
+    // password. A POST, so it carries the CSRF token. Bound directly, not
+    // delegated from document: a document handler would be added again on
+    // every AJAX visit to this page. On success the status line replaces the
+    // button, so nothing needs to bind again.
+    $('#approve-client').on('click', function() {
+        var approveBtn = $(this);
+        approveBtn.prop('disabled', true);
+        // client_key names the key this page showed; the server refuses the
+        // approval if a different key is bound now.
+        $.post(ADForm.attr('action'), {
+            approve_client: 1,
+            // attr(), not data(): data() turns a hex string that looks
+            // numeric, such as 12e45..., into a number.
+            client_key: approveBtn.attr('data-client-key')
+        }, function(d) {
+            $.notifyFromAPI(d, false);
+            $('#legacy-client-vouch').html(d.html);
+        }, 'json').fail(function(jqXHR) {
+            $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+            approveBtn.prop('disabled', false);
+        });
+    });
     ADClearBtn.on('click',function() {
         ADClearBtn.prop('disabled', true);
         ADFormBtn.prop('disabled', true);

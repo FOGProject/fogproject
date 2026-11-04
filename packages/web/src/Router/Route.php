@@ -405,6 +405,9 @@ class Route extends FOGBase
             'sec_tok',
             'prev_sec_tok',
             'sec_time',
+            // Client-protocol state like sec_time: kept out of grids, CSV
+            // export and filters. The host page's AD tab shows it.
+            'sec_vouched',
             'token',
         ],
     ];
@@ -554,6 +557,10 @@ class Route extends FOGBase
             'sec_tok',
             'prev_sec_tok',
             'sec_time',
+            // Decides whether the legacy client is sent the domain join
+            // password. Set by the handshake and by the host page's Approve
+            // client action, never by a host edit.
+            'sec_vouched',
             'token',
             // Written by FOGPingHosts and by the client's own check-in. The
             // host form has always disabled these two inputs and its comment
@@ -3772,6 +3779,7 @@ class Route extends FOGBase
                     [
                         'sec_tok',
                         'sec_time',
+                        'sec_vouched',
                         'pub_key',
                         'ADUser',
                         'ADPass',

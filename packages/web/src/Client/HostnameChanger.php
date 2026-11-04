@@ -84,6 +84,9 @@ class HostnameChanger extends FOGClient
         } else {
             $adUser = '';
         }
+        // Whether this host's key was vouched for (FOGPage::authorize()).
+        // Only a vouched key is sent the domain password or the product key.
+        $vouched = (bool)self::$Host->get('sec_vouched');
         $AD = (bool)self::$Host->get('useAD');
         $enforce = (bool)self::$Host->get('enforce');
         $hostname = self::$Host->get('name');
@@ -99,7 +102,11 @@ class HostnameChanger extends FOGClient
                 self::$Host->get('ADOU')
             );
             $ADUser = $adUser;
-            $ADPass = $password;
+            // Only to a key that was vouched for (FOGPage::authorize()). A
+            // key the first caller for this MAC chose is not proof of the
+            // machine (GHSA-97vv-f7hc-rp5m). The client logs "required domain
+            // information is missing" and skips the join or rename.
+            $ADPass = $vouched ? $password : '';
         }
         $val = [
             'enforce' => $enforce,
@@ -110,7 +117,9 @@ class HostnameChanger extends FOGClient
             'ADUser' => $ADUser,
             'ADPass' => $ADPass
         ];
-        if ($productKey) {
+        // The Windows product key is a secret too, held back on the same
+        // rule as the domain password.
+        if ($productKey && $vouched) {
             $val['Key'] = $productKey;
         }
         self::$HookManager->processEvent(
