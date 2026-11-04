@@ -3348,6 +3348,19 @@ _sbChainStaged() {
     local src="$(readlink -f "$tftpdirsrc" 2>/dev/null)"
     [[ -n $src && -f "${src}/secureboot/snponly-shimx64.efi" ]]
 }
+# Whether upstream's signed loader can fetch boot.php on this install.
+#
+# That loader carries no TRUST=, so under HTTPS netboot it validates only a
+# publicly issued certificate, through iPXE's crosscert path. The other way to
+# HTTPS netboot -- BOOT_rebuild_ipxe_with_my_ca, or a forced BOOT_url_proto with
+# a private certificate -- puts the CA only in FOG's own rebuilt binaries. Naming
+# the shim there loads fine and then stops every UEFI client at boot.php with
+# "Permission denied" (ipxe.org/0216eb8f, x509 "No usable certificates").
+# _resolveNetbootProto's comment already said the rebuild "costs the signed
+# Secure Boot shim"; this is where that cost is applied. GH-2064.
+_sbChainReachesBoot() {
+    [[ ${BOOT_url_proto} != https || ${PKI_web_cert_publicly_trusted} == yes ]]
+}
 # Which UEFI boot file DHCP should hand out, per architecture.
 #
 # The signed chain is the default for every x86-64 and arm64 UEFI client, not an
@@ -3362,6 +3375,10 @@ _sbChainStaged() {
 # Boot off the firmware verifies nothing and shim enforces nothing. It simply
 # boots. So the signed chain is a SUPERSET -- it covers the machines that need it
 # and costs the others nothing -- and there is nothing to detect.
+#
+# Two exceptions name the TFTP-root loader instead: the chain is not staged
+# (_sbChainStaged), or netboot is HTTPS with a private CA, which upstream's
+# signed loader cannot trust (_sbChainReachesBoot, GH-2064).
 #
 # Why the boot file names the shim and not the loader: ipxe/shim carries a
 # fork-only patch (automatic_next_path(), ipxe/shim 1b02ba2c) that strips a
@@ -3413,25 +3430,74 @@ _uefiBootStem() {
 }
 _uefiBootFile() {
     local stem="$(_uefiBootStem)"
+    # Both guards: the shim must be staged, and its loader must be able to
+    # fetch boot.php over this install's netboot protocol (_sbChainReachesBoot).
+    local shim=no
+    _sbChainStaged && _sbChainReachesBoot && shim=yes
     case "$1" in
         i386)
             echo "i386-efi/${stem}.efi"
             ;;
         arm64)
-            if _sbChainStaged; then
+            if [[ $shim == yes ]]; then
                 echo "secureboot/arm64-efi/${stem}-shimaa64.efi"
             else
                 echo "arm64-efi/${stem}.efi"
             fi
             ;;
         *)
-            if _sbChainStaged; then
+            if [[ $shim == yes ]]; then
                 echo "secureboot/${stem}-shimx64.efi"
             else
                 echo "${stem}.efi"
             fi
             ;;
     esac
+}
+# The option 067 rows of the installer summary, for a site that runs its own
+# DHCP. One function, because two places print it: the settings summary, and
+# promptInstallMode after a first-install answer that can change the rows
+# (GH-2064). Reads the resolved BOOT_url_proto, so resolve before calling.
+_printExternalDhcpBootFiles() {
+    local uefistem="$(_uefiBootStem)"
+    echo " * Option 067/filename is the bootfile, per client architecture:"
+    echo " |   BIOS / legacy   $(_biosBootFile)"
+    echo " |   32-bit UEFI     $(_uefiBootFile i386)"
+    # The BIOS row goes through _biosBootFile because --boot-delay
+    # really does change it (10secdelay/) and that flag is parsed
+    # well before here. The 64-bit UEFI rows are spelled out rather
+    # than $(_uefiBootFile) for the opposite reason: these rows
+    # print before downloadipxesecureboot has run, so the guard
+    # would be answering about the PREVIOUS install's staging tree.
+    # These are what this run is about to stage; if the fetch fails,
+    # that function says so itself. Only the stem comes from
+    # --uefi-bootfile, through _uefiBootStem. The 32-bit row
+    # has no staging guard, so it can ask _uefiBootFile directly.
+    # The 64-bit rows therefore duplicate _uefiBootFile's choice on
+    # purpose, including its _sbChainReachesBoot guard: the signed
+    # chain is left out when its loader cannot fetch boot.php over
+    # this install's HTTPS netboot (GH-2064). Change both together.
+    if _sbChainReachesBoot; then
+        echo " |   64-bit UEFI     secureboot/${uefistem}-shimx64.efi"
+        echo " |   ARM64 UEFI      secureboot/arm64-efi/${uefistem}-shimaa64.efi"
+    else
+        echo " |   64-bit UEFI     ${uefistem}.efi"
+        echo " |   ARM64 UEFI      arm64-efi/${uefistem}.efi"
+    fi
+    echo
+    if _sbChainReachesBoot; then
+        echo " * The secureboot/ files are the signed chain. They boot the same"
+        echo " | whether Secure Boot is enabled or not, so they are the right"
+        echo " | answer for every 64-bit UEFI client, not just the ones enforcing"
+        echo " | it. There is no signed 32-bit chain -- those clients must have"
+        echo " | Secure Boot disabled to netboot at all."
+    else
+        echo " * Netboot uses HTTPS with a private CA. The signed secureboot/"
+        echo " | chain cannot trust that CA, so it is left out here. With"
+        echo " | --rebuild-ipxe-with-my-ca, FOG's own builds carry the CA, and a"
+        echo " | Secure Boot client needs this server's MOK enrolled first."
+    fi
+    echo " | See https://docs.fogproject.org/en/latest/secure-boot-netboot"
 }
 # The pre-DHCP delay stanza, in the one form every copy of autoexec.ipxe uses.
 #
@@ -3830,9 +3896,11 @@ downloadipxesecureboot() {
     #     upstream's signed binaries DO validate a publicly-issued certificate
     #     at boot, with no rebuild and no embedded CA. Confirmed in production
     #     against a Let's Encrypt vhost.
-    #   * And where the certificate is private, netboot simply stays on HTTP --
+    #   * And where the certificate is private, netboot normally stays on HTTP --
     #     which has nothing to do with whether a Secure Boot chain is available
-    #     for the machines that need one.
+    #     for the machines that need one. The exception is a rebuild with the
+    #     CA embedded: there the chain is staged but not handed out, because
+    #     its loader cannot trust that CA (_sbChainReachesBoot, GH-2064).
     #
     # The practical effect of the old gate was that every -S install staged no
     # Secure Boot binaries at all, so the feature was missing precisely on the
@@ -10156,6 +10224,10 @@ promptInstallMode() {
         *)             sinstallMode="standard" ;;
     esac
     _applyInstallMode
+    # The preset writes BOOT_url_proto directly, which would discard a forced
+    # --netboot-proto until configureDefaultiPXEfile re-resolves -- AFTER
+    # configureDHCP has picked boot files from the preset's value (GH-2064).
+    _resolveNetbootProto
     # Persisted, so this is the last time the question gets asked.
     FOG_install_mode="$sinstallMode"
     echo
@@ -10163,6 +10235,11 @@ promptInstallMode() {
     echo "   web=${WEB_url_proto} netboot=${BOOT_url_proto:-http} redirect=${WEB_https_redirect:-no}"
     echo "   PKI_web_cert_publicly_trusted=${PKI_web_cert_publicly_trusted:-no} BOOT_rebuild_ipxe_with_my_ca=${BOOT_rebuild_ipxe_with_my_ca:-no}"
     echo
+    # The summary above printed the 067 rows for the mode BEFORE this answer.
+    if [[ ${FOG_install_type} == N && ${DHCP_enabled} != yes ]]; then
+        _printExternalDhcpBootFiles
+        echo
+    fi
 }
 # The preset itself, factored out so installfog.sh's flag handling and the
 # prompt above cannot drift apart.
@@ -10264,6 +10341,17 @@ _reportNetbootProto() {
             echo " #                                                                 #"
             echo " # Re-run the installer with: --no-public-web-cert                 #"
             echo " ###################################################################"
+            echo
+        fi
+        # Said when the signed chain is dropped in rebuild mode, so an install
+        # with FOG's own DHCP -- which prints no 067 rows -- still says so
+        # (GH-2064). Without the rebuild, the WARNING above already covers it:
+        # FOG's builds carry no CA either.
+        if ! _sbChainReachesBoot && [[ ${BOOT_rebuild_ipxe_with_my_ca} == yes ]]; then
+            echo " * UEFI clients get FOG's own iPXE builds, not the signed"
+            echo "   secureboot/ chain: upstream's signed iPXE cannot trust a"
+            echo "   private CA over HTTPS. A Secure Boot client needs this"
+            echo "   server's MOK enrolled before it can netboot."
             echo
         fi
         return 0
@@ -16867,6 +16955,35 @@ EOFCLS
 # second stage out of its own filename, so both chains sit side by side in one
 # directory and the boot file name alone decides which runs.
 _keaBootFileFallbackComment() {
+    # HTTPS netboot with a private CA: the active boot file is already FOG's
+    # own build, and every secureboot/ alternative fails at boot.php: upstream's
+    # signed iPXE cannot verify the private CA's TLS certificate
+    # (_sbChainReachesBoot, GH-2064). Offer only the driver fallback, from the
+    # TFTP root.
+    if ! _sbChainReachesBoot; then
+        cat <<'EOFSBC'
+#        An alternative to the boot file above, if you need it. Uncomment it,
+#        add a leading comma to the entry above, and narrow the test to the
+#        affected machines -- by subnet, MAC or a client class of your own.
+#
+#        This file is regenerated by every install and upgrade, so an edit here
+#        does not survive the next one. To change the boot file for every UEFI
+#        client, re-run the installer with --uefi-bootfile ipxe (or snponly).
+#
+#        The signed secureboot/ chain is not offered here: netboot is HTTPS
+#        with a private CA, and upstream's signed iPXE cannot trust that CA.
+#
+#        The network never comes up, or the FOS kernel hangs at the handoff.
+#        That is the firmware's own UEFI SNP driver. Use iPXE's built-in NIC
+#        drivers instead (arm64: arm64-efi/ipxe.efi):
+#        {
+#            "name": "FOG-UEFI-64-IpxeDrivers",
+#            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
+#            "boot-file-name": "ipxe.efi"
+#        }
+EOFSBC
+        return 0
+    fi
     cat <<'EOFSBC'
 #        Two alternatives to the boot file above, if you need them. Uncomment
 #        one, add a leading comma to the entry above, and narrow the test to the
@@ -17221,31 +17338,56 @@ configureDHCP() {
             # for why the signed chain is the default for every 64-bit UEFI
             # client rather than a per-machine opt-in, and why the boot file
             # names the shim rather than the loader.
-            echo "# Two alternatives to the UEFI boot file above, if you need them." >> "$dhcptouse"
-            echo "# Uncomment one and narrow the match to the affected machines. Both are" >> "$dhcptouse"
-            echo "# DHCP-only changes -- nothing is renamed on this server." >> "$dhcptouse"
-            echo "#" >> "$dhcptouse"
-            echo "# This file is regenerated by every install and upgrade, so an edit here" >> "$dhcptouse"
-            echo "# does not survive the next one. To change the boot file for every UEFI" >> "$dhcptouse"
-            echo "# client, re-run the installer with --uefi-bootfile ipxe (or snponly)." >> "$dhcptouse"
-            echo "#" >> "$dhcptouse"
-            echo "# 1. The chain loads but the network never comes up, or the FOS kernel" >> "$dhcptouse"
-            echo "#    hangs at the handoff: that is the firmware's own UEFI SNP driver," >> "$dhcptouse"
-            echo "#    so use iPXE's built-in drivers instead." >> "$dhcptouse"
-            echo "#    On arm64, secureboot/arm64-efi/ipxe-shimaa64.efi." >> "$dhcptouse"
-            echo "#class \"FOG-UEFI-64-IpxeDrivers\" {" >> "$dhcptouse"
-            echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
-            echo "#    filename \"secureboot/ipxe-shimx64.efi\";" >> "$dhcptouse"
-            echo "#}" >> "$dhcptouse"
-            echo "#" >> "$dhcptouse"
-            echo "# 2. You want FOG's own builds rather than upstream's signed pair. They" >> "$dhcptouse"
-            echo "#    are in the TFTP root; on arm64, arm64-efi/snponly.efi. They carry" >> "$dhcptouse"
-            echo "#    this server's own signature, so a Secure Boot client refuses them" >> "$dhcptouse"
-            echo "#    until that certificate is enrolled on it." >> "$dhcptouse"
-            echo "#class \"FOG-UEFI-64-FogBuild\" {" >> "$dhcptouse"
-            echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
-            echo "#    filename \"snponly.efi\";" >> "$dhcptouse"
-            echo "#}" >> "$dhcptouse"
+            #
+            # HTTPS netboot with a private CA gets one alternative instead: the
+            # active file is already FOG's own build, and every secureboot/
+            # file fails at boot.php there (_sbChainReachesBoot, GH-2064).
+            if ! _sbChainReachesBoot; then
+                echo "# An alternative to the UEFI boot file above, if you need it." >> "$dhcptouse"
+                echo "# Uncomment it and narrow the match to the affected machines. It is a" >> "$dhcptouse"
+                echo "# DHCP-only change -- nothing is renamed on this server." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# This file is regenerated by every install and upgrade, so an edit here" >> "$dhcptouse"
+                echo "# does not survive the next one. To change the boot file for every UEFI" >> "$dhcptouse"
+                echo "# client, re-run the installer with --uefi-bootfile ipxe (or snponly)." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# The signed secureboot/ chain is not offered here: netboot is HTTPS" >> "$dhcptouse"
+                echo "# with a private CA, and upstream's signed iPXE cannot trust that CA." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# The network never comes up, or the FOS kernel hangs at the handoff:" >> "$dhcptouse"
+                echo "# that is the firmware's own UEFI SNP driver, so use iPXE's built-in" >> "$dhcptouse"
+                echo "# drivers instead. On arm64, arm64-efi/ipxe.efi." >> "$dhcptouse"
+                echo "#class \"FOG-UEFI-64-IpxeDrivers\" {" >> "$dhcptouse"
+                echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
+                echo "#    filename \"ipxe.efi\";" >> "$dhcptouse"
+                echo "#}" >> "$dhcptouse"
+            else
+                echo "# Two alternatives to the UEFI boot file above, if you need them." >> "$dhcptouse"
+                echo "# Uncomment one and narrow the match to the affected machines. Both are" >> "$dhcptouse"
+                echo "# DHCP-only changes -- nothing is renamed on this server." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# This file is regenerated by every install and upgrade, so an edit here" >> "$dhcptouse"
+                echo "# does not survive the next one. To change the boot file for every UEFI" >> "$dhcptouse"
+                echo "# client, re-run the installer with --uefi-bootfile ipxe (or snponly)." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# 1. The chain loads but the network never comes up, or the FOS kernel" >> "$dhcptouse"
+                echo "#    hangs at the handoff: that is the firmware's own UEFI SNP driver," >> "$dhcptouse"
+                echo "#    so use iPXE's built-in drivers instead." >> "$dhcptouse"
+                echo "#    On arm64, secureboot/arm64-efi/ipxe-shimaa64.efi." >> "$dhcptouse"
+                echo "#class \"FOG-UEFI-64-IpxeDrivers\" {" >> "$dhcptouse"
+                echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
+                echo "#    filename \"secureboot/ipxe-shimx64.efi\";" >> "$dhcptouse"
+                echo "#}" >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# 2. You want FOG's own builds rather than upstream's signed pair. They" >> "$dhcptouse"
+                echo "#    are in the TFTP root; on arm64, arm64-efi/snponly.efi. They carry" >> "$dhcptouse"
+                echo "#    this server's own signature, so a Secure Boot client refuses them" >> "$dhcptouse"
+                echo "#    until that certificate is enrolled on it." >> "$dhcptouse"
+                echo "#class \"FOG-UEFI-64-FogBuild\" {" >> "$dhcptouse"
+                echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
+                echo "#    filename \"snponly.efi\";" >> "$dhcptouse"
+                echo "#}" >> "$dhcptouse"
+            fi
             diffconfig "${dhcptouse}"
             # Non-fatal syntax check; ISC has historically started without one.
             if command -v dhcpd >/dev/null 2>&1; then

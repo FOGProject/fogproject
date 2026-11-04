@@ -179,6 +179,61 @@ is "$(_uefiBootFile x64)" "snponly.efi" "an unknown value means snponly"
 BOOT_uefi_bootfile=""
 
 echo
+echo "With HTTPS netboot (GH-2064)"
+# The shim chain runs upstream's signed iPXE, which carries no TRUST=. Under
+# HTTPS netboot it validates only a publicly issued certificate. With a private
+# CA (BOOT_rebuild_ipxe_with_my_ca) it fails at boot.php with ipxe.org/0216eb8f,
+# so the config must name FOG's own rebuilt loaders, which carry the CA.
+tftpdirsrc="$WORK/staged"
+BOOT_url_proto=https
+PKI_web_cert_publicly_trusted=no
+is "$(_uefiBootFile x64)"   "snponly.efi"           "private CA: x86-64 UEFI gets FOG's own build"
+is "$(_uefiBootFile arm64)" "arm64-efi/snponly.efi" "private CA: arm64 UEFI gets FOG's own build"
+for c in UEFI-64-1 UEFI-64-2 UEFI-64-3 SURFACE-PRO-4; do
+    is "$(isc_file_for $c)" "snponly.efi" "private CA: ISC $c -> FOG's own build"
+done
+is "$(isc_file_for UEFI-ARM64)"      "arm64-efi/snponly.efi" "private CA: ISC UEFI-ARM64 -> FOG's own build"
+is "$(kea_file_for FOG-UEFI-64-1)"   "snponly.efi"           "private CA: Kea FOG-UEFI-64-1 -> FOG's own build"
+is "$(kea_file_for FOG-UEFI-ARM64)"  "arm64-efi/snponly.efi" "private CA: Kea FOG-UEFI-ARM64 -> FOG's own build"
+# The installer's external-DHCP advice must give the same answer as the config.
+rows=$(_printExternalDhcpBootFiles)
+is "$(grep -c 'shim' <<<"$rows")" "0" "private CA: the 067 rows name no shim"
+is "$(grep -c '64-bit UEFI     snponly.efi$' <<<"$rows")" "1" "private CA: the 067 row names FOG's own build"
+# The commented alternatives in both generated configs must not suggest a shim
+# either: alternative 1 used to name secureboot/ipxe-shimx64.efi, which fails
+# the same way, and alternative 2 described the config that is now active.
+is "$(isc_classes | grep '^#' | grep -c 'shim')" "0" "private CA: ISC alternatives name no shim"
+is "$(isc_classes | grep -c '^#    filename "ipxe.efi";$')" "1" "private CA: ISC alternative 1 is FOG's ipxe.efi"
+is "$(_keaBootFileFallbackComment | grep -c 'shim')" "0" "private CA: Kea alternatives name no shim"
+is "$(_keaBootFileFallbackComment | grep -c '"boot-file-name": "ipxe.efi"')" "1" "private CA: Kea alternative 1 is FOG's ipxe.efi"
+is "$(isc_classes | grep -c 'FogBuild')" "0" "private CA: ISC drops the alternative that is now active"
+is "$(_keaBootFileFallbackComment | grep -c 'FogBuild')" "0" "private CA: Kea drops the alternative that is now active"
+# FOG-managed DHCP prints no 067 rows, so the netboot report has to say it.
+BOOT_rebuild_ipxe_with_my_ca=yes
+is "$(_reportNetbootProto 2>/dev/null | grep -c "UEFI clients get FOG's own iPXE builds")" "1" "private CA: the netboot report says the shim was dropped"
+# A forced https with no rebuild: FOG's builds carry no CA, so the note would
+# be false. The WARNING block covers that case instead.
+unset BOOT_rebuild_ipxe_with_my_ca
+is "$(_reportNetbootProto 2>/dev/null | grep -c "UEFI clients get FOG's own iPXE builds")" "0" "forced https, no rebuild: no claim that FOG's builds carry the CA"
+BOOT_uefi_bootfile=ipxe
+is "$(_uefiBootFile x64)" "ipxe.efi" "private CA: --uefi-bootfile ipxe still applies"
+BOOT_uefi_bootfile=""
+# A public certificate validates through iPXE's crosscert path, so the signed
+# chain still works and stays the default.
+PKI_web_cert_publicly_trusted=yes
+is "$(_uefiBootFile x64)"        "secureboot/snponly-shimx64.efi" "public cert: x86-64 UEFI keeps the shim"
+is "$(isc_file_for UEFI-64-1)"   "secureboot/snponly-shimx64.efi" "public cert: ISC UEFI-64-1 keeps the shim"
+is "$(kea_file_for FOG-UEFI-64-1)" "secureboot/snponly-shimx64.efi" "public cert: Kea FOG-UEFI-64-1 keeps the shim"
+is "$(_printExternalDhcpBootFiles | grep -c '64-bit UEFI     secureboot/snponly-shimx64.efi$')" "1" "public cert: the 067 row keeps the shim"
+is "$(isc_classes | grep -c '^#    filename "secureboot/ipxe-shimx64.efi";$')" "1" "public cert: ISC alternative 1 keeps the ipxe shim"
+is "$(_keaBootFileFallbackComment | grep -c '"boot-file-name": "secureboot/ipxe-shimx64.efi"')" "1" "public cert: Kea alternative 1 keeps the ipxe shim"
+is "$(_reportNetbootProto 2>/dev/null | grep -c "UEFI clients get FOG's own iPXE builds")" "0" "public cert: the netboot report keeps quiet"
+BOOT_url_proto=http
+PKI_web_cert_publicly_trusted=no
+is "$(_uefiBootFile x64)" "secureboot/snponly-shimx64.efi" "HTTP netboot: x86-64 UEFI keeps the shim"
+unset BOOT_url_proto PKI_web_cert_publicly_trusted
+
+echo
 echo "ISC and Kea agree"
 # The invariant _keaBaseClasses' own comment asks for, checked rather than asked.
 for BOOT_uefi_bootfile in "" ipxe; do
