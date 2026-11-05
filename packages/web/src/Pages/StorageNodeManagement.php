@@ -84,7 +84,7 @@ class StorageNodeManagement extends FOGPage
         $bandwidth = filter_input(INPUT_POST, 'bandwidth');
         $storagegroupID = (int)filter_input(INPUT_POST, 'storagegroupID');
         if (!$storagegroupID) {
-            $storagegroupID = @min(Route::getIds('storagegroup', false));
+            $storagegroupID = self::minId(Route::getIds('storagegroup', false));
         }
         $path = filter_input(INPUT_POST, 'path') ?:
             '/images/';
@@ -548,7 +548,7 @@ class StorageNodeManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'storagegroupID')
         );
         if (!$storagegroupID) {
-            $storagegroupID = @min(Route::getIds('storagegroup', false));
+            $storagegroupID = self::minId(Route::getIds('storagegroup', false));
         }
         $graphcolor = trim(
             (string)filter_input(INPUT_POST, 'graphcolor')
@@ -1352,7 +1352,7 @@ class StorageNodeManagement extends FOGPage
             (string)filter_input(INPUT_POST, 'storagegroupID')
         );
         if (!$storagegroupID) {
-            $storagegroupID = @min(Route::getIds('storagegroup', false));
+            $storagegroupID = self::minId(Route::getIds('storagegroup', false));
         }
         $path = trim(
             (string)filter_input(INPUT_POST, 'path')

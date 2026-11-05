@@ -281,7 +281,7 @@ class SnapinManagement extends FOGPage
         if ($storagegroup > 0) {
             $sgID = $storagegroup;
         } else {
-            $sgID = @min(Route::getIds('storagegroup', false));
+            $sgID = self::minId(Route::getIds('storagegroup', false));
         }
         $StorageGroup = new StorageGroup($sgID);
         $StorageGroups = (new StorageGroupManager())
