@@ -67,30 +67,6 @@ class FOGSSH
      */
     private $_sftp;
     /**
-     * The connection hash
-     *
-     * @var string
-     */
-    private $_lastConnectionHash;
-    /**
-     * The last login hash
-     *
-     * @var string
-     */
-    private $_lastLoginHash;
-    /**
-     * The current connection hash
-     *
-     * @var string
-     */
-    private $_currentConnectionHash;
-    /**
-     * The current login hash
-     *
-     * @var string
-     */
-    private $_currentLoginHash;
-    /**
      * Which stage of connect() failed, if one did.
      *
      * Either 'connect' (the handshake never completed) or 'login' (the server
@@ -282,16 +258,6 @@ class FOGSSH
     ) {
         $this->_lastFailure = '';
         try {
-            $this->_currentConnectionHash = password_hash(
-                print_r($this->data, 1),
-                PASSWORD_BCRYPT,
-                ['cost'=>11]
-            );
-            if ($this->_link
-                && $this->_currentConnectionHash == $this->_lastConnectionHash
-            ) {
-                return $this;
-            }
             if (!$host) {
                 $host = $this->host;
             }
@@ -322,7 +288,6 @@ class FOGSSH
                 $this->login();
             }
             $this->_lastFailure = '';
-            $this->_lastConnectionHash = $this->_currentConnectionHash;
         } catch (\Exception $e) {
             FOGCore::error($e->getMessage());
             return false;
@@ -372,17 +337,8 @@ class FOGSSH
         $password = null
     ) {
         try {
-            $this->_currentLoginHash = password_hash(
-                is_object($this->_link) ? spl_object_id($this->_link) : spl_object_id($this),
-                PASSWORD_BCRYPT,
-                ['cost'=>11]
-            );
-            if ($this->_currentLoginHash == $this->_lastLoginHash) {
-                return $this;
-            }
-            // Reset only after the cached-login return above: that return
-            // keeps a session that is still logged in, so it must keep
-            // reporting how it logged in.
+            // Every login attempt starts with no recorded method, so a
+            // failed attempt does not report how an earlier one logged in.
             $this->_authMethod = '';
             if (!$username) {
                 $username = $this->username;
@@ -416,7 +372,6 @@ class FOGSSH
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
-        $this->_lastLoginHash = $this->_currentLoginHash;
         return $this;
     }
     /**
