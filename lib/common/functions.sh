@@ -11700,6 +11700,28 @@ dropShadowingVhosts() {
     fi
     return 0
 }
+# Moves a regular file at sites-enabled/<site>.conf out of Apache's way.
+#
+# Debian/Ubuntu load sites-enabled/, and that entry is normally a link to the
+# file this installer writes in sites-available/. An in-place edit through the
+# link (sed -i, for one) replaces the link with a file. a2ensite and a2dissite
+# then refuse to touch it ("is a real file, not touching it"), so Apache keeps
+# serving the old copy and never loads FOG's vhost. Forum 18306: a 1.5 vhost
+# edited by FOGUefi survived the 1.6 upgrade this way, and its HTTP-to-HTTPS
+# redirect broke netboot.
+#
+# The file goes beside the managed vhost in sites-available/, which Apache does
+# not load, so the admin's content is kept. a2ensite then creates the link.
+_unshadowApacheSite() {
+    local avail="$1" stamp="$2"
+    [[ $avail == */sites-available/* ]] || return 0
+    local enabled="${avail%/sites-available/*}/sites-enabled/${avail##*/}"
+    [[ -f $enabled && ! -L $enabled ]] || return 0
+    local kept="${avail}.shadowed.${stamp}"
+    mv -f "$enabled" "$kept" || return 1
+    echo "  Moved ${enabled} to ${kept}."
+    echo "  It was a file, not a link to FOG's vhost, so Apache did not load FOG's vhost."
+}
 # Redirects the vhost generation that follows into a scratch file, so the ~260
 # existing `>> "$etcconf"` lines below need no edit at all: they keep writing
 # to $etcconf, which now names the scratch file. endManagedVhost() splices
@@ -12725,6 +12747,8 @@ EOF
                     ;;
                 *)
                     if [[ ${FOG_os_id} -eq 2 ]]; then
+                        # Before a2dissite: neither a2* tool touches a real file.
+                        _unshadowApacheSite "$etcconf" "$timestamp"
                         a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
