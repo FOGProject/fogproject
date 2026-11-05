@@ -4748,6 +4748,10 @@ msgstr "無効な Windows プロダクトキー"
 msgid "Invalid certificate verification level: %s"
 msgstr "証明書の検証レベルが無効です: %s"
 
+#, fuzzy, php-format
+msgid "Invalid cron %s field \"%s\": \"%s\""
+msgstr "cron 式が無効です（必要なフィールド数: 5、実際: %d）: \"%s\""
+
 #, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr "cron 式が無効です（必要なフィールド数: 5、実際: %d）: \"%s\""
@@ -4799,6 +4803,10 @@ msgstr "指定されたプロダクトキーが無効です"
 
 msgid "Invalid retention identifier"
 msgstr "無効な保持期間の識別子"
+
+#, fuzzy
+msgid "Invalid schedule"
+msgstr "無効なスケジュールタイプです"
 
 msgid "Invalid scheduling type"
 msgstr "無効なスケジュールタイプです"
@@ -6128,6 +6136,10 @@ msgstr "結果が見つかりません"
 
 msgid "No role assigned"
 msgstr "ロールが割り当てられていません"
+
+#, php-format
+msgid "No run time within five years for cron expression: \"%s\""
+msgstr ""
 
 msgid "No settings match your search."
 msgstr "検索条件に一致する設定がありません。"
@@ -8253,6 +8265,18 @@ msgstr "前回の確認サイクル以降にチェックイン済みのため、
 
 msgid "Skipping as there is nothing to do"
 msgstr "実行する処理がないためスキップします"
+
+#, fuzzy
+msgid "Skipping group power management grant"
+msgstr "電源管理の実行許可"
+
+#, fuzzy
+msgid "Skipping power management task"
+msgstr "実行予定の電源管理タスク"
+
+#, fuzzy
+msgid "Skipping scheduled task"
+msgstr "スケジュール済みタスク"
 
 msgid "Skipping unsafe queued delete path"
 msgstr "安全でない削除キューのパスをスキップします"
@@ -14323,9 +14347,6 @@ msgstr "{node}"
 
 #~ msgid "particular node"
 #~ msgstr "特定のノード"
-
-#~ msgid "power management task(s) to run"
-#~ msgstr "実行予定の電源管理タスク"
 
 #~ msgid "present and where/how they need to display"
 #~ msgstr "表示する項目と、その表示位置や表示方法"

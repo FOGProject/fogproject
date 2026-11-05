@@ -4723,6 +4723,10 @@ msgid "Invalid certificate verification level: %s"
 msgstr ""
 
 #, php-format
+msgid "Invalid cron %s field \"%s\": \"%s\""
+msgstr ""
+
+#, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
 
@@ -4772,6 +4776,9 @@ msgid "Invalid product key supplied"
 msgstr ""
 
 msgid "Invalid retention identifier"
+msgstr ""
+
+msgid "Invalid schedule"
 msgstr ""
 
 msgid "Invalid scheduling type"
@@ -6096,6 +6103,10 @@ msgid "No results found"
 msgstr ""
 
 msgid "No role assigned"
+msgstr ""
+
+#, php-format
+msgid "No run time within five years for cron expression: \"%s\""
 msgstr ""
 
 msgid "No settings match your search."
@@ -8208,6 +8219,15 @@ msgid "Skipped, checked in since the last cycle"
 msgstr ""
 
 msgid "Skipping as there is nothing to do"
+msgstr ""
+
+msgid "Skipping group power management grant"
+msgstr ""
+
+msgid "Skipping power management task"
+msgstr ""
+
+msgid "Skipping scheduled task"
 msgstr ""
 
 msgid "Skipping unsafe queued delete path"

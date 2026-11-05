@@ -5370,6 +5370,10 @@ msgid "Invalid certificate verification level: %s"
 msgstr "Selezionare un'immagine valida"
 
 #, php-format
+msgid "Invalid cron %s field \"%s\": \"%s\""
+msgstr ""
+
+#, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
 
@@ -5425,6 +5429,10 @@ msgstr "Token non valido passato"
 #, fuzzy
 msgid "Invalid retention identifier"
 msgstr "Non valido Snapin Tasking"
+
+#, fuzzy
+msgid "Invalid schedule"
+msgstr "È passato il tipo di attività non valido"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -6927,6 +6935,10 @@ msgstr "nessun risultato trovato"
 #, fuzzy
 msgid "No role assigned"
 msgstr "Nessun nodo associato"
+
+#, php-format
+msgid "No run time within five years for cron expression: \"%s\""
+msgstr ""
 
 msgid "No settings match your search."
 msgstr ""
@@ -9325,6 +9337,18 @@ msgstr ""
 #, fuzzy
 msgid "Skipping as there is nothing to do"
 msgstr "Non c'è nulla da replicare"
+
+#, fuzzy
+msgid "Skipping group power management grant"
+msgstr "Gestione energetica"
+
+#, fuzzy
+msgid "Skipping power management task"
+msgstr "Gestione energetica"
+
+#, fuzzy
+msgid "Skipping scheduled task"
+msgstr "Attività pianificate"
 
 msgid "Skipping unsafe queued delete path"
 msgstr ""
