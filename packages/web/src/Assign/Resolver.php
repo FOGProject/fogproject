@@ -562,8 +562,10 @@ class Resolver extends FOGBase
      * the client will be given. GroupPowerManagement::getCron() calls this
      * rather than repeating it.
      *
-     * `-1` for the weekday becomes `7`. FOG's own cron picker writes -1 for
-     * Sunday and Quartz, which the client schedules against, will not take it.
+     * `-1` for the weekday becomes `7`. FOG's cron picker writes 0 to 6, with
+     * Sunday as 0, but a hand-entered `-1` means Sunday, and Quartz, which the
+     * client schedules against, will not take it. FOGCron reads `-1` as
+     * Sunday too, so the server and the client agree.
      * Client\PM::json() normalized it inline and nothing else did, which is
      * how the server-side WOL path came to disagree with the client one.
      *

@@ -4797,7 +4797,12 @@ class Route extends FOGBase
                                     $row['stMonth'],
                                     $row['stDOW']
                                 );
-                                $date = FOGCron::parse($cronstr);
+                                try {
+                                    $date = FOGCron::parse($cronstr);
+                                } catch (\InvalidArgumentException $e) {
+                                    // One bad stored row must not break the grid.
+                                    return _('Invalid schedule');
+                                }
                                 break;
                             default:
                                 $date = $row['stDateTime'];
@@ -7763,9 +7768,17 @@ class Route extends FOGBase
                             $classname,
                             'tasktype',
                             $class->getTaskType()
-                        ),
-                        'runtime' => $class->getTime()
+                        )
                     ];
+                    // getTime() runs FOGCron::parse(), which throws on a bad
+                    // stored row; report no run time rather than fail the
+                    // call. Evaluated after the embeds, as it always was.
+                    try {
+                        $stRuntime = $class->getTime();
+                    } catch (\InvalidArgumentException $e) {
+                        $stRuntime = null;
+                    }
+                    $serialExtras['runtime'] = $stRuntime;
                     break;
                 case 'tasktype':
                     $serialExtras = [

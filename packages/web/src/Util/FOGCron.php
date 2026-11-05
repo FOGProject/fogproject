@@ -65,19 +65,64 @@ class FOGCron extends FOGBase
             }
             return in_array(true, $test, true);
         }
+        // A step is tested before a range: `0-30/10` is a range WITH a step,
+        // and splitting it on `-` first read it as 0 to (int)"30/10", which
+        // is every value from 0 to 30.
+        if (strpos($str, '/') !== false) {
+            list($pre, $pos) = explode('/', $str, 2);
+            $step = (int)$pos;
+            // A step below 1 matches nothing; `% 0` is DivisionByZeroError.
+            if ($step < 1) {
+                return false;
+            }
+            if ($pre == '*') {
+                return ((int)$num % $step == 0);
+            }
+            // The step counts from the range's low end, and the high end
+            // bounds the match. A bare start (`5/15`) has no high end.
+            $low = $pre;
+            if (strpos($pre, '-') !== false) {
+                list($low, $high) = explode('-', $pre, 2);
+                if ((int)$num > (int)$high) {
+                    return false;
+                }
+            }
+            return ((int)$num >= (int)$low
+                && ((int)$num - (int)$low) % $step === 0);
+        }
         if (strpos($str, '-') !== false) {
             list($low, $high) = explode('-', $str);
             return (bool)((int)$num >= (int)$low) && ((int)$num <= (int)$high);
         }
-        if (strpos($str, '/') !== false) {
-            list($pre, $pos) = explode('/', $str);
-            if ($pre == '*') {
-                return ((int)$num % (int)$pos == 0);
-            }
-            return ((int)$num >= (int)$pre
-                && ((int)$num - (int)$pre) % (int)$pos === 0);
-        }
         return (bool)($str == $num);
+    }
+    /**
+     * Does the weekday field match this day?
+     *
+     * $isoDow is format('N'): 1 (Monday) to 7 (Sunday). The field is tested
+     * twice, so that Sunday matches in every form a field can take: once as
+     * standard cron numbering (0-6, Sunday = 0), and once as is, which
+     * accepts 7 for Sunday. Monday to Saturday are the same number both
+     * times. So `0,6` and `0-6` include Sunday, and `6-7` does too.
+     *
+     * A single negative value is Sunday. The FOG client already reads it
+     * that way (Assign\Resolver::cronExpression() maps it to 7); without the
+     * same rule here, _fit() splits `-1` on `-` into the range 0 to 1, and
+     * the server's WOL path ran the schedule on Monday.
+     *
+     * @param string $field  the weekday field, never `*`
+     * @param int    $isoDow the day to test, as format('N')
+     *
+     * @return bool
+     */
+    private static function _dowFits($field, $isoDow)
+    {
+        $field = trim((string)$field);
+        if (is_numeric($field) && (int)$field < 0) {
+            $field = '7';
+        }
+        return self::_fit($field, $isoDow % 7)
+            || self::_fit($field, $isoDow);
     }
     /**
      * Returns the next run time
@@ -111,11 +156,49 @@ class FOGCron extends FOGBase
             $month,
             $dow
         ) = $parts;
-        if (is_numeric($dow) && $dow == 0) {
-            $dow = 7;
+        // An out-of-range field (a minute of 99, which the power-management
+        // pages can store) would otherwise be found only after millions of
+        // one-minute steps. The weekday is not checked: `-1` is a valid
+        // stored weekday (see _dowFits()), and checkDOWField() refuses it.
+        $fields = [
+            'minute' => [$min, self::checkMinutesField($min)],
+            'hour' => [$hour, self::checkHoursField($hour)],
+            'day of month' => [$dom, self::checkDOMField($dom)],
+            'month' => [$month, self::checkMonthField($month)],
+        ];
+        foreach ($fields as $name => list($value, $valid)) {
+            if (!$valid) {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        _('Invalid cron %s field "%s": "%s"'),
+                        $name,
+                        $value,
+                        $cron
+                    )
+                );
+            }
         }
         $Start = self::niceDate();
+        // A schedule with no matching date (`0 0 30 2 *`) must not loop
+        // forever. Five years covers the leap-day schedule `0 0 29 2 *`.
+        // The pass limit is the hard stop: where a DST change makes
+        // modify('-1 hour') land on the same wall time, the date limit
+        // alone is never reached.
+        $limit = self::niceDate()->modify(
+            sprintf('%s5 years', $lastrun ? '-' : '+')
+        );
+        $passes = 0;
         do {
+            if (++$passes > 1000000
+                || ($lastrun ? $Start < $limit : $Start > $limit)
+            ) {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        _('No run time within five years for cron expression: "%s"'),
+                        $cron
+                    )
+                );
+            }
             list(
                 $nmin,
                 $nhour,
@@ -152,7 +235,7 @@ class FOGCron extends FOGBase
             // AND every friday. If you only have the DOW, it will only run on
             // that day of the week. (* * * * 5) would only run on fridays.
             if ($dom != '*' && $dow != '*') {
-                if (!self::_fit($dom, $ndom) && !self::_fit($dow, $ndow)) {
+                if (!self::_fit($dom, $ndom) && !self::_dowFits($dow, $ndow)) {
                     $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
                     continue;
                 }
@@ -164,7 +247,7 @@ class FOGCron extends FOGBase
                 }
             }
             if ($dow != '*' && $dom == '*') {
-                if (!self::_fit($dow, $ndow)) {
+                if (!self::_dowFits($dow, $ndow)) {
                     $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
                     continue;
                 }
@@ -202,6 +285,11 @@ class FOGCron extends FOGBase
         foreach ($v as &$vv) {
             $vvv = explode('/', $vv);
             $step = count($vvv ?: []) <= 1 ? 1 : $vvv[1];
+            // A step below 1 is refused: `*/0` divides by zero in _fit().
+            if ((int)$step < 1) {
+                $res = false;
+                break;
+            }
             $vvvv = explode('-', $vvv[0]);
             $_min = (
                 count($vvvv ?: []) == 2 ?
@@ -262,7 +350,7 @@ class FOGCron extends FOGBase
     /**
      * Check the minutes field
      *
-     * @param int $minutes the value to check
+     * @param string $minutes the field to check
      *
      * @return bool
      */
@@ -273,7 +361,7 @@ class FOGCron extends FOGBase
     /**
      * Check the hours field
      *
-     * @param int $hours the value to check
+     * @param string $hours the field to check
      *
      * @return bool
      */
@@ -284,7 +372,7 @@ class FOGCron extends FOGBase
     /**
      * Check the day of month field
      *
-     * @param int $dom the value to check
+     * @param string $dom the field to check
      *
      * @return bool
      */
@@ -295,7 +383,7 @@ class FOGCron extends FOGBase
     /**
      * Check the month field
      *
-     * @param int $month the value to check
+     * @param string $month the field to check
      *
      * @return bool
      */
@@ -306,7 +394,7 @@ class FOGCron extends FOGBase
     /**
      * Check the day of week field
      *
-     * @param int $dow the value to check
+     * @param string $dow the field to check
      *
      * @return bool
      */
