@@ -32,7 +32,9 @@
 #      FOG_SCHEMA, or on any column or UNIQUE index whose shape differs from
 #      commons/schema-expected.php (bin/upgrade-rehearsal.php shape).
 #      It also installs this tree fresh into a second database and fails on
-#      any globalSettings row the fresh install has and the upgrade does not.
+#      any globalSettings row the fresh install has and the upgrade does not,
+#      on any seeded row that only one of the two has, and on any index of a
+#      core table that the fresh install has and the upgrade does not.
 #
 # FROM_REF=origin/dev-branch rehearses the NEXT 1.5 release: a 1.5 schema
 # change lands there first, so that leg goes red before the change reaches
@@ -322,6 +324,80 @@ if [[ -n $missing ]]; then
     fail "globalSettings row(s) a fresh install has are missing after the upgrade (add them to Schema::_requiredRows())"
 fi
 echo "  ok    every globalSettings row a fresh install has"
+
+# --- 6. every seeded row and every index a fresh install has -----------------
+# Steps 264-288 never run on a 1.5 database, and two more things are lost
+# besides the settings above (GH-2069). One is the rows those steps insert or
+# delete. The other is a non-unique key: shapeDrift() reads UNIQUE keys only,
+# so the shape check in section 3 cannot see one. So compare the two
+# databases on both:
+#   - the identity of each row FOG seeds, in both directions. A row the
+#     upgrade lacks is a skipped INSERT; a row only the upgrade has is a
+#     skipped DELETE.
+#   - every (table, index) of a core table, meaning a table in
+#     commons/schema-expected.php, that the fresh install has.
+# Both comparisons fill one list, and fail() runs once after both, so one run
+# names every gap of either kind. A failed query exits non-zero, so it cannot
+# pass as an empty list.
+gaps=$(UP15_HOST="$HOST" UP15_USER="$DBUSER" UP15_PASS="$DBPASS" \
+    php -r '
+    $m = include $argv[1];
+    $fresh = $argv[2];
+    $up = $argv[3];
+    try {
+        $pdo = new PDO("mysql:host=" . getenv("UP15_HOST"), getenv("UP15_USER"), getenv("UP15_PASS"));
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $gaps = [];
+        $seeded = [
+            ["os", "osID"],
+            ["pxeMenu", "pxeName"],
+            ["dmidecodeKeys", "dkName"],
+            ["taskTypes", "ttID"],
+            ["taskStates", "tsID"],
+        ];
+        foreach ($seeded as list($t, $c)) {
+            $f = $pdo->query("SELECT DISTINCT `$c` FROM `$fresh`.`$t`")->fetchAll(PDO::FETCH_COLUMN);
+            $u = $pdo->query("SELECT DISTINCT `$c` FROM `$up`.`$t`")->fetchAll(PDO::FETCH_COLUMN);
+            if (!$f) {
+                $gaps[] = "the fresh install has no $t rows to compare";
+            }
+            foreach (array_diff($f, $u) as $v) {
+                $gaps[] = "row missing after the upgrade: $t.$c = $v";
+            }
+            foreach (array_diff($u, $f) as $v) {
+                $gaps[] = "row a fresh install does not have: $t.$c = $v";
+            }
+        }
+        $q = $pdo->prepare("SELECT DISTINCT TABLE_NAME, INDEX_NAME FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = ?");
+        $idx = [];
+        foreach (["fresh" => $fresh, "up" => $up] as $side => $db) {
+            $q->execute([$db]);
+            foreach ($q->fetchAll(PDO::FETCH_NUM) as $r) {
+                $idx[$side][strtolower($r[0])][strtolower($r[1])] = "$r[0].$r[1]";
+            }
+        }
+        if (empty($idx["fresh"])) {
+            $gaps[] = "the fresh install has no indexes to compare";
+        }
+        foreach (array_keys((array)$m["tables"]) as $t) {
+            foreach ($idx["fresh"][strtolower($t)] ?? [] as $k => $name) {
+                if (!isset($idx["up"][strtolower($t)][$k])) {
+                    $gaps[] = "index missing after the upgrade: $name";
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        fwrite(STDERR, $e->getMessage() . "\n");
+        exit(1);
+    }
+    echo implode("\n", $gaps);
+    ' "$REPO/packages/web/commons/schema-expected.php" "$FRESH" "$DB") \
+    || fail "could not compare seeded rows and indexes between the fresh and upgraded databases"
+if [[ -n $gaps ]]; then
+    sed 's/^/        /' <<<"$gaps"
+    fail "$(grep -c . <<<"$gaps") seeded row(s) or index(es) above differ from a fresh install"
+fi
+echo "  ok    every seeded row and every index a fresh install has"
 sql "DROP DATABASE IF EXISTS \`$FRESH\`" >/dev/null 2>&1 || true
 echo
 echo "  upgrade from $FROM_REF: pass"

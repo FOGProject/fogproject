@@ -12179,3 +12179,77 @@ $this->schema[] = [
     'ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmSshPort` INT(11) NOT NULL DEFAULT 0',
     'ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmFtpPort` INT(11) NOT NULL DEFAULT 0',
 ];
+// 452
+$this->schema[] = [
+    // GH-2069, steps 452-455: what a 1.5 upgrade skips. A 1.5.10 server
+    // arrives with a count of 288, so it never runs steps 264-288. The
+    // reconciler restores the structure, and Schema::_requiredRows() seeds
+    // some rows. These four steps repeat the rest. Each one is a no-op on a
+    // server that already ran the original.
+    //
+    // They are steps, not _requiredRows() entries. _requiredRows() never
+    // deletes, and its plain INSERT fails with 1062 when a row exists under
+    // another unique key. A failing seed there stops the updater on every
+    // run. INSERT IGNORE in a step skips that row instead.
+    //
+    // Step 284 again. 1.5 seeds these two iPXE menu items, and 1.6 has no
+    // handler for either one. So an upgraded server showed "Approve This
+    // Host" and "Quick Host Deletion", and neither item did anything.
+    "DELETE FROM `pxeMenu` WHERE `pxeName`='fog.approvehost'",
+    "DELETE FROM `pxeMenu` WHERE `pxeName`='fog.quickdel'",
+];
+// 453
+$this->schema[] = [
+    // Step 286 again, the same statement. 1.5 seeds no osID 10 or 11. The
+    // ids must be 10 and 11, because FOS reads the host's osid as a number.
+    // INSERT IGNORE skips a row whose osID or osName (a unique key) is
+    // already taken. An admin's own "Windows 11" at another id stays as it
+    // is. The step does not fail.
+    "INSERT IGNORE INTO `os` "
+    . "(`osID`, `osName`, `osDescription`) "
+    . "VALUES "
+    . "('10', 'Windows 11', ''),"
+    . "('11', 'Windows Server', '')"
+];
+// 454
+$this->schema[] = [
+    // Step 283's insert again. 1.5 has no dmidecodeKeys table, so the
+    // reconciler creates it from the manifest with no rows. This step
+    // writes out step 283's 22 names, in the same order. It does not read
+    // $dmiStrings, which step 283 sets. The list must equal step 283's.
+    // tests/upgrade-from-15-ci.test.sh fails when this list lacks a name
+    // that step 283 has.
+    "INSERT IGNORE INTO `dmidecodeKeys` (`dkName`) VALUES "
+    . "('bios-vendor'),"
+    . "('bios-version'),"
+    . "('bios-release-date'),"
+    . "('system-manufacturer'),"
+    . "('system-product-name'),"
+    . "('system-version'),"
+    . "('system-serial-number'),"
+    . "('system-uuid'),"
+    . "('baseboard-manufacturer'),"
+    . "('baseboard-product-name'),"
+    . "('baseboard-version'),"
+    . "('baseboard-serial-number'),"
+    . "('baseboard-asset-tag'),"
+    . "('chassis-manufacturer'),"
+    . "('chassis-type'),"
+    . "('chassis-version'),"
+    . "('chassis-serial-number'),"
+    . "('chassis-asset-tag'),"
+    . "('processor-family'),"
+    . "('processor-manufacturer'),"
+    . "('processor-version'),"
+    . "('processor-frequency')"
+];
+// 455
+$this->schema[] = [
+    // Step 416's key, on its own. 416 adds four hosts columns and this key
+    // in one ALTER. On a 1.5 upgrade, the reconcile that
+    // SchemaUpdaterPage::_repairAndRetry() runs at step 290 adds the four
+    // columns first. So 416 fails with 1060, and the key is lost with it.
+    // shapeDrift() reads UNIQUE keys only, so it reported nothing. Where 416
+    // already added the key, this fails with 1061, which the updater skips.
+    'ALTER TABLE `hosts` ADD KEY `hostAgentFingerprint` (`hostAgentFingerprint`)',
+];
