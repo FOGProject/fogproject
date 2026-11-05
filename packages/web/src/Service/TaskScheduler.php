@@ -243,133 +243,161 @@ class TaskScheduler extends FOGService
             unset($taskCount);
             // Scheduled Tasks
             foreach ($ScheduledTasks->data as $Task) {
-                $Task = new ScheduledTask($Task->id);
-                $Timer = $Task->getTimer();
-                self::outall(
-                    ' * '
-                    . _('Scheduled Task run time')
-                    . ': '
-                    . $Timer->toString()
-                );
-                self::outall(
-                    sprintf(
-                        ' * %s ',
-                        $Timer->shouldRunNowCheck()
-                    )
-                );
-                if (!$Timer->shouldRunNow()) {
-                    continue;
-                }
-                self::outall(
-                    ' * '
-                    . _('Found a scheduled task that should run.')
-                );
-                $type = _('host');
-                $getter = 'getHost';
-                $gbased = 0;
-                if ($Task->isGroupBased()) {
-                    $type = _('group');
-                    $getter = 'getGroup';
-                    $gbased = 1;
-                }
-                self::outall(
-                    "\t\t - "
-                    . _('Is a')
-                    . ' '
-                    . $type
-                    . ' '
-                    . _('based task.')
-                );
-                self::outall(
-                    sprintf(
-                        "\t\t - %s %s!",
-                        (
-                            $Task->isMulticast() ?
-                            _('Multicast') :
-                            _('Unicast')
-                        ),
-                        _('task found')
-                    )
-                );
-                $Item = $Task->{$getter}();
-                self::outall(
-                    sprintf(
-                        "\t\t - %s %s",
-                        self::shortName($Item),
-                        $Item->get('name')
-                    )
-                );
-                // getItem(), not indiv(): a scheduled task pointing at a task
-                // type that has since been deleted used to exit the daemon
-                // here rather than skip the one task. Refs #907.
-                $tasktype = Route::getItem('tasktype', $Task->get('taskTypeID'));
-                if (!$tasktype) {
+                $taskID = $Task->id;
+                // A bad row (e.g. a cron that never matches) throws from
+                // getTimer(); catching per task keeps one row from skipping
+                // every later task in the pass.
+                try {
+                    $Task = new ScheduledTask($Task->id);
+                    $Timer = $Task->getTimer();
+                    self::outall(
+                        ' * '
+                        . _('Scheduled Task run time')
+                        . ': '
+                        . $Timer->toString()
+                    );
                     self::outall(
                         sprintf(
-                            "\t\t - %s: %s",
-                            _('Skipping, no such task type'),
-                            $Task->get('taskTypeID')
+                            ' * %s ',
+                            $Timer->shouldRunNowCheck()
                         )
                     );
-                    continue;
-                }
-                $Item->createImagePackage(
-                    $tasktype,
-                    $Task->get('name'),
-                    $Task->get('shutdown'),
-                    false,
-                    $Task->get('other2'),
-                    $gbased,
-                    $Task->get('other3'),
-                    false,
-                    false,
-                    (bool)$Task->get('other4'),
-                    (bool)$Task->get('other5'),
-                    (bool)$Task->get('other1')
-                );
-                self::outall(
-                    sprintf(
-                        "\t\t - %s %s %s!",
-                        _('Task started for'),
-                        $type,
-                        $Item->get('name')
-                    )
-                );
-                if ($Timer->isSingleRun()) {
-                    $Task->set('isActive', 0)->save();
+                    if (!$Timer->shouldRunNow()) {
+                        continue;
+                    }
+                    self::outall(
+                        ' * '
+                        . _('Found a scheduled task that should run.')
+                    );
+                    $type = _('host');
+                    $getter = 'getHost';
+                    $gbased = 0;
+                    if ($Task->isGroupBased()) {
+                        $type = _('group');
+                        $getter = 'getGroup';
+                        $gbased = 1;
+                    }
+                    self::outall(
+                        "\t\t - "
+                        . _('Is a')
+                        . ' '
+                        . $type
+                        . ' '
+                        . _('based task.')
+                    );
+                    self::outall(
+                        sprintf(
+                            "\t\t - %s %s!",
+                            (
+                                $Task->isMulticast() ?
+                                _('Multicast') :
+                                _('Unicast')
+                            ),
+                            _('task found')
+                        )
+                    );
+                    $Item = $Task->{$getter}();
+                    self::outall(
+                        sprintf(
+                            "\t\t - %s %s",
+                            self::shortName($Item),
+                            $Item->get('name')
+                        )
+                    );
+                    // getItem(), not indiv(): a scheduled task pointing at a task
+                    // type that has since been deleted used to exit the daemon
+                    // here rather than skip the one task. Refs #907.
+                    $tasktype = Route::getItem('tasktype', $Task->get('taskTypeID'));
+                    if (!$tasktype) {
+                        self::outall(
+                            sprintf(
+                                "\t\t - %s: %s",
+                                _('Skipping, no such task type'),
+                                $Task->get('taskTypeID')
+                            )
+                        );
+                        continue;
+                    }
+                    $Item->createImagePackage(
+                        $tasktype,
+                        $Task->get('name'),
+                        $Task->get('shutdown'),
+                        false,
+                        $Task->get('other2'),
+                        $gbased,
+                        $Task->get('other3'),
+                        false,
+                        false,
+                        (bool)$Task->get('other4'),
+                        (bool)$Task->get('other5'),
+                        (bool)$Task->get('other1')
+                    );
+                    self::outall(
+                        sprintf(
+                            "\t\t - %s %s %s!",
+                            _('Task started for'),
+                            $type,
+                            $Item->get('name')
+                        )
+                    );
+                    if ($Timer->isSingleRun()) {
+                        $Task->set('isActive', 0)->save();
+                    }
+                } catch (\Exception $e) {
+                    self::outall(
+                        sprintf(
+                            ' * %s %s: %s',
+                            _('Skipping scheduled task'),
+                            $taskID,
+                            $e->getMessage()
+                        )
+                    );
                 }
             }
             // Power Management Tasks.
             foreach ($PMTasks->data as $Task) {
-                $Task = new PowerManagement($Task->id);
-                $Timer = $Task->getTimer();
-                self::outall(
-                    ' * '
-                    . _('Power Management Task run time')
-                    . ': '
-                    . $Timer->toString()
-                );
-                self::outall(
-                    sprintf(
-                        ' * %s ',
-                        $Timer->shouldRunNowCheck()
-                    )
-                );
-                if (!$Timer->shouldRunNow()) {
-                    continue;
+                $taskID = $Task->id;
+                // As above: a bad row throws from getTimer(); catch per task.
+                try {
+                    $Task = new PowerManagement($Task->id);
+                    $Timer = $Task->getTimer();
+                    self::outall(
+                        ' * '
+                        . _('Power Management Task run time')
+                        . ': '
+                        . $Timer->toString()
+                    );
+                    self::outall(
+                        sprintf(
+                            ' * %s ',
+                            $Timer->shouldRunNowCheck()
+                        )
+                    );
+                    if (!$Timer->shouldRunNow()) {
+                        continue;
+                    }
+                    self::outall(
+                        ' * '
+                        . _('Found a wake on lan task that should run.')
+                    );
+                    $Task->wakeOnLAN();
+                    self::outall(
+                        sprintf(
+                            ' | %s %s',
+                            _('Task sent to'),
+                            $Task->getHost()->get('name')
+                        )
+                    );
+                } catch (\Exception $e) {
+                    self::outall(
+                        sprintf(
+                            ' * %s %s: %s',
+                            _('Skipping power management task'),
+                            $taskID,
+                            $e->getMessage()
+                        )
+                    );
                 }
-                self::outall(
-                    ' * '
-                    . _('Found a wake on lan task that should run.')
-                );
-                $Task->wakeOnLAN();
-                self::outall(
-                    sprintf(
-                        ' | %s %s',
-                        _('Task sent to'),
-                        $Task->getHost()->get('name')
-                    )
-                );
             }
             // Group-granted wake schedules (ADR 0038).
             //
@@ -387,34 +415,47 @@ class TaskScheduler extends FOGService
             // through Client\PM -- the server has nothing to send. A wake is
             // the one action a sleeping machine cannot perform for itself.
             foreach ($GroupPMGrants as $Task) {
-                $Timer = $Task->getTimer();
-                self::outall(
-                    ' * '
-                    . _('Group Power Management Task run time')
-                    . ': '
-                    . $Timer->toString()
-                );
-                self::outall(
-                    sprintf(
-                        ' * %s ',
-                        $Timer->shouldRunNowCheck()
-                    )
-                );
-                if (!$Timer->shouldRunNow()) {
-                    continue;
+                $taskID = $Task->get('id');
+                // As above: a bad row throws from getTimer(); catch per grant.
+                try {
+                    $Timer = $Task->getTimer();
+                    self::outall(
+                        ' * '
+                        . _('Group Power Management Task run time')
+                        . ': '
+                        . $Timer->toString()
+                    );
+                    self::outall(
+                        sprintf(
+                            ' * %s ',
+                            $Timer->shouldRunNowCheck()
+                        )
+                    );
+                    if (!$Timer->shouldRunNow()) {
+                        continue;
+                    }
+                    self::outall(
+                        ' * '
+                        . _('Found a group wake on lan grant that should run.')
+                    );
+                    $Task->wakeOnLAN();
+                    self::outall(
+                        sprintf(
+                            ' | %s %s',
+                            _('Grant sent to group'),
+                            $Task->getGroup()->get('name')
+                        )
+                    );
+                } catch (\Exception $e) {
+                    self::outall(
+                        sprintf(
+                            ' * %s %s: %s',
+                            _('Skipping group power management grant'),
+                            $taskID,
+                            $e->getMessage()
+                        )
+                    );
                 }
-                self::outall(
-                    ' * '
-                    . _('Found a group wake on lan grant that should run.')
-                );
-                $Task->wakeOnLAN();
-                self::outall(
-                    sprintf(
-                        ' | %s %s',
-                        _('Grant sent to group'),
-                        $Task->getGroup()->get('name')
-                    )
-                );
             }
             // Self-healing pass for wget-less U-Boot boards' TFTP files --
             // see UbootTftpSync's class doc. It never throws (a failure here

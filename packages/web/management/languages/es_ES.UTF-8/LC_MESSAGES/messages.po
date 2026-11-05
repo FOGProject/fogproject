@@ -5578,6 +5578,10 @@ msgid "Invalid certificate verification level: %s"
 msgstr "Seleccionar una imagen válida"
 
 #, php-format
+msgid "Invalid cron %s field \"%s\": \"%s\""
+msgstr ""
+
+#, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
 
@@ -5638,6 +5642,10 @@ msgstr "unidad no válida pasó"
 #, fuzzy
 msgid "Invalid retention identifier"
 msgstr "tarea no válido"
+
+#, fuzzy
+msgid "Invalid schedule"
+msgstr "Tipo de objeto no válido pasó"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -7220,6 +7228,10 @@ msgstr "No se encontraron iconos"
 #, fuzzy
 msgid "No role assigned"
 msgstr "No nodo asociado"
+
+#, php-format
+msgid "No run time within five years for cron expression: \"%s\""
+msgstr ""
 
 msgid "No settings match your search."
 msgstr ""
@@ -9690,6 +9702,18 @@ msgstr ""
 
 msgid "Skipping as there is nothing to do"
 msgstr ""
+
+#, fuzzy
+msgid "Skipping group power management grant"
+msgstr "Gestión de usuarios"
+
+#, fuzzy
+msgid "Skipping power management task"
+msgstr "Gestión de usuarios"
+
+#, fuzzy
+msgid "Skipping scheduled task"
+msgstr "Programar"
 
 msgid "Skipping unsafe queued delete path"
 msgstr ""
