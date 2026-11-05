@@ -47,30 +47,6 @@ class FOGFTP
      */
     private $_link;
     /**
-     * The connection hash
-     *
-     * @var string
-     */
-    private $_lastConnectionHash;
-    /**
-     * The last login hash
-     *
-     * @var string
-     */
-    private $_lastLoginHash;
-    /**
-     * The current connection hash
-     *
-     * @var string
-     */
-    private $_currentConnectionHash;
-    /**
-     * The current login hash
-     *
-     * @var string
-     */
-    private $_currentLoginHash;
-    /**
      * Which stage of connect() failed, if one did.
      *
      * Either 'connect' (the socket never came up) or 'login' (the server
@@ -141,16 +117,6 @@ class FOGFTP
     ) {
         $this->_lastFailure = '';
         try {
-            $this->_currentConnectionHash = password_hash(
-                print_r($this->data, 1),
-                PASSWORD_BCRYPT,
-                ['cost'=>11]
-            );
-            if ($this->_link
-                && $this->_currentConnectionHash == $this->_lastConnectionHash
-            ) {
-                return $this;
-            }
             if (!$host) {
                 $host = $this->host;
             }
@@ -184,7 +150,6 @@ class FOGFTP
                 $this->pasv($this->passive);
             }
             $this->_lastFailure = '';
-            $this->_lastConnectionHash = $this->_currentConnectionHash;
         } catch (\Exception $e) {
             FOGCore::error($e->getMessage());
             return false;
@@ -286,14 +251,6 @@ class FOGFTP
         $password = null
     ) {
         try {
-            $this->_currentLoginHash = password_hash(
-                is_object($this->_link) ? spl_object_id($this->_link) : spl_object_id($this),
-                PASSWORD_BCRYPT,
-                ['cost'=>11]
-            );
-            if ($this->_currentLoginHash == $this->_lastLoginHash) {
-                return $this;
-            }
             if (!$username) {
                 $username = $this->username;
             }
@@ -306,7 +263,6 @@ class FOGFTP
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
-        $this->_lastLoginHash = $this->_currentLoginHash;
         return $this;
     }
     /**
