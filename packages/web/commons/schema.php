@@ -12270,3 +12270,30 @@ $this->schema[] = [
     . "token, so USB boot works, but no caller gets the password or the key.' "
     . "WHERE `settingKey` = 'FOG_HOSTKEY_ALLOWED_SOURCES'",
 ];
+// 457
+$this->schema[] = [
+    // fog-agent self-update is on by default (2026-11-09). The legacy FOG
+    // Client updates itself, and admins expect the same from fog-agent.
+    // Self-update should have been on by default when the feature was
+    // added, and it was not: step 438 chose Off so that no server started
+    // managing agent versions because it was upgraded. This reverses that.
+    //
+    // Every server stored as Off becomes Latest. That includes an Off that
+    // an admin chose on purpose. The release notes say so, and the admin
+    // sets it back to Off under FOG Configuration. Pinned and Latest are
+    // untouched. A fresh install runs every step, so it reaches Latest too.
+    //
+    // Latest does not update the whole fleet at once. The update rings
+    // (default 0,3,7) still pace the rollout, and a host with no ring uses
+    // the last one.
+    "UPDATE `globalSettings` SET `settingValue` = 'latest' "
+    . "WHERE `settingKey` = 'FOG_AGENT_UPDATE_MODE' AND `settingValue` = 'off'",
+    "UPDATE `globalSettings` SET `settingDesc` = 'How enrolled fog-agent "
+    . "hosts update themselves. Off: no host updates, except a host with its "
+    . "own Desired Agent Version. Pinned: every host runs "
+    . "FOG_AGENT_DESIRED_VERSION. Latest: every host runs the newest release, "
+    . "after the delay of its update ring in FOG_AGENT_UPDATE_RINGS, and "
+    . "never moves below the version it runs unless that version is "
+    . "withdrawn. A host''s own Desired Agent Version overrides all three. "
+    . "(Default Latest)' WHERE `settingKey` = 'FOG_AGENT_UPDATE_MODE'",
+];
