@@ -12253,3 +12253,20 @@ $this->schema[] = [
     // already added the key, this fails with 1061, which the updater skips.
     'ALTER TABLE `hosts` ADD KEY `hostAgentFingerprint` (`hostAgentFingerprint`)',
 ];
+// 456
+$this->schema[] = [
+    // GHSA-666x-5fjv-v8j9. service/hostinfo.php now sends the join password
+    // and the product key only when this setting lists the imaging networks,
+    // and only to a caller inside them. The description step 315 wrote says
+    // empty "matches the behavior of earlier versions", which is no longer
+    // true. The value is not touched.
+    "UPDATE `globalSettings` SET `settingDesc` = 'The imaging networks, as a "
+    . "comma separated list of CIDR ranges and/or addresses, for example "
+    . "10.0.0.0/8,192.168.5.20. Only a caller inside them can get a host "
+    . "token from status/hostgetkey.php, and only a caller inside them gets "
+    . "the Active Directory join password and the product key from "
+    . "service/hostinfo.php. A post download script that reads hostadpass or "
+    . "hostproductkey needs this set. Empty is the default: any source gets a "
+    . "token, so USB boot works, but no caller gets the password or the key.' "
+    . "WHERE `settingKey` = 'FOG_HOSTKEY_ALLOWED_SOURCES'",
+];

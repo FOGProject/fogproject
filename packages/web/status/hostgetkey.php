@@ -37,16 +37,18 @@ try {
         throw new \Exception(_('Invalid Tasking'));
     }
     /**
-     * Aisle 016: this endpoint is unauthenticated and MAC-resolved, and the
-     * token it returns is the only gate on service/hostinfo.php's plaintext AD
-     * credentials and product key (re-enabled behind this token by aaee1b60c,
-     * after 6daab8cc4 had removed them). A task merely being QUEUED is enough to
-     * reach here, so a scheduled mass deployment leaves every target harvestable
-     * for the whole scheduling window. Bind issuance to network position where
-     * the admin has been able to declare one.
+     * Aisle 016: this endpoint is unauthenticated and MAC-resolved. The token
+     * it returns opens service/hostinfo.php, which sent plaintext AD
+     * credentials and the product key to any token holder (re-enabled behind
+     * this token by aaee1b60c, after 6daab8cc4 had removed them). A task merely
+     * being QUEUED is enough to reach here, so a scheduled mass deployment left
+     * every target harvestable for the whole scheduling window. Bind issuance
+     * to network position where the admin has been able to declare one.
      *
      * FOG_HOSTKEY_ALLOWED_SOURCES defaults to empty, which means no restriction
-     * and therefore no behaviour change on upgrade. Reuse the existing
+     * here, so a USB-booted FOS still gets its token. GHSA-666x-5fjv-v8j9:
+     * while it is empty, hostinfo.php sends no join password and no product
+     * key, so the token alone no longer reaches either. Reuse the existing
      * 'Invalid Tasking' string rather than inventing a new one, so a refused
      * caller cannot distinguish "not allowed from here" from "no task" and FOS
      * sees a message it already handles.

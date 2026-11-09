@@ -2633,9 +2633,15 @@ abstract class FOGBase
      * Strict "REMOTE_ADDR must equal the host's recorded ip" cannot be the rule:
      * it breaks a DHCP re-lease between PXE and FOS, a PXE NIC that differs from
      * the OS NIC, a VLAN hop, a relayed DHCP, or a NAT'd storage node. So the
-     * policy is admin-declared instead, and DEFAULTS TO EMPTY = no restriction,
-     * which is exactly the behavior before this setting existed. Sites that can
-     * state their imaging networks opt in; nobody's upgrade breaks.
+     * policy is admin-declared instead, and DEFAULTS TO EMPTY = no restriction
+     * on the token, so USB-booted FOS keeps working. Sites that can state their
+     * imaging networks opt in.
+     *
+     * GHSA-666x-5fjv-v8j9: the token is no longer the only gate on the
+     * secrets. service/hostinfo.php withholds the join password and the
+     * product key while this setting is empty, so it checks for empty itself
+     * before calling here: this method's "empty = allow" is right for the
+     * token and wrong for the secrets.
      *
      * Accepts a comma/whitespace separated list of IPv4 CIDR ranges and/or
      * literal addresses (v4 or v6).
@@ -2648,7 +2654,7 @@ abstract class FOGBase
     {
         $allowed = trim((string)self::getSetting('FOG_HOSTKEY_ALLOWED_SOURCES'));
         if ($allowed === '') {
-            // Unconfigured: preserve pre-existing behavior.
+            // Unconfigured: any source gets a token (see the docblock).
             return true;
         }
         $ip = trim((string)$ip);
