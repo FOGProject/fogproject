@@ -4010,6 +4010,9 @@ msgstr ""
 msgid "First row is a header"
 msgstr ""
 
+msgid "Flatpak and Snap cannot hold an exact version. Choose any version or latest."
+msgstr ""
+
 #, fuzzy
 msgid "Fleet Report"
 msgstr "rapport"
@@ -7570,7 +7573,7 @@ msgstr "Opération pas définie: %s"
 msgid "Optional read-only Windows observation sent in response to directory_check. It carries no credentials."
 msgstr ""
 
-msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+msgid "Optional. Chocolatey: a feed URL, folder or share. Flatpak: a remote name (empty means flathub). Snap: a channel (empty means the snap's default)."
 msgstr ""
 
 msgid "Optional. Declares directory-join-target-v1 to bind this request to a live directory identity."

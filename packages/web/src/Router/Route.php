@@ -3187,7 +3187,7 @@ class Route extends FOGBase
             '',
             $fields
         );
-        $desired = \FOG\Agent\State::desired($Host);
+        $desired = \FOG\Agent\State::desired($Host, $body);
         $answer = [
             'status' => 'ok',
             'protocol' => \FOG\Agent\Enrollment::PROTOCOL,

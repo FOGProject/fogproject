@@ -75,7 +75,34 @@ class Software extends FOGController
      * The backends a server knows how to describe; the agent decides
      * which it can run.
      */
-    const BACKENDS = ['choco' => 'Chocolatey'];
+    const BACKENDS = [
+        'choco' => 'Chocolatey',
+        'flatpak' => 'Flatpak',
+        'snap' => 'Snap'
+    ];
+    /**
+     * The backends that cannot hold an exact version. These managers pin
+     * by commit or revision, not by a version string, so an exact version
+     * is refused.
+     */
+    const UNPINNABLE = ['flatpak', 'snap'];
+    /**
+     * The backend an empty value means: the swBackend column default.
+     */
+    const DEFAULT_BACKEND = 'choco';
+    /**
+     * The one message for a pinned version on an UNPINNABLE backend, so
+     * the page and save() say the same thing.
+     *
+     * @return string
+     */
+    public static function pinRefusal()
+    {
+        return _(
+            'Flatpak and Snap cannot hold an exact version. '
+            . 'Choose any version or latest.'
+        );
+    }
     /**
      * The states.
      */
@@ -145,6 +172,20 @@ class Software extends FOGController
      */
     public function save()
     {
+        // The backend rules live here, not only on the page, because the
+        // REST API sets fields directly and never sees the page's checks.
+        // Empty means the column default, DEFAULT_BACKEND.
+        $backend = (string)$this->get('backend') ?: self::DEFAULT_BACKEND;
+        if (!array_key_exists($backend, self::BACKENDS)) {
+            throw new \Exception(_('Please select a valid backend.'));
+        }
+        $version = (string)$this->get('version');
+        if (in_array($backend, self::UNPINNABLE, true)
+            && '' !== $version
+            && 'latest' !== $version
+        ) {
+            throw new \Exception(self::pinRefusal());
+        }
         // Propagate a failed write rather than reporting success; the
         // association work below has no row to attach to either. See
         // tests/save-propagates-failure.test.php.
