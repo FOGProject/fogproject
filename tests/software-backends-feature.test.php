@@ -20,7 +20,12 @@ $t = new FogChecks();
 
 $token = \FOG\Agent\SoftwareSet::FEATURE;
 
-$t->check('the token is software-backends-v1', 'software-backends-v1' === $token);
+// The literal is the agent's wire token (fog-agent internal/enroll); a
+// rename of the constant must not silently change what the server accepts.
+$t->check(
+    'the agent\'s literal token is accepted',
+    true === \FOG\Agent\SoftwareSet::requested(['features' => ['software-backends-v1']])
+);
 $t->check(
     'requested: token present',
     true === \FOG\Agent\SoftwareSet::requested(['features' => [$token]])
