@@ -15337,6 +15337,25 @@ _resignKernels() {
         echo "   Secure Boot clients will not boot until this is fixed."
         return 0
     }
+    # Split mode passes --addcert here, in _resignRefind, _signLocalIpxe,
+    # _resignCustomKernels and fog-sign-kernel. sbsign gained that option in
+    # sbsigntools 0.9.4. EPEL 8 ships 0.9.2, so on RHEL/Rocky/Alma/Oracle
+    # Linux 8 each of those steps printed a bare "Failed", and the reason,
+    # "unrecognized option '--addcert'", went only to the log (forum 18309).
+    # This runs first of the signing steps, so it names the cause once.
+    # Probes the option, not the version string, so any build without it is
+    # caught. Flat mode passes no --addcert, so any sbsign works there. The
+    # mode test is the same one the loop below uses for its addcert array.
+    if [[ -n ${PKI_sb_ca_cert} ]] \
+        && [[ "$(readlink -f "${PKI_sb_ca_cert}" 2>/dev/null)" != "$(readlink -f "$certpem" 2>/dev/null)" ]] \
+        && ! sbsign --help 2>&1 | grep -q -- '--addcert'; then
+        echo "Failed"
+        echo " * The installed sbsign has no --addcert option. Secure Boot"
+        echo "   signing needs sbsigntools 0.9.4 or later; EPEL 8 ships 0.9.2."
+        echo "   The rEFInd and iPXE signing below fails for the same reason."
+        echo "   Install sbsigntools 0.9.4 or later, then re-run the installer."
+        return 0
+    fi
     # The two Memtest86+ binaries ride along: each is a bzImage that is also
     # a PE, and on a UEFI client iPXE chains it as a PE, which under Secure
     # Boot needs the same countersignature the kernels get (#321).
