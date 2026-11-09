@@ -29,7 +29,7 @@ use FOG\Agent\Releases;
  * installer gives that directory to.
  *
  * Idle when nothing asks for a release: Off mode, no host's own desired
- * version, and no minimum version. Latest is the default (schema 456), so
+ * version, and no minimum version. Latest is the default (schema 457), so
  * a default server syncs; an admin who sets Off stops it contacting
  * fogproject.org for releases.
  *

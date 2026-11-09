@@ -56,7 +56,8 @@ try {
     if (!FOGCore::$Host->get('tokenlock')) {
         throw new \Exception(_('Have not locked the host for access'));
     }
-    if ($hosttoken != FOGCore::$Host->get('token')) {
+    // A constant-time compare: a loose != also equates numeric strings.
+    if (!hash_equals((string)FOGCore::$Host->get('token'), (string)$hosttoken)) {
         throw new \Exception(_('Invalid token passed for host'));
     }
     $TaskType = $Task->getTaskType();
@@ -217,6 +218,21 @@ try {
         }
     } elseif (mb_detect_encoding($productKeytest, 'utf-8', true)) {
         $productKey = $productKeytest;
+    }
+    // GHSA-666x-5fjv-v8j9: the token that opens this reply comes from an
+    // unauthenticated, MAC-resolved request (status/hostgetkey.php), and FOS
+    // holds no secret that could make it otherwise. So the join password and
+    // the product key are sent only where the admin has declared the imaging
+    // networks in FOG_HOSTKEY_ALLOWED_SOURCES, and only to a caller inside
+    // them. FOS itself reads neither value; a post download script can, and
+    // gets empty values until the setting is set. The empty check is made
+    // here because hostKeySourceAllowed() allows every source when the
+    // setting is empty, which is right for the token and wrong for these.
+    $hostKeySources = trim((string)FOGCore::getSetting('FOG_HOSTKEY_ALLOWED_SOURCES'));
+    if ('' === $hostKeySources
+        || !FOGCore::hostKeySourceAllowed(filter_input(INPUT_SERVER, 'REMOTE_ADDR'))
+    ) {
+        $pass = $productKey = '';
     }
     $repFields = [
         // Imaging items to set
