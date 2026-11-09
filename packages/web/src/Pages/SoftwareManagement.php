@@ -22,10 +22,10 @@ use FOG\Router\Route;
  * Software management page
  *
  * Software is desired state, not a task: an entry says a package from a
- * backend (Chocolatey today) should be present (at a version policy) or
- * absent on a host, and the agent converges toward it and reports the
- * truth back (design 0003). This page is the CRUD surface for that entry,
- * modeled on SnapinManagement/PrinterManagement but with none of the
+ * backend (Chocolatey, Flatpak or Snap) should be present (at a version
+ * policy) or absent on a host, and the agent converges toward it and
+ * reports the truth back (design 0003). This page is the CRUD surface
+ * for that entry, modeled on SnapinManagement/PrinterManagement but with none of the
  * snapin's file-upload, storage-group, pack-type, run-with, reboot/
  * shutdown, replicate, hide or template machinery -- none of that applies
  * to a package a manager installs by name.
@@ -131,13 +131,20 @@ class SoftwareManagement extends FOGPage
      * @param mixed  $timeout the posted timeout
      * @param string $state   the posted state
      * @param string $backend the posted backend
+     * @param string $versionPolicy the posted version policy
      *
      * @throws \Exception on the first thing wrong
      *
      * @return void
      */
-    private function _validateSoftwarePost($name, $package, $timeout, $state, $backend)
-    {
+    private function _validateSoftwarePost(
+        $name,
+        $package,
+        $timeout,
+        $state,
+        $backend,
+        $versionPolicy
+    ) {
         if ('' === $name) {
             throw new \Exception(_('Please enter a software name.'));
         }
@@ -158,6 +165,11 @@ class SoftwareManagement extends FOGPage
         }
         if (!array_key_exists($backend, Software::BACKENDS)) {
             throw new \Exception(_('Please select a valid backend.'));
+        }
+        if ('pinned' === $versionPolicy
+            && in_array($backend, Software::UNPINNABLE, true)
+        ) {
+            throw new \Exception(Software::pinRefusal());
         }
     }
     /**
@@ -285,9 +297,9 @@ class SoftwareManagement extends FOGPage
             )
             . '<p class="form-text">'
             . _(
-                'Optional. A feed URL, folder or share passed to the '
-                . 'package manager as --source. Leave empty for the '
-                . 'manager\'s own configured sources.'
+                'Optional. Chocolatey: a feed URL, folder or share. '
+                . 'Flatpak: a remote name (empty means flathub). '
+                . 'Snap: a channel (empty means the snap\'s default).'
             )
             . '</p>',
             self::makeLabel(
@@ -464,7 +476,8 @@ class SoftwareManagement extends FOGPage
                     $package,
                     $timeout,
                     $state,
-                    $backend
+                    $backend,
+                    $versionPolicy
                 );
                 if ((new SoftwareManager())->exists($name)) {
                     throw new \Exception(
@@ -614,7 +627,8 @@ class SoftwareManagement extends FOGPage
             $package,
             $timeout,
             $state,
-            $backend
+            $backend,
+            $versionPolicy
         );
         $exists = (new SoftwareManager())->exists($name);
         if ($name != $this->obj->get('name')

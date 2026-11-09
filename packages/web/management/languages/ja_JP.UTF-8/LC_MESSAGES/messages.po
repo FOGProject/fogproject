@@ -3487,6 +3487,9 @@ msgstr "初回検出日時"
 msgid "First row is a header"
 msgstr "先頭行をヘッダーとして扱う"
 
+msgid "Flatpak and Snap cannot hold an exact version. Choose any version or latest."
+msgstr ""
+
 msgid "Fleet Report"
 msgstr "管理対象ホスト全体のレポート"
 
@@ -6548,8 +6551,8 @@ msgstr "%s に対する操作。"
 msgid "Optional read-only Windows observation sent in response to directory_check. It carries no credentials."
 msgstr ""
 
-msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
-msgstr "任意。パッケージマネージャーに --source として渡すフィード URL、フォルダー、または共有を指定します。空欄の場合はパッケージマネージャーに設定済みのソースを使用します。"
+msgid "Optional. Chocolatey: a feed URL, folder or share. Flatpak: a remote name (empty means flathub). Snap: a channel (empty means the snap's default)."
+msgstr ""
 
 msgid "Optional. Declares directory-join-target-v1 to bind this request to a live directory identity."
 msgstr ""
@@ -13394,6 +13397,9 @@ msgstr "{node}"
 
 #~ msgid "Option specifies the timeout value for the hidden menu system"
 #~ msgstr "非表示メニューのタイムアウト時間を指定します"
+
+#~ msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+#~ msgstr "任意。パッケージマネージャーに --source として渡すフィード URL、フォルダー、または共有を指定します。空欄の場合はパッケージマネージャーに設定済みのソースを使用します。"
 
 #~ msgid "Other Tag 2"
 #~ msgstr "その他タグ 2"
