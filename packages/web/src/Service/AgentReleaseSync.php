@@ -29,8 +29,9 @@ use FOG\Agent\Releases;
  * installer gives that directory to.
  *
  * Idle when nothing asks for a release: Off mode, no host's own desired
- * version, and no minimum version. A server that never turns updates on
- * then never contacts fogproject.org for them.
+ * version, and no minimum version. Latest is the default (schema 456), so
+ * a default server syncs; an admin who sets Off stops it contacting
+ * fogproject.org for releases.
  *
  * Only the master node syncs. Agents poll the web tier, which reads the
  * master's directory, and a storage node's copy would be one nobody reads.

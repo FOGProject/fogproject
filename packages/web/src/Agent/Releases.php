@@ -518,7 +518,7 @@ class Releases extends FOGBase
 
     /**
      * Whether anything on this server asks for a release, so the daemon
-     * can stay idle on the shipped default.
+     * stays idle when the mode is Off and nothing else asks.
      *
      * @return bool
      */
