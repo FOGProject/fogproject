@@ -12107,3 +12107,30 @@ $this->schema[] = [
     . "KEY `idx_directoryPlacementIntent_host_status` (`dpiHostID`,`dpiStatus`) "
     . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
 ];
+// 449
+$this->schema[] = [
+    // fog-agent self-update is on by default (2026-11-09). The legacy FOG
+    // Client updates itself, and admins expect the same from fog-agent.
+    // This reverses the choice step 438 made, that no server starts
+    // managing agent versions because it was upgraded.
+    //
+    // Every server stored as Off becomes Latest. That includes an Off that an
+    // admin chose on purpose on an RC server. The release notes say so, and
+    // the admin sets it back to Off under FOG Configuration. Pinned and
+    // Latest are untouched. A fresh install runs every step, so it reaches
+    // Latest too.
+    //
+    // Latest does not update the whole fleet at once. The update rings
+    // (default 0,3,7) still pace the rollout, and a host with no ring uses
+    // the last one.
+    "UPDATE `globalSettings` SET `settingValue` = 'latest' "
+    . "WHERE `settingKey` = 'FOG_AGENT_UPDATE_MODE' AND `settingValue` = 'off'",
+    "UPDATE `globalSettings` SET `settingDesc` = 'How enrolled fog-agent "
+    . "hosts update themselves. Off: no host updates, except a host with its "
+    . "own Desired Agent Version. Pinned: every host runs "
+    . "FOG_AGENT_DESIRED_VERSION. Latest: every host runs the newest release, "
+    . "after the delay of its update ring in FOG_AGENT_UPDATE_RINGS, and "
+    . "never moves below the version it runs unless that version is "
+    . "withdrawn. A host''s own Desired Agent Version overrides all three. "
+    . "(Default Latest)' WHERE `settingKey` = 'FOG_AGENT_UPDATE_MODE'",
+];
