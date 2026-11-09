@@ -400,6 +400,7 @@ class StorageGroup extends FOGController
             $getter = 'allnodes';
         }
         $winner = null;
+        $winnerLoad = null;
         Route::listem(
             'storagenode',
             ['id' => $this->get($getter)]
@@ -420,10 +421,16 @@ class StorageGroup extends FOGController
             if ($StorageNode->maxClients < 1) {
                 continue;
             }
-            if ($winner == null
-                || $StorageNode->clientload < $winner->clientload
-            ) {
+            // The load comes from the model, not the serialized row. The
+            // 1.6 storagenode serializer carries no `clientload` field, so
+            // reading it off the row compared null with null, nothing ever
+            // beat the first node, and every unicast deploy in the group
+            // queued on that one node while the others sat idle (forums
+            // 18310). 1.5's serializer carried the field; 1.6's never did.
+            $load = (new StorageNode($StorageNode->id))->getClientLoad();
+            if ($winner == null || $load < $winnerLoad) {
                 $winner = $StorageNode;
+                $winnerLoad = $load;
             }
             unset($StorageNode);
         }

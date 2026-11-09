@@ -345,7 +345,7 @@ class StorageNode extends FOGController
      *
      * @param int $Host the host id
      *
-     * @return object
+     * @return bool true while a failure for this host is still in force
      */
     public function getNodeFailure($Host)
     {
