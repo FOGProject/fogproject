@@ -1512,6 +1512,14 @@ abstract class FOGBase
         if (session_status() !== PHP_SESSION_ACTIVE) {
             return;
         }
+        // FOG 1.5 (and 1.6 builds before July 2026) stored FOG_MESSAGES as a
+        // string. A session written by that code is still readable after an
+        // upgrade, and `[]` on a string is a fatal error -- so every request
+        // in that browser 500s once the inactivity notice is queued.
+        // Forum topic 18308.
+        if (!is_array($_SESSION['FOG_MESSAGES'] ?? null)) {
+            $_SESSION['FOG_MESSAGES'] = [];
+        }
         $_SESSION['FOG_MESSAGES'][] = [
             'title' => (string)$title,
             'body' => (string)$body,
@@ -1532,7 +1540,9 @@ abstract class FOGBase
         }
         $messages = $_SESSION['FOG_MESSAGES'];
         unset($_SESSION['FOG_MESSAGES']);
-        return (array)$messages;
+        // Drop the pre-July-2026 string shape (see setMessage()). Cast to an
+        // array, it rendered as a toast with no title and no body.
+        return array_values(array_filter((array)$messages, 'is_array'));
     }
     /**
      * Insert before key in array.
