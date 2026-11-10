@@ -439,6 +439,18 @@ class Image extends FOGController
         return $this->get('os');
     }
     /**
+     * Returns the OS family (windows, macos, linux, other) for this image.
+     * FOS reads the family from here, not from a list of osIDs. Empty when
+     * the image has no valid OS; FOS reads that as "not sent".
+     *
+     * @return string
+     */
+    public function getOSFamily()
+    {
+        $OS = $this->getOS();
+        return $OS->isValid() ? $OS->get('family') : '';
+    }
+    /**
      * Returns the ImageType object
      *
      * @return object

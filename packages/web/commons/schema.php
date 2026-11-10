@@ -12297,3 +12297,28 @@ $this->schema[] = [
     . "withdrawn. A host''s own Desired Agent Version overrides all three. "
     . "(Default Latest)' WHERE `settingKey` = 'FOG_AGENT_UPDATE_MODE'",
 ];
+// 458
+$this->schema[] = [
+    // Each os row carries its family (fogproject#2083). FOS decided
+    // "Windows, Linux or macOS" from a hardcoded list of osID numbers, so
+    // every new os row needed a FOS release. The server now sends this
+    // column to FOS as osfamily, next to osid. A new OS then needs only a
+    // step that sets its family.
+    //
+    // The ENUM is the only check of the four values. On a server with
+    // STRICT_TRANS_TABLES (the MariaDB default; PDODB keeps it since
+    // GH-1245), an invalid write is refused with error 1265. A non-strict
+    // server stores '' instead. FOS reads an empty family as "not sent" and
+    // falls back to its own table.
+    //
+    // The backfill keys on osID and never on osName, so an admin's row
+    // named like a seeded one is not misclassified. Every other row keeps
+    // the column default, other. Chromium OS (51) is linux: FOS treats 50
+    // and 51 the same at every call site.
+    "ALTER TABLE `os` ADD COLUMN `osFamily` "
+    . "ENUM('windows','linux','macos','other') NOT NULL DEFAULT 'other'",
+    "UPDATE `os` SET `osFamily` = 'windows' "
+    . "WHERE `osID` IN (1, 2, 3, 4, 5, 6, 7, 9, 10, 11)",
+    "UPDATE `os` SET `osFamily` = 'macos' WHERE `osID` = 8",
+    "UPDATE `os` SET `osFamily` = 'linux' WHERE `osID` IN (50, 51)",
+];

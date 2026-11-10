@@ -831,6 +831,117 @@ $checks = [
         'expectCount' => ['set hostname ' => 1],
         'refuteLine' => ['staleinventoryname'],
     ],
+    /*
+     * fogproject#2083: the kernel line carries the image OS's family next
+     * to osid, so FOS no longer needs its own list of osID numbers. An
+     * empty value is "not sent" to FOS, so an image with no OS, and a
+     * task with no image at all, both get osfamily= rather than an error.
+     */
+    'getTasking sends the family of the image OS' => [
+        'scenario' => [
+            'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+            'host' => [
+                'id' => 1,
+                'name' => 'testhost',
+                'task' => [
+                    'id' => 1,
+                    'typeID' => 1,
+                    'tasktype' => [
+                        'id' => 1,
+                        'imaging' => true,
+                        'initneeded' => true,
+                        'kernelArgs' => 'type=down',
+                    ],
+                    'image' => [
+                        'id' => 1,
+                        'osID' => 10,
+                        'path' => 'testimage',
+                        'format' => 5,
+                        'imagetype' => 'mps',
+                        'partitiontype' => 'all',
+                    ],
+                ],
+            ],
+        ],
+        'expectLine' => [' osid=10 osfamily=windows irqpoll '],
+    ],
+    'getTasking sends an empty family for an image with no OS' => [
+        'scenario' => [
+            'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+            'host' => [
+                'id' => 1,
+                'name' => 'testhost',
+                'task' => [
+                    'id' => 1,
+                    'typeID' => 1,
+                    'tasktype' => [
+                        'id' => 1,
+                        'imaging' => true,
+                        'initneeded' => true,
+                        'kernelArgs' => 'type=down',
+                    ],
+                    'image' => [
+                        'id' => 1,
+                        'path' => 'testimage',
+                        'format' => 5,
+                        'imagetype' => 'mps',
+                        'partitiontype' => 'all',
+                    ],
+                ],
+            ],
+        ],
+        'expectLine' => [' osid=0 osfamily= irqpoll '],
+    ],
+    'getTasking sends an empty family for a task with no image' => [
+        'scenario' => [
+            'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+            'host' => [
+                'id' => 1,
+                'name' => 'testhost',
+                'task' => [
+                    'id' => 1,
+                    'typeID' => 12,
+                    'tasktype' => [
+                        'id' => 12,
+                        'imaging' => false,
+                        'initneeded' => false,
+                        'kernelArgs' => 'mode=wipe',
+                    ],
+                ],
+            ],
+        ],
+        'expectLine' => [' osid= osfamily= irqpoll '],
+        'refuteLine' => ['Fatal error', 'Uncaught'],
+    ],
+    'falseTasking sends the family of the image OS' => [
+        'scenario' => [
+            'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+            'requestMacs' => ['aa:bb:cc:dd:ee:ff'],
+            'falseTasking' => [
+                'id' => 1,
+                'osID' => 10,
+                'path' => 'testimage',
+                'format' => 5,
+                'imagetype' => 'mps',
+                'partitiontype' => 'all',
+            ],
+        ],
+        'expectLine' => [' osid=10 osfamily=windows irqpoll '],
+    ],
+    'falseTasking sends an empty family for an image with no OS' => [
+        'scenario' => [
+            'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+            'requestMacs' => ['aa:bb:cc:dd:ee:ff'],
+            'falseTasking' => [
+                'id' => 1,
+                'path' => 'testimage',
+                'format' => 5,
+                'imagetype' => 'mps',
+                'partitiontype' => 'all',
+            ],
+        ],
+        'expectLine' => [' osid= osfamily= irqpoll '],
+    ],
 ];
 
 $checkFailures = [];

@@ -161,6 +161,7 @@ abstract class BootMenuBase extends FOGBase
                     ]
                 );
                 $osid = (int)$Image->get('osID');
+                $osfamily = $Image->getOSFamily();
                 $storage = '';
                 $img = '';
                 $imgFormat = '';
@@ -288,6 +289,7 @@ abstract class BootMenuBase extends FOGBase
                 "storage=" . (isset($storage) ? $storage : ''),
                 "storageip=" . (isset($storageip) ? $storageip : ''),
                 "osid=" . (isset($osid) ? $osid : ''),
+                "osfamily=" . (isset($osfamily) ? $osfamily : ''),
                 "irqpoll",
                 [
                     'value' => "mcastrdv=". (isset($mcastrdv) ? $mcastrdv : ''),

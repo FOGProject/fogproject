@@ -839,11 +839,12 @@ return [
             ],
         ],
         'os' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `os` ( `osID` mediumint(9) NOT NULL AUTO_INCREMENT, `osName` varchar(30) NOT NULL, `osDescription` text NOT NULL DEFAULT \'\', PRIMARY KEY (`osID`), UNIQUE KEY `osName` (`osName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `os` ( `osID` mediumint(9) NOT NULL AUTO_INCREMENT, `osName` varchar(30) NOT NULL, `osDescription` text NOT NULL DEFAULT \'\', `osFamily` enum(\'windows\',\'linux\',\'macos\',\'other\') NOT NULL DEFAULT \'other\', PRIMARY KEY (`osID`), UNIQUE KEY `osName` (`osName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'osID' => 'mediumint(9) NOT NULL',
                 'osName' => 'varchar(30) NOT NULL',
                 'osDescription' => 'text NOT NULL DEFAULT \'\'',
+                'osFamily' => 'enum(\'windows\',\'linux\',\'macos\',\'other\') NOT NULL DEFAULT \'other\'',
             ],
         ],
         'oui' => [

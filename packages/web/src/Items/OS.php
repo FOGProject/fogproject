@@ -40,7 +40,8 @@ class OS extends FOGController
     protected $databaseFields = [
         'id' => 'osID',
         'name' => 'osName',
-        'description' => 'osDescription'
+        'description' => 'osDescription',
+        'family' => 'osFamily'
     ];
     /**
      * The required fields.
