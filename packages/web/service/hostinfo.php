@@ -105,6 +105,7 @@ try {
             $StorageNode = $StorageGroup->getOptimalStorageNode();
         }
         $osid = $Image->get('osID');
+        $osfamily = $Image->getOSFamily();
         $storage = sprintf(
             '%s:/%s/%s',
             trim($StorageNode->get('ip')),
@@ -239,6 +240,7 @@ try {
         'mac' => $mac,
         'ftp' => $ftp,
         'osid' => $osid,
+        'osfamily' => isset($osfamily) ? $osfamily : '',
         'storage' => $storage,
         'storageip' => $storageip,
         'img' => $img,

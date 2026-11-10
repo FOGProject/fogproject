@@ -368,6 +368,16 @@ gaps=$(UP15_HOST="$HOST" UP15_USER="$DBUSER" UP15_PASS="$DBPASS" \
                 $gaps[] = "row a fresh install does not have: $t.$c = $v";
             }
         }
+        // fogproject#2083: each os row carries its family, and an upgrade
+        // must reach the same family per osID as a fresh install. A row only
+        // one side has is already named by the seeded comparison above.
+        $f = $pdo->query("SELECT `osID`, `osFamily` FROM `$fresh`.`os`")->fetchAll(PDO::FETCH_KEY_PAIR);
+        $u = $pdo->query("SELECT `osID`, `osFamily` FROM `$up`.`os`")->fetchAll(PDO::FETCH_KEY_PAIR);
+        foreach ($f as $id => $fam) {
+            if (isset($u[$id]) && $u[$id] !== $fam) {
+                $gaps[] = "os.osFamily differs after the upgrade: osID $id is $u[$id], a fresh install has $fam";
+            }
+        }
         $q = $pdo->prepare("SELECT DISTINCT TABLE_NAME, INDEX_NAME FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = ?");
         $idx = [];
         foreach (["fresh" => $fresh, "up" => $up] as $side => $db) {

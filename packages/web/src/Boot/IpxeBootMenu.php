@@ -1681,6 +1681,7 @@ class IpxeBootMenu extends BootMenuBase
         $StorageGroup = $Image->getStorageGroup();
         $StorageNode = $StorageGroup->getOptimalStorageNode();
         $osid = $Image->get('osID');
+        $osfamily = $Image->getOSFamily();
         $storage = escapeshellcmd(
             sprintf(
                 '%s:/%s/%s',
@@ -1724,6 +1725,7 @@ class IpxeBootMenu extends BootMenuBase
             "storage=$storage",
             "storageip=$storageip",
             "osid=$osid",
+            "osfamily=$osfamily",
             "irqpoll",
             "chkdsk=$chkdsk",
             "img=$img",

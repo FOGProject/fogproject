@@ -378,6 +378,7 @@ os	1	osID	DT_RowId	f	-
 os	2	osName	name	-	-
 os	3	osName	mainlink	f:classname,tmpcolumns	-
 os	4	osDescription	description	-	-
+os	5	osFamily	family	-	-
 oui	0	ouiID	id	-	-
 oui	1	ouiID	DT_RowId	f	-
 oui	2	ouiMACPrefix	prefix	-	-
