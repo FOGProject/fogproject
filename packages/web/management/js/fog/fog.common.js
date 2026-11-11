@@ -1055,6 +1055,30 @@ $.escapeHtml = function(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 }
+// The "Create new tasking" modal's form fetch failed: say why IN the modal.
+//
+// The host, group and task list pages each opened the modal on "Loading,
+// please wait...", then fetched ?sub=deploy. On a refusal the host and task
+// pages called modal('hide'), and Bootstrap 5 drops a hide() that lands
+// inside the show transition. A 400 comes back faster than the fade, so the
+// box stayed on "Loading" with only a toast to say why. The group page did
+// not try to hide it at all. Forum topic 18314: a host with no image, whose
+// 400 says "Assigned image is invalid". The mass edit modal fixed the same
+// race the same way ($.registerMassEdit).
+$.taskFormFailed = function(jqXHR, taskName) {
+  var reason = (jqXHR.responseJSON && jqXHR.responseJSON.error)
+    || jqXHR.statusText
+    || 'Request failed';
+  $('#task-modal .modal-dialog').setLoading(false);
+  $('.task-name').text(taskName);
+  // Escaped: the reason is server text going into markup.
+  $('#task-form-holder').html(
+    '<div class="alert alert-danger mb-0">'
+    + $.escapeHtml(String(reason))
+    + '</div>'
+  );
+  $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+};
 // A DataTables column definition for a field that is PLAIN TEXT.
 //
 // Route's list formatters return text, not markup, and DataTables writes cell
