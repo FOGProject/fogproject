@@ -131,6 +131,13 @@ class Printer_Deployment extends ReportManagement
         // and that is the whole reason the table exists: a machine with a
         // working spooler and no queues has ANSWERED, and joining to
         // hostPrinter would file it with the machines that never did.
+        //
+        // A host that sets no level runs at the server default, so it is
+        // in when the default manages printers. Resolver::resolvePrinterLevel()
+        // is the same rule for one host.
+        $managed = Resolver::printerLevelDefault() > 0
+            ? "`hostPrinterLevel` <> '0'"
+            : "`hostPrinterLevel` IN ('1', '2')";
         $sql = "SELECT `hostID`,
                        `hostName`,
                        `hostPrinterLevel`,
@@ -139,8 +146,7 @@ class Printer_Deployment extends ReportManagement
                        `hspObservedAt`
                   FROM `hosts`
                   LEFT OUTER JOIN `hostSpooler` ON `hspHostID` = `hostID`
-                 WHERE `hostPrinterLevel` <> ''
-                   AND `hostPrinterLevel` <> '0'
+                 WHERE " . $managed . "
                  ORDER BY `hostName` ASC
                  LIMIT " . (self::MAX_ROWS + 1);
 
@@ -181,7 +187,9 @@ class Printer_Deployment extends ReportManagement
 
             $data[] = [
                 'hostName' => (string)($row['hostName'] ?? ''),
-                'mode' => self::mode($row['hostPrinterLevel'] ?? ''),
+                'mode' => self::mode(
+                    Resolver::resolvePrinterLevel($row['hostPrinterLevel'] ?? '')
+                ),
                 'spooler' => (string)($row['hspSubsystem'] ?? ''),
                 'assigned' => implode(', ', array_keys($want)),
                 'installed' => implode(', ', array_keys($have)),

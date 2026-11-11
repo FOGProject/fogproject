@@ -94,6 +94,12 @@ use FOG\Base\FOGBase;
 class Resolver extends FOGBase
 {
     /**
+     * The printer levels a host can store: 0 off, 1 add/remove managed
+     * printers, 2 all printers.
+     */
+    const PRINTER_LEVELS = ['0', '1', '2'];
+
+    /**
      * Resolves the ordered snapin list for each host.
      *
      * @param array $hostIDs the hosts to resolve for
@@ -310,6 +316,55 @@ class Resolver extends FOGBase
         }
 
         return $resolved;
+    }
+
+    /**
+     * The printer level a host with no level of its own gets.
+     *
+     * FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL (schema step 459). A value
+     * outside 0-2 reads as 0, the level that changes nothing on the machine.
+     *
+     * @return int 0, 1 or 2
+     */
+    public static function printerLevelDefault()
+    {
+        $default = (string)self::getSetting(
+            'FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL'
+        );
+
+        return in_array($default, self::PRINTER_LEVELS, true)
+            ? (int)$default
+            : 0;
+    }
+
+    /**
+     * The printer level a host runs at.
+     *
+     * The level is the host's own, never a group grant. A host can be in
+     * several groups, and a grant only adds; it cannot overrule. Level 2
+     * also removes printers, so "highest group wins" would let joining a
+     * group strip printers from a machine.
+     *
+     * So it resolves like a module (GH-1972) without the group tier:
+     *
+     *   host stores 0, 1 or 2   the host's level. Beats the default.
+     *   anything else ('')      not set: the server default.
+     *
+     * '' is what the column holds on a host nobody set a level on. 1.5 never
+     * wrote one at creation, so upgraded hosts keep '' or the value someone
+     * saved. With the default at 0 every host resolves as before.
+     *
+     * @param mixed $stored the host's `hostPrinterLevel`
+     *
+     * @return int 0, 1 or 2
+     */
+    public static function resolvePrinterLevel($stored)
+    {
+        $stored = trim((string)$stored);
+
+        return in_array($stored, self::PRINTER_LEVELS, true)
+            ? (int)$stored
+            : self::printerLevelDefault();
     }
 
     /**
