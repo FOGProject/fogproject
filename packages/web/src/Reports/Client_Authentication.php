@@ -25,7 +25,7 @@ use FOG\Router\Route;
  * needed Reset Encryption Data (forum topic 18312).
  *
  * FOGPage::authorize() now keeps the current failure run on the host row
- * (schema 459), and this report lists every host that has one. A host leaves
+ * (schema 460), and this report lists every host that has one. A host leaves
  * the list on its next successful handshake, not when somebody presses the
  * reset button, so an empty report means the clients really recovered.
  *

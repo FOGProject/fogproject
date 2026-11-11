@@ -1,6 +1,6 @@
 <?php
 /**
- * A legacy FOG Client's failed handshakes are kept on its host (schema 459).
+ * A legacy FOG Client's failed handshakes are kept on its host (schema 460).
  *
  * Forum topic 18312: a client that fails FOGPage::authorize() retries on
  * every check-in, forever, and FOG answered with HTTP 200 and recorded
@@ -15,7 +15,7 @@
  *   - clearAuthFailure() writes nothing when there is no run to clear, so
  *     a healthy check-in costs no extra query, and clears all four when
  *     there is one;
- *   - the four fields map to the schema-459 columns and are server-owned.
+ *   - the four fields map to the schema-460 columns and are server-owned.
  *
  * Pinned by source, because authorize() ends the request with exit:
  *   - the catch records '#!ist' as 'ist' and certDecrypt()'s failure as
@@ -149,7 +149,7 @@ $t->check(
 $fields = (new \ReflectionClass(\FOG\Items\Host::class))
     ->getDefaultProperties()['databaseFields'];
 $t->check(
-    'the four fields map to the schema-459 columns',
+    'the four fields map to the schema-460 columns',
     'hostAuthFailSince' === ($fields['authFailSince'] ?? null)
         && 'hostAuthFailCode' === ($fields['authFailCode'] ?? null)
         && 'hostAuthFailCount' === ($fields['authFailCount'] ?? null)

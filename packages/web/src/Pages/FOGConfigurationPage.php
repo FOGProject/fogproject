@@ -4829,6 +4829,21 @@ class FOGConfigurationPage extends FOGPage
                     $vals
                 );
                 break;
+            case 'FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL':
+                // Schema 459. The level a host with no level of its own
+                // runs at (Resolver::resolvePrinterLevel()).
+                $vals = [
+                    _('No Printer Management') => '0',
+                    _('Add/Remove Managed Printers') => '1',
+                    _('All Printers') => '2'
+                ];
+                $input = self::_selectInput(
+                    $row['settingID'],
+                    $row['settingKey'],
+                    $row['settingValue'],
+                    $vals
+                );
+                break;
             case 'FOG_HOST_IDENTIFY_SMBIOS':
                 $vals = [
                     _('Off - MAC address only') => 'off',
@@ -5348,6 +5363,16 @@ class FOGConfigurationPage extends FOGPage
                         if (!in_array($set ?? '', \FOG\Agent\Update::MODES, true)) {
                             throw new \Exception(
                                 $name . ' ' . _('must be off, pinned or latest')
+                            );
+                        }
+                        break;
+                    case 'FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL':
+                        // Refused rather than stored: a bad value would
+                        // read as 0 and turn printer management off on
+                        // every host that follows the default.
+                        if (!in_array($set ?? '', \FOG\Assign\Resolver::PRINTER_LEVELS, true)) {
+                            throw new \Exception(
+                                $name . ' ' . _('must be 0, 1 or 2')
                             );
                         }
                         break;

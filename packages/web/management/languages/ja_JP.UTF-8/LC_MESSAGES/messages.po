@@ -1882,6 +1882,9 @@ msgstr ""
 msgid "Clear on all"
 msgstr "すべての対象でクリア"
 
+msgid "Clear on all: the hosts follow the server default."
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr "個人設定の項目を 1 つクリア"
 
@@ -9801,6 +9804,9 @@ msgstr "このモジュールには設定可能な項目がありません。"
 msgid "This host failed imaging %1$s: %2$s"
 msgstr "このホストのイメージ %1$s の処理に失敗しました: %2$s"
 
+msgid "This host follows the default printer level in FOG Configuration, FOG Client - Printer Manager. A change to the default reaches this host."
+msgstr ""
+
 msgid "This host has already joined this multicast session, which is now under way. A host cannot rejoin a session in progress. Cancel the task and re-create it once the current session has finished."
 msgstr "このホストは既にこのマルチキャストセッションに参加しており、セッションは現在進行中です。進行中のセッションに再参加することはできません。現在のセッションが終了した後、タスクをキャンセルして再作成してください。"
 
@@ -10431,6 +10437,10 @@ msgstr "サポートが必要な場合は、以下のリンクを参照してく
 
 msgid "Use the selector to choose how many items you want exported"
 msgstr "セレクターでエクスポートする項目数を指定してください"
+
+#, fuzzy, php-format
+msgid "Use the server default (now: %s)"
+msgstr "サーバーの既定値（%s）"
 
 msgid "Use this only to move users to another FOG server. The hashes are not the passwords, but anyone who holds the file can try to crack them offline. API tokens are never exported; issue new ones on the other server."
 msgstr ""
@@ -11513,6 +11523,10 @@ msgstr "JSON ではなく multipart/form-data 形式で送信します。ファ�
 msgid "multiple places to get your image"
 msgstr "イメージの取得先が複数ある"
 
+#, fuzzy
+msgid "must be 0, 1 or 2"
+msgstr "指定できる値は off、pinned、latest のいずれかです"
+
 msgid "must be a whole number from 0 to 100"
 msgstr "0～100 の整数で指定してください"
 
@@ -11708,6 +11722,10 @@ msgstr "ベースポートから送信中"
 
 msgid "served from the unresolved cache"
 msgstr "未解決キャッシュから返されました"
+
+#, fuzzy
+msgid "server default (all)"
+msgstr "サーバーの既定値（%s）"
 
 msgid "server does not appear to be online"
 msgstr "サーバーはオンラインではないようです"

@@ -2144,6 +2144,9 @@ msgstr ""
 msgid "Clear on all"
 msgstr ""
 
+msgid "Clear on all: the hosts follow the server default."
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -11322,6 +11325,9 @@ msgstr ""
 msgid "This host failed imaging %1$s: %2$s"
 msgstr "Dieser Host ist bereits vorhanden."
 
+msgid "This host follows the default printer level in FOG Configuration, FOG Client - Printer Manager. A change to the default reaches this host."
+msgstr ""
+
 msgid "This host has already joined this multicast session, which is now under way. A host cannot rejoin a session in progress. Cancel the task and re-create it once the current session has finished."
 msgstr ""
 
@@ -12028,6 +12034,10 @@ msgstr ""
 
 msgid "Use the selector to choose how many items you want exported"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Use the server default (now: %s)"
+msgstr "Allgemeine Informationen"
 
 msgid "Use this only to move users to another FOG server. The hashes are not the passwords, but anyone who holds the file can try to crack them offline. API tokens are never exported; issue new ones on the other server."
 msgstr ""
@@ -13261,6 +13271,9 @@ msgstr ""
 msgid "multiple places to get your image"
 msgstr "Orte gibt, an denen Sie Ihr Image abrufen können"
 
+msgid "must be 0, 1 or 2"
+msgstr ""
+
 msgid "must be a whole number from 0 to 100"
 msgstr ""
 
@@ -13473,6 +13486,10 @@ msgstr "Senden auf Basis-Port"
 
 msgid "served from the unresolved cache"
 msgstr ""
+
+#, fuzzy
+msgid "server default (all)"
+msgstr "Allgemeine Informationen"
 
 msgid "server does not appear to be online"
 msgstr ""

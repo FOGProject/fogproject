@@ -3617,7 +3617,7 @@ abstract class FOGPage extends FOGBase
                     )
                 );
             }
-            // Schema 459: a handshake that was stored ends a failure run. A
+            // Schema 460: a handshake that was stored ends a failure run. A
             // failed save handed the client a token the server never kept,
             // so it is not a recovery.
             if (self::$Host->save()) {

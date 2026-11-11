@@ -1,10 +1,10 @@
 <?php
 /**
- * Schema step 459 adds the legacy client's failure run to `hosts`, and the
+ * Schema step 460 adds the legacy client's failure run to `hosts`, and the
  * SQL that writes it does what Host says it does (forum topic 18312).
  *
  * Against a real server:
- *   - the REAL step 459 runs on a pre-step `hosts` table;
+ *   - the REAL step 460 runs on a pre-step `hosts` table;
  *   - the four columns it makes are defined exactly as the manifest says,
  *     so a fresh install and an upgraded one agree;
  *   - Host::recordAuthFailure()'s statement, executed twice, counts two,
@@ -25,7 +25,7 @@
  * Usage:
  *   FOG_TEST_DSN='mysql:host=127.0.0.1;dbname=fog' \
  *   FOG_TEST_USER=... FOG_TEST_PASS=... \
- *   php tests/schema-459-client-auth-failure-db.test.php
+ *   php tests/schema-460-client-auth-failure-db.test.php
  *
  * With no dbname in the DSN, a scratch database is created and dropped.
  *
@@ -33,13 +33,13 @@
  */
 
 if (!getenv('FOG_TEST_DSN')) {
-    echo "SKIP schema 459 client auth failure: FOG_TEST_DSN not set\n";
+    echo "SKIP schema 460 client auth failure: FOG_TEST_DSN not set\n";
     exit(0);
 }
 
 require __DIR__ . '/lib/fog-test-harness.php';
 
-FogTestHarness::boot('schema-459-client-auth-failure-db');
+FogTestHarness::boot('schema-460-client-auth-failure-db');
 FogTestHarness::fakeDb();
 
 $dsn = (string)getenv('FOG_TEST_DSN');
@@ -53,7 +53,7 @@ $pdo = new \PDO(
 );
 $scratch = null;
 if (!preg_match('/dbname=/i', $dsn)) {
-    $scratch = 'fog_schema459_test';
+    $scratch = 'fog_schema460_test';
     $pdo->exec("DROP DATABASE IF EXISTS `$scratch`");
     $pdo->exec("CREATE DATABASE `$scratch`");
     $pdo->exec("USE `$scratch`");
@@ -88,13 +88,13 @@ require __DIR__ . '/lib/fog-schema-collector.php';
 $steps = fogCollectSchemaSteps(
     dirname(__DIR__) . '/packages/web/commons/schema.php',
     'fog',
-    459
+    460
 );
-$step = $steps[458] ?? null;
+$step = $steps[459] ?? null;
 if (!is_array($step) || !$step
     || false === strpos(implode("\n", array_filter($step, 'is_string')), 'hostAuthFail')
 ) {
-    fwrite(STDERR, "FAIL: schema 459 must be the hostAuthFail step at index 458\n");
+    fwrite(STDERR, "FAIL: schema 460 must be the hostAuthFail step at index 459\n");
     exit(1);
 }
 
@@ -105,7 +105,7 @@ try {
         if (is_string($sql)) {
             $pdo->exec($sql);
         } else {
-            $failures[] = 'step 459 holds a non-string element';
+            $failures[] = 'step 460 holds a non-string element';
         }
     }
 } catch (\Throwable $e) {
@@ -192,8 +192,8 @@ if (null !== $scratch) {
 }
 
 if ($failures) {
-    fwrite(STDERR, "FAIL: schema 459 client auth failure\n  - " . implode("\n  - ", $failures) . "\n");
+    fwrite(STDERR, "FAIL: schema 460 client auth failure\n  - " . implode("\n  - ", $failures) . "\n");
     exit(1);
 }
-echo "PASS  schema 459 matches the manifest, and the run is counted, kept and cleared\n";
+echo "PASS  schema 460 matches the manifest, and the run is counted, kept and cleared\n";
 exit(0);

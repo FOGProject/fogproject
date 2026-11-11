@@ -595,7 +595,7 @@ class Route extends FOGBase
             // and has to be able to type it.
             'sbstate',
             'sbstatetime',
-            // The legacy client's failed handshakes (schema 459). A report
+            // The legacy client's failed handshakes (schema 460). A report
             // of what the server answered, written by authorize() only.
             'authFailSince',
             'authFailCode',

@@ -156,7 +156,7 @@ class Host extends FOGController
         // join password (HostnameChanger::json()). Cleared with the key.
         // Last, so a headerless CSV import keeps every older column's slot.
         'sec_vouched' => 'hostSecVouched',
-        // The legacy client's failed handshakes (schema 459): since when, the
+        // The legacy client's failed handshakes (schema 460): since when, the
         // code it was answered with, how many in a row, and the address the
         // last one came from. Written only by recordAuthFailure() and
         // clearAuthFailure() below. Appended after sec_vouched for the same
