@@ -12322,3 +12322,33 @@ $this->schema[] = [
     "UPDATE `os` SET `osFamily` = 'macos' WHERE `osID` = 8",
     "UPDATE `os` SET `osFamily` = 'linux' WHERE `osID` IN (50, 51)",
 ];
+// 459
+$this->schema[] = [
+    // The legacy FOG Client's failed handshakes, per host (forum topic
+    // 18312). FOG answered them with HTTP 200 and wrote them nowhere, so the
+    // only evidence was the client's own log on each machine.
+    //
+    // Only FOGPage::authorize() writes these, and only for the two failures
+    // a client cannot recover from by itself: 'ist' (the token it presented
+    // is not the host's) and 'dec' (the server could not decrypt its session
+    // key: the client encrypts for a key this server does not hold). Both
+    // repeat on every check-in. The '#!ihc' answers are
+    // not recorded: sendData() returns one when a session key expires, which
+    // is routine, and authorize() returns one for a missing key, which no
+    // working client sends.
+    //
+    // State, not a log. A stuck client fails on every check-in, so a row per
+    // failure would grow without limit. hostAuthFailSince is the first
+    // failure of the current run, and the next successful handshake clears
+    // all four columns. So a host stays listed until it has recovered, not
+    // only until somebody pressed the reset button.
+    //
+    // Advisory. The handshake picks the host by the MAC in the request, so
+    // any machine on the LAN can make a host fail. Nothing acts on these
+    // columns. hostAuthFailIP shows where the last failure came from.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostAuthFailSince` datetime DEFAULT NULL, "
+    . "ADD COLUMN `hostAuthFailCode` varchar(8) NOT NULL DEFAULT '', "
+    . "ADD COLUMN `hostAuthFailCount` int(10) unsigned NOT NULL DEFAULT 0, "
+    . "ADD COLUMN `hostAuthFailIP` varchar(45) NOT NULL DEFAULT ''",
+];

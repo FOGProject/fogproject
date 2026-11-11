@@ -407,6 +407,37 @@
           }
         });
       break;
+      // Client Authentication Failures
+      //
+      // Oldest run first, matching the server's ORDER BY: the host stuck the
+      // longest is the one most likely forgotten. hostLink is markup the
+      // server built through entityLink(), which escapes the name, so it is
+      // the one column not passed through render.text().
+    case 'client authentication':
+      var clientAuthTable = $('#clientauthreport-table'),
+        table = clientAuthTable.registerTable(null, {
+          order: [
+            [2, 'asc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'hostLink'},
+            {data: 'problem', render: $.fn.dataTable.render.text()},
+            {data: 'since', render: $.fn.dataTable.render.text()},
+            {data: 'count', render: $.fn.dataTable.render.text()},
+            {data: 'ip', render: $.fn.dataTable.render.text()},
+            {data: 'checkin', render: $.fn.dataTable.render.text()},
+            {data: 'action', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
       // Installed Software
       //
       // Not serverSide, same reasoning as software report above: reportRows()

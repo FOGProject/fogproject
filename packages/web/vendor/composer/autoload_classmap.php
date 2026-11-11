@@ -305,6 +305,7 @@ return array(
     'FOG\\Pages\\UserGroupManagement' => $baseDir . '/src/Pages/UserGroupManagement.php',
     'FOG\\Pages\\UserManagement' => $baseDir . '/src/Pages/UserManagement.php',
     'FOG\\Reports\\Audit_Report' => $baseDir . '/src/Reports/Audit_Report.php',
+    'FOG\\Reports\\Client_Authentication' => $baseDir . '/src/Reports/Client_Authentication.php',
     'FOG\\Reports\\Directory_Membership' => $baseDir . '/src/Reports/Directory_Membership.php',
     'FOG\\Reports\\File_Deleter' => $baseDir . '/src/Reports/File_Deleter.php',
     'FOG\\Reports\\Fleet_Report' => $baseDir . '/src/Reports/Fleet_Report.php',

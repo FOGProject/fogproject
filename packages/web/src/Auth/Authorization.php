@@ -136,6 +136,10 @@ class Authorization extends FOGBase
         'directory_membership' => 'host',
         'printer_deployment' => 'host',
         'user_sessions' => 'host',
+        // Client Authentication Failures reads the `hosts` row: names,
+        // failure state and the address each failure came from. Same
+        // reasoning (ADR 0030 decision 4).
+        'client_authentication' => 'host',
         // Storage Report reads `images`, `imageGroupAssoc`, `nfsGroups` and
         // `nfsGroupMembers`. Group and node names are the part not already
         // reachable from a narrower screen, so it lands on storagenode.

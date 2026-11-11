@@ -595,6 +595,12 @@ class Route extends FOGBase
             // and has to be able to type it.
             'sbstate',
             'sbstatetime',
+            // The legacy client's failed handshakes (schema 459). A report
+            // of what the server answered, written by authorize() only.
+            'authFailSince',
+            'authFailCode',
+            'authFailCount',
+            'authFailIP',
         ],
         'user' => [
             'token',
@@ -4140,6 +4146,8 @@ class Route extends FOGBase
                     // beside them, which are their own columns.
                 case 'sbstatetime':
                 case 'sbenrolled':
+                    // Stamped with the same niceDate() writer as lastcheckin.
+                case 'authFailSince':
                     $columns[] = [
                         'db' => $real,
                         'dt' => $common,

@@ -155,7 +155,16 @@ class Host extends FOGController
         // administrator approved it. Only a vouched key is sent the domain
         // join password (HostnameChanger::json()). Cleared with the key.
         // Last, so a headerless CSV import keeps every older column's slot.
-        'sec_vouched' => 'hostSecVouched'
+        'sec_vouched' => 'hostSecVouched',
+        // The legacy client's failed handshakes (schema 459): since when, the
+        // code it was answered with, how many in a row, and the address the
+        // last one came from. Written only by recordAuthFailure() and
+        // clearAuthFailure() below. Appended after sec_vouched for the same
+        // CSV reason.
+        'authFailSince' => 'hostAuthFailSince',
+        'authFailCode' => 'hostAuthFailCode',
+        'authFailCount' => 'hostAuthFailCount',
+        'authFailIP' => 'hostAuthFailIP'
     ];
     /**
      * The required fields
@@ -462,6 +471,73 @@ class Host extends FOGController
             }
         }
         return $this->load();
+    }
+    /**
+     * Records a failed legacy-client handshake against this host.
+     *
+     * A targeted UPDATE of the four columns, never save(). authorize() can
+     * throw after it has set() a rotated token on this object, and a save()
+     * here would commit that token while the client still holds the old one.
+     *
+     * The count is incremented in SQL, so two concurrent failures both count.
+     * hostAuthFailSince keeps the first failure of the run: the IFNULL makes
+     * it independent of the order MySQL applies the SET list in.
+     *
+     * @param string $code 'ist' (token mismatch) or 'dec' (undecryptable key)
+     *
+     * @return void
+     */
+    public function recordAuthFailure($code)
+    {
+        if (!$this->get('id')) {
+            return;
+        }
+        self::$DB->query(
+            'UPDATE `hosts` SET '
+            . '`hostAuthFailSince` = IFNULL(`hostAuthFailSince`, :since), '
+            . '`hostAuthFailCode` = :code, '
+            . '`hostAuthFailCount` = `hostAuthFailCount` + 1, '
+            . '`hostAuthFailIP` = :ip '
+            . 'WHERE `hostID` = :id',
+            [],
+            [
+                ':since' => self::niceDate()->format('Y-m-d H:i:s'),
+                ':code' => substr((string)$code, 0, 8),
+                ':ip' => substr((string)self::$remoteaddr, 0, 45),
+                ':id' => (int)$this->get('id')
+            ]
+        );
+    }
+    /**
+     * Clears the failure record after a successful handshake.
+     *
+     * Skipped when there is nothing to clear, so a healthy check-in costs no
+     * extra write. Reads the value loaded with this request's host.
+     *
+     * save() writes every mapped field, these four included, so a host
+     * object loaded before a failure or a clear and saved after it puts the
+     * old values back. That is the same for every server-owned column on
+     * this model. It heals by itself: the record is advisory, and the
+     * client's next successful handshake, at most one key lifetime away,
+     * reads a non-zero count and clears it again.
+     *
+     * @return void
+     */
+    public function clearAuthFailure()
+    {
+        if (!$this->get('id') || (int)$this->get('authFailCount') < 1) {
+            return;
+        }
+        self::$DB->query(
+            'UPDATE `hosts` SET '
+            . '`hostAuthFailSince` = NULL, '
+            . "`hostAuthFailCode` = '', "
+            . '`hostAuthFailCount` = 0, '
+            . "`hostAuthFailIP` = '' "
+            . 'WHERE `hostID` = :id',
+            [],
+            [':id' => (int)$this->get('id')]
+        );
     }
     /**
      * Defines if the host is valid

@@ -3617,9 +3617,43 @@ abstract class FOGPage extends FOGBase
                     )
                 );
             }
-            self::$Host->save();
+            // Schema 459: a handshake that was stored ends a failure run. A
+            // failed save handed the client a token the server never kept,
+            // so it is not a recovery.
+            if (self::$Host->save()) {
+                self::$Host->clearAuthFailure();
+            }
             echo $response;
         } catch (\Exception $e) {
+            /**
+             * Record the two failures a client cannot leave by itself, so the
+             * Client Authentication Failures report can list the host (forum
+             * topic 18312). Both repeat on every check-in:
+             *
+             *   'ist' -- the token it presented is not the host's. Reset
+             *            Encryption Data ends it.
+             *   'dec' -- certDecrypt() could not open its session key: the
+             *            client encrypts for a different server's
+             *            certificate. A reset does not end it.
+             *
+             * '#!ihc' here is not recorded. It means sym_key was empty or
+             * the wrong length, which no working client sends. '#!ih' has no
+             * host to record against, and the other certDecrypt() errors are
+             * faults on this server, not the client's.
+             *
+             * Both recorded codes can be caused from the LAN: the host is
+             * chosen by the request's MAC, and junk in sym_key is enough for
+             * 'dec'. The record is advisory and carries the source address.
+             */
+            $code = '';
+            if ('#!ist' === $e->getMessage()) {
+                $code = 'ist';
+            } elseif (_('Failed to decrypt data on server') === $e->getMessage()) {
+                $code = 'dec';
+            }
+            if ('' !== $code && self::$Host->isValid()) {
+                self::$Host->recordAuthFailure($code);
+            }
             /**
              * These must go out as HTTP 200 with the error in the BODY.
              *
