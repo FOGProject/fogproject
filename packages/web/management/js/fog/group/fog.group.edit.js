@@ -194,7 +194,9 @@
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     if(textStatus == 'abort') return; // Do not show error message on abort.
-                    $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+                    req = null;
+                    // See $.taskFormFailed (forum 18314).
+                    $.taskFormFailed(jqXHR, taskName);
                 }
             });
         });

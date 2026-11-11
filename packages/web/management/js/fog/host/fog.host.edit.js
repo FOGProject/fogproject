@@ -614,8 +614,9 @@
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     if(textStatus == 'abort') return; // Do not show error message on abort.
-                    taskModal.modal('hide');
-                    $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+                    req = null;
+                    // The modal stays open: see $.taskFormFailed (forum 18314).
+                    $.taskFormFailed(jqXHR, taskName);
                 }
             });
         });
