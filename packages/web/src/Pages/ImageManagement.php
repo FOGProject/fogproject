@@ -145,7 +145,7 @@ class ImageManagement extends FOGPage
         if ($storagegroup > 0) {
             $sgID = $storagegroup;
         } else {
-            $sgID = @min(Route::getIds('storagegroup', false));
+            $sgID = self::minId(Route::getIds('storagegroup', false));
         }
         $StorageGroup = new StorageGroup($sgID);
         $StorageGroups = (new StorageGroupManager())
@@ -446,7 +446,7 @@ class ImageManagement extends FOGPage
                     (string)filter_input(INPUT_POST, 'storagegroup')
                 );
                 if (!$storagegroup) {
-                    $storagegroup = @min(Route::getIds('storagegroup', false));
+                    $storagegroup = self::minId(Route::getIds('storagegroup', false));
                 }
                 $os = (int)trim(
                     (string)filter_input(INPUT_POST, 'os')

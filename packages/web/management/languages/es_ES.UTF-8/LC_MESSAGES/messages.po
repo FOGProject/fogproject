@@ -274,6 +274,10 @@ msgid "%s is required"
 msgstr "%s se requiere"
 
 #, php-format
+msgid "%s is set by the server; the imported value was ignored"
+msgstr ""
+
+#, php-format
 msgid "%s needs more than one host"
 msgstr ""
 
@@ -447,6 +451,9 @@ msgstr "Se requiere un nombre de imagen!"
 msgid "A denied agent keeps asking and keeps being refused until it is enrolled with a new key."
 msgstr ""
 
+msgid "A directory rejoin result the server refuses. The reason codes include these: it names another attempt, revision, task or fingerprint than the stored plan (rejoin_result_mismatch), arrives out of order (rejoin_result_out_of_order), changed meanwhile (rejoin_result_changed), reports a native failure as success (rejoin_native_success_required), finds a different or unverifiable directory account (rejoin_target_changed, rename_identity_unverified, rename_target_unverified), or reports verified without a healthy secure channel, a changed boot, the planned name and the planned domain (rejoin_verification_incomplete). A directory outage or a lookup error (rejoin_directory_unavailable, rejoin_lookup_failed), a concurrent change (rejoin_plan_changed, rejoin_deadlock_retry) or an unreadable stored state (rejoin_state_invalid) is also a 409; retry later. Nothing is recorded."
+msgstr ""
+
 msgid "A disabled entry stops being managed; it does not remove the package."
 msgstr ""
 
@@ -564,6 +571,14 @@ msgstr "Una imagen ya existe con este nombre!"
 
 #, php-format
 msgid "A request is pending since %s for %s."
+msgstr ""
+
+#, php-format
+msgid "A request to move this computer object to %s has an unknown result. Read the directory to see where the object is."
+msgstr ""
+
+#, php-format
+msgid "A request to move this computer object to %s may have run, or may still be running."
 msgstr ""
 
 msgid "A revoked token can never approve an enrollment again."
@@ -1250,6 +1265,9 @@ msgstr "Grupo de almacenamiento primaria"
 msgid "Allow API"
 msgstr ""
 
+msgid "Allow Computer Account Creation"
+msgstr ""
+
 #, fuzzy
 msgid "Allowed"
 msgstr "No nodo asociado"
@@ -1406,6 +1424,18 @@ msgid "Approve Agent Fail"
 msgstr "Creado"
 
 #, fuzzy
+msgid "Approve FOG Client"
+msgstr "FOG Wiki Cliente"
+
+#, fuzzy
+msgid "Approve FOG Client Fail"
+msgstr "Creado"
+
+#, fuzzy
+msgid "Approve FOG Client Success"
+msgstr "creado por el usuario"
+
+#, fuzzy
 msgid "Approve MAC Fail"
 msgstr "Creado"
 
@@ -1446,6 +1476,9 @@ msgstr "retirar"
 #, fuzzy
 msgid "Approved selected macs!"
 msgstr "retirar"
+
+msgid "Approved. The FOG Client on this host receives the domain join password."
+msgstr ""
 
 #, fuzzy
 msgid "Approving the selected pending hosts."
@@ -1561,6 +1594,9 @@ msgstr ""
 msgid "Available downloads"
 msgstr "Ningún archivo fue subido"
 
+msgid "Awaiting reboot"
+msgstr ""
+
 msgid "BIOS Date"
 msgstr "Fecha del BIOS"
 
@@ -1610,7 +1646,16 @@ msgstr "Contraseña de dominio"
 msgid "Blank starts at the domain root"
 msgstr ""
 
+msgid "Blank uses the global FOG_FTP_PORT"
+msgstr ""
+
+msgid "Blank uses the global FOG_SSH_PORT"
+msgstr ""
+
 msgid "Blank: each host joins with its own account"
+msgstr ""
+
+msgid "Blocked"
 msgstr ""
 
 msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
@@ -2045,6 +2090,9 @@ msgstr ""
 msgid "Check the capture folder is owned by and writable to the storage node user"
 msgstr ""
 
+msgid "Check the live agent identity"
+msgstr ""
+
 msgid "Check the password stored for this node"
 msgstr ""
 
@@ -2106,7 +2154,16 @@ msgstr "Tareas"
 msgid "Clear Fields"
 msgstr ""
 
+msgid "Clear OU placement review"
+msgstr ""
+
+msgid "Clear directory operation review"
+msgstr ""
+
 msgid "Clear on all"
+msgstr ""
+
+msgid "Clear on all: the hosts follow the server default."
 msgstr ""
 
 msgid "Clear one of your preferences"
@@ -2115,6 +2172,12 @@ msgstr ""
 #, fuzzy
 msgid "Clear schedules from member hosts"
 msgstr "Programador"
+
+#, php-format
+msgid "Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minute after its last change, because the directory may still apply it."
+msgid_plural "Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minutes after its last change, because the directory may still apply it."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Click"
 msgstr "Hacer clic"
@@ -2132,6 +2195,10 @@ msgstr "Haga clic aquí"
 #, fuzzy
 msgid "Client"
 msgstr "Clientela"
+
+#, fuzzy
+msgid "Client Authentication Failures"
+msgstr "servidor de ponerse en contacto con el error"
 
 msgid "Client Count"
 msgstr "Número de clientes"
@@ -2178,6 +2245,9 @@ msgstr "actualización Valoración falló"
 msgid "Comma separated relations to inline, or all. Offered only on a class that has relations to expand (host today); the operation description names the tokens. Each to-many token adds <token>_total and <token>_truncated beside its array, capped at EXPAND_MAX_ITEMS. Forces the page size to EXPAND_MAX_ITEMS, so an expanded page can come back smaller than the length asked for."
 msgstr ""
 
+msgid "Comma-separated protocol feature tokens advertised by GET /agent/v1/enroll: directory-join-target-v1 (identity) and directory-task-operations-v1 (target operations)."
+msgstr ""
+
 msgid "Command"
 msgstr ""
 
@@ -2199,7 +2269,15 @@ msgid "Computed field. Returned by the API but not a column, and not settable."
 msgstr ""
 
 #, fuzzy
+msgid "Computer GUID"
+msgstr "Modelo de impresora"
+
+#, fuzzy
 msgid "Computer Model"
+msgstr "Modelo de impresora"
+
+#, fuzzy
+msgid "Computer SID"
 msgstr "Modelo de impresora"
 
 #, fuzzy
@@ -2230,8 +2308,15 @@ msgid "Confirm Download"
 msgstr "La gestión de contraseñas"
 
 #, fuzzy
+msgid "Confirm Retry"
+msgstr "tarea no válido"
+
+#, fuzzy
 msgid "Confirm delete"
 msgstr "tarea no válido"
+
+msgid "Confirm that this account is assigned to this host or its handoff is approved. Do not select an account belonging to another computer by mistake."
+msgstr ""
 
 msgid "Confirm that you would like to delete the MAC vendor listing"
 msgstr ""
@@ -2671,6 +2756,9 @@ msgstr "Registros actuales"
 msgid "Current Records"
 msgstr "Registros actuales"
 
+msgid "Current directory observation does not match this host"
+msgstr ""
+
 msgid "DMI Field"
 msgstr ""
 
@@ -2977,12 +3065,51 @@ msgid "Directory Membership"
 msgstr "miembros"
 
 #, fuzzy
+msgid "Directory operation history"
+msgstr "Directorio Activo"
+
+#, fuzzy
+msgid "Directory operation phase"
+msgstr "Directorio Activo"
+
+msgid "Directory operation state is unreadable"
+msgstr ""
+
+msgid "Directory rejoin result: healthy is required for verified."
+msgstr ""
+
+msgid "Directory rejoin result: the Windows API status; 0 is required for awaiting_reboot and verified."
+msgstr ""
+
+msgid "Directory rejoin result: the attempt the start returned. An item that carries it is recorded against that attempt."
+msgstr ""
+
+msgid "Directory rejoin result: the computer name now in effect; must equal the planned name for verified."
+msgstr ""
+
+msgid "Directory rejoin result: the config revision of the plan."
+msgstr ""
+
+msgid "Directory rejoin result: the domain now joined; with netbios, must equal the planned domain for verified."
+msgstr ""
+
+msgid "Directory rejoin result: true is required for verified."
+msgstr ""
+
+msgid "Directory-task-operations-v1 plan; absent or null when no operation is planned."
+msgstr ""
+
+#, fuzzy
 msgid "Disable on all hosts"
 msgstr "habilitado"
 
 #, fuzzy
 msgid "Disable selected"
 msgstr "Eliminar seleccionado"
+
+#, fuzzy
+msgid "Disabled"
+msgstr "habilitado"
 
 msgid "Disabled items are not displayed. Legacy items are removed."
 msgstr ""
@@ -3043,6 +3170,10 @@ msgid "Domain Create Success"
 msgstr "actualización de servicio no pudo"
 
 #, fuzzy
+msgid "Domain Join Status"
+msgstr "Nombre de dominio"
+
+#, fuzzy
 msgid "Domain Joining"
 msgstr "Nombre de dominio"
 
@@ -3067,6 +3198,9 @@ msgstr "Nombre de dominio usuario"
 #, fuzzy
 msgid "Domain added!"
 msgstr "Nombre de dominio"
+
+msgid "Domain join skipped: it needs a FOG login that may create hosts."
+msgstr ""
 
 #, fuzzy
 msgid "Domain update failed!"
@@ -3405,6 +3539,9 @@ msgstr ""
 msgid "Existence check failed"
 msgstr "clave privada fracasó"
 
+msgid "Existing Rebind and ordinary Rename pin the existing computer object's GUID/SID. Target is null for Create before the computer account exists and for Workgroup Join."
+msgstr ""
+
 msgid "Exists item must be boolean"
 msgstr ""
 
@@ -3532,6 +3669,10 @@ msgid "FOG Agent poll"
 msgstr ""
 
 #, fuzzy
+msgid "FOG Agent protocol features"
+msgstr "se ha actualizado correctamente"
+
+#, fuzzy
 msgid "FOG Client"
 msgstr "FOG Wiki Cliente"
 
@@ -3541,6 +3682,10 @@ msgstr "FOG descarga del cliente"
 
 msgid "FOG Client Wiki"
 msgstr "FOG Wiki Cliente"
+
+#, fuzzy
+msgid "FOG Client domain password"
+msgstr "Contraseña de dominio"
 
 #, fuzzy
 msgid "FOG Configuration"
@@ -3627,6 +3772,10 @@ msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
 msgid "FTP Path"
+msgstr "Camino"
+
+#, fuzzy
+msgid "FTP Port"
 msgstr "Camino"
 
 msgid "FTP login rejected by"
@@ -3787,6 +3936,13 @@ msgstr "No se pudo crear la tarea"
 msgid "Failed to write file to disk"
 msgstr "No se ha podido escribir el archivo en el disco"
 
+msgid "Failing since"
+msgstr ""
+
+#, fuzzy
+msgid "Failures"
+msgstr "Ha fallado"
+
 #, fuzzy
 msgid "Failures by snapin"
 msgstr "No se pudo crear Complemento de empleo"
@@ -3914,6 +4070,9 @@ msgstr ""
 msgid "First row is a header"
 msgstr ""
 
+msgid "Flatpak and Snap cannot hold an exact version. Choose any version or latest."
+msgstr ""
+
 #, fuzzy
 msgid "Fleet Report"
 msgstr "Reiniciar"
@@ -3925,6 +4084,9 @@ msgstr "Ajustes del sistema FOG"
 #, fuzzy
 msgid "Flush the settings cache"
 msgstr "Ajustes del sistema FOG"
+
+msgid "For a directory rejoin result: awaiting_reboot, verified, failed or unknown."
+msgstr ""
 
 msgid "For a live-USB enrollment, copy all three files onto a USB stick, boot the client from a stock Ubuntu or Debian live image with Secure Boot left ON, and run the launcher. No firmware changes are needed."
 msgstr ""
@@ -4021,6 +4183,10 @@ msgstr "Nombre del núcleo"
 
 msgid "From"
 msgstr ""
+
+#, fuzzy
+msgid "From address"
+msgstr "Dirección IP ha cambiado"
 
 #, fuzzy
 msgid "Full History"
@@ -4431,6 +4597,10 @@ msgstr "Impresora ya existe"
 msgid "Host %1$s finished deploying image %2$s."
 msgstr "Impresora ya existe"
 
+#, php-format
+msgid "Host %s has a directory operation in progress or awaiting review. Clear it on the Active Directory tab before deleting."
+msgstr ""
+
 msgid "Host Agent Activity"
 msgstr ""
 
@@ -4706,6 +4876,9 @@ msgstr ""
 msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr ""
 
+msgid "Hosts whose FOG Client was refused by this server and has not authenticated since. A host leaves this list on its next successful check-in. The handshake identifies a host by its MAC address, so compare the From address with the host before acting on a row."
+msgstr ""
+
 msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
 msgstr ""
 
@@ -4780,6 +4953,9 @@ msgid "Identity"
 msgstr "servidor TFTP"
 
 msgid "Identity Provider"
+msgstr ""
+
+msgid "Identity mismatch, conflict or unresolved live identity. host_id is 0."
 msgstr ""
 
 #, php-format
@@ -5215,6 +5391,9 @@ msgstr "En "
 msgid "In FOG"
 msgstr "En "
 
+msgid "In progress"
+msgstr ""
+
 msgid "In use as"
 msgstr ""
 
@@ -5264,6 +5443,12 @@ msgstr "Actualizar"
 #, fuzzy
 msgid "Initrd Update Fail"
 msgstr "actualización de la impresora ha fallado!"
+
+msgid "Inspect target candidate"
+msgstr ""
+
+msgid "Inspect the current directory candidate before confirming it."
+msgstr ""
 
 msgid "Install Plugins"
 msgstr ""
@@ -5417,6 +5602,10 @@ msgid "Invalid certificate verification level: %s"
 msgstr "Seleccionar una imagen válida"
 
 #, php-format
+msgid "Invalid cron %s field \"%s\": \"%s\""
+msgstr ""
+
+#, php-format
 msgid "Invalid cron expression (expected 5 fields, got %d): \"%s\""
 msgstr ""
 
@@ -5477,6 +5666,10 @@ msgstr "unidad no válida pasó"
 #, fuzzy
 msgid "Invalid retention identifier"
 msgstr "tarea no válido"
+
+#, fuzzy
+msgid "Invalid schedule"
+msgstr "Tipo de objeto no válido pasó"
 
 #, fuzzy
 msgid "Invalid scheduling type"
@@ -5626,6 +5819,12 @@ msgstr "Contraseña de dominio"
 #, fuzzy
 msgid "Join Username"
 msgstr "Nombre de dominio usuario"
+
+msgid "Join operation verified; current status not confirmed"
+msgstr ""
+
+msgid "Joined and secure channel healthy"
+msgstr ""
 
 msgid "Kbps"
 msgstr ""
@@ -5881,6 +6080,9 @@ msgstr ""
 msgid "Last imaged"
 msgstr "Imagen"
 
+msgid "Last operation result time (UTC)"
+msgstr ""
+
 #, fuzzy
 msgid "Last ring"
 msgstr "Imagen"
@@ -5902,6 +6104,12 @@ msgstr "Versión del sistema"
 #, fuzzy
 msgid "Latest Version"
 msgstr "Versión del sistema"
+
+msgid "Latest secure channel check passed; directory actions are on hold"
+msgstr ""
+
+msgid "Latest secure channel check returned False"
+msgstr ""
 
 msgid "Leave blank to keep the current password"
 msgstr ""
@@ -6649,6 +6857,9 @@ msgstr ""
 msgid "Must have a name to create the table"
 msgstr ""
 
+msgid "Must match the operation in the current ready plan."
+msgstr ""
+
 msgid "MySQL Administrator or by running"
 msgstr ""
 
@@ -6683,10 +6894,16 @@ msgstr ""
 msgid "Names to resolve. Each is created if no object already has it."
 msgstr ""
 
+msgid "Native status (history)"
+msgstr ""
+
 msgid "Need the table name to drop"
 msgstr ""
 
 msgid "Needs a 256-bit key!"
+msgstr ""
+
+msgid "Needs operator review"
 msgstr ""
 
 #, fuzzy
@@ -6788,6 +7005,9 @@ msgstr "Sin datos"
 #, fuzzy
 msgid "No Data Available"
 msgstr "No disponible"
+
+msgid "No FOG Client has checked in with a key yet."
+msgstr ""
 
 #, php-format
 msgid "No FOG account exists for %s"
@@ -6958,6 +7178,9 @@ msgstr ""
 msgid "No master nodes available"
 msgstr "No se dispone de hash"
 
+msgid "No matching computer account was found."
+msgstr ""
+
 msgid "No need to sync"
 msgstr ""
 
@@ -7030,6 +7253,10 @@ msgstr "No se encontraron iconos"
 msgid "No role assigned"
 msgstr "No nodo asociado"
 
+#, php-format
+msgid "No run time within five years for cron expression: \"%s\""
+msgstr ""
+
 msgid "No settings match your search."
 msgstr ""
 
@@ -7043,6 +7270,10 @@ msgstr "Nombre snapin"
 #, fuzzy
 msgid "No snapins associated with this group as master"
 msgstr "No hay snapins asociados con este anfitrión"
+
+#, fuzzy
+msgid "No status reported"
+msgstr "ID de inventario"
 
 #, fuzzy
 msgid "No storage node can serve the file."
@@ -7480,7 +7711,13 @@ msgstr ""
 msgid "Operations on %s."
 msgstr "Operación de no activado: %s"
 
-msgid "Optional. A feed URL, folder or share passed to the package manager as --source. Leave empty for the manager's own configured sources."
+msgid "Optional read-only Windows observation sent in response to directory_check. It carries no credentials."
+msgstr ""
+
+msgid "Optional. Chocolatey: a feed URL, folder or share. Flatpak: a remote name (empty means flathub). Snap: a channel (empty means the snap's default)."
+msgstr ""
+
+msgid "Optional. Declares directory-join-target-v1 to bind this request to a live directory identity."
 msgstr ""
 
 msgid "Optional. Leave empty to derive it from the type and address above. Examples:"
@@ -7809,6 +8046,10 @@ msgid "Please physically associate"
 msgstr ""
 
 #, fuzzy
+msgid "Please select a printer level!"
+msgstr "Seleccionar una imagen válida"
+
+#, fuzzy
 msgid "Please select a valid backend."
 msgstr "Seleccionar una imagen válida"
 
@@ -8003,6 +8244,9 @@ msgstr "Puerto"
 msgid "Port is not valid ldap/ldaps port"
 msgstr "Por favor seleccione una opción"
 
+msgid "Port must be a whole number from 1 to 65535"
+msgstr ""
+
 msgid "Post-Logout Redirect URI"
 msgstr ""
 
@@ -8182,6 +8426,9 @@ msgstr "ruta de la clave privada no encontrado"
 msgid "Private keys are readable by the web server"
 msgstr "clave privada no se puede leer"
 
+msgid "Problem"
+msgstr ""
+
 msgid "Processors"
 msgstr ""
 
@@ -8266,6 +8513,9 @@ msgstr "Impresora actualiza!"
 msgid "Providers"
 msgstr ""
 
+msgid "Public and read-only. Over the existing HTTPS server connection, advertises the AD directory identity and target-operation features. This does not issue a certificate or change trust."
+msgstr ""
+
 msgid "Publisher"
 msgstr ""
 
@@ -8337,6 +8587,9 @@ msgstr ""
 msgid "Re-run the installer and read what it prints under \"Publishing Secure Boot variable updates\" -- it names which of the three applied here."
 msgstr ""
 
+msgid "Re-run the installer on that node to install the key. After that, you can disable password logins."
+msgstr ""
+
 msgid "Re-run the installer, which restricts them to root. If this persists, check that nothing else is widening permissions on the snapins directory afterward."
 msgstr ""
 
@@ -8349,6 +8602,12 @@ msgstr ""
 #, fuzzy
 msgid "Read one saved filter"
 msgstr "Eliminar seleccionado"
+
+msgid "Read-only context for the directory-task-operations-v1 observation. Present only when the poll declares directory-task-operations-v1 and the host is eligible for observation; null when no check is requested."
+msgstr ""
+
+msgid "Ready"
+msgstr ""
 
 #, fuzzy
 msgid "Real Time"
@@ -8385,6 +8644,9 @@ msgstr ""
 #, fuzzy
 msgid "Recorded in range"
 msgstr "Registro no encontrado, error: %s"
+
+msgid "Recorded operation result (history)"
+msgstr ""
 
 msgid "Recorded; outcome present for an item report."
 msgstr ""
@@ -8578,7 +8840,16 @@ msgstr ""
 msgid "Required, and unique for this account &mdash; it is the only thing that tells one token from another when it comes time to revoke one."
 msgstr ""
 
+msgid "Requires the existing fog-agent client certificate, verified and bound to its host principal. A valid ready plan is durably claimed before its existing directory credential and rejoin plan are returned. A repeated start does not return the credential again."
+msgstr ""
+
+msgid "Requires the existing fog-agent client certificate, verified by the web server and bound to its host principal. Resolves the supplied live identity without check-in, inventory, AD or certificate writes. host_id is the resolved host only when the identity matched; otherwise it is 0."
+msgstr ""
+
 msgid "Reset Encryption Data"
+msgstr ""
+
+msgid "Reset Encryption Data on the host, then check fog.log on the client."
 msgstr ""
 
 #, fuzzy
@@ -8838,6 +9109,10 @@ msgid "SSH Connection has failed"
 msgstr "Añadir fallidos SNAPin!"
 
 #, fuzzy
+msgid "SSH Port"
+msgstr "Puerto"
+
+#, fuzzy
 msgid "SSL Path"
 msgstr "Camino"
 
@@ -8858,6 +9133,9 @@ msgid "Save order"
 msgstr ""
 
 msgid "Save the site before setting catch-all"
+msgstr ""
+
+msgid "Saved diagnostic reason (may be historical)"
 msgstr ""
 
 msgid "Saved filters for one grid"
@@ -9039,6 +9317,12 @@ msgstr "No hay grupos en este servidor."
 msgid "Secure Boot: signing FOS with your own key"
 msgstr "No hay grupos en este servidor."
 
+msgid "Secure channel status unknown"
+msgstr ""
+
+msgid "Security token does not match"
+msgstr ""
+
 #, fuzzy
 msgid "See all results"
 msgstr "No disponible"
@@ -9062,6 +9346,9 @@ msgid "Selected tasks canceled!"
 msgstr "se ha actualizado correctamente"
 
 msgid "Self-signed"
+msgstr ""
+
+msgid "Sensitive one-shot credential; returned only after the mTLS host has claimed the ready attempt."
 msgstr ""
 
 msgid "Sent as an Authorization: Bearer header, on its own &mdash; no fog-api-token header is needed alongside it. Each token acts with this user's roles."
@@ -9089,6 +9376,9 @@ msgid "Server URL"
 msgstr "Servidor web"
 
 msgid "Server appears to be offline or unavailable!"
+msgstr ""
+
+msgid "Server cannot decrypt the client key"
 msgstr ""
 
 #, fuzzy, php-format
@@ -9449,6 +9739,18 @@ msgstr ""
 msgid "Skipping as there is nothing to do"
 msgstr ""
 
+#, fuzzy
+msgid "Skipping group power management grant"
+msgstr "Gestión de usuarios"
+
+#, fuzzy
+msgid "Skipping power management task"
+msgstr "Gestión de usuarios"
+
+#, fuzzy
+msgid "Skipping scheduled task"
+msgstr "Programar"
+
 msgid "Skipping unsafe queued delete path"
 msgstr ""
 
@@ -9762,6 +10064,9 @@ msgstr "Descarga fracasó"
 
 msgid "Start Time"
 msgstr "Hora de inicio"
+
+msgid "Start one directory rejoin attempt"
+msgstr ""
 
 #, fuzzy
 msgid "Started"
@@ -10228,6 +10533,13 @@ msgstr "Nombre de la tarea"
 msgid "Takes a list of names and returns an id for each: the existing object where the name is already taken, a newly created one otherwise. That pattern is often called an upsert -- update or insert -- and because the object may not exist yet it matches on the name rather than on an id. Safe to send repeatedly: the same names give the same ids back and no duplicates are made. Group only; every other class answers 400."
 msgstr ""
 
+msgid "Target computer account"
+msgstr ""
+
+#, fuzzy
+msgid "Target lookup is unavailable."
+msgstr "No se dispone de hash"
+
 #, fuzzy
 msgid "Task"
 msgstr "Tareas"
@@ -10486,7 +10798,7 @@ msgstr ""
 msgid "That is the recommended state. Restore it only to issue a new intermediate or a certificate for a new storage node, then move it back."
 msgstr ""
 
-msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it"
+msgid "That is the signed chain staged by the installer; the default boot file is unsigned and a Secure Boot client will refuse it. This applies to HTTP netboot and to HTTPS netboot with a publicly-issued certificate -- see below for a private CA"
 msgstr ""
 
 msgid "That name is too long"
@@ -10538,6 +10850,12 @@ msgstr ""
 msgid "The Enroll Secure Boot task type does all of this for you: schedule it against a host or a group from Task Scheduling and the client boots FOS, which stages the request itself -- or enrolls outright with nothing to confirm, if the machine is in Setup Mode. The Enroll Secure Boot Key menu item stays for answering a pending request by hand, or for enrolling from local media on a machine FOS cannot boot."
 msgstr ""
 
+msgid "The FOG Client key changed since this page loaded. Reload the page and check again."
+msgstr ""
+
+msgid "The FOG Client on this host now receives the domain join password."
+msgstr ""
+
 #, fuzzy
 msgid "The FOG account could not be created"
 msgstr "No se pudo leer el archivo temporal"
@@ -10575,6 +10893,10 @@ msgstr ""
 
 msgid "The agent speaks a protocol this server does not."
 msgstr ""
+
+#, fuzzy
+msgid "The approval could not be saved."
+msgstr "No se pudo leer el archivo temporal"
 
 msgid "The architecture columns do not exist yet. Run the Database Schema Installer / Updater, then reload this page."
 msgstr ""
@@ -10635,11 +10957,17 @@ msgstr ""
 msgid "The certificate management helper is not installed on this server, so this page can only show what it can read for itself. Re-run the installer to enable it. On a storage node this is expected: a node has no CA of its own."
 msgstr ""
 
+msgid "The certificate this server publishes for clients does not pair with the private key it decrypts with, so no client can authenticate. Reset Encryption Data does not fix this. Compare the two keys; installfog.sh --recreate-keys issues a new matching pair. If only this host shows it, check the From address."
+msgstr ""
+
 #, fuzzy
 msgid "The certificate was refused"
 msgstr "Ningún archivo fue subido"
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
+msgstr ""
+
+msgid "The confirmed existing Target pin, or null before creation is confirmed."
 msgstr ""
 
 #, fuzzy
@@ -10702,6 +11030,9 @@ msgid "The id as \"row_<id>\", for DataTables."
 msgstr ""
 
 msgid "The id the package manager knows, e.g. googlechrome."
+msgstr ""
+
+msgid "The identity or required AD directory feature declaration is invalid."
 msgstr ""
 
 #, fuzzy
@@ -10772,6 +11103,12 @@ msgstr ""
 msgid "The leaf followed by the agent CA, PEM."
 msgstr ""
 
+msgid "The live SMBIOS and MAC identity reported by fog-agent."
+msgstr ""
+
+msgid "The live identity matches the certificate principal."
+msgstr ""
+
 msgid "The logical sector size of the disk this image was captured from."
 msgstr ""
 
@@ -10780,6 +11117,9 @@ msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must 
 msgstr ""
 
 msgid "The manual enrollment steps below are unaffected."
+msgstr ""
+
+msgid "The node accepted the password but not the FOG SSH key"
 msgstr ""
 
 msgid "The node did not answer on the network"
@@ -10801,6 +11141,9 @@ msgstr ""
 msgid "The older spelling of /unisearch?q=. An optional trailing integer caps results PER CLASS, not overall, and this route is not paged -- there is no nextUrl to follow. Also reachable as /search."
 msgstr ""
 
+msgid "The one-shot start was claimed; includes the directory credential and public rejoin plan."
+msgstr ""
+
 msgid "The order software is applied in when the agent reconciles this host."
 msgstr ""
 
@@ -10814,6 +11157,9 @@ msgid "The path requested is already in use by another image!"
 msgstr ""
 
 msgid "The payload bytes."
+msgstr ""
+
+msgid "The plan is no longer ready or its host, identity, configuration or directory records changed. The reason codes include these: an OU placement request that may have run still holds the same computer object (directory_placement_target_protected)."
 msgstr ""
 
 #, fuzzy
@@ -10841,6 +11187,15 @@ msgid "The preference was cleared."
 msgstr ""
 
 msgid "The preference was stored."
+msgstr ""
+
+msgid "The previous directory operation requires review. Preserve its evidence and obtain a separate recovery decision; Retry cannot clear it."
+msgstr ""
+
+msgid "The previous directory operation requires review. Preserve its evidence, then use \"Clear directory operation review\" to record your decision. Retry cannot clear it."
+msgstr ""
+
+msgid "The previous operation may have changed this computer or its directory account. Clearing records your decision; it does not undo anything. The agent may still hold a local review marker until its own review."
 msgstr ""
 
 #, fuzzy
@@ -10879,6 +11234,10 @@ msgstr "Crear nuevo grupo"
 msgid "The reported software list is larger than the server accepts."
 msgstr ""
 
+#, fuzzy
+msgid "The request body is invalid."
+msgstr "tipo de tarea no es válida"
+
 msgid "The request body is not a JSON object, or a required field is missing or empty. The message names the field."
 msgstr ""
 
@@ -10886,6 +11245,9 @@ msgid "The request body is not a JSON object, or it sets name to an empty value.
 msgstr ""
 
 msgid "The request body is not a JSON object."
+msgstr ""
+
+msgid "The request declares directory-join-target-v1 inconsistently with the stored request for this key, or its identity no longer resolves to one host. The request is not changed; the agent enrolls again with a new key."
 msgstr ""
 
 msgid "The resource is not in a cancellable state."
@@ -10898,6 +11260,9 @@ msgid "The root CA has been imported, but this host's system trust store could n
 msgstr ""
 
 msgid "The row goes, so the token can never match again. Audited as agent.token."
+msgstr ""
+
+msgid "The row the report is about; for a directory rejoin result, the host's own id."
 msgstr ""
 
 msgid "The same as POST: the body is {\"value\": \"...\"}, an empty value clears the preference, and a request with no value at all answers 400."
@@ -10914,6 +11279,9 @@ msgid "The saved filter."
 msgstr "actualización de la impresora ha fallado!"
 
 msgid "The selected site no longer exists"
+msgstr ""
+
+msgid "The server advertises AD directory identity and target-operation features."
 msgstr ""
 
 msgid "The server holds no hardware inventory hash for this host and wants the block on the next poll."
@@ -11121,6 +11489,9 @@ msgstr ""
 msgid "This host failed imaging %1$s: %2$s"
 msgstr "Impresora ya existe"
 
+msgid "This host follows the default printer level in FOG Configuration, FOG Client - Printer Manager. A change to the default reaches this host."
+msgstr ""
+
 msgid "This host has already joined this multicast session, which is now under way. A host cannot rejoin a session in progress. Cancel the task and re-create it once the current session has finished."
 msgstr ""
 
@@ -11160,6 +11531,9 @@ msgid "This is a cron style task that should not run now."
 msgstr ""
 
 msgid "This is a cron style task that should run now."
+msgstr ""
+
+msgid "This is a point-in-time observation, not proof of online authentication or a confirmed credential mismatch. Confirm the target and use explicit administrator judgment before retrying."
 msgstr ""
 
 msgid "This is a single run task that should not run now."
@@ -11612,7 +11986,7 @@ msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 msgid "Unknown action"
 msgstr "Se produjo un error de carga desconocida. Código de retorno: "
 
-msgid "Unknown capability or status, or an item for a capability with no item reports."
+msgid "Unknown capability or status, or an item for a capability with no item reports. For a directory rejoin result (the item carries attempt_id), also an item status other than awaiting_reboot, verified, failed or unknown."
 msgstr ""
 
 #, php-format
@@ -11821,6 +12195,10 @@ msgstr ""
 
 msgid "Use the selector to choose how many items you want exported"
 msgstr ""
+
+#, fuzzy, php-format
+msgid "Use the server default (now: %s)"
+msgstr "Información general"
 
 msgid "Use this only to move users to another FOG server. The hashes are not the passwords, but anyone who holds the file can try to crack them offline. API tokens are never exported; issue new ones on the other server."
 msgstr ""
@@ -12055,6 +12433,9 @@ msgstr "Valor"
 msgid "Variable contains"
 msgstr ""
 
+msgid "Verified"
+msgstr ""
+
 msgid "Version"
 msgstr "Versión"
 
@@ -12084,6 +12465,9 @@ msgstr "Editar anfitrión"
 #, fuzzy
 msgid "Wait time has changed to"
 msgstr "Tipo de impresora cambia a"
+
+msgid "Waiting for approval. A FOG Client checked in for this host, but this server did not deploy it recently, so nothing proves the key belongs to this machine. It is not sent the domain join password until you approve it. Approve only if you know this machine checked in just now."
+msgstr ""
 
 msgid "Waiting for mysql to be available"
 msgstr ""
@@ -12161,6 +12545,10 @@ msgstr ""
 
 msgid "What this token is for"
 msgstr ""
+
+#, fuzzy
+msgid "What to do"
+msgstr "se ha actualizado correctamente"
 
 msgid "What to do next"
 msgstr ""
@@ -12260,6 +12648,9 @@ msgstr "Nombre del núcleo"
 msgid "Windows Product key"
 msgstr "Clave del producto Grupo"
 
+msgid "Windows directory polls declare directory-join-target-v1 and directory-task-operations-v1 when supported."
+msgstr ""
+
 #, fuzzy
 msgid "Windows keys is a plugin that associates product keys"
 msgstr "Una imagen ya existe con este nombre!"
@@ -12271,6 +12662,9 @@ msgid "Windows: silent MSI install"
 msgstr ""
 
 msgid "Wipes"
+msgstr ""
+
+msgid "With HTTPS netboot and a private CA, do not use the secureboot/ chain: upstream's signed iPXE cannot trust that CA and stops at the boot menu with \"Permission denied\". Point the boot filename at"
 msgstr ""
 
 msgid "Within 30 days"
@@ -12900,6 +13294,9 @@ msgstr "minutos"
 msgid "in seconds"
 msgstr ""
 
+msgid "in the TFTP root instead (arm64: arm64-efi/snponly.efi). The rebuilt iPXE carries your CA and is signed with this server's key, so a Secure Boot client needs this server's MOK enrolled before it can netboot"
+msgstr ""
+
 msgid "initrd (Initial Ramdisk) Update"
 msgstr ""
 
@@ -13032,6 +13429,9 @@ msgid "multipart/form-data, not JSON. Transport only -- no snapin row is created
 msgstr ""
 
 msgid "multiple places to get your image"
+msgstr ""
+
+msgid "must be 0, 1 or 2"
 msgstr ""
 
 msgid "must be a whole number from 0 to 100"
@@ -13211,7 +13611,7 @@ msgid "recommended"
 msgstr ""
 
 #, php-format
-msgid "recorded before this server moved to UTC; written in %s"
+msgid "recorded before or near the time this server moved to UTC; it can be in %s time or in UTC"
 msgstr ""
 
 msgid "register this at your provider"
@@ -13244,6 +13644,10 @@ msgstr "anfitriones pendientes"
 
 msgid "served from the unresolved cache"
 msgstr ""
+
+#, fuzzy
+msgid "server default (all)"
+msgstr "Información general"
 
 msgid "server does not appear to be online"
 msgstr ""
@@ -14363,10 +14767,6 @@ msgstr ""
 
 #~ msgid "Total Rows"
 #~ msgstr "Filas totales"
-
-#, fuzzy
-#~ msgid "Unable to Authenticate"
-#~ msgstr "servidor de ponerse en contacto con el error"
 
 #, fuzzy
 #~ msgid "Unable to find basic information!"

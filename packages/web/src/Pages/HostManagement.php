@@ -15,6 +15,8 @@
 
 namespace FOG\Pages;
 
+use FOG\Agent\DirectoryPlacementIntent;
+use FOG\Agent\DirectoryRejoin;
 use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
@@ -3004,6 +3006,561 @@ class HostManagement extends FOGPage
             true,
             true
         );
+        // Older forms and integrations do not submit the marker. Keep their
+        // AD update path unchanged and do not read directory-operation POST fields.
+        if ('1' === (string)filter_input(INPUT_POST, 'rejoin_settings_present')) {
+            $checkbox = static function ($key) {
+                return '1' === (string)filter_input(INPUT_POST, $key);
+            };
+            $text = static function ($key) {
+                return trim((string)filter_input(INPUT_POST, $key));
+            };
+            if ($checkbox('rejoin_clear_review')) {
+                // The operator's decision about a stored operation. It is
+                // its own action: no other setting is applied with it.
+                DirectoryRejoin::clearReview(
+                    $this->obj,
+                    $text('rejoin_clear_attempt'),
+                    (string)self::$FOGUser->get('name')
+                );
+                return;
+            }
+            if ($checkbox('rejoin_clear_intent')) {
+                // Same rule for an unknown OU placement result.
+                DirectoryPlacementIntent::clearIntentReview(
+                    $this->obj,
+                    $text('rejoin_clear_intent_guid'),
+                    (string)self::$FOGUser->get('name')
+                );
+                return;
+            }
+            DirectoryRejoin::configure(
+                $this->obj,
+                [
+                    'rejoin_allow_create' => $checkbox(
+                        'rejoin_allow_create'
+                    ),
+                    'rejoin_confirm_target' => $checkbox(
+                        'rejoin_confirm_target'
+                    ),
+                    'rejoin_target_guid' => $text('rejoin_target_guid'),
+                    'rejoin_retry' => $checkbox('rejoin_retry')
+                ],
+                (string)self::$FOGUser->get('name')
+            );
+        }
+    }
+    /**
+     * Whether the legacy FOG Client's key may receive the domain join
+     * password, with the Approve FOG Client button while it may not.
+     *
+     * A first handshake is vouched for only when this server deployed the
+     * host recently (FOGPage::authorize()). Any other first key could have
+     * come from whoever sent this host's MAC first, so it waits for an
+     * administrator who knows the machine checked in (GHSA-97vv-f7hc-rp5m).
+     *
+     * @return string
+     */
+    private function _legacyClientVouchPanel()
+    {
+        $out = '<details class="mb-3"' . ($this->obj->get('sec_tok')
+            && !$this->obj->get('sec_vouched') ? ' open' : '') . '><summary>'
+            . \Initiator::e(_('FOG Client domain password')) . '</summary>'
+            . '<div class="pt-2" id="legacy-client-vouch">';
+        if (!$this->obj->get('sec_tok')) {
+            $out .= '<p>' . \Initiator::e(_(
+                'No FOG Client has checked in with a key yet.'
+            )) . '</p>';
+        } elseif ($this->obj->get('sec_vouched')) {
+            $out .= self::_legacyClientApprovedHtml();
+        } else {
+            $out .= '<p>' . \Initiator::e(_(
+                'Waiting for approval. A FOG Client checked in for this host,'
+                . ' but this server did not deploy it recently, so nothing'
+                . ' proves the key belongs to this machine. It is not sent'
+                . ' the domain join password until you approve it.'
+                . ' Approve only if you know this machine checked in just now.'
+            )) . '</p><button type="button" id="approve-client"'
+                . ' class="btn btn-success" data-client-key="'
+                . \Initiator::e(self::_legacyClientKeyId($this->obj)) . '">'
+                . \Initiator::e(_('Approve FOG Client')) . '</button>';
+        }
+        return $out . '</div></details>';
+    }
+    /**
+     * Names the key the administrator is looking at, so Approve vouches for
+     * that key and not one bound after the page was drawn. A hash, because
+     * the token itself is the client's secret.
+     *
+     * @param Host $Host the host
+     *
+     * @return string
+     */
+    private static function _legacyClientKeyId(Host $Host)
+    {
+        return hash('sha256', (string)$Host->get('sec_tok'));
+    }
+    /**
+     * The status line for an approved key. One place, because the panel
+     * renders it and the Approve FOG Client reply swaps it in.
+     *
+     * @return string
+     */
+    private static function _legacyClientApprovedHtml()
+    {
+        return '<p>' . \Initiator::e(_(
+            'Approved. The FOG Client on this host receives the domain join password.'
+        )) . '</p>';
+    }
+    /**
+     * Approves the legacy FOG Client's current key, so it receives the
+     * domain join password. Gated on host.edit, as the tab is.
+     *
+     * @return void
+     */
+    public function hostApproveClientPost()
+    {
+        self::checkAuthAndCSRF();
+        // Nothing to vouch for yet. Approving an empty slot would vouch for
+        // whichever caller binds next, which is the hole this closes.
+        if (!$this->obj->get('sec_tok')) {
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode([
+                    'error' => _('No FOG Client has checked in with a key yet.'),
+                    'title' => _('Approve FOG Client Fail')
+                ])
+            );
+        }
+        // The key must be the one the page showed. Otherwise a task that
+        // cleared the key, and whoever sent this MAC first after it, would be
+        // approved by a click meant for the earlier key.
+        $shown = (string)filter_input(INPUT_POST, 'client_key');
+        if (!hash_equals(self::_legacyClientKeyId($this->obj), $shown)) {
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_CONFLICT,
+                json_encode([
+                    'error' => _('The FOG Client key changed since this page loaded. Reload the page and check again.'),
+                    'title' => _('Approve FOG Client Fail')
+                ])
+            );
+        }
+        // save(), not a manager update, so the approval is in the audit trail.
+        if (!$this->obj->set('sec_vouched', 1)->save()) {
+            HTTPResponseCodes::breakHead(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode([
+                    'error' => _('The approval could not be saved.'),
+                    'title' => _('Approve FOG Client Fail')
+                ])
+            );
+        }
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_ACCEPTED,
+            json_encode([
+                'msg' => _('The FOG Client on this host now receives the domain join password.'),
+                'title' => _('Approve FOG Client Success'),
+                'html' => self::_legacyClientApprovedHtml()
+            ])
+        );
+    }
+    /**
+     * Answers the "Inspect target candidate" button with its details.
+     *
+     * A POST, not a link: the lookup contacts the directory server, so it
+     * needs the same authentication and CSRF check as every other action.
+     *
+     * @return void
+     */
+    public function hostADInspectPost()
+    {
+        self::checkAuthAndCSRF();
+        $candidate = $this->obj->get('useAD')
+            ? DirectoryRejoin::targetCandidate($this->obj)
+            : ['status' => 'unavailable'];
+        HTTPResponseCodes::breakHead(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode(['html' => $this->rejoinCandidateHtml($candidate)])
+        );
+    }
+    /**
+     * The confirm block for one directory candidate.
+     *
+     * @param array $candidate the answer of DirectoryRejoin::targetCandidate()
+     *
+     * @return string
+     */
+    private function rejoinCandidateHtml(array $candidate)
+    {
+        $status = (string)($candidate['status'] ?? 'unavailable');
+        $record = is_array($candidate['record'] ?? null)
+            ? $candidate['record'] : [];
+        if ('found' !== $status) {
+            return 'absent' === $status
+                ? '<p>' . \Initiator::e(_('No matching computer account was found.')) . '</p>'
+                : '<p>' . \Initiator::e(_('Target lookup is unavailable.')) . '</p>';
+        }
+        $guid = (string)($record['guid'] ?? '');
+        $html = '<dl class="row mb-2">';
+        foreach ([
+            _('Account') => (string)($record['account'] ?? ''),
+            _('Computer GUID') => $guid,
+            _('Computer SID') => (string)($record['sid'] ?? ''),
+            _('Distinguished Name') => (string)($record['dn'] ?? '')
+        ] as $label => $value) {
+            $html .= '<dt class="col-sm-3">' . \Initiator::e($label)
+                . '</dt><dd class="col-sm-9">'
+                . \Initiator::e($value) . '</dd>';
+        }
+        return $html . '</dl>'
+            . self::makeInput(
+                '',
+                'rejoin_target_guid',
+                '',
+                'hidden',
+                'rejoin_target_guid',
+                $guid
+            )
+            . '<div class="form-check">'
+            . self::makeInput(
+                'form-check-input',
+                'rejoin_confirm_target',
+                '',
+                'checkbox',
+                'rejoin_confirm_target',
+                '1'
+            )
+            . '<label class="form-check-label" for="rejoin_confirm_target">'
+            . \Initiator::e(_(
+                'Confirm that this account is assigned to this host or its handoff is approved. Do not select an account belonging to another computer by mistake.'
+            ))
+            . '</label></div>';
+    }
+    /**
+     * Displays the AD form together with directory account settings.
+     *
+     * The base renderer echoes its own form, so get its field map and render
+     * the same hook/form scaffold here to keep the new controls in that form.
+     *
+     * @return void
+     */
+    private function hostAD()
+    {
+        global $node;
+
+        // An unreadable stored state must not stop the form from rendering:
+        // the operator needs this tab to clear it.
+        $unreadable = false;
+        try {
+            $settings = DirectoryRejoin::settings($this->obj);
+        } catch (\Throwable $e) {
+            $settings = [];
+            $unreadable = true;
+        }
+        $config = is_array($settings['config'] ?? null)
+            ? $settings['config'] : [];
+        $state = is_array($settings['state'] ?? null)
+            ? $settings['state'] : [];
+        $fields = $this->adFieldsToDisplay(
+            $this->obj->get('useAD'),
+            $this->obj->get('ADDomain'),
+            $this->obj->get('ADOU'),
+            $this->obj->get('ADUser'),
+            '',
+            false,
+            true
+        );
+        $labelClass = 'col-sm-3 col-form-label';
+        $marker = self::makeInput(
+            '',
+            'rejoin_settings_present',
+            '',
+            'hidden',
+            'rejoin_settings_present',
+            '1'
+        );
+        $allowCreate = DirectoryRejoin::allowsCreate($config);
+        $fields[
+            self::makeLabel(
+                $labelClass,
+                'rejoin_allow_create',
+                _('Allow Computer Account Creation')
+            )
+        ] = '<div class="form-check">'
+            . self::makeInput(
+                'form-check-input',
+                'rejoin_allow_create',
+                '',
+                'checkbox',
+                'rejoin_allow_create',
+                '1',
+                false,
+                false,
+                -1,
+                -1,
+                $allowCreate ? 'checked' : ''
+            ) . '</div>';
+
+        $formAction = self::makeTabUpdateURL(
+            $node . '-active-directory',
+            (int)$this->obj->get('id')
+        );
+        // The button posts rejoin_inspect_target and fills the second div.
+        $candidatePanel = '<details class="mb-3"><summary>'
+            . \Initiator::e(_('Target computer account')) . '</summary><div class="pt-2">'
+            . '<p>' . \Initiator::e(_('Inspect the current directory candidate before confirming it.'))
+            . '</p><button type="button" id="rejoin-inspect" class="btn btn-secondary">'
+            . \Initiator::e(_('Inspect target candidate')) . '</button>'
+            . '<div id="rejoin-target-candidate"></div>'
+            . '</div></details>';
+
+        $phase = strtolower((string)($state['phase'] ?? ''));
+        $phaseLabels = [
+            'ready' => _('Ready'),
+            'started' => _('In progress'),
+            'awaiting_reboot' => _('Awaiting reboot'),
+            'verified' => _('Verified'),
+            'failed' => _('Failed'),
+            'unknown' => _('Unknown'),
+            'blocked' => _('Blocked')
+        ];
+        $observation = is_array($state['observation'] ?? null)
+            ? $state['observation'] : [];
+        $hostName = (string)$this->obj->get('name');
+        $domain = (string)$this->obj->get('ADDomain');
+        $checkDc = (string)($state['check_dc'] ?? '');
+        $observedDc = (string)($observation['dc'] ?? '');
+        $observationContextMatches = '' !== $hostName
+            && 0 === strcasecmp(
+                (string)($observation['current_name'] ?? ''),
+                $hostName
+            )
+            && 0 === strcasecmp(
+                (string)($observation['pending_name'] ?? ''),
+                $hostName
+            )
+            && \FOG\Agent\DirectoryOperation::sameDomain(
+                $observation,
+                $domain
+            )
+            && ('' === $checkDc
+                ? '' !== $observedDc
+                : 0 === strcasecmp($observedDc, $checkDc));
+        $currentObservation = \FOG\Agent\DirectoryOperation::observationFresh(
+            $this->obj,
+            $config,
+            $state
+        ) && $observationContextMatches;
+        if ($unreadable) {
+            $domainStatus = _('Directory operation state is unreadable');
+        } elseif (!$this->obj->get('useAD')) {
+            $domainStatus = _('Disabled');
+        } elseif ($currentObservation
+            && 'false' === ($observation['secure_channel'] ?? '')
+        ) {
+            $domainStatus = _('Latest secure channel check returned False');
+        } elseif ($currentObservation
+            && 'unknown' === ($observation['secure_channel'] ?? '')
+        ) {
+            $domainStatus = _('Secure channel status unknown');
+        } elseif ($currentObservation
+            && 'true' === ($observation['secure_channel'] ?? '')
+            && true === ($observation['dc_reachable'] ?? false)
+            && empty($state['placement_hold'])
+        ) {
+            $domainStatus = _('Joined and secure channel healthy');
+        } elseif ($currentObservation
+            && 'true' === ($observation['secure_channel'] ?? '')
+            && !empty($state['placement_hold'])
+        ) {
+            $domainStatus = _('Latest secure channel check passed; directory actions are on hold');
+        } elseif (!$observationContextMatches && !empty($observation)) {
+            $domainStatus = _('Current directory observation does not match this host');
+        } elseif ('verified' === $phase && !$currentObservation) {
+            $domainStatus = _('Join operation verified; current status not confirmed');
+        } elseif ('' === $phase) {
+            $domainStatus = !empty($state['reason'])
+                ? _('Needs operator review') : _('No status reported');
+        } else {
+            $domainStatus = $phaseLabels[$phase] ?? _('Unknown');
+        }
+        $candidatePanel .= '<p class="mb-3"><strong>'
+            . \Initiator::e(_('Domain Join Status')) . ':</strong> '
+            . \Initiator::e($domainStatus) . '</p>';
+
+        $candidatePanel .= '<p class="small text-muted">'
+            . \Initiator::e(_('This is a point-in-time observation, not proof of online authentication or a confirmed credential mismatch. Confirm the target and use explicit administrator judgment before retrying.'))
+            . '</p>';
+
+        $retryAllowed = !$unreadable
+            && \FOG\Agent\DirectoryRejoin::canConfirmRetry($state)
+            && $currentObservation
+            && 'false' === ($observation['secure_channel'] ?? '');
+        // A stored operation that may have changed the computer or its
+        // account, or one nobody can read, is cleared by an operator's
+        // explicit decision. Nothing else clears it.
+        $needsReview = $unreadable
+            || in_array($phase, ['started', 'awaiting_reboot', 'unknown', 'failed'], true);
+        if (!$unreadable && !\FOG\Agent\DirectoryRejoin::canConfirmRetry($state)) {
+            $candidatePanel .= '<p class="small text-muted">'
+                . \Initiator::e(
+                    $needsReview
+                        ? _('The previous directory operation requires review. Preserve its evidence, then use "Clear directory operation review" to record your decision. Retry cannot clear it.')
+                        : _('The previous directory operation requires review. Preserve its evidence and obtain a separate recovery decision; Retry cannot clear it.')
+                )
+                . '</p>';
+        }
+        if ($needsReview) {
+            $fields[self::makeLabel(
+                $labelClass,
+                'rejoin_clear_review',
+                _('Clear directory operation review')
+            )] = '<div class="form-check">'
+                . self::makeInput(
+                    'form-check-input',
+                    'rejoin_clear_review',
+                    '',
+                    'checkbox',
+                    'rejoin_clear_review',
+                    '1'
+                ) . '</div>'
+                . self::makeInput(
+                    '',
+                    'rejoin_clear_attempt',
+                    '',
+                    'hidden',
+                    'rejoin_clear_attempt',
+                    (string)($state['attempt_id'] ?? '')
+                )
+                . '<p class="small text-muted">'
+                . \Initiator::e(_('The previous operation may have changed this computer or its directory account. Clearing records your decision; it does not undo anything. The agent may still hold a local review marker until its own review.'))
+                . '</p>';
+        }
+        // An OU placement (Move) request that may have run, or whose result is
+        // unknown. An operator reads the directory, then clears an unknown
+        // one, or one stuck as may-have-run, so the next check-in may try again.
+        try {
+            $moves = DirectoryPlacementIntent::pendingReview($this->obj);
+        } catch (\Throwable $e) {
+            // The rest of the form still renders; the operator can see why
+            // the placement review is missing.
+            self::logFault('directory placement review unreadable for host ' . (int)$this->obj->get('id') . ': ' . $e->getMessage());
+            $moves = [];
+        }
+        if ($moves) {
+            $move = $moves[0];
+            $clearMinutes = (int)ceil(DirectoryPlacementIntent::CLEAR_REVIEW_AFTER / 60);
+            $candidatePanel .= '<p class="small text-muted">'
+                . \Initiator::e(
+                    'UNKNOWN' === $move['status']
+                        ? sprintf(_('A request to move this computer object to %s has an unknown result. Read the directory to see where the object is.'), $move['destination'])
+                        : sprintf(_('A request to move this computer object to %s may have run, or may still be running.'), $move['destination'])
+                )
+                . '</p>';
+            $fields[self::makeLabel(
+                $labelClass,
+                'rejoin_clear_intent',
+                _('Clear OU placement review')
+            )] = '<div class="form-check">'
+                . self::makeInput(
+                    'form-check-input',
+                    'rejoin_clear_intent',
+                    '',
+                    'checkbox',
+                    'rejoin_clear_intent',
+                    '1'
+                ) . '</div>'
+                . self::makeInput(
+                    '',
+                    'rejoin_clear_intent_guid',
+                    '',
+                    'hidden',
+                    'rejoin_clear_intent_guid',
+                    $move['guid']
+                )
+                . '<p class="small text-muted">'
+                . \Initiator::e(sprintf(
+                    ngettext(
+                        'Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minute after its last change, because the directory may still apply it.',
+                        'Clearing records your decision and undoes nothing. The move may have run. FOG may then try the move again. A request cannot be cleared until %d minutes after its last change, because the directory may still apply it.',
+                        $clearMinutes
+                    ),
+                    $clearMinutes
+                ))
+                . '</p>';
+        }
+        if ($retryAllowed) {
+            $fields[self::makeLabel($labelClass, 'rejoin_retry', _('Confirm Retry'))]
+                = '<div class="form-check">'
+                . self::makeInput(
+                    'form-check-input',
+                    'rejoin_retry',
+                    '',
+                    'checkbox',
+                    'rejoin_retry',
+                    '1'
+                ) . '</div>';
+        }
+
+        $statusDetails = '';
+        foreach ([
+            _('Directory operation phase') => '' === $phase
+                ? '' : ($phaseLabels[$phase] ?? _('Unknown')),
+            _('Saved diagnostic reason (may be historical)') => (string)($state['reason'] ?? ''),
+            _('Recorded operation result (history)') => (string)($state['secure_channel'] ?? ''),
+            _('Native status (history)') => isset($state['native_status'])
+                ? sprintf('0x%08x', $state['native_status']) : '',
+            _('Last operation result time (UTC)') => (string)($state['updated_at'] ?? '')
+        ] as $label => $value) {
+            if ('' !== $value) {
+                $statusDetails .= '<dt class="col-sm-3">' . \Initiator::e($label)
+                    . '</dt><dd class="col-sm-9">'
+                    . \Initiator::e($value) . '</dd>';
+            }
+        }
+        if ('' !== $statusDetails) {
+            $candidatePanel .= '<details class="mb-3"><summary>'
+                . \Initiator::e(_('Directory operation history')) . '</summary><dl class="row pt-2">'
+                . $statusDetails . '</dl></details>';
+        }
+        $candidatePanel .= $this->_legacyClientVouchPanel();
+        $fields[''] = $candidatePanel;
+
+        $ucclass = strtoupper($this->childClass);
+        $buttons = self::makeButton(
+            'ad-send',
+            _('Update'),
+            'btn btn-primary float-end'
+        ) . self::makeButton(
+            'ad-clear',
+            _('Clear Fields'),
+            'btn btn-danger float-start'
+        );
+        self::$HookManager->processEvent(
+            "{$ucclass}_EDIT_AD_FIELDS",
+            [
+                'fields' => &$fields,
+                'buttons' => &$buttons,
+                'obj' => &$this->obj
+            ]
+        );
+        $rendered = self::formFields($fields) . $marker;
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header"><h4 class="card-title">';
+        echo $this->childClass . ' ' . _('Active Directory');
+        echo '</h4></div>';
+        echo self::makeFormTag(
+            '',
+            'active-directory-form',
+            $formAction,
+            'post',
+            'application/x-www-form-urlencoded',
+            true
+        );
+        echo '<div id="' . $node . '-active-directory" class="">';
+        echo '<div class="card-body">' . $rendered . '</div>';
+        echo '<div class="card-footer">' . $buttons . '</div>';
+        echo '</form></div></div>';
     }
     /**
      * Host groups dispay.
@@ -3084,10 +3641,18 @@ class HostManagement extends FOGPage
 
         // =========================================================
         // Printer Configuration
-        $printerLevel = (
-            filter_input(INPUT_POST, 'level') ?:
-            $this->obj->get('printerLevel')
-        );
+        // The host's own level, or '' when it has none and follows the
+        // server default (Resolver::resolvePrinterLevel()). Compared as
+        // strings: on PHP 8 '' == 0 is false, and '' is a choice here.
+        $printerLevel = trim((string)$this->obj->get('printerLevel'));
+        if (!in_array($printerLevel, Resolver::PRINTER_LEVELS, true)) {
+            $printerLevel = '';
+        }
+        $levelNames = [
+            _('No Printer Management'),
+            _('Add/Remove Managed Printers'),
+            _('All Printers'),
+        ];
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
@@ -3095,6 +3660,37 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="card-body">';
+        echo '<div class="form-check">';
+        echo self::makeLabel(
+            '',
+            'defaultlevel',
+            self::makeInput(
+                'printer-defaultlevel',
+                'level',
+                '',
+                'radio',
+                'defaultlevel',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ('' === $printerLevel ? 'checked' : '')
+            )
+            . ' '
+            . sprintf(
+                _('Use the server default (now: %s)'),
+                $levelNames[Resolver::printerLevelDefault()]
+            ),
+            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
+            . _(
+                'This host follows the default printer level in FOG '
+                . 'Configuration, FOG Client - Printer Manager. A change '
+                . 'to the default reaches this host.'
+            )
+            . '"'
+        );
+        echo '</div>';
         echo '<div class="form-check">';
         echo self::makeLabel(
             '',
@@ -3110,7 +3706,7 @@ class HostManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                ($printerLevel == 0 ? 'checked' : '')
+                ('0' === $printerLevel ? 'checked' : '')
             )
             . ' '
             . _('No Printer Management'),
@@ -3138,7 +3734,7 @@ class HostManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                ($printerLevel == 1 ? 'checked' : '')
+                ('1' === $printerLevel ? 'checked' : '')
             )
             . ' '
             . _('Add/Remove Managed Printers'),
@@ -3171,7 +3767,7 @@ class HostManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                ($printerLevel == 2 ? 'checked' : '')
+                ('2' === $printerLevel ? 'checked' : '')
             )
             . ' '
             . _('All Printers'),
@@ -3214,6 +3810,12 @@ class HostManagement extends FOGPage
         }
         if (isset($_POST['confirmlevelup'])) {
             $level = filter_input(INPUT_POST, 'level');
+            // Refuse anything but the three levels and '' (use the server
+            // default). A MISSING level is refused: it used to be stored as
+            // '' and logged as a success (#2046).
+            if (!in_array($level, array_merge([''], Resolver::PRINTER_LEVELS), true)) {
+                throw new \Exception(_('Please select a printer level!'));
+            }
             $this->obj->set('printerLevel', $level);
         }
     }
@@ -4837,12 +5439,7 @@ class HostManagement extends FOGPage
                         'name' =>  _('Active Directory'),
                         'id' => 'host-active-directory',
                         'generator' => function () {
-                            $this->adFieldsToDisplay(
-                                $this->obj->get('useAD'),
-                                $this->obj->get('ADDomain'),
-                                $this->obj->get('ADOU'),
-                                $this->obj->get('ADUser')
-                            );
+                            $this->hostAD();
                         }
                     ],
                     [
@@ -4968,6 +5565,22 @@ class HostManagement extends FOGPage
      */
     public function editPost()
     {
+        global $tab;
+        // The target lookup is a read that answers the button. It is not an
+        // edit, so it skips the save path and its success hooks.
+        if ('host-active-directory' === $tab
+            && '1' === (string)filter_input(INPUT_POST, 'rejoin_inspect_target')
+        ) {
+            $this->hostADInspectPost();
+            return;
+        }
+        // An action of its own, not a field of the AD form.
+        if ('host-active-directory' === $tab
+            && '1' === (string)filter_input(INPUT_POST, 'approve_client')
+        ) {
+            $this->hostApproveClientPost();
+            return;
+        }
         $this->handleEditPost(
             'Host',
             'HOST_EDIT',
@@ -5296,13 +5909,15 @@ class HostManagement extends FOGPage
             ],
             // Printer level is a `hosts` column and so belongs to the
             // imperative half (ADR 0038 decision 1) even though the printers
-            // it governs are becoming group-owned. Clearing it means level 0,
-            // "no printer management", which is a real setting rather than an
-            // absence -- so CLEAR and "set to 0" land on the same value on
-            // purpose.
+            // it governs are group-owned. A group never grants it: a host
+            // can be in several groups, and a grant only adds.
+            //
+            // CLEAR writes '', "not set", and the host follows
+            // FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL. SET to 0 is the host
+            // saying "no printer management" whatever the default says.
             'printerLevel' => [
                 'field' => 'printerLevel',
-                'empty' => 0,
+                'empty' => '',
                 'label' => _('Host Printer Management Level'),
                 'kind' => 'printerlevel',
                 // FOG Client, not General. On a host's own page this is drawn
@@ -5878,6 +6493,20 @@ class HostManagement extends FOGPage
                 $shared[$key],
                 !empty($spec['secret'])
             );
+            // A printer level of '' is not empty, it is "not set": the host
+            // follows the server default, and CLEAR is how to get there.
+            if ('printerlevel' === ($spec['kind'] ?? '')) {
+                if (!empty($shared[$key]['uniform'])
+                    && '' === (string)$shared[$key]['value']
+                ) {
+                    $hints[$key] = '<p class="form-text help-block-tight">'
+                        . _('Hosts:') . ' ' . _('server default (all)')
+                        . '</p>';
+                }
+                $hints[$key] .= '<p class="form-text help-block-tight">'
+                    . _('Clear on all: the hosts follow the server default.')
+                    . '</p>';
+            }
         }
 
         $alo = SharedHostValues::forHostRows(

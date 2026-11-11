@@ -15,6 +15,7 @@ namespace FOG\Service;
 
 use FOG\Base\FOGBase;
 use FOG\Db\DatabaseManager;
+use FOG\Items\StorageNode;
 use FOG\Router\Route;
 
 /**
@@ -737,23 +738,16 @@ abstract class FOGService extends FOGBase
                 $name = $fileOverride;
                 $randind = "abcdef$i";
             }
-            if (isset($this->procRef[$itemType])
-                && isset($this->procRef[$itemType][$name])
-                && isset($this->procRef[$itemType][$randind])
-            ) {
-                $isRunning = $this->isRunning(
-                    $this->procRef[$itemType][$name][$randind]
+            // Skip an item whose transfer is still going. Without this the
+            // checks below see the half-copied remote file, delete it for a
+            // size mismatch, and killTasking() restarts lftp from nothing.
+            $running = $this->_transferRunning($itemType, $name, $randind);
+            if (null !== $running) {
+                self::outall(
+                    ' | ' . _('Replication already running with PID')
+                    . ': ' . $this->getPID($running)
                 );
-                if ($isRunning) {
-                    $pid = $this->getPID(
-                        $this->procRef[$itemType][$name][$randind]
-                    );
-                    self::outall(
-                        ' | ' . _('Replication already running with PID')
-                        . ': ' . $pid
-                    );
-                    continue;
-                }
+                continue;
             }
             if (!file_exists($myAdd) || !is_readable($myAdd)) {
                 self::outall(
@@ -783,7 +777,11 @@ abstract class FOGService extends FOGBase
                 $ip
             );
             $nodename = $StorageNode->name;
-            if (!self::$FOGFTP->connect()) {
+            // This target node's own ftp port (0 = FOG_FTP_PORT, then 21).
+            // $StorageNode is a router row, not a StorageNode, so the static
+            // resolver is used. The lftp call below dials the same port.
+            $ftpPort = StorageNode::resolveFtpPort($StorageNode->ftpport ?? 0);
+            if (!self::$FOGFTP->connect('', $ftpPort)) {
                 // A refused login used to be reported as "Cannot connect",
                 // which points at the network when the cause is nearly always
                 // a stale password for this node. Each master keeps its own
@@ -819,7 +817,9 @@ abstract class FOGService extends FOGBase
             unset($limit);
             $limit = $limitset;
             unset($limitset, $remItem, $includeFile);
-            $ftpstart = "ftp://{$username}:{$encpassword}@{$ip}";
+            // The port is in the URL too: file_exists() and the hash_file()
+            // fallback open ftp:// streams that would otherwise dial 21.
+            $ftpstart = "ftp://{$username}:{$encpassword}@{$ip}:{$ftpPort}";
             // Both lists are reset per NODE, not per item. Neither branch
             // below assigns unconditionally -- the remote one only fires
             // when the file is already there, and the local one writes
@@ -1084,16 +1084,24 @@ abstract class FOGService extends FOGBase
                 . self::_lftpQuote($remItem)
                 . ';';
             $script .= 'exit';
+            // The port was never passed here, so replication always dialed
+            // port 21 while FOGFTP::connect() -- the other half of the same
+            // replication pass -- honored the setting. A node with vsftpd
+            // moved off 21 failed to replicate. $ftpPort is the target
+            // node's own port (else FOG_FTP_PORT, else 21), resolved above
+            // for the FOGFTP connect, so both halves dial the same port.
             $cmd = [
                 'lftp',
                 '-e',
                 $script,
+                '-p',
+                (string)$ftpPort,
                 '-u',
                 "{$username},{$password}",
                 $ip
             ];
             self::outall(
-                " | CMD: lftp -e '$script' -u $username,[redacted] $ip"
+                " | CMD: lftp -e '$script' -p $ftpPort -u $username,[redacted] $ip"
             );
             unset($includeFile, $remItem, $myAddItem);
             $this->startTasking(
@@ -1411,6 +1419,27 @@ abstract class FOGService extends FOGBase
         }
         $ar = proc_get_status($procRef);
         return $ar['running'];
+    }
+    /**
+     * The still-running transfer for one item, or null.
+     *
+     * Reads the path startTasking() writes: procRef[type][name][index].
+     * The guard in replicateItems() used to test procRef[type][index], a key
+     * nothing writes, so it never saw a running transfer (forum 18301).
+     *
+     * @param string $itemType the item type, as startTasking() was given it
+     * @param string $name     the item name
+     * @param mixed  $index    the transfer index
+     *
+     * @return mixed the process handle, or null
+     */
+    private function _transferRunning($itemType, $name, $index)
+    {
+        if (!isset($this->procRef[$itemType][$name][$index])) {
+            return null;
+        }
+        $procRef = $this->procRef[$itemType][$name][$index];
+        return $this->isRunning($procRef) ? $procRef : null;
     }
     /**
      * Returns the full process status (running flag and exit code).

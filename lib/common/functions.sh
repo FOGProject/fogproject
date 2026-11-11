@@ -171,7 +171,10 @@ betaBranch() {
 # the sed re-checks that on the way out: matching rules are not the place to
 # rely on one layer alone when the answer decides what gets checked out.
 newestBranch() {
-    local prefix="$1" ref
+    # $2, the remote URL, is optional. FOGUpdater passes it because it
+    # downloads from GitHub over https whatever the checkout's origin says; the
+    # other callers pass nothing and get the origin lookup below, unchanged.
+    local prefix="$1" remote="${2:-}" ref
     # Sorted with `sort -Vr`, NOT with git's own --sort=-v:refname.
     #
     # `git ls-remote --sort` needs git 2.18 (2018). RHEL/CentOS 7 ships
@@ -189,17 +192,30 @@ newestBranch() {
     # release candidate its origin does not carry -- gitUpdateToBranch would
     # then fail at `git checkout` -- and an air-gapped one must not reach for
     # github.com.
-    local remote
-    remote=$(git -C "${FOG_git_path}" remote get-url origin 2>/dev/null)
-    [[ -n $remote ]] || remote="${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}"
+    #
+    # With an explicit remote the lookup is https only and bounded. The
+    # checkout path keeps whatever scheme origin uses (an SSH origin is
+    # legitimate there), so it is not restricted. fetch() in fogupdater.sh uses
+    # --connect-timeout 15; an unattended update must not hang on a stalled
+    # network either, so a transfer under 1000 B/s for 15 s is abandoned.
+    # `local -x` exports these to git only for the life of this function.
+    if [[ -z $remote ]]; then
+        remote=$(git -C "${FOG_git_path}" remote get-url origin 2>/dev/null)
+        [[ -n $remote ]] || remote="${FOG_git_remote:-https://github.com/FOGProject/fogproject.git}"
+    else
+        local -x GIT_ALLOW_PROTOCOL=https GIT_HTTP_LOW_SPEED_LIMIT=1000 GIT_HTTP_LOW_SPEED_TIME=15
+    fi
     # ls-remote runs on its own, not at the head of the pipe: a pipeline's
     # status is its LAST command's, so a remote that refused us (root with no
     # key for an SSH origin, or no network) came back as an empty match and
     # read as "none published". Return 3 for it instead.
     local heads
     heads=$(git ls-remote --heads "$remote" "refs/heads/${prefix}-*" 2>/dev/null) || return 3
+    # The name is put into raw.githubusercontent.com and archive URLs by
+    # fogupdater.sh. A git ref may legally contain # or %, which would cut or
+    # alter that URL, so only [0-9A-Za-z._-] is accepted after the prefix.
     ref=$(printf '%s\n' "$heads" \
-        | sed -n "s#^[0-9a-f]\\{7,\\}[[:space:]]\\{1,\\}refs/heads/\\(${prefix}-[^/]\\{1,\\}\\)\$#\\1#p" \
+        | sed -n "s#^[0-9a-f]\\{7,\\}[[:space:]]\\{1,\\}refs/heads/\\(${prefix}-[0-9A-Za-z._-]\\{1,\\}\\)\$#\\1#p" \
         | sort -Vr \
         | head -n1)
     [[ -n $ref ]] || return 1
@@ -3332,6 +3348,19 @@ _sbChainStaged() {
     local src="$(readlink -f "$tftpdirsrc" 2>/dev/null)"
     [[ -n $src && -f "${src}/secureboot/snponly-shimx64.efi" ]]
 }
+# Whether upstream's signed loader can fetch boot.php on this install.
+#
+# That loader carries no TRUST=, so under HTTPS netboot it validates only a
+# publicly issued certificate, through iPXE's crosscert path. The other way to
+# HTTPS netboot -- BOOT_rebuild_ipxe_with_my_ca, or a forced BOOT_url_proto with
+# a private certificate -- puts the CA only in FOG's own rebuilt binaries. Naming
+# the shim there loads fine and then stops every UEFI client at boot.php with
+# "Permission denied" (ipxe.org/0216eb8f, x509 "No usable certificates").
+# _resolveNetbootProto's comment already said the rebuild "costs the signed
+# Secure Boot shim"; this is where that cost is applied. GH-2064.
+_sbChainReachesBoot() {
+    [[ ${BOOT_url_proto} != https || ${PKI_web_cert_publicly_trusted} == yes ]]
+}
 # Which UEFI boot file DHCP should hand out, per architecture.
 #
 # The signed chain is the default for every x86-64 and arm64 UEFI client, not an
@@ -3346,6 +3375,10 @@ _sbChainStaged() {
 # Boot off the firmware verifies nothing and shim enforces nothing. It simply
 # boots. So the signed chain is a SUPERSET -- it covers the machines that need it
 # and costs the others nothing -- and there is nothing to detect.
+#
+# Two exceptions name the TFTP-root loader instead: the chain is not staged
+# (_sbChainStaged), or netboot is HTTPS with a private CA, which upstream's
+# signed loader cannot trust (_sbChainReachesBoot, GH-2064).
 #
 # Why the boot file names the shim and not the loader: ipxe/shim carries a
 # fork-only patch (automatic_next_path(), ipxe/shim 1b02ba2c) that strips a
@@ -3397,25 +3430,74 @@ _uefiBootStem() {
 }
 _uefiBootFile() {
     local stem="$(_uefiBootStem)"
+    # Both guards: the shim must be staged, and its loader must be able to
+    # fetch boot.php over this install's netboot protocol (_sbChainReachesBoot).
+    local shim=no
+    _sbChainStaged && _sbChainReachesBoot && shim=yes
     case "$1" in
         i386)
             echo "i386-efi/${stem}.efi"
             ;;
         arm64)
-            if _sbChainStaged; then
+            if [[ $shim == yes ]]; then
                 echo "secureboot/arm64-efi/${stem}-shimaa64.efi"
             else
                 echo "arm64-efi/${stem}.efi"
             fi
             ;;
         *)
-            if _sbChainStaged; then
+            if [[ $shim == yes ]]; then
                 echo "secureboot/${stem}-shimx64.efi"
             else
                 echo "${stem}.efi"
             fi
             ;;
     esac
+}
+# The option 067 rows of the installer summary, for a site that runs its own
+# DHCP. One function, because two places print it: the settings summary, and
+# promptInstallMode after a first-install answer that can change the rows
+# (GH-2064). Reads the resolved BOOT_url_proto, so resolve before calling.
+_printExternalDhcpBootFiles() {
+    local uefistem="$(_uefiBootStem)"
+    echo " * Option 067/filename is the bootfile, per client architecture:"
+    echo " |   BIOS / legacy   $(_biosBootFile)"
+    echo " |   32-bit UEFI     $(_uefiBootFile i386)"
+    # The BIOS row goes through _biosBootFile because --boot-delay
+    # really does change it (10secdelay/) and that flag is parsed
+    # well before here. The 64-bit UEFI rows are spelled out rather
+    # than $(_uefiBootFile) for the opposite reason: these rows
+    # print before downloadipxesecureboot has run, so the guard
+    # would be answering about the PREVIOUS install's staging tree.
+    # These are what this run is about to stage; if the fetch fails,
+    # that function says so itself. Only the stem comes from
+    # --uefi-bootfile, through _uefiBootStem. The 32-bit row
+    # has no staging guard, so it can ask _uefiBootFile directly.
+    # The 64-bit rows therefore duplicate _uefiBootFile's choice on
+    # purpose, including its _sbChainReachesBoot guard: the signed
+    # chain is left out when its loader cannot fetch boot.php over
+    # this install's HTTPS netboot (GH-2064). Change both together.
+    if _sbChainReachesBoot; then
+        echo " |   64-bit UEFI     secureboot/${uefistem}-shimx64.efi"
+        echo " |   ARM64 UEFI      secureboot/arm64-efi/${uefistem}-shimaa64.efi"
+    else
+        echo " |   64-bit UEFI     ${uefistem}.efi"
+        echo " |   ARM64 UEFI      arm64-efi/${uefistem}.efi"
+    fi
+    echo
+    if _sbChainReachesBoot; then
+        echo " * The secureboot/ files are the signed chain. They boot the same"
+        echo " | whether Secure Boot is enabled or not, so they are the right"
+        echo " | answer for every 64-bit UEFI client, not just the ones enforcing"
+        echo " | it. There is no signed 32-bit chain -- those clients must have"
+        echo " | Secure Boot disabled to netboot at all."
+    else
+        echo " * Netboot uses HTTPS with a private CA. The signed secureboot/"
+        echo " | chain cannot trust that CA, so it is left out here. With"
+        echo " | --rebuild-ipxe-with-my-ca, FOG's own builds carry the CA, and a"
+        echo " | Secure Boot client needs this server's MOK enrolled first."
+    fi
+    echo " | See https://docs.fogproject.org/en/latest/secure-boot-netboot"
 }
 # The pre-DHCP delay stanza, in the one form every copy of autoexec.ipxe uses.
 #
@@ -3814,9 +3896,11 @@ downloadipxesecureboot() {
     #     upstream's signed binaries DO validate a publicly-issued certificate
     #     at boot, with no rebuild and no embedded CA. Confirmed in production
     #     against a Let's Encrypt vhost.
-    #   * And where the certificate is private, netboot simply stays on HTTP --
+    #   * And where the certificate is private, netboot normally stays on HTTP --
     #     which has nothing to do with whether a Secure Boot chain is available
-    #     for the machines that need one.
+    #     for the machines that need one. The exception is a rebuild with the
+    #     CA embedded: there the chain is staged but not handed out, because
+    #     its loader cannot trust that CA (_sbChainReachesBoot, GH-2064).
     #
     # The practical effect of the old gate was that every -S install staged no
     # Secure Boot binaries at all, so the feature was missing precisely on the
@@ -5837,6 +5921,86 @@ nfsDevExportHasNoRootSquash() {
         END { exit !found }
     ' "$exportsfile"
 }
+# Remove FOG's own entries (<share> and <share>/dev) from an admin's exports
+# file, leaving every other line, comment and blank line as it was. FOG used to
+# write those two lines into /etc/exports itself; they now live in
+# $nfsfogexports, so an older install still has them in the admin's file and
+# exportfs would see each path twice. The path is parsed as in
+# nfsDevExportHasNoRootSquash (first field, quotes and trailing slashes
+# stripped, backslash continuations joined), and the match is exact: /images2
+# and /images/devices are the admin's and stay. A file with no FOG entry is not
+# touched at all, no backup either. Otherwise the file is backed up and then
+# replaced through a temp file that starts as a copy of the original, so the
+# mode and owner survive the mv. Every failure path removes the temp file.
+# Returns 0 when the file is stripped or has nothing to strip, 1 on a failure
+# (the file is then unchanged).
+# Usage: _stripFogExportsFrom <exports file> <image share path>
+_stripFogExportsFrom() {
+    local exportsfile="$1"
+    local sharepath="$2"
+    local tmpfile="${exportsfile}.fogtmp.$$"
+    local rc
+    # Drop every trailing slash but keep "/" itself. An empty share path would
+    # make the match below hit "/dev" and nothing else sensible, so do nothing.
+    while [[ ${#sharepath} -gt 1 && $sharepath == */ ]]; do
+        sharepath="${sharepath%/}"
+    done
+    [[ -z $sharepath ]] && return 0
+    [[ -f $exportsfile ]] || return 0
+    cp -p "$exportsfile" "$tmpfile" >>$error_log 2>&1 || {
+        rm -f "$tmpfile" >>$error_log 2>&1
+        return 1
+    }
+    # Exit 3 means "no FOG entry"; any other non-zero status is an awk failure.
+    awk -v share="$sharepath" '
+        BEGIN { dev = (share == "/") ? "/dev" : share "/dev" }
+        { raw = raw $0 "\n"; line = line $0 }
+        /\\$/ { sub(/\\$/, "", line); next }
+        {
+            sub(/#.*/, "", line)
+            split(line, f, " ")
+            p = f[1]
+            gsub(/"/, "", p)
+            orig = p
+            sub(/\/+$/, "", p)
+            if (p == "" && orig != "") p = "/"
+            if (p == share || p == dev) {
+                removed = 1
+            } else {
+                printf "%s", raw
+            }
+            raw = ""
+            line = ""
+        }
+        # A file that ends on a backslash continuation leaves text pending.
+        # Write it out as it is. This adds a trailing newline the original did
+        # not have, as the normal path does for a last line without one.
+        END { if (raw != "") printf "%s", raw; exit (removed ? 0 : 3) }
+    ' "$exportsfile" >"$tmpfile" 2>>$error_log
+    rc=$?
+    if [[ $rc -ne 0 ]]; then
+        # 3: no FOG entry, leave the file alone. Anything else: awk failed.
+        rm -f "$tmpfile" >>$error_log 2>&1
+        [[ $rc -eq 3 ]] && return 0
+        return 1
+    fi
+    # The backup is named .fog-migrate.<timestamp>, not .<timestamp>, on
+    # purpose. restorePreFogConfig() (uninstall.sh) globs "<file>".[0-9]* for
+    # the oldest "pre-FOG" copy, and ".fog-migrate" does not start with a digit,
+    # so the glob skips it. A <file>.<timestamp> backup of the migrated file
+    # would be the oldest match on a box with no earlier backup, and uninstall
+    # would restore a file that still holds FOG's lines and revert the admin's
+    # later edits.
+    cp -p "$exportsfile" "${exportsfile}.fog-migrate.${timestamp}" >>$error_log 2>&1 || {
+        rm -f "$tmpfile" >>$error_log 2>&1
+        return 1
+    }
+    mv -f "$tmpfile" "$exportsfile" >>$error_log 2>&1 || {
+        rm -f "$tmpfile" >>$error_log 2>&1
+        return 1
+    }
+    return 0
+}
 configureNFS() {
     dots "Setting up NFS configuration file"
     if [[ -f "/etc/nfs.conf" ]]; then
@@ -5864,9 +6028,17 @@ EOF
     dots "Setting up exports file"
     if [[ ${STORAGE_rebuild_nfs_exports} != yes ]]; then
         echo "Skipped"
+        # The /dev export is in the drop-in on a current install and in the
+        # admin's file on an older one, so look in both.
+        local nrsfile=""
         if nfsDevExportHasNoRootSquash "$nfsconfig" "${STORAGE_image_share_path}"; then
+            nrsfile="$nfsconfig"
+        elif nfsDevExportHasNoRootSquash "$nfsfogexports" "${STORAGE_image_share_path}"; then
+            nrsfile="$nfsfogexports"
+        fi
+        if [[ -n $nrsfile ]]; then
             echo
-            echo "  ** WARNING: ${nfsconfig} still exports with no_root_squash."
+            echo "  ** WARNING: ${nrsfile} still exports with no_root_squash."
             echo "  ** Captures land as root, so moving the image out of"
             echo "  ** ${STORAGE_image_share_path}/dev fails with '550 Rename failed'."
             echo "  ** Replace the ${STORAGE_image_share_path}/dev export options with:"
@@ -5874,12 +6046,66 @@ EOF
             echo
         fi
     else
-        mv -fv "${nfsconfig}" "${nfsconfig}.${timestamp}" >>$error_log 2>&1
-        userId=$(id -u ${SVC_user})
-        groupId=$(id -g ${SVC_user})
-        echo -e "${STORAGE_image_share_path} *(ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonuid=${userId},anongid=${groupId},fsid=0)\n${STORAGE_image_share_path}/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=${userId},anongid=${groupId},fsid=1)" > "$nfsconfig"
-        diffconfig "${nfsconfig}"
-        errorStat $?
+        # FOG owns one file, $nfsfogexports, and rewrites only that. exportfs
+        # reads /etc/exports and then every /etc/exports.d/*.exports (exports(5),
+        # "Extra Export Tables"), the same drop-in pattern
+        # as /etc/nfs.conf.d/fog-nfs.conf above. The admin's /etc/exports is
+        # never replaced: it used to be moved aside and rebuilt with only FOG's
+        # two lines, which dropped every export the admin had added (forum 18303).
+        local nfsst=0 stripfailed=0
+        local newexports="${nfsfogexports}.fogtmp.$$"
+        mkdir -p "$(dirname "$nfsfogexports")" >>$error_log 2>&1 || nfsst=1
+        # Write the new drop-in to a temp file first. The strip below runs only
+        # once that write worked, so a failed mkdir or write leaves FOG's lines
+        # in $nfsconfig. Only the final mv, within one directory, can still
+        # fail after the strip; errorStat reports it and the backup remains.
+        if [[ $nfsst -eq 0 ]]; then
+            userId=$(id -u ${SVC_user})
+            groupId=$(id -g ${SVC_user})
+            echo -e "# Written by the FOG installer. Edits to this file are replaced on the next install.\n${STORAGE_image_share_path} *(ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonuid=${userId},anongid=${groupId},fsid=0)\n${STORAGE_image_share_path}/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=${userId},anongid=${groupId},fsid=1)" > "$newexports" || nfsst=1
+        fi
+        # An install from before the drop-in has FOG's lines in $nfsconfig.
+        # Take them out (with a <file>.fog-migrate.<timestamp> backup) so the
+        # paths are not exported twice; the admin's own lines stay. If the strip
+        # fails, $nfsconfig still exports the share, so installing the drop-in
+        # as well would export it twice: discard it and warn below.
+        if [[ $nfsst -eq 0 ]]; then
+            _stripFogExportsFrom "$nfsconfig" "${STORAGE_image_share_path}" || stripfailed=1
+        fi
+        if [[ $nfsst -eq 0 && $stripfailed -eq 0 ]]; then
+            mv -f "$newexports" "$nfsfogexports" >>$error_log 2>&1 || nfsst=1
+            # The drop-in directory is new on most boxes; give the file the
+            # SELinux label of its neighbors so nfsd/mountd can read it. The
+            # status is ignored: restorecon is absent or a no-op elsewhere.
+            command -v restorecon >/dev/null 2>&1 && restorecon -F "$nfsfogexports" >>$error_log 2>&1
+        fi
+        rm -f "$newexports" >>$error_log 2>&1
+        # errorStat prints the tail of $error_log on a failure, so put the
+        # backup's name there first: after a failed mv it is the only copy of
+        # FOG's lines.
+        if [[ $nfsst -ne 0 && -f ${nfsconfig}.fog-migrate.${timestamp} ]]; then
+            echo "FOG's entries were removed from ${nfsconfig} but ${nfsfogexports} was not installed. Restore from ${nfsconfig}.fog-migrate.${timestamp}." >>$error_log
+        fi
+        errorStat $nfsst
+        # The end-of-install backup list prints <file>.<timestamp>, which is
+        # not the migration backup's name, so say it here instead.
+        if [[ -f ${nfsconfig}.fog-migrate.${timestamp} ]]; then
+            if [[ $nfsst -eq 0 && $stripfailed -eq 0 ]]; then
+                echo "  * Moved FOG's entries from ${nfsconfig} to ${nfsfogexports}."
+                echo "  * ${nfsconfig} before the change: ${nfsconfig}.fog-migrate.${timestamp}"
+            elif [[ $nfsst -ne 0 ]]; then
+                # Reached only with -X, where errorStat returns without the
+                # log tail; without -X it has already exited.
+                echo "  ** FOG's entries were removed from ${nfsconfig} but ${nfsfogexports} was not installed."
+                echo "  ** Restore from ${nfsconfig}.fog-migrate.${timestamp}."
+            fi
+        fi
+        if [[ $stripfailed -eq 1 ]]; then
+            echo "  ** WARNING: could not remove FOG's entries from ${nfsconfig}."
+            echo "  ** FOG's entries were left there and ${nfsfogexports} was not written."
+            echo "  ** Remove the ${STORAGE_image_share_path} and ${STORAGE_image_share_path}/dev lines from ${nfsconfig} by hand and re-run the installer."
+            echo "WARNING: could not strip FOG's entries from ${nfsconfig}; left in place, ${nfsfogexports} not written." >>$error_log
+        fi
         dots "Setting up and starting RPCBind"
         if [[ $systemctl == yes ]]; then
             systemctl is-enabled --quiet rpcbind && true || systemctl enable rpcbind.service >>$error_log 2>&1
@@ -6365,6 +6591,192 @@ _installNodeWebCert() {
         echo " * Update the master to this version and re-run the installer here"
         echo "   to have it issued from the FOG Web CA instead."
     fi
+}
+# Add one public key line to ${SVC_user}'s authorized_keys.
+#
+# $1 is the .pub file. $2 optionally overrides the home directory; the test
+# passes a scratch one, and nothing else should.
+#
+# Idempotent: the line is appended only when that exact line is missing, so a
+# re-run (and the main server, which authorizes its own key every install)
+# changes nothing. sshd runs with StrictModes by default and refuses a key
+# file whose directory or file is writable by anyone else or owned by another
+# user, hence the explicit modes and the chown. SELinux is separate: sshd may
+# only read ssh_home_t, and a file made by this shell is not labeled that.
+_authorizeFogSshKey() {
+    local pubfile="$1" home="${2:-}" ssh_dir
+    [[ -r $pubfile ]] || return 1
+    [[ -z $home ]] && home=$(getent passwd "${SVC_user}" | cut -d: -f6)
+    [[ -z $home ]] && return 1
+    ssh_dir="${home%/}/.ssh"
+
+    mkdir -p "$ssh_dir" >>$error_log 2>&1 || return 1
+    chmod 0700 "$ssh_dir" >>$error_log 2>&1
+    touch "${ssh_dir}/authorized_keys" >>$error_log 2>&1 || return 1
+    chmod 0600 "${ssh_dir}/authorized_keys" >>$error_log 2>&1
+    local line
+    line=$(head -n1 "$pubfile")
+    [[ -n $line ]] || return 1
+    grep -qxF "$line" "${ssh_dir}/authorized_keys" 2>>$error_log || \
+        echo "$line" >> "${ssh_dir}/authorized_keys"
+    chown -R "${SVC_user}:" "$ssh_dir" >>$error_log 2>&1
+    command -v restorecon >/dev/null 2>&1 && \
+        restorecon -R "$ssh_dir" >>$error_log 2>&1
+    # Read by _warnSshPasswordAuth: the master and a node both end up here.
+    fogSshKeyAuthorized=yes
+    return 0
+}
+# Print the hex HMAC-SHA256 of $2 keyed with $1.
+#
+# The secret is the fogstorage database password, so it never goes on a
+# command line: `openssl dgst -hmac <secret>` would show it to any local user
+# in ps and /proc/<pid>/cmdline for as long as the process runs. It goes in
+# through the environment of one php process instead, which only root and the
+# same user can read, and the data goes in on stdin with printf, so a secret or
+# data holding & " > $ ` or a space is hashed byte for byte. nodesshkey.php
+# computes the same value with the same hash_hmac(). It runs with -n and
+# display_errors=stderr because, with display_errors on, PHP CLI prints a
+# startup warning to STDOUT ahead of the hex, and no signature would match.
+_fogHmacHex() {
+    local secret="$1" data="$2"
+    printf '%s' "$data" \
+        | FOG_HMAC_KEY="$secret" php -n -d display_errors=stderr -r \
+            'echo hash_hmac("sha256", stream_get_contents(STDIN), getenv("FOG_HMAC_KEY"));' \
+            2>>$error_log
+}
+# Succeed only when the master's reply is signed over our nonce and its key.
+#
+# $1 secret, $2 nonce, $3 key, $4 the mac the master sent. The signed bytes are
+# the nonce, a newline, and the key; see service/nodesshkey.php.
+_fogSshReplyValid() {
+    local secret="$1" nonce="$2" key="$3" mac="$4" want
+    want=$(_fogHmacHex "$secret" "${nonce}"$'\n'"${key}")
+    [[ -n $want && $want == "$mac" ]]
+}
+# Create the FOG SSH key pair on the main server and trust it locally.
+#
+# Storage nodes are authorized with this key instead of the shared password
+# (GH-2058). The private key stays on the master; nodes only receive the public
+# half through _fetchFogSshKey.
+#
+# The pair lives in /etc/fog/ssh, not the FOG program directory. ADR 0037 puts
+# keys in /etc because they are configuration that a backup policy captures,
+# and losing this key locks FOG out of every node that trusts it. /etc/fog is a
+# fixed real directory on every install (GH-850). The path must match
+# FOGSSH::keyPath().
+#
+# An existing key is never regenerated: every node already trusts it, so a new
+# one would lock all of them out until each re-ran the installer. PEM format
+# on purpose -- ssh-keygen's default OpenSSH format is not read by older
+# libssh2 builds behind php-ssh2, while PEM is read by all of them.
+#
+# The private key is group-readable by the web user because both the web tier
+# and the FOG services (which run as that user) open it. The modes are applied
+# on every run, so a hand-edited mode is put back on the next install.
+_setupFogSshKey() {
+    local dir="/etc/fog/ssh" key
+    key="${dir}/fog_ssh_key"
+    dots "Setting up FOG's SSH key"
+    if ! command -v ssh-keygen >/dev/null 2>&1; then
+        echo "Skipped (no ssh-keygen)"
+        return 0
+    fi
+    local st=0
+    mkdir -p "$dir" >>$error_log 2>&1 || st=1
+    if [[ $st -eq 0 && ! -f $key ]]; then
+        ssh-keygen -q -t rsa -b 4096 -m PEM -N '' \
+            -C "fog@${NET_hostname:-$(hostname)}" -f "$key" >>$error_log 2>&1 || st=1
+    fi
+    # A private key without its .pub is rebuilt from the key. The private key
+    # itself is never regenerated.
+    if [[ $st -eq 0 && -f $key && ! -f ${key}.pub ]]; then
+        ssh-keygen -y -f "$key" > "${key}.pub" 2>>$error_log || st=1
+    fi
+    if [[ $st -eq 0 ]]; then
+        chown "root:${apacheuser}" "$dir" "$key" "${key}.pub" >>$error_log 2>&1 || st=1
+        chmod 0750 "$dir" >>$error_log 2>&1 || st=1
+        chmod 0640 "$key" >>$error_log 2>&1 || st=1
+        chmod 0644 "${key}.pub" >>$error_log 2>&1 || st=1
+        # The master is a storage node of itself.
+        _authorizeFogSshKey "${key}.pub" || st=1
+    fi
+    # Not errorStat: it exits the installer on failure, and a missing key
+    # costs nothing that worked before -- FOGSSH falls back to the password.
+    if [[ $st -eq 0 ]]; then
+        echo "Done"
+    else
+        echo "Failed"
+        echo " * FOG keeps using the storage node password for SSH. See ${error_log}."
+    fi
+    return 0
+}
+# Fetch the master's public SSH key, as a storage node, and trust it.
+#
+# Any failure leaves the node on password authentication and returns 0: a node
+# install must not break against a master that has not been updated yet, and
+# during a staged rollout that is the normal case.
+#
+# The request and its -k are modeled on _requestNodeCert; see the reasoning
+# there. The reply is checked against an HMAC over our own nonce BEFORE the key
+# is trusted, because anyone can answer a request made without TLS
+# verification and the key goes straight into authorized_keys.
+_fetchFogSshKey() {
+    [[ ${FOG_install_type} == [Ss] ]] || return 0
+    dots "Installing the master's SSH key"
+    if [[ -z ${DB_host} || -z ${DB_password} || ${DB_host} == localhost || ${DB_host} == 127.0.0.1 ]] \
+        || ! command -v curl >/dev/null 2>&1 \
+        || ! command -v jq >/dev/null 2>&1 \
+        || ! command -v openssl >/dev/null 2>&1 \
+        || ! command -v php >/dev/null 2>&1; then
+        echo "Skipped"
+        return 0
+    fi
+    local nonce mac resp key rmac why tmpkey rc=0
+    nonce=$(openssl rand -hex 16 2>>$error_log)
+    # The endpoint hashes exactly these bytes: "sshkey", a newline, the nonce.
+    mac=$(_fogHmacHex "${DB_password}" "sshkey"$'\n'"${nonce}")
+    # Bounded: a master that accepts the connection and never answers would
+    # otherwise hang the node install, and this step must never stop one.
+    resp=$(curl -sS --noproxy '*' -k --connect-timeout 15 --max-time 60 -X POST \
+        -d "nonce=${nonce}" \
+        -d "hmac=${mac}" \
+        "${WEB_url_proto:-http}://${DB_host}${WEB_root}service/nodesshkey.php" 2>>$error_log)
+    key=$(echo "$resp" | jq -r '.key // empty' 2>/dev/null)
+    rmac=$(echo "$resp" | jq -r '.hmac // empty' 2>/dev/null)
+    if [[ -z $key || -z $rmac ]]; then
+        echo "Skipped"
+        why=$(echo "$resp" | jq -r '.error // empty' 2>/dev/null)
+        [[ -n $why ]] && echo " * The master declined to send its SSH key: ${why}"
+        rc=1
+    else
+        if ! _fogSshReplyValid "${DB_password}" "$nonce" "$key" "$rmac"; then
+            echo "Failed"
+            echo " * The reply was not signed by the master; its SSH key was not installed."
+            rc=1
+        else
+            tmpkey=$(mktemp) || rc=1
+            if [[ $rc -eq 0 ]]; then
+                echo "$key" > "$tmpkey"
+                if command -v ssh-keygen >/dev/null 2>&1 \
+                    && ! ssh-keygen -l -f "$tmpkey" >>$error_log 2>&1; then
+                    echo "Failed"
+                    echo " * The master sent something that is not a public key."
+                    rc=1
+                elif _authorizeFogSshKey "$tmpkey"; then
+                    echo "Done"
+                else
+                    echo "Failed"
+                    rc=1
+                fi
+            fi
+            rm -f "$tmpkey" >>$error_log 2>&1
+        fi
+    fi
+    if [[ $rc -ne 0 ]]; then
+        echo " * FOG keeps using the password for this node. Update the master"
+        echo "   and re-run the installer here to switch to the SSH key."
+    fi
+    return 0
 }
 # Where this host keeps admin-supplied trust anchors, and what re-reads them.
 #
@@ -7416,32 +7828,79 @@ EOF
 # account (GH-1945).
 #
 # An image capture is moved into place by the web tier, which logs in over SSH
-# as the storage user with ssh2_auth_password (TaskQueue.php, FOGSSH.php). When
-# sshd has PasswordAuthentication no for that user -- the default on many cloud
+# as the storage user (TaskQueue.php, FOGSSH.php). Since GH-2058 / PR #2060 it
+# tries FOG's key first, then the password. When the key is not usable and sshd
+# has PasswordAuthentication no for that user -- the default on many cloud
 # images and hardened servers -- the capture copies all of its data and then
 # fails with "Unable to connect to ssh during move upload".
+#
+# Call it after the SSH key step (_setupFogSshKey, _fetchFogSshKey) in the same
+# process, so fogSshKeyAuthorized is final. Silent when the key is authorized
+# and sshd will read it.
 #
 # Warning only. Whether to allow password login for an account is the admin's
 # call, so sshd_config is never edited here. Never fails the install: no sshd,
 # or an sshd -T that errors, is silent, and every path returns 0.
 _warnSshPasswordAuth() {
-    local sshd user addr pa
+    local sshd user addr cfg pa pk akf why
     user="${SVC_user:-fogproject}"
     addr="${ipaddress:-127.0.0.1}"
     # sshd lives in /usr/sbin, which a non-login root PATH often lacks.
     sshd=$(PATH="$PATH:${sshdSearchDirs:-/usr/sbin:/usr/local/sbin:/sbin}" command -v sshd 2>/dev/null)
     [[ -n $sshd ]] || return 0
-    pa=$("$sshd" -T -C "user=${user},host=localhost,addr=${addr}" 2>/dev/null | awk 'tolower($1) == "passwordauthentication" {print tolower($2); exit}')
+    # One sshd -T call; all three settings come from it.
+    cfg=$("$sshd" -T -C "user=${user},host=localhost,addr=${addr}" 2>/dev/null)
+    pa=$(echo "$cfg" | awk 'tolower($1) == "passwordauthentication" {print tolower($2); exit}')
     [[ $pa == no ]] || return 0
+    pk=$(echo "$cfg" | awk 'tolower($1) == "pubkeyauthentication" {print tolower($2); exit}')
+    akf=$(echo "$cfg" | awk 'tolower($1) == "authorizedkeysfile" {$1 = ""; sub(/^ /, ""); print; exit}')
+    # Since GH-2058 FOGSSH tries FOG's key first, so a user with the key
+    # needs no password login. The flag is set by _authorizeFogSshKey, which
+    # both the master and a node go through. The key helps only if sshd reads
+    # it, so check pubkeyauthentication and authorizedkeysfile as well.
+    why=""
+    if [[ ${fogSshKeyAuthorized:-} == yes ]]; then
+        # Accept only a whole entry spelled .ssh/authorized_keys or
+        # %h/.ssh/authorized_keys. Other spellings that reach the same file
+        # are not recognized and get the warning, which is the safe side. A
+        # substring test would also accept authorized_keys2, or an absolute
+        # path that only ends the same way.
+        local entry homefile=no
+        for entry in $akf; do
+            case $entry in
+                .ssh/authorized_keys|%h/.ssh/authorized_keys) homefile=yes ;;
+            esac
+        done
+        if [[ $pk == no ]]; then
+            why="public key login is off for ${user}"
+        elif [[ $homefile == no ]]; then
+            why="AuthorizedKeysFile does not include ~/.ssh/authorized_keys"
+        else
+            return 0
+        fi
+    fi
     echo
     echo "  ###################################################################"
     echo "  # WARNING: sshd does not allow password login for ${user}."
     echo "  #"
     echo "  # Image captures will FAIL: the data is copied, then the move step"
     echo "  # stops with \"Unable to connect to ssh during move upload\"."
-    echo "  # The web tier logs in over SSH as ${user} with a password."
     echo "  #"
-    echo "  # An administrator must allow password authentication for that user,"
+    if [[ -n $why ]]; then
+        echo "  # FOG's SSH key is authorized, but sshd will not use it:"
+        echo "  #     ${why}."
+        echo "  # Fix that in sshd_config, or use the password fallback below."
+    else
+        echo "  # FOG's SSH key is not authorized for ${user}. The SSH key"
+        echo "  # line above (\"Setting up FOG's SSH key\" on a master,"
+        echo "  # \"Installing the master's SSH key\" on a node) says Skipped"
+        echo "  # or Failed. Details are in:"
+        echo "  #     ${error_log:-the installer error log}"
+        echo "  # Fix that and re-run the installer. A storage node also needs"
+        echo "  # a reachable master that is new enough to serve FOG's SSH key."
+    fi
+    echo "  #"
+    echo "  # The password fallback is to allow password login for that user,"
     echo "  # for example in sshd_config:"
     echo "  #     Match User ${user}"
     echo "  #         PasswordAuthentication yes"
@@ -9765,13 +10224,56 @@ promptInstallMode() {
         *)             sinstallMode="standard" ;;
     esac
     _applyInstallMode
-    # Persisted, so this is the last time the question gets asked.
-    FOG_install_mode="$sinstallMode"
+    # The preset writes BOOT_url_proto directly, which would discard a forced
+    # --netboot-proto until configureDefaultiPXEfile re-resolves -- AFTER
+    # configureDHCP has picked boot files from the preset's value (GH-2064).
+    _resolveNetbootProto
+    # Persisted, so this is the last time the question gets asked -- unless a
+    # discrete flag was also given, which makes the shape custom.
+    _recordInstallMode
     echo
     echo " * Using install mode: $sinstallMode"
     echo "   web=${WEB_url_proto} netboot=${BOOT_url_proto:-http} redirect=${WEB_https_redirect:-no}"
     echo "   PKI_web_cert_publicly_trusted=${PKI_web_cert_publicly_trusted:-no} BOOT_rebuild_ipxe_with_my_ca=${BOOT_rebuild_ipxe_with_my_ca:-no}"
     echo
+    # The summary above printed the 067 rows for the mode BEFORE this answer.
+    if [[ ${FOG_install_type} == N && ${DHCP_enabled} != yes ]]; then
+        _printExternalDhcpBootFiles
+        echo
+    fi
+}
+# Record the mode to persist, after the discrete flags have had their say.
+# Reads $sinstallMode and the run-scoped flag shadows sWEB_https_redirect,
+# sPKI_web_cert_publicly_trusted, sBOOT_rebuild_ipxe_with_my_ca and
+# sBOOT_url_proto; writes FOG_install_mode.
+#
+# CLEARED by any discrete transport flag: once a flag has moved one of the four
+# keys off its preset, the shape is no longer one of the named modes, and a name
+# left behind would have the NEXT run's _applyInstallMode overwrite the very key
+# that moved. Empty means custom. Shared by installfog.sh and promptInstallMode,
+# because the prompt used to record its answer unconditionally -- so a forced
+# --netboot-proto given alongside it was overwritten by the preset on the next
+# run, and BOOT_url_proto_forced then protected the preset's value.
+#
+# --netboot-proto clears it only when it moves BOOT_url_proto off the preset's
+# value. A matching value moves nothing, and clearing then would lose http-only
+# outright: its HTTP web UI is recorded nowhere but the mode name, because
+# installfog.sh forces WEB_url_proto to https before the seed. The one shape
+# that still loses it is http-only with --netboot-proto https: that clears the
+# mode, so the web UI returns to https on the next run.
+_recordInstallMode() {
+    # The preset's netboot protocol, without touching the live keys. An empty
+    # or unknown mode has no preset, so this falls back to the live value --
+    # harmless, because an empty mode records "" either way.
+    local presetNetboot
+    presetNetboot="$(_applyInstallMode; echo "${BOOT_url_proto}")"
+    if [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} \
+        || -n ${sBOOT_rebuild_ipxe_with_my_ca} \
+        || ( -n ${sBOOT_url_proto} && ${sBOOT_url_proto} != "$presetNetboot" ) ]]; then
+        FOG_install_mode=""
+    else
+        FOG_install_mode="$sinstallMode"
+    fi
 }
 # The preset itself, factored out so installfog.sh's flag handling and the
 # prompt above cannot drift apart.
@@ -9873,6 +10375,17 @@ _reportNetbootProto() {
             echo " #                                                                 #"
             echo " # Re-run the installer with: --no-public-web-cert                 #"
             echo " ###################################################################"
+            echo
+        fi
+        # Said when the signed chain is dropped in rebuild mode, so an install
+        # with FOG's own DHCP -- which prints no 067 rows -- still says so
+        # (GH-2064). Without the rebuild, the WARNING above already covers it:
+        # FOG's builds carry no CA either.
+        if ! _sbChainReachesBoot && [[ ${BOOT_rebuild_ipxe_with_my_ca} == yes ]]; then
+            echo " * UEFI clients get FOG's own iPXE builds, not the signed"
+            echo "   secureboot/ chain: upstream's signed iPXE cannot trust a"
+            echo "   private CA over HTTPS. A Secure Boot client needs this"
+            echo "   server's MOK enrolled before it can netboot."
             echo
         fi
         return 0
@@ -11187,6 +11700,31 @@ dropShadowingVhosts() {
     fi
     return 0
 }
+# Moves a regular file at sites-enabled/<site>.conf out of Apache's way.
+#
+# Debian/Ubuntu load sites-enabled/, and that entry is normally a link to the
+# file this installer writes in sites-available/. An in-place edit through the
+# link replaces the link with a file. a2ensite and a2dissite then refuse to
+# touch it ("is a real file, not touching it"), so Apache keeps serving the old
+# copy. Forum 18306: a 1.5 vhost edited by FOGUefi broke 1.6 netboot this way.
+#
+# The file goes beside the managed vhost in sites-available/, which Apache does
+# not load, so the admin's content is kept. The ".shadowed" infix keeps it
+# apart from the "<file>.<timestamp>" backups that beginManagedVhost() reads.
+# a2ensite then creates the link.
+_unshadowApacheSite() {
+    local avail="$1" stamp="$2"
+    [[ $avail == */sites-available/* ]] || return 0
+    local enabled="${avail%/sites-available/*}/sites-enabled/${avail##*/}"
+    [[ -f $enabled && ! -L $enabled ]] || return 0
+    local kept="${avail}.shadowed.${stamp}"
+    if ! mv -f "$enabled" "$kept"; then
+        echo "  Could not move ${enabled}. Apache will not load the FOG vhost until it is removed."
+        return 1
+    fi
+    echo "  Moved ${enabled} to ${kept}."
+    echo "  It was a regular file, not a link. Apache did not load the FOG vhost."
+}
 # Redirects the vhost generation that follows into a scratch file, so the ~260
 # existing `>> "$etcconf"` lines below need no edit at all: they keep writing
 # to $etcconf, which now names the scratch file. endManagedVhost() splices
@@ -12212,6 +12750,8 @@ EOF
                     ;;
                 *)
                     if [[ ${FOG_os_id} -eq 2 ]]; then
+                        # Before a2dissite: neither a2* tool touches a real file.
+                        _unshadowApacheSite "$etcconf" "$timestamp"
                         a2dissite 001-fog >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                         a2ensite 000-default >>$workingdir/error_logs/fog_error_${version}.log 2>&1
                     fi
@@ -12881,10 +13421,9 @@ _warnUnrecognizedPlugins() {
     # "Unrecognized" is decided by comparison, so with nothing to compare
     # against there is no finding to report -- only a list of every plugin
     # the admin has, named as third-party. That is not hypothetical:
-    # configureMinHttpd() (the STORAGE NODE path, installfog.sh:1353) calls
-    # configureHttpd without downloadplugins ever running, and lib/plugins is
-    # gitignored on 1.6, so a storage-node install from a clone reaches here
-    # with an empty bundled set. Say nothing rather than cry wolf.
+    # lib/plugins is gitignored on 1.6, so an install whose downloadplugins
+    # was skipped (a tarball with no fetcher) or failed reaches here with an
+    # empty bundled set. Say nothing rather than cry wolf.
     compgen -G "${webdirsrc}/lib/plugins/*/" >/dev/null 2>&1 || return 0
     local dir name found=""
     for dir in "$oldplugins"/*/; do
@@ -14798,6 +15337,25 @@ _resignKernels() {
         echo "   Secure Boot clients will not boot until this is fixed."
         return 0
     }
+    # Split mode passes --addcert here, in _resignRefind, _signLocalIpxe,
+    # _resignCustomKernels and fog-sign-kernel. sbsign gained that option in
+    # sbsigntools 0.9.4. EPEL 8 ships 0.9.2, so on RHEL/Rocky/Alma/Oracle
+    # Linux 8 each of those steps printed a bare "Failed", and the reason,
+    # "unrecognized option '--addcert'", went only to the log (forum 18309).
+    # This runs first of the signing steps, so it names the cause once.
+    # Probes the option, not the version string, so any build without it is
+    # caught. Flat mode passes no --addcert, so any sbsign works there. The
+    # mode test is the same one the loop below uses for its addcert array.
+    if [[ -n ${PKI_sb_ca_cert} ]] \
+        && [[ "$(readlink -f "${PKI_sb_ca_cert}" 2>/dev/null)" != "$(readlink -f "$certpem" 2>/dev/null)" ]] \
+        && ! sbsign --help 2>&1 | grep -q -- '--addcert'; then
+        echo "Failed"
+        echo " * The installed sbsign has no --addcert option. Secure Boot"
+        echo "   signing needs sbsigntools 0.9.4 or later; EPEL 8 ships 0.9.2."
+        echo "   The rEFInd and iPXE signing below fails for the same reason."
+        echo "   Install sbsigntools 0.9.4 or later, then re-run the installer."
+        return 0
+    fi
     # The two Memtest86+ binaries ride along: each is a bzImage that is also
     # a PE, and on a UEFI client iPXE chains it as a PE, which under Secure
     # Boot needs the same countersignature the kernels get (#321).
@@ -16477,6 +17035,35 @@ EOFCLS
 # second stage out of its own filename, so both chains sit side by side in one
 # directory and the boot file name alone decides which runs.
 _keaBootFileFallbackComment() {
+    # HTTPS netboot with a private CA: the active boot file is already FOG's
+    # own build, and every secureboot/ alternative fails at boot.php: upstream's
+    # signed iPXE cannot verify the private CA's TLS certificate
+    # (_sbChainReachesBoot, GH-2064). Offer only the driver fallback, from the
+    # TFTP root.
+    if ! _sbChainReachesBoot; then
+        cat <<'EOFSBC'
+#        An alternative to the boot file above, if you need it. Uncomment it,
+#        add a leading comma to the entry above, and narrow the test to the
+#        affected machines -- by subnet, MAC or a client class of your own.
+#
+#        This file is regenerated by every install and upgrade, so an edit here
+#        does not survive the next one. To change the boot file for every UEFI
+#        client, re-run the installer with --uefi-bootfile ipxe (or snponly).
+#
+#        The signed secureboot/ chain is not offered here: netboot is HTTPS
+#        with a private CA, and upstream's signed iPXE cannot trust that CA.
+#
+#        The network never comes up, or the FOS kernel hangs at the handoff.
+#        That is the firmware's own UEFI SNP driver. Use iPXE's built-in NIC
+#        drivers instead (arm64: arm64-efi/ipxe.efi):
+#        {
+#            "name": "FOG-UEFI-64-IpxeDrivers",
+#            "test": "substring(option[60].hex,0,20) == 'PXEClient:Arch:00007'",
+#            "boot-file-name": "ipxe.efi"
+#        }
+EOFSBC
+        return 0
+    fi
     cat <<'EOFSBC'
 #        Two alternatives to the boot file above, if you need them. Uncomment
 #        one, add a leading comma to the entry above, and narrow the test to the
@@ -16831,31 +17418,56 @@ configureDHCP() {
             # for why the signed chain is the default for every 64-bit UEFI
             # client rather than a per-machine opt-in, and why the boot file
             # names the shim rather than the loader.
-            echo "# Two alternatives to the UEFI boot file above, if you need them." >> "$dhcptouse"
-            echo "# Uncomment one and narrow the match to the affected machines. Both are" >> "$dhcptouse"
-            echo "# DHCP-only changes -- nothing is renamed on this server." >> "$dhcptouse"
-            echo "#" >> "$dhcptouse"
-            echo "# This file is regenerated by every install and upgrade, so an edit here" >> "$dhcptouse"
-            echo "# does not survive the next one. To change the boot file for every UEFI" >> "$dhcptouse"
-            echo "# client, re-run the installer with --uefi-bootfile ipxe (or snponly)." >> "$dhcptouse"
-            echo "#" >> "$dhcptouse"
-            echo "# 1. The chain loads but the network never comes up, or the FOS kernel" >> "$dhcptouse"
-            echo "#    hangs at the handoff: that is the firmware's own UEFI SNP driver," >> "$dhcptouse"
-            echo "#    so use iPXE's built-in drivers instead." >> "$dhcptouse"
-            echo "#    On arm64, secureboot/arm64-efi/ipxe-shimaa64.efi." >> "$dhcptouse"
-            echo "#class \"FOG-UEFI-64-IpxeDrivers\" {" >> "$dhcptouse"
-            echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
-            echo "#    filename \"secureboot/ipxe-shimx64.efi\";" >> "$dhcptouse"
-            echo "#}" >> "$dhcptouse"
-            echo "#" >> "$dhcptouse"
-            echo "# 2. You want FOG's own builds rather than upstream's signed pair. They" >> "$dhcptouse"
-            echo "#    are in the TFTP root; on arm64, arm64-efi/snponly.efi. They carry" >> "$dhcptouse"
-            echo "#    this server's own signature, so a Secure Boot client refuses them" >> "$dhcptouse"
-            echo "#    until that certificate is enrolled on it." >> "$dhcptouse"
-            echo "#class \"FOG-UEFI-64-FogBuild\" {" >> "$dhcptouse"
-            echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
-            echo "#    filename \"snponly.efi\";" >> "$dhcptouse"
-            echo "#}" >> "$dhcptouse"
+            #
+            # HTTPS netboot with a private CA gets one alternative instead: the
+            # active file is already FOG's own build, and every secureboot/
+            # file fails at boot.php there (_sbChainReachesBoot, GH-2064).
+            if ! _sbChainReachesBoot; then
+                echo "# An alternative to the UEFI boot file above, if you need it." >> "$dhcptouse"
+                echo "# Uncomment it and narrow the match to the affected machines. It is a" >> "$dhcptouse"
+                echo "# DHCP-only change -- nothing is renamed on this server." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# This file is regenerated by every install and upgrade, so an edit here" >> "$dhcptouse"
+                echo "# does not survive the next one. To change the boot file for every UEFI" >> "$dhcptouse"
+                echo "# client, re-run the installer with --uefi-bootfile ipxe (or snponly)." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# The signed secureboot/ chain is not offered here: netboot is HTTPS" >> "$dhcptouse"
+                echo "# with a private CA, and upstream's signed iPXE cannot trust that CA." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# The network never comes up, or the FOS kernel hangs at the handoff:" >> "$dhcptouse"
+                echo "# that is the firmware's own UEFI SNP driver, so use iPXE's built-in" >> "$dhcptouse"
+                echo "# drivers instead. On arm64, arm64-efi/ipxe.efi." >> "$dhcptouse"
+                echo "#class \"FOG-UEFI-64-IpxeDrivers\" {" >> "$dhcptouse"
+                echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
+                echo "#    filename \"ipxe.efi\";" >> "$dhcptouse"
+                echo "#}" >> "$dhcptouse"
+            else
+                echo "# Two alternatives to the UEFI boot file above, if you need them." >> "$dhcptouse"
+                echo "# Uncomment one and narrow the match to the affected machines. Both are" >> "$dhcptouse"
+                echo "# DHCP-only changes -- nothing is renamed on this server." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# This file is regenerated by every install and upgrade, so an edit here" >> "$dhcptouse"
+                echo "# does not survive the next one. To change the boot file for every UEFI" >> "$dhcptouse"
+                echo "# client, re-run the installer with --uefi-bootfile ipxe (or snponly)." >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# 1. The chain loads but the network never comes up, or the FOS kernel" >> "$dhcptouse"
+                echo "#    hangs at the handoff: that is the firmware's own UEFI SNP driver," >> "$dhcptouse"
+                echo "#    so use iPXE's built-in drivers instead." >> "$dhcptouse"
+                echo "#    On arm64, secureboot/arm64-efi/ipxe-shimaa64.efi." >> "$dhcptouse"
+                echo "#class \"FOG-UEFI-64-IpxeDrivers\" {" >> "$dhcptouse"
+                echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
+                echo "#    filename \"secureboot/ipxe-shimx64.efi\";" >> "$dhcptouse"
+                echo "#}" >> "$dhcptouse"
+                echo "#" >> "$dhcptouse"
+                echo "# 2. You want FOG's own builds rather than upstream's signed pair. They" >> "$dhcptouse"
+                echo "#    are in the TFTP root; on arm64, arm64-efi/snponly.efi. They carry" >> "$dhcptouse"
+                echo "#    this server's own signature, so a Secure Boot client refuses them" >> "$dhcptouse"
+                echo "#    until that certificate is enrolled on it." >> "$dhcptouse"
+                echo "#class \"FOG-UEFI-64-FogBuild\" {" >> "$dhcptouse"
+                echo "#    match if substring(option vendor-class-identifier, 0, 20) = \"PXEClient:Arch:00007\";" >> "$dhcptouse"
+                echo "#    filename \"snponly.efi\";" >> "$dhcptouse"
+                echo "#}" >> "$dhcptouse"
+            fi
             diffconfig "${dhcptouse}"
             # Non-fatal syntax check; ISC has historically started without one.
             if command -v dhcpd >/dev/null 2>&1; then

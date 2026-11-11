@@ -487,6 +487,14 @@ rcpublish working-1.7
 rcpublish working-1.10
 check "beta follows the newest working-* branch, not the decoy" \
     "$([[ $(betaBranch) == working-1.10 ]]; echo $?)"
+# A ref may legally hold # or %. Versioned to sort highest, so a loose charset
+# would offer them; the name must not reach a URL or a clone with those in it.
+rcpublish 'working-1.99#x'
+rcpublish 'rc-1.6.99%2F'
+check "a working-* name with # in it is not offered" \
+    "$([[ $(betaBranch) == working-1.10 ]]; echo $?)"
+check "an rc-* name with % in it is not offered" \
+    "$([[ $(rcBranch) == rc-1.6.10 ]]; echo $?)"
 
 # ---------------------------------------------------------------------------
 # An existing FOG INSTALL is a different question from an existing CHECKOUT.

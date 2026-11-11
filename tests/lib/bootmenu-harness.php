@@ -275,6 +275,48 @@ class TaskType extends StubModel
 class Image extends StubModel
 {
     /**
+     * Returns the OS the image is for, with the family schema step 458
+     * seeds for that osID (windows 1-7 and 9-11, macos 8, linux 50 and 51,
+     * other 99).
+     *
+     * An image with no osID gets an OS with no id, as the real
+     * Image::getOS() does for an image whose osID matches no row. The
+     * family of an unlisted id is 'other', the column default.
+     *
+     * This table mirrors schema step 458's backfill.
+     * tests/schema-458-os-family-db.test.php is the gate for the real
+     * mapping.
+     *
+     * @return StubModel
+     */
+    public function getOS()
+    {
+        $osid = (int)$this->get('osID');
+        if ($osid < 1) {
+            return new StubModel([]);
+        }
+        if (in_array($osid, [1, 2, 3, 4, 5, 6, 7, 9, 10, 11], true)) {
+            $family = 'windows';
+        } elseif (8 === $osid) {
+            $family = 'macos';
+        } elseif (in_array($osid, [50, 51], true)) {
+            $family = 'linux';
+        } else {
+            $family = 'other';
+        }
+        return new StubModel(['id' => $osid, 'family' => $family]);
+    }
+    /**
+     * Mirrors Image::getOSFamily(): empty when the image has no valid OS.
+     *
+     * @return string
+     */
+    public function getOSFamily()
+    {
+        $OS = $this->getOS();
+        return $OS->isValid() ? $OS->get('family') : '';
+    }
+    /**
      * Returns the image type (mps, mpa, n).
      *
      * @return StubModel

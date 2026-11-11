@@ -203,6 +203,14 @@ $check(
     )
 );
 
+// Writing sec_vouched decides who is sent the domain join password, so a
+// host edit must not be a way round the Approve FOG Client action
+// (GHSA-97vv-f7hc-rp5m).
+$check(
+    'host.sec_vouched is server-owned',
+    in_array('sec_vouched', Route::serverOwnedFields('host'), true)
+);
+
 // Every column that records WHEN a machine spoke. A caller that can write
 // one of these is asserting an event that did not happen -- and agentCheckin
 // is not only a display field: WakeRelay chooses which hosts are fresh

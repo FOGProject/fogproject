@@ -115,6 +115,8 @@ check "a missing exports file is not a warning" $?
 body=$(lift configureNFS)
 grep -q 'nfsDevExportHasNoRootSquash "\$nfsconfig"' <<<"$body"
 check "configureNFS() calls nfsDevExportHasNoRootSquash" $?
+grep -q 'nfsDevExportHasNoRootSquash "\$nfsfogexports"' <<<"$body"
+check "configureNFS() also checks the FOG drop-in for the warning" $?
 ! grep -q 'grep -q "no_root_squash"' <<<"$body"
 check "configureNFS() no longer greps the whole exports file" $?
 

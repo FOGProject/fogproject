@@ -200,13 +200,19 @@ class StorageEpoch extends FOGBase
      * lets them confirm it. seZone is a record of what was true then, which is
      * exactly what makes it safe to print next to an old value.
      *
+     * Says "can be", not "was written in", because BAND_HOURS also marks the
+     * values written in the first 26 hours AFTER the boundary, and those are
+     * UTC. A capture finished an hour after the upgrade was marked with a
+     * note that called its UTC time local (forum 18305). The note is one
+     * sentence per card or grid, so it has to be true of both kinds.
+     *
      * @return string
      */
     public static function note()
     {
         return sprintf(
             /* translators: %s is a time zone name, e.g. America/Chicago */
-            _('recorded before this server moved to UTC; written in %s'),
+            _('recorded before or near the time this server moved to UTC; it can be in %s time or in UTC'),
             self::priorZone()->getName()
         );
     }

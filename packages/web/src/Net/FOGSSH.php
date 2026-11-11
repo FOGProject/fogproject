@@ -25,6 +25,7 @@ use FOG\Base\FOGCore;
  * @link     https://fogproject.org
  *
  * @method array|false sftp_stat(string $path) ssh2_sftp_stat(), via __call
+ * @method bool auth_pubkey_file(string $username, string $pubkeyfile, string $privkeyfile) ssh2_auth_pubkey_file(), via __call
  */
 class FOGSSH
 {
@@ -51,6 +52,7 @@ class FOGSSH
         'password' => '',
         'port' => 22,
         'timeout' => 90,
+        'usekey' => true,
     ];
     /**
      * The link to the ssh server
@@ -65,30 +67,6 @@ class FOGSSH
      */
     private $_sftp;
     /**
-     * The connection hash
-     *
-     * @var string
-     */
-    private $_lastConnectionHash;
-    /**
-     * The last login hash
-     *
-     * @var string
-     */
-    private $_lastLoginHash;
-    /**
-     * The current connection hash
-     *
-     * @var string
-     */
-    private $_currentConnectionHash;
-    /**
-     * The current login hash
-     *
-     * @var string
-     */
-    private $_currentLoginHash;
-    /**
      * Which stage of connect() failed, if one did.
      *
      * Either 'connect' (the handshake never completed) or 'login' (the server
@@ -100,6 +78,70 @@ class FOGSSH
      * @var string
      */
     private $_lastFailure = '';
+    /**
+     * Which credential the last successful login() used.
+     *
+     * 'key' when FOG's own SSH key was accepted, 'password' when the node
+     * only took the password, '' before any login has succeeded. Callers use
+     * it to tell an admin that a node still depends on password logins.
+     *
+     * @var string
+     */
+    private $_authMethod = '';
+    /**
+     * Which credential the last successful login() used.
+     *
+     * @return string 'key', 'password', or '' before a login.
+     */
+    public function authMethod()
+    {
+        return $this->_authMethod;
+    }
+    /**
+     * The private half of FOG's SSH key pair; the public half is this path
+     * plus '.pub'.
+     *
+     * Under /etc/fog, not the FOG program directory: ADR 0037 puts keys in
+     * /etc because they are configuration that a backup policy captures, and
+     * losing this key locks FOG out of every node that trusts it. /etc/fog is
+     * a fixed, real directory on every install (GH-850), so the path does not
+     * depend on where FOG itself was installed.
+     *
+     * @return string
+     */
+    public static function keyPath()
+    {
+        return '/etc/fog/ssh/fog_ssh_key';
+    }
+    /**
+     * Where FOG's SSH key pair lives, when both halves are usable.
+     *
+     * The pair is created by the installer on the main server, in the same
+     * place the node-side installer fetches the public half from (see
+     * service/nodesshkey.php). A half that exists but cannot be read by the
+     * web user counts as absent, so a permissions slip falls back to the
+     * password instead of failing the login.
+     *
+     * @return array|null [public key path, private key path], or null.
+     */
+    private static function _keyFiles()
+    {
+        $base = self::keyPath();
+        $pub = $base . '.pub';
+        if (!is_readable($base) || !is_readable($pub)) {
+            return null;
+        }
+        return [$pub, $base];
+    }
+    /**
+     * Whether this server has an SSH key to offer a node.
+     *
+     * @return bool
+     */
+    public static function hasKey()
+    {
+        return self::_keyFiles() !== null;
+    }
     /**
      * Which stage of the last connect() failed.
      *
@@ -216,16 +258,6 @@ class FOGSSH
     ) {
         $this->_lastFailure = '';
         try {
-            $this->_currentConnectionHash = password_hash(
-                print_r($this->data, 1),
-                PASSWORD_BCRYPT,
-                ['cost'=>11]
-            );
-            if ($this->_link
-                && $this->_currentConnectionHash == $this->_lastConnectionHash
-            ) {
-                return $this;
-            }
             if (!$host) {
                 $host = $this->host;
             }
@@ -256,7 +288,6 @@ class FOGSSH
                 $this->login();
             }
             $this->_lastFailure = '';
-            $this->_lastConnectionHash = $this->_currentConnectionHash;
         } catch (\Exception $e) {
             FOGCore::error($e->getMessage());
             return false;
@@ -306,27 +337,41 @@ class FOGSSH
         $password = null
     ) {
         try {
-            $this->_currentLoginHash = password_hash(
-                is_object($this->_link) ? spl_object_id($this->_link) : spl_object_id($this),
-                PASSWORD_BCRYPT,
-                ['cost'=>11]
-            );
-            if ($this->_currentLoginHash == $this->_lastLoginHash) {
-                return $this;
-            }
+            // Every login attempt starts with no recorded method, so a
+            // failed attempt does not report how an earlier one logged in.
+            $this->_authMethod = '';
             if (!$username) {
                 $username = $this->username;
             }
             if (!$password) {
                 $password = $this->password;
             }
-            if ($this->auth_password($username, $password) === false) {
-                $this->ssherror($this->data);
+            // Key first, password second. Forum 18303 / GH-2058: an sshd set
+            // to key-only logins needed a password exception for the service
+            // account just so FOG could reach the node. Offering FOG's key
+            // first removes that exception, and the password fallback keeps
+            // a node that does not have the key yet working as before.
+            // A refused key returns false -- it does not throw -- so a
+            // failure here falls straight through to the password attempt.
+            // usekey is off only for the save-time password check in
+            // StorageNodeManagement, which must prove the password itself.
+            $keys = $this->data['usekey'] ? self::_keyFiles() : null;
+            // Silenced: a node without the key would otherwise log one
+            // E_WARNING per password login. authMethod() and the save-time
+            // warning are where that state is reported.
+            if ($keys !== null
+                && @$this->auth_pubkey_file($username, $keys[0], $keys[1]) !== false
+            ) {
+                $this->_authMethod = 'key';
+            } else {
+                if ($this->auth_password($username, $password) === false) {
+                    $this->ssherror($this->data);
+                }
+                $this->_authMethod = 'password';
             }
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
-        $this->_lastLoginHash = $this->_currentLoginHash;
         return $this;
     }
     /**

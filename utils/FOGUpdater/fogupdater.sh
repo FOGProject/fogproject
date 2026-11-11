@@ -84,7 +84,20 @@ channel=$(awk -F\' /"define\('FOG_CHANNEL'[,](.*)"/'{print $4}' "$configpath" | 
 if [[ -n $updatebranch ]]; then
     branch="$updatebranch"
 elif [[ $channel == Beta ]]; then
-    branch="working-1.6"
+    # Never fall through to stable or dev-branch: that installs 1.5 over a 1.6
+    # server (see above).
+    # newestBranch (lib/common/functions.sh, sourced through utils.sh) is given
+    # GitHub's URL because this script downloads from there over https whatever
+    # the checkout's origin says. working-1.6 is frozen and is deleted after the
+    # 1.6.0 release, so the branch is looked up, not named. Only this path needs
+    # git: updatebranch never calls it.
+    command -v git >/dev/null 2>&1 || handleError " * git is required to find the beta branch -- install git, or set updatebranch in .fogsettings" 12
+    branch=$(newestBranch working "https://github.com/FOGProject/fogproject.git")
+    case $? in
+        0) ;;
+        3) handleError " * Could not reach the remote to find the beta branch -- check the network, or set updatebranch in .fogsettings" 11 ;;
+        *) handleError " * No beta branch is published right now -- set updatebranch in .fogsettings, or switch to the Patches channel" 10 ;;
+    esac
 elif [[ -n $trunk ]]; then
     branch="dev-branch"
 elif [[ -z $channel || $channel == Patches ]]; then

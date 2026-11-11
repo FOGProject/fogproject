@@ -17,6 +17,7 @@ use FOG\Items\Image;
 use FOG\Items\OS;
 use FOG\Items\Schema;
 use FOG\Items\TaskLog;
+use FOG\Items\TaskType;
 
 /**
  * Schema layout for creating the database.
@@ -12075,4 +12076,299 @@ $this->schema[] = [
     "ALTER TABLE `users` "
     . "MODIFY `uName` VARCHAR(255),"
     . "MODIFY `uCreateBy` VARCHAR(255)"
+];
+// 447
+$this->schema[] = [
+    // Target-based directory rejoin keeps its operator config and its
+    // durable operation state beside the host's directory facts. Separate
+    // ALTERs keep the updater's duplicate-column retry (error 1060) working
+    // when an earlier run stopped after adding only one of the columns.
+    'ALTER TABLE `hostDirectory` ADD COLUMN `hdRejoinConfig` TEXT NULL DEFAULT NULL',
+    'ALTER TABLE `hostDirectory` ADD COLUMN `hdRejoinState` TEXT NULL DEFAULT NULL',
+];
+// 448
+$this->schema[] = [
+    // Durable record of each OU placement (Move) request, so a Move that may
+    // have reached the directory is never re-sent or forgotten. Keyed by the
+    // computer object's GUID. No foreign key to hosts: the rows are history
+    // that outlives the host, so they are class audit in schema-constraints.
+    // dpiStatus and dpiHash are compared byte for byte, so they use utf8mb3_bin.
+    "CREATE TABLE IF NOT EXISTS `directoryPlacementIntent` ( "
+    . "`dpiGUID` binary(16) NOT NULL, "
+    . "`dpiSID` varbinary(184) NOT NULL, "
+    . "`dpiHostID` int(11) NOT NULL, "
+    . "`dpiGeneration` bigint(20) unsigned NOT NULL, "
+    . "`dpiStatus` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, "
+    . "`dpiPayload` mediumtext NOT NULL, "
+    . "`dpiHash` char(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, "
+    . "`dpiResult` varchar(512) DEFAULT NULL, "
+    . "`dpiUpdated` datetime(6) NOT NULL, "
+    . "PRIMARY KEY (`dpiGUID`), "
+    . "UNIQUE KEY `uq_directoryPlacementIntent_sid` (`dpiSID`), "
+    . "KEY `idx_directoryPlacementIntent_host_status` (`dpiHostID`,`dpiStatus`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+];
+// 449
+$this->schema[] = [
+    // The legacy client's first handshake trusts whoever sends the MAC, and
+    // the domain join password went to that key (GHSA-97vv-f7hc-rp5m). Now
+    // it goes only to a key that was vouched for: deployed by this server
+    // within the deploy window, or approved by an administrator.
+    'ALTER TABLE `hosts` ADD COLUMN `hostSecVouched` TINYINT(1) NOT NULL DEFAULT 0',
+    // A host that already holds a key keeps working. Nothing records how
+    // that key was bound, and withholding the password from every joined
+    // estate at upgrade would break renames on all of them.
+    "UPDATE `hosts` SET `hostSecVouched` = 1 WHERE `hostSecToken` <> ''",
+    // The deploy window now vouches for the legacy client too.
+    "UPDATE `globalSettings` SET `settingDesc` = 'Hours after this server "
+    . "completes a deploy to a host during which a client presenting that "
+    . "host''s identity is trusted without an admin approving it: a "
+    . "fog-agent is enrolled, and a legacy FOG Client''s first key is sent "
+    . "the domain join password. The deploy was the approval. 0 disables "
+    . "the shortcut, and every enrollment and every legacy key then waits "
+    . "for an admin.' "
+    . "WHERE `settingKey` = 'FOG_AGENT_ENROLL_DEPLOY_WINDOW'",
+];
+// 450
+$this->schema[] = [
+    // Forum 18305: backfill taskLog.logImageName on rows written before
+    // step 351 added it.
+    //
+    // ImagingStats' fold counts only rows with a name -- the name is how it
+    // tells an imaging run from every other task -- so every pre-351 run,
+    // which is all of an upgraded 1.5 install's history, was missing from
+    // the dashboard chart and the imaging report.
+    //
+    // Filled from the task's image, so only a run whose task and image both
+    // still exist can be recovered. Nothing else records which image ran.
+    // Same gates as TaskLog::recordStates(): state rows only, imaging task
+    // types only, and the type ids asked of TaskType so the two cannot
+    // drift. Ids only, as recordStates() does: a custom type that counts as
+    // imaging by its kernel args alone stays blank.
+    // Blank rows only, so a re-run is a no-op.
+    function () {
+        $TaskType = new TaskType();
+        $imagingTypes = array_map(
+            'intval',
+            array_merge(
+                (array)$TaskType->isDeploy(true),
+                (array)$TaskType->isCapture(true)
+            )
+        );
+        self::$DB->query(
+            "UPDATE `taskLog` "
+            . "JOIN `tasks` ON `tasks`.`taskID` = `taskLog`.`taskID` "
+            . "JOIN `images` ON `images`.`imageID` = `tasks`.`taskImageID` "
+            . "SET `taskLog`.`logImageName` = `images`.`imageName` "
+            . "WHERE `taskLog`.`logImageName` = '' "
+            . "AND `taskLog`.`logType` = '" . TaskLog::TYPE_STATE . "' "
+            . "AND `tasks`.`taskTypeID` IN (" . implode(',', $imagingTypes) . ")"
+        );
+
+        return true;
+    },
+];
+// 451
+$this->schema[] = [
+    // Forum 18303: storage nodes that listen on different SSH and FTP ports.
+    // One global FOG_SSH_PORT / FOG_FTP_PORT cannot describe them, so each
+    // node may carry its own. 0 means "use the global setting", which is
+    // what every existing node keeps. Separate ALTERs keep the updater's
+    // duplicate-column retry (error 1060) working when an earlier run
+    // stopped after adding only one of the columns.
+    'ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmSshPort` INT(11) NOT NULL DEFAULT 0',
+    'ALTER TABLE `nfsGroupMembers` ADD COLUMN `ngmFtpPort` INT(11) NOT NULL DEFAULT 0',
+];
+// 452
+$this->schema[] = [
+    // GH-2069, steps 452-455: what a 1.5 upgrade skips. A 1.5.10 server
+    // arrives with a count of 288, so it never runs steps 264-288. The
+    // reconciler restores the structure, and Schema::_requiredRows() seeds
+    // some rows. These four steps repeat the rest. Each one is a no-op on a
+    // server that already ran the original.
+    //
+    // They are steps, not _requiredRows() entries. _requiredRows() never
+    // deletes, and its plain INSERT fails with 1062 when a row exists under
+    // another unique key. A failing seed there stops the updater on every
+    // run. INSERT IGNORE in a step skips that row instead.
+    //
+    // Step 284 again. 1.5 seeds these two iPXE menu items, and 1.6 has no
+    // handler for either one. So an upgraded server showed "Approve This
+    // Host" and "Quick Host Deletion", and neither item did anything.
+    "DELETE FROM `pxeMenu` WHERE `pxeName`='fog.approvehost'",
+    "DELETE FROM `pxeMenu` WHERE `pxeName`='fog.quickdel'",
+];
+// 453
+$this->schema[] = [
+    // Step 286 again, the same statement. 1.5 seeds no osID 10 or 11. The
+    // ids must be 10 and 11, because FOS reads the host's osid as a number.
+    // INSERT IGNORE skips a row whose osID or osName (a unique key) is
+    // already taken. An admin's own "Windows 11" at another id stays as it
+    // is. The step does not fail.
+    "INSERT IGNORE INTO `os` "
+    . "(`osID`, `osName`, `osDescription`) "
+    . "VALUES "
+    . "('10', 'Windows 11', ''),"
+    . "('11', 'Windows Server', '')"
+];
+// 454
+$this->schema[] = [
+    // Step 283's insert again. 1.5 has no dmidecodeKeys table, so the
+    // reconciler creates it from the manifest with no rows. This step
+    // writes out step 283's 22 names, in the same order. It does not read
+    // $dmiStrings, which step 283 sets. The list must equal step 283's.
+    // tests/upgrade-from-15-ci.test.sh fails when this list lacks a name
+    // that step 283 has.
+    "INSERT IGNORE INTO `dmidecodeKeys` (`dkName`) VALUES "
+    . "('bios-vendor'),"
+    . "('bios-version'),"
+    . "('bios-release-date'),"
+    . "('system-manufacturer'),"
+    . "('system-product-name'),"
+    . "('system-version'),"
+    . "('system-serial-number'),"
+    . "('system-uuid'),"
+    . "('baseboard-manufacturer'),"
+    . "('baseboard-product-name'),"
+    . "('baseboard-version'),"
+    . "('baseboard-serial-number'),"
+    . "('baseboard-asset-tag'),"
+    . "('chassis-manufacturer'),"
+    . "('chassis-type'),"
+    . "('chassis-version'),"
+    . "('chassis-serial-number'),"
+    . "('chassis-asset-tag'),"
+    . "('processor-family'),"
+    . "('processor-manufacturer'),"
+    . "('processor-version'),"
+    . "('processor-frequency')"
+];
+// 455
+$this->schema[] = [
+    // Step 416's key, on its own. 416 adds four hosts columns and this key
+    // in one ALTER. On a 1.5 upgrade, the reconcile that
+    // SchemaUpdaterPage::_repairAndRetry() runs at step 290 adds the four
+    // columns first. So 416 fails with 1060, and the key is lost with it.
+    // shapeDrift() reads UNIQUE keys only, so it reported nothing. Where 416
+    // already added the key, this fails with 1061, which the updater skips.
+    'ALTER TABLE `hosts` ADD KEY `hostAgentFingerprint` (`hostAgentFingerprint`)',
+];
+// 456
+$this->schema[] = [
+    // GHSA-666x-5fjv-v8j9. service/hostinfo.php now sends the join password
+    // and the product key only when this setting lists the imaging networks,
+    // and only to a caller inside them. The description step 315 wrote says
+    // empty "matches the behavior of earlier versions", which is no longer
+    // true. The value is not touched.
+    "UPDATE `globalSettings` SET `settingDesc` = 'The imaging networks, as a "
+    . "comma separated list of CIDR ranges and/or addresses, for example "
+    . "10.0.0.0/8,192.168.5.20. Only a caller inside them can get a host "
+    . "token from status/hostgetkey.php, and only a caller inside them gets "
+    . "the Active Directory join password and the product key from "
+    . "service/hostinfo.php. A post download script that reads hostadpass or "
+    . "hostproductkey needs this set. Empty is the default: any source gets a "
+    . "token, so USB boot works, but no caller gets the password or the key.' "
+    . "WHERE `settingKey` = 'FOG_HOSTKEY_ALLOWED_SOURCES'",
+];
+// 457
+$this->schema[] = [
+    // fog-agent self-update is on by default (2026-11-09). The legacy FOG
+    // Client updates itself, and admins expect the same from fog-agent.
+    // Self-update should have been on by default when the feature was
+    // added, and it was not: step 438 chose Off so that no server started
+    // managing agent versions because it was upgraded. This reverses that.
+    //
+    // Every server stored as Off becomes Latest. That includes an Off that
+    // an admin chose on purpose. The release notes say so, and the admin
+    // sets it back to Off under FOG Configuration. Pinned and Latest are
+    // untouched. A fresh install runs every step, so it reaches Latest too.
+    //
+    // Latest does not update the whole fleet at once. The update rings
+    // (default 0,3,7) still pace the rollout, and a host with no ring uses
+    // the last one.
+    "UPDATE `globalSettings` SET `settingValue` = 'latest' "
+    . "WHERE `settingKey` = 'FOG_AGENT_UPDATE_MODE' AND `settingValue` = 'off'",
+    "UPDATE `globalSettings` SET `settingDesc` = 'How enrolled fog-agent "
+    . "hosts update themselves. Off: no host updates, except a host with its "
+    . "own Desired Agent Version. Pinned: every host runs "
+    . "FOG_AGENT_DESIRED_VERSION. Latest: every host runs the newest release, "
+    . "after the delay of its update ring in FOG_AGENT_UPDATE_RINGS, and "
+    . "never moves below the version it runs unless that version is "
+    . "withdrawn. A host''s own Desired Agent Version overrides all three. "
+    . "(Default Latest)' WHERE `settingKey` = 'FOG_AGENT_UPDATE_MODE'",
+];
+// 458
+$this->schema[] = [
+    // Each os row carries its family (fogproject#2083). FOS decided
+    // "Windows, Linux or macOS" from a hardcoded list of osID numbers, so
+    // every new os row needed a FOS release. The server now sends this
+    // column to FOS as osfamily, next to osid. A new OS then needs only a
+    // step that sets its family.
+    //
+    // The ENUM is the only check of the four values. On a server with
+    // STRICT_TRANS_TABLES (the MariaDB default; PDODB keeps it since
+    // GH-1245), an invalid write is refused with error 1265. A non-strict
+    // server stores '' instead. FOS reads an empty family as "not sent" and
+    // falls back to its own table.
+    //
+    // The backfill keys on osID and never on osName, so an admin's row
+    // named like a seeded one is not misclassified. Every other row keeps
+    // the column default, other. Chromium OS (51) is linux: FOS treats 50
+    // and 51 the same at every call site.
+    "ALTER TABLE `os` ADD COLUMN `osFamily` "
+    . "ENUM('windows','linux','macos','other') NOT NULL DEFAULT 'other'",
+    "UPDATE `os` SET `osFamily` = 'windows' "
+    . "WHERE `osID` IN (1, 2, 3, 4, 5, 6, 7, 9, 10, 11)",
+    "UPDATE `os` SET `osFamily` = 'macos' WHERE `osID` = 8",
+    "UPDATE `os` SET `osFamily` = 'linux' WHERE `osID` IN (50, 51)",
+];
+// 459
+$this->schema[] = [
+    // The printer level of a host that sets none (fogproject#2087). A host's
+    // level stays its own and is never granted by a group: a host can be in
+    // several groups, and a grant only adds. A host with no level ('', the
+    // column default, which 1.5 never wrote over at creation) now follows
+    // this setting instead of always being 0.
+    //
+    // It ships at 0, so every host resolves to the level it has today. No
+    // host row is touched: an explicit '0' stays the host's own choice.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL','The printer level of a "
+    . "host that has no level of its own. 0: no printer management. 1: add "
+    . "and remove the printers FOG manages. 2: FOG handles all printers and "
+    . "removes every printer the host is not assigned. A level set on the "
+    . "host, on its Printers tab or by mass edit, always wins. Mass edit "
+    . "Clear on all makes hosts follow this setting again. (Default 0)',"
+    . "'0','FOG Client - Printer Manager')",
+];
+// 460
+$this->schema[] = [
+    // The legacy FOG Client's failed handshakes, per host (forum topic
+    // 18312). FOG answered them with HTTP 200 and wrote them nowhere, so the
+    // only evidence was the client's own log on each machine.
+    //
+    // Only FOGPage::authorize() writes these, and only for the two failures
+    // a client cannot recover from by itself: 'ist' (the token it presented
+    // is not the host's) and 'dec' (the server could not decrypt its session
+    // key: the certificate it publishes does not match its private key).
+    // Both repeat on every check-in. The '#!ihc' answers are
+    // not recorded: sendData() returns one when a session key expires, which
+    // is routine, and authorize() returns one for a missing key, which no
+    // working client sends.
+    //
+    // State, not a log. A stuck client fails on every check-in, so a row per
+    // failure would grow without limit. hostAuthFailSince is the first
+    // failure of the current run, and the next successful handshake clears
+    // all four columns. So a host stays listed until it has recovered, not
+    // only until somebody pressed the reset button.
+    //
+    // Advisory. The handshake picks the host by the MAC in the request, so
+    // any machine on the LAN can make a host fail. Nothing acts on these
+    // columns. hostAuthFailIP shows where the last failure came from.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostAuthFailSince` datetime DEFAULT NULL, "
+    . "ADD COLUMN `hostAuthFailCode` varchar(8) NOT NULL DEFAULT '', "
+    . "ADD COLUMN `hostAuthFailCount` int(10) unsigned NOT NULL DEFAULT 0, "
+    . "ADD COLUMN `hostAuthFailIP` varchar(45) NOT NULL DEFAULT ''",
 ];

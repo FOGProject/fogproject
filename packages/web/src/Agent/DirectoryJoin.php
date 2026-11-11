@@ -192,6 +192,14 @@ class DirectoryJoin extends FOGBase
             // Never reported. Ask again next poll, when it has.
             return null;
         }
+        // An operation in flight, or state nobody can read, holds placement.
+        try {
+            if (!empty(DirectoryRejoin::decode($Observed->get('rejoinState'))['placement_hold'])) {
+                return null;
+            }
+        } catch (\Throwable $e) {
+            return null;
+        }
         $renameTo = '';
         if ((bool)$Observed->get('joined')) {
             // Joined to something. Somewhere else, the agent would refuse;
@@ -331,6 +339,10 @@ class DirectoryJoin extends FOGBase
      */
     public static function report(Host $Host, $hostID, array $body)
     {
+        // A result that names an attempt belongs to a claimed rejoin.
+        if (isset($body['attempt_id'])) {
+            return DirectoryRejoin::report($Host, $body);
+        }
         // The row a join result is about is the host's own membership, and
         // the agent addresses it by its host id. Checked rather than
         // ignored: a host reporting on somebody else's membership is a host
@@ -622,6 +634,21 @@ class DirectoryJoin extends FOGBase
             ]
         );
         return [(string)$user, (string)$password];
+    }
+    /**
+     * The existing per-host/plugin join credential for one claimed operation.
+     *
+     * @param Host $Host the host
+     *
+     * @return array{domain:string,username:string,password:string,ou:string,reboot:bool}
+     */
+    public static function rejoinCredential(Host $Host)
+    {
+        $domain = trim((string)$Host->get('ADDomain'));
+        list($user, $pass) = self::account($Host, (string)$Host->get('ADUser'), self::joinPassword($Host));
+        return ['domain' => $domain, 'username' => self::qualifyUser($user, $domain),
+            'password' => $pass, 'ou' => (string)$Host->get('ADOU'),
+            'reboot' => (bool)$Host->get('enforce')];
     }
     /**
      * The joining account's password, as typed.

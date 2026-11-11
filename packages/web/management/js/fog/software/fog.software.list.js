@@ -6,8 +6,8 @@
         createnewSendBtn = $('#send');
 
     // Backend labels are hardcoded rather than fetched, matching the design:
-    // one option today (Chocolatey), a second is a row here not a redesign.
-    var backendLabels = {choco: 'Chocolatey'};
+    // each backend is a row here, not a redesign.
+    var backendLabels = {choco: 'Chocolatey', flatpak: 'Flatpak', snap: 'Snap'};
 
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);

@@ -98,6 +98,12 @@ class Releases extends FOGBase
     const VERSION_PATTERN = '/^[0-9]+\.[0-9]+\.[0-9]+$/';
 
     /**
+     * A build that is not a release but starts with one, so it can be
+     * compared: 0.1.20-rc.1, 0.1.7-2-gf344ed3, 0.1.8-dirty, 0.1.8+5.
+     */
+    const BUILD_PATTERN = '/^[0-9]+\.[0-9]+\.[0-9]+[-+]/';
+
+    /**
      * A GOOS or GOARCH value.
      */
     const PLATFORM_PATTERN = '/^[a-z0-9]{1,16}$/';
@@ -219,6 +225,13 @@ class Releases extends FOGBase
      * not hold the host, which is how withdrawing a release rolls its hosts
      * back. When nothing is old enough, the host stays where it is.
      *
+     * A running version that is not a release is in no manifest. A
+     * pre-release or git-describe build (0.1.20-rc.1, 0.1.7-2-gf344ed3)
+     * moves only up, to a release newer than it. A build with no version at
+     * all (da11e37) cannot be compared, so it is left alone, as floor()
+     * leaves it. Either way a deliberate install is never taken back to an
+     * older release. A host override still moves such a host.
+     *
      * @param array  $firstSeen version => unix time this server first saw it
      * @param int    $delayDays the host's ring delay
      * @param string $running   the version the host runs
@@ -228,6 +241,11 @@ class Releases extends FOGBase
      */
     public static function latest(array $firstSeen, $delayDays, $running, $now)
     {
+        $running = Update::normalize($running);
+        $notRelease = '' !== $running && !self::isVersion($running);
+        if ($notRelease && 1 !== preg_match(self::BUILD_PATTERN, $running)) {
+            return '';
+        }
         $cutoff = (int)$now - max(0, (int)$delayDays) * 86400;
         $best = '';
         foreach ($firstSeen as $version => $seen) {
@@ -239,12 +257,20 @@ class Releases extends FOGBase
                 $best = $version;
             }
         }
-        $running = Update::normalize($running);
         if ('' !== $running
             && isset($firstSeen[$running])
             && ('' === $best || version_compare($running, $best, '>'))
         ) {
             return $running;
+        }
+        if ($notRelease) {
+            // A local edit (-dirty, which build/cross.sh stamps) or build
+            // metadata (+...) does not make a build older than the release
+            // it was built on, though version_compare() says it does.
+            $built = preg_replace('/(\+.*|-dirty)$/', '', $running);
+            if (version_compare($best, $built, '<=')) {
+                return '';
+            }
         }
         return $best;
     }
@@ -492,7 +518,7 @@ class Releases extends FOGBase
 
     /**
      * Whether anything on this server asks for a release, so the daemon
-     * can stay idle on the shipped default.
+     * stays idle when the mode is Off and nothing else asks.
      *
      * @return bool
      */

@@ -773,8 +773,26 @@ class DashboardPage extends FOGPage
         }
         // Same class of bug as forums 18210: this probes the node's ftp, so a
         // moved ftp port made the node drop off the dashboard entirely.
-        list($ftpPort) = self::getSetting(['FOG_FTP_PORT']);
-        $tests = self::$FOGURLRequests->isAvailable($testurls, 1, (int)$ftpPort ?: 21);
+        // Each node is probed on its own ftp port (forum 18303). The port is
+        // resolved here from the stored node, found by the posted name (node
+        // names are unique and $names lines up with $sent); a port sent by
+        // the client is never used. A name that matches no node falls back to
+        // the global FOG_FTP_PORT, then 21.
+        $ftpPorts = [];
+        $wanted = array_values(array_filter((array)$names));
+        if (count($wanted) > 0) {
+            foreach (Route::getList('storagenode', ['name' => $wanted]) as $row) {
+                $ftpPorts[$row->name] = $row->ftpport ?? 0;
+            }
+        }
+        $tests = [];
+        foreach ($testurls as $index => $testurl) {
+            $port = StorageNode::resolveFtpPort(
+                $ftpPorts[$names[$index] ?? ''] ?? 0
+            );
+            $probe = self::$FOGURLRequests->isAvailable([$testurl], 1, $port);
+            $tests[$index] = array_shift($probe);
+        }
         unset($testurls);
         foreach ($tests as $index => &$test) {
             if (!$test) {

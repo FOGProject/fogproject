@@ -61,6 +61,17 @@ class Registration extends FOGBase
      */
     protected $description;
     /**
+     * Whether the posted FOG login is valid, checked once per request.
+     *
+     * A full registration that asks for both domain join and imaging needs
+     * the answer twice. Each passwordValidate() call writes its own sign-in
+     * audit row and binds once more to an external directory, so one
+     * attempt must not count as two.
+     *
+     * @var bool|null
+     */
+    private static $_loginValid = null;
+    /**
      * Initialize the registration class.
      *
      * @param bool $check to check if exists.
@@ -306,7 +317,19 @@ class Registration extends FOGBase
             $other1 = filter_var($stripped['other1'] ?? '');
             $other2 = filter_var($stripped['other2'] ?? '');
             $doimage = filter_var($stripped['doimage'] ?? '') == '1';
-            if ($_POST['doad']) {
+            // The AD defaults carry the domain join password, and the host
+            // created here hands it to whoever completes the client
+            // handshake for this MAC. This endpoint takes no session, so
+            // copying them used to need nothing at all (GHSA-97vv-f7hc-rp5m).
+            // Now it needs the same FOG login imaging already asks for, held
+            // by an account that may create hosts. Without one the host is
+            // still registered, just without the domain settings.
+            // Raw on purpose: this is the truthiness test doad always had,
+            // and $stripped holds a base64-decoded copy that a client
+            // sending a bare doad=1 would fail.
+            $wantAD = !empty($_POST['doad']);
+            $adRefused = $wantAD && !self::_registrantMayJoinDomain();
+            if ($wantAD && !$adRefused) {
                 $serviceNames = [
                     'FOG_AD_DEFAULT_DOMAINNAME',
                     'FOG_AD_DEFAULT_OU',
@@ -397,6 +420,12 @@ class Registration extends FOGBase
                 'HOST_REGISTER',
                 ['Host' => &self::$Host]
             );
+            if ($adRefused) {
+                // Said before the imaging outcome so the operator at the FOS
+                // console sees why the host will not join the domain.
+                echo _('Domain join skipped: it needs a FOG login that may create hosts.')
+                    . ' ';
+            }
             try {
                 if (!$doimage) {
                     throw new \Exception(
@@ -418,15 +447,11 @@ class Registration extends FOGBase
         }
     }
     /**
-     * Commonize method to deploy tasks for either
-     * quickreg or full reg.
+     * The FOG username and password the registering operator typed.
      *
-     * @param $quickReg bool Is this from quick registration
-     *
-     * @throws Exception
-     * @return void
+     * @return array [username, password], '' for one that did not decode
      */
-    private static function _deployHost($quickReg = false)
+    private static function _postedCredentials()
     {
         /*
          * decodeCredential(), NOT stripAndDecode(). stripAndDecodeItem() ends
@@ -444,9 +469,55 @@ class Registration extends FOGBase
         };
         $username = self::decodeCredential($readCred('username'));
         $password = self::decodeCredential($readCred('password'));
-        $username = (false === $username) ? '' : $username;
-        $password = (false === $password) ? '' : $password;
-        $userTest = (new User())->passwordValidate($username, $password);
+        return [
+            (false === $username) ? '' : $username,
+            (false === $password) ? '' : $password,
+        ];
+    }
+    /**
+     * Whether the registering operator may give the new host the AD
+     * defaults: a valid FOG login whose account may create hosts.
+     *
+     * @return bool
+     */
+    private static function _registrantMayJoinDomain()
+    {
+        if (!self::_registrantLoginValid()) {
+            return false;
+        }
+        list($username) = self::_postedCredentials();
+        return (new User())
+            ->set('name', $username)
+            ->load('name')
+            ->can('host.create');
+    }
+    /**
+     * The once-per-request answer to "is the posted FOG login valid".
+     *
+     * @return bool
+     */
+    private static function _registrantLoginValid()
+    {
+        if (null === self::$_loginValid) {
+            list($username, $password) = self::_postedCredentials();
+            self::$_loginValid = (bool)(new User())
+                ->passwordValidate($username, $password);
+        }
+        return self::$_loginValid;
+    }
+    /**
+     * Commonize method to deploy tasks for either
+     * quickreg or full reg.
+     *
+     * @param $quickReg bool Is this from quick registration
+     *
+     * @throws Exception
+     * @return void
+     */
+    private static function _deployHost($quickReg = false)
+    {
+        list($username) = self::_postedCredentials();
+        $userTest = self::_registrantLoginValid();
         if (!$userTest && !$quickReg) {
             throw new \Exception(
                 _('Done, without imaging: Invalid Login.')

@@ -84,11 +84,11 @@ class GroupPowerManagement extends FOGController
      * The timer this grant fires on.
      *
      * Mirrors PowerManagement::getTimer(), RAW -- the `-1` weekday is NOT
-     * normalized to `7` here, and that asymmetry with getCron() is deliberate.
-     * Timer is FOG's own cron evaluator and reads -1 the way FOG's cron picker
-     * writes it; the 7 exists only for Quartz, which is what the FOG client
-     * schedules against. Normalizing for the server-side evaluator would move
-     * Sunday.
+     * normalized to `7` here. Timer is FOG's own cron evaluator, and
+     * FOGCron reads `-1`, `0` and `7` all as Sunday, so it needs no mapping.
+     * FOG's cron picker writes 0 to 6, with Sunday as 0; `-1` comes only
+     * from a hand-entered value. The 7 in getCron() exists only for Quartz,
+     * which is what the FOG client schedules against.
      *
      * @return object
      */

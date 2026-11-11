@@ -672,7 +672,10 @@ $t->check(
         && 'domain-secret' === $block['password']
 );
 $t->check('the listener is told the host\'s domain', ['corp.example.com'] === $seen);
-$legacy = djLegacy(djHost($joinable));
+// sec_vouched: the legacy client is sent a password only on a key that was
+// vouched for (GHSA-97vv-f7hc-rp5m); tests/legacy-client-ad-vouch.test.php
+// covers the unvouched side.
+$legacy = djLegacy(djHost(['sec_vouched' => 1] + $joinable));
 $t->check(
     'the legacy client is sent the same account, in its own keys',
     'corp.example.com\\svc-domainjoin' === $legacy['ADUser']
@@ -689,7 +692,7 @@ $t->check(
 );
 
 djAccountFor(null, $seen);
-$legacy = djLegacy(djHost($joinable));
+$legacy = djLegacy(djHost(['sec_vouched' => 1] + $joinable));
 $t->check(
     'with no listener, the legacy client is sent the host\'s own account',
     'corp.example.com\\svc-join' === $legacy['ADUser'] && 'letmein' === $legacy['ADPass']

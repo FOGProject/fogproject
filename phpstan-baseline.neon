@@ -81,7 +81,7 @@ parameters:
 		-
 			message: '#^Accessing self\:\:\$DB outside of class scope\.$#'
 			identifier: outOfClass.self
-			count: 122
+			count: 123
 			path: packages/web/commons/schema.php
 
 		-

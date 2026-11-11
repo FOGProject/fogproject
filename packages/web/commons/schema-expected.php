@@ -283,6 +283,20 @@ return [
                 'bfPinned' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
+        'directoryPlacementIntent' => [
+            'create' => 'CREATE TABLE IF NOT EXISTS `directoryPlacementIntent` ( `dpiGUID` binary(16) NOT NULL, `dpiSID` varbinary(184) NOT NULL, `dpiHostID` int(11) NOT NULL, `dpiGeneration` bigint(20) unsigned NOT NULL, `dpiStatus` varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, `dpiPayload` mediumtext NOT NULL, `dpiHash` char(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL, `dpiResult` varchar(512) DEFAULT NULL, `dpiUpdated` datetime(6) NOT NULL, PRIMARY KEY (`dpiGUID`), UNIQUE KEY `uq_directoryPlacementIntent_sid` (`dpiSID`), KEY `idx_directoryPlacementIntent_host_status` (`dpiHostID`,`dpiStatus`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'columns' => [
+                'dpiGUID' => 'binary(16) NOT NULL',
+                'dpiSID' => 'varbinary(184) NOT NULL',
+                'dpiHostID' => 'int(11) NOT NULL',
+                'dpiGeneration' => 'bigint(20) unsigned NOT NULL',
+                'dpiStatus' => 'varchar(20) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL',
+                'dpiPayload' => 'mediumtext NOT NULL',
+                'dpiHash' => 'char(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin NOT NULL',
+                'dpiResult' => 'varchar(512) DEFAULT NULL',
+                'dpiUpdated' => 'datetime(6) NOT NULL',
+            ],
+        ],
         'dmidecodeKeys' => [
             'create' => 'CREATE TABLE IF NOT EXISTS `dmidecodeKeys` ( `dkID` int(11) NOT NULL AUTO_INCREMENT, `dkName` varchar(255) NOT NULL, PRIMARY KEY (`dkID`), UNIQUE KEY `name` (`dkName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
@@ -415,7 +429,7 @@ return [
             ],
         ],
         'hostDirectory' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hostDirectory` ( `hdID` int(11) NOT NULL AUTO_INCREMENT, `hdHostID` int(11) NOT NULL, `hdJoined` tinyint(1) NOT NULL DEFAULT 0, `hdKind` varchar(32) NOT NULL DEFAULT \'\', `hdDomain` varchar(255) NOT NULL DEFAULT \'\', `hdNetbios` varchar(64) NOT NULL DEFAULT \'\', `hdComputerDN` varchar(1024) NOT NULL DEFAULT \'\', `hdMachineAccount` varchar(255) NOT NULL DEFAULT \'\', `hdSite` varchar(255) NOT NULL DEFAULT \'\', `hdObservedAt` datetime DEFAULT NULL, `hdPlacementAt` datetime DEFAULT NULL, `hdPlacementError` varchar(255) NOT NULL DEFAULT \'\', `hdJoinAt` datetime DEFAULT NULL, `hdJoinError` varchar(255) NOT NULL DEFAULT \'\', PRIMARY KEY (`hdID`), UNIQUE KEY `hdHostID` (`hdHostID`), KEY `hdDomain` (`hdDomain`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostDirectory` ( `hdID` int(11) NOT NULL AUTO_INCREMENT, `hdHostID` int(11) NOT NULL, `hdJoined` tinyint(1) NOT NULL DEFAULT 0, `hdKind` varchar(32) NOT NULL DEFAULT \'\', `hdDomain` varchar(255) NOT NULL DEFAULT \'\', `hdNetbios` varchar(64) NOT NULL DEFAULT \'\', `hdComputerDN` varchar(1024) NOT NULL DEFAULT \'\', `hdMachineAccount` varchar(255) NOT NULL DEFAULT \'\', `hdSite` varchar(255) NOT NULL DEFAULT \'\', `hdObservedAt` datetime DEFAULT NULL, `hdPlacementAt` datetime DEFAULT NULL, `hdPlacementError` varchar(255) NOT NULL DEFAULT \'\', `hdJoinAt` datetime DEFAULT NULL, `hdJoinError` varchar(255) NOT NULL DEFAULT \'\', `hdRejoinConfig` text DEFAULT NULL, `hdRejoinState` text DEFAULT NULL, PRIMARY KEY (`hdID`), UNIQUE KEY `hdHostID` (`hdHostID`), KEY `hdDomain` (`hdDomain`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hdID' => 'int(11) NOT NULL',
                 'hdHostID' => 'int(11) NOT NULL',
@@ -431,6 +445,8 @@ return [
                 'hdPlacementError' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'hdJoinAt' => 'datetime DEFAULT NULL',
                 'hdJoinError' => 'varchar(255) NOT NULL DEFAULT \'\'',
+                'hdRejoinConfig' => 'text DEFAULT NULL',
+                'hdRejoinState' => 'text DEFAULT NULL',
             ],
         ],
         'hostFactState' => [
@@ -505,7 +521,7 @@ return [
             ],
         ],
         'hosts' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) DEFAULT NULL, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` tinyint(1) NOT NULL DEFAULT 0, `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` tinyint(1) NOT NULL DEFAULT 1, `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, `hostArchID` mediumint(9) DEFAULT NULL, `hostSbState` varchar(16) DEFAULT NULL, `hostSbStateTime` datetime DEFAULT NULL, `hostSbEnrolled` datetime DEFAULT NULL, `hostSbEnrollCert` varchar(95) DEFAULT NULL, `hostSbEnrollVia` varchar(16) DEFAULT NULL, `hostAgentFingerprint` varchar(64) NOT NULL DEFAULT \'\', `hostAgentNotAfter` datetime DEFAULT NULL, `hostAgentVersion` varchar(50) NOT NULL DEFAULT \'\', `hostAgentCheckin` datetime DEFAULT NULL, `hostAgentDesiredVersion` varchar(50) NOT NULL DEFAULT \'\', `hostAgentUpdateState` varchar(16) NOT NULL DEFAULT \'\', `hostAgentUpdateRing` varchar(4) NOT NULL DEFAULT \'\', PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`), KEY `fk_hosts_hostImage` (`hostImage`), KEY `fk_hosts_hostArchID` (`hostArchID`), KEY `hostAgentFingerprint` (`hostAgentFingerprint`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hosts` ( `hostID` int(11) NOT NULL AUTO_INCREMENT, `hostName` varchar(16) NOT NULL, `hostDesc` longtext NOT NULL DEFAULT \'\', `hostIP` varchar(25) NOT NULL DEFAULT \'\', `hostImage` int(11) DEFAULT NULL, `hostBuilding` int(11) NOT NULL DEFAULT 0, `hostCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `hostLastDeploy` datetime DEFAULT NULL, `hostCreateBy` varchar(50) NOT NULL DEFAULT \'\', `hostUseAD` char(1) NOT NULL DEFAULT \'\', `hostADDomain` varchar(250) NOT NULL DEFAULT \'\', `hostADOU` longtext NOT NULL DEFAULT \'\', `hostADUser` varchar(250) NOT NULL DEFAULT \'\', `hostADPass` varchar(250) NOT NULL DEFAULT \'\', `hostADPassLegacy` longtext NOT NULL DEFAULT \'\', `hostProductKey` longtext DEFAULT NULL, `hostPrinterLevel` varchar(2) NOT NULL DEFAULT \'\', `hostKernelArgs` varchar(250) NOT NULL DEFAULT \'\', `hostKernel` varchar(250) NOT NULL DEFAULT \'\', `hostDevice` varchar(250) NOT NULL DEFAULT \'\', `hostInit` longtext DEFAULT NULL, `hostPending` tinyint(1) NOT NULL DEFAULT 0, `hostPubKey` longtext NOT NULL DEFAULT \'\', `hostSecToken` longtext NOT NULL DEFAULT \'\', `hostSecTime` timestamp NULL DEFAULT NULL, `hostPingCode` varchar(20) DEFAULT NULL, `hostExitBios` longtext DEFAULT NULL, `hostExitEfi` longtext DEFAULT NULL, `hostEnforce` tinyint(1) NOT NULL DEFAULT 1, `hostInfoKey` varchar(255) DEFAULT NULL, `hostInfoLock` tinyint(1) DEFAULT 0, `hostSecTokenPrev` longtext NOT NULL DEFAULT \'\', `hostLastPing` datetime DEFAULT NULL, `hostLastCheckin` datetime DEFAULT NULL, `hostPingMethod` varchar(10) DEFAULT NULL, `hostArchID` mediumint(9) DEFAULT NULL, `hostSbState` varchar(16) DEFAULT NULL, `hostSbStateTime` datetime DEFAULT NULL, `hostSbEnrolled` datetime DEFAULT NULL, `hostSbEnrollCert` varchar(95) DEFAULT NULL, `hostSbEnrollVia` varchar(16) DEFAULT NULL, `hostAgentFingerprint` varchar(64) NOT NULL DEFAULT \'\', `hostAgentNotAfter` datetime DEFAULT NULL, `hostAgentVersion` varchar(50) NOT NULL DEFAULT \'\', `hostAgentCheckin` datetime DEFAULT NULL, `hostAgentDesiredVersion` varchar(50) NOT NULL DEFAULT \'\', `hostAgentUpdateState` varchar(16) NOT NULL DEFAULT \'\', `hostAgentUpdateRing` varchar(4) NOT NULL DEFAULT \'\', `hostSecVouched` tinyint(1) NOT NULL DEFAULT 0, `hostAuthFailSince` datetime DEFAULT NULL, `hostAuthFailCode` varchar(8) NOT NULL DEFAULT \'\', `hostAuthFailCount` int(10) unsigned NOT NULL DEFAULT 0, `hostAuthFailIP` varchar(45) NOT NULL DEFAULT \'\', PRIMARY KEY (`hostID`), UNIQUE KEY `hostName` (`hostName`), KEY `new_index` (`hostName`), KEY `new_index1` (`hostIP`), KEY `new_index4` (`hostUseAD`), KEY `fk_hosts_hostImage` (`hostImage`), KEY `fk_hosts_hostArchID` (`hostArchID`), KEY `hostAgentFingerprint` (`hostAgentFingerprint`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hostID' => 'int(11) NOT NULL',
                 'hostName' => 'varchar(16) NOT NULL',
@@ -555,6 +571,11 @@ return [
                 'hostAgentDesiredVersion' => 'varchar(50) NOT NULL DEFAULT \'\'',
                 'hostAgentUpdateState' => 'varchar(16) NOT NULL DEFAULT \'\'',
                 'hostAgentUpdateRing' => 'varchar(4) NOT NULL DEFAULT \'\'',
+                'hostSecVouched' => 'tinyint(1) NOT NULL DEFAULT 0',
+                'hostAuthFailSince' => 'datetime DEFAULT NULL',
+                'hostAuthFailCode' => 'varchar(8) NOT NULL DEFAULT \'\'',
+                'hostAuthFailCount' => 'int(10) unsigned NOT NULL DEFAULT 0',
+                'hostAuthFailIP' => 'varchar(45) NOT NULL DEFAULT \'\'',
             ],
         ],
         'hostSoftware' => [
@@ -777,7 +798,7 @@ return [
             ],
         ],
         'nfsGroupMembers' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `nfsGroupMembers` ( `ngmID` int(11) NOT NULL AUTO_INCREMENT, `ngmMemberName` varchar(250) NOT NULL DEFAULT \'\', `ngmMemberDescription` longtext NOT NULL DEFAULT \'\', `ngmIsMasterNode` char(1) NOT NULL DEFAULT \'\', `ngmGroupID` int(11) NOT NULL, `ngmRootPath` longtext NOT NULL, `ngmSSLPath` longtext NOT NULL DEFAULT \'\', `ngmFTPPath` longtext NOT NULL, `ngmMaxBitrate` varchar(25) DEFAULT NULL, `ngmHelloInterval` varchar(8) DEFAULT NULL, `ngmGraphColor` varchar(6) DEFAULT NULL, `ngmSnapinPath` longtext NOT NULL DEFAULT \'\', `ngmIsEnabled` char(1) NOT NULL DEFAULT \'\', `ngmHostname` varchar(250) NOT NULL, `ngmMaxClients` int(11) NOT NULL DEFAULT 0, `ngmBandwidthLimit` int(20) NOT NULL DEFAULT 0, `ngmUser` varchar(250) NOT NULL, `ngmPass` varchar(250) NOT NULL, `ngmKey` varchar(250) NOT NULL DEFAULT \'\', `ngmInterface` varchar(25) NOT NULL DEFAULT \'\', `ngmGraphEnabled` tinyint(1) NOT NULL DEFAULT 1, `ngmWebroot` longtext NOT NULL DEFAULT \'\', PRIMARY KEY (`ngmID`), UNIQUE KEY `ngmMemberName` (`ngmMemberName`), UNIQUE KEY `ngmMemberName_2` (`ngmMemberName`), KEY `new_index` (`ngmMemberName`), KEY `new_index2` (`ngmIsMasterNode`), KEY `new_index3` (`ngmGroupID`), KEY `new_index4` (`ngmIsEnabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `nfsGroupMembers` ( `ngmID` int(11) NOT NULL AUTO_INCREMENT, `ngmMemberName` varchar(250) NOT NULL DEFAULT \'\', `ngmMemberDescription` longtext NOT NULL DEFAULT \'\', `ngmIsMasterNode` char(1) NOT NULL DEFAULT \'\', `ngmGroupID` int(11) NOT NULL, `ngmRootPath` longtext NOT NULL, `ngmSSLPath` longtext NOT NULL DEFAULT \'\', `ngmFTPPath` longtext NOT NULL, `ngmMaxBitrate` varchar(25) DEFAULT NULL, `ngmHelloInterval` varchar(8) DEFAULT NULL, `ngmGraphColor` varchar(6) DEFAULT NULL, `ngmSnapinPath` longtext NOT NULL DEFAULT \'\', `ngmIsEnabled` char(1) NOT NULL DEFAULT \'\', `ngmHostname` varchar(250) NOT NULL, `ngmMaxClients` int(11) NOT NULL DEFAULT 0, `ngmBandwidthLimit` int(20) NOT NULL DEFAULT 0, `ngmUser` varchar(250) NOT NULL, `ngmPass` varchar(250) NOT NULL, `ngmKey` varchar(250) NOT NULL DEFAULT \'\', `ngmInterface` varchar(25) NOT NULL DEFAULT \'\', `ngmGraphEnabled` tinyint(1) NOT NULL DEFAULT 1, `ngmWebroot` longtext NOT NULL DEFAULT \'\', `ngmSshPort` int(11) NOT NULL DEFAULT 0, `ngmFtpPort` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`ngmID`), UNIQUE KEY `ngmMemberName` (`ngmMemberName`), UNIQUE KEY `ngmMemberName_2` (`ngmMemberName`), KEY `new_index` (`ngmMemberName`), KEY `new_index2` (`ngmIsMasterNode`), KEY `new_index3` (`ngmGroupID`), KEY `new_index4` (`ngmIsEnabled`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'ngmID' => 'int(11) NOT NULL',
                 'ngmMemberName' => 'varchar(250) NOT NULL DEFAULT \'\'',
@@ -801,6 +822,8 @@ return [
                 'ngmInterface' => 'varchar(25) NOT NULL DEFAULT \'\'',
                 'ngmGraphEnabled' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'ngmWebroot' => 'longtext NOT NULL DEFAULT \'\'',
+                'ngmSshPort' => 'int(11) NOT NULL DEFAULT 0',
+                'ngmFtpPort' => 'int(11) NOT NULL DEFAULT 0',
             ],
         ],
         'nfsGroups' => [
@@ -820,11 +843,12 @@ return [
             ],
         ],
         'os' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `os` ( `osID` mediumint(9) NOT NULL AUTO_INCREMENT, `osName` varchar(30) NOT NULL, `osDescription` text NOT NULL DEFAULT \'\', PRIMARY KEY (`osID`), UNIQUE KEY `osName` (`osName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `os` ( `osID` mediumint(9) NOT NULL AUTO_INCREMENT, `osName` varchar(30) NOT NULL, `osDescription` text NOT NULL DEFAULT \'\', `osFamily` enum(\'windows\',\'linux\',\'macos\',\'other\') NOT NULL DEFAULT \'other\', PRIMARY KEY (`osID`), UNIQUE KEY `osName` (`osName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'osID' => 'mediumint(9) NOT NULL',
                 'osName' => 'varchar(30) NOT NULL',
                 'osDescription' => 'text NOT NULL DEFAULT \'\'',
+                'osFamily' => 'enum(\'windows\',\'linux\',\'macos\',\'other\') NOT NULL DEFAULT \'other\'',
             ],
         ],
         'oui' => [

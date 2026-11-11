@@ -110,6 +110,9 @@ fi
 error_log=${workingdir}/error_logs/fog_error_${version}.log
 timestamp=$(date +%s)
 backupconfig=""
+# Set only by _authorizeFogSshKey in this run; an exported value from the
+# caller's environment must not silence _warnSshPasswordAuth.
+fogSshKeyAuthorized=""
 . ../lib/common/functions.sh
 . ../lib/common/uninstall.sh
 usage() {
@@ -1044,21 +1047,10 @@ _applyInstallMode
 #
 # A preference, not a record: it is the admin's declared answer to "how should
 # this server handle HTTPS, netboot and Secure Boot", and it has to carry
-# forward on every upgrade rather than only the run it was made on.
-#
-# CLEARED by any discrete transport flag, and that is what keeps it from
-# becoming the trap _resolveNetbootProto documents. Once a flag has moved one of
-# the four keys off its preset, the shape is no longer one of the four named
-# modes -- and leaving the mode set would have the next run's
-# _applyInstallMode overwrite that very key from a name that no longer
-# describes it. Empty means custom, which is exactly true, and the four keys
-# then stand on their own as the model they always were.
-if [[ -n ${sWEB_https_redirect} || -n ${sPKI_web_cert_publicly_trusted} \
-    || -n ${sBOOT_rebuild_ipxe_with_my_ca} || -n ${sBOOT_url_proto} ]]; then
-    FOG_install_mode=""
-else
-    FOG_install_mode="$sinstallMode"
-fi
+# forward on every upgrade rather than only the run it was made on. Any
+# discrete transport flag clears it; the rule and its reason live in
+# _recordInstallMode.
+_recordInstallMode
 # The external-CA IMPORT paths. GH-1120 collapsed six persisted keys
 # (extcacert/extcakey/extcaroot from the prompt, webExtCACert/webExtCAKey/
 # webExtCARoot from --web-ca-*) that only ever held three values -- and that
@@ -1246,6 +1238,12 @@ echo "   ######################################################################"
 echo "   #             https://wiki.fogproject.org/wiki/index.php             #"
 echo "   ######################################################################"
 echo
+# Resolve netboot before the summary: without this the summary printed the
+# protocol persisted by the PREVIOUS run, so a re-run with --no-public-web-cert
+# announced https and then wrote chain http://. promptInstallMode resolves
+# again, which covers a mode chosen at the prompt below. It runs this early
+# because the external-DHCP boot file rows below depend on it too (GH-2064).
+_resolveNetbootProto
 echo " * Here are the settings FOG will use:"
 echo " * Base Linux: ${FOG_os_name}"
 echo " * Detected Linux Distribution: $linuxReleaseName"
@@ -1282,29 +1280,7 @@ case ${FOG_install_type} in
                 echo " * On a Windows DHCP server you must set options 066 and 067"
                 echo
                 echo " * Option 066/next-server is the IP of the FOG Server: (e.g. ${NET_fog_server_ip})"
-                uefistem="$(_uefiBootStem)"
-                echo " * Option 067/filename is the bootfile, per client architecture:"
-                echo " |   BIOS / legacy   $(_biosBootFile)"
-                echo " |   32-bit UEFI     $(_uefiBootFile i386)"
-                echo " |   64-bit UEFI     secureboot/${uefistem}-shimx64.efi"
-                echo " |   ARM64 UEFI      secureboot/arm64-efi/${uefistem}-shimaa64.efi"
-                echo
-                # The BIOS row goes through _biosBootFile because --boot-delay
-                # really does change it (10secdelay/) and that flag is parsed
-                # well before here. The 64-bit UEFI rows are spelled out rather
-                # than $(_uefiBootFile) for the opposite reason: this summary
-                # prints before downloadipxesecureboot has run, so the guard
-                # would be answering about the PREVIOUS install's staging tree.
-                # These are what this run is about to stage; if the fetch fails,
-                # that function says so itself. Only the stem comes from
-                # --uefi-bootfile, through _uefiBootStem. The 32-bit row
-                # has no staging guard, so it can ask _uefiBootFile directly.
-                echo " * The secureboot/ files are the signed chain. They boot the same"
-                echo " | whether Secure Boot is enabled or not, so they are the right"
-                echo " | answer for every 64-bit UEFI client, not just the ones enforcing"
-                echo " | it. There is no signed 32-bit chain -- those clients must have"
-                echo " | Secure Boot disabled to netboot at all."
-                echo " | See https://docs.fogproject.org/en/latest/secure-boot-netboot"
+                _printExternalDhcpBootFiles
                 ;;
         esac
         ;;
@@ -1326,12 +1302,6 @@ case ${FOG_send_reports} in
 esac
 # Echoed for unattended runs too, so `installfog.sh -y` leaves a record of what
 # it resolved rather than only what was passed.
-#
-# Resolve netboot here, not only in configureHttpd: without this the summary
-# printed the protocol persisted by the PREVIOUS run, so a re-run with
-# --no-public-web-cert announced https and then wrote chain http://.
-# configureHttpd resolves again, which covers a mode chosen at the prompt below.
-_resolveNetbootProto
 echo " * Web protocol: ${WEB_url_proto}"
 echo " * Netboot (PXE) protocol: ${BOOT_url_proto}"
 echo -n " * Force HTTP->HTTPS redirect: "; [[ ${WEB_https_redirect} == yes ]] && echo "Yes" || echo "No"
@@ -1403,8 +1373,6 @@ while [[ -z $blGo ]]; do
                 esac
             fi
             configureUsers
-            # GH-1945: sshd is installed by now; warn only, never fails.
-            _warnSshPasswordAuth
             # GH-964: before either branch configures a web tier. Storage nodes
             # get this too -- configureMinHttpd still runs as httpd_t and still
             # has to reach the master over HTTP.
@@ -1413,6 +1381,14 @@ while [[ -z $blGo ]]; do
                 [Ss])
                     checkDatabaseConnection
                     backupReports
+                    # Before configureMinHttpd, for the same reason as on the
+                    # full-server branch: it re-lays the web root from
+                    # packages/web, and the plugins are fetched into that
+                    # package. A storage node serves boot.php to its own PXE
+                    # clients, so without them the location plugin's hook
+                    # never loads there and the task is pointed back at the
+                    # image's primary group (forum 18301).
+                    downloadplugins
                     configureMinHttpd
                     # GH-1580: configureMinHttpd calls configureHttpd, so the
                     # rm -rf $webdirdest applies to a storage node as well --
@@ -1422,7 +1398,8 @@ while [[ -z $blGo ]]; do
                     configureStorage
                     # Before configureDHCP, not with the rest of the TFTP
                     # staging in configureTFTPandPXE. The generated DHCP config
-                    # names the signed shim for UEFI clients, and _sbChainStaged
+                    # names the signed shim for UEFI clients (unless
+                    # _sbChainReachesBoot rules it out), and _sbChainStaged
                     # decides that by looking for the staged binary -- so the
                     # fetch has to have happened, or every install would fall
                     # back to the unsigned names. Non-fatal on its own; the
@@ -1459,6 +1436,12 @@ while [[ -z $blGo ]]; do
                         # After it, not before: on a node the anchor is pulled
                         # out of the chain that call is what fetches.
                         _installCATrustAnchor
+                        # After registration, like the certificate: the master
+                        # only answers a node it already knows.
+                        _fetchFogSshKey
+                        # GH-1945: after the key step, so it sees the final
+                        # state. Warn only, never fails.
+                        _warnSshPasswordAuth
                         echo
                         echo "\n * Upgrade complete\n"
                         echo
@@ -1472,6 +1455,11 @@ while [[ -z $blGo ]]; do
                         # After it, not before: on a node the anchor is pulled
                         # out of the chain that call is what fetches.
                         _installCATrustAnchor
+                        # After registration, like the certificate: the master
+                        # only answers a node it already knows.
+                        _fetchFogSshKey
+                        # GH-1945: after the key step; see above.
+                        _warnSshPasswordAuth
                         [[ -n ${DB_host} ]] && fogserver=${DB_host} || fogserver="fog-server"
                         echo
                         echo " * Setup complete"
@@ -1555,7 +1543,8 @@ while [[ -z $blGo ]]; do
                     configureStorage
                     # Before configureDHCP, not with the rest of the TFTP
                     # staging in configureTFTPandPXE. The generated DHCP config
-                    # names the signed shim for UEFI clients, and _sbChainStaged
+                    # names the signed shim for UEFI clients (unless
+                    # _sbChainReachesBoot rules it out), and _sbChainStaged
                     # decides that by looking for the staged binary -- so the
                     # fetch has to have happened, or every install would fall
                     # back to the unsigned names. Non-fatal on its own; the
@@ -1634,6 +1623,12 @@ while [[ -z $blGo ]]; do
                     # this host. Reads only ${PKI_root_ca_cert} -- no key -- so it is
                     # deliberately on the far side of _hardenPkiPermissions.
                     _installCATrustAnchor
+                    # Master only: the key pair storage nodes are authorized
+                    # with (GH-2058). Not part of the PKI zones, so it needs
+                    # nothing from the permissions pass above.
+                    _setupFogSshKey
+                    # GH-1945: after the key step; see the storage branch.
+                    _warnSshPasswordAuth
                     configureUDPCast
                     installInitScript
                     configureFOGService

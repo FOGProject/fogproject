@@ -47,6 +47,9 @@
 restorePreFogConfig() {
     local target="$1" oldest
     [[ -z $target || ! -f $target ]] && return 0
+    # "[0-9]*" skips <file>.fog-migrate.<timestamp>, the backup made when the
+    # installer strips FOG's lines from an admin's exports file. That copy is
+    # not pre-FOG: it can hold FOG's lines and the admin's later edits.
     oldest=$(ls -1 "${target}".[0-9]* 2>/dev/null | sort -t. -k2 -n | head -1)
     if [[ -z $oldest ]]; then
         echo "     ! no pre-FOG backup for ${target}, leaving it as-is"
@@ -106,6 +109,7 @@ uninstallFOG() {
     _ifPresent "/etc/cron.d/fog_reporting"
     _ifPresent "/etc/nfs.conf.d/fog-nfs.conf"
     _ifPresent "/usr/etc/nfs.conf.d/fog-nfs.conf"
+    _ifPresent "$nfsfogexports"
     # $etcconf is FOG's own vhost on most distros (fog.conf / 001-fog.conf) but
     # on Alpine it is /etc/nginx/http.d/default.conf -- the distro's default
     # config. Deleting that would leave nginx with no server block at all, so
@@ -249,6 +253,7 @@ uninstallFOG() {
     fi
     rm -f /etc/cron.d/fog_reporting >>$error_log 2>&1 || st=1
     rm -f /etc/nfs.conf.d/fog-nfs.conf /usr/etc/nfs.conf.d/fog-nfs.conf >>$error_log 2>&1
+    rm -f "$nfsfogexports" >>$error_log 2>&1
     case $(basename "$etcconf" 2>/dev/null) in
         fog.conf|001-fog.conf)
             rm -f "$etcconf" >>$error_log 2>&1 || st=1

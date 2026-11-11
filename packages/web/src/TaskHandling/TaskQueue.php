@@ -19,6 +19,7 @@ use FOG\Boot\UbootTftpSync;
 use FOG\Items\Image;
 use FOG\Items\MulticastSession;
 use FOG\Items\MulticastSessionAssociation;
+use FOG\Items\StorageGroup;
 use FOG\Items\StorageNode;
 use FOG\Items\Task;
 use FOG\Items\TaskType;
@@ -262,7 +263,19 @@ class TaskQueue extends TaskingElement
                         $MyLineTime = self::niceDate();
                     }
                     $msgFormat = '%s, %s %d %s. %s %s.';
-                    if ($groupOpenSlots < 1) {
+                    // This node cannot take the host now. Before the host
+                    // waits in line, move it to another node in the same
+                    // group that has a free slot (forums 18310). The node
+                    // was picked once, at task creation; without this a
+                    // host waits on a full node while its group's other
+                    // nodes sit idle.
+                    $FreeNode = null;
+                    if ($groupOpenSlots < 1 || $groupOpenSlots <= $inFront) {
+                        $FreeNode = $this->_nodeWithOpenSlot();
+                    }
+                    if ($FreeNode) {
+                        $this->StorageNode = $FreeNode;
+                    } elseif ($groupOpenSlots < 1) {
                         $msg = sprintf(
                             $msgFormat,
                             _('No open slots'),
@@ -273,9 +286,7 @@ class TaskQueue extends TaskingElement
                             $MyLineTime->format('Y-m-d H:i:s')
                         );
                         throw new \Exception($msg);
-                    }
-                    
-                    if ($groupOpenSlots <= $inFront) {
+                    } elseif ($groupOpenSlots <= $inFront) {
                         $msg = sprintf(
                             $msgFormat,
                             _('There are open slots'),
@@ -321,6 +332,72 @@ class TaskQueue extends TaskingElement
         } catch (\Exception $e) {
             echo \Initiator::e($e->getMessage());
         }
+    }
+    /**
+     * Finds another node in the task's group that can take this host now.
+     *
+     * Only the task's own storage group is searched. The group is what the
+     * admin (or the location plugin) chose for this host, so a node in it
+     * is a node the host may use. A node counts as free when its running
+     * tasks plus the hosts already waiting on it leave a slot. Of the free
+     * nodes, the one with the most free slots wins.
+     *
+     * getNodeFailure() is read directly, not through nodeFail(): nodeFail()
+     * prints its notice to the client, and a rejected candidate is not
+     * worth a line on the host's screen.
+     *
+     * A capture is never moved. It must upload to the group's master, and
+     * that is the node it already has.
+     *
+     * @return StorageNode|null the node to move to, or null to keep waiting
+     */
+    private function _nodeWithOpenSlot()
+    {
+        if ($this->Task->isCapture()) {
+            return null;
+        }
+        $current = (int)$this->StorageNode->get('id');
+        $hostID = self::$Host->get('id');
+        $best = null;
+        $bestOpen = 0;
+        $nodeIDs = (new StorageGroup($this->Task->get('storagegroupID')))
+            ->get('enablednodes');
+        foreach ((array)$nodeIDs as $nodeID) {
+            if ((int)$nodeID === $current) {
+                continue;
+            }
+            $Node = new StorageNode($nodeID);
+            if (!$Node->isValid()
+                || !$Node->get('isEnabled')
+                || $Node->get('maxClients') < 1
+            ) {
+                continue;
+            }
+            $waiting = Route::getCount(
+                'task',
+                [
+                    'stateID' => self::getCheckedInState(),
+                    'storagenodeID' => $Node->get('id'),
+                    // The node's own list, so this count and
+                    // getUsedSlotCount() agree on what uses a slot.
+                    'typeID' => $Node->get('usedtasks')
+                ]
+            );
+            $open = $Node->get('maxClients')
+                - $Node->getUsedSlotCount()
+                - $waiting;
+            if ($open <= $bestOpen) {
+                continue;
+            }
+            // Probe last: it is a network round trip, and only a node that
+            // would win is worth one.
+            if (!$Node->get('online') || $Node->getNodeFailure($hostID)) {
+                continue;
+            }
+            $best = $Node;
+            $bestOpen = $open;
+        }
+        return $best;
     }
     /**
      * Handles the email sending.
@@ -522,7 +599,8 @@ class TaskQueue extends TaskingElement
         self::$FOGSSH->username = $this->StorageNode->get('user');
         self::$FOGSSH->password = $this->StorageNode->get('pass');
         self::$FOGSSH->host = $this->StorageNode->get('ip');
-        if (!self::$FOGSSH->connect()) {
+        // The node's own ssh port, not only FOG_SSH_PORT (forum 18303).
+        if (!self::$FOGSSH->connect('', $this->StorageNode->sshPort())) {
             throw new \Exception(_('Unable to connect to ssh during move upload'));
         }
         // Move any existing image aside instead of deleting it up front. If the
@@ -713,6 +791,10 @@ class TaskQueue extends TaskingElement
                 // secret behind that nothing can use but that still sits in
                 // the database.
                 ->set('prev_sec_tok', '')
+                // The vouch belonged to the key just cleared. After a
+                // deploy the next first handshake earns it back
+                // (FOGPage::authorize()).
+                ->set('sec_vouched', 0)
                 // On completetion reset token and lock
                 ->set('token', self::createSecToken())
                 ->set('tokenlock', false);
@@ -720,6 +802,7 @@ class TaskQueue extends TaskingElement
                 'pub_key' => self::$Host->get('pub_key'),
                 'sec_tok' => self::$Host->get('sec_tok'),
                 'prev_sec_tok' => self::$Host->get('prev_sec_tok'),
+                'sec_vouched' => self::$Host->get('sec_vouched'),
                 'token' => self::$Host->get('token'),
                 'tokenlock' => self::$Host->get('tokenlock')
             ];

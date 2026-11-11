@@ -2510,7 +2510,9 @@ class FOGConfigurationPage extends FOGPage
             _('Point your DHCP boot filename at'),
             _(
                 'That is the signed chain staged by the installer; the default '
-                . 'boot file is unsigned and a Secure Boot client will refuse it'
+                . 'boot file is unsigned and a Secure Boot client will refuse it. '
+                . 'This applies to HTTP netboot and to HTTPS netboot with a '
+                . 'publicly-issued certificate -- see below for a private CA'
             )
         ) . '</p>';
         // Two signed chains are staged, mirroring the snponly/ipxe choice
@@ -2544,12 +2546,33 @@ class FOGConfigurationPage extends FOGPage
         // Stated rather than detected: the web request's own scheme says nothing
         // about the install's $httpproto or its netboot protocol, so guessing
         // here would be worse than telling the admin what to check.
+        //
+        // The private-CA case used to be left implicit here, and the advice
+        // above then pointed those sites at a chain that cannot fetch
+        // boot.php: upstream's signed iPXE carries no TRUST=, so it fails
+        // with ipxe.org/0216eb8f. The installer stopped handing it out in
+        // that mode (_sbChainReachesBoot, GH-2064); this says the same.
         $steps .= '<p>' . _(
             'These binaries are staged on every install, HTTPS included. An '
             . 'HTTPS web interface has no bearing on netboot, which has its own '
             . 'protocol setting. HTTPS netboot only needs a rebuilt iPXE when '
             . 'the certificate comes from a private CA -- a publicly-issued one '
             . 'on an FQDN needs no rebuild and keeps the signed shim.'
+        ) . '</p>';
+        $steps .= '<p>' . sprintf(
+            '%s <code>snponly.efi</code> %s.',
+            _(
+                'With HTTPS netboot and a private CA, do not use the '
+                . 'secureboot/ chain: upstream\'s signed iPXE cannot trust that '
+                . 'CA and stops at the boot menu with "Permission denied". Point '
+                . 'the boot filename at'
+            ),
+            _(
+                'in the TFTP root instead (arm64: arm64-efi/snponly.efi). The '
+                . 'rebuilt iPXE carries your CA and is signed with this '
+                . 'server\'s key, so a Secure Boot client needs this server\'s '
+                . 'MOK enrolled before it can netboot'
+            )
         ) . '</p>';
         echo $this->_box(_('What to do next'), $steps);
     }
@@ -4806,6 +4829,21 @@ class FOGConfigurationPage extends FOGPage
                     $vals
                 );
                 break;
+            case 'FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL':
+                // Schema 459. The level a host with no level of its own
+                // runs at (Resolver::resolvePrinterLevel()).
+                $vals = [
+                    _('No Printer Management') => '0',
+                    _('Add/Remove Managed Printers') => '1',
+                    _('All Printers') => '2'
+                ];
+                $input = self::_selectInput(
+                    $row['settingID'],
+                    $row['settingKey'],
+                    $row['settingValue'],
+                    $vals
+                );
+                break;
             case 'FOG_HOST_IDENTIFY_SMBIOS':
                 $vals = [
                     _('Off - MAC address only') => 'off',
@@ -5325,6 +5363,16 @@ class FOGConfigurationPage extends FOGPage
                         if (!in_array($set ?? '', \FOG\Agent\Update::MODES, true)) {
                             throw new \Exception(
                                 $name . ' ' . _('must be off, pinned or latest')
+                            );
+                        }
+                        break;
+                    case 'FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL':
+                        // Refused rather than stored: a bad value would
+                        // read as 0 and turn printer management off on
+                        // every host that follows the default.
+                        if (!in_array($set ?? '', \FOG\Assign\Resolver::PRINTER_LEVELS, true)) {
+                            throw new \Exception(
+                                $name . ' ' . _('must be 0, 1 or 2')
                             );
                         }
                         break;

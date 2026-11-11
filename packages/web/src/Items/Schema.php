@@ -997,6 +997,65 @@ class Schema extends FOGController
                     ],
                 ],
             ],
+            // Settings 1.6 still reads, inserted by steps at indexes 1.5 had
+            // already used. A fully patched 1.5.10 arrives at vValue 288, so
+            // the updater never ran them and the rows never existed. The code
+            // falls back to a default, but the setting is missing from FOG
+            // Settings, so it cannot be changed. Forum 18303: an sshd on a
+            // non-standard port needed a hand-written INSERT for FOG_SSH_PORT.
+            // Values copy the step that inserts each row on a fresh install,
+            // except FOG_ENABLE_SHOW_PASSWORDS: those servers have run with it
+            // absent, which reads as off, so it is seeded off. Seeding the
+            // fresh default of 1 would switch the reveal on with no one asking.
+            'globalSettings' => [
+                'key' => 'settingKey',
+                'rows' => [
+                    'FOG_USER_VALIDPASSHELPMSG' => [
+                        'settingDesc' => 'This is just a simple text '
+                            . 'describing the user password requirements. '
+                            . 'Default: Must be at least 4 characters.',
+                        'settingValue' => 'Must be at least 4 characters.',
+                        'settingCategory' => 'User Management',
+                    ],
+                    'FOG_ENABLE_SHOW_PASSWORDS' => [
+                        'settingDesc' => 'Allow Admins the possibility of '
+                            . 'allowing the password fields to be displayed '
+                            . 'in plain text. Values are 0 or 1, Default is 1.',
+                        'settingValue' => '0',
+                        'settingCategory' => 'General Settings',
+                    ],
+                    'FOG_USER_VALIDPASSCHARS' => [
+                        'settingDesc' => 'This is the regex pattern to match '
+                            . 'for valid passwords. Default: (?=.*){4,}',
+                        'settingValue' => '(?=.*){4,}',
+                        'settingCategory' => 'User Management',
+                    ],
+                    'FOG_LOG_INFO' => [
+                        'settingDesc' => 'Turn logging on for Informational '
+                            . 'messages. (Defaults to off)',
+                        'settingValue' => '0',
+                        'settingCategory' => 'Logging Settings',
+                    ],
+                    'FOG_LOG_DEBUG' => [
+                        'settingDesc' => 'Turn logging on for Debug messages. '
+                            . '(Defaults to off)',
+                        'settingValue' => '0',
+                        'settingCategory' => 'Logging Settings',
+                    ],
+                    'FOG_LOG_ERROR' => [
+                        'settingDesc' => 'Turn logging on for Errors messages. '
+                            . '(Defaults to off)',
+                        'settingValue' => '0',
+                        'settingCategory' => 'Logging Settings',
+                    ],
+                    'FOG_SSH_PORT' => [
+                        'settingDesc' => 'What port for SSH into the FOG '
+                            . 'Server. (Defaults to 22)',
+                        'settingValue' => '22',
+                        'settingCategory' => 'General Settings',
+                    ],
+                ],
+            ],
         ];
     }
     /**

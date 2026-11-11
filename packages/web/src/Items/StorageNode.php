@@ -67,7 +67,9 @@ class StorageNode extends FOGController
         'interface' => 'ngmInterface',
         'bandwidth' => 'ngmBandwidthLimit',
         'webroot' => 'ngmWebroot',
-        'graphcolor' => 'ngmGraphColor'
+        'graphcolor' => 'ngmGraphColor',
+        'sshport' => 'ngmSshPort',
+        'ftpport' => 'ngmFtpPort'
     ];
     /**
      * The required fields.
@@ -202,6 +204,77 @@ class StorageNode extends FOGController
         return $this->get('storagegroup');
     }
     /**
+     * The SSH port to use for this node.
+     *
+     * The node's own port when set, else FOG_SSH_PORT, else 22. 0 on the
+     * node means "use the global setting".
+     *
+     * @return int
+     */
+    public function sshPort()
+    {
+        return self::resolveSshPort(parent::get('sshport'));
+    }
+    /**
+     * The FTP port to use for this node.
+     *
+     * The node's own port when set, else FOG_FTP_PORT, else 21. 0 on the
+     * node means "use the global setting".
+     *
+     * @return int
+     */
+    public function ftpPort()
+    {
+        return self::resolveFtpPort(parent::get('ftpport'));
+    }
+    /**
+     * Resolve an SSH port from a node's stored value.
+     *
+     * Public and static so a caller that holds only a router row (a plain
+     * object from Route::getItem()/getList(), not a StorageNode) resolves the
+     * port by the same rule as sshPort(). Owns the setting name and default.
+     *
+     * @param mixed $nodePort The node's stored port; 0 means "use the setting".
+     *
+     * @return int The node port, else FOG_SSH_PORT, else 22.
+     */
+    public static function resolveSshPort($nodePort)
+    {
+        return self::_resolvePort($nodePort, 'FOG_SSH_PORT', 22);
+    }
+    /**
+     * Resolve an FTP port from a node's stored value.
+     *
+     * Same as resolveSshPort(), for FTP.
+     *
+     * @param mixed $nodePort The node's stored port; 0 means "use the setting".
+     *
+     * @return int The node port, else FOG_FTP_PORT, else 21.
+     */
+    public static function resolveFtpPort($nodePort)
+    {
+        return self::_resolvePort($nodePort, 'FOG_FTP_PORT', 21);
+    }
+    /**
+     * Resolve a port: node value, then global setting, then default.
+     *
+     * @param mixed  $nodePort The node's stored port; 0 means "use the setting".
+     * @param string $setting  The global setting used when the node has none.
+     * @param int    $default  Used when neither value is a valid port.
+     *
+     * @return int
+     */
+    private static function _resolvePort($nodePort, $setting, $default)
+    {
+        foreach ([$nodePort, self::getSetting($setting)] as $port) {
+            $port = (int)$port;
+            if ($port >= 1 && $port <= 65535) {
+                return $port;
+            }
+        }
+        return $default;
+    }
+    /**
      * Loads the online status for us.
      *
      * @return void
@@ -217,8 +290,9 @@ class StorageNode extends FOGController
         // 18217). Try ssh first because it is the transport tasking needs,
         // then fall back rather than declaring the node dead on one port.
         //
-        // -1 lets isAvailable resolve FOG_SSH_PORT; hardcoding 22 reported
-        // every node offline whenever ssh was moved (forums 18210).
+        // sshPort() resolves this node's own port, then FOG_SSH_PORT, then
+        // 22; hardcoding 22 reported every node offline whenever ssh was
+        // moved (forums 18210, 18303).
         //
         // One second, not 0.1. A tenth of a second is inside the noise for a
         // switched network and a NAS that has to wake a disk, so the probe
@@ -238,7 +312,7 @@ class StorageNode extends FOGController
             $this->set('online', true);
             return;
         }
-        $test = self::$FOGURLRequests->isAvailable($ip, 1, -1);
+        $test = self::$FOGURLRequests->isAvailable($ip, 1, $this->sshPort());
         $online = array_shift($test);
         if (!$online) {
             $webPort = 'https' === self::$httpproto ? 443 : 80;
@@ -271,7 +345,7 @@ class StorageNode extends FOGController
      *
      * @param int $Host the host id
      *
-     * @return object
+     * @return bool true while a failure for this host is still in force
      */
     public function getNodeFailure($Host)
     {

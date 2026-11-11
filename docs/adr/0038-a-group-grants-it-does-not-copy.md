@@ -1559,3 +1559,40 @@ to the same module list as before the upgrade.
 **What changes afterward.** A host created from now on carries no module rows
 and follows the defaults. Changing a module's default reaches every host left
 "Not set". Group grants and the host OFF row work as before.
+
+## Amendment, 2026-11-11: "Not set" printer level follows a server default
+
+Decision 1 keeps `hostPrinterLevel` in the imperative half, set by mass edit.
+That stands. This amendment adds a default for a host that has no level
+(fogproject#2087).
+
+**Decision.** `Resolver::resolvePrinterLevel()` decides a host's printer level
+in two tiers. A host that stores 0, 1 or 2 runs at that level. A host that
+stores anything else, normally `''`, runs at
+`FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL` (schema step 459, default 0). The
+legacy client endpoint, the fog-agent printer set, the Printer Deployment
+report and the host Printers tab all read it through that one function. The
+host Printers tab gains "Use the server default", and mass edit's Clear on all
+writes `''`, so a host can be returned to the default.
+
+**A group does not grant a printer level.** This was asked for, with "the
+highest level wins" when several groups set one. It is rejected:
+
+- A host can be in several groups. A grant only adds, as printers, snapins and
+  modules do. It never overrules another source, and a level would have to.
+- "Highest wins" is not safe. Level 2 removes every printer the host is not
+  assigned, so joining a group would strip printers from the machine.
+
+To set the level of every host in a group, use the group's Mass Edit Member
+Hosts (GH-1938). It writes onto today's members once, like any mass edit.
+
+**Why the upgrade is safe.** The column default is `''`, and 1.5 never wrote a
+level at host creation, so `''` already means "nobody set one". A `'0'` was
+saved by someone, on the host page or by the 1.5 group page, and stays the
+host's own. The default ships at 0, so every host resolves to the level it has
+today. No host row is touched.
+
+**What changes afterward.** A new host follows the default, so setting the
+default once covers every host added later. Changing the default reaches every
+host with no level. A host with an explicit level, 0 included, keeps it until
+mass edit clears it.

@@ -407,6 +407,37 @@
           }
         });
       break;
+      // Client Authentication Failures
+      //
+      // Oldest run first, matching the server's ORDER BY: the host stuck the
+      // longest is the one most likely forgotten. hostLink is markup the
+      // server built through entityLink(), which escapes the name, so it is
+      // the one column not passed through render.text().
+    case 'client authentication':
+      var clientAuthTable = $('#clientauthreport-table'),
+        table = clientAuthTable.registerTable(null, {
+          order: [
+            [2, 'asc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'hostLink'},
+            {data: 'problem', render: $.fn.dataTable.render.text()},
+            {data: 'since', render: $.fn.dataTable.render.text()},
+            {data: 'count', render: $.fn.dataTable.render.text()},
+            {data: 'ip', render: $.fn.dataTable.render.text()},
+            {data: 'checkin', render: $.fn.dataTable.render.text()},
+            {data: 'action', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
       // Installed Software
       //
       // Not serverSide, same reasoning as software report above: reportRows()
@@ -605,6 +636,92 @@
             {data: 'subject', render: $.fn.dataTable.render.text()},
             {data: 'permission', render: $.fn.dataTable.render.text()},
             {data: 'outcome', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+      // Directory Membership, Printer Deployment and User Sessions
+      //
+      // Each PHP page renders an empty table. Without a case here, nothing
+      // asks getList for the rows, and the page shows headers only.
+      // Every column escapes. The machines report these values.
+    case 'directory membership':
+      var directoryTable = $('#directorymembershipreport-table'),
+        table = directoryTable.registerTable(null, {
+          order: [
+            [0, 'asc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'desiredDomain', render: $.fn.dataTable.render.text()},
+            {data: 'observedDomain', render: $.fn.dataTable.render.text()},
+            {data: 'desiredOU', render: $.fn.dataTable.render.text()},
+            {data: 'observedOU', render: $.fn.dataTable.render.text()},
+            {data: 'drift', render: $.fn.dataTable.render.text()},
+            {data: 'placement', render: $.fn.dataTable.render.text()},
+            {data: 'join', render: $.fn.dataTable.render.text()},
+            {data: 'observedAt', render: $.fn.dataTable.render.text()},
+            {data: 'checkin', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+    case 'printer deployment':
+      var printerTable = $('#printerdeploymentreport-table'),
+        table = printerTable.registerTable(null, {
+          order: [
+            [0, 'asc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'mode', render: $.fn.dataTable.render.text()},
+            {data: 'spooler', render: $.fn.dataTable.render.text()},
+            {data: 'assigned', render: $.fn.dataTable.render.text()},
+            {data: 'installed', render: $.fn.dataTable.render.text()},
+            {data: 'missing', render: $.fn.dataTable.render.text()},
+            {data: 'default', render: $.fn.dataTable.render.text()},
+            {data: 'state', render: $.fn.dataTable.render.text()},
+            {data: 'error', render: $.fn.dataTable.render.text()},
+            {data: 'observedAt', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: windowedUrl(),
+            type: 'post'
+          }
+        });
+      break;
+    case 'user sessions':
+      var sessionTable = $('#usersessionsreport-table'),
+        table = sessionTable.registerTable(null, {
+          order: [
+            [4, 'desc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {data: 'hostName', render: $.fn.dataTable.render.text()},
+            {data: 'user', render: $.fn.dataTable.render.text()},
+            {data: 'type', render: $.fn.dataTable.render.text()},
+            {data: 'state', render: $.fn.dataTable.render.text()},
+            {data: 'startedAt', render: $.fn.dataTable.render.text()},
+            {data: 'duration', render: $.fn.dataTable.render.text()},
+            {data: 'remoteHost', render: $.fn.dataTable.render.text()}
           ],
           processing: true,
           serverSide: false,

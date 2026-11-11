@@ -53,13 +53,10 @@ class PrinterClient extends FOGClient
      */
     public function json()
     {
-        $level = self::$Host->get('printerLevel');
-        if (empty($level)) {
-            $level = 0;
-        }
-        if (!in_array($level, array_keys(self::$_modes))) {
-            $level = 0;
-        }
+        // The host's own level, or the server default when it has none.
+        $level = Resolver::resolvePrinterLevel(
+            self::$Host->get('printerLevel')
+        );
         $allPrinters = Route::getIds(
             'printer',
             [],

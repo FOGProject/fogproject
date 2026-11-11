@@ -62,15 +62,59 @@ class SoftwareSet extends FOGBase
     ];
 
     /**
+     * The feature token an agent declares when it honors the `backend`
+     * field of every software entry (fog-agent 0.1.22 and later).
+     *
+     * @var string
+     */
+    const FEATURE = 'software-backends-v1';
+
+    /**
+     * Did the request declare the software backends feature?
+     *
+     * @param array $body the decoded JSON body
+     *
+     * @return bool
+     */
+    public static function requested(array $body)
+    {
+        return in_array(self::FEATURE, (array)($body['features'] ?? []), true);
+    }
+
+    /**
+     * Is an entry with this backend sent to an agent?
+     *
+     * An agent that does not declare the feature (0.1.21 and earlier) runs
+     * every entry through Chocolatey whatever its backend says, and such
+     * agents stay in the field while a ring delays them or an admin has
+     * turned self-update off. A Snap entry would then run as a Chocolatey
+     * command. So those agents
+     * get Chocolatey entries only; an empty backend means Chocolatey.
+     *
+     * @param string $backend     the entry's backend
+     * @param bool   $allBackends whether the agent declared the feature
+     *
+     * @return bool
+     */
+    public static function sendable($backend, $allBackends)
+    {
+        return $allBackends
+            || Software::DEFAULT_BACKEND === ((string)$backend ?: Software::DEFAULT_BACKEND);
+    }
+
+    /**
      * The desired set for a host, in run order, with the drift interval.
      * Disabled entries are left out rather than sent as absent: turning
      * an entry off stops managing the package, it does not remove it.
+     * Entries for a backend the agent cannot honor are left out too (see
+     * sendable()).
      *
-     * @param Host $Host the principal
+     * @param Host $Host        the principal
+     * @param bool $allBackends whether the agent declared the feature
      *
      * @return array
      */
-    public static function desired(Host $Host)
+    public static function desired(Host $Host, $allBackends = false)
     {
         $hostID = (int)$Host->get('id');
         $ids = Resolver::resolveSoftware([$hostID])[$hostID] ?? [];
@@ -78,6 +122,9 @@ class SoftwareSet extends FOGBase
         foreach ($ids as $id) {
             $Software = new Software((int)$id);
             if (!$Software->isValid() || !$Software->get('isEnabled')) {
+                continue;
+            }
+            if (!self::sendable($Software->get('backend'), $allBackends)) {
                 continue;
             }
             $entries[] = [

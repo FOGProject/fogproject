@@ -614,8 +614,9 @@
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     if(textStatus == 'abort') return; // Do not show error message on abort.
-                    taskModal.modal('hide');
-                    $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+                    req = null;
+                    // The modal stays open: see $.taskFormFailed (forum 18314).
+                    $.taskFormFailed(jqXHR, taskName);
                 }
             });
         });
@@ -710,7 +711,10 @@
             action = $(this).attr('action'),
             opts = {
                 confirmlevelup: 1,
-                level: $('.checked input[name="level"]').val()
+                // Read the checked radio itself. The old '.checked input'
+                // selector needed iCheck's wrapper div, which left with
+                // AdminLTE 4, so it matched nothing and sent no level (#2046).
+                level: $('input[name="level"]:checked').val()
             };
         $.apiCall(method,action,opts,function(err) {
             hostPrinterConfigBtn.prop('disabled', false);
@@ -1258,6 +1262,43 @@
         ADForm.processForm(function(err) {
             ADFormBtn.prop('disabled', false);
             ADClearBtn.prop('disabled', false);
+        });
+    });
+    // The directory lookup is a POST, so it carries the CSRF token.
+    // The button stays off while the lookup runs, so a second click cannot
+    // start a second directory query.
+    $('#rejoin-inspect').on('click', function() {
+        var inspectBtn = $(this);
+        inspectBtn.prop('disabled', true);
+        $.post(ADForm.attr('action'), {rejoin_inspect_target: 1}, function(d) {
+            $('#rejoin-target-candidate').html(d.html);
+        }, 'json').fail(function(jqXHR) {
+            $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+        }).always(function() {
+            inspectBtn.prop('disabled', false);
+        });
+    });
+    // Approve the legacy FOG Client's key, so it receives the domain join
+    // password. A POST, so it carries the CSRF token. Bound directly, not
+    // delegated from document: a document handler would be added again on
+    // every AJAX visit to this page. On success the status line replaces the
+    // button, so nothing needs to bind again.
+    $('#approve-client').on('click', function() {
+        var approveBtn = $(this);
+        approveBtn.prop('disabled', true);
+        // client_key names the key this page showed; the server refuses the
+        // approval if a different key is bound now.
+        $.post(ADForm.attr('action'), {
+            approve_client: 1,
+            // attr(), not data(): data() turns a hex string that looks
+            // numeric, such as 12e45..., into a number.
+            client_key: approveBtn.attr('data-client-key')
+        }, function(d) {
+            $.notifyFromAPI(d, false);
+            $('#legacy-client-vouch').html(d.html);
+        }, 'json').fail(function(jqXHR) {
+            $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+            approveBtn.prop('disabled', false);
         });
     });
     ADClearBtn.on('click',function() {

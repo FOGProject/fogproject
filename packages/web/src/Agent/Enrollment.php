@@ -104,6 +104,9 @@ class Enrollment extends FOGBase
             return [400, ['status' => 'error', 'reason' => 'csr']];
         }
         $identity = is_array($body['identity'] ?? null) ? $body['identity'] : [];
+        // The server owns this marker; a caller never supplies it.
+        unset($identity['_directoryIdentity']);
+        $directoryIdentityRequired = MachineIdentity::requested($body);
         $macs = self::_macs($identity['macs'] ?? []);
         $token = trim((string)($body['token'] ?? ''));
 
@@ -111,6 +114,18 @@ class Enrollment extends FOGBase
         $Row = count($ids) ? new AgentEnrollment((int)array_shift($ids)) : null;
         if ($Row && !$Row->isValid()) {
             $Row = null;
+        }
+        if ($Row) {
+            // This route is public. A refusal here must not write the row:
+            // anyone who knows a fingerprint could otherwise block its agent.
+            $savedIdentity = json_decode((string)$Row->get('identity'), true) ?: [];
+            $gate = MachineIdentity::enrollmentGate($savedIdentity, $identity, $directoryIdentityRequired);
+            if ('feature_required' === $gate) {
+                throw new \RuntimeException('enrollment_directory_target_feature_required', 409);
+            }
+            if ('upgrade_blocked' === $gate) {
+                throw new \RuntimeException('enrollment_upgrade_requires_new_key', 409);
+            }
         }
         $now = self::niceDate()->format('Y-m-d H:i:s');
 
@@ -155,7 +170,24 @@ class Enrollment extends FOGBase
         }
 
         // First contact for this key. Resolve the host the way boot does.
-        list($hostID, $reason) = self::_resolve($identity, $macs);
+        if ($directoryIdentityRequired) {
+            // The live identity resolver never votes between hosts, so the
+            // legacy resolver is not consulted at all.
+            $resolved = MachineIdentity::resolve($identity, true);
+            $hostID = $resolved['host_id'];
+            if ('conflict' === $resolved['status']) {
+                $reason = self::REASON_CONFLICT;
+            } elseif ($hostID < 1) {
+                $reason = self::REASON_UNKNOWN;
+            } elseif ((new Host($hostID))->get('agentFingerprint')) {
+                $reason = self::REASON_REBIND;
+            } else {
+                $reason = self::REASON_KNOWN;
+            }
+            $identity['_directoryIdentity'] = ['required' => true];
+        } else {
+            list($hostID, $reason) = self::_resolve($identity, $macs);
+        }
 
         $Row = (new AgentEnrollment())
             ->set('fingerprint', $fingerprint)
@@ -328,6 +360,33 @@ class Enrollment extends FOGBase
     }
 
     /**
+     * Revalidate a feature-bound request before issuance.
+     *
+     * @param AgentEnrollment $row the request
+     *
+     * @throws \RuntimeException 409 when the identity no longer resolves to the row's host
+     *
+     * @return void
+     */
+    public static function guardDirectoryIdentity(AgentEnrollment $row)
+    {
+        $identity = json_decode((string)$row->get('identity'), true) ?: [];
+        $meta = $identity['_directoryIdentity'] ?? [];
+        if (empty($meta['required'])) {
+            return;
+        }
+        $resolved = MachineIdentity::resolve($identity, true);
+        if ('resolved' !== $resolved['status'] || $resolved['host_id'] !== (int)$row->get('hostID')) {
+            throw new \RuntimeException('enrollment_identity_unresolved', 409);
+        }
+        foreach ((array)Route::getIds('host', ['agentFingerprint' => (string)$row->get('fingerprint')], 'id') as $boundID) {
+            if ((int)$boundID !== (int)$row->get('hostID')) {
+                throw new \RuntimeException('enrollment_key_bound_elsewhere', 409);
+            }
+        }
+    }
+
+    /**
      * The two approvals that need no click. Returns the via, or '' when
      * the request has to wait for an admin.
      *
@@ -338,6 +397,7 @@ class Enrollment extends FOGBase
      */
     private static function _autoApproval(AgentEnrollment $Row, $token)
     {
+        self::guardDirectoryIdentity($Row);
         if ('' !== $token && self::_consumeToken($token)) {
             return self::VIA_TOKEN;
         }
@@ -347,7 +407,7 @@ class Enrollment extends FOGBase
         $hostID = (int)$Row->get('hostID');
         if ($hostID > 0
             && in_array($Row->get('reason'), [self::REASON_KNOWN, self::REASON_REBIND], true)
-            && self::_recentDeploy(new Host($hostID))
+            && self::recentDeploy(new Host($hostID))
         ) {
             return self::VIA_DEPLOY;
         }
@@ -361,11 +421,14 @@ class Enrollment extends FOGBase
      * exactly "this server put an operating system on that machine". The
      * window is FOG_AGENT_ENROLL_DEPLOY_WINDOW hours; 0 turns the path off.
      *
+     * Public because the legacy client's first handshake uses the same rule
+     * to decide whether its key is vouched for (FOGPage::authorize()).
+     *
      * @param Host $Host the host
      *
      * @return bool
      */
-    private static function _recentDeploy(Host $Host)
+    public static function recentDeploy(Host $Host)
     {
         $hours = (int)FOGCore::getSetting('FOG_AGENT_ENROLL_DEPLOY_WINDOW');
         $deployed = (string)$Host->get('deployed');
@@ -581,6 +644,7 @@ class Enrollment extends FOGBase
      */
     private static function _issue(AgentEnrollment $Row, $via, $by)
     {
+        self::guardDirectoryIdentity($Row);
         $hostID = (int)$Row->get('hostID');
         $Host = new Host($hostID);
         if (!$Host->isValid()) {

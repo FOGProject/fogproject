@@ -245,11 +245,13 @@ class State extends FOGBase
     /**
      * The desired state, with its revision.
      *
-     * @param Host $Host the principal
+     * @param Host  $Host the principal
+     * @param array $body the decoded poll body; its declared features
+     *                    shape what is sent (software backends)
      *
      * @return array
      */
-    public static function desired(Host $Host)
+    public static function desired(Host $Host, array $body = [])
     {
         $capabilities = self::capabilities($Host);
         $state = ['capabilities' => $capabilities];
@@ -297,7 +299,10 @@ class State extends FOGBase
             // The desired package set in run order with the drift
             // interval (Agent\SoftwareSet). Status reports do not touch
             // it, so a reporting host does not move its own revision.
-            $state['software'] = SoftwareSet::desired($Host);
+            $state['software'] = SoftwareSet::desired(
+                $Host,
+                SoftwareSet::requested($body)
+            );
         }
         if (in_array('printers', $capabilities, true)) {
             // The resolved printer set and the mode, in words (design 0010

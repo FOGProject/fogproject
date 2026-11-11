@@ -610,9 +610,9 @@ $check(
     in_array('15 1 * * *|wol', $flat($pm[10] ?? []), true)
 );
 
-// 25: a -1 weekday becomes 7. FOG's cron picker writes -1 for Sunday and
-// Quartz -- what the FOG client schedules against -- refuses it, so a
-// Sunday-night shutdown would silently never run.
+// 25: a -1 weekday becomes 7. A hand-entered -1 means Sunday (FOG's cron
+// picker writes 0), and Quartz -- what the FOG client schedules against --
+// refuses it, so a Sunday-night shutdown would silently never run.
 $check(
     'a -1 weekday is normalized to 7 in the cron expression',
     in_array('45 5 * * 7|shutdown', $flat($pm[10] ?? []), true)
