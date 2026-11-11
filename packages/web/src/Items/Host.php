@@ -489,7 +489,9 @@ class Host extends FOGController
      */
     public function recordAuthFailure($code)
     {
-        if (!$this->get('id')) {
+        // No code is no failure to report: a row with an empty Problem cell
+        // tells an admin nothing.
+        if (!$this->get('id') || '' === (string)$code) {
             return;
         }
         self::$DB->query(

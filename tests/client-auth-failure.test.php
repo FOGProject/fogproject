@@ -117,6 +117,13 @@ $seen = hostWrites(function () {
 });
 $t->check('a host with no id records nothing', [] === $seen);
 
+// authorize()'s catch passes '' for every exception it does not record
+// ('#!ihc', '#!ih', a fault on this server), so '' must write nothing.
+$seen = hostWrites(function () {
+    authHost()->recordAuthFailure('');
+});
+$t->check('an exception with no code records nothing', [] === $seen);
+
 // ---- 2. clearing ------------------------------------------------------------
 
 $seen = hostWrites(function () {
