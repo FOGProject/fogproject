@@ -778,8 +778,17 @@ class User extends FOGController
             // runs -- an infinite node=logout loop that also prevents the
             // preserved "Session Expired" toast from ever reaching login.
             $node = filter_input(INPUT_GET, 'node');
+            // A valid remember-me cookie for THIS user outranks the idle
+            // timeout. The logout below clears the foguserauth* cookies, so
+            // without this check Remember Me lasted only until the first
+            // idle hour (forum 18315). It went unseen while PHP's 24-minute
+            // session GC deleted the session first: the cookie replay in
+            // ProcessLogin then signed the user back in silently. #1306 gave
+            // FOG its own 86400s session store, so the session now outlives
+            // the timeout and this branch fires first.
             if ($lastactivity > $timeout
                 && !in_array($node, ['logout', 'login'], true)
+                && !$this->_rememberMeCookieHolds()
             ) {
                 self::setMessage(
                     _('You were logged out due to inactivity.'),
@@ -791,6 +800,29 @@ class User extends FOGController
         }
         $_SESSION['lastactivity'] = time();
         return true;
+    }
+    /**
+     * Does the request carry a valid remember-me cookie for this user?
+     *
+     * @return bool
+     */
+    private function _rememberMeCookieHolds()
+    {
+        // $_COOKIE, not filter_input(): Initiator::sanitizeItems() has
+        // already cleaned it, and filter_input() reads the raw request,
+        // which a CLI test cannot supply. That is what lets
+        // tests/remember-me-outlives-inactivity.test.php run this path.
+        // The regenerate branch above keeps its filter_input() reads; this
+        // fix does not change that path.
+        $id = (int)($_COOKIE['foguserauthid'] ?? 0);
+        if ($id < 1) {
+            return false;
+        }
+        return (new UserAuth($id))->matches(
+            (int)$this->get('id'),
+            (string)($_COOKIE['foguserauthsel'] ?? ''),
+            (string)($_COOKIE['foguserauthpass'] ?? '')
+        );
     }
     /**
      * Perform logout cleanup
