@@ -9427,9 +9427,9 @@ class Route extends FOGBase
     {
         // A helper that is also an API endpoint, such as names(), sets a
         // JSON Content-Type. Run as a value, it must not change the type of
-        // the response it runs inside: an HTML page went out as JSON and the
-        // browser showed its source.
-        $type = self::_contentType();
+        // the response around it. Before this rule, an HTML page went out
+        // as JSON, and the browser showed its source.
+        $keep = self::_contentType();
         self::$_rethrowDepth++;
         try {
             $call();
@@ -9437,17 +9437,8 @@ class Route extends FOGBase
             self::$data = '';
         } finally {
             self::$_rethrowDepth--;
-            if (!headers_sent() && self::_contentType() !== $type) {
-                // No type set yet means PHP's default goes out. Removing
-                // the header is not the same: PHP then sends no type at
-                // all, and with nosniff the browser shows the page as text.
-                if (null === $type) {
-                    $charset = (string)ini_get('default_charset');
-                    $type = 'Content-Type: '
-                        . (ini_get('default_mimetype') ?: 'text/html')
-                        . ('' === $charset ? '' : '; charset=' . $charset);
-                }
-                header($type);
+            if (!headers_sent() && self::_contentType() !== $keep) {
+                header($keep ?? self::_defaultContentType());
             }
         }
         return self::objectify($data);
@@ -9469,6 +9460,24 @@ class Route extends FOGBase
 
         return $type;
     }
+
+    /**
+     * The Content-Type header PHP sends when the code sets none.
+     *
+     * Not header_remove(): after it, PHP sends no type at all, and with
+     * nosniff the browser shows the page as text.
+     *
+     * @return string the whole header line
+     */
+    private static function _defaultContentType()
+    {
+        $charset = (string)ini_get('default_charset');
+
+        return 'Content-Type: '
+            . (ini_get('default_mimetype') ?: 'text/html')
+            . ('' === $charset ? '' : '; charset=' . $charset);
+    }
+
     /**
      * Announces each object about to be destroyed.
      *

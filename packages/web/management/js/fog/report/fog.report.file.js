@@ -645,12 +645,12 @@
             type: 'post'
           }
         });
-      break;      // Directory Membership, Printer Deployment and User Sessions
+      break;
+      // Directory Membership, Printer Deployment and User Sessions
       //
-      // Their PHP rendered an empty table and nothing here asked getList for
-      // the rows, so each page showed headers only. Every column escapes:
-      // host names, OUs, queue names, errors and user names all come from
-      // the machines.
+      // Each PHP page renders an empty table. Without a case here, nothing
+      // asks getList for the rows, and the page shows headers only.
+      // Every column escapes. The machines report these values.
     case 'directory membership':
       var directoryTable = $('#directorymembershipreport-table'),
         table = directoryTable.registerTable(null, {
