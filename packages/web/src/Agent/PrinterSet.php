@@ -99,7 +99,7 @@ class PrinterSet extends FOGBase
     public static function desired(Host $Host)
     {
         $hostID = (int)$Host->get('id');
-        $level = (int)$Host->get('printerLevel');
+        $level = Resolver::resolvePrinterLevel($Host->get('printerLevel'));
         $resolved = Resolver::resolvePrinters([$hostID])[$hostID]
             ?? ['printers' => [], 'default' => null];
 

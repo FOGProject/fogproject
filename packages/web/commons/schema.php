@@ -12322,3 +12322,23 @@ $this->schema[] = [
     "UPDATE `os` SET `osFamily` = 'macos' WHERE `osID` = 8",
     "UPDATE `os` SET `osFamily` = 'linux' WHERE `osID` IN (50, 51)",
 ];
+// 459
+$this->schema[] = [
+    // The printer level of a host that sets none (fogproject#2087). A host's
+    // level stays its own and is never granted by a group: a host can be in
+    // several groups, and a grant only adds. A host with no level ('', the
+    // column default, which 1.5 never wrote over at creation) now follows
+    // this setting instead of always being 0.
+    //
+    // It ships at 0, so every host resolves to the level it has today. No
+    // host row is touched: an explicit '0' stays the host's own choice.
+    "INSERT IGNORE INTO `globalSettings` "
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`) VALUES "
+    . "('FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL','The printer level of a "
+    . "host that has no level of its own. 0: no printer management. 1: add "
+    . "and remove the printers FOG manages. 2: FOG handles all printers and "
+    . "removes every printer the host is not assigned. A level set on the "
+    . "host, on its Printers tab or by mass edit, always wins. Mass edit "
+    . "Clear on all makes hosts follow this setting again. (Default 0)',"
+    . "'0','FOG Client - Printer Manager')",
+];

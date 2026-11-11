@@ -3641,12 +3641,18 @@ class HostManagement extends FOGPage
 
         // =========================================================
         // Printer Configuration
-        // Cast, because an empty stored level means 0 to every reader, and
-        // PHP 8 says '' == 0 is false, so no radio was checked (#2046).
-        $printerLevel = (int)(
-            filter_input(INPUT_POST, 'level') ?:
-            $this->obj->get('printerLevel')
-        );
+        // The host's own level, or '' when it has none and follows the
+        // server default (Resolver::resolvePrinterLevel()). Compared as
+        // strings: on PHP 8 '' == 0 is false, and '' is a choice here.
+        $printerLevel = trim((string)$this->obj->get('printerLevel'));
+        if (!in_array($printerLevel, Resolver::PRINTER_LEVELS, true)) {
+            $printerLevel = '';
+        }
+        $levelNames = [
+            _('No Printer Management'),
+            _('Add/Remove Managed Printers'),
+            _('All Printers'),
+        ];
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
@@ -3654,6 +3660,37 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="card-body">';
+        echo '<div class="form-check">';
+        echo self::makeLabel(
+            '',
+            'defaultlevel',
+            self::makeInput(
+                'printer-defaultlevel',
+                'level',
+                '',
+                'radio',
+                'defaultlevel',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                ('' === $printerLevel ? 'checked' : '')
+            )
+            . ' '
+            . sprintf(
+                _('Use the server default (now: %s)'),
+                $levelNames[Resolver::printerLevelDefault()]
+            ),
+            'data-bs-toggle="tooltip" data-bs-placement="right" title="'
+            . _(
+                'This host follows the default printer level in FOG '
+                . 'Configuration, FOG Client - Printer Manager. A change '
+                . 'to the default reaches this host.'
+            )
+            . '"'
+        );
+        echo '</div>';
         echo '<div class="form-check">';
         echo self::makeLabel(
             '',
@@ -3669,7 +3706,7 @@ class HostManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                ($printerLevel == 0 ? 'checked' : '')
+                ('0' === $printerLevel ? 'checked' : '')
             )
             . ' '
             . _('No Printer Management'),
@@ -3697,7 +3734,7 @@ class HostManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                ($printerLevel == 1 ? 'checked' : '')
+                ('1' === $printerLevel ? 'checked' : '')
             )
             . ' '
             . _('Add/Remove Managed Printers'),
@@ -3730,7 +3767,7 @@ class HostManagement extends FOGPage
                 false,
                 -1,
                 -1,
-                ($printerLevel == 2 ? 'checked' : '')
+                ('2' === $printerLevel ? 'checked' : '')
             )
             . ' '
             . _('All Printers'),
@@ -3773,9 +3810,10 @@ class HostManagement extends FOGPage
         }
         if (isset($_POST['confirmlevelup'])) {
             $level = filter_input(INPUT_POST, 'level');
-            // Refuse anything but the three levels. A missing level used to
-            // be stored as '' and logged as a success (#2046).
-            if (!in_array($level, ['0', '1', '2'], true)) {
+            // Refuse anything but the three levels and '' (use the server
+            // default). A MISSING level is refused: it used to be stored as
+            // '' and logged as a success (#2046).
+            if (!in_array($level, array_merge([''], Resolver::PRINTER_LEVELS), true)) {
                 throw new \Exception(_('Please select a printer level!'));
             }
             $this->obj->set('printerLevel', $level);
@@ -5871,13 +5909,15 @@ class HostManagement extends FOGPage
             ],
             // Printer level is a `hosts` column and so belongs to the
             // imperative half (ADR 0038 decision 1) even though the printers
-            // it governs are becoming group-owned. Clearing it means level 0,
-            // "no printer management", which is a real setting rather than an
-            // absence -- so CLEAR and "set to 0" land on the same value on
-            // purpose.
+            // it governs are group-owned. A group never grants it: a host
+            // can be in several groups, and a grant only adds.
+            //
+            // CLEAR writes '', "not set", and the host follows
+            // FOG_CLIENT_PRINTERMANAGER_DEFAULT_LEVEL. SET to 0 is the host
+            // saying "no printer management" whatever the default says.
             'printerLevel' => [
                 'field' => 'printerLevel',
-                'empty' => 0,
+                'empty' => '',
                 'label' => _('Host Printer Management Level'),
                 'kind' => 'printerlevel',
                 // FOG Client, not General. On a host's own page this is drawn
@@ -6453,6 +6493,20 @@ class HostManagement extends FOGPage
                 $shared[$key],
                 !empty($spec['secret'])
             );
+            // A printer level of '' is not empty, it is "not set": the host
+            // follows the server default, and CLEAR is how to get there.
+            if ('printerlevel' === ($spec['kind'] ?? '')) {
+                if (!empty($shared[$key]['uniform'])
+                    && '' === (string)$shared[$key]['value']
+                ) {
+                    $hints[$key] = '<p class="form-text help-block-tight">'
+                        . _('Hosts:') . ' ' . _('server default (all)')
+                        . '</p>';
+                }
+                $hints[$key] .= '<p class="form-text help-block-tight">'
+                    . _('Clear on all: the hosts follow the server default.')
+                    . '</p>';
+            }
         }
 
         $alo = SharedHostValues::forHostRows(
