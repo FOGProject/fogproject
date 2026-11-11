@@ -11,7 +11,8 @@
  * WHAT THIS PINS: for each class in src/Reports that renders an
  * `<id>-table`, the JS has `case '<report key>':`, and that case wires
  * `$('#<id>')`. Where the PHP builds each row as one array literal, the
- * case's columns are its keys, and every column escapes.
+ * case's columns are its keys, and every column escapes. A column that
+ * entityLink() builds on the server is already escaped, so it may be raw.
  *
  * DB-free: it reads the files.
  *
@@ -83,9 +84,15 @@ foreach (glob($web . '/src/Reports/*.php') ?: [] as $file) {
             . ' js: ' . implode(',', $cols) . ')',
         $php === $cols
     );
+    // A cell that entityLink() builds is markup by design. The helper
+    // escapes the name and casts the id on the server (FOGBase), so the
+    // grid must render it as HTML. Client Authentication's hostLink is one.
+    preg_match_all("/^\s*'(\w+)' => \w+::entityLink\(/m", $rows[1], $built);
     $raw = [];
     foreach ($jsCols[1] as $i => $col) {
-        if (false === strpos($jsCols[2][$i], 'render.text()')) {
+        if (false === strpos($jsCols[2][$i], 'render.text()')
+            && !in_array($col, $built[1], true)
+        ) {
             $raw[] = $col;
         }
     }
