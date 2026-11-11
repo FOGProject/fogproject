@@ -9305,7 +9305,7 @@ msgstr "証明書のインストールと記録が完了しました。新しい
 msgid "The certificate management helper is not installed on this server, so this page can only show what it can read for itself. Re-run the installer to enable it. On a storage node this is expected: a node has no CA of its own."
 msgstr "このサーバーには証明書管理ヘルパーがインストールされていないため、このページには自身で読み取れる情報しか表示されません。有効にするにはインストーラーを再実行してください。ストレージノードでは独自の CA を持たないため、この状態が正常です。"
 
-msgid "The certificate this server publishes for clients does not match its private key, so no client can authenticate. Reset Encryption Data does not fix this. Re-run the FOG installer to publish a matching certificate. If only this host shows it, check the From address."
+msgid "The certificate this server publishes for clients does not pair with the private key it decrypts with, so no client can authenticate. Reset Encryption Data does not fix this. Compare the two keys; installfog.sh --recreate-keys issues a new matching pair. If only this host shows it, check the From address."
 msgstr ""
 
 msgid "The certificate was refused"
