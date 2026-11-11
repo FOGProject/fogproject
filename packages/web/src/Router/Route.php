@@ -9425,6 +9425,11 @@ class Route extends FOGBase
      */
     public static function asValue(callable $call)
     {
+        // A helper that is also an API endpoint, such as names(), sets a
+        // JSON Content-Type. Run as a value, it must not change the type of
+        // the response it runs inside: an HTML page went out as JSON and the
+        // browser showed its source.
+        $type = self::_contentType();
         self::$_rethrowDepth++;
         try {
             $call();
@@ -9432,8 +9437,37 @@ class Route extends FOGBase
             self::$data = '';
         } finally {
             self::$_rethrowDepth--;
+            if (!headers_sent() && self::_contentType() !== $type) {
+                // No type set yet means PHP's default goes out. Removing
+                // the header is not the same: PHP then sends no type at
+                // all, and with nosniff the browser shows the page as text.
+                if (null === $type) {
+                    $charset = (string)ini_get('default_charset');
+                    $type = 'Content-Type: '
+                        . (ini_get('default_mimetype') ?: 'text/html')
+                        . ('' === $charset ? '' : '; charset=' . $charset);
+                }
+                header($type);
+            }
         }
         return self::objectify($data);
+    }
+
+    /**
+     * The Content-Type header this request will send, or null if none is set.
+     *
+     * @return string|null the whole header line
+     */
+    private static function _contentType()
+    {
+        $type = null;
+        foreach (headers_list() as $line) {
+            if (0 === stripos($line, 'content-type:')) {
+                $type = $line;
+            }
+        }
+
+        return $type;
     }
     /**
      * Announces each object about to be destroyed.
