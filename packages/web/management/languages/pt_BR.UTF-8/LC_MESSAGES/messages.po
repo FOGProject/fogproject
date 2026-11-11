@@ -10785,12 +10785,12 @@ msgstr ""
 msgid "The certificate management helper is not installed on this server, so this page can only show what it can read for itself. Re-run the installer to enable it. On a storage node this is expected: a node has no CA of its own."
 msgstr ""
 
+msgid "The certificate this server publishes for clients does not match its private key, so no client can authenticate. Reset Encryption Data does not fix this. Re-run the FOG installer to publish a matching certificate. If only this host shows it, check the From address."
+msgstr ""
+
 #, fuzzy
 msgid "The certificate was refused"
 msgstr "Nenhum arquivo foi transferido"
-
-msgid "The client encrypts for a key this server does not hold. Reset Encryption Data does not fix this. If most hosts show it, this server's client key changed: restore it. Otherwise reinstall the FOG Client against this server."
-msgstr ""
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr ""
