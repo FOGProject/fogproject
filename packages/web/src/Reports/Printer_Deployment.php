@@ -335,7 +335,7 @@ class Printer_Deployment extends ReportManagement
      * anywhere an admin can see (design 0010 section 1.3). This is the
      * third and the only one meant for a person.
      *
-     * @param string $level the stored level
+     * @param int|string $level the level, as resolved or as stored
      *
      * @return string
      */

@@ -52,9 +52,12 @@ function setDefault($value)
 
 // ------------------------------------------------------------- the rule
 setDefault('2');
-foreach (['0' => 0, '1' => 1, '2' => 2, 0 => 0, 2 => 2] as $stored => $want) {
+// Pairs, not keys: PHP makes the keys '0' and 0 one key, and the int cases
+// would never run. The ORM can hand back either type.
+foreach ([['0', 0], ['1', 1], ['2', 2], [0, 0], [2, 2]] as [$stored, $want]) {
     $t->check(
-        "a host that stores '" . $stored . "' keeps it over a default of 2",
+        "a host that stores " . var_export($stored, true)
+            . " keeps it over a default of 2",
         $want === Resolver::resolvePrinterLevel($stored)
     );
 }
@@ -151,14 +154,9 @@ function reportWhere($db)
         (new \ReflectionClass(\FOG\Reports\Printer_Deployment::class))
             ->newInstanceWithoutConstructor()
     );
-    foreach ($db->log as $sql) {
-        $sql = (string)$sql;
-        if (false !== strpos($sql, 'hostSpooler')) {
-            return preg_replace('/\s+/', ' ', $sql);
-        }
-    }
+    $sql = preg_grep('/hostSpooler/', $db->log);
 
-    return '';
+    return $sql ? (string)preg_replace('/\s+/', ' ', (string)reset($sql)) : '';
 }
 
 setDefault('0');
