@@ -3632,9 +3632,11 @@ abstract class FOGPage extends FOGBase
              *
              *   'ist' -- the token it presented is not the host's. Reset
              *            Encryption Data ends it.
-             *   'dec' -- certDecrypt() could not open its session key: the
-             *            client encrypts for a different server's
-             *            certificate. A reset does not end it.
+             *   'dec' -- certDecrypt() could not open its session key. The
+             *            client encrypts with the srvpublic.crt it just
+             *            downloaded from this server, so the published
+             *            certificate does not match .srvprivate.key. A
+             *            reset does not end it.
              *
              * '#!ihc' here is not recorded. It means sym_key was empty or
              * the wrong length, which no working client sends. '#!ih' has no

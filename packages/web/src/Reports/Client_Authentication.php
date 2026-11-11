@@ -175,10 +175,16 @@ class Client_Authentication extends ReportManagement
      *
      * The two need different fixes, which is why the report names them
      * apart. A token mismatch ends with Reset Encryption Data. A key the
-     * server cannot decrypt does not: the client encrypts for a key this
-     * server does not hold. When one host shows it, that client was set up
-     * against another server. When most hosts show it at once, this
-     * server's own client key changed, for example in a reinstall.
+     * server cannot decrypt does not, because the fault is on the server.
+     *
+     * The client downloads srvpublic.crt from this server on every
+     * handshake and encrypts its key with it (Zazzles
+     * Authentication.HandShake()). A client pinned to another CA refuses
+     * that certificate and never sends the key, so it never reaches this
+     * report. So a real 'dec' means the published certificate does not
+     * match .srvprivate.key, and it hits every host at once. One host alone
+     * showing it is a request that did not come from a working client.
+     *
      *
      * @param string $code 'ist' or 'dec'
      *
@@ -188,10 +194,11 @@ class Client_Authentication extends ReportManagement
     {
         if ('dec' === $code) {
             return _(
-                'The client encrypts for a key this server does not hold. '
-                . 'Reset Encryption Data does not fix this. If most hosts '
-                . 'show it, this server\'s client key changed: restore it. '
-                . 'Otherwise reinstall the FOG Client against this server.'
+                'The certificate this server publishes for clients does not '
+                . 'match its private key, so no client can authenticate. '
+                . 'Reset Encryption Data does not fix this. Re-run the FOG '
+                . 'installer to publish a matching certificate. If only this '
+                . 'host shows it, check the From address.'
             );
         }
         return _(

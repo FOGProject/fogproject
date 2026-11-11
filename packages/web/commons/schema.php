@@ -12331,8 +12331,8 @@ $this->schema[] = [
     // Only FOGPage::authorize() writes these, and only for the two failures
     // a client cannot recover from by itself: 'ist' (the token it presented
     // is not the host's) and 'dec' (the server could not decrypt its session
-    // key: the client encrypts for a key this server does not hold). Both
-    // repeat on every check-in. The '#!ihc' answers are
+    // key: the certificate it publishes does not match its private key).
+    // Both repeat on every check-in. The '#!ihc' answers are
     // not recorded: sendData() returns one when a session key expires, which
     // is routine, and authorize() returns one for a missing key, which no
     // working client sends.
