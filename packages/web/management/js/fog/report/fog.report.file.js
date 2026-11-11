@@ -317,6 +317,46 @@
       // different question. Every column is plain text out of `taskLog`,
       // including names typed by whoever created the image, so every column
       // escapes.
+    case 'client authentication':
+      var clientAuthTable = $('#clientauthentication-table'),
+        table = clientAuthTable.registerTable(null, {
+          order: [
+            [3, 'desc']
+          ],
+          buttons: reportFileButtons,
+          columns: [
+            {
+              data: 'hostName',
+              render: function(data, type, row) {
+                if (type !== 'display') {
+                  return data;
+                }
+                return $('<a>')
+                  .attr(
+                    'href',
+                    '../management/index.php?node=host&sub=edit&id='
+                    + encodeURIComponent(row.id)
+                  )
+                  .text(data)
+                  .prop('outerHTML');
+              }
+            },
+            {data: 'problem', render: $.fn.dataTable.render.text()},
+            {data: 'failures', render: $.fn.dataTable.render.text()},
+            {data: 'failedAt', render: $.fn.dataTable.render.text()},
+            {data: 'fromIP', render: $.fn.dataTable.render.text()},
+            {data: 'checkin', render: $.fn.dataTable.render.text()}
+          ],
+          processing: true,
+          serverSide: false,
+          select: false,
+          ajax: {
+            url: '../management/index.php?node=report&sub=getList&f='
+            + Common.f,
+            type: 'post'
+          }
+        });
+      break;
     case 'imaging report':
       var imagingTable = $('#imaging-table'),
         table = imagingTable.registerTable(null, {

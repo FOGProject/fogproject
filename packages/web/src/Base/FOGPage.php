@@ -3594,6 +3594,16 @@ abstract class FOGPage extends FOGBase
                 self::$Host->set('prev_sec_tok', '');
             }
             self::$Host->set('pub_key', $key);
+            // A handshake that gets this far has recovered: take the host off
+            // the Client Authentication Failures report (schema 459). Rides
+            // the save() below, so it is committed only with the reply.
+            if ((int)self::$Host->get('authFailCount') > 0) {
+                self::$Host
+                    ->set('authFailAt', null)
+                    ->set('authFailCode', '')
+                    ->set('authFailCount', 0)
+                    ->set('authFailIP', '');
+            }
             $vals['token'] = self::$Host->get('sec_tok');
             /**
              * Build the reply BEFORE committing. certEncrypt() can throw, and
@@ -3620,6 +3630,7 @@ abstract class FOGPage extends FOGBase
             self::$Host->save();
             echo $response;
         } catch (\Exception $e) {
+            $this->_recordAuthFailure($e->getMessage());
             /**
              * These must go out as HTTP 200 with the error in the BODY.
              *
@@ -3663,6 +3674,48 @@ abstract class FOGPage extends FOGBase
             echo  $e->getMessage();
         }
         exit;
+    }
+    /**
+     * Records a failed client handshake on the host (schema 459).
+     *
+     * Only the two answers a client never recovers from by itself are
+     * recorded, so the Client Authentication Failures report lists hosts
+     * that need an administrator, not hosts whose key simply expired.
+     *
+     * A targeted UPDATE of these four columns, never Host::save(): the
+     * exception can come after authorize() has already set() a rotated
+     * token, and saving the whole object here would commit the token the
+     * client never received.
+     *
+     * Never throws. A failed write here must not change what the client is
+     * answered.
+     *
+     * @param string $code the protocol answer, e.g. '#!ist'
+     *
+     * @return void
+     */
+    private function _recordAuthFailure($code)
+    {
+        if (!in_array($code, ['#!ist', '#!ihc'], true)
+            || !self::$Host instanceof Host
+            || !self::$Host->isValid()
+        ) {
+            return;
+        }
+        try {
+            (new HostManager())->update(
+                ['id' => self::$Host->get('id')],
+                '',
+                [
+                    'authFailAt' => self::niceDate()->format('Y-m-d H:i:s'),
+                    'authFailCode' => substr($code, 2),
+                    'authFailCount' => (int)self::$Host->get('authFailCount') + 1,
+                    'authFailIP' => substr((string)self::$remoteaddr, 0, 45)
+                ]
+            );
+        } catch (\Throwable $t) {
+            // Diagnostics only; the handshake answer is what matters.
+        }
     }
     /**
      * Used by the new client and collects

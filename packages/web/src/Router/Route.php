@@ -408,6 +408,12 @@ class Route extends FOGBase
             // Client-protocol state like sec_time: kept out of grids, CSV
             // export and filters. The host page's AD tab shows it.
             'sec_vouched',
+            // The client's last failed handshake (schema 459), for the same
+            // reason. The Client Authentication Failures report shows it.
+            'authFailAt',
+            'authFailCode',
+            'authFailCount',
+            'authFailIP',
             'token',
         ],
     ];
@@ -595,6 +601,12 @@ class Route extends FOGBase
             // and has to be able to type it.
             'sbstate',
             'sbstatetime',
+            // The client's last failed handshake (schema 459). A report of
+            // what the server answered, written by authorize() only.
+            'authFailAt',
+            'authFailCode',
+            'authFailCount',
+            'authFailIP',
         ],
         'user' => [
             'token',
@@ -3780,6 +3792,10 @@ class Route extends FOGBase
                         'sec_tok',
                         'sec_time',
                         'sec_vouched',
+                        'authFailAt',
+                        'authFailCode',
+                        'authFailCount',
+                        'authFailIP',
                         'pub_key',
                         'ADUser',
                         'ADPass',

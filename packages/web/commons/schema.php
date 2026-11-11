@@ -12322,3 +12322,33 @@ $this->schema[] = [
     "UPDATE `os` SET `osFamily` = 'macos' WHERE `osID` = 8",
     "UPDATE `os` SET `osFamily` = 'linux' WHERE `osID` IN (50, 51)",
 ];
+// 459
+$this->schema[] = [
+    // The last time the legacy FOG Client failed the handshake in
+    // FOGPage::authorize(), and why. Forum topic 18312 asked for a way to
+    // find these hosts from the web UI. Until now the only evidence was the
+    // client's own log on each machine.
+    //
+    // Only authorize() writes these, and only for the two answers a client
+    // cannot recover from by itself: 'ist' (the token it presented is not
+    // the host's) and 'ihc' (no usable session key, which is what a client
+    // trusting a different server certificate sends). Both repeat on every
+    // check-in until an administrator resets the host's encryption data.
+    // The routine 'ihc' that sendData() returns when a key expires is not
+    // recorded: the client handles that one itself.
+    //
+    // State, not a log. A stuck client fails on every check-in, so a row per
+    // failure would grow without limit. The next successful handshake clears
+    // all four columns, so a host stays in the report until it has really
+    // recovered, not just until someone pressed the reset button.
+    //
+    // Advisory. The handshake resolves the host from the request's MAC, so
+    // any machine on the LAN can make a host fail. Nothing acts on these
+    // columns automatically; hostAuthFailIP shows where the failures came
+    // from.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostAuthFailAt` datetime DEFAULT NULL, "
+    . "ADD COLUMN `hostAuthFailCode` varchar(8) NOT NULL DEFAULT '', "
+    . "ADD COLUMN `hostAuthFailCount` int(10) unsigned NOT NULL DEFAULT 0, "
+    . "ADD COLUMN `hostAuthFailIP` varchar(45) NOT NULL DEFAULT ''",
+];

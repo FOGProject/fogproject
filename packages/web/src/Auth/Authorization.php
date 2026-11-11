@@ -134,6 +134,8 @@ class Authorization extends FOGBase
         // reads, gated on host.view. Same reasoning.
         'installed_software' => 'host',
         'directory_membership' => 'host',
+        // Client Authentication Failures reads `hosts` only (schema 459).
+        'client_authentication' => 'host',
         'printer_deployment' => 'host',
         'user_sessions' => 'host',
         // Storage Report reads `images`, `imageGroupAssoc`, `nfsGroups` and

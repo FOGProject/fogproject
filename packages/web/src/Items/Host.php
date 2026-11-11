@@ -155,7 +155,15 @@ class Host extends FOGController
         // administrator approved it. Only a vouched key is sent the domain
         // join password (HostnameChanger::json()). Cleared with the key.
         // Last, so a headerless CSV import keeps every older column's slot.
-        'sec_vouched' => 'hostSecVouched'
+        'sec_vouched' => 'hostSecVouched',
+        // The legacy client's last failed handshake (schema 459): when, the
+        // protocol code it was answered with, how many failures in a row,
+        // and the address they came from. Written by FOGPage::authorize()
+        // only, and cleared by its next success. Advisory: see the step.
+        'authFailAt' => 'hostAuthFailAt',
+        'authFailCode' => 'hostAuthFailCode',
+        'authFailCount' => 'hostAuthFailCount',
+        'authFailIP' => 'hostAuthFailIP'
     ];
     /**
      * The required fields
