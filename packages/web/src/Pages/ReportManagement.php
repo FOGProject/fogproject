@@ -172,6 +172,7 @@ class ReportManagement extends FOGPage
 
         $titles = [
             'audit report' => _('Audit Report'),
+            'client authentication' => _('Client Authentication Failures'),
             'file deleter' => _('Files Deleted List'),
             'fleet report' => _('Fleet Report'),
             'hardware report' => _('Hardware Report'),

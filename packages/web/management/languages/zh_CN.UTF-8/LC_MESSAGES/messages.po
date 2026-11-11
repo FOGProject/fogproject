@@ -2178,6 +2178,10 @@ msgstr "点击这里"
 msgid "Client"
 msgstr "客户"
 
+#, fuzzy
+msgid "Client Authentication Failures"
+msgstr "服务器连接出错"
+
 msgid "Client Count"
 msgstr "客户端计数"
 
@@ -3885,6 +3889,13 @@ msgstr "无法更新/创建任务日志"
 msgid "Failed to write file to disk"
 msgstr "无法写入文件到磁盘"
 
+msgid "Failing since"
+msgstr ""
+
+#, fuzzy
+msgid "Failures"
+msgstr "失败"
+
 #, fuzzy
 msgid "Failures by snapin"
 msgstr "无法添加/更新管理单元文件"
@@ -4126,6 +4137,10 @@ msgstr "内核名称"
 
 msgid "From"
 msgstr ""
+
+#, fuzzy
+msgid "From address"
+msgstr "IP地址"
 
 #, fuzzy
 msgid "Full History"
@@ -4796,6 +4811,9 @@ msgid "Hosts registered per day"
 msgstr ""
 
 msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
+msgstr ""
+
+msgid "Hosts whose FOG Client was refused by this server and has not authenticated since. A host leaves this list on its next successful check-in. The handshake identifies a host by its MAC address, so compare the From address with the host before acting on a row."
 msgstr ""
 
 msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
@@ -8280,6 +8298,9 @@ msgstr "私钥未找到路径"
 msgid "Private keys are readable by the web server"
 msgstr "私钥不可读"
 
+msgid "Problem"
+msgstr ""
+
 msgid "Processors"
 msgstr ""
 
@@ -8692,6 +8713,9 @@ msgid "Requires the existing fog-agent client certificate, verified by the web s
 msgstr ""
 
 msgid "Reset Encryption Data"
+msgstr ""
+
+msgid "Reset Encryption Data on the host, then check fog.log on the client."
 msgstr ""
 
 #, fuzzy
@@ -9161,6 +9185,9 @@ msgstr "有此服务器上没有图像。"
 msgid "Secure channel status unknown"
 msgstr ""
 
+msgid "Security token does not match"
+msgstr ""
+
 #, fuzzy
 msgid "See all results"
 msgstr "列表中的所有%s"
@@ -9214,6 +9241,9 @@ msgid "Server URL"
 msgstr "服务器外壳"
 
 msgid "Server appears to be offline or unavailable!"
+msgstr ""
+
+msgid "Server cannot decrypt the client key"
 msgstr ""
 
 #, fuzzy, php-format
@@ -10756,6 +10786,9 @@ msgid "The certificate is installed and recorded. Reload the web server for it t
 msgstr ""
 
 msgid "The certificate management helper is not installed on this server, so this page can only show what it can read for itself. Re-run the installer to enable it. On a storage node this is expected: a node has no CA of its own."
+msgstr ""
+
+msgid "The certificate this server publishes for clients does not pair with the private key it decrypts with, so no client can authenticate. Reset Encryption Data does not fix this. Compare the two keys; installfog.sh --recreate-keys issues a new matching pair. If only this host shows it, check the From address."
 msgstr ""
 
 #, fuzzy
@@ -12342,6 +12375,10 @@ msgstr ""
 
 msgid "What this token is for"
 msgstr ""
+
+#, fuzzy
+msgid "What to do"
+msgstr "已成功更新"
 
 msgid "What to do next"
 msgstr ""
@@ -14575,10 +14612,6 @@ msgstr ""
 
 #~ msgid "Total Rows"
 #~ msgstr "共行"
-
-#, fuzzy
-#~ msgid "Unable to Authenticate"
-#~ msgstr "服务器连接出错"
 
 #, fuzzy
 #~ msgid "Unable to find basic information!"

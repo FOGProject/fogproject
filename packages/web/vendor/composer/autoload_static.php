@@ -342,6 +342,7 @@ class ComposerStaticInitf1e42438574b3ce50c0c9ee957f57472
         'FOG\\Pages\\UserGroupManagement' => __DIR__ . '/../..' . '/src/Pages/UserGroupManagement.php',
         'FOG\\Pages\\UserManagement' => __DIR__ . '/../..' . '/src/Pages/UserManagement.php',
         'FOG\\Reports\\Audit_Report' => __DIR__ . '/../..' . '/src/Reports/Audit_Report.php',
+        'FOG\\Reports\\Client_Authentication' => __DIR__ . '/../..' . '/src/Reports/Client_Authentication.php',
         'FOG\\Reports\\Directory_Membership' => __DIR__ . '/../..' . '/src/Reports/Directory_Membership.php',
         'FOG\\Reports\\File_Deleter' => __DIR__ . '/../..' . '/src/Reports/File_Deleter.php',
         'FOG\\Reports\\Fleet_Report' => __DIR__ . '/../..' . '/src/Reports/Fleet_Report.php',
