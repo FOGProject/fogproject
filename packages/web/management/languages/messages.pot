@@ -1895,6 +1895,9 @@ msgstr ""
 msgid "Client"
 msgstr ""
 
+msgid "Client Authentication Failures"
+msgstr ""
+
 msgid "Client Count"
 msgstr ""
 
@@ -3359,6 +3362,12 @@ msgstr ""
 msgid "Failed to write file to disk"
 msgstr ""
 
+msgid "Failing since"
+msgstr ""
+
+msgid "Failures"
+msgstr ""
+
 msgid "Failures by snapin"
 msgstr ""
 
@@ -3567,6 +3576,9 @@ msgid "Friendly Name"
 msgstr ""
 
 msgid "From"
+msgstr ""
+
+msgid "From address"
 msgstr ""
 
 msgid "Full History"
@@ -4126,6 +4138,9 @@ msgid "Hosts registered per day"
 msgstr ""
 
 msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
+msgstr ""
+
+msgid "Hosts whose FOG Client was refused by this server and has not authenticated since. A host leaves this list on its next successful check-in. The handshake identifies a host by its MAC address, so compare the From address with the host before acting on a row."
 msgstr ""
 
 msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
@@ -7115,6 +7130,9 @@ msgstr ""
 msgid "Private keys are readable by the web server"
 msgstr ""
 
+msgid "Problem"
+msgstr ""
+
 msgid "Processors"
 msgstr ""
 
@@ -7473,6 +7491,9 @@ msgid "Requires the existing fog-agent client certificate, verified by the web s
 msgstr ""
 
 msgid "Reset Encryption Data"
+msgstr ""
+
+msgid "Reset Encryption Data on the host, then check fog.log on the client."
 msgstr ""
 
 msgid "Reset Encryption Success"
@@ -7879,6 +7900,9 @@ msgstr ""
 msgid "Secure channel status unknown"
 msgstr ""
 
+msgid "Security token does not match"
+msgstr ""
+
 msgid "See all results"
 msgstr ""
 
@@ -7925,6 +7949,9 @@ msgid "Server URL"
 msgstr ""
 
 msgid "Server appears to be offline or unavailable!"
+msgstr ""
+
+msgid "Server cannot decrypt the client key"
 msgstr ""
 
 #, php-format
@@ -9224,6 +9251,9 @@ msgid "The certificate management helper is not installed on this server, so thi
 msgstr ""
 
 msgid "The certificate was refused"
+msgstr ""
+
+msgid "The client encrypts for a key this server does not hold. Reset Encryption Data does not fix this. If most hosts show it, this server's client key changed: restore it. Otherwise reinstall the FOG Client against this server."
 msgstr ""
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
@@ -10637,6 +10667,9 @@ msgid "What this server itself trusts: FOG's root, plus any root imported below.
 msgstr ""
 
 msgid "What this token is for"
+msgstr ""
+
+msgid "What to do"
 msgstr ""
 
 msgid "What to do next"

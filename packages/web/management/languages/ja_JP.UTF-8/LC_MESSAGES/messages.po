@@ -1908,6 +1908,10 @@ msgstr "ここをクリック"
 msgid "Client"
 msgstr "クライアント"
 
+#, fuzzy
+msgid "Client Authentication Failures"
+msgstr "認証できません"
+
 msgid "Client Count"
 msgstr "クライアント数"
 
@@ -3382,6 +3386,13 @@ msgstr "タスクログの更新または作成に失敗しました"
 msgid "Failed to write file to disk"
 msgstr "ディスクへのファイルの書き込みに失敗しました"
 
+msgid "Failing since"
+msgstr ""
+
+#, fuzzy
+msgid "Failures"
+msgstr "失敗しました"
+
 msgid "Failures by snapin"
 msgstr "スナップイン別の失敗件数"
 
@@ -3592,6 +3603,10 @@ msgstr "表示名"
 
 msgid "From"
 msgstr "開始日時"
+
+#, fuzzy
+msgid "From address"
+msgstr "自宅住所"
 
 msgid "Full History"
 msgstr "全履歴"
@@ -4152,6 +4167,9 @@ msgstr "日別のホスト登録数"
 
 msgid "Hosts set to use Active Directory, with what each one last reported about itself. An OU difference is not corrected by the legacy client, which only reads the OU when it first joins the machine."
 msgstr "Active Directory を使用するよう設定されたホストと、各ホストが最後に報告した状態を表示します。従来のクライアントは初回のドメイン参加時にのみ OU を読み取るため、OU の不一致を自動修正しません。"
+
+msgid "Hosts whose FOG Client was refused by this server and has not authenticated since. A host leaves this list on its next successful check-in. The handshake identifies a host by its MAC address, so compare the From address with the host before acting on a row."
+msgstr ""
 
 msgid "Hosts with printer management switched on, with what each one last reported about itself. A printer in Missing was assigned and is not on the machine."
 msgstr "プリンター管理が有効なホストと、各ホストが最後に報告した状態を表示します。「不足」と表示されたプリンターは割り当て済みですが、そのホストには存在しません。"
@@ -7156,6 +7174,9 @@ msgstr "秘密鍵のパスが見つかりません"
 msgid "Private keys are readable by the web server"
 msgstr "秘密鍵が Web サーバーから読み取り可能です"
 
+msgid "Problem"
+msgstr ""
+
 msgid "Processors"
 msgstr "プロセッサー"
 
@@ -7516,6 +7537,9 @@ msgstr ""
 
 msgid "Reset Encryption Data"
 msgstr "暗号化データをリセット"
+
+msgid "Reset Encryption Data on the host, then check fog.log on the client."
+msgstr ""
 
 msgid "Reset Encryption Success"
 msgstr "暗号化データをリセットしました"
@@ -7925,6 +7949,9 @@ msgstr "Secure Boot: 独自の鍵で FOS に署名する"
 msgid "Secure channel status unknown"
 msgstr ""
 
+msgid "Security token does not match"
+msgstr ""
+
 msgid "See all results"
 msgstr "すべての結果を表示"
 
@@ -7972,6 +7999,9 @@ msgstr "サーバー URL"
 
 msgid "Server appears to be offline or unavailable!"
 msgstr "サーバーがオフラインか、利用できない状態のようです！"
+
+msgid "Server cannot decrypt the client key"
+msgstr ""
 
 #, php-format
 msgid "Server default (%s)"
@@ -9277,6 +9307,9 @@ msgstr "このサーバーには証明書管理ヘルパーがインストール
 
 msgid "The certificate was refused"
 msgstr "証明書が拒否されました"
+
+msgid "The client encrypts for a key this server does not hold. Reset Encryption Data does not fix this. If most hosts show it, this server's client key changed: restore it. Otherwise reinstall the FOG Client against this server."
+msgstr ""
 
 msgid "The configured LDAPS CA path cannot be read by the web server, so it is being ignored and the system trust store used instead; verification against a private CA will fail until the path is readable"
 msgstr "設定された LDAPS 用 CA 証明書のパスを Web サーバーが読み取れないため、この設定を無視してシステムの信頼ストアを使用します。パスを読み取り可能にするまで、プライベート CA に対する証明書検証は失敗します"
@@ -10693,6 +10726,10 @@ msgstr "このサーバー自身が信頼する証明書です。FOG のルー�
 
 msgid "What this token is for"
 msgstr "このトークンの用途"
+
+#, fuzzy
+msgid "What to do"
+msgstr "動作内容"
 
 msgid "What to do next"
 msgstr "次に行うこと"
@@ -12760,9 +12797,6 @@ msgstr "{node}"
 #~ msgid "History User"
 #~ msgstr "履歴のユーザー"
 
-#~ msgid "Home Address"
-#~ msgstr "自宅住所"
-
 #~ msgid "Home Phone"
 #~ msgstr "自宅電話番号"
 
@@ -13997,9 +14031,6 @@ msgstr "{node}"
 
 #~ msgid "UAC introduced in Vista and up"
 #~ msgstr "UAC は Windows Vista 以降で導入されました"
-
-#~ msgid "Unable to Authenticate"
-#~ msgstr "認証できません"
 
 #~ msgid "Unable to find basic information!"
 #~ msgstr "基本情報が見つかりません！"
