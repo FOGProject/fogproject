@@ -182,9 +182,15 @@ class Client_Authentication extends ReportManagement
      * Authentication.HandShake()). A client pinned to another CA refuses
      * that certificate and never sends the key, so it never reaches this
      * report. So a real 'dec' means the published certificate does not
-     * match .srvprivate.key, and it hits every host at once. One host alone
-     * showing it is a request that did not come from a working client.
+     * pair with the private key certDecrypt() reads, and it hits every host
+     * at once. One host alone showing it is a request that did not come
+     * from a working client.
      *
+     * That key is the .srvprivate.key under the first storage node's SSL
+     * path that is readable here, which is usually, but not always, the one
+     * the installer paired with the published certificate. A plain
+     * installer re-run keeps a certificate that chains to the current CA,
+     * so the advice names --recreate-keys, which issues a new pair.
      *
      * @param string $code 'ist' or 'dec'
      *
@@ -195,10 +201,11 @@ class Client_Authentication extends ReportManagement
         if ('dec' === $code) {
             return _(
                 'The certificate this server publishes for clients does not '
-                . 'match its private key, so no client can authenticate. '
-                . 'Reset Encryption Data does not fix this. Re-run the FOG '
-                . 'installer to publish a matching certificate. If only this '
-                . 'host shows it, check the From address.'
+                . 'pair with the private key it decrypts with, so no client '
+                . 'can authenticate. Reset Encryption Data does not fix this. '
+                . 'Compare the two keys; installfog.sh --recreate-keys issues '
+                . 'a new matching pair. If only this host shows it, check '
+                . 'the From address.'
             );
         }
         return _(

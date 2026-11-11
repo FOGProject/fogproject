@@ -3635,8 +3635,8 @@ abstract class FOGPage extends FOGBase
              *   'dec' -- certDecrypt() could not open its session key. The
              *            client encrypts with the srvpublic.crt it just
              *            downloaded from this server, so the published
-             *            certificate does not match .srvprivate.key. A
-             *            reset does not end it.
+             *            certificate does not pair with the key this
+             *            method reads. A reset does not end it.
              *
              * '#!ihc' here is not recorded. It means sym_key was empty or
              * the wrong length, which no working client sends. '#!ih' has no
