@@ -812,6 +812,8 @@ class User extends FOGController
         // already cleaned it, and filter_input() reads the raw request,
         // which a CLI test cannot supply. That is what lets
         // tests/remember-me-outlives-inactivity.test.php run this path.
+        // The regenerate branch above keeps its filter_input() reads; this
+        // fix does not change that path.
         $id = (int)($_COOKIE['foguserauthid'] ?? 0);
         if ($id < 1) {
             return false;

@@ -42,24 +42,17 @@ $selHash = password_hash($selector, PASSWORD_DEFAULT);
 $pwHash = password_hash($password, PASSWORD_DEFAULT);
 $future = date('Y-m-d H:i:s', time() + 86400);
 
-/**
- * Build an unsaved userAuths row: token 7 for user 3, unless overridden.
- *
- * @param string $selHash  hash of the selector
- * @param string $pwHash   hash of the password
- * @param string $expire   the expiry
- * @param array  $override field => value overrides
- *
- * @return UserAuth
- */
-function rememberMeRow($selHash, $pwHash, $expire, array $override = [])
-{
+// ---------------------------------------------------------------------------
+// 1. matches() behavior.
+// ---------------------------------------------------------------------------
+// An unsaved userAuths row: token 7 for user 3, unless overridden.
+$row = function (array $override = []) use ($selHash, $pwHash, $future) {
     $row = new UserAuth();
     $fields = $override + [
         'id' => 7,
         'userID' => 3,
         'isExpired' => 0,
-        'expire' => $expire,
+        'expire' => $future,
         'selector' => $selHash,
         'password' => $pwHash,
     ];
@@ -67,13 +60,6 @@ function rememberMeRow($selHash, $pwHash, $expire, array $override = [])
         $row->set($key, $value);
     }
     return $row;
-}
-
-// ---------------------------------------------------------------------------
-// 1. matches() behavior.
-// ---------------------------------------------------------------------------
-$row = function (array $override = []) use ($selHash, $pwHash, $future) {
-    return rememberMeRow($selHash, $pwHash, $future, $override);
 };
 $t->check(
     'a live token for its own user matches',
