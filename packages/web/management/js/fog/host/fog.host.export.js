@@ -40,6 +40,11 @@
         {data: 'agentUpdateRing', visible: false},
         {data: 'agentCheckin', visible: false},
         {data: 'agentUpdateState', visible: false},
+        // Client handshake failure run (schema 459), server-owned.
+        {data: 'authFailSince', visible: false},
+        {data: 'authFailCode', visible: false},
+        {data: 'authFailCount', visible: false},
+        {data: 'authFailIP', visible: false},
         {data: 'associations', visible: false}
     ], {order: [[1, 'asc']]});
 })(jQuery);

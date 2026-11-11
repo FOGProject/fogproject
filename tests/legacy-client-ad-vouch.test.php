@@ -213,7 +213,9 @@ $page = vouchCode($web . '/src/Base/FOGPage.php');
 $authorize = vouchMethod($page, 'authorize');
 $istAt = strpos($authorize, "throw new \\Exception('#!ist');");
 $vouchAt = strpos($authorize, "if (\$secTok === '') {");
-$saveAt = strpos($authorize, 'self::$Host->save();');
+// No trailing ';': the save is now the condition that clears the client
+// handshake failure run (schema 459).
+$saveAt = strpos($authorize, 'self::$Host->save()');
 $t->check(
     'authorize() decides the vouch only on a first handshake, from recentDeploy()',
     false !== $vouchAt
