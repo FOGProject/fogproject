@@ -245,9 +245,11 @@ abstract class FOGService extends FOGBase
             // exactly the fix, and which used to require restarting all ten
             // daemons before it took. Now the next pass sees it.
             self::$knownips = self::loadKnownIps();
+            // A storage node address being up is enough, as in 1.5. Waiting
+            // for FOG_WEB_HOST too never ends on a storage node: that is the
+            // main server's address, not one of the node's own.
             if (count(self::$ips)
                 && array_intersect(self::$knownips, self::$ips)
-                && in_array(self::getSetting('FOG_WEB_HOST'), self::$ips)
             ) {
                 break;
             }
@@ -255,7 +257,9 @@ abstract class FOGService extends FOGBase
                 sprintf(
                     '%s: %s',
                     _('Interface not ready, waiting for it to come up'),
-                    self::getSetting('FOG_WEB_HOST')
+                    // The node addresses the loop waits for, not the main
+                    // server's FOG_WEB_HOST, which it no longer waits for.
+                    implode(', ', (array)self::$knownips)
                 )
             );
             sleep(10);
