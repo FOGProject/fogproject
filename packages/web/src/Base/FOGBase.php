@@ -4359,10 +4359,14 @@ abstract class FOGBase
         };
         $IPs = array_map($retIPs, (array) $IPs);
         $Names = array_map($retNames, (array) $IPs);
+        // Only this machine's own addresses. FOG_WEB_HOST is the main
+        // server's address, read from the database every node shares, so
+        // adding it here made every storage node match the main server's
+        // storage node row and replicate as the main server (forum 18313).
         $output = self::fastmerge(
             $IPs,
             $Names,
-            ['127.0.0.1', '127.0.1.1', self::getSetting('FOG_WEB_HOST')]
+            ['127.0.0.1', '127.0.1.1']
         );
         unset($IPs, $Names);
         @natcasesort($output);
