@@ -4495,7 +4495,10 @@ installPackages() {
                             DEBIAN_FRONTEND=noninteractive apt-get install -yq ppa-purge >>$error_log 2>&1
                             [[ ${WEB_server_engine} == "apache2" ]] && ppa-purge -y ppa:ondrej/apache2 >>$error_log 2>&1
                             # for php we want to purge all packages first as we don't want ppa-purge to try downgrading those
-                            DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'php5*' 'php7*' 'libapache*' >>$error_log 2>&1
+                            # Only the PHP Apache module is purged. 'libapache*' also took
+                            # every other Apache module, such as mod-wsgi and mod-xsendfile,
+                            # which other vhosts on the server can need (#2095).
+                            DEBIAN_FRONTEND=noninteractive apt-get purge -yq 'php5*' 'php7*' 'libapache2-mod-php*' >>$error_log 2>&1
                             ppa-purge -y ppa:ondrej/php >>$error_log 2>&1
                             DEBIAN_FRONTEND=noninteractive apt-get purge -yq ppa-purge >>$error_log 2>&1
                         fi
