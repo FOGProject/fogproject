@@ -921,9 +921,12 @@ abstract class FOGService extends FOGBase
                         'POST',
                         ['file' => base64_encode($remotefilename)]
                     );
-                    $rsize = array_shift($rsize);
-                    if (is_int($rsize)) {
-                        $remotesize = $rsize;
+                    $rsize = trim((string)array_shift($rsize));
+                    // getsize.php answers with the size as text. is_int()
+                    // never matched a response body, so this answer was
+                    // never used and every size came from the FTP listing.
+                    if (ctype_digit($rsize)) {
+                        $remotesize = (int)$rsize;
                     } else {
                         // we should re-try HTTPS because we don't know about the storage node setup
                         // and letting curl follow the redirect doesn't work for POST requests
@@ -937,9 +940,9 @@ abstract class FOGService extends FOGBase
                             'POST',
                             ['file' => base64_encode($remotefilename)]
                         );
-                        $rsize = array_shift($rsize);
-                        if (is_int($rsize)) {
-                            $remotesize = $rsize;
+                        $rsize = trim((string)array_shift($rsize));
+                        if (ctype_digit($rsize)) {
+                            $remotesize = (int)$rsize;
                         }
                     }
                 }

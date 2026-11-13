@@ -193,14 +193,14 @@ class FOGFTP
             $rawfilelist = $this->rawlist("-a $path");
             $path = trim(trim($path, '/'));
             foreach ((array)$rawfilelist as &$file) {
-                $chunk = preg_split("/\s+/", $file);
-                if (in_array($chunk[8], ['.', '..'])) {
+                $name = self::_listName($file);
+                if (in_array($name, ['.', '..'])) {
                     continue;
                 }
                 $tmpfile = '/'
                     . $path
                     . '/'
-                    . $chunk[8];
+                    . $name;
                 $this->delete($tmpfile);
                 unset($file);
             }
@@ -432,16 +432,37 @@ class FOGFTP
         $rawlisting = $this->rawlist("-a $tmppath");
         $dirlisting = [];
         foreach ((array)$rawlisting as &$file) {
-            $chunk = preg_split('/\s+/', $file);
-            if (in_array($chunk[8], ['.', '..'])) {
+            $name = self::_listName($file);
+            if (in_array($name, ['.', '..'])) {
                 continue;
             }
             $dirlisting[] = sprintf(
                 '/%s/%s',
                 trim(trim($tmppath, '/'), '\\'),
-                $chunk[8]
+                $name
             );
         }
         return in_array($path, $dirlisting);
+    }
+    /**
+     * The file name from one LIST line.
+     *
+     * The line is split into at most 9 fields, so the name keeps its spaces.
+     * Unlimited, "7450 AIO.CAB" became "7450", and a file with a space in
+     * its name never existed on the node (forum 18313). A symlink line ends
+     * in " -> target", which is not part of the name.
+     *
+     * @param string $line one line of a LIST reply
+     *
+     * @return string
+     */
+    private static function _listName($line)
+    {
+        $chunk = preg_split('/\s+/', (string)$line, 9);
+        $name = (string)($chunk[8] ?? '');
+        if ('l' === substr((string)$chunk[0], 0, 1)) {
+            $name = explode(' -> ', $name, 2)[0];
+        }
+        return $name;
     }
 }
