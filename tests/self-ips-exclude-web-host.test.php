@@ -31,7 +31,7 @@ $fails = [];
 // TEST-NET-2: never an address on a real interface.
 $webHost = '198.51.100.77';
 
-$class = new ReflectionClass('FOG\Base\FOGBase');
+$class = new \ReflectionClass('FOG\Base\FOGBase');
 $cache = $class->getProperty('_settingsCache');
 $cache->setAccessible(true);
 $cache->setValue(null, ['FOG_WEB_HOST' => ['value' => $webHost, 'ts' => time()]]);
