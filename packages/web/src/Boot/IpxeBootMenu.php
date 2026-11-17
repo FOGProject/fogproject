@@ -3006,17 +3006,17 @@ class IpxeBootMenu extends BootMenuBase
             $New->save();
             return;
         }
-        // A system serial both sides know, and that differs, means another
-        // machine booted with this host's MAC -- a shared USB adapter (forum
-        // 18319). Its identity is not this host's, so none of it is written.
-        // A board swap that kept the service tag still updates the UUID; one
-        // that changed the system serial too waits for the next FOS
-        // inventory, which is the authority for the serials anyway.
-        $stored = [];
+        // A serial both sides know (system serial first), and that differs,
+        // means another machine booted with this host's MAC -- a shared USB
+        // adapter (forum 18319). Its identity is not this host's, so none of
+        // it is written. A board swap that kept the service tag still
+        // updates the UUID; one that changed the system serial too waits for
+        // the next FOS inventory, which is the authority for the serials.
+        $storedSerials = [];
         foreach (SmbiosIdentity::SERIALS as $field) {
-            $stored[$field] = $Inventory->get($field);
+            $storedSerials[$field] = $Inventory->get($field);
         }
-        $clash = SmbiosIdentity::contradicts($stored, $reported);
+        $clash = SmbiosIdentity::contradicts($storedSerials, $reported);
         if ($clash !== null) {
             error_log(
                 sprintf(
