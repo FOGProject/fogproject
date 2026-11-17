@@ -429,6 +429,31 @@ class StorageGroup extends StubModel
     {
         return new StorageNode(1);
     }
+    /**
+     * The node id getOverflowNode() answers with; null keeps the node.
+     *
+     * @var int|null
+     */
+    public static $overflowTo = null;
+    /**
+     * The node ids getOverflowNode() was asked about, in order.
+     *
+     * @var array
+     */
+    public static $overflowAsked = [];
+    /**
+     * The node to move an over-capacity deploy to.
+     *
+     * @param StorageNode $StorageNode the node the host would use
+     * @param int         $hostID      the host asking
+     *
+     * @return StorageNode|null
+     */
+    public function getOverflowNode($StorageNode, $hostID)
+    {
+        self::$overflowAsked[] = $StorageNode->get('id');
+        return self::$overflowTo ? new StorageNode(self::$overflowTo) : null;
+    }
 }
 
 /**
@@ -481,6 +506,14 @@ class MulticastSessionAssociation extends StubModel
 class StubHost extends StubModel
 {
     /**
+     * The host's task, built once. The real Host loads its task once and
+     * hands back the same object, so a write the boot menu makes to it is
+     * still there when a test reads it.
+     *
+     * @var StubTask|null
+     */
+    private $_task = null;
+    /**
      * Reads a field, materialising the nested objects IpxeBootMenu expects.
      *
      * @param string $key the field to read
@@ -499,7 +532,10 @@ class StubHost extends StubModel
                     ]
                 );
             case 'task':
-                return new StubTask((array)($this->data['task'] ?? []));
+                if (null === $this->_task) {
+                    $this->_task = new StubTask((array)($this->data['task'] ?? []));
+                }
+                return $this->_task;
             case 'inventory':
                 return new StubModel(
                     ['id' => 1, 'sysuuid' => $this->data['sysuuid'] ?? '']
@@ -587,6 +623,13 @@ class StubHookManager
             'scalars' => $scalars,
         ];
         foreach ((array)($this->mutate[$event] ?? []) as $key => $value) {
+            // A scenario is JSON, which cannot carry an object. A node is
+            // written as {"storagenode": <id>} and built here, so a test
+            // can stand in for a plugin that pins a node (the location
+            // plugin's fixed node).
+            if (is_array($value) && isset($value['storagenode'])) {
+                $value = new StorageNode($value['storagenode']);
+            }
             if (array_key_exists($key, $arguments)) {
                 $arguments[$key] = $value;
             }

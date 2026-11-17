@@ -242,6 +242,15 @@ if (!empty($scenario['noStorageNode'])) {
 }
 
 /*
+ * Further nodes in the group, and the one getOverflowNode() moves an
+ * over-capacity deploy to. Off unless a scenario names them.
+ */
+foreach ((array)($scenario['extraStorageNodes'] ?? []) as $node) {
+    Route::$rows['storagenode'][] = (object)$node;
+}
+\FOG\StorageGroup::$overflowTo = $scenario['overflowTo'] ?? null;
+
+/*
  * The host row Route::getItem('host', id) returns, which generateIpxeItems()
  * turns into `set ...` lines. Scenario-supplied extra columns land here too,
  * so a scenario can plant a secret field and assert it never reaches iPXE.
@@ -315,9 +324,17 @@ require_once $classFile;
  * because several paths end in exit().
  */
 register_shutdown_function(
-    function () {
+    function () use ($scenario) {
         if (\FOG\HostManager::$updates) {
             echo '#harness-writes ', json_encode(\FOG\HostManager::$updates), "\n";
+        }
+        // The node the task records, and the nodes the overflow check was
+        // asked about. Only a scenario that asks for them prints them.
+        if (!empty($scenario['printTaskNode'])) {
+            echo '#harness-task-node ',
+                FOGBase::$Host->get('task')->get('storagenodeID'), "\n";
+            echo '#harness-overflow-asked ',
+                json_encode(\FOG\StorageGroup::$overflowAsked), "\n";
         }
     }
 );

@@ -160,6 +160,27 @@ abstract class BootMenuBase extends FOGBase
                         'TaskType' => &$TaskType
                     ]
                 );
+                // The node chosen here is the node the client images from:
+                // it goes into `storage=` below, and FOS never asks again.
+                // So a unicast deploy whose node is over capacity moves now,
+                // to a free node in the same group (forums 18310). This runs
+                // after the second hook because a plugin, such as a location
+                // with a fixed node, sets the node again there. Captures and
+                // multicast stay on the master.
+                if ('getOptimalStorageNode' === $getter && $imagingTasks) {
+                    $Overflow = $StorageGroup->getOverflowNode(
+                        $StorageNode,
+                        self::$Host->get('id')
+                    );
+                    if ($Overflow) {
+                        $StorageNode = $Overflow;
+                    }
+                }
+                // The task records the node the client will actually use,
+                // so slot counts and the task list match the real load.
+                if ($Task->get('storagenodeID') != $StorageNode->get('id')) {
+                    $Task->set('storagenodeID', $StorageNode->get('id'))->save();
+                }
                 $osid = (int)$Image->get('osID');
                 $osfamily = $Image->getOSFamily();
                 $storage = '';

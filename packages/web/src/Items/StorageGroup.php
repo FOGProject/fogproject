@@ -457,6 +457,76 @@ class StorageGroup extends FOGController
         return $StorageNode;
     }
     /**
+     * Picks another node in this group when the given node is over capacity.
+     *
+     * Called at PXE boot, because that is where the client learns its node:
+     * the boot menu writes it into the kernel argument `storage=`, and FOS
+     * mounts that path without asking again. A node change made later, at
+     * check-in, reaches the task record but never the client (forums 18310).
+     *
+     * A node is over capacity when it holds more active tasks -- queued,
+     * checked in, or running -- than its maxClients. The count includes the
+     * host asking, because its task is already assigned to that node. Each
+     * host that moves away lowers the count, so a lab booting at once spreads
+     * out until the node is back at its limit, and the rest stay.
+     *
+     * A node is a candidate when it is enabled, online, has not recently
+     * failed this host, and has a free slot. The one with the most free
+     * slots wins.
+     *
+     * @param StorageNode $StorageNode the node the host would use
+     * @param int         $hostID      the host asking
+     *
+     * @return StorageNode|null the node to use instead, or null to keep it
+     */
+    public function getOverflowNode($StorageNode, $hostID)
+    {
+        $states = array_merge(
+            self::getQueuedStates(),
+            [self::getProgressState()]
+        );
+        $active = function ($Node) use ($states) {
+            return Route::getCount(
+                'task',
+                [
+                    'stateID' => $states,
+                    'storagenodeID' => $Node->get('id'),
+                    'typeID' => $Node->get('usedtasks')
+                ]
+            );
+        };
+        if ($active($StorageNode) <= $StorageNode->get('maxClients')) {
+            return null;
+        }
+        $current = (int)$StorageNode->get('id');
+        $best = null;
+        $bestOpen = 0;
+        foreach ((array)$this->get('enablednodes') as $nodeID) {
+            if ((int)$nodeID === $current) {
+                continue;
+            }
+            $Node = new StorageNode($nodeID);
+            if (!$Node->isValid()
+                || !$Node->get('isEnabled')
+                || $Node->get('maxClients') < 1
+            ) {
+                continue;
+            }
+            $open = $Node->get('maxClients') - $active($Node);
+            if ($open <= $bestOpen) {
+                continue;
+            }
+            // Probe last: it is a network round trip, and only a node that
+            // would win is worth one.
+            if (!$Node->get('online') || $Node->getNodeFailure($hostID)) {
+                continue;
+            }
+            $best = $Node;
+            $bestOpen = $open;
+        }
+        return $best;
+    }
+    /**
      * Adds nodes to this storage group
      *
      * @param array $addArray the nodes to add
