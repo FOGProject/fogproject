@@ -106,9 +106,14 @@ class FogFakePdo
         $columns = self::selectedColumns($sql);
         $rows = [];
         for ($n = 1; $n <= $this->rowCount; $n++) {
-            $rows[] = null !== $this->rowFactory
+            $row = null !== $this->rowFactory
                 ? call_user_func($this->rowFactory, $columns, $n)
                 : self::defaultRow($columns, $n);
+            // A factory returns null to answer this SELECT with no row,
+            // e.g. one table empty while another has rows.
+            if (null !== $row) {
+                $rows[] = $row;
+            }
         }
         return new FogFakeStatement($rows);
     }

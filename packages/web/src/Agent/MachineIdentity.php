@@ -96,7 +96,12 @@ class MachineIdentity extends FOGBase
                 }
             }
         }
-        $answer = self::choose($smbios, !empty($rows) && null === $smbios, array_values($macHosts));
+        // Firmware that names no host cannot vouch, but it can still refuse:
+        // a serial that contradicts the one MAC host's means a different
+        // machine carries that MAC (a shared USB adapter, forum 18319).
+        $macClash = null === $smbios && 1 === count($macHosts)
+            && null !== self::serialClash((int)reset($macHosts), $filter);
+        $answer = self::choose($smbios, !empty($rows) && null === $smbios, array_values($macHosts), $macClash);
         if ('resolved' === $answer['status']) {
             $host = new Host($answer['host_id']);
             if (!$host->isValid() || (!$allowPending && $host->get('pending'))) {
@@ -161,19 +166,49 @@ class MachineIdentity extends FOGBase
     }
 
     /**
+     * The serial on which a host's stored inventory contradicts what a
+     * machine reports, or null (SmbiosIdentity::contradicts()).
+     *
+     * A host with no inventory row has nothing to contradict.
+     *
+     * @param int   $hostID the host a MAC named
+     * @param array $ids    field => value the machine reported
+     *
+     * @return string|null
+     */
+    public static function serialClash($hostID, array $ids)
+    {
+        if ($hostID < 1 || empty($ids)) {
+            return null;
+        }
+        $Inventory = (new Host($hostID))->get('inventory');
+        if (!$Inventory || !$Inventory->isValid()) {
+            return null;
+        }
+        $stored = [];
+        foreach (SmbiosIdentity::SERIALS as $field) {
+            $stored[$field] = $Inventory->get($field);
+        }
+        return SmbiosIdentity::contradicts($stored, $ids);
+    }
+
+    /**
      * Combines the SMBIOS answer and the MAC answers into one host.
      *
      * @param int|null $smbios    the host SMBIOS names, or null
      * @param bool     $ambiguous whether SMBIOS matched several hosts
      * @param array    $macHosts  the host ids the MACs name
+     * @param bool     $macClash  whether the reported serial contradicts
+     *                            the MAC host's stored one (serialClash())
      *
      * @return array [status => resolved|unresolved|conflict, host_id => int]
      */
-    public static function choose($smbios, $ambiguous, array $macHosts)
+    public static function choose($smbios, $ambiguous, array $macHosts, $macClash = false)
     {
         $macHosts = array_values(array_unique(array_map('intval', $macHosts)));
         if ($ambiguous || count($macHosts) > 1
-            || ($smbios && $macHosts && (int)$smbios !== $macHosts[0])) {
+            || ($smbios && $macHosts && (int)$smbios !== $macHosts[0])
+            || (!$smbios && $macHosts && $macClash)) {
             return ['status' => 'conflict', 'host_id' => 0];
         }
         $id = (int)($smbios ?: ($macHosts[0] ?? 0));

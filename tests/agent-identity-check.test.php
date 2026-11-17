@@ -29,6 +29,7 @@ use FOG\Agent\Enrollment;
 use FOG\Agent\MachineIdentity as I;
 use FOG\Items\AgentEnrollment;
 use FOG\Items\Host;
+use FOG\Items\Inventory;
 
 /**
  * A full stored row for a model: every column present, so loading it is
@@ -76,6 +77,11 @@ $t->check('ambiguous firmware is not no firmware', 'conflict' === I::choose(null
 $t->check('NIC replacement with unique firmware', 2 === I::choose(2, false, [])['host_id']);
 $t->check('empty identifiers unresolved', 'unresolved' === I::choose(null, false, [])['status']);
 $t->check('Route getList stdClass candidate', 7 === I::candidateHostID((object)['hostID' => 7]));
+// A MAC alone cannot vouch for a machine whose serial contradicts the
+// MAC host's (a shared USB adapter on another laptop, forum 18319).
+$t->check('a MAC whose host the serial contradicts is a conflict', 'conflict' === I::choose(null, false, [2], true)['status']);
+$t->check('a MAC with no contradiction still resolves', 2 === I::choose(null, false, [2], false)['host_id']);
+$t->check('firmware that names the host outranks the clash flag', 2 === I::choose(2, false, [2], true)['host_id']);
 $t->check('array candidate', 7 === I::candidateHostID(['hostID' => 7]));
 $t->check('unknown candidate is not a host', 0 === I::candidateHostID((object)[]));
 
@@ -211,5 +217,59 @@ $t->check('a request without the feature is refused with 400',
     ['identity_request_invalid', 400] === identityRefuses(function () use ($principal) {
         I::check($principal, ['identity' => []]);
     }));
+
+// 5. serialClash() reads the MAC host's stored serials (forum 18319).
+// Host 9 is loaded with its inventory joined in, system serial STORED-9.
+$fake->responder = function ($sql, $params) {
+    if (false !== strpos($sql, 'FROM `hosts`') && 0 === stripos(ltrim($sql), 'SELECT')) {
+        return identityRow(Host::class, ['hostID' => 9, 'hostName' => 'other', 'hostPending' => 0])
+            + identityRow(Inventory::class, ['iID' => 4, 'iHostID' => 9, 'iSysserial' => 'STORED-9']);
+    }
+    return null;
+};
+$t->check('a different system serial clashes with the MAC host',
+    'sysserial' === I::serialClash(9, ['sysserial' => 'OTHER-LAPTOP']));
+$t->check('the host\'s own serial does not clash',
+    null === I::serialClash(9, ['sysserial' => 'stored-9']));
+$t->check('a placeholder serial does not clash',
+    null === I::serialClash(9, ['sysserial' => 'To Be Set By OEM']));
+$t->check('no reported identity does not clash', null === I::serialClash(9, []));
+// The full resolver: host 9's MAC, another machine's serial, no firmware
+// match. The inventory OR-lookup answers with NO row: a returned row that
+// scored nothing would read as "ambiguous" and refuse for that reason
+// instead, so this check could pass without the serial clash.
+$fake->pdo->rowFactory = function ($columns, $n) {
+    if (in_array('iHostID', $columns, true)) {
+        return null;
+    }
+    $row = FogFakePdo::defaultRow($columns, $n);
+    $row['hmHostID'] = 9;
+    $row['hmPending'] = 0;
+    return $row;
+};
+$fake->log = [];
+$t->check('resolve() refuses a MAC the serial contradicts',
+    'conflict' === I::resolve(['macs' => ['00:11:22:33:44:55'], 'system_serial' => 'OTHER-LAPTOP'])['status']);
+$t->check('resolve() still resolves the host\'s own machine by MAC',
+    ['status' => 'resolved', 'host_id' => 9] === I::resolve(['macs' => ['00:11:22:33:44:55'], 'system_serial' => 'STORED-9']));
+
+// 6. The legacy enrollment resolver, the path forum 18319 hit: a MAC-only
+// match the serial contradicts is a conflict, which the deploy window never
+// approves. The host's own machine is still a first binding.
+// getHostByMacAddresses() reads the MAC owner through getIds(), which asks
+// the fake PDODB for a list of id rows; the host load is section 5's.
+$hostResponder = $fake->responder;
+$fake->responder = function ($sql, $params) use ($hostResponder) {
+    if (false !== strpos($sql, 'SELECT `hmHostID` FROM `hostMAC`')) {
+        return [['hmHostID' => 9]];
+    }
+    return $hostResponder($sql, $params);
+};
+$legacy = new \ReflectionMethod(Enrollment::class, '_resolve');
+$legacy->setAccessible(true);
+$t->check('enrollment: a contradicted MAC match is a conflict',
+    [9, Enrollment::REASON_CONFLICT] === $legacy->invoke(null, ['system_serial' => 'OTHER-LAPTOP'], ['00:11:22:33:44:55']));
+$t->check('enrollment: the host\'s own machine is a first binding',
+    [9, Enrollment::REASON_KNOWN] === $legacy->invoke(null, ['system_serial' => 'STORED-9'], ['00:11:22:33:44:55']));
 
 $t->finish();

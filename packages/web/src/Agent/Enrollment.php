@@ -325,8 +325,8 @@ class Enrollment extends FOGBase
     private static function _resolve(array $identity, array $macs)
     {
         $smbiosID = null;
+        $ids = [];
         if ('off' !== FOGCore::getSetting('FOG_HOST_IDENTIFY_SMBIOS')) {
-            $ids = [];
             foreach (self::IDENTITY_MAP as $key => $field) {
                 $ids[$field] = SmbiosIdentity::canonicalize(
                     (string)($identity[$key] ?? '')
@@ -351,6 +351,15 @@ class Enrollment extends FOGBase
         }
         if ($smbiosID && $macID && (int)$smbiosID !== $macID) {
             return [(int)$smbiosID, self::REASON_CONFLICT];
+        }
+        // Only the MAC found the host, and the firmware says this is a
+        // different machine: a shared USB adapter moved to an unregistered
+        // laptop (forum 18319). Bound as a conflict, which the deploy
+        // window never approves; an admin still can, for a real board swap.
+        if (!$smbiosID
+            && null !== MachineIdentity::serialClash($hostID, SmbiosIdentity::usable($ids))
+        ) {
+            return [$hostID, self::REASON_CONFLICT];
         }
         $Host = new Host($hostID);
         if ('' !== (string)$Host->get('agentFingerprint')) {
