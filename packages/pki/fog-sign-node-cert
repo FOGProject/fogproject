@@ -93,7 +93,47 @@ san="${PKI_STAGING}/${reqid}.san"
 out="${PKI_STAGING}/${reqid}.pem"
 chainout="${PKI_STAGING}/${reqid}.chain"
 
-[[ -f $csr ]] || die "no request at ${csr}"
+# The web user owns PKI_STAGING, so it can put a symlink at any name there at
+# any moment. Root must never open a path in it by name for writing, and must
+# never read one in a way that follows a link: a link at the output name made
+# root overwrite and chmod 0644 the file it named, and a link at the name list
+# made "unrecognised name entry: <line>" print another file's lines back.
+#
+# So the work happens in a directory only root can reach, beside the staging
+# directory, on the same filesystem. Inputs are copied in without following a
+# link; outputs are written there and renamed into staging at the end. rename
+# replaces a link at the destination; it never writes through one.
+#
+# The parent must be writable by this user alone (root, outside the tests), or
+# the web user could swap the work directory itself.
+parent="${PKI_STAGING%/}"
+parent="${parent%/*}"
+[[ -n $parent && -d $parent && ! -L $parent ]] || die "the staging directory's parent is not a directory"
+[[ $(stat -c '%u' "$parent") == "$EUID" ]] && (( (8#$(stat -c '%a' "$parent") & 8#022) == 0 )) \
+    || die "${parent} must be owned by root and writable only by root -- run: chown root:root ${parent} && chmod go-w ${parent}"
+work=$(mktemp -d -p "$parent" .fog-sign-XXXXXXXX) || die "could not create a working directory in ${parent}"
+trap 'rm -rf "$work"' EXIT
+
+# take NAME: copy one staged request file into the work directory. nofollow
+# refuses a link; nonblock keeps a FIFO from hanging the helper; 64 KiB is far
+# more than any request or name list needs.
+take() {
+    [[ -f "${PKI_STAGING}/${reqid}.$1" ]] || return 1
+    dd if="${PKI_STAGING}/${reqid}.$1" of="${work}/in.$1" iflag=nofollow,nonblock \
+        bs=65536 count=1 status=none 2>/dev/null
+}
+
+take csr || die "no request at ${csr}"
+csrin="${work}/in.csr"
+leaf="${work}/leaf.pem"
+chain="${work}/chain.pem"
+
+# publish: move the finished pair into staging for the caller to read.
+publish() {
+    chmod 0644 "$leaf" "$chain" || die "could not set the certificate's permissions"
+    mv -f -T "$chain" "$chainout" && mv -f -T "$leaf" "$out" \
+        || die "could not move the certificate into ${PKI_STAGING}"
+}
 
 # The agent zone issues CLIENT certificates to fog-agent installs
 # (FOG\Agent\Enrollment stages the request). No names: the certificate
@@ -105,16 +145,14 @@ chainout="${PKI_STAGING}/${reqid}.chain"
 # certificates -- and clientAuth alone on the EKU means nothing issued here
 # can ever pose as a server.
 if [[ $type == agent ]]; then
-    hostfile="${PKI_STAGING}/${reqid}.agent"
-    [[ -f $hostfile ]] || die "no host id at ${hostfile}"
-    hostid=$(head -n1 "$hostfile" | tr -d '[:space:]')
+    take agent || die "no host id at ${PKI_STAGING}/${reqid}.agent"
+    hostid=$(head -n1 "${work}/in.agent" | tr -d '[:space:]')
     [[ $hostid =~ ^[0-9]{1,10}$ ]] || die "malformed host id"
     cacert="${PKI_AGENT_CA_CERT:-}"
     cakey="${PKI_AGENT_CA_KEY:-}"
     [[ -n $cacert && -f $cacert ]] || die "the agent CA is not present on this server -- re-run the FOG installer"
     [[ -n $cakey && -f $cakey ]] || die "the agent CA private key is not on this server (expected at ${cakey:-<unset>})"
-    tmpext=$(mktemp) || die "could not create a temporary file"
-    trap 'rm -f "$tmpext"' EXIT
+    tmpext="${work}/ext.cnf"
     {
         echo "[ v3_agent ]"
         echo "basicConstraints = critical,CA:FALSE"
@@ -123,32 +161,35 @@ if [[ $type == agent ]]; then
         echo "subjectKeyIdentifier = hash"
         echo "authorityKeyIdentifier = keyid"
     } > "$tmpext"
+    # Clear any earlier output, so a failure here never leaves an old
+    # certificate for the caller to collect. unlink removes a link, not its
+    # target, so this is safe in staging.
     rm -f "$out" "$chainout"
     serial=$(random_serial) || exit 1
     # One year. The agent renews over its own mTLS session well before then;
     # a shorter life bounds what a copied key is worth.
-    if ! sslerr=$(openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
+    if ! sslerr=$(openssl x509 -req -in "$csrin" -CA "$cacert" -CAkey "$cakey" \
             -set_serial "$serial" -sha256 -days 365 \
             -extensions v3_agent -extfile "$tmpext" \
             -subj "/CN=fog-agent host ${hostid}/O=FOG Project/OU=FOG Agent" \
-            -out "$out" 2>&1); then
+            -out "$leaf" 2>&1); then
         sign_failed "$sslerr"
     fi
     # What the agent presents beneath its leaf: the intermediate. The root
     # is what the server's vhost trusts and need not travel.
-    cat "$cacert" > "$chainout"
+    cat "$cacert" > "$chain"
     anchor="${PKI_ROOT_CERT:-}"
     [[ -n $anchor && -f $anchor ]] || anchor="$cacert"
-    if ! openssl verify -purpose sslclient -CAfile "$anchor" -untrusted "$cacert" "$out" >/dev/null 2>&1; then
-        rm -f "$out" "$chainout"
+    if ! openssl verify -purpose sslclient -CAfile "$anchor" -untrusted "$cacert" "$leaf" >/dev/null 2>&1; then
         die "the issued certificate does not verify against ${anchor}"
     fi
-    chmod 0644 "$out" "$chainout"
+    publish
     echo "OK"
     exit 0
 fi
 
-[[ -f $san ]] || die "no name list at ${san}"
+take san || die "no name list at ${san}"
+sanin="${work}/in.san"
 
 # anchor: what the issued certificate must verify against, and what the node is
 # handed so it can serve a usable chain. Per zone, because the two zones are not
@@ -201,29 +242,35 @@ fi
 # else is either a mistake or an attempt to smuggle openssl config syntax
 # through a value -- a line containing '[' or '=' would open a new section in
 # the extension file built below.
+#
+# A refusal names the line number, never the line. If the name list is a hard
+# link to a root-only file (possible where fs.protected_hardlinks is off),
+# printing the line would hand that file's contents to the web user.
 sanlist=""
 n_ip=0
 n_dns=0
+lineno=0
 while IFS= read -r line; do
+    lineno=$((lineno + 1))
     line="${line%$'\r'}"
     [[ -z $line ]] && continue
     case "$line" in
         IP:*)
-            [[ ${line#IP:} =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || die "invalid IP entry: ${line}"
+            [[ ${line#IP:} =~ ^[0-9]{1,3}(\.[0-9]{1,3}){3}$ ]] || die "invalid IP entry on line ${lineno} of the name list"
             n_ip=$((n_ip + 1))
             sanlist="${sanlist}${sanlist:+,}IP.${n_ip}:${line#IP:}"
             ;;
         DNS:*)
             [[ ${line#DNS:} =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?(\.[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?)*$ ]] \
-                || die "invalid DNS entry: ${line}"
+                || die "invalid DNS entry on line ${lineno} of the name list"
             n_dns=$((n_dns + 1))
             sanlist="${sanlist}${sanlist:+,}DNS.${n_dns}:${line#DNS:}"
             ;;
         *)
-            die "unrecognised name entry: ${line}"
+            die "unrecognized name entry on line ${lineno} of the name list"
             ;;
     esac
-done < "$san"
+done < "$sanin"
 [[ -n $sanlist ]] || die "no names to issue for"
 
 # A DNS name is always required, for the same reason the Secure Boot signing
@@ -232,8 +279,7 @@ done < "$san"
 # those constraints, and a node's CN is whatever the endpoint put there.
 [[ $n_dns -gt 0 ]] || die "at least one DNS name is required"
 
-tmpext=$(mktemp) || die "could not create a temporary file"
-trap 'rm -f "$tmpext"' EXIT
+tmpext="${work}/ext.cnf"
 {
     echo "[ v3_node ]"
     echo "basicConstraints = critical,CA:FALSE"
@@ -258,13 +304,14 @@ for e in "${entries[@]}"; do
     [[ $e == DNS.* ]] && { firstdns="${e#*:}"; break; }
 done
 
+# Clear any earlier output: see the agent path.
 rm -f "$out" "$chainout"
 serial=$(random_serial) || exit 1
-if ! sslerr=$(openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
+if ! sslerr=$(openssl x509 -req -in "$csrin" -CA "$cacert" -CAkey "$cakey" \
         -set_serial "$serial" -sha256 -days "$days" \
         -extensions v3_node -extfile "$tmpext" \
         -subj "/CN=${firstdns}/O=FOG Project/OU=FOG Web UI" \
-        -out "$out" 2>&1); then
+        -out "$leaf" 2>&1); then
     sign_failed "$sslerr"
 fi
 
@@ -275,10 +322,10 @@ fi
 # which is what an imported CA needs and what building it from PKI_ROOT_CERT got
 # wrong. Without a chain configured, fall back to the issuer plus the anchor.
 if [[ -n $chainsrc && -s $chainsrc ]]; then
-    cat "$chainsrc" > "$chainout"
+    cat "$chainsrc" > "$chain"
 else
-    cat "$cacert" > "$chainout"
-    [[ -n $anchor && -f $anchor ]] && cat "$anchor" >> "$chainout"
+    cat "$cacert" > "$chain"
+    [[ -n $anchor && -f $anchor ]] && cat "$anchor" >> "$chain"
 fi
 
 # Verify before handing it back. A certificate that does not chain is the
@@ -299,10 +346,9 @@ fi
 if [[ -z $anchor || ! -f $anchor ]]; then
     anchor="$cacert"
 fi
-if ! openssl verify -CAfile "$anchor" -untrusted "$cacert" "$out" >/dev/null 2>&1; then
-    rm -f "$out" "$chainout"
+if ! openssl verify -CAfile "$anchor" -untrusted "$cacert" "$leaf" >/dev/null 2>&1; then
     die "the issued certificate does not verify against ${anchor} -- a requested name is probably outside the CA's name constraints"
 fi
 
-chmod 0644 "$out" "$chainout"
+publish
 echo "OK"
