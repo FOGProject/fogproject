@@ -25,6 +25,10 @@
  *   6. Registration acts on the firmware only in enforce mode and only when
  *      the MAC found nothing; a known MAC is never overruled, and log mode
  *      never attaches.
+ *   7. A usable serial that differs on both sides means another machine
+ *      booted with this host's MAC (a shared USB adapter, forum 18319), so
+ *      boot records nothing. The system serial outranks the board serial,
+ *      so a board swap that keeps the service tag still updates the UUID.
  *
  * DB-free: SmbiosIdentity is pure by design so this file can drive it
  * with arrays. HostManager::resolveHostBySmbios() only adds the query and
@@ -193,6 +197,29 @@ foreach ([
     $t->check(
         "registration: $label",
         SmbiosIdentity::registrationAction($mode, $macID, $smbiosID) === $want
+    );
+}
+
+// 7. A differing serial both sides know means another machine booted with
+//    this host's MAC (a shared USB adapter, forum 18319). Boot must not
+//    record that machine's UUID onto the host.
+foreach ([
+    [['sysserial' => '7XPOC01'], ['sysserial' => '9ABCD02'], 'sysserial', 'differing system serial'],
+    [['mbserial' => '/7XPOC01/CN12/'], ['mbserial' => '/9ABCD02/CN34/'], 'mbserial', 'differing board serial'],
+    [['sysserial' => '7XPOC01'], ['sysserial' => ' 7xpoc01 '], null, 'same serial, other case and spacing'],
+    [['sysserial' => ''], ['sysserial' => '9ABCD02'], null, 'nothing stored: no contradiction'],
+    [['sysserial' => '7XPOC01'], ['sysserial' => ''], null, 'nothing reported: no contradiction'],
+    [['sysserial' => 'To Be Set By OEM'], ['sysserial' => '9ABCD02'], null, 'stored placeholder is not a serial'],
+    [['sysserial' => '7XPOC01'], ['sysserial' => '000000000'], null, 'reported placeholder is not a serial'],
+    [['sysserial' => '7XPOC01', 'mbserial' => '/7XPOC01/CN12/'], ['sysserial' => '7XPOC01', 'mbserial' => '/7XPOC01/CN99/'], null, 'board swap with a kept service tag still updates'],
+    [['sysserial' => '7XPOC01', 'mbserial' => '/7XPOC01/CN12/'], ['sysserial' => '9ABCD02', 'mbserial' => '/7XPOC01/CN12/'], 'sysserial', 'system serial outranks a matching board serial'],
+    [['sysserial' => 'To Be Set By OEM', 'mbserial' => '/7XPOC01/CN12/'], ['sysserial' => 'To Be Set By OEM', 'mbserial' => '/9ABCD02/CN34/'], 'mbserial', 'board serial decides when no system serial'],
+    [['sysuuid' => '01234567-89ab-cdef-0123-456789abcdef'], ['sysuuid' => '11234567-89ab-cdef-0123-456789abcdef'], null, 'a UUID alone never contradicts'],
+    [['caseasset' => 'A1'], ['caseasset' => 'B2'], null, 'an asset tag never contradicts'],
+] as [$stored, $reported, $want, $label]) {
+    $t->check(
+        "contradicts: $label",
+        SmbiosIdentity::contradicts($stored, $reported) === $want
     );
 }
 

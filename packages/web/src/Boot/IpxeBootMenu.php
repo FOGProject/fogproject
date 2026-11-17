@@ -2952,6 +2952,12 @@ class IpxeBootMenu extends BootMenuBase
      * byte-fidelity question #198 could not answer from a lab, and every
      * booting machine now answers it.
      *
+     * One exception comes first: when a serial both sides know differs
+     * (SmbiosIdentity::contradicts(), system serial first), the machine
+     * is not this host -- a USB adapter moved between laptops resolves by
+     * its MAC to the host it was last on (forum 18319). Nothing is written,
+     * neither the UUID nor a gap, and one line goes to the error log.
+     *
      * @return void
      */
     private static function _recordBootIdentifiers()
@@ -2998,6 +3004,36 @@ class IpxeBootMenu extends BootMenuBase
                 }
             }
             $New->save();
+            return;
+        }
+        // A system serial both sides know, and that differs, means another
+        // machine booted with this host's MAC -- a shared USB adapter (forum
+        // 18319). Its identity is not this host's, so none of it is written.
+        // A board swap that kept the service tag still updates the UUID; one
+        // that changed the system serial too waits for the next FOS
+        // inventory, which is the authority for the serials anyway.
+        $stored = [];
+        foreach (SmbiosIdentity::SERIALS as $field) {
+            $stored[$field] = $Inventory->get($field);
+        }
+        $clash = SmbiosIdentity::contradicts($stored, $reported);
+        if ($clash !== null) {
+            error_log(
+                sprintf(
+                    'FOG host identity: host "%s" (id %d) %s is "%s" in '
+                    . 'inventory but iPXE reports "%s"; another machine, '
+                    . 'nothing recorded',
+                    self::$Host->get('name'),
+                    $hostID,
+                    $clash,
+                    SmbiosIdentity::canonicalize($Inventory->get($clash)),
+                    // From an unauthenticated POST: only printable ASCII
+                    // reaches the log, as for every other value here.
+                    $textOk($reported[$clash])
+                        ? $reported[$clash]
+                        : '(not printable)'
+                )
+            );
             return;
         }
         if ($uuidOk

@@ -54,6 +54,16 @@ final class SmbiosIdentity
         'caseasset'
     ];
     /**
+     * The fields that say whether a booting machine is the stored host,
+     * in rank order (see contradicts()).
+     *
+     * @var array
+     */
+    const SERIALS = [
+        'sysserial',
+        'mbserial'
+    ];
+    /**
      * Values firmware ships when a field was never programmed. Compared
      * case-insensitively after canonicalization. Every entry here was seen
      * on real hardware -- most are from issue #198's thread -- and each
@@ -154,6 +164,47 @@ final class SmbiosIdentity
             }
         }
         return $filter;
+    }
+    /**
+     * The serial that shows a booting machine is not the stored host, or
+     * null. The highest-ranked serial both sides know decides alone.
+     *
+     * Boot records the firmware onto whichever host the boot resolved to.
+     * A USB Ethernet adapter moved between laptops (forum 18319) resolves
+     * by its MAC to the host it was last on, so a DIFFERENT machine reports
+     * there -- and its UUID used to replace that host's, because a changed
+     * UUID was read as a motherboard swap. A system serial that both
+     * sides know and that differs says the machine is not this host, so the
+     * caller writes nothing. The board serial says it only when one side
+     * has no usable system serial.
+     *
+     * Only the two serials decide, the system serial first. The UUID is
+     * the value in question, and the asset tag is set by people. A
+     * placeholder on either side is "the firmware did not say", never a
+     * contradiction.
+     *
+     * @param array $stored   field => value from the host's inventory
+     * @param array $reported field => value the booting machine sent
+     *
+     * @return string|null 'sysserial' or 'mbserial', or null
+     */
+    public static function contradicts(array $stored, array $reported)
+    {
+        $stored = self::usable($stored);
+        $reported = self::usable($reported);
+        // The system serial outranks the board serial: a board swap keeps
+        // the service tag (vendors re-program it onto the new board) but
+        // changes the board serial, and that is exactly the case the UUID
+        // replace exists for. The board serial decides only when one side
+        // has no usable system serial.
+        foreach (self::SERIALS as $field) {
+            if (isset($stored[$field], $reported[$field])) {
+                return strcasecmp($stored[$field], $reported[$field]) !== 0
+                    ? $field
+                    : null;
+            }
+        }
+        return null;
     }
     /**
      * What registration does with a firmware match (#198).
