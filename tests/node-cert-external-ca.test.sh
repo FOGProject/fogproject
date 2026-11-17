@@ -222,6 +222,48 @@ grep -q '^\[\[ \$EUID -eq 0 \]\]' "$HELPER" \
     && ok "F: the shipped helper refuses to run as non-root" \
     || bad "F: the shipped helper lost its root guard"
 
+# --- G. issuance writes nothing beside the CA --------------------------------
+# A web server whose service makes /etc read-only (systemd ProtectSystem) runs
+# the helper inside that sandbox, because sudo does not leave it. The helper
+# used -CAcreateserial, which writes a .srl counter beside the CA, and every
+# approval failed with "Read-only file system" (forum topic 18318). A CA
+# directory this user cannot write stands in for that here; as root the chmod
+# would not bind, so the case is skipped there rather than passing for nothing.
+if [[ $EUID -ne 0 ]]; then
+    writeconf \
+        "PKI_WEB_CA_CERT=$WORK/fog/int.pem" \
+        "PKI_WEB_CA_KEY=$WORK/fog/int.key" \
+        "PKI_ROOT_CERT=$WORK/fog/root.pem" \
+        "PKI_WEB_ANCHOR=$WORK/fog/root.pem" \
+        "PKI_WEB_CHAIN=$WORK/fog/chain.pem" \
+        "PKI_STAGING=$STAGE"
+    rm -f "$WORK/fog/"*.srl
+    chmod 0555 "$WORK/fog"
+    run_helper web
+    is "$HELPER_ST" "0" "G: issues with the CA directory read-only (output: ${HELPER_OUT})"
+    serial1="$(openssl x509 -in "$LEAF" -noout -serial 2>/dev/null)"
+    run_helper web
+    serial2="$(openssl x509 -in "$LEAF" -noout -serial 2>/dev/null)"
+    # The agent path, which is the one the forum report hit.
+    writeconf \
+        "PKI_AGENT_CA_CERT=$WORK/fog/int.pem" \
+        "PKI_AGENT_CA_KEY=$WORK/fog/int.key" \
+        "PKI_ROOT_CERT=$WORK/fog/root.pem" \
+        "PKI_STAGING=$STAGE"
+    printf '33\n' > "$STAGE/deadbeefcafe4000900000000000000f.agent"
+    run_helper agent
+    is "$HELPER_ST" "0" "G: issues an agent certificate with the CA directory read-only (output: ${HELPER_OUT})"
+    chmod 0755 "$WORK/fog"
+    [[ -n $serial1 && $serial1 != "$serial2" ]] \
+        && ok "G: each certificate gets its own serial" \
+        || bad "G: serials repeat or are missing ('$serial1' / '$serial2')"
+    compgen -G "$WORK/fog/*.srl" >/dev/null \
+        && bad "G: the helper wrote a serial file beside the CA" \
+        || ok "G: no serial file beside the CA"
+else
+    echo "  skip  G: running as root, so a read-only CA directory cannot be simulated"
+fi
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
 exit 0
