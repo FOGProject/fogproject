@@ -264,6 +264,46 @@ else
     echo "  skip  G: running as root, so a read-only CA directory cannot be simulated"
 fi
 
+# --- H. a link in staging is never followed ----------------------------------
+# The web user owns the staging directory, so it can put a symlink at any name
+# the root helper uses there. The helper read the name list through such a
+# link and printed the target's lines back in "unrecognised name entry". It
+# must refuse the link instead. (The output side, a link placed between the
+# helper's rm and its write, is a race this static test cannot stage; the
+# helper now writes elsewhere and renames into staging, which never follows.)
+writeconf \
+    "PKI_WEB_CA_CERT=$WORK/fog/int.pem" \
+    "PKI_WEB_CA_KEY=$WORK/fog/int.key" \
+    "PKI_ROOT_CERT=$WORK/fog/root.pem" \
+    "PKI_WEB_ANCHOR=$WORK/fog/root.pem" \
+    "PKI_WEB_CHAIN=$WORK/fog/chain.pem" \
+    "PKI_STAGING=$STAGE"
+run_helper web
+is "$HELPER_ST" "0" "H: a normal request still issues (output: ${HELPER_OUT})"
+[[ -f $LEAF && ! -L $LEAF ]] && ok "H: the leaf in staging is a plain file" \
+    || bad "H: the leaf in staging is missing or a link"
+# The link's target is a VALID name list, so a helper that follows the link
+# issues a certificate. Only refusing the link itself keeps this red-free.
+printf 'DNS:node1.test.local\n' > "$WORK/victim"
+hreq="deadbeefcafe4000900000000000000f"
+rm -f "$STAGE/${hreq}.san" "$STAGE/${hreq}.pem" "$STAGE/${hreq}.chain"
+ln -s "$WORK/victim" "$STAGE/${hreq}.san"
+HELPER_OUT="$("$WORK/helper.sh" web "$hreq" 2>&1)"
+HELPER_ST=$?
+[[ $HELPER_ST -ne 0 ]] && ok "H: a linked name list is refused" \
+    || bad "H: a linked name list was accepted (output: ${HELPER_OUT})"
+[[ ! -e $STAGE/${hreq}.pem ]] && ok "H: nothing is issued through the link" \
+    || bad "H: a certificate was issued through the link"
+rm -f "$STAGE/${hreq}.san"
+# A refusal names the line number, never the line: a hard link to a root-only
+# file is not stopped by nofollow, so its content must not reach the output.
+printf 'SECRET-LINE-FROM-ANOTHER-FILE\n' > "$STAGE/${hreq}.san"
+HELPER_OUT="$("$WORK/helper.sh" web "$hreq" 2>&1)"
+[[ $HELPER_OUT != *SECRET-LINE* && $HELPER_OUT == *"line 1"* ]] \
+    && ok "H: a refused name entry is named by line number only" \
+    || bad "H: the refusal printed the entry or no line number (output: ${HELPER_OUT})"
+rm -f "$STAGE/${hreq}.san"
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [[ $FAIL -eq 0 ]] || exit 1
 exit 0
