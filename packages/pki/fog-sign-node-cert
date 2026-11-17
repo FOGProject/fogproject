@@ -44,6 +44,19 @@ CONF="/opt/fog/.fog-pki"
 
 die() { echo "$*" >&2; exit 1; }
 
+# "signing failed" plus what openssl said, on one line. The bare phrase names
+# no cause: an unreadable CA key, a key that does not match its certificate and
+# a malformed request all printed the same thing, and the admin had nothing to
+# check (forum topic 18318). openssl's progress lines are dropped; its error
+# lines are kept, joined, because the caller shows this as a one-line toast.
+sign_failed() {
+    local detail
+    detail=$(printf '%s\n' "$1" \
+        | grep -v -e '^Certificate request self-signature ok' -e '^subject=' -e '^Signature ok' \
+        | tr -s '\n' ' ')
+    die "signing failed${detail:+: ${detail% }}"
+}
+
 [[ $EUID -eq 0 ]] || die "fog-sign-node-cert must run as root"
 [[ $# -eq 2 ]] || die "usage: fog-sign-node-cert <web|signing|agent> <request-id>"
 
@@ -100,12 +113,12 @@ if [[ $type == agent ]]; then
     rm -f "$out" "$chainout"
     # One year. The agent renews over its own mTLS session well before then;
     # a shorter life bounds what a copied key is worth.
-    if ! openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
+    if ! sslerr=$(openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
             -CAcreateserial -sha256 -days 365 \
             -extensions v3_agent -extfile "$tmpext" \
             -subj "/CN=fog-agent host ${hostid}/O=FOG Project/OU=FOG Agent" \
-            -out "$out" 2>/dev/null; then
-        die "signing failed"
+            -out "$out" 2>&1); then
+        sign_failed "$sslerr"
     fi
     # What the agent presents beneath its leaf: the intermediate. The root
     # is what the server's vhost trusts and need not travel.
@@ -232,12 +245,12 @@ for e in "${entries[@]}"; do
 done
 
 rm -f "$out" "$chainout"
-if ! openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
+if ! sslerr=$(openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
         -CAcreateserial -sha256 -days "$days" \
         -extensions v3_node -extfile "$tmpext" \
         -subj "/CN=${firstdns}/O=FOG Project/OU=FOG Web UI" \
-        -out "$out" 2>/dev/null; then
-    die "signing failed"
+        -out "$out" 2>&1); then
+    sign_failed "$sslerr"
 fi
 
 # The node needs the issuer to serve a usable chain, and the anchor to know
