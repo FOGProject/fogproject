@@ -267,7 +267,7 @@ fi
 # --- H. a link in staging is never followed ----------------------------------
 # The web user owns the staging directory, so it can put a symlink at any name
 # the root helper uses there. The helper read the name list through such a
-# link and printed the target's lines back in "unrecognised name entry". It
+# link and printed the target's lines back in its name-entry error. It
 # must refuse the link instead. (The output side, a link placed between the
 # helper's rm and its write, is a race this static test cannot stage; the
 # helper now writes elsewhere and renames into staging, which never follows.)

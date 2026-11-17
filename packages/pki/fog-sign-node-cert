@@ -267,7 +267,7 @@ while IFS= read -r line; do
             sanlist="${sanlist}${sanlist:+,}DNS.${n_dns}:${line#DNS:}"
             ;;
         *)
-            die "unrecognised name entry on line ${lineno} of the name list"
+            die "unrecognized name entry on line ${lineno} of the name list"
             ;;
     esac
 done < "$sanin"
