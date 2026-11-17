@@ -57,6 +57,19 @@ sign_failed() {
     die "signing failed${detail:+: ${detail% }}"
 }
 
+# A random 128-bit serial for each certificate, as a CA normally assigns
+# them. -CAcreateserial kept a counter in a .srl file beside the CA, and
+# writing it failed where the web server's service makes /etc read-only:
+# sudo runs this helper inside that same sandbox, so every approval failed
+# with "Read-only file system" on .fogAgentCA.srl (forum topic 18318).
+# Nothing reads the counter, so nothing needs to be written at all.
+random_serial() {
+    local hex
+    hex=$(openssl rand -hex 16) && [[ $hex =~ ^[0-9a-f]{32}$ ]] \
+        || die "could not generate a certificate serial number"
+    echo "0x${hex}"
+}
+
 [[ $EUID -eq 0 ]] || die "fog-sign-node-cert must run as root"
 [[ $# -eq 2 ]] || die "usage: fog-sign-node-cert <web|signing|agent> <request-id>"
 
@@ -111,10 +124,11 @@ if [[ $type == agent ]]; then
         echo "authorityKeyIdentifier = keyid"
     } > "$tmpext"
     rm -f "$out" "$chainout"
+    serial=$(random_serial) || exit 1
     # One year. The agent renews over its own mTLS session well before then;
     # a shorter life bounds what a copied key is worth.
     if ! sslerr=$(openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
-            -CAcreateserial -sha256 -days 365 \
+            -set_serial "$serial" -sha256 -days 365 \
             -extensions v3_agent -extfile "$tmpext" \
             -subj "/CN=fog-agent host ${hostid}/O=FOG Project/OU=FOG Agent" \
             -out "$out" 2>&1); then
@@ -245,8 +259,9 @@ for e in "${entries[@]}"; do
 done
 
 rm -f "$out" "$chainout"
+serial=$(random_serial) || exit 1
 if ! sslerr=$(openssl x509 -req -in "$csr" -CA "$cacert" -CAkey "$cakey" \
-        -CAcreateserial -sha256 -days "$days" \
+        -set_serial "$serial" -sha256 -days "$days" \
         -extensions v3_node -extfile "$tmpext" \
         -subj "/CN=${firstdns}/O=FOG Project/OU=FOG Web UI" \
         -out "$out" 2>&1); then
