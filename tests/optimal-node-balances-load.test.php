@@ -58,6 +58,24 @@ abstract class LoadController
     {
         return $this->data[$key] ?? null;
     }
+    /**
+     * The queued states, as TaskState answers them.
+     *
+     * @return array
+     */
+    public static function getQueuedStates()
+    {
+        return [0, 1, 2];
+    }
+    /**
+     * The in-progress state.
+     *
+     * @return int
+     */
+    public static function getProgressState()
+    {
+        return 3;
+    }
 }
 
 /**
@@ -97,6 +115,18 @@ class LoadRoute
     public static function getData()
     {
         return self::$_data;
+    }
+    /**
+     * Counts a node's active tasks: its `busy` value.
+     *
+     * @param string $class The route class.
+     * @param array  $find  The filter.
+     *
+     * @return int
+     */
+    public static function getCount($class, $find = [])
+    {
+        return LoadNodes::$all[$find['storagenodeID']]['busy'];
     }
     /**
      * Serializes one node the way the real getter does: no clientload.
@@ -157,13 +187,32 @@ class LoadStorageNode
         return isset(LoadNodes::$all[$this->_id]);
     }
     /**
-     * Reads the id, the only field the caller asks for.
+     * Reads a field from the test's table.
      *
-     * @return int
+     * @param string $key The field.
+     *
+     * @return mixed
      */
-    public function get()
+    public function get($key = 'id')
     {
-        return $this->_id;
+        $n = LoadNodes::$all[$this->_id];
+        $map = [
+            'id' => $this->_id,
+            'isEnabled' => $n['enabled'] ?? 1,
+            'maxClients' => $n['max'],
+            'online' => $n['online'] ?? true,
+            'usedtasks' => [1, 15, 17],
+        ];
+        return $map[$key] ?? null;
+    }
+    /**
+     * Whether this node failed the host recently.
+     *
+     * @return bool
+     */
+    public function getNodeFailure()
+    {
+        return LoadNodes::$all[$this->_id]['failed'] ?? false;
     }
 }
 
@@ -198,13 +247,13 @@ require_once dirname(__DIR__) . '/packages/web/src/Items/StorageGroup.php';
 LoadController::$HookManager = new LoadHookStub();
 
 /**
- * Runs getOptimalStorageNode() on a group of the given nodes.
+ * Builds the real StorageGroup over the given nodes.
  *
- * @param array $nodes id => [max, busy]
+ * @param array $nodes id => [max, busy, ...]
  *
- * @return int the chosen node id
+ * @return object
  */
-function pick(array $nodes)
+function group(array $nodes)
 {
     LoadNodes::$all = $nodes;
     $group = (new \ReflectionClass('FOG\\Items\\StorageGroup'))
@@ -220,7 +269,32 @@ function pick(array $nodes)
             'allnodes' => array_keys($nodes),
         ]
     );
-    return $group->getOptimalStorageNode()->get('id');
+    return $group;
+}
+
+/**
+ * Runs getOptimalStorageNode() on a group of the given nodes.
+ *
+ * @param array $nodes id => [max, busy]
+ *
+ * @return int the chosen node id
+ */
+function pick(array $nodes)
+{
+    return group($nodes)->getOptimalStorageNode()->get('id');
+}
+
+/**
+ * Runs getOverflowNode() for a host on node 1. `busy` is the active count.
+ *
+ * @param array $nodes id => [max, busy, enabled?, online?, failed?]
+ *
+ * @return int|null the node to move to, or null to stay
+ */
+function overflow(array $nodes)
+{
+    $got = group($nodes)->getOverflowNode(new LoadStorageNode(1), 7);
+    return $got ? $got->get('id') : null;
 }
 
 $results = [];
@@ -240,6 +314,61 @@ $got = pick([
     2 => ['max' => 10, 'busy' => 3],
 ]);
 $results[] = [2 === $got, 'the lower load ratio wins (got ' . $got . ')'];
+
+// getOverflowNode(): node 1 holds the host's own task, so its active count
+// includes the host.
+$idle = ['max' => 10, 'busy' => 0];
+
+// The forum report: 30 tasks on the master, two idle nodes.
+$got = overflow([1 => ['max' => 10, 'busy' => 30], 2 => $idle, 3 => $idle]);
+$results[] = [
+    2 === $got,
+    'an over-capacity node overflows to an idle node (got ' . var_export($got, true) . ')'
+];
+
+// At exactly maxClients the host fits, so it stays.
+$got = overflow([1 => ['max' => 10, 'busy' => 10], 2 => $idle]);
+$results[] = [
+    null === $got,
+    'a node at its limit keeps the host (got ' . var_export($got, true) . ')'
+];
+
+// One over the limit moves.
+$got = overflow([1 => ['max' => 10, 'busy' => 11], 2 => $idle]);
+$results[] = [
+    2 === $got,
+    'one task over the limit moves (got ' . var_export($got, true) . ')'
+];
+
+// The node with the most free slots wins; a full node is no candidate.
+$got = overflow([
+    1 => ['max' => 10, 'busy' => 20],
+    2 => ['max' => 10, 'busy' => 10],
+    3 => ['max' => 10, 'busy' => 5],
+]);
+$results[] = [
+    3 === $got,
+    'the node with the most free slots wins (got ' . var_export($got, true) . ')'
+];
+
+// Disabled, unreachable and recently failed nodes are skipped.
+$got = overflow([
+    1 => ['max' => 10, 'busy' => 20],
+    2 => $idle + ['enabled' => 0],
+    3 => $idle + ['online' => false],
+    4 => $idle + ['failed' => true],
+]);
+$results[] = [
+    null === $got,
+    'disabled, offline and failed nodes are skipped (got ' . var_export($got, true) . ')'
+];
+
+// A group of one node has nowhere to go.
+$got = overflow([1 => ['max' => 10, 'busy' => 30]]);
+$results[] = [
+    null === $got,
+    'a one-node group keeps the host (got ' . var_export($got, true) . ')'
+];
 
 // A tie keeps the first node, as before.
 $got = pick([
