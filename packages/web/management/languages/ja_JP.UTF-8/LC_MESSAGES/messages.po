@@ -244,6 +244,10 @@ msgid "%s is not a usable plugin name. Use lowercase letters, digits, - and _."
 msgstr "%s は使用できないプラグイン名です。小文字の英字、数字、-、_ を使用してください。"
 
 #, php-format
+msgid "%s is not a valid IP address or CIDR range."
+msgstr ""
+
+#, php-format
 msgid "%s is not inside a plugin directory."
 msgstr "%s はプラグインディレクトリ内にありません。"
 
@@ -947,6 +951,9 @@ msgstr "追加のアイコン要素"
 msgid "Address"
 msgstr "アドレス"
 
+msgid "Addresses or CIDR ranges, separated by commas, spaces or new lines. Leave empty for no restriction. Members can sign in to the web UI and use the API only from these networks. iPXE menu logins are not affected. Uses the connecting address. Behind a reverse proxy every request carries the proxy's address, so this cannot tell users apart there."
+msgstr ""
+
 msgid "Administrative actions"
 msgstr "管理操作"
 
@@ -1103,6 +1110,10 @@ msgid "Allow Computer Account Creation"
 msgstr "コンピューター情報"
 
 msgid "Allowed"
+msgstr "許可済み"
+
+#, fuzzy
+msgid "Allowed Networks"
 msgstr "許可済み"
 
 msgid "Allows editing/creating of Task States fog currently has."
@@ -9247,6 +9258,10 @@ msgstr "FOG エージェントは従来の FOG クライアントに代わるも
 msgid "The agent speaks a protocol this server does not."
 msgstr "このエージェントは、サーバーが対応していない通信プロトコルを使用しています。"
 
+#, fuzzy, php-format
+msgid "The allowed networks list is longer than %d characters."
+msgstr "報告されたソフトウェア一覧のサイズが、サーバーで受け入れ可能な上限を超えています。"
+
 #, fuzzy
 msgid "The approval could not be saved."
 msgstr "アーカイブを読み取れませんでした。"
@@ -9777,6 +9792,9 @@ msgstr "この操作は元に戻せません。"
 
 msgid "This change would leave no user with administrator access."
 msgstr "この変更を行うと、管理者権限を持つユーザーがいなくなります。"
+
+msgid "This change would lock you out: your current address is not in the allowed networks of a role you hold."
+msgstr ""
 
 msgid "This deletes the power management schedules held by the hosts that are in this group right now. It does NOT touch this group's grants, and it also removes schedules those hosts were given individually."
 msgstr "この操作では、現時点でこのグループに所属するホストが保持している電源管理スケジュールを削除します。グループの実行許可には影響しません。また、それらのホストに個別に設定されたスケジュールも削除されます。"
@@ -10967,6 +10985,12 @@ msgstr "FOG データベースのスキーマが最新ではありません"
 
 msgid "Your database connection appears to be invalid"
 msgstr "データベース接続が無効のようです"
+
+msgid "Your role does not allow API access from this network."
+msgstr ""
+
+msgid "Your role does not allow sign-in from this network."
+msgstr ""
 
 msgid "Your session has ended. Sign in again."
 msgstr "セッションが終了しました。再度サインインしてください。"
