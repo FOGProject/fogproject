@@ -211,8 +211,14 @@
                     if (data > 0) {
                         checkval = ' checked';
                     }
+                    // No name attribute, on purpose. Responsive measures
+                    // the grid by inserting a copy of it into the page.
+                    // A copy of a checked radio in the same named group
+                    // unchecks the real one, and the copy is then removed,
+                    // so the primary MAC showed as unselected (forums
+                    // 18310). onMacsRadioSelect() keeps one radio checked.
                     return '<div class="form-check">'
-                        + '<input belongsto="primaryMacs" type="radio" class="primary" name="primary" id="mac_'
+                        + '<input belongsto="primaryMacs" type="radio" class="primary" id="mac_'
                         + row.id
                         + '" value="'
                         + row.id
@@ -307,6 +313,9 @@
     var onMacsRadioSelect = function(event) {
         disableMacButtons(true);
         if($(this).attr('belongsto') === 'primaryMacs') {
+            // The radios share no name, so the browser does not clear
+            // the previous choice; clear it here.
+            $('#host-macaddresses-table input.primary').not(this).prop('checked', false);
             var id = parseInt($(this).val()),
                 method = macImageIgnoreBtn.attr('method'),
                 action = macImageIgnoreBtn.attr('action'),
