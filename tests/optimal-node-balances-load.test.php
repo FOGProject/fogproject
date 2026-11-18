@@ -265,7 +265,16 @@ function group(array $nodes)
         [
             'id' => 1,
             'name' => 'lab',
-            'enablednodes' => array_keys($nodes),
+            // As loadEnablednodes() builds it: no disabled node, and no node
+            // with Max Clients 0.
+            'enablednodes' => array_keys(
+                array_filter(
+                    $nodes,
+                    function ($n) {
+                        return ($n['enabled'] ?? 1) && $n['max'] >= 1;
+                    }
+                )
+            ),
             'allnodes' => array_keys($nodes),
         ]
     );
@@ -386,6 +395,14 @@ $results[] = [
     && false !== strpos($text, 'node id 3 did not answer on its SSH or web port')
     && false !== strpos($text, 'node id 4 failed this host recently'),
     'a host that must wait logs each node and why (got ' . trim($text) . ')'
+];
+
+// A node with Max Clients 0 is not in enablednodes, and is still named.
+overflow([1 => ['max' => 10, 'busy' => 12], 2 => ['max' => 0, 'busy' => 0]]);
+$text = takeLog();
+$results[] = [
+    false !== strpos($text, 'no node to take it: node id 2 is disabled or has Max Clients 0'),
+    'a node with Max Clients 0 is logged (got ' . trim($text) . ')'
 ];
 
 // A full node is named with its count.

@@ -509,7 +509,21 @@ class StorageGroup extends FOGController
         $bestOpen = 0;
         // Why each node was passed over. Logged only when none qualifies.
         $skipped = [];
-        foreach ((array)$this->get('enablednodes') as $nodeID) {
+        // loadEnablednodes() already drops a disabled node and one with Max
+        // Clients 0, so the loop below never sees them. Name them here, or
+        // the log would hide exactly the setting most likely to be wrong.
+        $enabled = array_map('intval', (array)$this->get('enablednodes'));
+        foreach ((array)$this->get('allnodes') as $nodeID) {
+            if ((int)$nodeID !== $current
+                && !in_array((int)$nodeID, $enabled, true)
+            ) {
+                $skipped[] = sprintf(
+                    'node id %d is disabled or has Max Clients 0',
+                    (int)$nodeID
+                );
+            }
+        }
+        foreach ($enabled as $nodeID) {
             if ((int)$nodeID === $current) {
                 continue;
             }
