@@ -282,8 +282,8 @@ $t->check(
 // a closing paren (if/while), or !, &&, ||, (bool) before it. A call followed
 // by ->isValid() is the correct form and is never flagged.
 $boolUses = [];
-$it = new RecursiveIteratorIterator(
-    new RecursiveDirectoryIterator(dirname(__DIR__) . '/packages', FilesystemIterator::SKIP_DOTS)
+$it = new \RecursiveIteratorIterator(
+    new \RecursiveDirectoryIterator(dirname(__DIR__) . '/packages', \FilesystemIterator::SKIP_DOTS)
 );
 foreach ($it as $file) {
     if ('php' !== $file->getExtension()) {
