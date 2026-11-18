@@ -177,7 +177,11 @@ class ProcessLogin extends FOGPage
                     return self::mainLoginForm();
                 }
                 self::$FOGUser = new User($userauth->userID);
-                if (self::$FOGUser->isLoggedIn() && self::$FOGUser->isValid()) {
+                // isLoggedIn() returns a User (see its docblock), so test its
+                // isValid(). Testing the return as a boolean accepted every
+                // account the cookie named, which made the API-only and role
+                // network refusals in _isLoggedIn() dead on this path.
+                if (self::$FOGUser->isLoggedIn()->isValid()) {
                     return;
                 }
                 // Unbind the account the cookie named. self::$FOGUser is

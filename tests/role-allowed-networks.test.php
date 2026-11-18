@@ -270,11 +270,41 @@ $plSrc = (string)file_get_contents($web . '/src/Pages/ProcessLogin.php');
 $t->check(
     'ProcessLogin unbinds a remember-me account isLoggedIn() refused',
     (bool)preg_match(
-        '/if \(self::\$FOGUser->isLoggedIn\(\) && self::\$FOGUser->isValid\(\)\) \{\s*'
+        '/if \(self::\$FOGUser->isLoggedIn\(\)->isValid\(\)\) \{\s*'
         . 'return;\s*\}(?:\s*\/\/[^\n]*)*\s*self::\$FOGUser = new User\(0\);\s*'
         . 'self::mainLoginForm\(\);/',
         $plSrc
     )
+);
+// isLoggedIn() returns an object, always truthy (see its docblock). The lab
+// run found the remember-me replay testing it as a boolean, which kept a
+// refused account signed in. Every PHP file under packages/ is scanned, with
+// comments stripped, so a future caller anywhere is caught: an operator
+// (&&, ||, ?, ==, !=), a closing paren (inside if/while), or a leading !.
+$boolUses = [];
+$it = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator(dirname(__DIR__) . '/packages', FilesystemIterator::SKIP_DOTS)
+);
+foreach ($it as $file) {
+    if ('php' !== $file->getExtension()) {
+        continue;
+    }
+    $code = '';
+    foreach (token_get_all((string)file_get_contents($file->getPathname())) as $tok) {
+        if (is_array($tok) && in_array($tok[0], [T_COMMENT, T_DOC_COMMENT], true)) {
+            continue;
+        }
+        $code .= is_array($tok) ? $tok[1] : $tok;
+    }
+    // (?<!\w): the private _isLoggedIn() returns a real bool and is not this.
+    if (preg_match('/!\s*[$\w:>-]*->isLoggedIn\(\)|(?<!\w)isLoggedIn\(\)\s*(?:&&|\|\||\?|[!=]=|\))/', $code)) {
+        $boolUses[] = $file->getPathname();
+    }
+}
+$t->check(
+    'no caller treats isLoggedIn()\'s object return as a boolean: '
+    . implode(', ', $boolUses),
+    !count($boolUses)
 );
 $t->check(
     'LoadGlobals tests the real account before impersonation binds a mask',
