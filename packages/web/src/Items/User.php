@@ -870,9 +870,12 @@ class User extends FOGController
         return true;
     }
     /**
-     * Returns if the user is logged in or not
+     * Returns this user if logged in, else an invalid User(0).
      *
-     * @return bool
+     * An OBJECT either way, so it is always truthy: test the result's
+     * isValid(), never the return itself.
+     *
+     * @return User
      */
     public function isLoggedIn()
     {

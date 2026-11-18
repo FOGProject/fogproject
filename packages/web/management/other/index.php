@@ -40,7 +40,8 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
 
-$isLoggedIn = self::$FOGUser->isLoggedIn() && self::$FOGUser->isValid();
+// isLoggedIn() returns a User, not a bool; see its docblock.
+$isLoggedIn = self::$FOGUser->isLoggedIn()->isValid();
 $ulang = htmlspecialchars($_SESSION['FOG_LANG'] ?? '', ENT_QUOTES, 'UTF-8');
 
 // Dark mode: Bootstrap 5 / AdminLTE 4 native theming keys off data-bs-theme on

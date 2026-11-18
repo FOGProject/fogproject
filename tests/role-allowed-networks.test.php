@@ -270,11 +270,44 @@ $plSrc = (string)file_get_contents($web . '/src/Pages/ProcessLogin.php');
 $t->check(
     'ProcessLogin unbinds a remember-me account isLoggedIn() refused',
     (bool)preg_match(
-        '/if \(self::\$FOGUser->isLoggedIn\(\) && self::\$FOGUser->isValid\(\)\) \{\s*'
+        '/if \(self::\$FOGUser->isLoggedIn\(\)->isValid\(\)\) \{\s*'
         . 'return;\s*\}(?:\s*\/\/[^\n]*)*\s*self::\$FOGUser = new User\(0\);\s*'
         . 'self::mainLoginForm\(\);/',
         $plSrc
     )
+);
+// Pins the class of bug: no caller tests isLoggedIn()'s object return as a
+// bool (see its docblock). Every PHP file under packages/ is scanned, with
+// comments stripped. Flagged: an operator after the call (&&, ||, ?, ==, !=),
+// a closing paren (if/while), or !, &&, ||, (bool) before it. A call followed
+// by ->isValid() is the correct form and is never flagged.
+$boolUses = [];
+$it = new \RecursiveIteratorIterator(
+    new \RecursiveDirectoryIterator(dirname(__DIR__) . '/packages', \FilesystemIterator::SKIP_DOTS)
+);
+foreach ($it as $file) {
+    if ('php' !== $file->getExtension()) {
+        continue;
+    }
+    $code = '';
+    foreach (token_get_all((string)file_get_contents($file->getPathname())) as $tok) {
+        if (is_array($tok) && in_array($tok[0], [T_COMMENT, T_DOC_COMMENT], true)) {
+            continue;
+        }
+        $code .= is_array($tok) ? $tok[1] : $tok;
+    }
+    // (?<!\w): the private _isLoggedIn() returns a real bool and is not this.
+    // (?!->): a chained call, ->isValid(), is the correct use.
+    $before = '/(?:!|&&|\|\||\(bool\))\s*[$\w:>-]*->isLoggedIn\(\)(?!->)/';
+    $after = '/(?<!\w)isLoggedIn\(\)\s*(?:&&|\|\||\?|[!=]=|\))/';
+    if (preg_match($before, $code) || preg_match($after, $code)) {
+        $boolUses[] = $file->getPathname();
+    }
+}
+$t->check(
+    'no caller treats isLoggedIn()\'s object return as a boolean: '
+    . implode(', ', $boolUses),
+    !count($boolUses)
 );
 $t->check(
     'LoadGlobals tests the real account before impersonation binds a mask',
