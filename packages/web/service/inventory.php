@@ -71,6 +71,7 @@ try {
         $clash = MachineIdentity::serialClash($macID, $posted);
         if (null !== $clash) {
             $otherID = (int)HostManager::resolveHostBySmbios($posted);
+            $moved = $otherID > 0 && $otherID !== $macID;
             error_log(
                 sprintf(
                     'FOG host identity (inventory, register): MAC resolved '
@@ -78,12 +79,12 @@ try {
                     FOGCore::$Host->get('name'),
                     $macID,
                     $clash,
-                    $otherID > 0 && $otherID !== $macID
+                    $moved
                         ? sprintf('stored on SMBIOS host id %d', $otherID)
                         : 'no SMBIOS host, nothing stored'
                 )
             );
-            if ($otherID < 1 || $otherID === $macID) {
+            if (!$moved) {
                 throw new \Exception(
                     _('This machine is not the host its MAC belongs to')
                 );

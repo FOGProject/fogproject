@@ -12399,9 +12399,10 @@ $this->schema[] = [
     . "a booting machine reports, next to its MAC address. Off: MAC only. "
     . "Log: the MAC decides and every disagreement is written to the web "
     . "server error log. Enforce: a unique firmware match wins over the MAC. "
-    . "Register: Enforce, and a machine whose serial contradicts the host its "
-    . "MAC belongs to (a USB adapter shared between laptops) boots as "
-    . "unregistered and registers as a new host. The new host gets a "
+    . "Register: Enforce, plus one rule. If the serial of a machine "
+    . "contradicts the host that owns its MAC, the machine boots as "
+    . "unregistered and registers as a new host. Example: a USB adapter "
+    . "shared between laptops. The new host gets a "
     . "generated MAC that starts with 02:. Run Log first and "
     . "read the log before choosing Enforce or Register.' "
     . "WHERE `settingKey` = 'FOG_HOST_IDENTIFY_SMBIOS'",

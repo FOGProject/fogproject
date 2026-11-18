@@ -302,9 +302,9 @@ final class SmbiosIdentity
     /**
      * The reported identifiers that are safe to store, field => value.
      *
-     * The same rules boot applies before it writes (Aisle 019): the values
-     * come from an unauthenticated request, so the UUID must be a UUID and
-     * every other field printable ASCII that fits the column.
+     * These are the rules that boot applies before it writes (Aisle 019).
+     * The values come from an unauthenticated request. The UUID must be a
+     * UUID. Every other field must be printable ASCII that fits the column.
      *
      * @param array $ids field => raw value, keyed by FIELDS
      *

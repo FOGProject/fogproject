@@ -244,7 +244,7 @@ class Registration extends FOGBase
      * contradicts the MAC host's (a shared USB adapter, forum 18319).
      * 'other' makes the host the firmware named self::$Host, so the
      * answer is "already registered" as that host. 'new' picks the MACs
-     * the new host registers with (_ownMacs()) and empties self::$Host,
+     * the new host registers with (_useSyntheticMac()) and empties self::$Host,
      * so nothing below can write to the MAC host.
      *
      * @param string $mode         the setting, lowercased
@@ -308,7 +308,7 @@ class Registration extends FOGBase
         }
         if ($action === 'new') {
             self::$Host = new Host();
-            $this->_ownMacs($smbios);
+            $this->_useSyntheticMac($smbios);
         }
         if ($action === 'attach') {
             Audit::record([
@@ -334,8 +334,8 @@ class Registration extends FOGBase
      * FOS names itself to the server by the host's stored MAC, so every
      * host needs a MAC of its own. The new host gets only
      * SmbiosIdentity::syntheticMac(). FOS never reports that MAC. So a
-     * request that carries the adapter MAC finds only the MAC host, and
-     * the firmware check then moves the request to the new host.
+     * request that carries the adapter MAC finds only the MAC host. The
+     * firmware check then moves the request to the new host.
      *
      * The reported MACs are not added, even a MAC that no host owns. The
      * inventory post after registration carries them all. If one of them
@@ -348,7 +348,7 @@ class Registration extends FOGBase
      *
      * @return void
      */
-    private function _ownMacs(array $smbios)
+    private function _useSyntheticMac(array $smbios)
     {
         $MAC = new MACAddress((string)SmbiosIdentity::syntheticMac($smbios));
         if (!$MAC->isValid() || $MAC->getHost()->isValid()) {
@@ -363,9 +363,10 @@ class Registration extends FOGBase
     /**
      * Store the firmware of a machine registered by register mode's 'new'.
      *
-     * Its MAC belongs to another host, so the firmware is the only way to
-     * find it: at the next boot, and when FOS posts the inventory with the
-     * adapter's MAC right after this registration (service/inventory.php).
+     * Its MAC belongs to another host. So only the firmware can find it.
+     * The next boot finds it by firmware. So does the inventory post that
+     * FOS sends with the adapter's MAC after registration
+     * (service/inventory.php).
      *
      * @return void
      */
