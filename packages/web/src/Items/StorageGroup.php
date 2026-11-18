@@ -474,6 +474,11 @@ class StorageGroup extends FOGController
      * failed this host, and has a free slot. The one with the most free
      * slots wins.
      *
+     * When no node qualifies, the host stays and waits in the queue. That
+     * used to leave no trace of why, so one report could not tell a full
+     * group from an unreachable node (forums 18310). It now writes one line
+     * to the web server's error log, naming each node passed over and why.
+     *
      * @param StorageNode $StorageNode the node the host would use
      * @param int         $hostID      the host asking
      *
@@ -495,13 +500,30 @@ class StorageGroup extends FOGController
                 ]
             );
         };
-        if ($active($StorageNode) <= $StorageNode->get('maxClients')) {
+        $busy = $active($StorageNode);
+        if ($busy <= $StorageNode->get('maxClients')) {
             return null;
         }
         $current = (int)$StorageNode->get('id');
         $best = null;
         $bestOpen = 0;
-        foreach ((array)$this->get('enablednodes') as $nodeID) {
+        // Why each node was passed over. Logged only when none qualifies.
+        $skipped = [];
+        // loadEnablednodes() already drops a disabled node and one with Max
+        // Clients 0, so the loop below never sees them. Name them here, or
+        // the log would hide exactly the setting most likely to be wrong.
+        $enabled = array_map('intval', (array)$this->get('enablednodes'));
+        foreach ((array)$this->get('allnodes') as $nodeID) {
+            if ((int)$nodeID !== $current
+                && !in_array((int)$nodeID, $enabled, true)
+            ) {
+                $skipped[] = sprintf(
+                    'node id %d is disabled or has Max Clients 0',
+                    (int)$nodeID
+                );
+            }
+        }
+        foreach ($enabled as $nodeID) {
             if ((int)$nodeID === $current) {
                 continue;
             }
@@ -510,19 +532,60 @@ class StorageGroup extends FOGController
                 || !$Node->get('isEnabled')
                 || $Node->get('maxClients') < 1
             ) {
+                $skipped[] = sprintf(
+                    'node id %d is disabled or has Max Clients 0',
+                    (int)$nodeID
+                );
                 continue;
             }
-            $open = $Node->get('maxClients') - $active($Node);
+            $nodeBusy = $active($Node);
+            $open = $Node->get('maxClients') - $nodeBusy;
             if ($open <= $bestOpen) {
+                // With no winner yet $bestOpen is 0, so this node is full.
+                $skipped[] = sprintf(
+                    'node id %d is full (%d tasks, Max Clients %d)',
+                    (int)$nodeID,
+                    $nodeBusy,
+                    $Node->get('maxClients')
+                );
                 continue;
             }
             // Probe last: it is a network round trip, and only a node that
             // would win is worth one.
-            if (!$Node->get('online') || $Node->getNodeFailure($hostID)) {
+            if (!$Node->get('online')) {
+                $skipped[] = sprintf(
+                    'node id %d did not answer on its SSH or web port',
+                    (int)$nodeID
+                );
+                continue;
+            }
+            if ($Node->getNodeFailure($hostID)) {
+                $skipped[] = sprintf(
+                    'node id %d failed this host recently',
+                    (int)$nodeID
+                );
                 continue;
             }
             $best = $Node;
             $bestOpen = $open;
+        }
+        if (!$best) {
+            // error_log, not self::error(), for the reason _fallbackNode()
+            // gives: boot.php must not depend on a logging setting.
+            error_log(
+                sprintf(
+                    'FOG storage node overflow: node id %d has %d tasks, over '
+                    . 'its Max Clients %d, so host id %d stays and waits. '
+                    . 'Group %s (id %d) has no node to take it: %s.',
+                    $current,
+                    $busy,
+                    $StorageNode->get('maxClients'),
+                    (int)$hostID,
+                    $this->get('name'),
+                    (int)$this->get('id'),
+                    $skipped ? implode('; ', $skipped) : 'no other enabled node'
+                )
+            );
         }
         return $best;
     }

@@ -265,7 +265,16 @@ function group(array $nodes)
         [
             'id' => 1,
             'name' => 'lab',
-            'enablednodes' => array_keys($nodes),
+            // As loadEnablednodes() builds it: no disabled node, and no node
+            // with Max Clients 0.
+            'enablednodes' => array_keys(
+                array_filter(
+                    $nodes,
+                    function ($n) {
+                        return ($n['enabled'] ?? 1) && $n['max'] >= 1;
+                    }
+                )
+            ),
             'allnodes' => array_keys($nodes),
         ]
     );
@@ -298,6 +307,22 @@ function overflow(array $nodes)
 }
 
 $results = [];
+
+// getOverflowNode() writes to the error log when a host must wait.
+$log = tempnam(sys_get_temp_dir(), 'overflow-log-');
+ini_set('error_log', $log);
+/**
+ * Returns what the error log gained since the last call, and clears it.
+ *
+ * @return string
+ */
+function takeLog()
+{
+    global $log;
+    $text = (string)file_get_contents($log);
+    file_put_contents($log, '');
+    return $text;
+}
 
 // The forum report: the master already holds a full queue, two other nodes
 // hold nothing. The next deploy must go to an idle node.
@@ -362,6 +387,31 @@ $results[] = [
     null === $got,
     'disabled, offline and failed nodes are skipped (got ' . var_export($got, true) . ')'
 ];
+$text = takeLog();
+$results[] = [
+    1 === substr_count($text, 'FOG storage node overflow:')
+    && false !== strpos($text, 'node id 1 has 20 tasks, over its Max Clients 10, so host id 7')
+    && false !== strpos($text, 'node id 2 is disabled or has Max Clients 0')
+    && false !== strpos($text, 'node id 3 did not answer on its SSH or web port')
+    && false !== strpos($text, 'node id 4 failed this host recently'),
+    'a host that must wait logs each node and why (got ' . trim($text) . ')'
+];
+
+// A node with Max Clients 0 is not in enablednodes, and is still named.
+overflow([1 => ['max' => 10, 'busy' => 12], 2 => ['max' => 0, 'busy' => 0]]);
+$text = takeLog();
+$results[] = [
+    false !== strpos($text, 'no node to take it: node id 2 is disabled or has Max Clients 0'),
+    'a node with Max Clients 0 is logged (got ' . trim($text) . ')'
+];
+
+// A full node is named with its count.
+overflow([1 => ['max' => 10, 'busy' => 12], 2 => ['max' => 10, 'busy' => 10]]);
+$text = takeLog();
+$results[] = [
+    false !== strpos($text, 'node id 2 is full (10 tasks, Max Clients 10)'),
+    'a full node is logged with its count (got ' . trim($text) . ')'
+];
 
 // A group of one node has nowhere to go.
 $got = overflow([1 => ['max' => 10, 'busy' => 30]]);
@@ -369,6 +419,17 @@ $results[] = [
     null === $got,
     'a one-node group keeps the host (got ' . var_export($got, true) . ')'
 ];
+$text = takeLog();
+$results[] = [
+    false !== strpos($text, 'no node to take it: no other enabled node'),
+    'a one-node group logs that it has no other node (got ' . trim($text) . ')'
+];
+
+// A host that moves, or fits, writes nothing.
+overflow([1 => ['max' => 10, 'busy' => 11], 2 => $idle]);
+overflow([1 => ['max' => 10, 'busy' => 10], 2 => $idle]);
+$text = takeLog();
+$results[] = ['' === $text, 'a host that moves or fits logs nothing (got ' . trim($text) . ')'];
 
 // A tie keeps the first node, as before.
 $got = pick([
@@ -376,6 +437,8 @@ $got = pick([
     2 => ['max' => 10, 'busy' => 0],
 ]);
 $results[] = [1 === $got, 'a tie keeps the first node (got ' . $got . ')'];
+
+unlink($log);
 
 $failed = 0;
 foreach ($results as [$ok, $what]) {
