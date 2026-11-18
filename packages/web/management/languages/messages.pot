@@ -6200,6 +6200,9 @@ msgstr ""
 msgid "No type information available for this column."
 msgstr ""
 
+msgid "No unique MAC address could be generated for this machine"
+msgstr ""
+
 msgid "No unrunnable tasks found."
 msgstr ""
 
@@ -7355,6 +7358,9 @@ msgid "Refused"
 msgstr ""
 
 msgid "Refused: the change to this retention window could not be recorded in the audit log, and shortening a window that cannot be recorded is exactly what the audit log is for"
+msgstr ""
+
+msgid "Register - enforce, and a machine on another host's MAC registers as new"
 msgstr ""
 
 msgid "Registered"
@@ -9859,6 +9865,9 @@ msgstr ""
 
 #, php-format
 msgid "This machine already registered as %s"
+msgstr ""
+
+msgid "This machine is not the host its MAC belongs to"
 msgstr ""
 
 msgid "This module has no settings to configure."

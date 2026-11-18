@@ -4848,7 +4848,8 @@ class FOGConfigurationPage extends FOGPage
                 $vals = [
                     _('Off - MAC address only') => 'off',
                     _('Log - MAC decides, log disagreements') => 'log',
-                    _('Enforce - firmware identity wins') => 'enforce'
+                    _('Enforce - firmware identity wins') => 'enforce',
+                    _('Register - enforce, and a machine on another host\'s MAC registers as new') => 'register'
                 ];
                 $input = self::_selectInput(
                     $row['settingID'],

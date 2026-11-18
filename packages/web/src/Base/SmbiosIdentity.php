@@ -64,6 +64,17 @@ final class SmbiosIdentity
         'mbserial'
     ];
     /**
+     * The FOG_HOST_IDENTIFY_SMBIOS values that read the firmware at all.
+     * Anything else, a missing setting included, is `off`.
+     *
+     * @var array
+     */
+    const MODES = [
+        'log',
+        'enforce',
+        'register'
+    ];
+    /**
      * Values firmware ships when a field was never programmed. Compared
      * case-insensitively after canonicalization. Every entry here was seen
      * on real hardware -- most are from issue #198's thread -- and each
@@ -207,13 +218,26 @@ final class SmbiosIdentity
         return null;
     }
     /**
+     * Whether a FOG_HOST_IDENTIFY_SMBIOS value lets a unique firmware match
+     * win over the MAC. `register` is `enforce` plus the shared-adapter
+     * rule in registrationAction(), so both answer yes.
+     *
+     * @param string $mode the setting, lowercased
+     *
+     * @return bool
+     */
+    public static function enforces($mode)
+    {
+        return in_array($mode, ['enforce', 'register'], true);
+    }
+    /**
      * What registration does with a firmware match (#198).
      *
      * Registration used to know only the MAC, so a machine whose NIC was
      * replaced came back as a brand-new host and its old record -- image,
      * groups, snapins, AD join -- became a leftover. Now the firmware is
      * asked as well. This decides what its answer is worth, on its own so
-     * the gating can be proven with three integers and no database:
+     * the gating can be proven with integers and no database:
      *
      *   'none'   nothing to say: the mode is off, the firmware found no
      *            host, or it found the same host the MAC found.
@@ -223,29 +247,119 @@ final class SmbiosIdentity
      *            overruled at registration, because "already registered as
      *            Y" is at worst an inconvenience while re-pointing Y's MACs
      *            is not.
-     *   'attach' enforce mode, the MAC found nothing, the firmware found
-     *            exactly one host: this machine IS that host with a new
-     *            NIC. Its MACs are added to the host and the registration
-     *            is answered "already registered", the same answer a known
-     *            MAC gets.
+     *   'attach' enforce or register mode. The MAC found nothing, and the
+     *            firmware found exactly one host. This machine IS that host
+     *            with a new NIC. Its MACs are added to the host. The
+     *            answer is "already registered", as for a known MAC.
      *
-     * @param string $mode     the FOG_HOST_IDENTIFY_SMBIOS value, lowercased
-     * @param int    $macID    host the MACs resolved to, 0 for none
-     * @param int    $smbiosID host the firmware resolved to, 0 for none
+     * Register mode adds two outcomes for a MAC that the machine does not
+     * own. Example: a USB adapter shared between laptops (forum 18319).
+     * They apply only when the MAC found a host and the reported serial
+     * contradicts the stored serial of that host (contradicts()):
      *
-     * @return string 'none', 'log' or 'attach'
+     *   'other'  the firmware found a different host. The machine is that
+     *            host. The answer is "already registered" as that host.
+     *            No MAC moves.
+     *   'new'    the firmware found nothing. The machine is new. It
+     *            registers as a new host. The new host does not get the
+     *            MACs of the MAC host.
+     *
+     * @param string $mode         the FOG_HOST_IDENTIFY_SMBIOS value,
+     *                             lowercased
+     * @param int    $macID        host the MACs resolved to, 0 for none
+     * @param int    $smbiosID     host the firmware resolved to, 0 for none
+     * @param bool   $contradicted the reported serial contradicts the MAC
+     *                             host's stored serial
+     *
+     * @return string 'none', 'log', 'attach', 'other' or 'new'
      */
-    public static function registrationAction($mode, $macID, $smbiosID)
-    {
+    public static function registrationAction(
+        $mode,
+        $macID,
+        $smbiosID,
+        $contradicted = false
+    ) {
         $macID = (int)$macID;
         $smbiosID = (int)$smbiosID;
-        if (!in_array($mode, ['log', 'enforce'], true) || $smbiosID < 1) {
+        if ($mode === 'register' && $macID > 0 && $contradicted) {
+            if ($smbiosID < 1) {
+                return 'new';
+            }
+            if ($smbiosID !== $macID) {
+                return 'other';
+            }
+        }
+        if (!in_array($mode, self::MODES, true)
+            || $smbiosID < 1
+        ) {
             return 'none';
         }
         if ($macID > 0) {
             return $macID === $smbiosID ? 'none' : 'log';
         }
-        return $mode === 'enforce' ? 'attach' : 'log';
+        return self::enforces($mode) ? 'attach' : 'log';
+    }
+    /**
+     * The reported identifiers that are safe to store, field => value.
+     *
+     * These are the rules that boot applies before it writes (Aisle 019).
+     * The values come from an unauthenticated request. The UUID must be a
+     * UUID. Every other field must be printable ASCII that fits the column.
+     *
+     * @param array $ids field => raw value, keyed by FIELDS
+     *
+     * @return array field => canonical value
+     */
+    public static function storable(array $ids)
+    {
+        $keep = [];
+        foreach (self::usable($ids) as $field => $value) {
+            $ok = $field === 'sysuuid'
+                ? preg_match(
+                    '/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-'
+                    . '[0-9A-F]{12}$/i',
+                    $value
+                )
+                : preg_match('/^[\x20-\x7E]{1,250}$/', $value);
+            if ($ok) {
+                $keep[$field] = $value;
+            }
+        }
+        return $keep;
+    }
+    /**
+     * A MAC address for a machine that has no NIC of its own, or null.
+     *
+     * For a whole task, FOS names itself to the server by the host's
+     * stored MAC (the kernel's mac= argument). The server finds the host by
+     * that MAC. A laptop that boots only through a shared USB adapter
+     * (forum 18319) has no MAC that another host does not already own.
+     * Register mode gives it this MAC. The MAC is locally administered
+     * (02:...), so no vendor ships it. The MAC comes from the firmware, so
+     * a machine that registers again gets the same value. The network
+     * never sees it. FOS sets the booting NIC to the MAC that iPXE booted
+     * with (setmacto).
+     *
+     * The asset tag is left out because people change it.
+     *
+     * @param array $ids field => raw value, keyed by FIELDS
+     *
+     * @return string|null
+     */
+    public static function syntheticMac(array $ids)
+    {
+        $usable = self::usable($ids);
+        $parts = [];
+        foreach (['sysuuid', 'sysserial', 'mbserial'] as $field) {
+            if (isset($usable[$field])) {
+                $parts[] = strtolower($usable[$field]);
+            }
+        }
+        if (!$parts) {
+            return null;
+        }
+        $hash = substr(md5(implode('|', $parts)), 0, 10);
+        return '02:' . implode(':', str_split($hash, 2));
     }
     /**
      * Pick the one host the reported identifiers point at, or nothing.

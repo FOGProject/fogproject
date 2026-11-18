@@ -34,7 +34,7 @@
  *  6. validatePw() hands passwordValidate() `false` and issues the
  *     remember-me credential only AFTER establishSession(), so a sign-in the
  *     gate refuses leaves no two-day credential behind.
- *  7. Schema step 461, FOG_SCHEMA 461 and the manifest column agree.
+ *  7. Schema step 461, FOG_SCHEMA (at least 461) and the manifest column agree.
  *
  * Usage: php tests/role-allowed-networks.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -399,8 +399,10 @@ $t->check(
     )
 );
 $t->check(
-    'FOG_SCHEMA is 461',
-    (bool)preg_match("/define\('FOG_SCHEMA', 461\)/", $sysSrc)
+    // At least 461: a later schema step raises FOG_SCHEMA and must not fail this.
+    'FOG_SCHEMA is at least 461',
+    (bool)preg_match("/define\('FOG_SCHEMA', (\d+)\)/", $sysSrc, $m)
+    && (int)$m[1] >= 461
 );
 $t->check(
     'the manifest carries the column, in the CREATE and in columns',

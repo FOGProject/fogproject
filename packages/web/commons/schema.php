@@ -12386,3 +12386,24 @@ $this->schema[] = [
     "ALTER TABLE `roles` "
     . "ADD COLUMN `rAllowedNetworks` varchar(2048) NOT NULL DEFAULT ''",
 ];
+// 462
+$this->schema[] = [
+    // FOG_HOST_IDENTIFY_SMBIOS gets the value `register` (forum 18319).
+    // It is enforce plus one rule. A machine can boot on the MAC of another
+    // host, for example through a USB adapter shared between laptops. If
+    // its serial contradicts the serial of that host, it boots as
+    // unregistered and registers as a new host with a MAC of its own.
+    // This step changes only the description. No stored value changes.
+    "UPDATE `globalSettings` SET `settingDesc` = 'How much to trust the "
+    . "SMBIOS identity (UUID, system serial, board serial, chassis asset tag) "
+    . "a booting machine reports, next to its MAC address. Off: MAC only. "
+    . "Log: the MAC decides and every disagreement is written to the web "
+    . "server error log. Enforce: a unique firmware match wins over the MAC. "
+    . "Register: Enforce, plus one rule. If the serial of a machine "
+    . "contradicts the host that owns its MAC, the machine boots as "
+    . "unregistered and registers as a new host. Example: a USB adapter "
+    . "shared between laptops. The new host gets a "
+    . "generated MAC that starts with 02:. Run Log first and "
+    . "read the log before choosing Enforce or Register.' "
+    . "WHERE `settingKey` = 'FOG_HOST_IDENTIFY_SMBIOS'",
+];

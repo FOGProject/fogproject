@@ -223,4 +223,49 @@ foreach ([
     );
 }
 
+// 8. Register mode (forum 18319): a machine whose serial contradicts the
+//    host its MAC belongs to is not that host. It is the host the firmware
+//    names, or a new one. Without a contradiction it is enforce.
+foreach ([
+    ['register', 3, 0, true, 'new', 'contradicted, firmware names nobody: new host'],
+    ['register', 3, 7, true, 'other', 'contradicted, firmware names another host: that host'],
+    ['register', 3, 0, false, 'none', 'no contradiction: the MAC host, as enforce'],
+    ['register', 3, 7, false, 'log', 'no contradiction: a known MAC is not overruled'],
+    ['register', 0, 7, false, 'attach', 'MAC unknown, firmware unique: attach, as enforce'],
+    ['register', 7, 7, true, 'none', 'firmware agrees with the MAC: the MAC host'],
+    ['enforce', 3, 0, true, 'none', 'enforce ignores the contradiction'],
+    ['log', 3, 0, true, 'none', 'log ignores the contradiction'],
+    ['off', 3, 0, true, 'none', 'off ignores the contradiction'],
+] as [$mode, $macID, $smbiosID, $clash, $want, $label]) {
+    $t->check(
+        "registration ($mode): $label",
+        SmbiosIdentity::registrationAction($mode, $macID, $smbiosID, $clash) === $want
+    );
+}
+$t->check('enforces: register', SmbiosIdentity::enforces('register'));
+$t->check('enforces: enforce', SmbiosIdentity::enforces('enforce'));
+$t->check('enforces: not log', !SmbiosIdentity::enforces('log'));
+
+// 9. The generated MAC: locally administered, from the firmware, stable.
+$laptop = ['sysuuid' => '4C4C4544-0042-3510-8051-B4C04F4B4D32', 'sysserial' => '4BQ5KM2'];
+$mac = SmbiosIdentity::syntheticMac($laptop);
+$t->check('syntheticMac: locally administered shape', (bool)preg_match('/^02(:[0-9a-f]{2}){5}$/', (string)$mac));
+$t->check('syntheticMac: same firmware, same MAC', $mac === SmbiosIdentity::syntheticMac(['sysserial' => ' 4bq5km2 '] + $laptop));
+$t->check('syntheticMac: other firmware, other MAC', $mac !== SmbiosIdentity::syntheticMac(['sysserial' => '7XPOC01'] + $laptop));
+$t->check('syntheticMac: the asset tag is not used', $mac === SmbiosIdentity::syntheticMac(['caseasset' => 'LAB-12'] + $laptop));
+$t->check('syntheticMac: no firmware, no MAC', null === SmbiosIdentity::syntheticMac(['sysserial' => 'To Be Set By OEM', 'caseasset' => 'LAB-12']));
+
+// 10. What registration may store from an unauthenticated request.
+$kept = SmbiosIdentity::storable([
+    'sysuuid' => 'not-a-uuid',
+    'sysserial' => '4BQ5KM2',
+    'mbserial' => "/4BQ5KM2/CN\x01/",
+    'caseasset' => 'None',
+]);
+$t->check('storable: a malformed UUID is dropped', !isset($kept['sysuuid']));
+$t->check('storable: a serial is kept', ($kept['sysserial'] ?? null) === '4BQ5KM2');
+$t->check('storable: a control character drops the field', !isset($kept['mbserial']));
+$t->check('storable: a placeholder is dropped', !isset($kept['caseasset']));
+$t->check('storable: a UUID is kept', isset(SmbiosIdentity::storable($laptop)['sysuuid']));
+
 $t->finish();
