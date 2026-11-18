@@ -13,6 +13,7 @@
 
 namespace FOG\Boot;
 
+use FOG\Agent\MachineIdentity;
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGBase;
@@ -20,6 +21,7 @@ use FOG\Base\SmbiosIdentity;
 use FOG\Items\Host;
 use FOG\Items\Image;
 use FOG\Items\Inventory;
+use FOG\Items\MACAddress;
 use FOG\Items\TaskType;
 use FOG\Items\User;
 use FOG\Managers\HostManager;
@@ -54,6 +56,14 @@ class Registration extends FOGBase
      * @var string
      */
     protected $macsimple;
+    /**
+     * The firmware fields of a machine that register mode registers as new
+     * on a MAC another host owns (SmbiosIdentity 'new'), or null.
+     * They are stored on the new host, so the firmware finds it from then on.
+     *
+     * @var array|null
+     */
+    private $_newMachine = null;
     /**
      * The host description if needed.
      *
@@ -123,6 +133,7 @@ class Registration extends FOGBase
             } else {
                 $this->_quickRegAuto();
             }
+            $this->_recordNewMachineFirmware();
         } catch (\Exception $e) {
             die($e->getMessage());
         }
@@ -145,7 +156,7 @@ class Registration extends FOGBase
         );
         $smbios = $this->_smbiosFromRequest();
         $smbiosID = 0;
-        if (in_array($mode, ['log', 'enforce'], true)
+        if (in_array($mode, SmbiosIdentity::MODES, true)
             && strlen(implode('', $smbios))
         ) {
             $smbiosID = (int)HostManager::resolveHostBySmbios($smbios);
@@ -156,20 +167,29 @@ class Registration extends FOGBase
                 (new HostManager())->getHostByMacAddresses($this->MACs);
             }
             if (self::$Host->isValid()) {
-                $this->_smbiosOutcome(
+                $macID = (int)self::$Host->get('id');
+                // Register mode only: does this machine contradict the
+                // MAC host's stored serial (a shared USB adapter)?
+                $contradicted = $mode === 'register'
+                    && null !== MachineIdentity::serialClash($macID, $smbios);
+                $action = $this->_smbiosOutcome(
                     $mode,
                     $smbios,
                     $smbiosID,
-                    (int)self::$Host->get('id')
+                    $macID,
+                    $contradicted
                 );
-                throw new \Exception(
-                    sprintf(
-                        _('This machine already registered as %s'),
-                        self::$Host->get('name')
-                    )
-                );
-            }
-            if ($this->_smbiosOutcome($mode, $smbios, $smbiosID, 0) === 'attach') {
+                // 'new': not the MAC host, so it registers like a machine
+                // the MAC never found.
+                if ($action !== 'new') {
+                    throw new \Exception(
+                        sprintf(
+                            _('This machine already registered as %s'),
+                            self::$Host->get('name')
+                        )
+                    );
+                }
+            } elseif ($this->_smbiosOutcome($mode, $smbios, $smbiosID, 0) === 'attach') {
                 throw new \Exception(
                     sprintf(
                         _('This machine already registered as %s'),
@@ -220,16 +240,36 @@ class Registration extends FOGBase
      * and left with a record. The MACs are known to belong to no host at
      * this point, or the MAC lookup would have found one.
      *
-     * @param string $mode     the setting, lowercased
-     * @param array  $smbios   the fields as sent
-     * @param int    $smbiosID host the firmware resolved to, 0 for none
-     * @param int    $macID    host the MACs resolved to, 0 for none
+     * Register mode adds two outcomes for a machine whose serial
+     * contradicts the MAC host's (a shared USB adapter, forum 18319).
+     * 'other' makes the host the firmware named self::$Host, so the
+     * answer is "already registered" as that host. 'new' picks the MACs
+     * the new host registers with (_ownMacs()) and empties self::$Host,
+     * so nothing below can write to the MAC host.
+     *
+     * @param string $mode         the setting, lowercased
+     * @param array  $smbios       the fields as sent
+     * @param int    $smbiosID     host the firmware resolved to, 0 for none
+     * @param int    $macID        host the MACs resolved to, 0 for none
+     * @param bool   $contradicted the serial contradicts the MAC host's
+     *
+     * @throws \Exception when 'new' cannot generate a unique MAC
      *
      * @return string the SmbiosIdentity::registrationAction() taken
      */
-    private function _smbiosOutcome($mode, array $smbios, $smbiosID, $macID)
-    {
-        $action = SmbiosIdentity::registrationAction($mode, $macID, $smbiosID);
+    private function _smbiosOutcome(
+        $mode,
+        array $smbios,
+        $smbiosID,
+        $macID,
+        $contradicted = false
+    ) {
+        $action = SmbiosIdentity::registrationAction(
+            $mode,
+            $macID,
+            $smbiosID,
+            $contradicted
+        );
         if ($action === 'none') {
             return $action;
         }
@@ -239,6 +279,13 @@ class Registration extends FOGBase
             $fields[] = "$k=$v";
         }
         $macs = array_merge([$this->PriMAC], (array)$this->MACs);
+        $outcomes = [
+            'attach' => 'MACs attached to it, registration answered as existing',
+            'other' => 'serial contradicts the MAC host; answered as the '
+                . 'SMBIOS host, MAC kept',
+            'new' => 'serial contradicts the MAC host; registering a new '
+                . 'host without its MACs'
+        ];
         error_log(
             sprintf(
                 'FOG host identity (registration, %s): MAC %s resolved %s; '
@@ -251,13 +298,18 @@ class Registration extends FOGBase
                 $SmbiosHost->get('name'),
                 $smbiosID,
                 implode(', ', $fields),
-                $action === 'attach'
-                    ? 'MACs attached to it, registration answered as existing'
-                    : ($macID
-                        ? 'MAC kept'
-                        : 'registering as a new host (log mode)')
+                $outcomes[$action] ?? ($macID
+                    ? 'MAC kept'
+                    : 'registering as a new host (log mode)')
             )
         );
+        if ($action === 'other') {
+            self::$Host = $SmbiosHost;
+        }
+        if ($action === 'new') {
+            self::$Host = new Host();
+            $this->_ownMacs($smbios);
+        }
         if ($action === 'attach') {
             Audit::record([
                 'type' => 'host.register',
@@ -275,6 +327,67 @@ class Registration extends FOGBase
             self::$Host = $SmbiosHost;
         }
         return $action;
+    }
+    /**
+     * Give a new machine on a shared adapter its one MAC.
+     *
+     * FOS names itself to the server by the host's stored MAC, so every
+     * host needs a MAC of its own. The new host gets only
+     * SmbiosIdentity::syntheticMac(). FOS never reports that MAC. So a
+     * request that carries the adapter MAC finds only the MAC host, and
+     * the firmware check then moves the request to the new host.
+     *
+     * The reported MACs are not added, even a MAC that no host owns. The
+     * inventory post after registration carries them all. If one of them
+     * were on the new host, that post would match two hosts and fail.
+     * A later boot through such a NIC finds the new host by firmware.
+     *
+     * @param array $smbios the fields as sent
+     *
+     * @throws \Exception when the generated MAC is not usable
+     *
+     * @return void
+     */
+    private function _ownMacs(array $smbios)
+    {
+        $MAC = new MACAddress((string)SmbiosIdentity::syntheticMac($smbios));
+        if (!$MAC->isValid() || $MAC->getHost()->isValid()) {
+            throw new \Exception(
+                _('No unique MAC address could be generated for this machine')
+            );
+        }
+        $this->PriMAC = (string)$MAC;
+        $this->MACs = [];
+        $this->_newMachine = $smbios;
+    }
+    /**
+     * Store the firmware of a machine registered by register mode's 'new'.
+     *
+     * Its MAC belongs to another host, so the firmware is the only way to
+     * find it: at the next boot, and when FOS posts the inventory with the
+     * adapter's MAC right after this registration (service/inventory.php).
+     *
+     * @return void
+     */
+    private function _recordNewMachineFirmware()
+    {
+        if (null === $this->_newMachine || !self::$Host->isValid()) {
+            return;
+        }
+        // Read the row from the table, not from self::$Host->get('inventory').
+        // The full registration saves its inventory row after it loads the
+        // host. So the host's copy has no row, and a second row would follow.
+        $hostID = (int)self::$Host->get('id');
+        $Inventory = (new Inventory())
+            ->set('hostID', $hostID)
+            ->load('hostID');
+        if (!$Inventory->isValid()) {
+            $Inventory = (new Inventory())->set('hostID', $hostID);
+        }
+        foreach (SmbiosIdentity::storable($this->_newMachine) as $k => $v) {
+            $Inventory->set($k, $v);
+        }
+        $Inventory->save();
     }
     /**
      * Perform the registration.

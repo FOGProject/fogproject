@@ -11,10 +11,13 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Agent\MachineIdentity;
 use FOG\Audit\Audit;
 use FOG\Base\FOGCore;
 use FOG\Base\SmbiosIdentity;
+use FOG\Items\Host;
 use FOG\Items\Inventory;
+use FOG\Managers\HostManager;
 
 /**
  * Inventory, stores the host inventory.
@@ -49,6 +52,44 @@ try {
     FOGCore::getHostItem(false);
     if (!FOGCore::$Host->isValid()) {
         throw new \Exception(_('Invalid Host'));
+    }
+    // Register mode (forum 18319). After a registration, FOS posts the
+    // inventory with the MAC of the NIC it booted through. The MAC of a
+    // shared USB adapter belongs to another host. If the reported serial
+    // contradicts the serial of that host, the firmware decides the host.
+    // If the firmware names no host, nothing is written. The inventory of
+    // one machine must not replace the inventory of another.
+    $smbiosMode = strtolower(
+        trim((string)FOGCore::getSetting('FOG_HOST_IDENTIFY_SMBIOS'))
+    );
+    if ($smbiosMode === 'register') {
+        $posted = [];
+        foreach (SmbiosIdentity::FIELDS as $field) {
+            $posted[$field] = (string)($_REQUEST[$field] ?? '');
+        }
+        $macID = (int)FOGCore::$Host->get('id');
+        $clash = MachineIdentity::serialClash($macID, $posted);
+        if (null !== $clash) {
+            $otherID = (int)HostManager::resolveHostBySmbios($posted);
+            error_log(
+                sprintf(
+                    'FOG host identity (inventory, register): MAC resolved '
+                    . '"%s" (id %d) but its %s contradicts the firmware; %s',
+                    FOGCore::$Host->get('name'),
+                    $macID,
+                    $clash,
+                    $otherID > 0 && $otherID !== $macID
+                        ? sprintf('stored on SMBIOS host id %d', $otherID)
+                        : 'no SMBIOS host, nothing stored'
+                )
+            );
+            if ($otherID < 1 || $otherID === $macID) {
+                throw new \Exception(
+                    _('This machine is not the host its MAC belongs to')
+                );
+            }
+            FOGCore::$Host = new Host($otherID);
+        }
     }
     // Before the fields are set, so the auditChange rows carry what moved.
     // On a re-inventory that is the whole point: a swapped disk, a changed

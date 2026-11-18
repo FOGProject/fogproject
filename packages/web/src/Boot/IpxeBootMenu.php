@@ -13,6 +13,7 @@
 
 namespace FOG\Boot;
 
+use FOG\Agent\MachineIdentity;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGBase;
 use FOG\Base\SmbiosIdentity;
@@ -2860,6 +2861,12 @@ class IpxeBootMenu extends BootMenuBase
      *  - `enforce` -- a unique SMBIOS match wins over the MAC. The override
      *                 is still logged, because a machine being re-identified
      *                 is something an administrator must be able to find.
+     *  - `register` -- `enforce`, plus one rule for a MAC that the machine
+     *                 does not own. Example: a USB adapter shared between
+     *                 laptops (forum 18319). The firmware finds no host. The
+     *                 MAC finds a host. The reported serial contradicts the
+     *                 stored serial of that host. Then the machine is not
+     *                 that host. It boots as unregistered and can register.
      *
      * A missing or unknown setting is `off`: an install whose schema has
      * not been updated yet must behave as it did before the row existed.
@@ -2890,7 +2897,7 @@ class IpxeBootMenu extends BootMenuBase
         $mode = strtolower(
             trim((string)self::getSetting('FOG_HOST_IDENTIFY_SMBIOS'))
         );
-        if (!in_array($mode, ['log', 'enforce'], true)) {
+        if (!in_array($mode, SmbiosIdentity::MODES, true)) {
             return;
         }
         if (!strlen(implode('', $smbios))) {
@@ -2899,6 +2906,27 @@ class IpxeBootMenu extends BootMenuBase
         $macHost = self::$Host;
         $macID = $macHost->isValid() ? (int)$macHost->get('id') : 0;
         $smbiosID = (int)HostManager::resolveHostBySmbios($smbios);
+        if ($mode === 'register' && $smbiosID < 1 && $macID > 0) {
+            // The firmware names no host. If the serial contradicts the
+            // serial of the MAC host, another machine uses that host's MAC.
+            // So the MAC's answer is dropped. The machine gets the
+            // unregistered menu and never runs the task of that host.
+            $clash = MachineIdentity::serialClash($macID, $smbios);
+            if ($clash !== null) {
+                error_log(
+                    sprintf(
+                        'FOG host identity (register): MAC resolved "%s" '
+                        . '(id %d) but its %s contradicts the firmware; '
+                        . 'booting as an unregistered machine',
+                        $macHost->get('name'),
+                        $macID,
+                        $clash
+                    )
+                );
+                self::$Host = new Host();
+            }
+            return;
+        }
         if ($smbiosID < 1 || $smbiosID === $macID) {
             return;
         }
@@ -2918,12 +2946,12 @@ class IpxeBootMenu extends BootMenuBase
                 $SmbiosHost->get('name'),
                 $smbiosID,
                 implode(', ', $fields),
-                $mode === 'enforce'
+                SmbiosIdentity::enforces($mode)
                     ? 'SMBIOS wins'
                     : 'MAC kept (log mode)'
             )
         );
-        if ($mode === 'enforce') {
+        if (SmbiosIdentity::enforces($mode)) {
             self::$Host = $SmbiosHost;
         }
     }
