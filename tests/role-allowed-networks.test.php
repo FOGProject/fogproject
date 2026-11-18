@@ -276,11 +276,11 @@ $t->check(
         $plSrc
     )
 );
-// isLoggedIn() returns an object, always truthy (see its docblock). The lab
-// run found the remember-me replay testing it as a boolean, which kept a
-// refused account signed in. Every PHP file under packages/ is scanned, with
-// comments stripped, so a future caller anywhere is caught: an operator
-// (&&, ||, ?, ==, !=), a closing paren (inside if/while), or a leading !.
+// Pins the class of bug: no caller tests isLoggedIn()'s object return as a
+// bool (see its docblock). Every PHP file under packages/ is scanned, with
+// comments stripped. Flagged: an operator after the call (&&, ||, ?, ==, !=),
+// a closing paren (if/while), or !, &&, ||, (bool) before it. A call followed
+// by ->isValid() is the correct form and is never flagged.
 $boolUses = [];
 $it = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator(dirname(__DIR__) . '/packages', FilesystemIterator::SKIP_DOTS)
@@ -297,7 +297,10 @@ foreach ($it as $file) {
         $code .= is_array($tok) ? $tok[1] : $tok;
     }
     // (?<!\w): the private _isLoggedIn() returns a real bool and is not this.
-    if (preg_match('/!\s*[$\w:>-]*->isLoggedIn\(\)|(?<!\w)isLoggedIn\(\)\s*(?:&&|\|\||\?|[!=]=|\))/', $code)) {
+    // (?!->): a chained call, ->isValid(), is the correct use.
+    $before = '/(?:!|&&|\|\||\(bool\))\s*[$\w:>-]*->isLoggedIn\(\)(?!->)/';
+    $after = '/(?<!\w)isLoggedIn\(\)\s*(?:&&|\|\||\?|[!=]=|\))/';
+    if (preg_match($before, $code) || preg_match($after, $code)) {
         $boolUses[] = $file->getPathname();
     }
 }
