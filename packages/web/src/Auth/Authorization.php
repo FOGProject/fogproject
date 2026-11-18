@@ -15,6 +15,7 @@ namespace FOG\Auth;
 
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
+use FOG\Items\User;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
 
@@ -3168,6 +3169,8 @@ class Authorization extends FOGBase
     public static function resetCache()
     {
         self::$_permCache = [];
+        // The allowed-networks union is per-request state of the same kind.
+        User::resetNetworkCache();
         self::$_registry = null;
         self::$_taskTypes = null;
     }

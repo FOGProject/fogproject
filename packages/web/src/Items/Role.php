@@ -39,6 +39,13 @@ use FOG\Router\Route;
 class Role extends FOGController
 {
     /**
+     * The longest allowed-networks list the column can hold. Must equal the
+     * width of roles.rAllowedNetworks, varchar(2048), set by schema step 461.
+     *
+     * @var int
+     */
+    const NETWORKS_MAX_LENGTH = 2048;
+    /**
      * The role table.
      *
      * @var string
@@ -54,7 +61,8 @@ class Role extends FOGController
         'name' => 'rName',
         'description' => 'rDesc',
         'createdBy' => 'rCreatedBy',
-        'createdTime' => 'rCreatedTime'
+        'createdTime' => 'rCreatedTime',
+        'allowednetworks' => 'rAllowedNetworks'
     ];
     /**
      * The required fields.
@@ -170,12 +178,112 @@ class Role extends FOGController
         );
     }
     /**
+     * Splits a stored or typed allowed-networks list into its entries.
+     *
+     * The one tokenizer for the list: normalizeNetworks() uses it to store
+     * the value and User::allowedNetworks() uses it to enforce it, so the
+     * two can never read the same text differently.
+     *
+     * @param mixed $value The list.
+     *
+     * @return array The non-empty entries, in order.
+     */
+    public static function splitNetworks($value)
+    {
+        return (array)preg_split(
+            '/[\s,]+/',
+            (string)$value,
+            -1,
+            PREG_SPLIT_NO_EMPTY
+        );
+    }
+    /**
+     * Validates and canonicalizes an allowed-networks list.
+     *
+     * Accepts entries separated by any mix of commas, spaces and newlines,
+     * and returns one entry per line with duplicates removed. An entry is a
+     * bare IPv4 or IPv6 address, or an address plus "/" plus a prefix length
+     * (0..32 for IPv4, 0..128 for IPv6). Empty input is the valid "no
+     * restriction" value and returns ''.
+     *
+     * Throws on the first bad entry rather than dropping it: a typo that is
+     * silently ignored would leave the role less restricted than its author
+     * believes. The message is not escaped here; the page layer escapes it.
+     *
+     * @param mixed $raw The list as typed or as sent to the API.
+     *
+     * @throws \InvalidArgumentException On an invalid entry or a list too long.
+     *
+     * @return string The canonical list, one entry per line.
+     */
+    public static function normalizeNetworks($raw)
+    {
+        $entries = self::splitNetworks($raw);
+        $clean = [];
+        foreach ($entries as $entry) {
+            $parts = explode('/', $entry, 2);
+            $bin = @inet_pton($parts[0]);
+            $valid = false !== $bin;
+            if ($valid && isset($parts[1])) {
+                $valid = 1 === preg_match('/^\d{1,3}$/', $parts[1])
+                    && (int)$parts[1] <= strlen($bin) * 8;
+            }
+            if (!$valid) {
+                throw new \InvalidArgumentException(
+                    sprintf(
+                        _('%s is not a valid IP address or CIDR range.'),
+                        $entry
+                    )
+                );
+            }
+            $clean[$entry] = $entry;
+        }
+        $list = implode("\n", array_values($clean));
+        if (strlen($list) > self::NETWORKS_MAX_LENGTH) {
+            throw new \InvalidArgumentException(
+                sprintf(
+                    _('The allowed networks list is longer than %d characters.'),
+                    self::NETWORKS_MAX_LENGTH
+                )
+            );
+        }
+        return $list;
+    }
+    /**
+     * Whether an address matches any entry of an allowed-networks list.
+     *
+     * Only the match. The "empty list means no restriction" rule belongs to
+     * User::networkAllows(), which knows the whole union of a user's roles.
+     *
+     * @param string $ip      The address to test.
+     * @param array  $entries Bare addresses and CIDR ranges.
+     *
+     * @return bool
+     */
+    public static function networkListAllows($ip, array $entries)
+    {
+        foreach ($entries as $entry) {
+            if (self::ipInCidr($ip, $entry)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
      * Stores/updates the role.
      *
      * @return object
      */
     public function save()
     {
+        // Validate and canonicalize before anything is written. Doing it
+        // here rather than on the page means the UI, PUT /fog/role/<id> and
+        // a plugin's own save() all hit the same check.
+        $this->set(
+            'allowednetworks',
+            self::normalizeNetworks($this->get('allowednetworks'))
+        );
+        $this->_assertNetworksKeepActingUser();
         // Propagate a failed write rather than reporting success; the
         // association work below has no row to attach to either. See
         // tests/save-propagates-failure.test.php.
@@ -187,6 +295,39 @@ class Role extends FOGController
             ->assocSetter('RoleUserGroup', 'usergroup')
             ->_syncPermissions()
             ->load();
+    }
+    /**
+     * Refuses a list that would lock the acting user out of this very request.
+     *
+     * Applies only when the acting user holds this role and the new list
+     * would refuse the address the change came from. Skipped when there is
+     * no acting user or no request address (CLI, installer, schema updater),
+     * and for a role that has no id yet, which nobody holds.
+     *
+     * @throws \Exception When the change would lock the acting user out.
+     *
+     * @return void
+     */
+    private function _assertNetworksKeepActingUser()
+    {
+        $roleID = (int)$this->get('id');
+        if ($roleID < 1 || !self::$FOGUser->isValid()) {
+            return;
+        }
+        $ip = User::requestAddress();
+        if ('' === $ip) {
+            return;
+        }
+        $allowed = self::$FOGUser->networkAllows(
+            $ip,
+            [$roleID => (string)$this->get('allowednetworks')]
+        );
+        if (!$allowed) {
+            throw new \Exception(
+                // One literal, so xgettext can extract it.
+                _('This change would lock you out: your current address is not in the allowed networks of a role you hold.')
+            );
+        }
     }
     /**
      * Load users assigned to this role.

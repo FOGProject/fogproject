@@ -107,6 +107,31 @@ class RoleManagement extends FOGPage
         ];
     }
     /**
+     * The Allowed Networks textarea and its help line.
+     *
+     * Shared by the create form and the edit tab so the two cannot drift.
+     * makeTextarea() escapes the value; the help text is escaped here.
+     *
+     * @param string $value The list to show, one entry per line.
+     *
+     * @return string
+     */
+    private static function _networksInput($value)
+    {
+        return self::makeTextarea(
+            'form-control roleallowednetworks-input',
+            'allowednetworks',
+            '10.0.0.0/24, 192.168.1.50',
+            'allowednetworks',
+            $value
+        )
+            . '<small class="form-text text-muted d-block">'
+            . \Initiator::e(
+                _('Addresses or CIDR ranges, separated by commas, spaces or new lines. Leave empty for no restriction. Members can sign in to the web UI and use the API only from these networks. iPXE menu logins are not affected. Uses the connecting address. Behind a reverse proxy every request carries the proxy\'s address, so this cannot tell users apart there.')
+            )
+            . '</small>';
+    }
+    /**
      * Builds the create-form fields (shared by add() and addModal()).
      *
      * @return array
@@ -115,6 +140,7 @@ class RoleManagement extends FOGPage
     {
         $role = filter_input(INPUT_POST, 'role');
         $description = filter_input(INPUT_POST, 'description');
+        $allowednetworks = filter_input(INPUT_POST, 'allowednetworks');
 
         $labelClass = 'col-sm-3 col-form-label';
 
@@ -142,7 +168,12 @@ class RoleManagement extends FOGPage
                 _('Role Description'),
                 'description',
                 $description
-            )
+            ),
+            self::makeLabel(
+                $labelClass,
+                'allowednetworks',
+                _('Allowed Networks')
+            ) => self::_networksInput($allowednetworks)
         ];
     }
     /**
@@ -192,6 +223,10 @@ class RoleManagement extends FOGPage
                 $description = trim(
                     (string)filter_input(INPUT_POST, 'description')
                 );
+                $allowednetworks = (string)filter_input(
+                    INPUT_POST,
+                    'allowednetworks'
+                );
                 $exists = (new RoleManager())
                     ->exists($role);
                 if ($exists) {
@@ -199,9 +234,11 @@ class RoleManagement extends FOGPage
                         _('A role already exists with this name!')
                     );
                 }
+                // Role::save() validates the list and throws on a bad entry.
                 $Role = (new Role())
                     ->set('name', $role)
-                    ->set('description', $description);
+                    ->set('description', $description)
+                    ->set('allowednetworks', $allowednetworks);
                 if (!$Role->save()) {
                     $serverFault = true;
                     throw new \Exception(_('Add role failed!'));
@@ -224,6 +261,10 @@ class RoleManagement extends FOGPage
         $description = (
             filter_input(INPUT_POST, 'description') ?:
             $this->obj->get('description')
+        );
+        $allowednetworks = (
+            filter_input(INPUT_POST, 'allowednetworks') ?:
+            $this->obj->get('allowednetworks')
         );
 
         $labelClass = 'col-sm-3 col-form-label';
@@ -252,7 +293,12 @@ class RoleManagement extends FOGPage
                 _('Role Description'),
                 'description',
                 $description
-            )
+            ),
+            self::makeLabel(
+                $labelClass,
+                'allowednetworks',
+                _('Allowed Networks')
+            ) => self::_networksInput($allowednetworks)
         ];
 
         $buttons = self::makeButton(
@@ -294,6 +340,10 @@ class RoleManagement extends FOGPage
         $description = trim(
             (string)filter_input(INPUT_POST, 'description')
         );
+        $allowednetworks = (string)filter_input(
+            INPUT_POST,
+            'allowednetworks'
+        );
 
         $exists = (new RoleManager())
             ->exists($role);
@@ -304,9 +354,11 @@ class RoleManagement extends FOGPage
                 _('A role with this name already exists!')
             );
         }
+        // Role::save() validates the list and throws on a bad entry.
         $this->obj
             ->set('name', $role)
-            ->set('description', $description);
+            ->set('description', $description)
+            ->set('allowednetworks', $allowednetworks);
     }
     /**
      * Displays the role permissions tab: an Administrator (full access)

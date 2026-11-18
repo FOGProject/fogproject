@@ -124,12 +124,17 @@ $t->check(
     'establishSession() refuses an API-only account',
     false !== strpos($esBody, '$this->isAPIOnly()')
 );
+// _isLoggedIn() and LoadGlobals share one test, sessionPermittedHere(), so
+// the API-only refusal is pinned in both halves: the gate returns false on
+// it, and the shared test refuses an API-only account.
+$spBody = $bodyOf($userSrc, 'public function sessionPermittedHere(');
 $t->check(
     '_isLoggedIn() refuses an API-only account',
     (bool)preg_match(
-        "/if \(\\\$this->isAPIOnly\(\)\) \{\s*return false;/s",
+        "/if \(!\\\$this->sessionPermittedHere\(\)\) \{\s*return false;/s",
         substr($liBody, 0, 2000)
     )
+    && (bool)preg_match("/return !\\\$this->isAPIOnly\(\)\s*&&/", $spBody)
 );
 
 // ---------------------------------------------------------------------------

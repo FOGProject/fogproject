@@ -1107,6 +1107,37 @@ class Route extends FOGBase
                  */
                 self::_testAuth();
             }
+            /**
+             * Role network restriction (#2107) for token and basic-auth
+             * clients, which have no session and so never reach the check
+             * in User::_isLoggedIn(). By here one of the three tests above
+             * has bound the acting user or ended the request. REMOTE_ADDR
+             * only; see User::requestAddress().
+             */
+            if (self::$FOGUser->isValid()
+                && !self::$FOGUser->networkAllows(User::requestAddress())
+            ) {
+                Audit::record(
+                    [
+                        'type' => Audit::API_DENIED,
+                        'outcome' => Audit::DENIED,
+                        'subjectType' => 'user',
+                        'subjectID' => (int)self::$FOGUser->get('id'),
+                        'subjectLabel' => (string)self::$FOGUser->get('name'),
+                        'createdBy' => (string)self::$FOGUser->get('name'),
+                        'authSource' => 'network',
+                        'renderable' => 1
+                    ]
+                );
+                self::sendResponse(
+                    HTTPResponseCodes::HTTP_FORBIDDEN,
+                    json_encode(
+                        [
+                            'error' => _('Your role does not allow API access from this network.')
+                        ]
+                    )
+                );
+            }
         }
         /**
          * A valid session cookie authenticates API calls with no token,

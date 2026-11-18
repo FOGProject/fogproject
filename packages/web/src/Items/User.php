@@ -220,21 +220,23 @@ class User extends FOGController
      *
      * An API-only account is a service account: it may hold API tokens and
      * act with its roles over REST, and no browser session may ever be made
-     * for it. Three separate places enforce that, because FOG has three
-     * separate ways a session comes into existence and no single one of
-     * them sits downstream of the other two:
+     * for it. Four separate places enforce that, because FOG has several
+     * separate ways a session comes into existence or is reused, and no
+     * single one of them sits downstream of the others:
      *
      *   - passwordValidate(), which is where the local password and the
-     *     iPXE menu login both land, and which is the ONLY one of the three
+     *     iPXE menu login both land, and which is the ONLY one of these
      *     that runs before the remember-me cookie is minted;
      *   - establishSession(), where a provider that proves an identity by
      *     itself (OIDC today) hands over;
-     *   - _isLoggedIn(), which every browser request passes through, and
-     *     which is the only thing that catches a remember-me cookie issued
-     *     before the flag was set.
+     *   - _isLoggedIn(), which the remember-me replay in ProcessLogin acts
+     *     on, and which catches a cookie issued before the flag was set;
+     *   - LoadGlobals, which drops an existing session on its next request.
+     *     _isLoggedIn() alone did not: most of its callers ignore its
+     *     return, so an account marked while signed in kept its session.
      *
      * Reads the column rather than caching the answer: the flag can be set
-     * while the account is signed in, and the point of the third check is
+     * while the account is signed in, and the point of the last check is
      * that the very next request stops.
      *
      * @return bool
@@ -242,6 +244,165 @@ class User extends FOGController
     public function isAPIOnly()
     {
         return '1' === (string)$this->get('apionly');
+    }
+    /**
+     * The per-request cache of allowedNetworks(), keyed by user id.
+     *
+     * @var array
+     */
+    private static $_networkCache = [];
+    /**
+     * Forget the cached allowed networks (after a role write).
+     *
+     * @return void
+     */
+    public static function resetNetworkCache()
+    {
+        self::$_networkCache = [];
+    }
+    /**
+     * The address the current request came from.
+     *
+     * REMOTE_ADDR and nothing else. X-Forwarded-For is written by the
+     * caller, so trusting it would let anyone name an allowed address for
+     * themselves (the same rule FOGClient applies). Behind a reverse proxy
+     * every request carries the proxy's address, which is why the help text
+     * on the field says so. Falls back to $_SERVER because filter_input()
+     * returns null under the CLI.
+     *
+     * @return string The address, or '' when there is none (CLI).
+     */
+    public static function requestAddress()
+    {
+        $ip = filter_input(INPUT_SERVER, 'REMOTE_ADDR');
+        if (!$ip) {
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        }
+        return trim((string)$ip);
+    }
+    /**
+     * The networks this user may sign in and use the API from.
+     *
+     * The union of the lists of EVERY role the user holds, directly
+     * (roleUserAssoc) or through a user group (userGroupMembers +
+     * roleUserGroupAssoc), counting only roles whose list is not empty. An
+     * empty result means the user is unrestricted. A role with no list does
+     * not open the gate: otherwise holding any harmless role would bypass
+     * the restriction a stricter role sets.
+     *
+     * This is a gate on browser sessions and the REST API only, never a
+     * filter on permissions. The iPXE menu checks permissions
+     * (IpxeBootMenu), so filtering them by address would break the case the
+     * feature exists for: the same user starting a task from the boot menu
+     * from any address.
+     *
+     * @param array $overrides Role id => normalized list, replacing that
+     *                         role's stored value. Only the self-lockout
+     *                         guard in Role::save() uses this, to ask "what
+     *                         if the role said this"; such a call is not
+     *                         cached.
+     *
+     * @return array The entries, one address or CIDR each.
+     */
+    public function allowedNetworks(array $overrides = [])
+    {
+        $userID = (int)$this->get('id');
+        if ($userID < 1) {
+            return [];
+        }
+        if (!count($overrides) && isset(self::$_networkCache[$userID])) {
+            return self::$_networkCache[$userID];
+        }
+        $sql = 'SELECT `rID`, `rAllowedNetworks` '
+            . 'FROM `roles` '
+            . 'JOIN `roleUserAssoc` ON `ruaRoleID` = `rID` '
+            . 'WHERE `ruaUserID` = :userid '
+            . 'UNION '
+            . 'SELECT `rID`, `rAllowedNetworks` '
+            . 'FROM `roles` '
+            . 'JOIN `roleUserGroupAssoc` ON `rugRoleID` = `rID` '
+            . 'JOIN `userGroupMembers` ON `ugmGroupID` = `rugGroupID` '
+            . 'WHERE `ugmUserID` = :usergroupid';
+        $rows = self::$DB
+            ->query(
+                $sql,
+                [],
+                ['userid' => $userID, 'usergroupid' => $userID]
+            )
+            ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
+            ->get();
+        $entries = [];
+        foreach ((array)$rows as $row) {
+            $value = (string)($row['rAllowedNetworks'] ?? '');
+            $rid = (int)($row['rID'] ?? 0);
+            if (array_key_exists($rid, $overrides)) {
+                $value = (string)$overrides[$rid];
+            }
+            $parts = Role::splitNetworks($value);
+            $entries = array_merge($entries, $parts);
+        }
+        $entries = array_values(array_unique($entries));
+        if (!count($overrides)) {
+            self::$_networkCache[$userID] = $entries;
+        }
+        return $entries;
+    }
+    /**
+     * Whether this account may hold a browser session on this request.
+     *
+     * The one test both session gates run: LoadGlobals for an existing
+     * session and _isLoggedIn() for a remember-me replay. One method so the
+     * two can never disagree. False for an API-only account, and for an
+     * account whose roles restrict it to networks this request is not from.
+     *
+     * @return bool
+     */
+    public function sessionPermittedHere()
+    {
+        return !$this->isAPIOnly()
+            && $this->networkAllows(self::requestAddress());
+    }
+    /**
+     * Whether this user may use the web UI and the API from an address.
+     *
+     * No list means unrestricted. An empty address with a list in force is
+     * refused, the same as FOGBase::hostKeySourceAllowed().
+     *
+     * Loopback gets NO exception. A reverse proxy on the FOG server itself
+     * makes every request arrive from 127.0.0.1, so an always-allowed
+     * loopback would let everyone through from anywhere, and nothing would
+     * say so. A role that must allow the server itself lists 127.0.0.1.
+     * Recovery from a lockout is another unrestricted administrator, or
+     * clearing roles.rAllowedNetworks in the database; Role::save() refuses
+     * the edit that would lock out the person making it.
+     *
+     * The gates are exactly four, and each guards a different way in:
+     * establishSession() (a new sign-in, whichever provider vouched for it),
+     * LoadGlobals (an existing session, on every request: a session that
+     * moved address, a role edited while signed in, a replayed cookie),
+     * _isLoggedIn() (the remember-me replay in ProcessLogin, which acts on
+     * its return) and Route for token and basic-auth API clients, which
+     * never have a session. passwordValidate() and
+     * authenticate() get NO check, deliberately: the iPXE menu and
+     * service/checkcredentials.php (FOS) share them, and both must keep
+     * working from any address.
+     *
+     * @param string $ip        The address to test.
+     * @param array  $overrides See allowedNetworks().
+     *
+     * @return bool
+     */
+    public function networkAllows($ip, array $overrides = [])
+    {
+        $list = $this->allowedNetworks($overrides);
+        if (!count($list)) {
+            return true;
+        }
+        $ip = trim((string)$ip);
+        if ('' === $ip) {
+            return false;
+        }
+        return Role::networkListAllows($ip, $list);
     }
     public function passwordValidate(
         $username,
@@ -361,39 +522,54 @@ class User extends FOGController
             ->set('type', $type);
         unset($tmpUser);
         if ($remember && $passValid) {
-            // Remember-me is per-user, carried by the foguserauth* cookies
-            // and UserAuth token below. It must NOT touch the shared
-            // FOG_ALWAYS_LOGGED_IN setting -- doing so disabled the
-            // inactivity timeout for every user, install-wide.
-            // Setup Cookie stuff.
-            $current_time = self::nicedate()->getTimestamp();
-            $cookieexp = $current_time + (2 * 24 * 60 * 60);
-            $password = self::getToken(16);
-            $selector = self::getToken(32);
-            $expire = self::niceDate()
-                ->setTimestamp($cookieexp)
-                ->format('Y-m-d H:i:s');
-            self::setAuthCookie('foguserauthpass', $password, $cookieexp);
-            self::setAuthCookie('foguserauthsel', $selector, $cookieexp);
-
-            // Trim expired tokens before adding a new one; this is the
-            // only point at which the userAuths table grows.
-            UserAuth::reapExpired();
-
-            // Build and create authorization/authentication system.
-            $password_hash = UserAuth::generateHash($password);
-            $selector_hash = UserAuth::generateHash($selector);
-            $auth = (new UserAuth())
-                ->set('userID', $this->get('id'))
-                ->set('expire', $expire)
-                ->set('selector', $selector_hash)
-                ->set('password', $password_hash)
-                ->save();
-
-            // Set the id in the cookie for this particular auth item.
-            self::setAuthCookie('foguserauthid', $auth->get('id'), $cookieexp);
+            $this->_issueRememberMe();
         }
         return $passValid;
+    }
+    /**
+     * Mints the remember-me cookies and their userAuths row for this user.
+     *
+     * Split out of passwordValidate() so validatePw() can issue it AFTER
+     * establishSession() has accepted the sign-in. Issued before, a sign-in
+     * refused by the role network gate would leave a working two-day
+     * credential behind. passwordValidate() still calls it when asked to
+     * remember, so third-party callers keep their behavior.
+     *
+     * @return void
+     */
+    private function _issueRememberMe()
+    {
+        // Remember-me is per-user, carried by the foguserauth* cookies
+        // and UserAuth token below. It must NOT touch the shared
+        // FOG_ALWAYS_LOGGED_IN setting -- doing so disabled the
+        // inactivity timeout for every user, install-wide.
+        // Setup Cookie stuff.
+        $current_time = self::nicedate()->getTimestamp();
+        $cookieexp = $current_time + (2 * 24 * 60 * 60);
+        $password = self::getToken(16);
+        $selector = self::getToken(32);
+        $expire = self::niceDate()
+            ->setTimestamp($cookieexp)
+            ->format('Y-m-d H:i:s');
+        self::setAuthCookie('foguserauthpass', $password, $cookieexp);
+        self::setAuthCookie('foguserauthsel', $selector, $cookieexp);
+
+        // Trim expired tokens before adding a new one; this is the
+        // only point at which the userAuths table grows.
+        UserAuth::reapExpired();
+
+        // Build and create authorization/authentication system.
+        $password_hash = UserAuth::generateHash($password);
+        $selector_hash = UserAuth::generateHash($selector);
+        $auth = (new UserAuth())
+            ->set('userID', $this->get('id'))
+            ->set('expire', $expire)
+            ->set('selector', $selector_hash)
+            ->set('password', $password_hash)
+            ->save();
+
+        // Set the id in the cookie for this particular auth item.
+        self::setAuthCookie('foguserauthid', $auth->get('id'), $cookieexp);
     }
     /**
      * Proves an identity, and does nothing else.
@@ -525,6 +701,27 @@ class User extends FOGController
                 ->set('password', '', true)
                 ->set('type', $type);
         }
+        /*
+         * Gate A of the role network restriction (see networkAllows()).
+         * AFTER the block above, deliberately: that block can replace this
+         * object's id with self::$FOGUser's, and the id written into the
+         * session on the next line is the account that must be tested.
+         * Testing before it would test an account that never gets the
+         * session. Every session is made here, whichever provider vouched
+         * for the identity, so one check covers the password form and OIDC.
+         * Throws for the same reason the API-only refusal does: OIDC's
+         * callback ignores a return value and shows an exception's message.
+         *
+         * Recorded as a failed login, so the refusal sits beside every other
+         * one. A refused sign-in also leaves no remember-me row behind,
+         * because validatePw() issues that only after this returns.
+         */
+        if (!$this->networkAllows(self::requestAddress())) {
+            self::_auditLoginFailure((string)$this->get('name'), $this);
+            throw new \Exception(
+                _('Your role does not allow sign-in from this network.')
+            );
+        }
         $_SESSION['FOG_USER'] = $this->get('id');
         $_SESSION['FOG_AUTH_SOURCE'] = $source;
         // Every successful session is made here -- the password form through
@@ -599,11 +796,18 @@ class User extends FOGController
             self::PATTERN,
             $username
         );
-        if ($this->passwordValidate($username, $password, $remember)) {
+        // $remember is passed as false: the remember-me credential is issued
+        // below, after establishSession() has accepted the sign-in, so a
+        // sign-in refused by the role network gate leaves none behind.
+        if ($this->passwordValidate($username, $password, false)) {
             if (!$test) {
                 return new self(0);
             }
-            return $this->establishSession();
+            $session = $this->establishSession();
+            if ($remember) {
+                $this->_issueRememberMe();
+            }
+            return $session;
         }
         self::log(
             sprintf(
@@ -685,18 +889,14 @@ class User extends FOGController
             return false;
         }
         /*
-         * The catch-all half of the API-only refusal, and the only one that
-         * covers a session this request did not create. Two cases reach it:
-         * a remember-me cookie minted before the flag was set, which
-         * ProcessLogin::processMainLogin() replays without ever calling
-         * establishSession(); and an account marked API-only while it is
-         * signed in, which stops on its very next request rather than at
-         * the end of the inactivity timeout.
-         *
-         * Cheap enough to sit on every authenticated request: the object is
-         * already loaded, so this reads a field and issues no query.
+         * The API-only refusal and Gate B of the role network restriction,
+         * for a session this request did not create: a remember-me cookie
+         * that ProcessLogin::processMainLogin() replays without ever calling
+         * establishSession(), minted before the flag was set or from another
+         * address. ProcessLogin acts on this return; LoadGlobals runs the
+         * same test for an existing session.
          */
-        if ($this->isAPIOnly()) {
+        if (!$this->sessionPermittedHere()) {
             return false;
         }
         $keys = [
