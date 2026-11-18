@@ -180,6 +180,15 @@ class ProcessLogin extends FOGPage
                 if (self::$FOGUser->isLoggedIn() && self::$FOGUser->isValid()) {
                     return;
                 }
+                // Unbind the account the cookie named. self::$FOGUser is
+                // bound by reference to the global $currentUser, and
+                // management/index.php and FOGPageManager test only
+                // isValid(). Left bound, an account isLoggedIn() refused
+                // (API-only, or a role network that does not cover this
+                // address, #2107) had the login form echoed into the
+                // buffer and the requested page rendered anyway, on every
+                // request until the cookie expired.
+                self::$FOGUser = new User(0);
                 self::mainLoginForm();
             }
         }

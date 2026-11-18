@@ -12372,3 +12372,17 @@ $this->schema[] = [
     . "ADD COLUMN `hostAuthFailCount` int(10) unsigned NOT NULL DEFAULT 0, "
     . "ADD COLUMN `hostAuthFailIP` varchar(45) NOT NULL DEFAULT ''",
 ];
+// 461
+$this->schema[] = [
+    // The networks a role's members may sign in to the web UI and use the
+    // REST API from (#2107). One address or CIDR per line, IPv4 or IPv6.
+    //
+    // Empty means no restriction, which is what every existing role gets, so
+    // this step changes nothing until somebody fills a list in. The list is a
+    // gate on browser sessions and the REST API only. The iPXE menu and
+    // service/checkcredentials.php share passwordValidate() with the web
+    // login and are deliberately not gated: the same person must still be
+    // able to start a task from the boot menu from any address.
+    "ALTER TABLE `roles` "
+    . "ADD COLUMN `rAllowedNetworks` varchar(2048) NOT NULL DEFAULT ''",
+];

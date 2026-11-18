@@ -258,6 +258,10 @@ msgid "%s is not a usable plugin name. Use lowercase letters, digits, - and _."
 msgstr ""
 
 #, php-format
+msgid "%s is not a valid IP address or CIDR range."
+msgstr ""
+
+#, php-format
 msgid "%s is not inside a plugin directory."
 msgstr ""
 
@@ -1084,6 +1088,9 @@ msgstr ""
 msgid "Address"
 msgstr "Dirección IP ha cambiado"
 
+msgid "Addresses or CIDR ranges, separated by commas, spaces or new lines. Leave empty for no restriction. Members can sign in to the web UI and use the API only from these networks. iPXE menu logins are not affected. Uses the connecting address. Behind a reverse proxy every request carries the proxy's address, so this cannot tell users apart there."
+msgstr ""
+
 #, fuzzy
 msgid "Administrative actions"
 msgstr "modificar Grupo"
@@ -1270,6 +1277,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Allowed"
+msgstr "No nodo asociado"
+
+#, fuzzy
+msgid "Allowed Networks"
 msgstr "No nodo asociado"
 
 msgid "Allows editing/creating of Task States fog currently has."
@@ -10894,6 +10905,10 @@ msgstr ""
 msgid "The agent speaks a protocol this server does not."
 msgstr ""
 
+#, php-format
+msgid "The allowed networks list is longer than %d characters."
+msgstr ""
+
 #, fuzzy
 msgid "The approval could not be saved."
 msgstr "No se pudo leer el archivo temporal"
@@ -11462,6 +11477,9 @@ msgid "This cannot be undone."
 msgstr "No se pudo leer el archivo temporal"
 
 msgid "This change would leave no user with administrator access."
+msgstr ""
+
+msgid "This change would lock you out: your current address is not in the allowed networks of a role you hold."
 msgstr ""
 
 msgid "This deletes the power management schedules held by the hosts that are in this group right now. It does NOT touch this group's grants, and it also removes schedules those hosts were given individually."
@@ -12797,6 +12815,12 @@ msgid "Your FOG database schema is not up to date"
 msgstr ""
 
 msgid "Your database connection appears to be invalid"
+msgstr ""
+
+msgid "Your role does not allow API access from this network."
+msgstr ""
+
+msgid "Your role does not allow sign-in from this network."
 msgstr ""
 
 msgid "Your session has ended. Sign in again."

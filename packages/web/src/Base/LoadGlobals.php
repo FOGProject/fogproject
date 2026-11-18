@@ -63,7 +63,33 @@ class LoadGlobals extends FOGBase
         if (session_status() === PHP_SESSION_ACTIVE) {
             $userID = isset($_SESSION['FOG_USER']) ? (int)$_SESSION['FOG_USER'] : 0;
         }
-        $GLOBALS['currentUser'] = new User($userID);
+        $currentUser = new User($userID);
+        /*
+         * The one place an EXISTING session becomes the acting user, for the
+         * web UI, its AJAX calls and session-authenticated REST calls alike.
+         * Nothing downstream re-checks the account: User::_isLoggedIn()
+         * returning false is ignored by most of its callers, so a refusal
+         * there alone leaves the session working. So the session is dropped
+         * here when the account may no longer use it:
+         *
+         *   - its roles restrict it to networks this request is not from
+         *     (#2107: a session that moved address, a role edited while
+         *     signed in, or a session cookie replayed from elsewhere);
+         *   - it is API-only (marked while signed in).
+         *
+         * Tested on the REAL account, before impersonation binds a mask
+         * below, so an administrator cannot reach a restricted network's
+         * session through impersonating someone unrestricted.
+         *
+         * Clearing FOG_USER, not destroying the session: the next request
+         * lands on the login form, and signing in there gives the reason
+         * (User::establishSession()).
+         */
+        if ($currentUser->isValid() && !$currentUser->sessionPermittedHere()) {
+            unset($_SESSION['FOG_USER']);
+            $currentUser = new User(0);
+        }
+        $GLOBALS['currentUser'] = $currentUser;
         $GLOBALS['HookManager']->load();
         $GLOBALS['EventManager']->load();
         // Impersonation binds the MASK over the real user, and it has to

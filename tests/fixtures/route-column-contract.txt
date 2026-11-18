@@ -452,6 +452,7 @@ role	3	rName	mainlink	f:classname,tmpcolumns	-
 role	4	rDesc	description	-	-
 role	5	rCreatedBy	createdBy	-	-
 role	6	rCreatedTime	createdTime	f	-
+role	7	rAllowedNetworks	allowednetworks	-	-
 rolepermission	0	rpID	id	-	-
 rolepermission	1	rpID	DT_RowId	f	-
 rolepermission	2	rpRoleID	roleID	-	-

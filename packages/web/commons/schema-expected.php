@@ -938,13 +938,14 @@ return [
             ],
         ],
         'roles' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `roles` ( `rID` int(11) NOT NULL AUTO_INCREMENT, `rName` varchar(255) NOT NULL, `rDesc` longtext NOT NULL DEFAULT \'\', `rCreatedBy` varchar(40) NOT NULL DEFAULT \'\', `rCreatedTime` timestamp NOT NULL DEFAULT current_timestamp(), PRIMARY KEY (`rID`), UNIQUE KEY `rName` (`rName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `roles` ( `rID` int(11) NOT NULL AUTO_INCREMENT, `rName` varchar(255) NOT NULL, `rDesc` longtext NOT NULL DEFAULT \'\', `rCreatedBy` varchar(40) NOT NULL DEFAULT \'\', `rCreatedTime` timestamp NOT NULL DEFAULT current_timestamp(), `rAllowedNetworks` varchar(2048) NOT NULL DEFAULT \'\', PRIMARY KEY (`rID`), UNIQUE KEY `rName` (`rName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'rID' => 'int(11) NOT NULL',
                 'rName' => 'varchar(255) NOT NULL',
                 'rDesc' => 'longtext NOT NULL DEFAULT \'\'',
                 'rCreatedBy' => 'varchar(40) NOT NULL DEFAULT \'\'',
                 'rCreatedTime' => 'timestamp NOT NULL DEFAULT current_timestamp()',
+                'rAllowedNetworks' => 'varchar(2048) NOT NULL DEFAULT \'\'',
             ],
         ],
         'roleUserAssoc' => [
