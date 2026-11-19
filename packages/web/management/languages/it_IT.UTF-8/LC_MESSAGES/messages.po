@@ -9741,6 +9741,9 @@ msgstr "Stato"
 msgid "Stop keeping"
 msgstr ""
 
+msgid "Stop snapins if this fails"
+msgstr ""
+
 msgid "Storage"
 msgstr "Conservazione"
 
@@ -12104,6 +12107,9 @@ msgstr ""
 
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "Quando il plugin viene rimosso, il tasto assegnato rimarrà"
+
+msgid "When this entry fails, the host's snapins wait. The agent tries the software again at the next check-in and runs the snapins once it succeeds. Use it for a package a later snapin, such as Sysprep, needs."
+msgstr ""
 
 msgid "Where it lives"
 msgstr ""

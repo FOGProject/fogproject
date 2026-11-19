@@ -8634,6 +8634,9 @@ msgstr "状態"
 msgid "Stop keeping"
 msgstr "保持を停止"
 
+msgid "Stop snapins if this fails"
+msgstr ""
+
 msgid "Storage"
 msgstr "ストレージ"
 
@@ -10777,6 +10780,9 @@ msgstr "日時"
 
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "プラグインを削除しても、割り当てられたキーは残ります"
+
+msgid "When this entry fails, the host's snapins wait. The agent tries the software again at the next check-in and runs the snapins once it succeeds. Use it for a package a later snapin, such as Sysprep, needs."
+msgstr ""
 
 msgid "Where it lives"
 msgstr "保存場所"
