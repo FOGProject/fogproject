@@ -91,7 +91,7 @@ parameters:
 			path: tests/agent-printer-facts.test.php
 
 		-
-			message: '#^Offset ''printers'' on array\{hostname\: ''hostnamechanger'', taskreboot\: ''taskreboot'', snapin\: ''snapinclient'', software\: ''software'', power\: ''powermanagement'', autologout\: ''autologout'', directory\: ''hostnamechanger'', printers\: ''printermanager'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''printers'' on array\{hostname\: ''hostnamechanger'', taskreboot\: ''taskreboot'', software\: ''software'', snapin\: ''snapinclient'', power\: ''powermanagement'', autologout\: ''autologout'', directory\: ''hostnamechanger'', printers\: ''printermanager'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: tests/agent-printer-facts.test.php
@@ -145,7 +145,7 @@ parameters:
 			path: tests/agent-printer-facts.test.php
 
 		-
-			message: '#^Offset ''printers'' on array\{hostname\: ''hostnamechanger'', taskreboot\: ''taskreboot'', snapin\: ''snapinclient'', software\: ''software'', power\: ''powermanagement'', autologout\: ''autologout'', directory\: ''hostnamechanger'', printers\: ''printermanager'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''printers'' on array\{hostname\: ''hostnamechanger'', taskreboot\: ''taskreboot'', software\: ''software'', snapin\: ''snapinclient'', power\: ''powermanagement'', autologout\: ''autologout'', directory\: ''hostnamechanger'', printers\: ''printermanager'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 1
 			path: tests/agent-printer-facts.test.php
@@ -241,7 +241,7 @@ parameters:
 			path: tests/agent-wake-relay.test.php
 
 		-
-			message: '#^Offset ''wake'' on array\{hostname\: ''hostnamechanger'', taskreboot\: ''taskreboot'', snapin\: ''snapinclient'', software\: ''software'', power\: ''powermanagement'', autologout\: ''autologout'', directory\: ''hostnamechanger'', printers\: ''printermanager'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
+			message: '#^Offset ''wake'' on array\{hostname\: ''hostnamechanger'', taskreboot\: ''taskreboot'', software\: ''software'', snapin\: ''snapinclient'', power\: ''powermanagement'', autologout\: ''autologout'', directory\: ''hostnamechanger'', printers\: ''printermanager'', \.\.\.\} on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.offset
 			count: 2
 			path: tests/agent-wake-relay.test.php

@@ -51,6 +51,7 @@ class Software extends FOGController
         'timeout' => 'swTimeout',
         'returnCodes' => 'swReturnCodes',
         'isEnabled' => 'swEnabled',
+        'stopSnapins' => 'swStopSnapins',
         'createdTime' => 'swCreateDate',
         'createdBy' => 'swCreator'
     ];
