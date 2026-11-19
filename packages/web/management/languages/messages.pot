@@ -7047,6 +7047,9 @@ msgstr ""
 msgid "Present means include in replication."
 msgstr ""
 
+msgid "Present means the snapin runs before the host's software."
+msgstr ""
+
 msgid "Primary"
 msgstr ""
 
@@ -7694,6 +7697,9 @@ msgid "Run With arguments."
 msgstr ""
 
 msgid "Run With interpreter."
+msgstr ""
+
+msgid "Run before software"
 msgstr ""
 
 msgid "Run bin/fk-orphan-scan.php to find the rows."
@@ -10715,6 +10721,9 @@ msgid "What to do next"
 msgstr ""
 
 msgid "When"
+msgstr ""
+
+msgid "When a host has software assigned, this snapin runs before the software instead of after. Use it for a snapin that a package would block, for example a PowerShell script that security software stops once installed. Needs FOG Agent v0.1.27 or later."
 msgstr ""
 
 msgid "When the plugin is removed, the assigned key will remain"

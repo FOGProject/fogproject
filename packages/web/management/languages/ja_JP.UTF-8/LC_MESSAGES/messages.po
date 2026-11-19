@@ -7092,6 +7092,10 @@ msgstr "「あり」の場合は UI の一覧から非表示になります。"
 msgid "Present means include in replication."
 msgstr "「あり」の場合はレプリケーション対象に含めます。"
 
+#, fuzzy
+msgid "Present means the snapin runs before the host's software."
+msgstr "「あり」の場合は UI の一覧から非表示になります。"
+
 msgid "Primary"
 msgstr "プライマリ"
 
@@ -7741,6 +7745,9 @@ msgstr "実行時の引数。"
 
 msgid "Run With interpreter."
 msgstr "実行に使用するインタープリター。"
+
+msgid "Run before software"
+msgstr ""
 
 msgid "Run bin/fk-orphan-scan.php to find the rows."
 msgstr "対象のレコードを確認するには bin/fk-orphan-scan.php を実行してください。"
@@ -10777,6 +10784,9 @@ msgstr "次に行うこと"
 
 msgid "When"
 msgstr "日時"
+
+msgid "When a host has software assigned, this snapin runs before the software instead of after. Use it for a snapin that a package would block, for example a PowerShell script that security software stops once installed. Needs FOG Agent v0.1.27 or later."
+msgstr ""
 
 msgid "When the plugin is removed, the assigned key will remain"
 msgstr "プラグインを削除しても、割り当てられたキーは残ります"
