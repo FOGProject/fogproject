@@ -135,7 +135,8 @@ class SoftwareSet extends FOGBase
                 'state' => (string)$Software->get('state'),
                 'source' => (string)$Software->get('source'),
                 'args' => (string)$Software->get('args'),
-                'timeout' => (int)$Software->get('timeout')
+                'timeout' => (int)$Software->get('timeout'),
+                'stop_snapins' => (bool)$Software->get('stopSnapins')
             ];
         }
         return [

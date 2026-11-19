@@ -377,6 +377,31 @@ class SoftwareManagement extends FOGPage
                 'A disabled entry stops being managed; it does not '
                 . 'remove the package.'
             )
+            . '</p>',
+            self::makeLabel(
+                $labelClass,
+                'stopSnapins',
+                _('Stop snapins if this fails')
+            ) => self::makeInput(
+                '',
+                'stopSnapins',
+                '',
+                'checkbox',
+                'stopSnapins',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $v['stopSnapinsChecked']
+            )
+            . '<p class="form-text">'
+            . _(
+                'When this entry fails, the host\'s snapins wait. The '
+                . 'agent tries the software again at the next check-in '
+                . 'and runs the snapins once it succeeds. Use it for a '
+                . 'package a later snapin, such as Sysprep, needs.'
+            )
             . '</p>'
         ];
     }
@@ -406,7 +431,10 @@ class SoftwareManagement extends FOGPage
                 'args' => filter_input(INPUT_POST, 'args'),
                 'timeout' => (filter_input(INPUT_POST, 'timeout') ?: '900'),
                 'returnCodes' => filter_input(INPUT_POST, 'returnCodes'),
-                'enabledChecked' => 'checked'
+                'enabledChecked' => 'checked',
+                'stopSnapinsChecked' => (
+                    isset($_POST['stopSnapins']) ? 'checked' : ''
+                )
             ]
         );
     }
@@ -470,6 +498,7 @@ class SoftwareManagement extends FOGPage
                     (string)filter_input(INPUT_POST, 'returnCodes')
                 );
                 $isEnabled = (int)isset($_POST['isEnabled']);
+                $stopSnapins = (int)isset($_POST['stopSnapins']);
 
                 $this->_validateSoftwarePost(
                     $name,
@@ -498,6 +527,7 @@ class SoftwareManagement extends FOGPage
                     ->set('timeout', (int)$timeout)
                     ->set('returnCodes', $returnCodes)
                     ->set('isEnabled', $isEnabled)
+                    ->set('stopSnapins', $stopSnapins)
                     ->set('createdBy', self::$FOGUser->get('name'));
                 if (!$Software->save()) {
                     $serverFault = true;
@@ -523,6 +553,8 @@ class SoftwareManagement extends FOGPage
             $this->obj->get('version')
         );
         $isEnabled = (int)isset($_POST['isEnabled']) ?: $this->obj->get('isEnabled');
+        $stopSnapins = (int)isset($_POST['stopSnapins'])
+            ?: $this->obj->get('stopSnapins');
 
         $fields = $this->_fieldsFor(
             [
@@ -568,7 +600,8 @@ class SoftwareManagement extends FOGPage
                     filter_input(INPUT_POST, 'returnCodes') ?:
                     $this->obj->get('returnCodes')
                 ),
-                'enabledChecked' => ($isEnabled ? 'checked' : '')
+                'enabledChecked' => ($isEnabled ? 'checked' : ''),
+                'stopSnapinsChecked' => ($stopSnapins ? 'checked' : '')
             ]
         );
 
@@ -621,6 +654,7 @@ class SoftwareManagement extends FOGPage
         $timeout = filter_input(INPUT_POST, 'timeout');
         $returnCodes = trim((string)filter_input(INPUT_POST, 'returnCodes'));
         $isEnabled = (int)isset($_POST['isEnabled']);
+        $stopSnapins = (int)isset($_POST['stopSnapins']);
 
         $this->_validateSoftwarePost(
             $name,
@@ -651,7 +685,8 @@ class SoftwareManagement extends FOGPage
             ->set('args', $args)
             ->set('timeout', (int)$timeout)
             ->set('returnCodes', $returnCodes)
-            ->set('isEnabled', $isEnabled);
+            ->set('isEnabled', $isEnabled)
+            ->set('stopSnapins', $stopSnapins);
     }
     /**
      * Present the hosts list.

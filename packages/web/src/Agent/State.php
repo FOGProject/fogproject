@@ -54,8 +54,11 @@ class State extends FOGBase
     const CAPABILITIES = [
         'hostname' => 'hostnamechanger',
         'taskreboot' => 'taskreboot',
-        'snapin' => 'snapinclient',
+        // The agent runs capabilities in this order, so software comes
+        // before snapin: packages are installed before any snapin runs. A
+        // Sysprep snapin must not run before its software (forum 18322).
         'software' => 'software',
+        'snapin' => 'snapinclient',
         'power' => 'powermanagement',
         // The one legacy client module the rebuild keeps rather than
         // drops (design 0014). Same switch, same per-host time, same

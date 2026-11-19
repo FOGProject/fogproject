@@ -12407,3 +12407,12 @@ $this->schema[] = [
     . "read the log before choosing Enforce or Register.' "
     . "WHERE `settingKey` = 'FOG_HOST_IDENTIFY_SMBIOS'",
 ];
+// 463
+$this->schema[] = [
+    // A software entry can stop the host's snapins (forum 18322). When an
+    // entry with this flag fails, the agent holds the host's snapin queue
+    // and retries the software on the next poll. Default 0 keeps the
+    // existing behavior: a failed entry does not hold any snapin.
+    "ALTER TABLE `software` "
+    . "ADD COLUMN `swStopSnapins` tinyint(1) NOT NULL DEFAULT 0",
+];

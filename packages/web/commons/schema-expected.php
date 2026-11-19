@@ -1169,7 +1169,7 @@ return [
             ],
         ],
         'software' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `software` ( `swID` int(11) NOT NULL AUTO_INCREMENT, `swName` varchar(200) NOT NULL, `swDesc` longtext NOT NULL DEFAULT \'\', `swBackend` varchar(16) NOT NULL DEFAULT \'choco\', `swPackage` varchar(255) NOT NULL, `swVersion` varchar(64) NOT NULL DEFAULT \'\', `swState` varchar(8) NOT NULL DEFAULT \'present\', `swSource` varchar(255) NOT NULL DEFAULT \'\', `swArgs` varchar(255) NOT NULL DEFAULT \'\', `swTimeout` int(11) NOT NULL DEFAULT 900, `swReturnCodes` text DEFAULT NULL, `swEnabled` tinyint(1) NOT NULL DEFAULT 1, `swCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `swCreator` varchar(50) NOT NULL DEFAULT \'\', PRIMARY KEY (`swID`), UNIQUE KEY `swName` (`swName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `software` ( `swID` int(11) NOT NULL AUTO_INCREMENT, `swName` varchar(200) NOT NULL, `swDesc` longtext NOT NULL DEFAULT \'\', `swBackend` varchar(16) NOT NULL DEFAULT \'choco\', `swPackage` varchar(255) NOT NULL, `swVersion` varchar(64) NOT NULL DEFAULT \'\', `swState` varchar(8) NOT NULL DEFAULT \'present\', `swSource` varchar(255) NOT NULL DEFAULT \'\', `swArgs` varchar(255) NOT NULL DEFAULT \'\', `swTimeout` int(11) NOT NULL DEFAULT 900, `swReturnCodes` text DEFAULT NULL, `swEnabled` tinyint(1) NOT NULL DEFAULT 1, `swCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `swCreator` varchar(50) NOT NULL DEFAULT \'\', `swStopSnapins` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`swID`), UNIQUE KEY `swName` (`swName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'swID' => 'int(11) NOT NULL',
                 'swName' => 'varchar(200) NOT NULL',
@@ -1185,6 +1185,7 @@ return [
                 'swEnabled' => 'tinyint(1) NOT NULL DEFAULT 1',
                 'swCreateDate' => 'timestamp NOT NULL DEFAULT current_timestamp()',
                 'swCreator' => 'varchar(50) NOT NULL DEFAULT \'\'',
+                'swStopSnapins' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
         'softwareAssoc' => [
