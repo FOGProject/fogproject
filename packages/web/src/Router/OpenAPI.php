@@ -4439,6 +4439,12 @@ class OpenAPI extends FOGBase
                                     'type' => 'string',
                                     'description' => _('Present means hidden '
                                         . 'from the UI list.')
+                                ],
+                                'beforeSoftware' => [
+                                    'type' => 'string',
+                                    'description' => _('Present means the '
+                                        . 'snapin runs before the host\'s '
+                                        . 'software.')
                                 ]
                             ]
                         ]

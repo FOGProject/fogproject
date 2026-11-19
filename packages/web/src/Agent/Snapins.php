@@ -152,7 +152,10 @@ class Snapins extends FOGBase
                 // A snapin pack: the agent unzips it and replaces
                 // [FOG_SNAPIN_PATH] in run_with and run_with_args, as
                 // the legacy client did from the same flag.
-                'pack' => (bool)$Snapin->get('packtype')
+                'pack' => (bool)$Snapin->get('packtype'),
+                // Run before the host's software set. Needs an agent with
+                // the matching change; the default keeps software first.
+                'before_software' => (bool)$Snapin->get('beforeSoftware')
             ];
         }
         return $out;

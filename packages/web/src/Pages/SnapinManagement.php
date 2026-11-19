@@ -260,6 +260,24 @@ class SnapinManagement extends FOGPage
         ];
     }
     /**
+     * Help under the "Run before software" checkbox. Shared so the create
+     * form and the edit form cannot drift apart.
+     *
+     * @return string
+     */
+    private static function _beforeSoftwareHelp()
+    {
+        return '<p class="form-text">'
+            . _(
+                'When a host has software assigned, this snapin runs '
+                . 'before the software instead of after. Use it for a '
+                . 'snapin that a package would block, for example a '
+                . 'PowerShell script that security software stops once '
+                . 'installed. Needs FOG Agent v0.1.27 or later.'
+            )
+            . '</p>';
+    }
+    /**
      * Builds the create-form fields (shared by add() and addModal()).
      *
      * @return array
@@ -515,6 +533,18 @@ class SnapinManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
+                'beforeSoftware',
+                _('Run before software')
+            ) => self::makeInput(
+                '',
+                'beforeSoftware',
+                '',
+                'checkbox',
+                'beforeSoftware'
+            )
+            . self::_beforeSoftwareHelp(),
+            self::makeLabel(
+                $labelClass,
                 'timeout',
                 _('Snapin Timeout')
                 . '<br/>('
@@ -761,6 +791,11 @@ class SnapinManagement extends FOGPage
             (int)isset($_POST['isHidden']) ?:
             $this->obj->get('hide')
         );
+        $beforeSoftware = (
+            (int)isset($_POST['beforeSoftware']) ?:
+            $this->obj->get('beforeSoftware')
+        );
+        $isbefore = ($beforeSoftware ? 'checked' : '');
         $ishid = ($isHidden ? 'checked' : '');
         $isprot = ($protected ? 'checked' : '');
         $isen = ($isEnabled ? 'checked' : '');
@@ -1026,6 +1061,24 @@ class SnapinManagement extends FOGPage
             ),
             self::makeLabel(
                 $labelClass,
+                'beforeSoftware',
+                _('Run before software')
+            ) => self::makeInput(
+                '',
+                'beforeSoftware',
+                '',
+                'checkbox',
+                'beforeSoftware',
+                '',
+                false,
+                false,
+                -1,
+                -1,
+                $isbefore
+            )
+            . self::_beforeSoftwareHelp(),
+            self::makeLabel(
+                $labelClass,
                 'timeout',
                 _('Snapin Timeout')
                 . '<br/>('
@@ -1189,6 +1242,7 @@ class SnapinManagement extends FOGPage
         $isEnabled = (int)isset($_POST['isEnabled']);
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
+        $beforeSoftware = (int)isset($_POST['beforeSoftware']);
         $timeout = trim((string)filter_input(INPUT_POST, 'timeout'));
         $returnCodes = trim((string)filter_input(INPUT_POST, 'returnCodes'));
         $action = trim((string)filter_input(INPUT_POST, 'action'));
@@ -1350,6 +1404,7 @@ class SnapinManagement extends FOGPage
             ->set('isEnabled', $isEnabled)
             ->set('toReplicate', $toReplicate)
             ->set('hide', $hide)
+            ->set('beforeSoftware', $beforeSoftware)
             ->set('timeout', $timeout)
             ->set('returnCodes', $returnCodes);
     }
