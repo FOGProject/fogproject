@@ -596,8 +596,9 @@ software	10	swArgs	args	-	-
 software	11	swTimeout	timeout	-	-
 software	12	swReturnCodes	returnCodes	-	-
 software	13	swEnabled	isEnabled	-	-
-software	14	swCreateDate	createdTime	f	-
-software	15	swCreator	createdBy	-	-
+software	14	swStopSnapins	stopSnapins	-	-
+software	15	swCreateDate	createdTime	f	-
+software	16	swCreator	createdBy	-	-
 softwareassociation	0	swaID	id	-	-
 softwareassociation	1	swaID	DT_RowId	f	-
 softwareassociation	2	swaHostID	hostID	-	-

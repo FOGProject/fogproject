@@ -23,7 +23,7 @@ $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
 
 // Read through reflection so the order is checked at run time.
-$caps = (new ReflectionClass(\FOG\Agent\State::class))->getConstant('CAPABILITIES');
+$caps = (new \ReflectionClass(\FOG\Agent\State::class))->getConstant('CAPABILITIES');
 $keys = array_keys((array)$caps);
 $software = array_search('software', $keys, true);
 $snapin = array_search('snapin', $keys, true);
@@ -32,7 +32,7 @@ $t->check(
     is_int($software) && is_int($snapin) && $software < $snapin
 );
 
-$ref = new ReflectionClass(\FOG\Items\Software::class);
+$ref = new \ReflectionClass(\FOG\Items\Software::class);
 $fields = $ref->getDefaultProperties()['databaseFields'];
 $t->check(
     'Software maps stopSnapins to swStopSnapins',
