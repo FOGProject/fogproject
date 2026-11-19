@@ -12416,3 +12416,11 @@ $this->schema[] = [
     "ALTER TABLE `software` "
     . "ADD COLUMN `swStopSnapins` tinyint(1) NOT NULL DEFAULT 0",
 ];
+// 464
+$this->schema[] = [
+    // A snapin can run before the host's software (forum 18322). On an
+    // agent that has the matching change, a snapin task for such a snapin
+    // runs before the host's software set. Default 0 keeps software first.
+    "ALTER TABLE `snapins` "
+    . "ADD COLUMN `sBeforeSoftware` tinyint(1) NOT NULL DEFAULT 0",
+];

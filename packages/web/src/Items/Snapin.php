@@ -58,6 +58,7 @@ class Snapin extends FOGController
         'isEnabled' => 'sEnabled',
         'toReplicate' => 'sReplicate',
         'hide' => 'sHideLog',
+        'beforeSoftware' => 'sBeforeSoftware',
         'timeout' => 'sTimeout',
         'returnCodes' => 'sReturnCodes',
         'packtype' => 'sPackType',
@@ -419,8 +420,8 @@ class Snapin extends FOGController
      * @param array $post  Sanitized POST data using the UI's field
      *                     names: snapin, description, packtype, rw,
      *                     rwa, storagegroup, snapinfileexist,
-     *                     isEnabled, toReplicate, isHidden, timeout,
-     *                     action, args
+     *                     isEnabled, toReplicate, isHidden,
+     *                     beforeSoftware, timeout, action, args
      * @param array $files $_FILES (looks for 'snapinfile' key)
      *
      * @return Snapin The newly saved Snapin
@@ -451,6 +452,7 @@ class Snapin extends FOGController
         $isEnabled = (int)isset($post['isEnabled']);
         $toReplicate = (int)isset($post['toReplicate']);
         $hide = (int)isset($post['isHidden']);
+        $beforeSoftware = (int)isset($post['beforeSoftware']);
         $action = trim((string)($post['action'] ?? ''));
         $args = trim((string)($post['args'] ?? ''));
         $timeout = trim((string)($post['timeout'] ?? ''));
@@ -554,6 +556,7 @@ class Snapin extends FOGController
             ->set('isEnabled', $isEnabled)
             ->set('toReplicate', $toReplicate)
             ->set('hide', $hide)
+            ->set('beforeSoftware', $beforeSoftware)
             ->set('timeout', $timeout)
             ->set('returnCodes', $returnCodes)
             ->addGroup($storagegroup);

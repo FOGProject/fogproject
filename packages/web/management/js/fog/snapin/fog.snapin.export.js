@@ -14,6 +14,7 @@
         {data: 'isEnabled', visible: false},
         {data: 'toReplicate', visible: false},
         {data: 'hide', visible: false},
+        {data: 'beforeSoftware', visible: false},
         {data: 'timeout', visible: false},
         {data: 'returnCodes', visible: false},
         {data: 'packtype', visible: false},

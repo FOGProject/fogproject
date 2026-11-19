@@ -1128,7 +1128,7 @@ return [
             ],
         ],
         'snapins' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `snapins` ( `sID` int(11) NOT NULL AUTO_INCREMENT, `sName` varchar(200) NOT NULL, `sDesc` longtext NOT NULL DEFAULT \'\', `sFilePath` longtext NOT NULL, `sArgs` longtext NOT NULL DEFAULT \'\', `sCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `sCreator` varchar(200) NOT NULL DEFAULT \'\', `sReboot` varchar(1) NOT NULL DEFAULT \'\', `sRunWith` varchar(245) NOT NULL DEFAULT \'\', `sRunWithArgs` varchar(200) NOT NULL DEFAULT \'\', `sAnon3` varchar(45) NOT NULL DEFAULT \'\', `snapinProtect` mediumint(9) NOT NULL DEFAULT 0, `sEnabled` tinyint(1) NOT NULL DEFAULT 1, `sReplicate` tinyint(1) NOT NULL DEFAULT 1, `sShutdown` tinyint(1) NOT NULL DEFAULT 0, `sHideLog` tinyint(1) NOT NULL DEFAULT 0, `sTimeout` int(11) NOT NULL DEFAULT 0, `sPackType` tinyint(1) NOT NULL DEFAULT 0, `sHash` varchar(255) NOT NULL DEFAULT \'\', `sSize` bigint(20) NOT NULL DEFAULT 0, `sReturnCodes` text DEFAULT NULL, PRIMARY KEY (`sID`), UNIQUE KEY `sName` (`sName`), KEY `new_index` (`sName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `snapins` ( `sID` int(11) NOT NULL AUTO_INCREMENT, `sName` varchar(200) NOT NULL, `sDesc` longtext NOT NULL DEFAULT \'\', `sFilePath` longtext NOT NULL, `sArgs` longtext NOT NULL DEFAULT \'\', `sCreateDate` timestamp NOT NULL DEFAULT current_timestamp(), `sCreator` varchar(200) NOT NULL DEFAULT \'\', `sReboot` varchar(1) NOT NULL DEFAULT \'\', `sRunWith` varchar(245) NOT NULL DEFAULT \'\', `sRunWithArgs` varchar(200) NOT NULL DEFAULT \'\', `sAnon3` varchar(45) NOT NULL DEFAULT \'\', `snapinProtect` mediumint(9) NOT NULL DEFAULT 0, `sEnabled` tinyint(1) NOT NULL DEFAULT 1, `sReplicate` tinyint(1) NOT NULL DEFAULT 1, `sShutdown` tinyint(1) NOT NULL DEFAULT 0, `sHideLog` tinyint(1) NOT NULL DEFAULT 0, `sTimeout` int(11) NOT NULL DEFAULT 0, `sPackType` tinyint(1) NOT NULL DEFAULT 0, `sHash` varchar(255) NOT NULL DEFAULT \'\', `sSize` bigint(20) NOT NULL DEFAULT 0, `sReturnCodes` text DEFAULT NULL, `sBeforeSoftware` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`sID`), UNIQUE KEY `sName` (`sName`), KEY `new_index` (`sName`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'sID' => 'int(11) NOT NULL',
                 'sName' => 'varchar(200) NOT NULL',
@@ -1151,6 +1151,7 @@ return [
                 'sHash' => 'varchar(255) NOT NULL DEFAULT \'\'',
                 'sSize' => 'bigint(20) NOT NULL DEFAULT 0',
                 'sReturnCodes' => 'text DEFAULT NULL',
+                'sBeforeSoftware' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
         'snapinTasks' => [
