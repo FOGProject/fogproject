@@ -291,7 +291,7 @@ hasnt "$calls" "systemctl" "C17. no service was stopped or started"
 hasnt "$calls" "mysqldump" "C18. mysqldump was not run"
 # The only thing a dry run may do is the read-only credential probe, which has
 # to happen for the plan to be honest about whether the revert can work.
-has "$calls" "--execute=quit" "C19. the read-only credential probe still ran"
+has "$calls" "--execute=SELECT 1" "C19. the read-only credential probe still ran"
 
 echo
 echo "  $PASS passed, $FAIL failed"
