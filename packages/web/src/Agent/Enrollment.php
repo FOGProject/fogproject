@@ -468,13 +468,11 @@ class Enrollment extends FOGBase
         if ((int)$Row->get('hostID') < 1) {
             return '';
         }
-        // A directory identity conflict that has a host was bound by
-        // _bindFromStoredIdentity(). It is never approved without a click:
-        // not by a token, not by a recent deploy.
-        $identity = json_decode((string)$Row->get('identity'), true) ?: [];
-        if (!empty($identity['_directoryIdentity']['required'])
-            && self::REASON_CONFLICT === $Row->get('reason')
-        ) {
+        // Only an admin's click approves an identity conflict. A token or a
+        // recent deploy never does. The legacy resolver binds a conflict at
+        // first contact. _bindFromStoredIdentity() binds a directory
+        // conflict on a later poll.
+        if (self::REASON_CONFLICT === $Row->get('reason')) {
             return '';
         }
         self::guardDirectoryIdentity($Row);
