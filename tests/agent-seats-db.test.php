@@ -113,8 +113,9 @@ $seats = $pdo->query('SELECT haHostID, haOS, haFingerprint, haNotAfter, haVersio
 $t->check('migration: one seat per bound host', 2 === count($seats));
 $t->check(
     'migration: the OS comes from the enrollment row of that key, and the state is copied',
-    isset($seats[0]) && [1, 'linux', $fpA, '2027-01-01 00:00:00', '0.1.9', 'current', '2026-11-01 10:00:00']
-        === array_values($seats[0])
+    // Compared as strings: PHP 7.4's PDO returns an INT column as '1', 8.x as 1.
+    isset($seats[0]) && ['1', 'linux', $fpA, '2027-01-01 00:00:00', '0.1.9', 'current', '2026-11-01 10:00:00']
+        === array_map('strval', array_values($seats[0]))
 );
 $t->check(
     'migration: a binding with no enrollment row gets the empty OS',
