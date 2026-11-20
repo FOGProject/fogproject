@@ -3102,9 +3102,10 @@ class Route extends FOGBase
      *
      * Principal::verify() does the cryptography; this is the binding: the
      * certificate's key must be the key enrollment stored on exactly one
-     * live, non-pending host. A deleted host or a re-enrolled key both
-     * come back null, which the gate turns into a 401 -- and a 401 is what
-     * tells the agent to drop its certificate and enroll again.
+     * agent seat (one per OS on a host) of a live, non-pending host. A
+     * deleted host or a re-enrolled key both come back null, which the gate
+     * turns into a 401 -- and a 401 is what tells the agent to drop its
+     * certificate and enroll again.
      *
      * @return \FOG\Items\Host|null
      */
@@ -3128,29 +3129,24 @@ class Route extends FOGBase
         // 2026-09-03: verify() passed, getIds() returned [], poll failed.
         // One indexed column, so this is as cheap as the scoped path.
         //
-        // LIMIT 2, because exactly one host may carry this key. Two would
-        // mean the binding is ambiguous, and an ambiguous principal is no
-        // principal.
-        $res = self::$DB->query(
-            'SELECT `hostID` FROM `hosts`'
-            . ' WHERE `hostAgentFingerprint` = :fp AND `hostPending` = 0'
-            . ' LIMIT 2',
-            [],
-            ['fp' => $verified['fingerprint']]
-        );
-        if (false !== $res->error) {
+        // The key is matched to one SEAT (hostAgents: a host holds one per
+        // OS). LIMIT 2 in Seat::principal(), because exactly one seat may
+        // carry this key. Two would mean the binding is ambiguous, and an
+        // ambiguous principal is no principal.
+        try {
+            $rows = \FOG\Agent\Seat::principal($verified['fingerprint']);
+        } catch (\RuntimeException $e) {
             // The database is the thing that is broken. Telling agents to
             // re-enroll would turn one outage into a fleet-wide
             // re-approval.
             self::$agentAuthReason = 'server_error';
             return null;
         }
-        $rows = $res->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
-        if (!is_array($rows) || 1 !== count($rows)) {
+        if (1 !== count($rows)) {
             // Zero rows is a certificate bound to no live host, which IS
             // this agent's problem to fix. Two is an ambiguous binding,
             // which re-enrolling cannot resolve and would only add to.
-            self::$agentAuthReason = (is_array($rows) && count($rows) > 1)
+            self::$agentAuthReason = (count($rows) > 1)
                 ? 'ambiguous_certificate'
                 : 'unknown_certificate';
             return null;
@@ -3160,6 +3156,9 @@ class Route extends FOGBase
             self::$agentAuthReason = 'unknown_certificate';
             return null;
         }
+        // The request runs as this seat: its OS, and its values in the
+        // in-memory host.
+        \FOG\Agent\Seat::load($Host, $rows[0]);
         return $Host;
     }
     /**
@@ -3219,11 +3218,9 @@ class Route extends FOGBase
         if ($state !== (string)$Host->get('agentUpdateState')) {
             $fields['agentUpdateState'] = $state;
         }
-        (new HostManager())->update(
-            ['id' => (int)$Host->get('id')],
-            '',
-            $fields
-        );
+        // Through the seat: it writes this OS's row and mirrors it to the
+        // host, so a second OS's poll never overwrites this OS's version.
+        \FOG\Agent\Seat::record($Host, $fields);
         $desired = \FOG\Agent\State::desired($Host, $body);
         $answer = [
             'status' => 'ok',
@@ -3259,7 +3256,11 @@ class Route extends FOGBase
         try {
             $answer += \FOG\Agent\State::facts($Host, $body);
             $answer += \FOG\Agent\State::sessions($Host, $body);
-            if (\FOG\Agent\MachineIdentity::requested($body)) {
+            // Only the directory seat gets the directory blocks, and only it
+            // may note a blocked reason on the shared row (design 0019).
+            if (\FOG\Agent\MachineIdentity::requested($body)
+                && \FOG\Agent\Seat::isDirectorySeat($Host)
+            ) {
                 try {
                     $answer['directory_rejoin'] = \FOG\Agent\DirectoryRejoin::plan($Host, $body);
                 } catch (\RuntimeException $rejoinError) {

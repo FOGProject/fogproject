@@ -54,4 +54,17 @@ foreach ($settings as $key => $value) {
 FogTestHarness::setStatic('FOGBase', '_settingsCache', $cache);
 FogTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
 \FOG\Router\Route::$agentHost = new \FOG\Items\Host(7);
+// The auth gate loads the seat that authenticated; the poll writes through it.
+\FOG\Agent\Seat::load(
+    \FOG\Router\Route::$agentHost,
+    [
+        'hostID' => 7,
+        'os' => 'windows',
+        'fingerprint' => (string)\FOG\Router\Route::$agentHost->get('agentFingerprint'),
+        'notAfter' => null,
+        'version' => '',
+        'updateState' => '',
+        'checkin' => null
+    ]
+);
 \FOG\Router\Route::agentPoll();

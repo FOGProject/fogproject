@@ -24,11 +24,14 @@ $fingerprint = str_repeat('f', 64);
 $domain = 'corp.example';
 $pdo->exec('DELETE FROM hostDirectory');
 $pdo->exec('DELETE FROM hosts');
+$pdo->exec('DELETE FROM hostAgents');
 $pdo->exec('DELETE FROM tasks');
 $insertHost = $pdo->prepare('INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostAgentFingerprint) VALUES (?,?,1,?,?)');
 $insertHost->execute([81, 'NEWA', $domain, $fingerprint]);
 // The second host takes the name host A is renaming away from.
 $insertHost->execute([82, 'OLDA', $domain, str_repeat('e', 64)]);
+directorySeat($pdo, 81, $fingerprint);
+directorySeat($pdo, 82, str_repeat('e', 64));
 
 $host = (new FOG\Items\Host())->set('id', 81)->set('name', 'NEWA')->set('useAD', 1)
     ->set('ADDomain', $domain)->set('agentFingerprint', $fingerprint);

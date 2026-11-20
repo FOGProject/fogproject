@@ -24,10 +24,13 @@ $fingerprint = str_repeat('f', 64);
 $bad = '{"attempt_id":"' . str_repeat('9', 32) . '", broken';
 $pdo->exec('DELETE FROM hostDirectory');
 $pdo->exec('DELETE FROM hosts');
+$pdo->exec('DELETE FROM hostAgents');
 $pdo->prepare('INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostAgentFingerprint) VALUES (1,?,1,?,?)')
     ->execute(['GOOD1', 'corp.example', $fingerprint]);
 $pdo->prepare('INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostAgentFingerprint) VALUES (2,?,1,?,?)')
     ->execute(['BAD2', 'corp.example', str_repeat('e', 64)]);
+directorySeat($pdo, 1, $fingerprint);
+directorySeat($pdo, 2, str_repeat('e', 64));
 
 $attempt = str_repeat('a', 32);
 $config = ['version' => 1, 'protocol' => 2, 'allow_create' => false, 'name' => 'GOOD1', 'domain' => 'corp.example'];

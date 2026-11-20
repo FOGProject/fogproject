@@ -12464,3 +12464,55 @@ $this->schema[] = [
         return true;
     },
 ];
+// 466
+$this->schema[] = [
+    // One agent seat per OS on a host (fog-agent#53).
+    //
+    // A dual-boot machine resolves to ONE host from both OSes, and a host
+    // held one agent key (hosts.hostAgentFingerprint). The second OS pended
+    // as a rebind, and approving it replaced the first OS's key. A host now
+    // holds one seat per OS: haOS is the `os` the agent sent at enrollment
+    // (Go GOOS: windows, linux, darwin; agentEnrollment.aeOS).
+    //
+    // hostAgents is the source of truth for the binding and for per-seat
+    // agent state. The hosts.hostAgent{Fingerprint,NotAfter,Version,
+    // UpdateState,Checkin} columns STAY and are a MIRROR of the seat that
+    // wrote most recently, so every "host at a glance" reader (host list,
+    // export, dashboard, reports) keeps working. FOG\Agent\Seat is the only
+    // deliberate writer; Host::save() rewrites them with whatever the loaded
+    // host holds. They are for display and never authenticate.
+    // hostAgentDesiredVersion and hostAgentUpdateRing stay host-level.
+    //
+    // The foreign key to hosts is declared in commons/schema-constraints.php,
+    // as for every other satellite table.
+    "CREATE TABLE IF NOT EXISTS `hostAgents` ( "
+    . "`haID` int(11) NOT NULL AUTO_INCREMENT, "
+    . "`haHostID` int(11) NOT NULL, "
+    . "`haOS` varchar(20) NOT NULL DEFAULT '', "
+    . "`haFingerprint` varchar(64) NOT NULL DEFAULT '', "
+    . "`haNotAfter` datetime DEFAULT NULL, "
+    . "`haVersion` varchar(50) NOT NULL DEFAULT '', "
+    . "`haUpdateState` varchar(16) NOT NULL DEFAULT '', "
+    . "`haCheckin` datetime DEFAULT NULL, "
+    . "PRIMARY KEY (`haID`), "
+    . "UNIQUE KEY `haHostOS` (`haHostID`,`haOS`), "
+    . "UNIQUE KEY `haFingerprint` (`haFingerprint`) "
+    . ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC",
+    // One seat per bound host. The OS comes from the enrollment row that
+    // issued the host's key ('' when no row matches). INSERT IGNORE makes a
+    // re-run a no-op: the unique keys refuse a second copy.
+    "INSERT IGNORE INTO `hostAgents` "
+    . "(`haHostID`,`haOS`,`haFingerprint`,`haNotAfter`,`haVersion`,"
+    . "`haUpdateState`,`haCheckin`) "
+    . "SELECT `h`.`hostID`, "
+    . "COALESCE((SELECT `e`.`aeOS` FROM `agentEnrollment` `e` "
+    . "WHERE `e`.`aeFingerprint` = `h`.`hostAgentFingerprint` LIMIT 1), ''), "
+    . "`h`.`hostAgentFingerprint`, `h`.`hostAgentNotAfter`, "
+    . "`h`.`hostAgentVersion`, `h`.`hostAgentUpdateState`, "
+    . "`h`.`hostAgentCheckin` "
+    . "FROM `hosts` `h` WHERE `h`.`hostAgentFingerprint` <> ''",
+    // A snapin can be limited to one OS. '' means any OS. Compared with the
+    // OS of the agent seat that polls (`windows`, `linux`, `darwin`).
+    "ALTER TABLE `snapins` "
+    . "ADD COLUMN `sOS` varchar(20) NOT NULL DEFAULT ''",
+];

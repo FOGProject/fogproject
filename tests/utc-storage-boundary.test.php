@@ -166,7 +166,10 @@ foreach ([
         // names are lowercase but not all of them are -- 'agentCheckin' is
         // camelCase in Host::$databaseFields -- and a hinted call was
         // reported as unhinted purely for its casing.
-        "#dateOrNever\(\s*\\\$this->obj->get\('[A-Za-z]+'\),\s*'[a-z]+',\s*'[A-Za-z]+'\s*\)#s",
+        // The first argument is the host's own property, or one key of an
+        // agent seat row (the host page's Agent Seats field, schema 466),
+        // and the table name is camelCase for hostAgents.
+        "#dateOrNever\(\s*(?:\\\$this->obj->get\('[A-Za-z]+'\)|\\\$seat\['[A-Za-z]+'\]),\s*'[A-Za-z]+',\s*'[A-Za-z]+'\s*\)#s",
         $src
     );
     $all = preg_match_all('#self::dateOrNever\(#', $src);

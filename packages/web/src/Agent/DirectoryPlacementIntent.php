@@ -501,7 +501,9 @@ class DirectoryPlacementIntent extends FOGBase
     private static function _snapshot(\PDO $db, $host, $lock = false)
     {
         $suffix = $lock ? ' FOR UPDATE' : '';
-        $hosts = self::_rows($db, 'SELECT hostID,hostName,hostADDomain,hostADOU,hostUseAD,hostAgentFingerprint FROM hosts WHERE hostID=?' . $suffix, [(int)$host]);
+        // directoryFingerprint is the host's directory seat (hostAgents), not
+        // the hosts mirror (fog-agent#53).
+        $hosts = self::_rows($db, 'SELECT hostID,hostName,hostADDomain,hostADOU,hostUseAD,' . Seat::directoryFingerprintSql('hosts.hostID') . ' AS directoryFingerprint FROM hosts WHERE hostID=?' . $suffix, [(int)$host]);
         $dirs = self::_rows($db, 'SELECT hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt,hdRejoinConfig,hdRejoinState FROM hostDirectory WHERE hdHostID=?' . $suffix, [(int)$host]);
         if (1 !== count($hosts) || 1 !== count($dirs) || !(int)$hosts[0]['hostUseAD'] || !(int)$dirs[0]['hdJoined']) {
             throw new \RuntimeException('directory_placement_snapshot_unavailable', 409);
@@ -553,7 +555,7 @@ class DirectoryPlacementIntent extends FOGBase
     private static function _assertRequestSnapshot(Host $host, HostDirectory $directory, array $saved, array $snapshot)
     {
         $fields = ['hostName' => $host->get('name'), 'hostADDomain' => $host->get('ADDomain'),
-            'hostADOU' => $host->get('ADOU'), 'hostAgentFingerprint' => $host->get('agentFingerprint'),
+            'hostADOU' => $host->get('ADOU'), 'directoryFingerprint' => Seat::directoryFingerprint((int)$host->get('id')),
             'hdDomain' => $directory->get('domain'), 'hdKind' => $directory->get('kind'),
             'hdComputerDN' => $directory->get('computerDN'), 'hdMachineAccount' => $directory->get('machineAccount'),
             'hdObservedAt' => $directory->get('observedAt')];

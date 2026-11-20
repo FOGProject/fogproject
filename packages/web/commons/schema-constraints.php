@@ -366,6 +366,10 @@ return [
     ['child' => 'hostPrinter', 'column' => 'hpHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'hostSpooler', 'column' => 'hspHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     ['child' => 'hostNetwork', 'column' => 'hnHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
+    // One agent seat per OS on a host (schema 466). A seat is the agent's
+    // standing with ONE host, so it goes with the host: CASCADE, the same
+    // call agentEnrollment makes above.
+    ['child' => 'hostAgents', 'column' => 'haHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 14],
     // Both ends of a wake relay are hosts, and BOTH cascade. A deleted
     // target has nothing left to wake; a deleted sender cannot be asked.
     // Leaving either behind would leave a row naming a host id that has

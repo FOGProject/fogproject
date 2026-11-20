@@ -71,6 +71,14 @@ $createFixture = static function ($count, $identityKind = null) use ($pdo, $guid
             'confirmed_by' => 'agent-directory-claim-race-fixture',
             'confirmed_at' => gmdate('c')
         ];
+        // The host row first: revision() binds the host's directory seat, which
+        // is read from the database (fog-agent#53).
+        $q = $pdo->prepare(
+            'INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostADOU,hostAgentFingerprint) '
+            . 'VALUES (?,?,1,?,?,?)'
+        );
+        $q->execute([$hostID, $hostName, $domain, 'OU=Managed,DC=corp,DC=example', $fingerprint]);
+        directorySeat($pdo, $hostID, $fingerprint);
         $revision = FOG\Agent\DirectoryOperation::revision($host, $config, $dc);
         $attempt = bin2hex(random_bytes(16));
         $state = [
@@ -107,15 +115,8 @@ $createFixture = static function ($count, $identityKind = null) use ($pdo, $guid
                 'boot' => ['marker' => 'claim-race', 'started' => gmdate(DATE_ATOM)]
             ]
         ];
-        $hostInserted = false;
         $directoryInserted = false;
         try {
-            $q = $pdo->prepare(
-                'INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostADOU,hostAgentFingerprint) '
-                . 'VALUES (?,?,1,?,?,?)'
-            );
-            $q->execute([$hostID, $hostName, $domain, 'OU=Managed,DC=corp,DC=example', $fingerprint]);
-            $hostInserted = true;
             $q = $pdo->prepare(
                 'INSERT INTO hostDirectory '
                 . '(hdHostID,hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt,hdRejoinConfig,hdRejoinState) '
@@ -141,7 +142,7 @@ $createFixture = static function ($count, $identityKind = null) use ($pdo, $guid
             ];
             $fixtures[(string)$hostID] = [
                 'host_id' => $hostID,
-                'host_inserted' => $hostInserted,
+                'host_inserted' => true,
                 'directory_inserted' => $directoryInserted
             ];
             $rows[] = $fixture;
@@ -150,10 +151,9 @@ $createFixture = static function ($count, $identityKind = null) use ($pdo, $guid
                 $q = $pdo->prepare('DELETE FROM hostDirectory WHERE hdHostID=?');
                 $q->execute([$hostID]);
             }
-            if ($hostInserted) {
-                $q = $pdo->prepare('DELETE FROM hosts WHERE hostID=?');
-                $q->execute([$hostID]);
-            }
+            // The host row was inserted before the try, so it is always there.
+            $q = $pdo->prepare('DELETE FROM hosts WHERE hostID=?');
+            $q->execute([$hostID]);
             throw $e;
         }
     }

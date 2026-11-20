@@ -278,6 +278,38 @@ class SnapinManagement extends FOGPage
             . '</p>';
     }
     /**
+     * The "Run on" select. Shared so the create form and the edit form
+     * cannot drift apart. Empty is any OS (schema 466).
+     *
+     * @param string $selected the current value
+     *
+     * @return string
+     */
+    private static function _osSelect($selected)
+    {
+        // Literal _() calls, so the string extraction finds the labels. The
+        // values are Snapin::OSES.
+        $labels = [
+            '' => _('Any'),
+            'windows' => _('Windows'),
+            'linux' => _('Linux'),
+            'darwin' => _('macOS')
+        ];
+        $html = '<select class="form-control" name="os" id="snapinos">';
+        foreach (Snapin::OSES as $value) {
+            $html .= '<option value="' . $value . '"'
+                . ((string)$selected === (string)$value ? ' selected' : '')
+                . '>' . $labels[$value] . '</option>';
+        }
+        return $html . '</select>'
+            . '<p class="form-text">'
+            . _(
+                'A host with agents on more than one OS runs this snapin '
+                . 'only on the OS chosen here. Any runs it on all of them.'
+            )
+            . '</p>';
+    }
+    /**
      * Builds the create-form fields (shared by add() and addModal()).
      *
      * @return array
@@ -545,6 +577,11 @@ class SnapinManagement extends FOGPage
             . self::_beforeSoftwareHelp(),
             self::makeLabel(
                 $labelClass,
+                'snapinos',
+                _('Run on')
+            ) => self::_osSelect(Snapin::cleanOS(filter_input(INPUT_POST, 'os'))),
+            self::makeLabel(
+                $labelClass,
                 'timeout',
                 _('Snapin Timeout')
                 . '<br/>('
@@ -796,6 +833,10 @@ class SnapinManagement extends FOGPage
             $this->obj->get('beforeSoftware')
         );
         $isbefore = ($beforeSoftware ? 'checked' : '');
+        $postedOS = filter_input(INPUT_POST, 'os');
+        $snapinOS = null !== $postedOS
+            ? Snapin::cleanOS($postedOS)
+            : (string)$this->obj->get('os');
         $ishid = ($isHidden ? 'checked' : '');
         $isprot = ($protected ? 'checked' : '');
         $isen = ($isEnabled ? 'checked' : '');
@@ -1079,6 +1120,11 @@ class SnapinManagement extends FOGPage
             . self::_beforeSoftwareHelp(),
             self::makeLabel(
                 $labelClass,
+                'snapinos',
+                _('Run on')
+            ) => self::_osSelect($snapinOS),
+            self::makeLabel(
+                $labelClass,
                 'timeout',
                 _('Snapin Timeout')
                 . '<br/>('
@@ -1243,6 +1289,7 @@ class SnapinManagement extends FOGPage
         $toReplicate = (int)isset($_POST['toReplicate']);
         $hide = (int)isset($_POST['isHidden']);
         $beforeSoftware = (int)isset($_POST['beforeSoftware']);
+        $snapinOS = Snapin::cleanOS(filter_input(INPUT_POST, 'os'));
         $timeout = trim((string)filter_input(INPUT_POST, 'timeout'));
         $returnCodes = trim((string)filter_input(INPUT_POST, 'returnCodes'));
         $action = trim((string)filter_input(INPUT_POST, 'action'));
@@ -1405,6 +1452,7 @@ class SnapinManagement extends FOGPage
             ->set('toReplicate', $toReplicate)
             ->set('hide', $hide)
             ->set('beforeSoftware', $beforeSoftware)
+            ->set('os', $snapinOS)
             ->set('timeout', $timeout)
             ->set('returnCodes', $returnCodes);
     }

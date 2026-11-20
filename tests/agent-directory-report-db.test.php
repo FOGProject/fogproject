@@ -92,6 +92,7 @@ FogTestHarness::setStatic('FOGBase', '_settingsFileChecked', true);
 $pdo->prepare(
     'INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostADOU,hostAgentFingerprint) VALUES (?,?,1,?,?,?)'
 )->execute([$hostID, $newName, $domain, 'OU=Managed,DC=corp,DC=example', $fingerprint]);
+directorySeat($pdo, $hostID, $fingerprint);
 $pdo->prepare(
     'INSERT INTO hostDirectory '
     . '(hdHostID,hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt,hdRejoinConfig,hdRejoinState) '

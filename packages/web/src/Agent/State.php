@@ -16,11 +16,9 @@ namespace FOG\Agent;
 use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
-use FOG\Items\AgentEnrollment;
 use FOG\Items\Host;
 use FOG\Items\HostFactState;
 use FOG\Items\PowerManagement;
-use FOG\Managers\HostManager;
 use FOG\Router\Route;
 
 /**
@@ -232,15 +230,9 @@ class State extends FOGBase
         if (!self::productKeyIsValid($key)) {
             return null;
         }
-        $os = Route::getIds(
-            'agentenrollment',
-            [
-                'hostID' => (int)$Host->get('id'),
-                'state' => AgentEnrollment::STATE_ISSUED
-            ],
-            'os'
-        );
-        if (!in_array('windows', (array)$os, true)) {
+        // Only the Windows seat gets the key. A Linux seat on the same host
+        // is told nothing.
+        if (!Seat::isWindows($Host)) {
             return null;
         }
         return ['key' => self::productKeyFormat($key)];
@@ -534,17 +526,12 @@ class State extends FOGBase
     private static function _updateResult(Host $Host, $status, $detail)
     {
         $state = Update::classify($status, $detail);
-        // Written through the manager for agentPoll()'s reason: Host::save()
-        // rewrites the MAC association, and this rides a poll.
-        (new HostManager())->update(
-            ['id' => (int)$Host->get('id')],
-            '',
-            ['agentUpdateState' => $state]
-        );
-        // Keep the in-memory host consistent with the row just written, so
+        // Written through the seat for agentPoll()'s reason: Host::save()
+        // rewrites the MAC association, and this rides a poll. record() also
+        // keeps the in-memory host consistent with the row just written, so
         // anything later in this same request reads the new state rather
         // than the one the poll loaded.
-        $Host->set('agentUpdateState', $state);
+        Seat::record($Host, ['agentUpdateState' => $state]);
         $type = Update::auditType($status, $detail);
         if ('' === $type) {
             return;
@@ -640,7 +627,12 @@ class State extends FOGBase
         // Under the facts gate on purpose: placement decides what to do from
         // what the host observed, so an install that collects nothing has
         // nothing to decide from.
-        DirectoryFacts::place($Host);
+        //
+        // Only the directory seat's poll moves the computer object
+        // (fog-agent#53): every directory action follows one seat.
+        if (Seat::isDirectorySeat($Host)) {
+            DirectoryFacts::place($Host);
+        }
 
         return $answer;
     }

@@ -2,9 +2,19 @@
 /** Pure MJ-1 observation freshness and placement-health contract checks. */
 require __DIR__ . '/lib/fog-test-harness.php';
 FogTestHarness::boot('sc-observation');
-FogTestHarness::fakeDb();
+$fake = FogTestHarness::fakeDb();
 $t = new FogChecks();
 
+// The revision binds the host's directory seat key (fog-agent#53), read from
+// hostAgents, not the in-memory mirror. This host has one Windows seat.
+$windowsKey = str_repeat('a', 64);
+$fake->responder = function ($sql, $params) use (&$windowsKey) {
+    if (false === strpos($sql, 'hostAgents')) {
+        return null;
+    }
+    return [['hostID' => 71, 'os' => 'windows', 'fingerprint' => $windowsKey,
+        'notAfter' => null, 'version' => '', 'updateState' => '', 'checkin' => null]];
+};
 $host = (new FOG\Items\Host())
     ->set('id', 71)->set('name', 'WS-71')->set('ADDomain', 'corp.example')
     ->set('agentFingerprint', str_repeat('a', 64));
@@ -48,8 +58,12 @@ $changedHost = clone $host; $changedHost->set('id', 72);
 $t->check('T04 changed Host ID invalidates revision', false === FOG\Agent\DirectoryOperation::observationFresh($changedHost, $config, $state, 1000));
 $changedHost = clone $host; $changedHost->set('ADDomain', 'other.example');
 $t->check('changed Host domain invalidates revision', false === FOG\Agent\DirectoryOperation::observationFresh($changedHost, $config, $state, 1000));
+$windowsKey = str_repeat('b', 64);
+$t->check('changed directory seat fingerprint invalidates revision', false === FOG\Agent\DirectoryOperation::observationFresh($host, $config, $state, 1000));
+$windowsKey = str_repeat('a', 64);
+// The mirror is the last writer's key, whichever seat that was. It is not an input.
 $changedHost = clone $host; $changedHost->set('agentFingerprint', str_repeat('b', 64));
-$t->check('changed Host fingerprint invalidates revision', false === FOG\Agent\DirectoryOperation::observationFresh($changedHost, $config, $state, 1000));
+$t->check('a different mirror fingerprint does not invalidate revision', true === FOG\Agent\DirectoryOperation::observationFresh($changedHost, $config, $state, 1000));
 $changedConfig = $config; $changedConfig['config_revision'] = str_repeat('d', 32);
 $t->check('changed config invalidates revision', false === FOG\Agent\DirectoryOperation::observationFresh($host, $changedConfig, $state, 1000));
 $changedDcState = $state; $changedDcState['check_dc'] = 'dc2.corp.example';

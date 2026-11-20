@@ -42,12 +42,36 @@ $database = 'fog_directory_test';
 
 $manifest = require dirname(__DIR__, 2) . '/packages/web/commons/schema-expected.php';
 $pdo->exec('SET FOREIGN_KEY_CHECKS=0');
-foreach (['hostDirectory', 'hosts', 'multicastSessions', 'tasks', 'agentEnrollment', 'globalSettings', 'directoryPlacementIntent'] as $table) {
+foreach (['hostDirectory', 'hosts', 'hostAgents', 'multicastSessions', 'tasks', 'agentEnrollment', 'globalSettings', 'directoryPlacementIntent'] as $table) {
     $pdo->exec('DROP TABLE IF EXISTS `' . $table . '`');
 }
 // globalSettings: the application's own PDODB reads it on every model load.
-foreach (['hosts', 'multicastSessions', 'tasks', 'agentEnrollment', 'globalSettings'] as $table) {
+foreach (['hosts', 'hostAgents', 'multicastSessions', 'tasks', 'agentEnrollment', 'globalSettings'] as $table) {
     $pdo->exec($manifest['tables'][$table]['create']);
+}
+if (!function_exists('directorySeat')) {
+    /**
+     * Seeds (or, with an empty fingerprint, removes) a host's seat for one
+     * OS. The directory code reads the host's agent key from its directory
+     * seat in hostAgents (fog-agent#53), never from the hosts mirror, so a
+     * test that needs a key on a host seeds the seat itself.
+     *
+     * @param \PDO   $pdo         the scratch database
+     * @param int    $hostID      the host
+     * @param string $fingerprint the key's fingerprint, '' to remove the seat
+     * @param string $os          the seat's OS
+     *
+     * @return void
+     */
+    function directorySeat(\PDO $pdo, $hostID, $fingerprint, $os = 'windows')
+    {
+        $pdo->prepare('DELETE FROM `hostAgents` WHERE `haHostID` = ? AND `haOS` = ?')
+            ->execute([(int)$hostID, $os]);
+        if ('' !== $fingerprint) {
+            $pdo->prepare('INSERT INTO `hostAgents` (`haHostID`,`haOS`,`haFingerprint`) VALUES (?,?,?)')
+                ->execute([(int)$hostID, $os, $fingerprint]);
+        }
+    }
 }
 // hostDirectory as schema 446 left it, then the real schema 447 statements.
 $pdo->exec(
@@ -88,4 +112,20 @@ $pdo->exec(
     "INSERT INTO hosts (hostID,hostName,hostADDomain,hostUseAD,hostAgentFingerprint)"
     . " VALUES (7,'B','corp.example',1,'" . str_repeat('f', 64) . "')"
 );
+directorySeat($pdo, 7, str_repeat('f', 64));
 $pdo->exec('INSERT INTO hostDirectory (hdHostID) VALUES (7)');
+// A test that keeps the harness's fake PDODB reads the seats from the
+// scratch database: Seat::directorySeat() goes through FOGBase::$DB, which the
+// fake answers with nothing. Any other statement falls through unchanged.
+$fake->responder = static function ($sql, $params) use ($fake) {
+    if (!preg_match('/^\s*SELECT\b.*\bhostAgents\b/is', $sql)) {
+        return null;
+    }
+    // $fake->pdo, not the parent's connection: a forked claim process
+    // swaps in its own.
+    $statement = $fake->pdo->prepare($sql);
+    $statement->execute($params);
+    $rows = $statement->fetchAll(\PDO::FETCH_ASSOC);
+    $statement->closeCursor();
+    return $rows;
+};

@@ -107,6 +107,12 @@ class DirectoryFacts extends FOGBase
      */
     public static function report(Host $Host, array $block)
     {
+        // The hostDirectory row is the host's one membership record. Only
+        // the directory seat may write it: another seat reporting
+        // joined=0 would make the server think the host left the domain.
+        if (!Seat::isDirectorySeat($Host)) {
+            return;
+        }
         $hostID = (int)$Host->get('id');
         $Directory = self::row($hostID);
 

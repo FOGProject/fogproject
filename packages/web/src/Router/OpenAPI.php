@@ -2837,6 +2837,8 @@ class OpenAPI extends FOGBase
                                         'type' => 'string',
                                         'description' => _('Why it waits: unknown-host, '
                                             . 'known-host-no-agent, rebind, '
+                                            . 'new-seat (new OS on a host '
+                                            . 'that already has an agent), '
                                             . 'identity-conflict, reissue.')
                                     ],
                                     'retry_after' => ['type' => 'integer']
@@ -4445,6 +4447,13 @@ class OpenAPI extends FOGBase
                                     'description' => _('Present means the '
                                         . 'snapin runs before the host\'s '
                                         . 'software.')
+                                ],
+                                'os' => [
+                                    'type' => 'string',
+                                    'enum' => \FOG\Items\Snapin::OSES,
+                                    'default' => '',
+                                    'description' => _('The OS the snapin '
+                                        . 'runs on. Empty means any OS.')
                                 ]
                             ]
                         ]

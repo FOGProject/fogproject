@@ -128,6 +128,14 @@ class Snapins extends FOGBase
             if (!$Snapin->isValid()) {
                 continue;
             }
+            // A snapin limited to one OS (schema 466) is not for the other
+            // OS's seat. The task stays queued for the seat that matches.
+            $snapinOS = (string)$Snapin->get('os');
+            if ('' !== $snapinOS
+                && $snapinOS !== Seat::currentOS()
+            ) {
+                continue;
+            }
             $action = '';
             if ($Snapin->get('shutdown')) {
                 $action = 'shutdown';

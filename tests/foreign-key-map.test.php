@@ -370,6 +370,8 @@ $expected = [
         'hostPrinter.hpHostID',
         'hostSpooler.hspHostID',
     'hostNetwork.hnHostID',
+    // One agent seat per OS on a host (schema 466). A satellite: CASCADE.
+    'hostAgents.haHostID',
     'agentWake.awTargetID',
     'agentWake.awSenderID',
     'hostFactState.hfsHostID',

@@ -15,7 +15,6 @@ namespace FOG\Agent;
 
 use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
-use FOG\Items\AgentEnrollment;
 use FOG\Items\Host;
 use FOG\Items\HostDirectory;
 use FOG\Router\Route;
@@ -153,10 +152,17 @@ class DirectoryJoin extends FOGBase
      */
     public static function desired(Host $Host)
     {
+        // One seat owns the directory (fog-agent#53). Any other seat of the
+        // host gets no join block and no rename. The rename itself is still
+        // Windows-only: that is a property of the directory seat's platform.
+        if (!Seat::isDirectorySeat($Host)) {
+            return null;
+        }
+
         return self::blockFor(
             $Host,
             self::observed($Host),
-            self::isWindows($Host)
+            Seat::isWindows($Host)
         );
     }
 
@@ -303,30 +309,6 @@ class DirectoryJoin extends FOGBase
     }
 
     /**
-     * Whether the host's issued agent runs on Windows.
-     *
-     * Read the way State reads it for product-key activation: the platform
-     * the agent declared when it enrolled.
-     *
-     * @param Host $Host the host
-     *
-     * @return bool
-     */
-    protected static function isWindows(Host $Host)
-    {
-        $os = Route::getIds(
-            'agentenrollment',
-            [
-                'hostID' => (int)$Host->get('id'),
-                'state' => AgentEnrollment::STATE_ISSUED
-            ],
-            'os'
-        );
-
-        return in_array('windows', (array)$os, true);
-    }
-
-    /**
      * Records what the agent did about the join.
      *
      * @param Host  $Host   the host the certificate bound
@@ -349,6 +331,11 @@ class DirectoryJoin extends FOGBase
         // writing a row that is not its own.
         if ((int)$hostID !== (int)$Host->get('id')) {
             throw new \RuntimeException('not this host\'s membership', 404);
+        }
+        // Only the directory seat joins, so only it reports a join. Another
+        // seat's result would start the cooldown that holds the real join.
+        if (!Seat::isDirectorySeat($Host)) {
+            throw new \RuntimeException('not this seat\'s membership', 409);
         }
         $status = (string)($body['status'] ?? '');
         if (!in_array($status, self::STATUSES, true)) {
@@ -524,7 +511,11 @@ class DirectoryJoin extends FOGBase
             return '';
         }
 
-        return self::waitFor($Host, self::observed($Host), self::isWindows($Host));
+        if (!Seat::isDirectorySeat($Host)) {
+            return '';
+        }
+
+        return self::waitFor($Host, self::observed($Host), Seat::isWindows($Host));
     }
 
     /**
