@@ -82,6 +82,19 @@ $t->check('Route getList stdClass candidate', 7 === I::candidateHostID((object)[
 $t->check('a MAC whose host the serial contradicts is a conflict', 'conflict' === I::choose(null, false, [2], true)['status']);
 $t->check('a MAC with no contradiction still resolves', 2 === I::choose(null, false, [2], false)['host_id']);
 $t->check('firmware that names the host outranks the clash flag', 2 === I::choose(2, false, [2], true)['host_id']);
+// Forum 18319, agent enrollment: firmware names host 1, and a shared
+// adapter's MAC names host 2, whose stored serial proves it is a different
+// machine. The firmware's host wins, as at boot in enforce and register.
+$t->check('firmware wins over a MAC host proven to be another machine',
+    ['status' => 'resolved', 'host_id' => 1] === I::choose(1, false, [2], false, [2]));
+$t->check('firmware wins when its own MAC is also reported',
+    ['status' => 'resolved', 'host_id' => 1] === I::choose(1, false, [1, 2], false, [2]));
+$t->check('a MAC host that is not proven different still conflicts',
+    'conflict' === I::choose(1, false, [2, 3], false, [2])['status']);
+$t->check('a proven-different MAC host without firmware is still a conflict',
+    'conflict' === I::choose(null, false, [2], true, [2])['status']);
+$t->check('ambiguous firmware ignores the shared list',
+    'conflict' === I::choose(null, true, [2], false, [2])['status']);
 $t->check('array candidate', 7 === I::candidateHostID(['hostID' => 7]));
 $t->check('unknown candidate is not a host', 0 === I::candidateHostID((object)[]));
 

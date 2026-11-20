@@ -347,7 +347,7 @@ return [
     // an admin forgets a machine; the agent then comes back as unknown and
     // waits for a fresh decision. A denied row going with its host is the
     // same outcome, and the decision itself is in auditLog.
-    ['child' => 'agentEnrollment', 'column' => 'aeHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'enabled' => true, 'group' => 12],
+    ['child' => 'agentEnrollment', 'column' => 'aeHostID', 'parent' => 'hosts', 'pcolumn' => 'hostID', 'class' => 'satellite', 'action' => 'CASCADE', 'sentinel' => 0, 'enabled' => true, 'group' => 12],
     // The facts an agent reports about its own host (design 0006). Both are
     // satellites in the same sense inventory is: the rows describe one host
     // and mean nothing without it. CASCADE, so deleting a host takes its

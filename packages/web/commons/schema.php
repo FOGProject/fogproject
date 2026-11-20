@@ -12424,3 +12424,43 @@ $this->schema[] = [
     "ALTER TABLE `snapins` "
     . "ADD COLUMN `sBeforeSoftware` tinyint(1) NOT NULL DEFAULT 0",
 ];
+// 465
+$this->schema[] = [
+    // agentEnrollment.aeHostID: the `0` sentinel becomes NULL (forum 18319).
+    //
+    // An enrollment request that is not bound to a host stored aeHostID 0:
+    // an identity conflict on the directory identity path, and a request
+    // with no MAC address. The foreign key fk_agentEnrollment_aeHostID
+    // refuses 0 (error 1452), so the row was never saved. The agent got a
+    // 409 on each poll and the admin never saw the request.
+    //
+    // Same conversion as step 386: NULL is "no host". The manifest edit in
+    // the same commit makes save() write NULL for an unbound row.
+    //
+    // ORDER. MODIFY first, then UPDATE: a NOT NULL column will not take a
+    // NULL. Guarded on IS_NULLABLE so a fresh install and a re-run do no
+    // work.
+    function () {
+        $row = self::$DB->query(
+            "SELECT `IS_NULLABLE` AS `n` "
+            . "FROM `information_schema`.`COLUMNS` "
+            . "WHERE `TABLE_SCHEMA` = DATABASE() "
+            . "AND `TABLE_NAME` = 'agentEnrollment' "
+            . "AND `COLUMN_NAME` = 'aeHostID'"
+        )->fetch(\PDO::FETCH_ASSOC)->get();
+        if (!is_array($row) || !isset($row['n'])) {
+            return true;
+        }
+        if (strtoupper((string)$row['n']) === 'NO') {
+            self::$DB->query(
+                "ALTER TABLE `agentEnrollment` "
+                . "MODIFY COLUMN `aeHostID` INT(11) NULL DEFAULT NULL"
+            );
+        }
+        self::$DB->query(
+            "UPDATE `agentEnrollment` SET `aeHostID` = NULL "
+            . "WHERE `aeHostID` = 0"
+        );
+        return true;
+    },
+];

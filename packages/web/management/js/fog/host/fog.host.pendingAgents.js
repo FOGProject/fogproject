@@ -59,6 +59,29 @@
                 targets: 0
             },
             {
+                // An identity conflict names the other hosts its MACs
+                // belong to, so the admin can see who the conflict is with.
+                render: function (data, type, row) {
+                    var others = row.conflictHosts || [];
+                    if (type !== 'display') {
+                        return data + ' ' + others.map(function (h) {
+                            return h.name;
+                        }).join(' ');
+                    }
+                    if (!others.length) {
+                        return esc(data);
+                    }
+                    return esc(data) + '<br><small class="text-muted">'
+                        + 'MAC also on: '
+                        + others.map(function (h) {
+                            return '<a href="../management/index.php?node=host&sub=edit&id='
+                                + parseInt(h.id, 10) + '">' + esc(h.name) + '</a>';
+                        }).join(', ')
+                        + '</small>';
+                },
+                targets: 1
+            },
+            {
                 render: function (data, type, row) {
                     return esc(data) + (row.arch ? '/' + esc(row.arch) : '');
                 },

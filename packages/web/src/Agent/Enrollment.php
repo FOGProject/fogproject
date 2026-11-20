@@ -160,6 +160,7 @@ class Enrollment extends FOGBase
                     // Still pending. The automatic paths are re-checked: a token
                     // may be valid now, or the deploy that vouches for this host
                     // may have finished since the agent first asked.
+                    self::_bindFromStoredIdentity($Row);
                     $Row->save();
                     $via = self::_autoApproval($Row, $token);
                     if ($via) {
@@ -316,6 +317,8 @@ class Enrollment extends FOGBase
      * off means MAC only), then the MAC list. Both answering with different
      * hosts is reported, not guessed at: the firmware's answer is kept, as
      * enforce mode would, and the admin sees the conflict as the reason.
+     * A MAC host whose stored serial proves it is a different machine is
+     * not a conflict: its MAC is on a shared adapter.
      *
      * @param array $identity the identity block from the request
      * @param array $macs     validated MACs
@@ -349,7 +352,12 @@ class Enrollment extends FOGBase
         if ($hostID < 1) {
             return [0, self::REASON_UNKNOWN];
         }
-        if ($smbiosID && $macID && (int)$smbiosID !== $macID) {
+        // The firmware and the MAC name different hosts. It is a conflict,
+        // unless the MAC is on a shared adapter: then the firmware's host
+        // is the answer (forum 18319, MachineIdentity::sharedAdapter()).
+        if ($smbiosID && $macID && (int)$smbiosID !== $macID
+            && !MachineIdentity::sharedAdapter((int)$smbiosID, $macID, SmbiosIdentity::usable($ids))
+        ) {
             return [(int)$smbiosID, self::REASON_CONFLICT];
         }
         // Only the MAC found the host, and the firmware says this is a
@@ -396,6 +404,54 @@ class Enrollment extends FOGBase
     }
 
     /**
+     * Binds a pending directory identity request that has no host yet, when
+     * its stored identity now resolves to one. When nothing names the
+     * machine any more, it becomes a pending host, as on first contact.
+     *
+     * An identity conflict leaves the request with no host, and approve()
+     * refuses a request with no host. The admin removes the cause, for
+     * example a stray MAC on another host. Then the next poll binds the
+     * request here, and the admin can approve it. Only the stored identity
+     * is resolved, the same one guardDirectoryIdentity() checks at
+     * issuance, never the identity in the poll. The reason stays
+     * identity-conflict, so only an admin's click approves the request.
+     *
+     * @param AgentEnrollment $Row the pending request
+     *
+     * @return void
+     */
+    private static function _bindFromStoredIdentity(AgentEnrollment $Row)
+    {
+        if ((int)$Row->get('hostID') > 0
+            || self::REASON_CONFLICT !== $Row->get('reason')
+        ) {
+            return;
+        }
+        $identity = json_decode((string)$Row->get('identity'), true) ?: [];
+        if (empty($identity['_directoryIdentity']['required'])) {
+            return;
+        }
+        $resolved = MachineIdentity::resolve($identity, true);
+        if ('unresolved' === $resolved['status']) {
+            // Nothing names this machine now, for example after the admin
+            // removed a shared adapter's MAC from another host. It becomes
+            // a pending host, as on first contact.
+            $macs = self::_macs($identity['macs'] ?? []);
+            if (empty($macs)) {
+                return;
+            }
+            $Row->set('hostID', self::_createPendingHost($Row, $identity, $macs));
+        } elseif ('resolved' === $resolved['status']) {
+            $Row->set('hostID', (int)$resolved['host_id']);
+        } else {
+            return;
+        }
+        // The reason stays identity-conflict, so _autoApproval() never
+        // approves this request: an admin always clicks Approve.
+        self::_audit($Row, 'waiting: identity-conflict, now bound to host ' . (int)$Row->get('hostID'));
+    }
+
+    /**
      * The two approvals that need no click. Returns the via, or '' when
      * the request has to wait for an admin.
      *
@@ -406,6 +462,21 @@ class Enrollment extends FOGBase
      */
     private static function _autoApproval(AgentEnrollment $Row, $token)
     {
+        // A request bound to no host has nothing to approve. It waits as
+        // pending, so the agent gets a 202 and the admin sees the row
+        // (forum 18319), not a 409 from the guard below on each poll.
+        if ((int)$Row->get('hostID') < 1) {
+            return '';
+        }
+        // A directory identity conflict that has a host was bound by
+        // _bindFromStoredIdentity(). It is never approved without a click:
+        // not by a token, not by a recent deploy.
+        $identity = json_decode((string)$Row->get('identity'), true) ?: [];
+        if (!empty($identity['_directoryIdentity']['required'])
+            && self::REASON_CONFLICT === $Row->get('reason')
+        ) {
+            return '';
+        }
         self::guardDirectoryIdentity($Row);
         if ('' !== $token && self::_consumeToken($token)) {
             return self::VIA_TOKEN;
