@@ -808,7 +808,7 @@ $drop = new \ReflectionMethod(FOG\Agent\DirectoryOperation::class, 'dropSupersed
 $drop->setAccessible(true);
 $raceError = null;
 try {
-    $drop->invoke(null, $host, $raceSaved);
+    $drop->invoke(null, $host, $raceSaved, 'ready');
 } catch (\RuntimeException $e) {
     $raceError = $e->getMessage();
 }
@@ -838,6 +838,141 @@ $t->check(
     'ready plan with a reserved local marker stays blocked and keeps its state',
     'blocked' === ($reservedAnswer['phase'] ?? null)
         && $reservedReadyState === FOG\Agent\DirectoryRejoin::settings($host)['state']
+);
+
+// Forum 18325: a protected attempt whose disk a newer Deploy replaced. The
+// claim moved the high-water mark to the trigger (120). Deploy 121 completed
+// and this boot came after it, and the agent has no marker. The attempt waits
+// for a reboot that can no longer happen, so plan() drops it and plans again
+// from 121. Planning needs the account lookup, which this DB has no LDAP for.
+$newDiskBoot = $newerTaskEnd->add(new \DateInterval('PT30S'));
+$bothDeploys = [
+    ['id' => 120, 'changed' => $freshClaimTaskEnd],
+    ['id' => 121, 'changed' => $newerTaskEnd]
+];
+// The drop writes an audit row. The ORM writes it through FogFakeDb here, so
+// capture the INSERT's bound values on the way past.
+$auditInserts = new \stdClass();
+$seatReads = $fake->responder;
+$fake->responder = function ($sql, $params) use ($auditInserts, $seatReads) {
+    if (preg_match('/^\s*INSERT\s+INTO\s+`auditLog`/i', $sql)) {
+        $auditInserts->rows[] = $params;
+    }
+    return $seatReads($sql, $params);
+};
+/** The audit INSERTs captured since the last call. */
+$takeAuditInserts = function () use ($auditInserts) {
+    $rows = $auditInserts->rows ?? [];
+    $auditInserts->rows = [];
+    return $rows;
+};
+foreach (['awaiting_reboot', 'started', 'unknown', 'failed'] as $protectedPhase) {
+    list(, , $protectedState) = $storeTaskClaimSnapshot($bothDeploys, $newDiskBoot, $protectedPhase, 120, 120);
+    $takeAuditInserts();
+    $replanned = $planOutcome();
+    $after = FOG\Agent\DirectoryRejoin::settings($host)['state'];
+    $superseded = array_values(array_filter($takeAuditInserts(), static function ($p) {
+        return 'host.directory.superseded_by_deploy' === ($p[':alType_insert'] ?? null);
+    }));
+    $t->check(
+        $protectedPhase . ' attempt superseded by a newer Deploy writes one audit row',
+        1 === count($superseded) && '7' === (string)$superseded[0][':alSubjectID_insert']
+            && 'Deploy 121 replaced the disk of directory attempt ' . str_repeat('d', 32) . ' (' . $protectedPhase . ')'
+                === $superseded[0][':alText_insert']
+    );
+    $t->check(
+        $protectedPhase . ' attempt on a disk a newer Deploy replaced plans again from that Deploy',
+        'rejoin_lookup_failed' === ($replanned['error'] ?? null)
+    );
+    $t->check(
+        $protectedPhase . ' attempt superseded by a newer Deploy is dropped and kept for the operator',
+        empty($after['attempt_id'])
+            && $protectedState['attempt_id'] === ($after['cleared_attempt'] ?? null)
+            && $protectedPhase === ($after['cleared_phase'] ?? null)
+            && 'directory_task_superseded' === ($after['reason'] ?? null)
+            && 120 === ($after['last_deploy_task_id'] ?? null)
+    );
+}
+$fake->responder = $seatReads;
+// Every case below must keep the protected attempt exactly as stored.
+$assertProtectedKept = function ($label, array $state, array $body = []) use ($t, $host) {
+    try {
+        $answer = FOG\Agent\DirectoryOperation::plan($host, $body);
+    } catch (\RuntimeException $e) {
+        $answer = ['error' => $e->getMessage()];
+    }
+    $t->check(
+        $label . ' keeps the protected attempt',
+        $state === FOG\Agent\DirectoryRejoin::settings($host)['state'] && !isset($answer['error'])
+    );
+};
+// No newer Deploy: the attempt's own disk is still there.
+list(, , $protectedState) = $storeTaskClaimSnapshot(
+    [['id' => 120, 'changed' => $freshClaimTaskEnd]],
+    $freshClaimBoot,
+    'awaiting_reboot',
+    120,
+    120
+);
+$assertProtectedKept('awaiting_reboot attempt with no newer Deploy', $protectedState);
+// A newer Deploy, but this boot is older than its end: not the new disk.
+list(, , $protectedState) = $storeTaskClaimSnapshot(
+    $bothDeploys,
+    $freshClaimTaskEnd->add(new \DateInterval('PT30S')),
+    'awaiting_reboot',
+    120,
+    120
+);
+$assertProtectedKept('awaiting_reboot attempt whose boot predates the newer Deploy', $protectedState);
+// A newer Deploy still running holds the attempt until it ends.
+list(, , $protectedState) = $storeTaskClaimSnapshot(
+    [
+        ['id' => 120, 'changed' => $freshClaimTaskEnd],
+        ['id' => 121, 'changed' => $newerTaskEnd, 'state' => FOG\Items\TaskState::getQueuedState()]
+    ],
+    $newDiskBoot,
+    'awaiting_reboot',
+    120,
+    120
+);
+$assertProtectedKept('awaiting_reboot attempt behind a queued Deploy', $protectedState);
+// The agent still holds the marker for this attempt: the disk was not replaced.
+list(, , $protectedState) = $storeTaskClaimSnapshot($bothDeploys, $newDiskBoot, 'awaiting_reboot', 120, 120);
+$assertProtectedKept('awaiting_reboot attempt the agent still holds a marker for', $protectedState, ['directory_attempt' => [
+    'phase' => 'awaiting_reboot',
+    'attempt_id' => $protectedState['attempt_id'],
+    'host_id' => 7,
+    'fingerprint' => str_repeat('f', 64)
+]]);
+// A retry or rename attempt has no trigger, so a newer Deploy cannot be shown
+// to postdate it. It stays for the operator.
+list(, , $protectedState) = $storeTaskClaimSnapshot($bothDeploys, $newDiskBoot, 'awaiting_reboot', 0, 120);
+$assertProtectedKept('awaiting_reboot attempt with no trigger', $protectedState);
+// The protected drop is a locked compare-and-swap, like the ready one. A state
+// that moved, or a phase other than the one plan() saw, is refused.
+list($movedSaved, , $protectedState) = $storeTaskClaimSnapshot($bothDeploys, $newDiskBoot, 'awaiting_reboot', 120, 120);
+$write->execute([json_encode($taskClaimConfig), json_encode(['phase' => 'verified'] + $protectedState)]);
+$movedError = null;
+try {
+    $drop->invoke(null, $host, $movedSaved, 'awaiting_reboot');
+} catch (\RuntimeException $e) {
+    $movedError = $e->getMessage();
+}
+$t->check(
+    'protected drop that loses the race refuses and keeps the moved state',
+    'rejoin_plan_changed' === $movedError
+        && 'verified' === (FOG\Agent\DirectoryRejoin::settings($host)['state']['phase'] ?? null)
+);
+list($phaseSaved, , $protectedState) = $storeTaskClaimSnapshot($bothDeploys, $newDiskBoot, 'awaiting_reboot', 120, 120);
+$phaseError = null;
+try {
+    $drop->invoke(null, $host, $phaseSaved, 'started');
+} catch (\RuntimeException $e) {
+    $phaseError = $e->getMessage();
+}
+$t->check(
+    'protected drop for a phase plan() did not see refuses and keeps the state',
+    'rejoin_plan_changed' === $phaseError && $protectedState === FOG\Agent\DirectoryRejoin::settings($host)['state']
 );
 
 list($matchingSaved, $mismatchedBody) = $storeTaskClaimSnapshot(
@@ -927,7 +1062,9 @@ foreach (['secure_channel' => 'unknown', 'dc_reachable' => false] as $field => $
 }
 
 // A genuine uncertain attempt remains authoritative even when a later Deploy
-// becomes eligible; it is not replaced by a new operation plan.
+// becomes eligible, while the agent still holds its marker: that disk was
+// not replaced. Without the marker, the newer Deploy supersedes it (forum
+// 18325, covered above).
 $unknownTaskEnd = (new \DateTimeImmutable('now', $storageTZ))->sub(new \DateInterval('PT2M'));
 list(, , $unknownAttemptState) = $storeTaskClaimSnapshot(
     [['id' => 130, 'changed' => $unknownTaskEnd]],
@@ -937,7 +1074,12 @@ list(, , $unknownAttemptState) = $storeTaskClaimSnapshot(
     120,
     str_repeat('e', 32)
 );
-$unknownAttemptPlan = FOG\Agent\DirectoryOperation::plan($host);
+$unknownAttemptPlan = FOG\Agent\DirectoryOperation::plan($host, ['directory_attempt' => [
+    'phase' => 'unknown',
+    'attempt_id' => str_repeat('e', 32),
+    'host_id' => 7,
+    'fingerprint' => str_repeat('f', 64)
+]]);
 $unknownAttemptAfter = FOG\Agent\DirectoryRejoin::settings($host)['state'];
 $t->check(
     'new completed Deploy does not replace an actual unknown attempt',

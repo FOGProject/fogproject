@@ -40,6 +40,13 @@ class DirectoryRejoin extends FOGBase
     const PROTECTED_PHASES = ['started', 'awaiting_reboot', 'unknown', 'failed'];
 
     /**
+     * The state keys that outlive a dropped or cleared attempt. The agent
+     * re-sends its membership only when it changes, so a dropped workgroup
+     * flag or observation does not come back (forum 18325).
+     */
+    const KEPT_AFTER_ATTEMPT = ['observation', 'observed_at', 'check_dc', 'workgroup'];
+
+    /**
      * Decodes and validates a stored config or state value.
      *
      * @param mixed $raw the stored JSON; anything but a string is refused
@@ -264,6 +271,11 @@ class DirectoryRejoin extends FOGBase
      * review. Nothing is undone. The attempt's evidence is kept in the
      * cleared_* keys and the deploy task counters never move backward.
      *
+     * A clear consumes the cleared attempt's own trigger, not every Deploy.
+     * With no newer Deploy, nothing is planned after the clear. A Deploy
+     * newer than the attempt reimaged the disk, so it stays eligible and the
+     * next poll may plan a join from it, as for any fresh Deploy.
+     *
      * Works on an unreadable row, which no other writer can touch.
      *
      * @param Host   $host            the host
@@ -321,11 +333,20 @@ class DirectoryRejoin extends FOGBase
             } else {
                 $config = null;
             }
-            $q = $db->prepare('SELECT MAX(taskID) FROM tasks WHERE taskHostID = ? AND taskTypeID IN ('
-                . implode(',', array_map('intval', \FOG\Items\TaskType::DEPLOYTASKS)) . ')');
-            $q->execute([$id]);
-            $latest = (int)$q->fetchColumn();
-            $q->closeCursor();
+            // A readable attempt consumes its own trigger and no more. A newer
+            // Deploy reimaged the disk after the attempt, so it stays eligible
+            // and the next poll can plan a join from it (forum 18325). Only an
+            // unreadable row, with no trigger to go by, consumes the latest.
+            $latest = 0;
+            if (!$readable) {
+                $q = $db->prepare('SELECT MAX(taskID) FROM tasks WHERE taskHostID = ? AND taskTypeID IN ('
+                    . implode(',', array_map('intval', \FOG\Items\TaskType::DEPLOYTASKS)) . ')');
+                $q->execute([$id]);
+                $latest = (int)$q->fetchColumn();
+                $q->closeCursor();
+            }
+            // Without the workgroup flag, nothing planned a join again.
+            $kept = array_intersect_key($state, array_flip(self::KEPT_AFTER_ATTEMPT));
             $cleared = [
                 'version' => 1,
                 'protocol' => 2,
@@ -339,7 +360,7 @@ class DirectoryRejoin extends FOGBase
                 'cleared_phase' => $readable ? (string)($state['phase'] ?? '') : 'unreadable',
                 'cleared_by' => substr((string)$actor, 0, 100),
                 'cleared_at' => gmdate('c')
-            ];
+            ] + $kept;
             $q = $db->prepare('UPDATE hostDirectory SET hdRejoinConfig = ?, hdRejoinState = ? WHERE hdHostID = ?');
             $q->execute([$config, self::encoded($cleared), $id]);
             $db->commit();

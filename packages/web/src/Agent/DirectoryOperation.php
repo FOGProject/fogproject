@@ -12,6 +12,7 @@
  */
 namespace FOG\Agent;
 
+use FOG\Audit\Audit;
 use FOG\Items\Host;
 
 /**
@@ -372,27 +373,31 @@ class DirectoryOperation extends \FOG\Base\FOGBase
     }
 
     /**
-     * Removes a ready plan whose trigger Task no longer authorizes it. The
-     * high-water mark stays where it was, because the trigger was never
-     * consumed. The observation stays, so the same poll can plan again. The
-     * cleared_* keys keep the dropped attempt for the operator.
+     * Removes a plan that a Deploy has superseded: a ready plan whose trigger
+     * Task no longer authorizes it, or a protected plan whose disk a newer
+     * Deploy replaced (forum 18325). The high-water mark stays where it was.
+     * A ready trigger was never consumed, and a protected plan's trigger is
+     * at or below the new Deploy, which therefore stays eligible. The
+     * observation stays, so the same poll can plan again. The cleared_* keys
+     * keep the dropped attempt for the operator.
      *
-     * @param Host  $host  the host
-     * @param array $saved the settings plan() read
+     * @param Host   $host  the host
+     * @param array  $saved the settings plan() read
+     * @param string $phase the phase plan() saw, which must not have moved
      *
      * @return void
      *
      * @throws \RuntimeException rejoin_plan_changed (409) when the state moved
      */
-    private static function dropSupersededPlan(Host $host, array $saved)
+    private static function dropSupersededPlan(Host $host, array $saved, $phase)
     {
-        DirectoryRejoin::change($host, function (&$config, &$state) use ($saved) {
-            if ($config !== $saved['config'] || $state !== $saved['state'] || 'ready' !== ($state['phase'] ?? '')) {
+        DirectoryRejoin::change($host, function (&$config, &$state) use ($saved, $phase) {
+            if ($config !== $saved['config'] || $state !== $saved['state'] || $phase !== ($state['phase'] ?? '')) {
                 throw new \RuntimeException('rejoin_plan_changed', 409);
             }
-            $kept = array_intersect_key($state, array_flip(['last_deploy_task_id', 'observation', 'observed_at', 'check_dc', 'workgroup']));
+            $kept = array_intersect_key($state, array_flip(array_merge(['last_deploy_task_id'], DirectoryRejoin::KEPT_AFTER_ATTEMPT)));
             $state = ['version' => 1, 'protocol' => 2, 'reason' => 'directory_task_superseded', 'placement_hold' => true,
-                'cleared_attempt' => (string)$state['attempt_id'], 'cleared_phase' => 'ready',
+                'cleared_attempt' => (string)$state['attempt_id'], 'cleared_phase' => $phase,
                 'cleared_by' => 'FOG', 'cleared_at' => gmdate('c')] + $kept;
             return null;
         });
@@ -476,8 +481,37 @@ class DirectoryOperation extends \FOG\Base\FOGBase
                     // A ready plan was never claimed, so nothing ran and no
                     // credential left the server. Drop it and plan again from
                     // the current Task, so the host is not blocked for good.
-                    self::dropSupersededPlan($host, $saved);
+                    self::dropSupersededPlan($host, $saved, 'ready');
                     // The new state has no attempt, so this branch runs once.
+                    return self::plan($host, $body);
+                }
+            } elseif ('none' === $local['phase'] && !empty($s['trigger_task_id'])
+                && in_array($s['phase'] ?? '', DirectoryRejoin::PROTECTED_PHASES, true)) {
+                // Forum 18325: a protected attempt whose disk a newer Deploy
+                // replaced. The agent has no marker for it, and a completed
+                // Deploy newer than its trigger, with this boot after that
+                // Deploy (DirectoryTask's eligible), says the disk is new.
+                // The old attempt waits for a reboot that can no longer
+                // happen, so it would block the host for good. Drop it and
+                // plan from the new Deploy. The new plan reads the account
+                // in the directory again before it acts.
+                $task = DirectoryTask::read($host, $s, $s['observation'] ?? []);
+                if ('eligible' === $task['status'] && $task['task_id'] > $s['trigger_task_id']) {
+                    self::dropSupersededPlan($host, $saved, (string)$s['phase']);
+                    // This attempt may have changed the computer account, so
+                    // its removal is on the record. The next plan overwrites
+                    // cleared_*.
+                    Audit::record([
+                        'type' => 'host.directory.superseded_by_deploy',
+                        'subjectType' => 'host',
+                        'subjectID' => (int)$host->get('id'),
+                        'subjectLabel' => (string)$host->get('name'),
+                        'renderable' => 1,
+                        'affectedCount' => 1,
+                        'text' => substr('Deploy ' . $task['task_id'] . ' replaced the disk of directory attempt '
+                            . (string)$s['attempt_id'] . ' (' . (string)$s['phase'] . ')', 0, Audit::MAX_DETAIL),
+                        'authSource' => Principal::AUTH_SOURCE
+                    ]);
                     return self::plan($host, $body);
                 }
             }
