@@ -148,6 +148,34 @@ foreach ($claimFreshnessRejections as $label => $snapshot) {
         'rejoin_start_refused' === $claimableResult($snapshot, $body)
     );
 }
+// A dual-boot host: host 7 also has a Linux seat. The Windows seat is the
+// directory seat, so a request from the Linux seat can never claim the plan
+// (fog-agent#53), and the Linux key does not change the plan's revision.
+$linuxKey = str_repeat('9', 64);
+directorySeat($pdo, 7, $linuxKey, 'linux');
+FOG\Agent\Seat::$current = ['hostID' => 7, 'os' => 'linux', 'fingerprint' => $linuxKey];
+$t->check(
+    'a non-directory (Linux) seat cannot pass claimable',
+    'rejoin_start_refused' === $claimableResult($age599Snapshot, $body)
+);
+try {
+    FOG\Agent\DirectoryOperation::claim($host, $saved, $body);
+    $linuxClaim = null;
+} catch (\RuntimeException $e) {
+    $linuxClaim = $e->getMessage();
+}
+$t->check('a non-directory (Linux) seat cannot claim the plan', 'rejoin_plan_changed' === $linuxClaim);
+$t->check(
+    'the refused Linux claim leaves the ready plan untouched',
+    $saved === FOG\Agent\DirectoryRejoin::settings($host)
+);
+FOG\Agent\Seat::$current = ['hostID' => 7, 'os' => 'windows', 'fingerprint' => str_repeat('f', 64)];
+$t->check(
+    'the directory (Windows) seat still passes claimable on a dual-boot host',
+    null === $claimableResult($age599Snapshot, $body)
+);
+FOG\Agent\Seat::$current = null;
+directorySeat($pdo, 7, '', 'linux');
 $afterClaimFreshnessChecks = FOG\Agent\DirectoryRejoin::settings($host);
 $t->check(
     'claimable freshness cases leave the persisted config and ready state unchanged',
@@ -155,7 +183,12 @@ $t->check(
 );
 
 $guardChangedHost = function ($column, $value) use ($pdo, $host, $saved, $body) {
-    $pdo->exec("UPDATE hosts SET {$column}=" . $pdo->quote($value) . ' WHERE hostID=7');
+    // The agent key is the directory seat's, not a hosts column.
+    if ('hostAgentFingerprint' === $column) {
+        directorySeat($pdo, 7, $value);
+    } else {
+        $pdo->exec("UPDATE hosts SET {$column}=" . $pdo->quote($value) . ' WHERE hostID=7');
+    }
     try {
         FOG\Agent\DirectoryOperation::claim($host, $saved, $body);
         return null;
@@ -163,6 +196,7 @@ $guardChangedHost = function ($column, $value) use ($pdo, $host, $saved, $body) 
         return $e->getMessage();
     } finally {
         $pdo->exec("UPDATE hosts SET hostName='B',hostADDomain='corp.example',hostUseAD=1,hostAgentFingerprint='" . str_repeat('f', 64) . "' WHERE hostID=7");
+        directorySeat($pdo, 7, str_repeat('f', 64));
     }
 };
 $t->check(
@@ -325,18 +359,19 @@ $t->check(
 
 // Save the ORM object populated before claim through the real SQL statement
 // parameters. Non-hostDirectory queries continue through FogFakeDb unchanged.
-$fake->responder = function ($sql, $params) use ($pdo) {
+$seatReads = $fake->responder; // directory-db.php's hostAgents reads
+$fake->responder = function ($sql, $params) use ($pdo, $seatReads) {
     if (preg_match('/^\s*(?:INSERT\s+INTO|UPDATE)\s+`hostDirectory`/i', $sql)) {
         $statement = $pdo->prepare($sql);
         $statement->execute($params);
         return [];
     }
-    return null;
+    return $seatReads($sql, $params);
 };
 try {
     $staleDirectory->save();
 } finally {
-    $fake->responder = null;
+    $fake->responder = $seatReads;
 }
 $afterStaleSaveQuery = $pdo->query('SELECT hdRejoinConfig,hdRejoinState,hdJoined,hdMachineAccount,hdPlacementError FROM hostDirectory WHERE hdHostID=7');
 $afterStaleSave = $afterStaleSaveQuery->fetch(\PDO::FETCH_ASSOC);

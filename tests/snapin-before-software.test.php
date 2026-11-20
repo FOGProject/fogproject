@@ -76,7 +76,7 @@ $t->check(
 $expected = (string)file_get_contents($web . '/commons/schema-expected.php');
 $t->check(
     'schema-expected lists sBeforeSoftware in create and columns',
-    false !== strpos($expected, '`sBeforeSoftware` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`sID`)')
+    false !== strpos($expected, '`sBeforeSoftware` tinyint(1) NOT NULL DEFAULT 0, `sOS` varchar(20)')
     && false !== strpos($expected, "'sBeforeSoftware' => 'tinyint(1) NOT NULL DEFAULT 0'")
 );
 

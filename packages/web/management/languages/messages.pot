@@ -467,6 +467,9 @@ msgstr ""
 msgid "A host imaged inside this range counts as current. Everything else is measured back from the end date."
 msgstr ""
 
+msgid "A host with agents on more than one OS runs this snapin only on the OS chosen here. Any runs it on all of them."
+msgstr ""
+
 msgid "A host with that name already exists"
 msgstr ""
 
@@ -991,6 +994,9 @@ msgstr ""
 msgid "Agent Release Sync"
 msgstr ""
 
+msgid "Agent Seats"
+msgstr ""
+
 msgid "Agent Tokens"
 msgstr ""
 
@@ -1200,6 +1206,9 @@ msgid "Answered at a stored address this server cannot verify; rechecked by name
 msgstr ""
 
 msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
+msgstr ""
+
+msgid "Any"
 msgstr ""
 
 msgid "Any version"
@@ -1731,6 +1740,9 @@ msgid "Catch-All Site"
 msgstr ""
 
 msgid "Certificate"
+msgstr ""
+
+msgid "Certificate Expires"
 msgstr ""
 
 msgid "Certificate SHA-1"
@@ -5243,6 +5255,9 @@ msgstr ""
 msgid "Link ntfy Topic Success"
 msgstr ""
 
+msgid "Linux"
+msgstr ""
+
 msgid "Linux and macOS, as root:"
 msgstr ""
 
@@ -5753,6 +5768,9 @@ msgstr ""
 msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
+msgid "More than one non-Windows agent seat; no seat owns the directory."
+msgstr ""
+
 msgid "Most Frequent Host IDs"
 msgstr ""
 
@@ -5957,6 +5975,9 @@ msgid "No active tasks to cancel for this group"
 msgstr ""
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No agent"
 msgstr ""
 
 msgid "No archive was uploaded."
@@ -7709,6 +7730,9 @@ msgstr ""
 msgid "Run bin/fk-orphan-scan.php to find the rows."
 msgstr ""
 
+msgid "Run on"
+msgstr ""
+
 msgid "Running Windows"
 msgstr ""
 
@@ -9205,6 +9229,9 @@ msgid "The ID token names a different issuer"
 msgstr ""
 
 msgid "The ID token was issued to someone else"
+msgstr ""
+
+msgid "The OS the snapin runs on. Empty means any OS."
 msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
@@ -10757,7 +10784,7 @@ msgstr ""
 msgid "Who a filter can be shared with"
 msgstr ""
 
-msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflict, reissue."
+msgid "Why it waits: unknown-host, known-host-no-agent, rebind, new-seat (new OS on a host that already has an agent), identity-conflict, reissue."
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
@@ -10767,6 +10794,9 @@ msgid "Width must be 650 pixels."
 msgstr ""
 
 msgid "Window size must be greater than 1"
+msgstr ""
+
+msgid "Windows"
 msgstr ""
 
 msgid "Windows 10 Professional"
@@ -11482,6 +11512,9 @@ msgid "location url based on the host that checks in"
 msgstr ""
 
 msgid "logout"
+msgstr ""
+
+msgid "macOS"
 msgstr ""
 
 msgid "meaning a node that has no images on it"

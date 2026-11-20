@@ -68,10 +68,15 @@
                             return h.name;
                         }).join(' ');
                     }
+                    // A host holds one agent seat per OS. new-seat is the
+                    // second OS of a host that already has an agent.
+                    var shown = data === 'new-seat'
+                        ? 'New OS on a host that already has an agent'
+                        : data;
                     if (!others.length) {
-                        return esc(data);
+                        return esc(shown);
                     }
-                    return esc(data) + '<br><small class="text-muted">'
+                    return esc(shown) + '<br><small class="text-muted">'
                         + 'MAC also on: '
                         + others.map(function (h) {
                             return '<a href="../management/index.php?node=host&sub=edit&id='

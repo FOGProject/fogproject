@@ -270,6 +270,10 @@ const TABLE = [
     // the same reason as Update, which it serves; FOGAgentReleaseSync only
     // calls its sync().
     'Releases' => 'Agent',
+    // The agent seats of a host, one per OS (fog-agent design 0019): which
+    // key a client certificate binds to, and which seat owns the directory.
+    // Extends FOGBase directly, like Enrollment, so ancestry cannot place it.
+    'Seat' => 'Agent',
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',

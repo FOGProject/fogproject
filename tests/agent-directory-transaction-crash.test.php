@@ -193,6 +193,7 @@ try {
         . 'VALUES (?,?,1,?,?,?)'
     );
     $insertHost->execute([$hostID, $hostName, $domain, 'OU=Managed,DC=u2p2,DC=invalid', $fingerprint]);
+    directorySeat($pdo, $hostID, $fingerprint);
     $hostInserted = true;
     $insertDirectory = $pdo->prepare(
         'INSERT INTO hostDirectory '

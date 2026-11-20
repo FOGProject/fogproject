@@ -17,6 +17,7 @@ namespace FOG\Pages;
 
 use FOG\Agent\DirectoryPlacementIntent;
 use FOG\Agent\DirectoryRejoin;
+use FOG\Agent\Seat;
 use FOG\Assign\Resolver;
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
@@ -1750,6 +1751,32 @@ class HostManagement extends FOGPage
             'hosts',
             'hostAgentCheckin'
         );
+        // One line per agent seat (fog-agent#53). The fields above are the
+        // mirror of the seat that wrote last; a dual-boot host has one seat
+        // per OS and each has its own version, check-in and certificate.
+        $agentSeats = [];
+        $hostSeats = Seat::forHost((int)$this->obj->get('id'));
+        foreach ($hostSeats as $seat) {
+            $agentSeats[] = sprintf(
+                '%s | %s: %s | %s: %s | %s: %s',
+                ('' !== $seat['os'] ? $seat['os'] : _('unknown')),
+                _('Version'),
+                ('' !== $seat['version'] ? $seat['version'] : _('Never')),
+                _('Last Check-In'),
+                self::dateOrNever($seat['checkin'], 'hostAgents', 'haCheckin'),
+                _('Certificate Expires'),
+                self::dateOrNever($seat['notAfter'], 'hostAgents', 'haNotAfter')
+            );
+        }
+        // Two or more seats and none on Windows: no seat owns the directory,
+        // so the host gets no join, rename or rejoin. Say so on the page.
+        // Only worth saying when the host wants directory membership.
+        if ($this->obj->get('useAD')
+            && count($hostSeats) > 1
+            && null === Seat::directorySeatOf($hostSeats)
+        ) {
+            $agentSeats[] = _('More than one non-Windows agent seat; no seat owns the directory.');
+        }
         // The Secure Boot ledger's two halves, prepared very differently on
         // purpose (schema steps 376 and 377).
         //
@@ -2060,6 +2087,24 @@ class HostManagement extends FOGPage
                 false,
                 -1,
                 -1,
+                '',
+                true,
+                true
+            ),
+            // OBSERVED, disabled like the fields around it: the host's
+            // agent seats, one per OS (schema 466).
+            self::makeLabel(
+                $labelClass,
+                'agentseats',
+                _('Agent Seats')
+            ) => self::makeTextarea(
+                'form-control hostagentseats-input',
+                'agentseats',
+                _('No agent'),
+                'agentseats',
+                implode("\n", $agentSeats),
+                false,
+                false,
                 '',
                 true,
                 true

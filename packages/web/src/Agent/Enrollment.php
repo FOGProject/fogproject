@@ -59,7 +59,11 @@ class Enrollment extends FOGBase
 
     const REASON_UNKNOWN = 'unknown-host';
     const REASON_KNOWN = 'known-host-no-agent';
+    // The host has a seat for the request's OS: a new key for that seat.
     const REASON_REBIND = 'rebind';
+    // The host has a seat, but none for the request's OS (a dual-boot
+    // machine's second OS). Approving it adds a seat and keeps the others.
+    const REASON_NEW_SEAT = 'new-seat';
     const REASON_CONFLICT = 'identity-conflict';
     const REASON_REISSUE = 'reissue';
     const REASON_NO_MAC = 'no-mac';
@@ -180,14 +184,16 @@ class Enrollment extends FOGBase
                 $reason = self::REASON_CONFLICT;
             } elseif ($hostID < 1) {
                 $reason = self::REASON_UNKNOWN;
-            } elseif ((new Host($hostID))->get('agentFingerprint')) {
-                $reason = self::REASON_REBIND;
             } else {
-                $reason = self::REASON_KNOWN;
+                $reason = self::_seatReason($hostID, (string)($body['os'] ?? ''));
             }
             $identity['_directoryIdentity'] = ['required' => true];
         } else {
-            list($hostID, $reason) = self::_resolve($identity, $macs);
+            list($hostID, $reason) = self::_resolve(
+                $identity,
+                $macs,
+                (string)($body['os'] ?? '')
+            );
         }
 
         $Row = (new AgentEnrollment())
@@ -320,12 +326,13 @@ class Enrollment extends FOGBase
      * A MAC host whose stored serial proves it is a different machine is
      * not a conflict: its MAC is on a shared adapter.
      *
-     * @param array $identity the identity block from the request
-     * @param array $macs     validated MACs
+     * @param array  $identity the identity block from the request
+     * @param array  $macs     validated MACs
+     * @param string $os       the OS the agent sent
      *
      * @return array [int hostID, string reason]
      */
-    private static function _resolve(array $identity, array $macs)
+    private static function _resolve(array $identity, array $macs, $os)
     {
         $smbiosID = null;
         $ids = [];
@@ -369,11 +376,28 @@ class Enrollment extends FOGBase
         ) {
             return [$hostID, self::REASON_CONFLICT];
         }
-        $Host = new Host($hostID);
-        if ('' !== (string)$Host->get('agentFingerprint')) {
-            return [$hostID, self::REASON_REBIND];
+        return [$hostID, self::_seatReason($hostID, $os)];
+    }
+
+    /**
+     * The reason for a request that resolved to a host, from the host's seats.
+     *
+     * @param int    $hostID the resolved host
+     * @param string $os     the OS the agent sent
+     *
+     * @return string known-host-no-agent, rebind or new-seat
+     */
+    private static function _seatReason($hostID, $os)
+    {
+        // A seat with a blank OS is one migration could not name. A request
+        // for any OS replaces it, so it is a rebind, not a new seat.
+        if (Seat::exists($hostID, $os) || Seat::exists($hostID, '')) {
+            return self::REASON_REBIND;
         }
-        return [$hostID, self::REASON_KNOWN];
+        if (Seat::exists($hostID)) {
+            return self::REASON_NEW_SEAT;
+        }
+        return self::REASON_KNOWN;
     }
 
     /**
@@ -396,11 +420,7 @@ class Enrollment extends FOGBase
         if ('resolved' !== $resolved['status'] || $resolved['host_id'] !== (int)$row->get('hostID')) {
             throw new \RuntimeException('enrollment_identity_unresolved', 409);
         }
-        foreach ((array)Route::getIds('host', ['agentFingerprint' => (string)$row->get('fingerprint')], 'id') as $boundID) {
-            if ((int)$boundID !== (int)$row->get('hostID')) {
-                throw new \RuntimeException('enrollment_key_bound_elsewhere', 409);
-            }
-        }
+        Seat::refuseBoundElsewhere((string)$row->get('fingerprint'), (int)$row->get('hostID'));
     }
 
     /**
@@ -480,11 +500,15 @@ class Enrollment extends FOGBase
             return self::VIA_TOKEN;
         }
         // A deploy vouches only for the host it imaged, and only for a
-        // request that is a first binding or a rebind of that host. It never
-        // resolves a conflict and never creates a host.
+        // request that is a first binding, a rebind or a new OS seat of that
+        // host. It never resolves a conflict and never creates a host.
         $hostID = (int)$Row->get('hostID');
         if ($hostID > 0
-            && in_array($Row->get('reason'), [self::REASON_KNOWN, self::REASON_REBIND], true)
+            && in_array(
+                $Row->get('reason'),
+                [self::REASON_KNOWN, self::REASON_REBIND, self::REASON_NEW_SEAT],
+                true
+            )
             && self::recentDeploy(new Host($hostID))
         ) {
             return self::VIA_DEPLOY;
@@ -638,7 +662,11 @@ class Enrollment extends FOGBase
         if (null === $fingerprint) {
             throw new \RuntimeException('csr_pem is not a certificate request', 400);
         }
-        if (!hash_equals((string)$Host->get('agentFingerprint'), $fingerprint)) {
+        // The authenticated seat's key, not the host's mirror: the mirror
+        // holds whichever seat wrote last.
+        if ('' === Seat::currentFingerprint()
+            || !hash_equals(Seat::currentFingerprint(), $fingerprint)
+        ) {
             throw new \RuntimeException('the request is not for the key this certificate proved', 400);
         }
         list($leaf, $chain) = self::_sign((string)$csrPEM, (int)$Host->get('id'));
@@ -646,11 +674,11 @@ class Enrollment extends FOGBase
         $notAfter = is_array($parsed) && isset($parsed['validTo_time_t'])
             ? gmdate('Y-m-d H:i:s', (int)$parsed['validTo_time_t'])
             : null;
-        // The manager rather than Host::save(), as agentPoll does: a save
-        // rewrites the MAC association, and renewal is a routine call.
-        (new HostManager())->update(
-            ['id' => (int)$Host->get('id')],
-            '',
+        // Through the seat, which uses the manager rather than Host::save(),
+        // as agentPoll does: a save rewrites the MAC association, and
+        // renewal is a routine call.
+        Seat::record(
+            $Host,
             [
                 'agentNotAfter' => $notAfter,
                 'agentCheckin' => self::niceDate()->format('Y-m-d H:i:s')
@@ -728,6 +756,9 @@ class Enrollment extends FOGBase
         if (!$Host->isValid()) {
             throw new \RuntimeException('host no longer exists', 409);
         }
+        // Before signing, so no signing call is wasted: a key that is
+        // already another host's seat cannot be bound here.
+        Seat::refuseBoundElsewhere((string)$Row->get('fingerprint'), $hostID);
         list($leaf, $chain) = self::_sign((string)$Row->get('csr'), $hostID);
         $parsed = openssl_x509_parse($leaf);
         $notAfter = is_array($parsed) && isset($parsed['validTo_time_t'])
@@ -735,14 +766,27 @@ class Enrollment extends FOGBase
             : null;
         $now = self::niceDate()->format('Y-m-d H:i:s');
 
-        $Host->set('agentFingerprint', (string)$Row->get('fingerprint'))
-            ->set('agentNotAfter', $notAfter)
-            ->set('agentVersion', Update::normalize($Row->get('agentVersion')))
-            ->set('agentCheckin', $now);
+        // The seat for this request's OS. A new OS adds a seat and leaves
+        // the host's other seats alone; a new key for an OS replaces only
+        // that OS's seat.
+        Seat::bind(
+            $hostID,
+            (string)$Row->get('os'),
+            (string)$Row->get('fingerprint'),
+            $notAfter,
+            Update::normalize($Row->get('agentVersion')),
+            $now
+        );
+        // Un-pend after the bind, so a failed bind never leaves a live host
+        // with no seat. Through the manager, not Host::save(): a save would
+        // write back the stale agent values this object loaded.
         if ($Host->get('pending')) {
-            $Host->set('pending', '0');
+            (new HostManager())->update(
+                ['id' => $hostID],
+                '',
+                ['pending' => '0']
+            );
         }
-        $Host->save();
 
         $Row->set('state', AgentEnrollment::STATE_ISSUED)
             ->set('decided', $now)
@@ -844,12 +888,14 @@ class Enrollment extends FOGBase
      */
     private static function _issuedPayload(AgentEnrollment $Row, $cert)
     {
-        $Host = new Host((int)$Row->get('hostID'));
+        // The expiry of the seat this row bound, not the hosts mirror: the
+        // mirror holds whichever seat wrote last.
+        $notAfter = Seat::notAfter((int)$Row->get('hostID'), (string)$Row->get('os'));
         return [
             'status' => 'issued',
             'host_id' => (int)$Row->get('hostID'),
             'certificate_pem' => $cert,
-            'not_after' => (string)$Host->get('agentNotAfter')
+            'not_after' => $notAfter
         ];
     }
 

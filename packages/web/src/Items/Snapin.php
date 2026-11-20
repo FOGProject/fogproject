@@ -32,6 +32,26 @@ use FOG\Router\Route;
 class Snapin extends FOGController
 {
     /**
+     * The OS values a snapin can be limited to. The empty value is any OS. The others are the `os` an agent sends at enroll (Go GOOS).
+     * The one list of values for the form, the save and the API document.
+     * The form's labels are literal _() calls in SnapinManagement.
+     *
+     * @var array
+     */
+    const OSES = ['', 'windows', 'linux', 'darwin'];
+    /**
+     * A posted "Run on" value, or '' (any OS) when it is not in OSES.
+     *
+     * @param mixed $os the posted value
+     *
+     * @return string
+     */
+    public static function cleanOS($os)
+    {
+        $os = trim((string)$os);
+        return in_array($os, self::OSES, true) ? $os : '';
+    }
+    /**
      * The snapin table.
      *
      * @var string
@@ -59,6 +79,9 @@ class Snapin extends FOGController
         'toReplicate' => 'sReplicate',
         'hide' => 'sHideLog',
         'beforeSoftware' => 'sBeforeSoftware',
+        // The OS the snapin runs on: windows, linux, darwin. Empty is any
+        // OS (schema 466). The agent queue skips a snapin for another OS.
+        'os' => 'sOS',
         'timeout' => 'sTimeout',
         'returnCodes' => 'sReturnCodes',
         'packtype' => 'sPackType',
@@ -421,7 +444,7 @@ class Snapin extends FOGController
      *                     names: snapin, description, packtype, rw,
      *                     rwa, storagegroup, snapinfileexist,
      *                     isEnabled, toReplicate, isHidden,
-     *                     beforeSoftware, timeout, action, args
+     *                     beforeSoftware, os, timeout, action, args
      * @param array $files $_FILES (looks for 'snapinfile' key)
      *
      * @return Snapin The newly saved Snapin
@@ -453,6 +476,7 @@ class Snapin extends FOGController
         $toReplicate = (int)isset($post['toReplicate']);
         $hide = (int)isset($post['isHidden']);
         $beforeSoftware = (int)isset($post['beforeSoftware']);
+        $os = self::cleanOS($post['os'] ?? '');
         $action = trim((string)($post['action'] ?? ''));
         $args = trim((string)($post['args'] ?? ''));
         $timeout = trim((string)($post['timeout'] ?? ''));
@@ -557,6 +581,7 @@ class Snapin extends FOGController
             ->set('toReplicate', $toReplicate)
             ->set('hide', $hide)
             ->set('beforeSoftware', $beforeSoftware)
+            ->set('os', $os)
             ->set('timeout', $timeout)
             ->set('returnCodes', $returnCodes)
             ->addGroup($storagegroup);

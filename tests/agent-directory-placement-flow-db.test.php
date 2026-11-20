@@ -65,6 +65,7 @@ $create = static function ($ldapDN, $dbDN, $baseDN) use ($pdo, $managedDN, $setB
     $observedAt = gmdate('Y-m-d H:i:s');
     $pdo->prepare('INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostADOU,hostAgentFingerprint) VALUES (?,?,1,?,?,?)')
         ->execute([$id, $name, 'CORP', $managedDN, $fingerprint]);
+    directorySeat($pdo, $id, $fingerprint);
     $pdo->prepare('INSERT INTO hostDirectory (hdHostID,hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt) VALUES (?,1,\'domain\',?,?,?,?)')
         ->execute([$id, 'CORP', $dbDN, $name . '$', $observedAt]);
     $host = (new FOG\Items\Host())->set('id', $id)->set('name', $name)->set('ADDomain', 'CORP')

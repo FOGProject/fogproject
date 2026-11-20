@@ -512,6 +512,9 @@ msgstr "Une image existe déjà avec ce nom!"
 msgid "A host imaged inside this range counts as current. Everything else is measured back from the end date."
 msgstr ""
 
+msgid "A host with agents on more than one OS runs this snapin only on the OS chosen here. Any runs it on all of them."
+msgstr ""
+
 #, fuzzy
 msgid "A host with that name already exists"
 msgstr "Un nom d'hôte avec ce nom existe déjà."
@@ -1138,6 +1141,10 @@ msgid "Agent Release Sync"
 msgstr ""
 
 #, fuzzy
+msgid "Agent Seats"
+msgstr "Jeton d'accès"
+
+#, fuzzy
 msgid "Agent Tokens"
 msgstr "Jeton d'accès"
 
@@ -1373,6 +1380,9 @@ msgid "Answered at a stored address this server cannot verify; rechecked by name
 msgstr ""
 
 msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
+msgstr ""
+
+msgid "Any"
 msgstr ""
 
 #, fuzzy
@@ -1997,6 +2007,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Certificate"
+msgstr "Créer un nouveau %s"
+
+#, fuzzy
+msgid "Certificate Expires"
 msgstr "Créer un nouveau %s"
 
 msgid "Certificate SHA-1"
@@ -6110,6 +6124,9 @@ msgstr "Lien compte Slack"
 msgid "Link ntfy Topic Success"
 msgstr "Lien compte Slack"
 
+msgid "Linux"
+msgstr ""
+
 msgid "Linux and macOS, as root:"
 msgstr ""
 
@@ -6708,6 +6725,9 @@ msgstr "Échec de connexion"
 msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
+msgid "More than one non-Windows agent seat; no seat owns the directory."
+msgstr ""
+
 msgid "Most Frequent Host IDs"
 msgstr ""
 
@@ -6938,6 +6958,9 @@ msgid "No active tasks to cancel for this group"
 msgstr "Aucune tâche active trouvée pour Host"
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No agent"
 msgstr ""
 
 #, fuzzy
@@ -8958,6 +8981,9 @@ msgstr ""
 msgid "Run bin/fk-orphan-scan.php to find the rows."
 msgstr ""
 
+msgid "Run on"
+msgstr ""
+
 #, fuzzy
 msgid "Running Windows"
 msgstr "Exécution Version"
@@ -10737,6 +10763,9 @@ msgstr ""
 msgid "The ID token was issued to someone else"
 msgstr ""
 
+msgid "The OS the snapin runs on. Empty means any OS."
+msgstr ""
+
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
@@ -12453,7 +12482,7 @@ msgstr ""
 msgid "Who a filter can be shared with"
 msgstr ""
 
-msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflict, reissue."
+msgid "Why it waits: unknown-host, known-host-no-agent, rebind, new-seat (new OS on a host that already has an agent), identity-conflict, reissue."
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
@@ -12464,6 +12493,10 @@ msgstr ""
 
 msgid "Window size must be greater than 1"
 msgstr ""
+
+#, fuzzy
+msgid "Windows"
+msgstr "Windows 8"
 
 #, fuzzy
 msgid "Windows 10 Professional"
@@ -13274,6 +13307,9 @@ msgstr ""
 #, fuzzy
 msgid "logout"
 msgstr "Se déconnecter"
+
+msgid "macOS"
+msgstr ""
 
 msgid "meaning a node that has no images on it"
 msgstr ""

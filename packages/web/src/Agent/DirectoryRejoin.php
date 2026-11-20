@@ -158,7 +158,10 @@ class DirectoryRejoin extends FOGBase
         }
         $db->beginTransaction();
         try {
-            $q = $db->prepare('SELECT hostID, hostName, hostADDomain, hostUseAD, hostAgentFingerprint FROM hosts WHERE hostID = ? FOR UPDATE');
+            // directoryFingerprint is the host's directory seat (hostAgents),
+            // not the hosts mirror: one seat owns the directory, whichever
+            // seat is polling (fog-agent#53).
+            $q = $db->prepare('SELECT hostID, hostName, hostADDomain, hostUseAD, ' . Seat::directoryFingerprintSql('hosts.hostID') . ' AS directoryFingerprint FROM hosts WHERE hostID = ? FOR UPDATE');
             $q->execute([(int)$host->get('id')]);
             $principal = $q->fetch(\PDO::FETCH_ASSOC);
             $q->closeCursor();
@@ -492,6 +495,11 @@ class DirectoryRejoin extends FOGBase
         // A host with directory membership off has no operation to observe.
         // Observing would create its hostDirectory row and lock it on every poll.
         if (!$host->get('useAD') || !State::factsEnabled()) {
+            return;
+        }
+        // Only the directory seat observes. Another seat's observation would
+        // rewrite the shared row the directory seat's plan is built from.
+        if (!Seat::isDirectorySeat($host)) {
             return;
         }
         if (DirectoryOperation::requested($body)) {

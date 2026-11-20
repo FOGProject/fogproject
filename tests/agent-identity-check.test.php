@@ -281,8 +281,8 @@ $fake->responder = function ($sql, $params) use ($hostResponder) {
 $legacy = new \ReflectionMethod(Enrollment::class, '_resolve');
 $legacy->setAccessible(true);
 $t->check('enrollment: a contradicted MAC match is a conflict',
-    [9, Enrollment::REASON_CONFLICT] === $legacy->invoke(null, ['system_serial' => 'OTHER-LAPTOP'], ['00:11:22:33:44:55']));
+    [9, Enrollment::REASON_CONFLICT] === $legacy->invoke(null, ['system_serial' => 'OTHER-LAPTOP'], ['00:11:22:33:44:55'], 'windows'));
 $t->check('enrollment: the host\'s own machine is a first binding',
-    [9, Enrollment::REASON_KNOWN] === $legacy->invoke(null, ['system_serial' => 'STORED-9'], ['00:11:22:33:44:55']));
+    [9, Enrollment::REASON_KNOWN] === $legacy->invoke(null, ['system_serial' => 'STORED-9'], ['00:11:22:33:44:55'], 'windows'));
 
 $t->finish();

@@ -20,6 +20,7 @@ $host = (new FOG\Items\Host())
     ->set('useAD', 1)
     ->set('agentFingerprint', str_repeat('f', 64));
 $pdo->exec("UPDATE hosts SET hostName='B',hostADDomain='corp.example',hostUseAD=1,hostAgentFingerprint='" . str_repeat('f', 64) . "' WHERE hostID=7");
+directorySeat($pdo, 7, str_repeat('f', 64));
 $pdo->exec('UPDATE hostDirectory SET hdRejoinConfig=NULL,hdRejoinState=NULL WHERE hdHostID=7');
 FogTestHarness::setStatic('FOGBase', '_settingsCache', [
     'FOG_AGENT_INVENTORY_ENABLED' => ['value' => '1']

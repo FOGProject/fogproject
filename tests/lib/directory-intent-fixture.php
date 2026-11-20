@@ -55,6 +55,7 @@ function intentFixtureCreate(\PDO $pdo, array $with = [])
     $fingerprint = hash('sha256', 'fp' . $id);
     $pdo->prepare('INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostADOU,hostAgentFingerprint) VALUES (?,?,1,?,?,?)')
         ->execute([$id, $name, $domain, 'OU=Managed,DC=corp,DC=example', $fingerprint]);
+    directorySeat($pdo, $id, $fingerprint);
     $pdo->prepare('INSERT INTO hostDirectory (hdHostID,hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt,hdRejoinConfig,hdRejoinState) VALUES (?,1,\'domain\',?,?,?,UTC_TIMESTAMP(),?,?)')
         ->execute([$id, $domain, $oldDn, $name . '$', $with['config'] ?? null, $with['state'] ?? null]);
     $target = ['guid' => intentFixtureGuid(), 'sid' => 'S-1-5-21-1048576-' . random_int(100000, 999999999),
@@ -92,6 +93,11 @@ function intentFixtureReadyPlan(\PDO $pdo, $target = null, $name = null)
     $config = ['version' => 1, 'protocol' => 2, 'allow_create' => false, 'name' => $name, 'domain' => $domain,
         'target' => $targetRecord, 'config_revision' => bin2hex(random_bytes(16)),
         'confirmed_by' => 'intent-fixture', 'confirmed_at' => gmdate('c')];
+    // The host row first: revision() binds the host's directory seat, which is
+    // read from the database (fog-agent#53).
+    $pdo->prepare('INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostADOU,hostAgentFingerprint) VALUES (?,?,1,?,?,?)')
+        ->execute([$id, $name, $domain, 'OU=Managed,DC=corp,DC=example', $fingerprint]);
+    directorySeat($pdo, $id, $fingerprint);
     $revision = FOG\Agent\DirectoryOperation::revision($host, $config, 'dc1.corp.example');
     $observation = ['revision' => $revision, 'current_name' => $name, 'pending_name' => $name, 'domain' => $domain,
         'netbios' => 'CORP', 'role' => 'workstation', 'secure_channel' => 'true', 'dc' => 'dc1.corp.example',
@@ -102,8 +108,6 @@ function intentFixtureReadyPlan(\PDO $pdo, $target = null, $name = null)
         'config_revision' => $revision, 'fingerprint' => $fingerprint, 'expected_current' => $name,
         'expected_pending' => $name, 'observed_at' => time(), 'observation' => $observation,
         'last_deploy_task_id' => 0, 'trigger_task_id' => 0, 'placement_hold' => false];
-    $pdo->prepare('INSERT INTO hosts (hostID,hostName,hostUseAD,hostADDomain,hostADOU,hostAgentFingerprint) VALUES (?,?,1,?,?,?)')
-        ->execute([$id, $name, $domain, 'OU=Managed,DC=corp,DC=example', $fingerprint]);
     $pdo->prepare('INSERT INTO hostDirectory (hdHostID,hdJoined,hdKind,hdDomain,hdComputerDN,hdMachineAccount,hdObservedAt,hdRejoinConfig,hdRejoinState) VALUES (?,1,\'domain\',?,?,?,UTC_TIMESTAMP(),?,?)')
         ->execute([$id, $domain, $targetRecord['dn'], $targetRecord['account'], json_encode($config), json_encode($state)]);
     return ['host' => $host, 'host_id' => $id, 'host_name' => $name, 'target' => $targetRecord,

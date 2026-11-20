@@ -573,21 +573,32 @@ class Releases extends FOGBase
     /**
      * The platform a host enrolled with, from its issued enrollment.
      *
+     * On an agent request the enrollment is the one of the seat that
+     * polls, matched by its key. A dual-boot host has one per OS, and the
+     * newest one is not always this seat's. Without a seat (admin or UI),
+     * it is the host's newest issued enrollment.
+     *
      * @param Host $Host the host
      *
      * @return string[] [os, arch], both '' when unknown
      */
     public static function platform(Host $Host)
     {
+        $where = '`aeHostID`=:host AND `aeState`=:issued';
+        $params = [
+            ':host' => (int)$Host->get('id'),
+            ':issued' => AgentEnrollment::STATE_ISSUED
+        ];
+        $current = Seat::currentFor($Host);
+        if (null !== $current && '' !== $current['fingerprint']) {
+            $where .= ' AND `aeFingerprint`=:fp';
+            $params[':fp'] = $current['fingerprint'];
+        }
         $rows = self::$DB->query(
             'SELECT `aeOS` AS `os`, `aeArch` AS `arch` FROM `agentEnrollment` '
-            . 'WHERE `aeHostID`=:host AND `aeState`=:issued '
-            . 'ORDER BY `aeID` DESC LIMIT 1',
+            . 'WHERE ' . $where . ' ORDER BY `aeID` DESC LIMIT 1',
             [],
-            [
-                ':host' => (int)$Host->get('id'),
-                ':issued' => AgentEnrollment::STATE_ISSUED
-            ]
+            $params
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $row = $rows[0] ?? [];
         return [(string)($row['os'] ?? ''), (string)($row['arch'] ?? '')];
@@ -869,7 +880,12 @@ class Releases extends FOGBase
     }
 
     /**
-     * Every enrolled host's override, ring, running version and platform.
+     * Every enrolled seat's host override and ring, running version and
+     * platform.
+     *
+     * One row per seat, so both OSes of a dual-boot host count. The running
+     * version is the seat's own (hostAgents.haVersion). The platform is the
+     * one its own enrollment declared, matched by the seat's key.
      *
      * @return array
      */
@@ -878,13 +894,15 @@ class Releases extends FOGBase
         return (array)self::$DB->query(
             'SELECT DISTINCT `h`.`hostAgentDesiredVersion` AS `override`, '
             . '`h`.`hostAgentUpdateRing` AS `ring`, '
-            . '`h`.`hostAgentVersion` AS `running`, '
+            . '`ha`.`haVersion` AS `running`, '
             . '`e`.`aeOS` AS `os`, `e`.`aeArch` AS `arch` '
-            . 'FROM `hosts` `h` INNER JOIN `agentEnrollment` `e` '
-            . 'ON `e`.`aeHostID`=`h`.`hostID` AND `e`.`aeState`=:issued '
-            . 'WHERE `h`.`hostAgentFingerprint`<>:none',
+            . 'FROM `hostAgents` `ha` INNER JOIN `hosts` `h` '
+            . 'ON `h`.`hostID`=`ha`.`haHostID` '
+            . 'INNER JOIN `agentEnrollment` `e` '
+            . 'ON `e`.`aeFingerprint`=`ha`.`haFingerprint` '
+            . 'AND `e`.`aeState`=:issued',
             [],
-            [':issued' => AgentEnrollment::STATE_ISSUED, ':none' => '']
+            [':issued' => AgentEnrollment::STATE_ISSUED]
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
     }
 

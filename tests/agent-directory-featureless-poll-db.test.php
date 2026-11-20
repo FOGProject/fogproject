@@ -57,10 +57,12 @@ $t->check(
 );
 
 $source = file_get_contents(dirname(__DIR__) . '/packages/web/src/Router/Route.php');
-$gate = strpos($source, 'if (\\FOG\\Agent\\MachineIdentity::requested($body)) {');
+// The branch is the identity feature AND the directory seat (design 0019).
+$gate = strpos($source, 'if (\\FOG\\Agent\\MachineIdentity::requested($body)');
 $t->check(
     'the poll answer adds directory_rejoin only inside the identity-feature branch',
     false !== $gate
+    && false !== strpos(substr($source, $gate, 120), '\\FOG\\Agent\\Seat::isDirectorySeat($Host)')
     && false !== ($set = strpos($source, "\$answer['directory_rejoin'] = \\FOG\\Agent\\DirectoryRejoin::plan", $gate))
     && $set - $gate < 400
     && 1 === substr_count($source, "\$answer['directory_rejoin'] = \\FOG\\Agent\\DirectoryRejoin::plan")

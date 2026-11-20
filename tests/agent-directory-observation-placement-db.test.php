@@ -88,6 +88,7 @@ $pdo->exec('CREATE TABLE IF NOT EXISTS scHoldLdapCounts (id int NOT NULL PRIMARY
 $pdo->exec('REPLACE INTO scHoldLdapCounts (id,connects,moves) VALUES (1,0,0)');
 $fingerprint = str_repeat('a', 64);
 $pdo->exec("UPDATE hosts SET hostName='WS-71',hostADDomain='corp.example',hostADOU='OU=Managed,DC=corp,DC=example',hostUseAD=1,hostADUser='svc',hostADPass='pw',hostAgentFingerprint='" . $fingerprint . "' WHERE hostID=7");
+directorySeat($pdo, 7, $fingerprint);
 $host = (new FOG\Items\Host())->set('id', 7)->set('name', 'WS-71')->set('ADDomain', 'corp.example')
     ->set('useAD', 1)->set('ADUser', 'svc')->set('ADPass', 'pw')->set('ADOU', 'OU=Managed,DC=corp,DC=example')
     ->set('agentFingerprint', $fingerprint);

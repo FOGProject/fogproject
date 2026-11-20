@@ -134,9 +134,17 @@ class Host extends FOGController
         'token' => 'hostInfoKey',
         'tokenlock' => 'hostInfoLock',
         // fog-agent binding (schema 416). agentFingerprint is the sha256 of
-        // the agent key's SubjectPublicKeyInfo and is what a client
-        // certificate is matched against; the rest is what the agent last
-        // reported about itself.
+        // the agent key's SubjectPublicKeyInfo; the rest is what the agent
+        // last reported about itself.
+        //
+        // Since schema 466 these five columns (fingerprint, notAfter,
+        // version, updateState, checkin) are a display MIRROR of the seat
+        // that wrote most recently. The hostAgents table holds one seat per
+        // OS and is the source of truth: authentication reads only
+        // hostAgents, and the mirror must never authenticate. \FOG\Agent\Seat
+        // is the only deliberate writer; Host::save() rewrites the mirror
+        // with whatever the loaded host holds. The host list, export,
+        // dashboard and reports keep reading it as is.
         'agentFingerprint' => 'hostAgentFingerprint',
         'agentNotAfter' => 'hostAgentNotAfter',
         'agentVersion' => 'hostAgentVersion',

@@ -95,7 +95,9 @@ class DirectoryOperation extends \FOG\Base\FOGBase
     {
         return substr(hash('sha256', json_encode([(int)$host->get('id'),
             (string)$host->get('name'), strtolower(trim((string)$host->get('ADDomain'))),
-            (string)$host->get('agentFingerprint'), $c, $dc])), 0, 32);
+            // The directory seat's key, whichever seat is polling: one seat
+            // owns the directory (fog-agent#53).
+            Seat::directoryFingerprint((int)$host->get('id')), $c, $dc])), 0, 32);
     }
 
     /**
@@ -397,6 +399,20 @@ class DirectoryOperation extends \FOG\Base\FOGBase
     }
 
     /**
+     * Whether the seat that makes this request is the directory seat whose
+     * key the plan names. With no seat loaded (no agent request), it is.
+     *
+     * @param string $fingerprint the directory seat's key fingerprint
+     *
+     * @return bool
+     */
+    private static function _callerOwns($fingerprint)
+    {
+        $caller = Seat::currentFingerprint();
+        return '' === $caller || $caller === $fingerprint;
+    }
+
+    /**
      * The directory_rejoin block of a poll answer: nothing, a blocked reason,
      * or the planned operation (stored as phase ready). LDAP reads happen
      * here, outside any transaction, and the plan is stored only if the saved
@@ -409,6 +425,13 @@ class DirectoryOperation extends \FOG\Base\FOGBase
      */
     public static function plan(Host $host, array $body = [])
     {
+        // Only the directory seat is planned for. Another seat of the host
+        // gets no plan and no state (fog-agent#53). Route::agentPoll gates
+        // this already; kept here so no other caller can plan for a
+        // non-directory seat.
+        if (!Seat::isDirectorySeat($host)) {
+            return null;
+        }
         $saved = DirectoryRejoin::settings($host);
         $c = $saved['config'];
         $s = $saved['state'];
@@ -427,7 +450,7 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             // local native uncertainty with a Server retry authorization.
             $explicitRetry = !empty($c['retry_authorized']) && 'reserved' === $local['phase']
                 && ($local['host_id'] ?? 0) === (int)$host->get('id')
-                && ($local['fingerprint'] ?? '') === (string)$host->get('agentFingerprint')
+                && ($local['fingerprint'] ?? '') === Seat::directoryFingerprint((int)$host->get('id'))
                 && in_array($s['phase'] ?? '', ['', 'ready', 'verified'], true);
             if (!$explicitRetry && (!$matching || in_array($s['phase'] ?? '', ['', 'ready','verified'], true))) {
                 return ['phase' => 'blocked', 'reason' => 'directory_local_operation_requires_review'];
@@ -544,7 +567,7 @@ class DirectoryOperation extends \FOG\Base\FOGBase
         }
         $p = $choice + ['version' => 1, 'protocol' => 2, 'host_id' => (int)$host->get('id'),
             'attempt_id' => bin2hex(random_bytes(16)), 'config_revision' => $o['revision'],
-            'fingerprint' => (string)$host->get('agentFingerprint'), 'name' => $name,
+            'fingerprint' => Seat::directoryFingerprint((int)$host->get('id')), 'name' => $name,
             'domain' => strtolower($workgroup ? trim((string)$host->get('ADDomain')) : $o['domain']), 'dc' => $o['dc'], 'phase' => 'ready',
             'expected_current' => $o['current_name'], 'expected_pending' => $o['pending_name'],
             'retry_authorized' => !empty($c['retry_authorized']),
@@ -552,7 +575,8 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             'trigger_task_id' => $task, 'last_deploy_task_id' => (int)($s['last_deploy_task_id'] ?? 0),
             'observation' => $o, 'observed_at' => $s['observed_at'], 'check_dc' => $s['check_dc'] ?? ''];
         return DirectoryRejoin::change($host, function (&$config, &$state, $principal) use ($saved, $p) {
-            if ($config !== $saved['config'] || $state !== $saved['state'] || $principal['hostAgentFingerprint'] !== $p['fingerprint']) {
+            if ($config !== $saved['config'] || $state !== $saved['state'] || $principal['directoryFingerprint'] !== $p['fingerprint']
+                || !self::_callerOwns($p['fingerprint'])) {
                 throw new \RuntimeException('rejoin_plan_changed', 409);
             }
             $state = $p;
@@ -624,7 +648,8 @@ class DirectoryOperation extends \FOG\Base\FOGBase
     {
         DirectoryRejoin::change($host, function (&$c, &$state, $principal) use ($saved, $body, $host) {
             if ($c !== $saved['config'] || $state !== $saved['state'] || !$principal['hostUseAD']
-                || $principal['hostAgentFingerprint'] !== $state['fingerprint']
+                || $principal['directoryFingerprint'] !== $state['fingerprint']
+                || !self::_callerOwns($state['fingerprint'])
                 || strcasecmp($principal['hostName'], $state['name'])
                 || ('join' === $state['operation']
                     ? strcasecmp($state['domain'], trim((string)$principal['hostADDomain']))
@@ -738,7 +763,8 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             || ($body['operation'] ?? '') !== ($s['operation'] ?? null)
             || ($body['task_id'] ?? null) !== (int)($s['trigger_task_id'] ?? 0)
             || ($body['target_guid'] ?? null) !== ($s['target']['guid'] ?? null)
-            || (string)$host->get('agentFingerprint') !== ($s['fingerprint'] ?? null)
+            || Seat::directoryFingerprint((int)$host->get('id')) !== ($s['fingerprint'] ?? null)
+            || !self::_callerOwns((string)($s['fingerprint'] ?? ''))
             || strcasecmp((string)$host->get('name'), $s['name'] ?? '')
             || !self::observationFresh($host, $saved['config'], $s)
             || self::revision($host, $saved['config'], $s['check_dc'] ?? '') !== ($s['config_revision'] ?? null)) {
@@ -764,7 +790,9 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             || ($body['config_revision'] ?? '') !== ($s['config_revision'] ?? null)
             || (int)($body['id'] ?? 0) !== (int)$host->get('id')
             || ($body['task_id'] ?? null) !== (int)($s['trigger_task_id'] ?? 0)
-            || (string)$host->get('agentFingerprint') !== ($s['fingerprint'] ?? null)) {
+            || Seat::directoryFingerprint((int)$host->get('id')) !== ($s['fingerprint'] ?? null)
+            // The caller must be the seat the plan was made for.
+            || !self::_callerOwns((string)($s['fingerprint'] ?? ''))) {
             throw new \RuntimeException('rejoin_result_mismatch', 409);
         }
         $phase = $body['status'] ?? '';
@@ -805,7 +833,7 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             }
         }
         DirectoryRejoin::change($host, function (&$c, &$state, $principal) use ($saved, $phase, $body, $target) {
-            if ($state !== $saved['state'] || $c !== $saved['config'] || $principal['hostAgentFingerprint'] !== $state['fingerprint']) {
+            if ($state !== $saved['state'] || $c !== $saved['config'] || $principal['directoryFingerprint'] !== $state['fingerprint']) {
                 throw new \RuntimeException('rejoin_result_changed', 409);
             }
             DirectoryRejoin::transition($state['phase'], $phase);
