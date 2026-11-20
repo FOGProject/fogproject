@@ -3210,6 +3210,10 @@ msgstr ""
 msgid "FOG issues its own web server certificate. If you would rather it served one of yours -- from an ACME client, your corporate CA, or a purchased certificate -- there are three ways to say so, and the first two never send the private key to this web application."
 msgstr ""
 
+#, php-format
+msgid "FOG needs MariaDB, or MySQL 8.0.13 or newer. This server runs MySQL %s."
+msgstr ""
+
 msgid "FOG refuses to deploy an image to a host that cannot run it."
 msgstr ""
 

@@ -3234,6 +3234,10 @@ msgstr "FOG はデータベースと通信できません"
 msgid "FOG issues its own web server certificate. If you would rather it served one of yours -- from an ACME client, your corporate CA, or a purchased certificate -- there are three ways to say so, and the first two never send the private key to this web application."
 msgstr "FOG は独自の Web サーバー証明書を発行します。ACME クライアント、組織の CA、または購入した証明書など、別の証明書を使用したい場合は 3 つの方法があります。最初の 2 つの方法では、秘密鍵がこの Web アプリケーションに送信されることはありません。"
 
+#, php-format
+msgid "FOG needs MariaDB, or MySQL 8.0.13 or newer. This server runs MySQL %s."
+msgstr ""
+
 msgid "FOG refuses to deploy an image to a host that cannot run it."
 msgstr "FOG は、そのイメージを実行できないホストへの展開を拒否します。"
 
