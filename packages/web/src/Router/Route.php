@@ -3410,6 +3410,7 @@ class Route extends FOGBase
             $rows[] = [
                 'id' => (int)($row['id'] ?? 0),
                 'hostID' => (int)($row['hostID'] ?? 0),
+                'conflictHosts' => self::_enrollmentConflictHosts($row, $identity),
                 'hostname' => (string)($row['hostname'] ?? ''),
                 'os' => (string)($row['os'] ?? ''),
                 'arch' => (string)($row['arch'] ?? ''),
@@ -3423,6 +3424,31 @@ class Route extends FOGBase
             ];
         }
         self::$data = ['data' => $rows, 'msg' => _('success')];
+    }
+    /**
+     * The other hosts an identity-conflict request names by MAC (forum
+     * 18319), so the admin can see who the conflict is with before a
+     * decision. The bound host is left out: the Host column shows it.
+     *
+     * @param array      $row      the enrollment row
+     * @param array|null $identity the decoded identity the agent sent
+     *
+     * @return array of [id => int, name => string]
+     */
+    private static function _enrollmentConflictHosts(array $row, $identity)
+    {
+        if (\FOG\Agent\Enrollment::REASON_CONFLICT !== (string)($row['reason'] ?? '')) {
+            return [];
+        }
+        $macs = is_array($identity) ? ($identity['macs'] ?? []) : [];
+        $bound = (int)($row['hostID'] ?? 0);
+        $hosts = [];
+        foreach ((array)\FOG\Agent\MachineIdentity::macHostIDs($macs) as $id) {
+            if ($id !== $bound) {
+                $hosts[] = ['id' => $id, 'name' => (string)(new Host($id))->get('name')];
+            }
+        }
+        return $hosts;
     }
     /**
      * Approve or deny one pending fog-agent enrollment.

@@ -144,10 +144,10 @@ return [
     ],
     'tables' => [
         'agentEnrollment' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `agentEnrollment` ( `aeID` int(11) NOT NULL AUTO_INCREMENT, `aeHostID` int(11) NOT NULL DEFAULT 0, `aeFingerprint` varchar(64) NOT NULL DEFAULT \'\', `aeCSR` text NOT NULL, `aeIdentity` text NOT NULL DEFAULT \'\', `aeHostname` varchar(191) NOT NULL DEFAULT \'\', `aeOS` varchar(20) NOT NULL DEFAULT \'\', `aeArch` varchar(20) NOT NULL DEFAULT \'\', `aeAgentVersion` varchar(50) NOT NULL DEFAULT \'\', `aeRemoteIP` varchar(45) NOT NULL DEFAULT \'\', `aeReason` varchar(32) NOT NULL DEFAULT \'\', `aeState` varchar(16) NOT NULL DEFAULT \'pending\', `aeCert` text NOT NULL DEFAULT \'\', `aeCreated` datetime DEFAULT NULL, `aeUpdated` datetime DEFAULT NULL, `aeDecided` datetime DEFAULT NULL, `aeDecidedBy` varchar(191) NOT NULL DEFAULT \'\', `aeDecidedVia` varchar(16) NOT NULL DEFAULT \'\', PRIMARY KEY (`aeID`), UNIQUE KEY `aeFingerprint` (`aeFingerprint`), KEY `aeState` (`aeState`), KEY `aeHostID` (`aeHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `agentEnrollment` ( `aeID` int(11) NOT NULL AUTO_INCREMENT, `aeHostID` int(11) DEFAULT NULL, `aeFingerprint` varchar(64) NOT NULL DEFAULT \'\', `aeCSR` text NOT NULL, `aeIdentity` text NOT NULL DEFAULT \'\', `aeHostname` varchar(191) NOT NULL DEFAULT \'\', `aeOS` varchar(20) NOT NULL DEFAULT \'\', `aeArch` varchar(20) NOT NULL DEFAULT \'\', `aeAgentVersion` varchar(50) NOT NULL DEFAULT \'\', `aeRemoteIP` varchar(45) NOT NULL DEFAULT \'\', `aeReason` varchar(32) NOT NULL DEFAULT \'\', `aeState` varchar(16) NOT NULL DEFAULT \'pending\', `aeCert` text NOT NULL DEFAULT \'\', `aeCreated` datetime DEFAULT NULL, `aeUpdated` datetime DEFAULT NULL, `aeDecided` datetime DEFAULT NULL, `aeDecidedBy` varchar(191) NOT NULL DEFAULT \'\', `aeDecidedVia` varchar(16) NOT NULL DEFAULT \'\', PRIMARY KEY (`aeID`), UNIQUE KEY `aeFingerprint` (`aeFingerprint`), KEY `aeState` (`aeState`), KEY `aeHostID` (`aeHostID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'aeID' => 'int(11) NOT NULL',
-                'aeHostID' => 'int(11) NOT NULL DEFAULT 0',
+                'aeHostID' => 'int(11) DEFAULT NULL',
                 'aeFingerprint' => 'varchar(64) NOT NULL DEFAULT \'\'',
                 'aeCSR' => 'text NOT NULL',
                 'aeIdentity' => 'text NOT NULL DEFAULT \'\'',

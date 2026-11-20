@@ -56,7 +56,8 @@ class MachineIdentity extends FOGBase
      * Resolves the host a live identity names.
      *
      * Unlike the legacy MAC resolver, it never votes between different
-     * hosts: any disagreement is a conflict.
+     * hosts: any disagreement is a conflict. A MAC host whose stored serial
+     * proves it is a different machine is not a disagreement (choose()).
      *
      * @param array $identity     the identity block from the request
      * @param bool  $allowPending whether a pending host may resolve
@@ -79,29 +80,31 @@ class MachineIdentity extends FOGBase
         $filter = SmbiosIdentity::usable($ids);
         $rows = empty($filter) ? [] : (array)Route::getList('inventory', $filter, 'OR');
         $smbios = SmbiosIdentity::pick($filter, $rows);
-        $macHosts = [];
-        $macs = $identity['macs'] ?? [];
-        if (!is_array($macs) || count($macs) > 64) {
+        $macHosts = self::macHostIDs($identity['macs'] ?? []);
+        if (null === $macHosts) {
             return ['status' => 'conflict', 'host_id' => 0];
         }
-        foreach ($macs as $mac) {
-            if (!is_string($mac) || !preg_match('/^(?:[0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/iD', $mac)) {
-                return ['status' => 'conflict', 'host_id' => 0];
-            }
-            $mac = strtolower(str_replace('-', ':', $mac));
-            foreach ((array)Route::getList('macaddressassociation', ['mac' => $mac, 'pending' => 0]) as $row) {
-                $id = self::candidateHostID($row);
-                if ($id > 0) {
-                    $macHosts[$id] = $id;
-                }
-            }
-        }
-        // Firmware that names no host cannot vouch, but it can still refuse:
-        // a serial that contradicts the one MAC host's means a different
-        // machine carries that MAC (a shared USB adapter, forum 18319).
+        // A serial that contradicts a MAC host's means a different machine
+        // carries that MAC (a shared USB adapter, forum 18319). Firmware
+        // that names no host cannot vouch, but it can still refuse. Firmware
+        // that names a host wins over such a MAC host.
         $macClash = null === $smbios && 1 === count($macHosts)
             && null !== self::serialClash((int)reset($macHosts), $filter);
-        $answer = self::choose($smbios, !empty($rows) && null === $smbios, array_values($macHosts), $macClash);
+        // The firmware host must not contradict the serial either. A UUID
+        // match alone (a copied UUID) never moves the host past a MAC.
+        $sharedHosts = [];
+        foreach ($macHosts as $id) {
+            if (self::sharedAdapter((int)$smbios, $id, $filter)) {
+                $sharedHosts[] = $id;
+            }
+        }
+        $answer = self::choose(
+            $smbios,
+            !empty($rows) && null === $smbios,
+            array_values($macHosts),
+            $macClash,
+            $sharedHosts
+        );
         if ('resolved' === $answer['status']) {
             $host = new Host($answer['host_id']);
             if (!$host->isValid() || (!$allowPending && $host->get('pending'))) {
@@ -109,6 +112,56 @@ class MachineIdentity extends FOGBase
             }
         }
         return $answer;
+    }
+
+    /**
+     * Is the MAC host's MAC on a shared adapter, so the firmware's host wins?
+     *
+     * True only when the firmware names a different host, the MAC host's
+     * stored serial contradicts the reported one (a different machine), and
+     * the firmware host's stored serial does not (a copied UUID alone never
+     * wins). Forum 18319. Both enrollment resolvers use this one rule.
+     *
+     * @param int   $smbiosID the host the firmware names, or 0
+     * @param int   $macID    the host a MAC names
+     * @param array $ids      field => value the machine reported
+     *
+     * @return bool
+     */
+    public static function sharedAdapter($smbiosID, $macID, array $ids)
+    {
+        return $smbiosID > 0 && $macID > 0 && $smbiosID !== $macID
+            && null !== self::serialClash($macID, $ids)
+            && null === self::serialClash($smbiosID, $ids);
+    }
+
+    /**
+     * The hosts the reported MACs belong to, by approved MAC rows.
+     *
+     * @param mixed $macs the MAC list from the identity block
+     *
+     * @return array|null host id => host id, or null when the list is not
+     *                    a list of at most 64 valid MACs
+     */
+    public static function macHostIDs($macs)
+    {
+        if (!is_array($macs) || count($macs) > 64) {
+            return null;
+        }
+        $hosts = [];
+        foreach ($macs as $mac) {
+            if (!is_string($mac) || !preg_match('/^(?:[0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/iD', $mac)) {
+                return null;
+            }
+            $mac = strtolower(str_replace('-', ':', $mac));
+            foreach ((array)Route::getList('macaddressassociation', ['mac' => $mac, 'pending' => 0]) as $row) {
+                $id = self::candidateHostID($row);
+                if ($id > 0) {
+                    $hosts[$id] = $id;
+                }
+            }
+        }
+        return $hosts;
     }
 
     /**
@@ -195,17 +248,28 @@ class MachineIdentity extends FOGBase
     /**
      * Combines the SMBIOS answer and the MAC answers into one host.
      *
-     * @param int|null $smbios    the host SMBIOS names, or null
-     * @param bool     $ambiguous whether SMBIOS matched several hosts
-     * @param array    $macHosts  the host ids the MACs name
-     * @param bool     $macClash  whether the reported serial contradicts
-     *                            the MAC host's stored one (serialClash())
+     * SMBIOS and a MAC that name different hosts are a conflict. The one
+     * exception is a host in $sharedHosts: its stored serial proves that it
+     * is a different machine, so its MAC is on a shared adapter. When
+     * SMBIOS names a host, such a MAC host is ignored and the firmware's
+     * host wins (forum 18319). Boot does the same in enforce and register
+     * mode.
+     *
+     * @param int|null $smbios      the host SMBIOS names, or null
+     * @param bool     $ambiguous   whether SMBIOS matched several hosts
+     * @param array    $macHosts    the host ids the MACs name
+     * @param bool     $macClash    whether the reported serial contradicts
+     *                              the MAC host's stored one (serialClash())
+     * @param array    $sharedHosts the MAC host ids sharedAdapter() accepts
      *
      * @return array [status => resolved|unresolved|conflict, host_id => int]
      */
-    public static function choose($smbios, $ambiguous, array $macHosts, $macClash = false)
+    public static function choose($smbios, $ambiguous, array $macHosts, $macClash = false, array $sharedHosts = [])
     {
         $macHosts = array_values(array_unique(array_map('intval', $macHosts)));
+        if ($smbios) {
+            $macHosts = array_values(array_diff($macHosts, array_map('intval', $sharedHosts)));
+        }
         if ($ambiguous || count($macHosts) > 1
             || ($smbios && $macHosts && (int)$smbios !== $macHosts[0])
             || (!$smbios && $macHosts && $macClash)) {
