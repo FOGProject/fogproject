@@ -138,6 +138,9 @@ $t->check('legacy: a copied UUID stays a conflict', 'identity-conflict' === (enr
 $token = 'tok-18319-' . bin2hex(random_bytes(8));
 $pdo->prepare('INSERT INTO agentEnrollToken (atName, atHash, atUses) VALUES (?, ?, 5)')
     ->execute(['zz-18319', hash('sha256', $token)]);
+$tokenUses = function () use ($pdo) {
+    return (int)$pdo->query("SELECT atUses FROM agentEnrollToken WHERE atName = 'zz-18319'")->fetchColumn();
+};
 list($poll, $fp) = enrollClient('unproven', $identity('L-SERIAL-1', ['02:18:31:9a:00:03']), true, $token);
 $t->check('an unproven conflict answers 202, not 409', '202 pending identity-conflict' === $poll());
 $t->check('an unproven conflict is stored with no host', [null, 'identity-conflict'] === enrollRow($pdo, $fp));
@@ -151,7 +154,7 @@ $t->check('the row is bound to the firmware host, reason unchanged', [22, 'ident
 $t->check('the token did not approve the bound conflict', '202 pending identity-conflict' === $poll());
 $t->check(
     'the token was never spent on it',
-    5 === (int)$pdo->query("SELECT atUses FROM agentEnrollToken WHERE atName = 'zz-18319'")->fetchColumn()
+    5 === $tokenUses()
 );
 
 // 4. An unregistered machine on the adapter: no firmware host, and Y's
@@ -175,7 +178,7 @@ $t->check('a repeat poll with no MAC still waits as pending', '202 pending no-ma
 $t->check('a request with no MAC is stored with no host', [null, 'no-mac'] === enrollRow($pdo, $fp));
 $t->check(
     'the token is not spent on a request with no host',
-    5 === (int)$pdo->query("SELECT atUses FROM agentEnrollToken WHERE atName = 'zz-18319'")->fetchColumn()
+    5 === $tokenUses()
 );
 
 // 6. The re-check is for identity conflicts only. A directory request with
@@ -188,5 +191,22 @@ $pdo->exec("INSERT INTO hosts (hostID, hostName) VALUES (31, 'zz-q')");
 $pdo->exec("INSERT INTO inventory (iHostID, iSysserial, iSystemUUID) VALUES (31, 'Q-SERIAL', '$uuidQ')");
 $poll();
 $t->check('a later poll does not bind a request that is not a conflict', [null, 'no-mac'] === enrollRow($pdo, $fp));
+
+// 7. An agent without the directory feature, with a valid token. The
+//    legacy resolver binds the conflict to the firmware's host at first
+//    contact. A token still never approves it: only an admin's click does.
+//    The adapter MAC now belongs to case 4's pending host, so Y gets a
+//    second MAC for this case.
+$pdo->exec("INSERT INTO hostMAC (hmHostID, hmMAC, hmPrimary, hmPending) VALUES (21, '02:18:31:9a:00:04', 0, 0)");
+list($poll, $fp) = enrollClient('copied-legacy-token', $identity('Z-SERIAL-9', ['02:18:31:9a:00:04']), false, $token);
+$t->check('legacy: a conflict with a token is pending on first contact', '202 pending identity-conflict' === $poll());
+$t->check('legacy: a conflict with a token is pending on a repeat poll', '202 pending identity-conflict' === $poll());
+// The row has a host, so the check reaches the conflict guard, not the
+// early return for a request with no host.
+$t->check('legacy: the conflict is bound to the firmware host', [22, 'identity-conflict'] === enrollRow($pdo, $fp));
+$t->check(
+    'legacy: the token is not spent on a conflict',
+    5 === $tokenUses()
+);
 
 $t->finish();
