@@ -1924,7 +1924,11 @@ class ImageManagement extends FOGPage
         $image = (int)trim(
             (string)filter_input(INPUT_POST, 'image')
         );
-        $sessiontimeout = (int)trim(
+        // The form asks for minutes. maxwait is seconds to every reader:
+        // udp-sender --max-wait and isJoinable()'s join window. Stored raw,
+        // a 10-minute session closed its join after 10 seconds. Forum
+        // topic 18323.
+        $sessiontimeout = 60 * (int)trim(
             (string)filter_input(INPUT_POST, 'sessiontimeout')
         );
         $sessioncount = (int)trim(
