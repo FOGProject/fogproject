@@ -128,13 +128,13 @@ $t->check(
     && 'failed' === ($cleared['state']['cleared_phase'] ?? null)
     && 'operator' === ($cleared['state']['cleared_by'] ?? null)
 );
+// The clear consumes the cleared attempt's own trigger (5), not Deploy 900.
+// Deploy 900 is newer than the attempt, so it reimaged the disk, and it stays
+// eligible for the next poll (forum 18325).
 $t->check(
-    'the deploy highwater covers the latest deploy task on the host',
-    (int)($cleared['state']['last_deploy_task_id'] ?? 0) >= 900
+    'the deploy highwater stops at the cleared attempt trigger, not a newer Deploy',
+    5 === ($cleared['state']['last_deploy_task_id'] ?? null)
 );
-// A fresh, healthy observation taken after the task ended, so the only thing
-// that can keep plan() from binding a new attempt to task 900 is the cleared
-// high-water mark.
 $dc = 'dc1.corp.example';
 $bootStarted = $taskEnd->add(new \DateInterval('PT5M'))->setTimezone(new \DateTimeZone('UTC'))->format(DATE_ATOM);
 // The first poll with the feature initializes the config (a new revision); the
@@ -147,11 +147,48 @@ $observation = [
     'boot' => ['marker' => 'review-clear-boot', 'started' => $bootStarted]
 ];
 FOG\Agent\DirectoryOperation::observe($host, ['directory_observation' => $observation]);
-$beforePlan = FOG\Agent\DirectoryRejoin::settings($host)['state'];
-$planned = FOG\Agent\DirectoryRejoin::plan($host);
-$afterPlan = FOG\Agent\DirectoryRejoin::settings($host)['state'];$t->check(
-    'plan() on the cleared state does not bind a new attempt to the cleared deploy task',
-    null === $planned && empty($afterPlan['attempt_id']) && $beforePlan === $afterPlan
+$afterObserve = FOG\Agent\DirectoryRejoin::settings($host)['state'];
+$t->check(
+    'after the clear, the newer Deploy is eligible for the next plan',
+    ['status' => 'eligible', 'task_id' => 900] === FOG\Agent\DirectoryTask::read($host, $afterObserve, $observation)
+);
+
+// The other side: the cleared attempt's trigger IS the latest Deploy. The
+// disk was not replaced, so the clear consumes it and plan() binds nothing.
+$put(71, $state('failed', ['last_deploy_task_id' => 910, 'trigger_task_id' => 910]));
+$pdo->prepare('INSERT INTO tasks (taskID,taskHostID,taskTypeID,taskStateID,taskStateChangedTime) VALUES (910,71,?,4,?)')
+    ->execute([FOG\Items\TaskType::DEPLOY, $taskEnd->format('Y-m-d H:i:s')]);
+$same = (new FOG\Items\Host())->set('id', 71)->set('name', 'RV71')->set('useAD', 1)
+    ->set('ADDomain', 'corp.example')->set('agentFingerprint', '');
+FOG\Agent\DirectoryRejoin::clearReview($same, $attempt, 'operator');
+FOG\Agent\DirectoryOperation::observe($same, []);
+$sameObservation = ['revision' => FOG\Agent\DirectoryOperation::revision(
+    $same,
+    FOG\Agent\DirectoryRejoin::settings($same)['config'],
+    ''
+), 'current_name' => 'RV71', 'pending_name' => 'RV71'] + $observation;
+FOG\Agent\DirectoryOperation::observe($same, ['directory_observation' => $sameObservation]);
+$beforePlan = FOG\Agent\DirectoryRejoin::settings($same)['state'];
+$planned = FOG\Agent\DirectoryRejoin::plan($same);
+$afterPlan = FOG\Agent\DirectoryRejoin::settings($same)['state'];
+$t->check(
+    'with no newer Deploy, plan() on the cleared state binds no new attempt',
+    910 === ($beforePlan['last_deploy_task_id'] ?? null)
+        && null === $planned && empty($afterPlan['attempt_id']) && $beforePlan === $afterPlan
+);
+
+// The clear keeps the workgroup flag and the observation. The agent re-sends
+// its membership only when it changes, so a dropped flag never came back.
+$workgroupObservation = ['domain' => ''] + $observation;
+$put(72, $state('awaiting_reboot', ['workgroup' => true, 'observation' => $workgroupObservation, 'observed_at' => 1000]));
+$wg = (new FOG\Items\Host())->set('id', 72)->set('name', 'RV72');
+FOG\Agent\DirectoryRejoin::clearReview($wg, $attempt, 'operator');
+$wgState = FOG\Agent\DirectoryRejoin::settings($wg)['state'];
+$t->check(
+    'the cleared state keeps the workgroup flag and the observation',
+    true === ($wgState['workgroup'] ?? null)
+        && $workgroupObservation === ($wgState['observation'] ?? null)
+        && 1000 === ($wgState['observed_at'] ?? null)
 );
 $again = '';
 try {
@@ -161,14 +198,21 @@ try {
 }
 $t->check('clearing a cleared state is refused', 'rejoin_review_not_required' === $again);
 
-// An unreadable row can be cleared too, without an attempt to compare.
+// An unreadable row can be cleared too, without an attempt to compare. With
+// no trigger to go by, it consumes the latest Deploy.
 $put(80, '{bad');
+$pdo->prepare('INSERT INTO tasks (taskID,taskHostID,taskTypeID,taskStateID,taskStateChangedTime) VALUES (901,80,?,4,?)')
+    ->execute([FOG\Items\TaskType::DEPLOY, $taskEnd->format('Y-m-d H:i:s')]);
 $bad = (new FOG\Items\Host())->set('id', 80)->set('name', 'RV80');
 FOG\Agent\DirectoryRejoin::clearReview($bad, '', 'operator');
 $after = FOG\Agent\DirectoryRejoin::settings($bad);
 $t->check(
     'an unreadable state is cleared and then reads as cleared',
     0 === $refusal('host', [80]) && 'unreadable' === ($after['state']['cleared_phase'] ?? null)
+);
+$t->check(
+    'an unreadable state clear consumes the latest Deploy on the host',
+    901 === ($after['state']['last_deploy_task_id'] ?? null)
 );
 
 $t->finish();
