@@ -113,7 +113,32 @@ class SchemaReconciler extends FOGBase
     ];
 
     /**
-     * Loads the shipped manifest.
+     * The oldest MySQL FOG supports: the first with expression defaults on
+     * TEXT/BLOB columns, which portableDdl() relies on.
+     */
+    const MYSQL_MIN_VERSION = '8.0.13';
+
+    /**
+     * The server's VERSION() string, read once. Null until first read.
+     *
+     * @var string|null
+     */
+    private static $_serverVersion = null;
+
+    /**
+     * The server-adjusted manifest manifest() last built, keyed by the file
+     * path and server version it was built for. Empty until first built.
+     *
+     * @var array
+     */
+    private static $_manifestMemo = [];
+
+    /**
+     * Loads the shipped manifest, adjusted for the connected server.
+     *
+     * The adjusted result is memoized per process, keyed on the file and the
+     * server version, so the rewrite below runs once rather than on every
+     * call (FOGBase::columnType() calls this on the ordinary write path).
      *
      * @return array
      */
@@ -128,8 +153,152 @@ class SchemaReconciler extends FOGBase
         if (!file_exists($file)) {
             return [];
         }
+        $version = self::serverVersion();
+        $key = $version . '|' . $file;
+        if (isset(self::$_manifestMemo[$key])) {
+            return self::$_manifestMemo[$key];
+        }
         $manifest = include $file;
-        return is_array($manifest) ? $manifest : [];
+        if (!is_array($manifest)) {
+            return [];
+        }
+        // The manifest is captured from MariaDB, which accepts a literal
+        // TEXT/BLOB default. MySQL refuses it (error 1101), so rewrite it for
+        // this server once, here. Every CREATE, ADD COLUMN and MODIFY built
+        // from the manifest then runs on either server.
+        foreach ((array)($manifest['tables'] ?? []) as $t => $def) {
+            if (isset($def['create'])) {
+                $manifest['tables'][$t]['create'] = self::portableDdl(
+                    $def['create'],
+                    $version
+                );
+            }
+            foreach ((array)($def['columns'] ?? []) as $c => $decl) {
+                $manifest['tables'][$t]['columns'][$c] = self::portableDdl(
+                    $decl,
+                    $version
+                );
+            }
+        }
+        foreach ((array)($manifest['renames'] ?? []) as $i => $r) {
+            if (isset($r['type'])) {
+                $manifest['renames'][$i]['type'] = self::portableDdl(
+                    $r['type'],
+                    $version
+                );
+            }
+        }
+        self::$_manifestMemo[$key] = $manifest;
+        return $manifest;
+    }
+
+    /**
+     * The connected server's version string, e.g. '11.8.9-MariaDB-ubu2604'.
+     *
+     * Read once and cached: the server does not change within a request.
+     * A value that is not a non-empty string (a stub or a failed read) is
+     * unknown: '' is returned, which portableDdl() treats as "change
+     * nothing", and it is not cached.
+     *
+     * @return string
+     */
+    public static function serverVersion()
+    {
+        if (null === self::$_serverVersion) {
+            $v = self::$DB
+                ->query('SELECT VERSION() AS `v`')
+                ->fetch()
+                ->get('v');
+            if (!is_string($v) || '' === $v) {
+                return '';
+            }
+            self::$_serverVersion = $v;
+        }
+        return self::$_serverVersion;
+    }
+
+    /**
+     * Whether a server version string is a MySQL that FOG cannot use.
+     *
+     * MySQL gained expression defaults on TEXT/BLOB columns in 8.0.13, and
+     * portableDdl() relies on them. MariaDB and an unreadable version are
+     * not "unsupported" here. Pure.
+     *
+     * @param string $serverVersion VERSION() string.
+     *
+     * @return bool
+     */
+    public static function isUnsupportedMysql($serverVersion)
+    {
+        if ('' === $serverVersion
+            || false !== stripos($serverVersion, 'mariadb')
+        ) {
+            return false;
+        }
+        // The numeric x.y.z only; drops a suffix such as '-0ubuntu0.26.10.1'.
+        if (!preg_match('/^\d+\.\d+\.\d+/', $serverVersion, $m)) {
+            return false;
+        }
+        return version_compare($m[0], self::MYSQL_MIN_VERSION, '<');
+    }
+
+    /**
+     * Rewrites DDL that MariaDB accepts into a form MySQL 8.0.13+ accepts.
+     *
+     * MariaDB takes `text NOT NULL DEFAULT ''`. MySQL refuses it (error
+     * 1101) and needs the expression form `DEFAULT ('')`. Exactly two forms
+     * are rewritten, and only for a MySQL server:
+     *
+     * - `ADD COLUMN|INDEX|KEY|UNIQUE INDEX|UNIQUE KEY ... IF NOT EXISTS`
+     *   loses the guard. MySQL has no such syntax, and dropping it is
+     *   equivalent because both runners tolerate 1060 and 1061.
+     * - A literal default on a tinytext/text/mediumtext/longtext or
+     *   tinyblob/blob/mediumblob/longblob column becomes `DEFAULT ('...')`.
+     *   The type must follow a backticked column name (or start the
+     *   fragment), so a column merely NAMED `text` is not touched.
+     *
+     * FULLTEXT and SPATIAL index syntax is not handled: FOG emits none.
+     * MariaDB and an empty version return the SQL unchanged. Pure: no
+     * database access.
+     *
+     * @param mixed  $sql           DDL statement or fragment.
+     * @param string $serverVersion VERSION() string of the target server.
+     *
+     * @return mixed
+     */
+    public static function portableDdl($sql, $serverVersion)
+    {
+        if (!is_string($sql)
+            || '' === $serverVersion
+            || false !== stripos($serverVersion, 'mariadb')
+        ) {
+            return $sql;
+        }
+        $sql = preg_replace(
+            '/\b( ADD \s+
+                (?: COLUMN | INDEX | KEY          # what is being added
+                | UNIQUE \s+ (?: INDEX | KEY ) ) )
+                \s+ IF \s+ NOT \s+ EXISTS \b/ix',
+            '$1',  // keep the keywords as written; drop only the guard
+            $sql
+        );
+        // A quoted SQL string literal: doubled quote or backslash escape
+        // allowed inside.
+        $literal = '\'(?:[^\'\\\\]|\'\'|\\\\.)*\'';
+        return preg_replace_callback(
+            '/( \A\s* | ` \s+ )                   # 1: fragment start, or the
+                                                  #    closing backtick of the
+                                                  #    column name
+                ( (?:tiny|medium|long)? (?:text|blob) ) \b   # 2: the type
+                ( [^,\'()]*? )                    # 3: NOT NULL, CHARACTER SET..
+                \s+ DEFAULT \s+
+                (' . $literal . ')                # 4: the literal default
+                /ix',
+            static function ($m) {
+                return $m[1] . $m[2] . $m[3] . ' DEFAULT (' . $m[4] . ')';
+            },
+            $sql
+        );
     }
 
     /**

@@ -83,6 +83,12 @@
  * hand-kept descriptions of the schema drifting apart is the failure both of
  * these tests exist to catch.
  *
+ * Every statement goes through SchemaReconciler::portableDdl() for the server
+ * under test before it runs, as FOG's own runners (SchemaUpdaterPage and
+ * SchemaReconciler::manifest()) do. The schema is written for MariaDB; MySQL
+ * 8.0.13+ needs a TEXT/BLOB default in the expression form, and has no
+ * ADD COLUMN ... IF NOT EXISTS.
+ *
  * The 8 closure steps are NOT executed. They are data migrations that need the
  * full application, and they emit no DDL. That is a real limit of this test,
  * stated rather than hidden: it covers the schema's structure, not its data.
@@ -132,11 +138,33 @@ $pass = ($pass === false) ? '' : $pass;
 $stepDb = 'fog_schema_steps_test';
 $manifestDb = 'fog_schema_manifest_test';
 
+// Boots FOG's autoloader so SchemaReconciler::portableDdl() can be called. It
+// runs BEFORE the collector on purpose: the collector defines every constant
+// schema.php names as '' when unset, and an empty BASEPATH breaks the
+// autoloader. boot() defines FOG_SCHEMA as 0, so the PHP_INT_MAX passed to
+// fogCollectSchemaSteps() below is ignored (that function only defines it when
+// unset). That is safe: see the FOG_SCHEMA comment further down.
+require_once __DIR__ . '/lib/fog-test-harness.php';
+FogTestHarness::boot('schema-executes');
+
+// Load the one real class this test needs, then unregister EVERY autoloader
+// (boot()'s FOG autoloader is the only one registered at this point). The
+// collector below stubs every FOG class schema.php names, and a live real
+// autoloader would win over those stubs. Unregistering is safe because
+// SchemaReconciler and its parents are already loaded, and portableDdl() is
+// pure, so it loads nothing further.
+class_exists(\FOG\Db\SchemaReconciler::class, true);
+foreach (spl_autoload_functions() as $loader) {
+    spl_autoload_unregister($loader);
+}
+
 require __DIR__ . '/lib/fog-schema-collector.php';
 
-// FOG_SCHEMA is PHP_INT_MAX rather than the real constant because this test
-// executes DDL and does not care what the version gate says; schema.php's one
-// use of it (step 29) is false either way against the empty-database stub.
+// FOG_SCHEMA is not the real constant (it is 0 from boot(); PHP_INT_MAX is
+// requested but loses, see above) because this test executes DDL and does not
+// care what the version gate says. schema.php's one use of it, step 29's
+// `FOG_SCHEMA < $tmpSchema->get('value')`, is false either way: the stub's
+// get() returns 0, and neither 0 < 0 nor PHP_INT_MAX < 0 is true.
 // tests/schema-upgrade-replay.test.php passes the real value, which is where
 // the constant is the subject rather than a dependency.
 $steps = fogCollectSchemaSteps($schemaFile, $stepDb, PHP_INT_MAX);
@@ -316,6 +344,9 @@ function fogRunInto($pdo, $database, array $statements, array $tolerated = [])
     $pdo->exec(sprintf('CREATE DATABASE `%s`', $database));
     $pdo->exec(sprintf('USE `%s`', $database));
 
+    // The version of THIS connection's server, as FOG's own runners read it.
+    $version = (string)$pdo->query('SELECT VERSION()')->fetchColumn();
+
     $failures = [];
     foreach ($statements as $sql) {
         // The replay creates its own database in step 0; that statement names
@@ -325,6 +356,7 @@ function fogRunInto($pdo, $database, array $statements, array $tolerated = [])
         if (preg_match('/^\s*CREATE\s+DATABASE/i', $sql)) {
             continue;
         }
+        $sql = \FOG\Db\SchemaReconciler::portableDdl($sql, $version);
         try {
             $pdo->exec($sql);
         } catch (\PDOException $e) {

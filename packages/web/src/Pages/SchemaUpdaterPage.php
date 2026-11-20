@@ -315,6 +315,20 @@ class SchemaUpdaterPage extends FOGPage
             if (!DatabaseManager::getLink()) {
                 throw new \Exception(_('Database connection unavailable.'));
             }
+            // portableDdl() needs MySQL expression defaults, from 8.0.13.
+            // Refuse an older MySQL before any step runs against it.
+            $serverVersion = SchemaReconciler::serverVersion();
+            if (SchemaReconciler::isUnsupportedMysql($serverVersion)) {
+                throw new \Exception(
+                    sprintf(
+                        _(
+                            'FOG needs MariaDB, or MySQL 8.0.13 or newer. '
+                            . 'This server runs MySQL %s.'
+                        ),
+                        $serverVersion
+                    )
+                );
+            }
             // Whether there is any INDEXED work. There may be none and still
             // be work to do: the reconcile and the required-row seed below are
             // keyed on what the database actually looks like, not on a
@@ -338,6 +352,15 @@ class SchemaUpdaterPage extends FOGPage
                 foreach ((array)$updates as &$update) {
                     if (!$update) {
                         continue;
+                    }
+                    if (is_string($update)) {
+                        // schema.php is written for MariaDB; rewrite the
+                        // TEXT/BLOB defaults for MySQL, as the reconciler
+                        // does for the manifest.
+                        $update = SchemaReconciler::portableDdl(
+                            $update,
+                            $serverVersion
+                        );
                     }
                     if (is_callable($update)) {
                         $result = $update();

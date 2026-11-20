@@ -147,7 +147,8 @@ $this->schema[] = [
     . 'KEY `new_index` (`uName`),'
     . 'KEY `new_index1` (`uPass`)'
     . ') ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
-    "INSERT IGNORE INTO `users` VALUES ('','fog', MD5('password'), NOW(), '')",
+    // The literal is md5('password'). Some MySQL builds (Ubuntu's) have no MD5().
+    "INSERT IGNORE INTO `users` VALUES ('','fog', '5f4dcc3b5aa765d61d8327deb882cf99', NOW(), '')",
     "INSERT IGNORE INTO `supportedOS` VALUES ('', 'Windows XP', '1')",
     "INSERT IGNORE INTO `schemaVersion` VALUES ('', '1')"
 ];
@@ -3353,30 +3354,34 @@ $this->schema[] = [
 // 231
 $this->schema[] = [
     "DELETE FROM `moduleStatusByHost` WHERE `msState`='0'",
+    // The WHERE casts msModuleID to CHAR. The earlier step that made the
+    // column INT may already have run, and under MySQL strict mode a string
+    // compared to an INT column is error 1292. Where the column is still
+    // VARCHAR the CAST changes nothing.
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='1' WHERE `msModuleID`='dircleanup'",
+    . "`msModuleID`='1' WHERE CAST(`msModuleID` AS CHAR)='dircleanup'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='2' WHERE `msModuleID`='usercleanup'",
+    . "`msModuleID`='2' WHERE CAST(`msModuleID` AS CHAR)='usercleanup'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='3' WHERE `msModuleID`='displaymanager'",
+    . "`msModuleID`='3' WHERE CAST(`msModuleID` AS CHAR)='displaymanager'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='4' WHERE `msModuleID`='autologout'",
+    . "`msModuleID`='4' WHERE CAST(`msModuleID` AS CHAR)='autologout'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='5' WHERE `msModuleID`='greenfog'",
+    . "`msModuleID`='5' WHERE CAST(`msModuleID` AS CHAR)='greenfog'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='6' WHERE `msModuleID`='snapin'",
+    . "`msModuleID`='6' WHERE CAST(`msModuleID` AS CHAR)='snapin'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='7' WHERE `msModuleID`='clientupdater'",
+    . "`msModuleID`='7' WHERE CAST(`msModuleID` AS CHAR)='clientupdater'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='8' WHERE `msModuleID`='hostregister'",
+    . "`msModuleID`='8' WHERE CAST(`msModuleID` AS CHAR)='hostregister'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='9' WHERE `msModuleID`='hostnamechanger'",
+    . "`msModuleID`='9' WHERE CAST(`msModuleID` AS CHAR)='hostnamechanger'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='10' WHERE `msModuleID`='printermanager'",
+    . "`msModuleID`='10' WHERE CAST(`msModuleID` AS CHAR)='printermanager'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='11' WHERE `msModuleID`='taskreboot'",
+    . "`msModuleID`='11' WHERE CAST(`msModuleID` AS CHAR)='taskreboot'",
     "UPDATE `moduleStatusByHost` SET "
-    . "`msModuleID`='12' WHERE `msModuleID`='usertracker'",
+    . "`msModuleID`='12' WHERE CAST(`msModuleID` AS CHAR)='usertracker'",
     "ALTER TABLE `moduleStatusByHost` CHANGE "
     . "`msModuleID` `msModuleID` INT NOT NULL",
 ];
@@ -8222,8 +8227,9 @@ $this->schema[] = [
     // deletes FOG_PLUGINSYS_DIR while leaving the INSERT that creates it at
     // line 749 intact. A fresh install creates these and then removes them
     // one step later, which costs nothing and keeps the history readable.
+    // CAST on msModuleID: see step 231.
     "DELETE FROM `moduleStatusByHost` "
-    . "WHERE `msModuleID` IN ('5', 'greenfog')",
+    . "WHERE CAST(`msModuleID` AS CHAR) IN ('5', 'greenfog')",
     "DELETE FROM `modules` WHERE `short_name` = 'greenfog'",
     "DELETE FROM `globalSettings` "
     . "WHERE `settingKey` = 'FOG_CLIENT_GREENFOG_ENABLED'",
@@ -11525,8 +11531,9 @@ $this->schema[] = [
     // schema.php is a replay log; step 326 set that precedent and step 375
     // followed it. A fresh install creates these and removes them one step
     // later, which costs nothing and keeps the history readable.
+    // CAST on msModuleID: see step 231.
     "DELETE FROM `moduleStatusByHost` "
-    . "WHERE `msModuleID` IN ('3', 'displaymanager')",
+    . "WHERE CAST(`msModuleID` AS CHAR) IN ('3', 'displaymanager')",
     "DELETE FROM `modules` WHERE `short_name` = 'displaymanager'",
     "DELETE FROM `globalSettings` WHERE `settingKey` IN ("
     . "'FOG_CLIENT_DISPLAYMANAGER_ENABLED',"
@@ -11616,7 +11623,8 @@ $this->schema[] = [
     //
     // The seed steps are deliberately NOT edited. schema.php is a replay
     // log; step 326 set that precedent, 375 and 431 followed it.
-    "DELETE FROM `moduleStatusByHost` WHERE `msModuleID` IN ("
+    // CAST on msModuleID: see step 231.
+    "DELETE FROM `moduleStatusByHost` WHERE CAST(`msModuleID` AS CHAR) IN ("
     . "'1', '2', '7', 'dircleanup', 'usercleanup', 'clientupdater')",
     "DELETE FROM `modules` WHERE `short_name` IN ("
     . "'dircleanup', 'usercleanup', 'clientupdater')",
