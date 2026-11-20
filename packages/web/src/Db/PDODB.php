@@ -497,14 +497,26 @@ class PDODB extends DatabaseManager
 
             $this->error = false;
         } catch (\PDOException $e) {
-            // Capture PDO errorInfo if possible
-            if (self::$_queryResult instanceof \PDOStatement) {
+            // Take the code from the exception first. With native prepares a
+            // statement the server rejects at PREPARE time (a missing table,
+            // a syntax error) throws from prepare() and leaves no statement
+            // handle, so reading only the handle kept the PREVIOUS failure's
+            // code. The schema updater acts on that code: a stale 1060/1061
+            // skipped a real failure, and a 1146 never reached the repair.
+            if (is_array($e->errorInfo) && isset($e->errorInfo[1])) {
+                $this->lastErrorInfo = $e->errorInfo;
+            } elseif (self::$_queryResult instanceof \PDOStatement) {
                 $this->lastErrorInfo = self::$_queryResult->errorInfo();
-                if (isset($this->lastErrorInfo[1])) {
-                    $this->errorCode = $this->lastErrorInfo[1];
-                }
             }
-
+            $this->errorCode = isset($this->lastErrorInfo[1])
+                ? $this->lastErrorInfo[1]
+                : false;
+            // Logging below can run a query of its own on this same object
+            // (the log timestamp reads storageEpoch), and that query resets
+            // lastErrorInfo and, if it fails, sets errorCode. Keep this
+            // statement's values and put them back once the log is written.
+            $failedCode = $this->errorCode;
+            $failedInfo = $this->lastErrorInfo;
             $msg = sprintf(
                 "Failed to %s: %s: %s %s: %s\nSQL: %s\nParams: %s\nErrorInfo: %s\nDebug: %s",
                 __FUNCTION__,
@@ -514,13 +526,15 @@ class PDODB extends DatabaseManager
                 $this->sqlerror(),
                 self::$_query,
                 print_r($paramvals, true),
-                print_r($this->lastErrorInfo, true),
+                print_r($failedInfo, true),
                 self::_debugDumpParams()
             );
 
             self::debug(self::$_query);
             self::error($msg);
 
+            $this->errorCode = $failedCode;
+            $this->lastErrorInfo = $failedInfo;
             $this->error = $msg;
 
             if (self::$throwOnQueryError) {
