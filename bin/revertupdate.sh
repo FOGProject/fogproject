@@ -333,7 +333,7 @@ if [[ -n $dumpfile ]]; then
     # Credentials, proven before anything is stopped -- same shape as
     # revertfog.sh, and for the same reason: a revert that cannot reach the
     # database can only get halfway.
-    if ! mysql $sqloptionsuser --password="${DB_password}" --execute="quit" >/dev/null 2>&1; then
+    if ! mysql $sqloptionsuser --password="${DB_password}" --execute="SELECT 1" >/dev/null 2>&1; then
         if detectMysqlSslOption $sqloptionsuser --password="${DB_password}"; then
             sqloptionsuser="${sqloptionsuser} ${mysqlsslopt}"
         else

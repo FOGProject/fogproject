@@ -858,11 +858,16 @@ restorePreservedCustomizations() {
 # --ssl-mode, while MariaDB before 11.4 has no --ssl-mode. Try both and keep
 # whichever the installed client accepts. Empty means none was ever needed.
 mysqlsslopt=""
+#
+# A connection probe runs `--execute="SELECT 1"`, never `quit`. `quit` is a
+# client command, and the MySQL 9 client sends an --execute string to the
+# server as SQL, so `quit` fails there with ERROR 1064 even when the login
+# works (GH-2115).
 detectMysqlSslOption() {
     local opt
     [[ -n $mysqlsslopt ]] && return 0
     for opt in "--ssl-mode=DISABLED" "--skip-ssl"; do
-        if mysql "$@" $opt --execute="quit" >/dev/null 2>&1; then
+        if mysql "$@" $opt --execute="SELECT 1" >/dev/null 2>&1; then
             mysqlsslopt="$opt"
             return 0
         fi
@@ -873,7 +878,7 @@ checkDatabaseConnection() {
     dots "Checking connection to master database"
     [[ -n ${DB_host} ]] && host="--host=${DB_host}"
     sqloptionsuser="${host} -s --user=${DB_user}"
-    mysql $sqloptionsuser --password="${DB_password}" --execute="quit" >/dev/null 2>&1
+    mysql $sqloptionsuser --password="${DB_password}" --execute="SELECT 1" >/dev/null 2>&1
     local connected=$?
     # Only the whole option string is reusable, so widen $host too -- the
     # fogstorage checks later on build their own command line from it.
@@ -2019,7 +2024,7 @@ updateDB() {
 
     # we still need to grant access for the fogstorage DB user
     # and therefore need root DB access
-    mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >>$error_log 2>&1
+    mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT 1" >>$error_log 2>&1
     if [[ $? -ne 0 ]]; then
         echo
         echo "   To improve the overall security the installer will restrict"
@@ -2030,12 +2035,12 @@ updateDB() {
         read -rs snmysqlrootpass
         echo
         echo
-        mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+        mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT 1" >/dev/null 2>&1
         if [[ $? -ne 0 ]]; then
             echo "   Unable to connect to the database using the given password!"
             echo -n "   Try again: "
             read -rs snmysqlrootpass
-            mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+            mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT 1" >/dev/null 2>&1
             if [[ $? -ne 0 ]]; then
                 echo
                 echo "   Failed! Terminating installer now."
@@ -4557,6 +4562,28 @@ installPackages() {
     newPackList=""
     local toInstall=""
     local altpkg=""
+    # GH-2115: from MariaDB 11.8.9 (Ubuntu 26.10) the Debian-family packages
+    # moved the MySQL names into separate -compat packages that nothing pulls
+    # in. Without mariadb-client-compat there is no mysql/mysqladmin/mysqldump,
+    # which every DB step in the installer and the revert scripts calls. Without
+    # mariadb-server-compat there is no /run/mysqld -> /run/mariadbd link, and
+    # PHP's pdo_mysql still looks for the socket under /run/mysqld. Where the
+    # package exists but the names still live in the main package, it is a
+    # harmless no-op. It is queued only after the loop below resolves
+    # mariadb-* itself, so a MySQL host is never handed a MariaDB package.
+    # Writes this function's newPackList and toInstall (bash dynamic scope).
+    queueMariadbCompat() {
+        pkgIsAvailable "$1" || return 0
+        newPackList="$newPackList $1"
+        if pkgIsInstalled "$1"; then
+            dots "Skipping package:   $1"
+            echo "(Already Installed)"
+            return 0
+        fi
+        dots "Pending package:    $1"
+        echo "(Queued)"
+        [[ -z $toInstall ]] && toInstall="$1" || toInstall="$toInstall $1"
+    }
     for x in ${FOG_packages}; do
         case $x in
             mysql|mariadb|mariadb-client|MariaDB-client)
@@ -4566,11 +4593,13 @@ installPackages() {
                 installed_sqlclient=$(pkgFirstInstalled $sqlclientlist)
                 available_sqlclient=$(pkgFirstAvailable $sqlclientlist)
                 [[ -n $installed_sqlclient ]] && x=$installed_sqlclient || x=$available_sqlclient
+                [[ $x == mariadb-client ]] && queueMariadbCompat mariadb-client-compat
                 ;;
             mysql-server|mariadb-server|MariaDB-server)
                 installed_sqlserver=$(pkgFirstInstalled $sqlserverlist)
                 available_sqlserver=$(pkgFirstAvailable $sqlserverlist)
                 [[ -n $installed_sqlserver ]] && x=$installed_sqlserver || x=$available_sqlserver
+                [[ $x == mariadb-server ]] && queueMariadbCompat mariadb-server-compat
                 ;;
             php-json)
                 altpkg=$(pkgFirstAvailable php-json php-common)
@@ -5724,17 +5753,20 @@ configureMySql() {
     # option strings. Only TCP connections negotiate TLS -- an empty
     # ${DB_host} means the local socket, where the question cannot arise.
     if [[ -n ${DB_host} ]] \
-        && ! mysql $sqloptionsuser --password="${DB_password}" --execute="quit" >/dev/null 2>&1 \
+        && ! mysql $sqloptionsuser --password="${DB_password}" --execute="SELECT 1" >/dev/null 2>&1 \
         && detectMysqlSslOption $sqloptionsuser --password="${DB_password}"; then
         host="${host} ${mysqlsslopt}"
         sqloptionsroot="${sqloptionsroot} ${mysqlsslopt}"
         sqloptionsuser="${sqloptionsuser} ${mysqlsslopt}"
     fi
-    mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1 || mysqladmin $host ping >/dev/null 2>&1
+    # stderr goes to the error log, not /dev/null: this is the step that fails
+    # when the server or the client binary is missing, and GH-2115 reported
+    # it as a failure with nothing in the log to say why.
+    mysqladmin $host ping >/dev/null 2>>$error_log || mysqladmin $host ping >/dev/null 2>>$error_log || mysqladmin $host ping >/dev/null 2>>$error_log
     errorStat $?
 
     dots "Setting up MySQL user and database"
-    mysql $sqloptionsroot --execute="quit" >/dev/null 2>&1
+    mysql $sqloptionsroot --execute="SELECT 1" >/dev/null 2>&1
     connect_as_root=$?
     if [[ $connect_as_root -eq 0 ]]; then
         # Try to detect if we can login to the database as root without a password
@@ -5791,9 +5823,9 @@ configureMySql() {
     else
         snmysqlstoragepass=$(mysql $sqloptionsuser --password="${DB_password}" --execute="SELECT settingValue FROM globalSettings WHERE settingKey LIKE '%FOG_STORAGENODE_MYSQLPASS%'" ${DB_name} 2>/dev/null | tail -1)
     fi
-    mysql $sqloptionsuser --password="${DB_password}" --execute="quit" >/dev/null 2>&1
+    mysql $sqloptionsuser --password="${DB_password}" --execute="SELECT 1" >/dev/null 2>&1
     connect_as_fogmaster=$?
-    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="quit" >/dev/null 2>&1
+    mysql ${host} -s --user=fogstorage --password="${snmysqlstoragepass}" --execute="SELECT 1" >/dev/null 2>&1
     connect_as_fogstorage=$?
     if [[ $connect_as_fogmaster -eq 0 && $connect_as_fogstorage -eq 0 ]]; then
         echo "Skipped"
@@ -5812,12 +5844,12 @@ configureMySql() {
         read -rs snmysqlrootpass
         echo
         echo
-        mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+        mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT 1" >/dev/null 2>&1
         if [[ $? -ne 0 ]]; then
             echo "   Unable to connect to the database using the given password!"
             echo -n "   Try again: "
             read -rs snmysqlrootpass
-            mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="quit" >/dev/null 2>&1
+            mysql $sqloptionsroot --password="${snmysqlrootpass}" --execute="SELECT 1" >/dev/null 2>&1
             if [[ $? -ne 0 ]]; then
                 echo
                 echo "   Failed! Terminating installer now."

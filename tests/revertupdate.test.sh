@@ -167,7 +167,7 @@ has "$out" "run --checkout first" "and points at the checkout that would make it
 hasnt "$calls" "mysqldump" "no safety dump"
 hasnt "$calls" "systemctl" "nothing stopped"
 hasnt "$calls" "DROP TABLE" "nothing dropped"
-[[ $calls == *"--execute=quit"* ]] && bad "connected to the database before the proof" \
+[[ $calls == *"--execute=SELECT 1"* ]] && bad "connected to the database before the proof" \
     || ok "the proof runs before the database is even connected to"
 
 echo "== C: --checkout moves HEAD to the recorded commit and nothing else =="

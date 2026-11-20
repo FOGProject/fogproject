@@ -430,7 +430,7 @@ dumpcount=$(_dumpSchemaCount "$dumpfile")
 # fallback for a client that demands TLS from a server offering none.
 [[ -n ${DB_host} ]] && host="--host=${DB_host}"
 sqloptionsuser="${host} -s --user=${DB_user}"
-if ! mysql $sqloptionsuser --password="${DB_password}" --execute="quit" >/dev/null 2>&1; then
+if ! mysql $sqloptionsuser --password="${DB_password}" --execute="SELECT 1" >/dev/null 2>&1; then
     if detectMysqlSslOption $sqloptionsuser --password="${DB_password}"; then
         sqloptionsuser="${sqloptionsuser} ${mysqlsslopt}"
     else
