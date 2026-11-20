@@ -475,6 +475,9 @@ msgstr "この名前のホストは既に存在します！"
 msgid "A host imaged inside this range counts as current. Everything else is measured back from the end date."
 msgstr "指定期間内にイメージ処理されたホストは現在のものとして扱われます。それ以外は終了日を基準に遡って判定されます。"
 
+msgid "A host with agents on more than one OS runs this snapin only on the OS chosen here. Any runs it on all of them."
+msgstr ""
+
 msgid "A host with that name already exists"
 msgstr "その名前のホストは既に存在します"
 
@@ -999,6 +1002,10 @@ msgstr "エージェント登録トークン"
 msgid "Agent Release Sync"
 msgstr "エージェントリリースの同期"
 
+#, fuzzy
+msgid "Agent Seats"
+msgstr "エージェントトークン"
+
 msgid "Agent Tokens"
 msgstr "エージェントトークン"
 
@@ -1212,6 +1219,9 @@ msgstr "このサーバーで検証できない保存済みアドレスから応
 
 msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
 msgstr "キーが一度も設定されていない場合は、404 ではなく空の値を返します。ここでは「指定なし」も正常な応答であり、リソースが存在しないことを意味しません。"
+
+msgid "Any"
+msgstr ""
 
 msgid "Any version"
 msgstr "すべてのバージョン"
@@ -1746,6 +1756,10 @@ msgid "Catch-All Site"
 msgstr "その他すべてを対象とするサイト"
 
 msgid "Certificate"
+msgstr "証明書"
+
+#, fuzzy
+msgid "Certificate Expires"
 msgstr "証明書"
 
 msgid "Certificate SHA-1"
@@ -5271,6 +5285,9 @@ msgstr "ntfy トピックのリンクに失敗しました"
 msgid "Link ntfy Topic Success"
 msgstr "ntfy トピックをリンクしました"
 
+msgid "Linux"
+msgstr "Linux"
+
 msgid "Linux and macOS, as root:"
 msgstr "Linux および macOS では root 権限で:"
 
@@ -5783,6 +5800,9 @@ msgstr "その他のインストール例"
 msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr "この期間に一致する行は %s 件を超えています。以下の集計は先頭の %s 件のみを対象としています。正確な数値を確認するには、日付の範囲を絞り込んでください。"
 
+msgid "More than one non-Windows agent seat; no seat owns the directory."
+msgstr ""
+
 msgid "Most Frequent Host IDs"
 msgstr "出現頻度の高いホスト ID"
 
@@ -5988,6 +6008,10 @@ msgstr "このグループにはキャンセルできる実行中のタスクが
 
 msgid "No activity information available for this group"
 msgstr "このグループで利用可能なアクティビティ情報はありません"
+
+#, fuzzy
+msgid "No agent"
+msgstr "エージェント"
 
 msgid "No archive was uploaded."
 msgstr "アーカイブがアップロードされていません。"
@@ -7752,6 +7776,9 @@ msgstr ""
 msgid "Run bin/fk-orphan-scan.php to find the rows."
 msgstr "対象のレコードを確認するには bin/fk-orphan-scan.php を実行してください。"
 
+msgid "Run on"
+msgstr ""
+
 msgid "Running Windows"
 msgstr "Windows 実行中"
 
@@ -9257,6 +9284,9 @@ msgstr "ID トークンに指定された発行者が一致しません"
 
 msgid "The ID token was issued to someone else"
 msgstr "ID トークンが別の対象者に対して発行されています"
+
+msgid "The OS the snapin runs on. Empty means any OS."
+msgstr ""
 
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr "ホストへ Ping を実行するには PHP の sockets 拡張機能が必要です"
@@ -10815,7 +10845,8 @@ msgstr "対象者"
 msgid "Who a filter can be shared with"
 msgstr "フィルターの共有先として指定できる相手"
 
-msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflict, reissue."
+#, fuzzy
+msgid "Why it waits: unknown-host, known-host-no-agent, rebind, new-seat (new OS on a host that already has an agent), identity-conflict, reissue."
 msgstr "保留理由: unknown-host、known-host-no-agent、rebind、identity-conflict、reissue。"
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
@@ -10826,6 +10857,10 @@ msgstr "幅は 650 ピクセルである必要があります。"
 
 msgid "Window size must be greater than 1"
 msgstr "ウィンドウサイズは 1 より大きい必要があります"
+
+#, fuzzy
+msgid "Windows"
+msgstr "Windows キー"
 
 msgid "Windows 10 Professional"
 msgstr "Windows 10 Professional"
@@ -11541,6 +11576,9 @@ msgstr "チェックインしたホストに基づくロケーション URL"
 
 msgid "logout"
 msgstr "ログアウト"
+
+msgid "macOS"
+msgstr ""
 
 msgid "meaning a node that has no images on it"
 msgstr "つまり、イメージを保持していないノード"
@@ -13185,9 +13223,6 @@ msgstr "{node}"
 
 #~ msgid "Link must be a string"
 #~ msgstr "リンクは文字列である必要があります"
-
-#~ msgid "Linux"
-#~ msgstr "Linux"
 
 #, php-format
 #~ msgid "List all roles"

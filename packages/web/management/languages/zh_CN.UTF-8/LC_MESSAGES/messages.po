@@ -511,6 +511,9 @@ msgstr "图像已经存在具有此名称！"
 msgid "A host imaged inside this range counts as current. Everything else is measured back from the end date."
 msgstr ""
 
+msgid "A host with agents on more than one OS runs this snapin only on the OS chosen here. Any runs it on all of them."
+msgstr ""
+
 #, fuzzy
 msgid "A host with that name already exists"
 msgstr "使用此名称的主机名已经存在。"
@@ -1137,6 +1140,10 @@ msgid "Agent Release Sync"
 msgstr ""
 
 #, fuzzy
+msgid "Agent Seats"
+msgstr "访问令牌"
+
+#, fuzzy
 msgid "Agent Tokens"
 msgstr "访问令牌"
 
@@ -1372,6 +1379,9 @@ msgid "Answered at a stored address this server cannot verify; rechecked by name
 msgstr ""
 
 msgid "Answers an empty value when the key has never been set, rather than 404 -- \"no opinion\" is a normal answer here, not a missing resource."
+msgstr ""
+
+msgid "Any"
 msgstr ""
 
 #, fuzzy
@@ -1996,6 +2006,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Certificate"
+msgstr "新建%s"
+
+#, fuzzy
+msgid "Certificate Expires"
 msgstr "新建%s"
 
 msgid "Certificate SHA-1"
@@ -6106,6 +6120,9 @@ msgstr "链接松弛账户"
 msgid "Link ntfy Topic Success"
 msgstr "链接松弛账户"
 
+msgid "Linux"
+msgstr ""
+
 msgid "Linux and macOS, as root:"
 msgstr ""
 
@@ -6706,6 +6723,9 @@ msgstr "连接失败"
 msgid "More than %s rows match this range. Everything below covers the first %s only -- narrow the dates for exact figures."
 msgstr ""
 
+msgid "More than one non-Windows agent seat; no seat owns the directory."
+msgstr ""
+
 msgid "Most Frequent Host IDs"
 msgstr ""
 
@@ -6936,6 +6956,9 @@ msgid "No active tasks to cancel for this group"
 msgstr "发现主机没有活动任务"
 
 msgid "No activity information available for this group"
+msgstr ""
+
+msgid "No agent"
 msgstr ""
 
 #, fuzzy
@@ -8957,6 +8980,9 @@ msgstr ""
 msgid "Run bin/fk-orphan-scan.php to find the rows."
 msgstr ""
 
+msgid "Run on"
+msgstr ""
+
 #, fuzzy
 msgid "Running Windows"
 msgstr "运行版本"
@@ -10736,6 +10762,9 @@ msgstr ""
 msgid "The ID token was issued to someone else"
 msgstr ""
 
+msgid "The OS the snapin runs on. Empty means any OS."
+msgstr ""
+
 msgid "The PHP sockets extension is required to ping hosts"
 msgstr ""
 
@@ -12452,7 +12481,7 @@ msgstr ""
 msgid "Who a filter can be shared with"
 msgstr ""
 
-msgid "Why it waits: unknown-host, known-host-no-agent, rebind, identity-conflict, reissue."
+msgid "Why it waits: unknown-host, known-host-no-agent, rebind, new-seat (new OS on a host that already has an agent), identity-conflict, reissue."
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
@@ -12463,6 +12492,10 @@ msgstr ""
 
 msgid "Window size must be greater than 1"
 msgstr ""
+
+#, fuzzy
+msgid "Windows"
+msgstr "Windows 8的"
 
 #, fuzzy
 msgid "Windows 10 Professional"
@@ -13273,6 +13306,9 @@ msgstr ""
 #, fuzzy
 msgid "logout"
 msgstr "登出"
+
+msgid "macOS"
+msgstr ""
 
 msgid "meaning a node that has no images on it"
 msgstr ""
