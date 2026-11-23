@@ -13125,6 +13125,9 @@ msgstr "Questo host esiste già"
 msgid "ok"
 msgstr ""
 
+msgid "ok (rejoin)"
+msgstr ""
+
 msgid "old"
 msgstr ""
 
@@ -13193,6 +13196,16 @@ msgid "register this at your provider"
 msgstr ""
 
 msgid "register this too, if you enable single logout"
+msgstr ""
+
+msgid "rejoin awaiting reboot"
+msgstr ""
+
+#, fuzzy
+msgid "rejoin failed"
+msgstr "Caricamento non riuscito"
+
+msgid "rejoin result unknown"
 msgstr ""
 
 msgid "row(s)"
@@ -14097,10 +14110,6 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Login accepted"
-#~ msgstr "Caricamento non riuscito"
-
-#, fuzzy
-#~ msgid "Login failed"
 #~ msgstr "Caricamento non riuscito"
 
 #, fuzzy

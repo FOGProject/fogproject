@@ -423,7 +423,10 @@ class DirectoryJoin extends FOGBase
             return 0;
         }
 
-        return self::niceDate($at, self::storageTimeZone())->getTimestamp()
+        // niceDate()'s second argument is a $utc bool. A DateTimeZone there
+        // is truthy and read the stamp as UTC; the default reads it in the
+        // storage zone, which is the zone stamp() wrote it in.
+        return self::niceDate($at)->getTimestamp()
             + self::retryAfter();
     }
 

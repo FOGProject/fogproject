@@ -11723,6 +11723,9 @@ msgstr "オフの場合、アカウントがあらかじめ存在している必
 msgid "ok"
 msgstr "正常"
 
+msgid "ok (rejoin)"
+msgstr ""
+
 msgid "old"
 msgstr "旧"
 
@@ -11790,6 +11793,16 @@ msgstr "これをプロバイダーに登録してください"
 
 msgid "register this too, if you enable single logout"
 msgstr "シングルログアウトを有効にする場合は、こちらも登録してください"
+
+msgid "rejoin awaiting reboot"
+msgstr ""
+
+#, fuzzy
+msgid "rejoin failed"
+msgstr "ログインに失敗しました"
+
+msgid "rejoin result unknown"
+msgstr ""
 
 msgid "row(s)"
 msgstr "行"
@@ -13246,9 +13259,6 @@ msgstr "{node}"
 
 #~ msgid "Login accepted"
 #~ msgstr "ログインが承認されました"
-
-#~ msgid "Login failed"
-#~ msgstr "ログインに失敗しました"
 
 #~ msgid "Login time"
 #~ msgstr "ログイン時刻"

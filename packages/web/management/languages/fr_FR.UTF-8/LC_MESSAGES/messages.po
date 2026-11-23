@@ -13464,6 +13464,9 @@ msgstr "Imprimante existe déjà"
 msgid "ok"
 msgstr ""
 
+msgid "ok (rejoin)"
+msgstr ""
+
 msgid "old"
 msgstr ""
 
@@ -13532,6 +13535,16 @@ msgid "register this at your provider"
 msgstr ""
 
 msgid "register this too, if you enable single logout"
+msgstr ""
+
+msgid "rejoin awaiting reboot"
+msgstr ""
+
+#, fuzzy
+msgid "rejoin failed"
+msgstr "Échec du chargement: %s"
+
+msgid "rejoin result unknown"
 msgstr ""
 
 msgid "row(s)"
@@ -14450,10 +14463,6 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Login accepted"
-#~ msgstr "Échec du chargement: %s"
-
-#, fuzzy
-#~ msgid "Login failed"
 #~ msgstr "Échec du chargement: %s"
 
 #, fuzzy
