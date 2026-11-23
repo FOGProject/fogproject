@@ -4873,9 +4873,18 @@ class Route extends FOGBase
                             default:
                                 $date = $row['stDateTime'];
                         }
-                        return self::niceDate()
-                            ->setTimestamp($date)
-                            ->format('Y-m-d H:i:s');
+                        $date = self::niceDate()->setTimestamp((int)$date);
+                        // The grid shows the viewer's zone, as every other
+                        // grid does through displayDates(). That pass skips
+                        // this column: its db key is the integer stID. A
+                        // delayed time is entered in the viewer's zone, so
+                        // it now reads back as entered. REST stays in the
+                        // storage zone (UTC past the boundary), like every
+                        // other API date.
+                        if (!self::$apiRequest) {
+                            $date = self::toDisplay($date);
+                        }
+                        return $date->format('Y-m-d H:i:s');
                     }
                 ];
                 $columns[] = self::relColumn(

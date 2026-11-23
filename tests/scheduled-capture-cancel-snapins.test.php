@@ -228,6 +228,12 @@ function runPass($cancel)
     $GLOBALS['stCancel'] = $cancel;
     $log = tempnam(sys_get_temp_dir(), 'schedlog');
     $ref = new \ReflectionClass(TaskScheduler::class);
+    // Each run is a first pass. The scheduler remembers its previous pass,
+    // and runs a minute only once, so a second pass in the same minute
+    // would not run the `* * * * *` task again.
+    $last = $ref->getProperty('_lastPass');
+    $last->setAccessible(true);
+    $last->setValue(null, null);
     $sched = $ref->newInstanceWithoutConstructor();
     $prop = $ref->getProperty('log');
     $prop->setAccessible(true);

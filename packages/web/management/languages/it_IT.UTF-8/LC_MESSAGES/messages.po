@@ -6747,6 +6747,9 @@ msgstr "Nuova chiave deve essere una stringa"
 msgid "News"
 msgstr ""
 
+msgid "Next Run"
+msgstr ""
+
 #, fuzzy
 msgid "No"
 msgstr "Nodo"
@@ -11254,6 +11257,9 @@ msgid "This page documents the FOG REST API, which is currently switched off. En
 msgstr ""
 
 msgid "This role has full access, so it can start every task type. Change that on the Permissions tab."
+msgstr ""
+
+msgid "This schedule has no run time within five years"
 msgstr ""
 
 msgid "This section allows you to update"

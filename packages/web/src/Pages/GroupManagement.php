@@ -978,13 +978,19 @@ class GroupManagement extends FOGPage
                 return;
             }
             // ONE ROW, ABOUT THE GROUP. Not one per member.
+            $min = FOGCron::_sanitizeCronField($min);
+            $hour = FOGCron::_sanitizeCronField($hour);
+            $dom = FOGCron::_sanitizeCronField($dom);
+            $month = FOGCron::_sanitizeCronField($month);
+            $dow = FOGCron::_sanitizeCronField($dow);
+            FOGCron::validate($min, $hour, $dom, $month, $dow);
             (new GroupPowerManagement())
                 ->set('groupID', $groupID)
-                ->set('min', FOGCron::_sanitizeCronField($min))
-                ->set('hour', FOGCron::_sanitizeCronField($hour))
-                ->set('dom', FOGCron::_sanitizeCronField($dom))
-                ->set('month', FOGCron::_sanitizeCronField($month))
-                ->set('dow', FOGCron::_sanitizeCronField($dow))
+                ->set('min', $min)
+                ->set('hour', $hour)
+                ->set('dom', $dom)
+                ->set('month', $month)
+                ->set('dow', $dow)
                 ->set('action', $action)
                 ->save();
         }

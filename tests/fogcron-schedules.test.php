@@ -313,4 +313,176 @@ $t->check(
     )
 );
 
+// ---------------------------------------------------------------------
+// E. parse() from a fixed time gives cron's answer, in the install's zone.
+//
+// FOG_TZ_INFO is America/Chicago and the storage zone stays UTC, as on any
+// install past schema step 396. Evaluated in the storage zone, every row
+// below is off by the UTC offset. The DST rows need a zone that has DST.
+
+FogTestHarness::setStatic('FOG\Base\FOGBase', 'TimeZone', 'America/Chicago');
+// The recorded boundary: with it, storageTimeZone() is UTC.
+FogTestHarness::setStatic(
+    'FOG\Base\StorageEpoch',
+    '_row',
+    [
+        'seBoundary' => '2026-11-01 00:00:00',
+        'seZone' => 'America/Chicago',
+        'seDbZone' => 'UTC',
+        'seSchema' => 396,
+    ]
+);
+$t->check(
+    'the storage zone is UTC for these checks, as past schema step 396',
+    'UTC' === \FOG\Base\FOGBase::storageTimeZone()->getName()
+);
+$chicago = new \DateTimeZone('America/Chicago');
+$at = static function ($local) use ($chicago) {
+    return (new \DateTime($local, $chicago))->getTimestamp();
+};
+$parseCases = [
+    // [from (Chicago wall clock), cron, lastrun, expected (Chicago)]
+    // A jump resets the smaller fields.
+    ['2026-11-23 04:05', '0-10 5 * * *', false, '2026-11-23 05:00'],
+    ['2026-11-22 14:00', '0 * * * 1', false, '2026-11-23 00:00'],
+    ['2026-11-24 14:30', '0 * * * 1', true, '2026-11-23 23:00'],
+    ['2026-01-15 10:00', '0 0 * 3 *', false, '2026-03-01 00:00'],
+    // `*/n` counts from the field's first value.
+    ['2026-11-23 10:00', '0 0 */2 * *', false, '2026-11-25 00:00'],
+    ['2026-11-23 10:00', '0 0 1 */2 *', false, '2027-01-01 00:00'],
+    // A `*` field makes the day rule AND; two restricted fields make it OR.
+    ['2026-11-23 10:00', '0 9 */2 * 1', false, '2026-12-07 09:00'],
+    ['2026-11-23 10:00', '0 0 1 * 1', false, '2026-11-30 00:00'],
+    // Next is after the current minute; last is at or before it.
+    ['2026-11-23 10:00:30', '0 10 * * *', false, '2026-11-24 10:00'],
+    ['2026-11-23 10:00:30', '0 10 * * *', true, '2026-11-23 10:00'],
+    ['2026-11-23 10:00', '0 23 * * *', false, '2026-11-23 23:00'],
+    ['2026-12-31 23:59', '0 0 1 1 *', false, '2027-01-01 00:00'],
+    ['2026-03-01 00:00', '59 23 31 * *', true, '2026-01-31 23:59'],
+    // DST: the skipped hour runs an hour later; the repeated hour runs once.
+    ['2026-03-07 12:00', '30 2 * * *', false, '2026-03-08 03:30'],
+    ['2026-10-31 12:00', '30 1 * * *', false, '2026-11-01 01:30 CDT'],
+];
+foreach ($parseCases as $c) {
+    list($fromLocal, $cron, $last, $want) = $c;
+    try {
+        $got = \FOG\Util\FOGCron::parse($cron, $last, $at($fromLocal));
+        $got = (new \DateTime('@' . $got))->setTimezone($chicago)
+            ->format('Y-m-d H:i');
+    } catch (\Throwable $e) {
+        $got = 'THREW ' . get_class($e);
+    }
+    $wantTs = $at($want);
+    $wantText = (new \DateTime('@' . $wantTs))->setTimezone($chicago)
+        ->format('Y-m-d H:i');
+    $t->check(
+        sprintf(
+            "parse('%s', %s) from %s is %s (got %s)",
+            $cron,
+            $last ? 'last' : 'next',
+            $fromLocal,
+            $wantText,
+            $got
+        ),
+        $got === $wantText
+    );
+}
+// The repeated hour: from the SECOND 01:40 (CST), 01:30 is tomorrow.
+$secondPass = (new \DateTime('2026-11-01 01:40 CDT'))->getTimestamp() + 3600;
+$got = \FOG\Util\FOGCron::parse('30 1 * * *', false, $secondPass);
+$t->check(
+    "parse('30 1 * * *') from the repeated 01:40 does not run twice",
+    $at('2026-11-02 01:30') === $got
+);
+
+// ---------------------------------------------------------------------
+// F. validate() refuses what cron refuses, and a schedule with no date.
+
+// Field by field, so the range rule is what refuses it, not the date search.
+$t->check(
+    "checkMinutesField('30-10') refuses a reversed range",
+    false === \FOG\Util\FOGCron::checkMinutesField('30-10')
+);
+$refuse = [
+    ['30-10', '*', '*', '*', '*'],
+    ['99', '*', '*', '*', '*'],
+    ['0', '0', '30', '2', '*'],
+    ['0', '0', '*', '*', '-1'],
+];
+foreach ($refuse as $f) {
+    $threw = false;
+    try {
+        \FOG\Util\FOGCron::validate(...$f);
+    } catch (\Exception $e) {
+        $threw = true;
+    }
+    $t->check("validate('" . implode(' ', $f) . "') refuses it", $threw);
+}
+$threw = false;
+try {
+    \FOG\Util\FOGCron::validate('0', '22', '*/2', '*', '1-5');
+} catch (\Exception $e) {
+    $threw = true;
+}
+$t->check("validate('0 22 */2 * 1-5') accepts it", !$threw);
+$forms = [
+    'host' => 'Pages/HostManagement.php',
+    'group' => 'Pages/GroupManagement.php',
+    'task' => 'Base/FOGPagePost.php',
+];
+foreach ($forms as $form => $rel) {
+    $t->check(
+        "the $form schedule form calls FOGCron::validate()",
+        false !== strpos(
+            $strip((string)file_get_contents($web . '/src/' . $rel)),
+            'FOGCron::validate('
+        )
+    );
+}
+
+// ---------------------------------------------------------------------
+// G. A cron Timer is due when a matching minute falls in (since, now].
+
+$minuteAgo = static function ($n) use ($chicago) {
+    return (new \DateTime('@' . (time() - $n * 60)))->setTimezone($chicago);
+};
+$past = $minuteAgo(2);
+$timer = new \FOG\Util\Timer(
+    (string)(int)$past->format('i'),
+    (string)(int)$past->format('G'),
+    '*',
+    '*',
+    '*'
+);
+$t->check(
+    'Timer: a minute two minutes ago is due when the last pass was before it',
+    true === $timer->shouldRunNow(time() - 180)
+);
+$t->check(
+    'Timer: the same minute is not due again once a pass has covered it',
+    false === $timer->shouldRunNow(time() - 60)
+);
+$t->check(
+    'Timer: with no $since, an every-minute schedule is due now',
+    true === (new \FOG\Util\Timer('*', '*', '*', '*', '*'))->shouldRunNow()
+);
+
+// The window closes at $until, not at the live clock. A pass that crosses a
+// minute boundary must not run the new minute: the next pass runs it.
+$t->check(
+    'Timer: an every-minute schedule is not due in an empty window',
+    false === (new \FOG\Util\Timer('*', '*', '*', '*', '*'))
+        ->shouldRunNow(time() - 200, time() - 200)
+);
+
+// TaskScheduler hands its pass window to every timer it asks.
+$t->check(
+    'TaskScheduler: all six Timer calls pass $since and $passStart',
+    6 === preg_match_all(
+        '/->shouldRunNow(?:Check)?\(\$since, \$passStart\)/',
+        $sched
+    )
+    && 0 === preg_match_all('/->shouldRunNow(?:Check)?\(\)/', $sched)
+);
+
 $t->finish();

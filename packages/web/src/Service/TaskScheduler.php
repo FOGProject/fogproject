@@ -39,6 +39,19 @@ class TaskScheduler extends FOGService
      */
     private static $_schedOn = 0;
     /**
+     * Longest look-back for a cron schedule, in seconds. See _commonOutput().
+     *
+     * @var int
+     */
+    private const CRON_CATCH_UP = 600;
+    /**
+     * When the previous pass started, as a unix timestamp. Null before the
+     * first pass.
+     *
+     * @var int|null
+     */
+    private static $_lastPass = null;
+    /**
      * Contains the string holding the service's sleep cycle
      *
      * @var string
@@ -99,6 +112,22 @@ class TaskScheduler extends FOGService
      */
     private function _commonOutput()
     {
+        // The window this pass covers for cron schedules: from the previous
+        // pass to now, so every matching minute is seen once (see
+        // Timer::_cronDue()). The first pass covers the current minute. The
+        // window is computed before the enable check, so turning the
+        // scheduler back on does not fire what was due while it was off.
+        // A window longer than CRON_CATCH_UP, or two sleep intervals if that
+        // is longer, is cut short: a scheduler that was blocked for hours
+        // does not start a deploy hours late.
+        $passStart = time();
+        $maxBack = max(self::CRON_CATCH_UP, 2 * (int)static::$zzz);
+        if (null === self::$_lastPass) {
+            $since = $passStart - $passStart % 60 - 1;
+        } else {
+            $since = max(self::$_lastPass, $passStart - $maxBack);
+        }
+        self::$_lastPass = $passStart;
         try {
             self::$_schedOn = (int) self::getSetting('SCHEDULERGLOBALENABLED');
             if (self::$_schedOn < 1) {
@@ -259,10 +288,10 @@ class TaskScheduler extends FOGService
                     self::outall(
                         sprintf(
                             ' * %s ',
-                            $Timer->shouldRunNowCheck()
+                            $Timer->shouldRunNowCheck($since, $passStart)
                         )
                     );
-                    if (!$Timer->shouldRunNow()) {
+                    if (!$Timer->shouldRunNow($since, $passStart)) {
                         continue;
                     }
                     self::outall(
@@ -375,10 +404,10 @@ class TaskScheduler extends FOGService
                     self::outall(
                         sprintf(
                             ' * %s ',
-                            $Timer->shouldRunNowCheck()
+                            $Timer->shouldRunNowCheck($since, $passStart)
                         )
                     );
-                    if (!$Timer->shouldRunNow()) {
+                    if (!$Timer->shouldRunNow($since, $passStart)) {
                         continue;
                     }
                     self::outall(
@@ -433,10 +462,10 @@ class TaskScheduler extends FOGService
                     self::outall(
                         sprintf(
                             ' * %s ',
-                            $Timer->shouldRunNowCheck()
+                            $Timer->shouldRunNowCheck($since, $passStart)
                         )
                     );
-                    if (!$Timer->shouldRunNow()) {
+                    if (!$Timer->shouldRunNow($since, $passStart)) {
                         continue;
                     }
                     self::outall(

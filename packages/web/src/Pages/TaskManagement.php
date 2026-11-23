@@ -373,7 +373,9 @@ class TaskManagement extends FOGPage
         $this->headerData = [
             _('Host/Group Name'),
             _('Task Type'),
-            _('Start Time'),
+            // A cron task starts again and again, so "Start Time" read as
+            // the first run. The column is the next run.
+            _('Next Run'),
             _('Active'),
             _('Type')
         ];
