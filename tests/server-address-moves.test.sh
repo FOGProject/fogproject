@@ -463,6 +463,21 @@ if [[ $(run_nodecert 10.0.0.9) == *'issued earlier'* ]]; then
 else
     bad "a refused re-request did not say which certificate is kept"
 fi
+# Only the address mismatch earns that message. Without a master-issued chain,
+# or with no address, the node keeps the message it always had.
+if [[ $(run_nodecert '') != *'issued earlier'* ]]; then
+    ok "an empty address does not claim the certificate names the wrong address"
+else
+    bad "an empty address printed the address-mismatch message"
+fi
+mv "$pki/ca/.nodeChain.pem" "$tmp/chain.bak"
+out=$(run_nodecert 10.0.0.9)
+mv "$tmp/chain.bak" "$pki/ca/.nodeChain.pem"
+if [[ $out == *requested* && $out == *self-signed* && $out != *'issued earlier'* ]]; then
+    ok "a node with no master-issued certificate keeps the self-signed message"
+else
+    bad "a node with no master-issued certificate got the wrong message -- got: $(printf '%s' "$out" | tr '\n' '|')"
+fi
 
 echo
 echo "4. installfog.sh calls them in the order they depend on"
