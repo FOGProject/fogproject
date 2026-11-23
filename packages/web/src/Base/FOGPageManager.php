@@ -274,6 +274,40 @@ class FOGPageManager extends FOGBase
         return $this;
     }
     /**
+     * The report class a `?node=report&f=` value names, or '' for none.
+     *
+     * The report name off the URL is a bare, user-supplied string; qualify()
+     * is what turns it into the namespaced core report it names, and leaves
+     * a plugin's alone.
+     *
+     * It must name the same report Authorization::_reportNode() gates on, or
+     * a request passes one report's gate and loads another report:
+     *
+     *   - Strict decode, as the gate does. A loose decode skips characters
+     *     that are not base64, so a malformed f that the gate read as "no
+     *     report" (report.view) still loaded a gated report, e.g. Product
+     *     Keys or the Audit Report.
+     *   - Bare names only. qualify() passes a namespaced name through
+     *     unchanged, so "FOG\Reports\Product_Keys" loaded the report while
+     *     the gate, which maps the short name, asked for report.view. A bare,
+     *     trimmed name gives the gate and qualify() the same lowercase key.
+     *
+     * @param string $f the raw `f` query value
+     *
+     * @return string the class name, or '' when f names no report
+     */
+    public static function reportClassFromF(string $f): string
+    {
+        $name = base64_decode($f, true);
+        // trim() as the gate does, and \z rather than $, which would also
+        // match before a trailing newline.
+        $name = false === $name ? '' : trim($name);
+        if (1 !== preg_match('/^[A-Za-z0-9 _]+\z/', $name)) {
+            return '';
+        }
+        return self::qualify(str_replace(' ', '_', $name));
+    }
+    /**
      * Loads the page class for us
      *
      * @return void
@@ -294,18 +328,7 @@ class FOGPageManager extends FOGBase
             if ($node == 'report') {
                 $f = filter_input(INPUT_GET, 'f');
                 if ($f) {
-                    // The report name off the URL is a bare, user-supplied
-                    // string; qualify() is what turns it into the namespaced
-                    // core report it names, and leaves a plugin's alone.
-                    $className = self::qualify(
-                        str_replace(
-                            ' ',
-                            '_',
-                            base64_decode(
-                                $f
-                            )
-                        )
-                    );
+                    $className = self::reportClassFromF((string)$f);
                 }
             }
             if (!$className || !isset($className)) {
