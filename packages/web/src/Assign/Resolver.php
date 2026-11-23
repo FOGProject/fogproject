@@ -14,6 +14,7 @@
 namespace FOG\Assign;
 
 use FOG\Base\FOGBase;
+use FOG\Items\Software;
 
 /**
  * Resolves what a host is actually assigned, host-direct plus group-granted.
@@ -166,7 +167,9 @@ class Resolver extends FOGBase
     /**
      * Resolves the ordered software set for each host: the same shape and
      * rule as resolveSnapins (direct first, then groups in group order,
-     * deduplicated), over the software tables (design 0003).
+     * deduplicated), over the software tables (design 0003). Then one
+     * enabled entry per backend and package, the first in that order
+     * (_onePerPackage(), GH-2129).
      *
      * @param array $hostIDs the hosts to resolve for
      *
@@ -222,6 +225,79 @@ class Resolver extends FOGBase
             $resolved[$hostID] = $out;
         }
 
+        return self::_onePerPackage($resolved);
+    }
+
+    /**
+     * Keeps one enabled entry per package in each host's resolved list.
+     *
+     * Two entries can name the same backend and package: only the entry
+     * name is unique. Without this, a host that got "everything" Present
+     * from a group and a second "everything" entry set Absent directly was
+     * sent both, and the agent installed and removed it on every drift
+     * pass (GH-2129). The list is already in precedence order -- direct
+     * rows first, then groups in group order -- so the first enabled entry
+     * for a package is the one that applies, and later ones are dropped.
+     *
+     * A disabled entry claims nothing and stays in the list: it is not
+     * sent (Agent\SoftwareSet::desired), so it must not hide an enabled
+     * entry for the same package. An id with no software row also stays,
+     * for the caller to skip as it already does.
+     *
+     * @param array $resolved hostID => [softwareID, ...] in precedence order
+     *
+     * @return array the same shape, with shadowed entries removed
+     * @throws \RuntimeException on a failed software read
+     */
+    private static function _onePerPackage(array $resolved)
+    {
+        $ids = [];
+        foreach ($resolved as $list) {
+            foreach ($list as $id) {
+                $ids[$id] = true;
+            }
+        }
+        if (count($ids) < 1) {
+            return $resolved;
+        }
+        // softwareID => backend."\0".package, for ENABLED entries only. An
+        // id with no key here claims nothing and is always kept.
+        $enabledKey = [];
+        $rows = self::_rows(
+            'SELECT `swID`, `swBackend`, `swPackage`, `swEnabled` FROM `software` '
+            . 'WHERE `swID` IN (' . implode(',', array_keys($ids)) . ')'
+        );
+        foreach ($rows as $row) {
+            if (!(int)$row['swEnabled']) {
+                continue;
+            }
+            // An empty backend is the column default, Chocolatey
+            // (Software::DEFAULT_BACKEND). Chocolatey package ids are
+            // case-insensitive; Flatpak and Snap ids are compared exactly.
+            $backend = strtolower(trim((string)$row['swBackend']));
+            if ('' === $backend) {
+                $backend = Software::DEFAULT_BACKEND;
+            }
+            $package = trim((string)$row['swPackage']);
+            if ('choco' === $backend) {
+                $package = strtolower($package);
+            }
+            $enabledKey[(int)$row['swID']] = $backend . "\0" . $package;
+        }
+        foreach ($resolved as $hostID => $list) {
+            $claimed = [];
+            $kept = [];
+            foreach ($list as $id) {
+                if (isset($enabledKey[$id])) {
+                    if (isset($claimed[$enabledKey[$id]])) {
+                        continue;
+                    }
+                    $claimed[$enabledKey[$id]] = true;
+                }
+                $kept[] = $id;
+            }
+            $resolved[$hostID] = $kept;
+        }
         return $resolved;
     }
 

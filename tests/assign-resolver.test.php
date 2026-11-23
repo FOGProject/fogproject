@@ -47,6 +47,9 @@
  *        once; a host with nothing is still a key; and a failed module read
  *        throws for the same decision-9 reason as check 12.
  *
+ *   software: one enabled entry per backend and package, first in the
+ *        resolved order (GH-2129). See the comment above those checks.
+ *
  * Skips without FOG_TEST_DSN, exactly as tests/schema-executes.test.php does.
  *
  * Usage: FOG_TEST_DSN=... php tests/assign-resolver.test.php
@@ -234,6 +237,9 @@ $need = [
     'groupModuleAssoc',
     'powerManagement',
     'groupPowerManagement',
+    'software',
+    'softwareAssoc',
+    'groupSoftwareAssoc',
 ];
 foreach ($need as $table) {
     if (!isset($expected[$table]['create'])) {
@@ -647,6 +653,79 @@ $check(
     'a host present only in the association tables still resolves its grants',
     $flat($pm[13] ?? []) === ['15 1 * * *|wol', '0 2 * * *|reboot']
 );
+
+/*
+ * Software: one enabled entry per backend and package (GH-2129). Only the
+ * entry name is unique, so two entries can name one package. A host sent
+ * both a group's "everything" Present and its own "everything" Absent
+ * flips the package on every agent pass.
+ *
+ * host 10: direct 901 (Absent 'Everything'), 902 (disabled 'firefox').
+ *   group 3 zebra   (1st): 900 'everything'
+ *   group 1 middle  (2nd): 903 'firefox', 907 '7zip', 904 'vlc',
+ *                          908 flatpak 'org.Foo.App', 909 flatpak 'org.foo.app'
+ *   group 2 aaa-last(3rd): 906 '7zip', 905 snap 'vlc'
+ * host 13 is in group 3 only.
+ *
+ * 906 has the LOWER id and loses to 907, so a dedupe by id order instead
+ * of group order fails here.
+ */
+$pdo->exec(
+    "INSERT INTO `software` "
+    . "(`swID`,`swName`,`swBackend`,`swPackage`,`swState`,`swEnabled`) VALUES "
+    . "(900,'everything','choco','everything','present',1),"
+    . "(901,'everything (remove)','choco','Everything','absent',1),"
+    . "(902,'firefox (off)','choco','firefox','present',0),"
+    . "(903,'firefox','choco','firefox','present',1),"
+    . "(904,'vlc','choco','vlc','present',1),"
+    . "(905,'vlc (snap)','snap','vlc','present',1),"
+    . "(906,'7zip (late)','choco','7zip','absent',1),"
+    . "(907,'7zip','choco','7zip','present',1),"
+    . "(908,'foo app','flatpak','org.Foo.App','present',1),"
+    . "(909,'foo app lower','flatpak','org.foo.app','present',1)"
+);
+$pdo->exec(
+    "INSERT INTO `softwareAssoc` (`swaHostID`,`swaSoftwareID`,`swaSequence`) "
+    . "VALUES (10,901,0),(10,902,1)"
+);
+$pdo->exec(
+    "INSERT INTO `groupSoftwareAssoc` "
+    . "(`gswaGroupID`,`gswaSoftwareID`,`gswaSequence`) VALUES "
+    . "(3,900,0),"
+    . "(1,903,0),(1,907,1),(1,904,2),(1,908,3),(1,909,4),"
+    . "(2,906,0),(2,905,1)"
+);
+$sw = \FOG\Assign\Resolver::resolveSoftware([10, 12, 13]);
+
+$check(
+    'a direct entry shadows a group entry for the same package, case aside',
+    !in_array(900, $sw[10] ?? [], true) && in_array(901, $sw[10] ?? [], true)
+);
+$check(
+    'a disabled entry stays listed and does not shadow an enabled one',
+    in_array(902, $sw[10] ?? [], true) && in_array(903, $sw[10] ?? [], true)
+);
+$check(
+    'the earlier group in group order wins a shared package, not the lower id',
+    in_array(907, $sw[10] ?? [], true) && !in_array(906, $sw[10] ?? [], true)
+);
+$check(
+    'one package name on two backends, or two Flatpak ids by case, are kept',
+    ($sw[10] ?? []) === [901, 902, 903, 907, 904, 908, 909, 905]
+);
+$check(
+    'a host without the direct entry still gets the group entry',
+    ($sw[13] ?? null) === [900] && ($sw[12] ?? null) === []
+);
+
+$pdo->exec('DROP TABLE `software`');
+$threw = false;
+try {
+    \FOG\Assign\Resolver::resolveSoftware([10]);
+} catch (\RuntimeException $e) {
+    $threw = true;
+}
+$check('a failed software read throws rather than sending every duplicate', $threw);
 
 // 28: the decision-9 gate on this resolver's own table.
 $pdo->exec('DROP TABLE `groupPowerManagement`');
