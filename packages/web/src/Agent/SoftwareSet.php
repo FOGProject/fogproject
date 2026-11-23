@@ -117,10 +117,10 @@ class SoftwareSet extends FOGBase
     public static function desired(Host $Host, $allBackends = false)
     {
         $hostID = (int)$Host->get('id');
-        $ids = Resolver::resolveSoftware([$hostID])[$hostID] ?? [];
+        $links = Resolver::resolveSoftwareDetail([$hostID])[$hostID] ?? [];
         $entries = [];
-        foreach ($ids as $id) {
-            $Software = new Software((int)$id);
+        foreach ($links as $link) {
+            $Software = new Software((int)$link['id']);
             if (!$Software->isValid() || !$Software->get('isEnabled')) {
                 continue;
             }
@@ -132,7 +132,9 @@ class SoftwareSet extends FOGBase
                 'backend' => (string)$Software->get('backend'),
                 'package' => (string)$Software->get('package'),
                 'version' => (string)$Software->get('version'),
-                'state' => (string)$Software->get('state'),
+                // The link's override when it has one, else the entry's
+                // own state (GH-2129).
+                'state' => $link['effective'],
                 'source' => (string)$Software->get('source'),
                 'args' => (string)$Software->get('args'),
                 'timeout' => (int)$Software->get('timeout'),

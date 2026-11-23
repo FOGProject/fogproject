@@ -640,20 +640,21 @@ class GroupManagement extends FOGPage
 
         $orderButton = self::makeButton(
             'group-software-order-save',
-            _('Save order'),
+            _('Save order and states'),
             'btn btn-primary float-end',
             $props
         );
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
-        echo _('Software Order');
+        echo _('Software Order and State');
         echo '</h4>';
         echo '<p class="form-text">';
         echo _(
             'The order this group\'s software is applied in. A host applies '
             . 'its own software first, then the software granted here, in '
-            . 'this order.'
+            . 'this order. A state set here applies to this group\'s hosts '
+            . 'unless the host sets its own or an earlier group sets one.'
         );
         echo '</p>';
         echo '</div>';
@@ -673,6 +674,17 @@ class GroupManagement extends FOGPage
     public function groupSoftwarePost()
     {
         $this->assocPost('addSoftware', 'removeSoftware', 'setSoftwareOrder', 'softwareorder');
+        // The order and the per-item states post together (one request), so
+        // the states are applied here after assocPost()'s order branch.
+        $states = filter_input(
+            INPUT_POST,
+            'softwarestate',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        if (is_array($states) && count($states) > 0) {
+            $this->obj->setSoftwareStates($states);
+        }
     }
     /**
      * Display's the group service stuff
@@ -2315,14 +2327,19 @@ class GroupManagement extends FOGPage
             'sequence'
         );
         $softwareIDs = [];
+        $states = [];
         foreach ($grants as $grant) {
             $softwareIDs[] = (int)$grant->softwareID;
+            // The grant's own override; '' when NULL (use the entry's state).
+            $states[(int)$grant->softwareID] = (string)($grant->state ?? '');
         }
         if (count($softwareIDs) > 0) {
             $names = [];
+            $entryStates = [];
             $Softwares = Route::getList('software', ['id' => $softwareIDs]);
             foreach ($Softwares as $Software) {
                 $names[(int)$Software->id] = $Software->name;
+                $entryStates[(int)$Software->id] = (string)$Software->state;
             }
             foreach ($softwareIDs as $sid) {
                 // Same contract as the host tab: only list ids that resolve
@@ -2332,7 +2349,9 @@ class GroupManagement extends FOGPage
                 }
                 $data[] = [
                     'id' => $sid,
-                    'name' => $names[$sid]
+                    'name' => $names[$sid],
+                    'state' => $states[$sid],
+                    'entryState' => $entryStates[$sid]
                 ];
             }
         }

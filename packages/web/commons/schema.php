@@ -12540,3 +12540,19 @@ $this->schema[] = [
     "UPDATE `scheduledTasks` SET `stCancelSnapins` = 1 "
     . "WHERE `stTaskTypeID` IN (2, 16)",
 ];
+// 468
+$this->schema[] = [
+    // A Present/Absent override on each software link (GH-2129).
+    //
+    // software.swState is one value for every host the entry reaches, so
+    // removing a package from one host of a group needed a second entry.
+    // A host link or a group link can now say 'present' or 'absent' for
+    // that host or group. NULL means no opinion, which is what every
+    // existing row means, so no row changes meaning. The state is the first
+    // one set along the host's own link, then its groups in group order,
+    // else the entry's (FOG\Assign\Resolver::resolveSoftwareDetail()).
+    "ALTER TABLE `softwareAssoc` "
+    . "ADD COLUMN `swaState` varchar(8) DEFAULT NULL",
+    "ALTER TABLE `groupSoftwareAssoc` "
+    . "ADD COLUMN `gswaState` varchar(8) DEFAULT NULL",
+];

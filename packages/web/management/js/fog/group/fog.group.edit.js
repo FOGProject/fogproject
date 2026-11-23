@@ -456,6 +456,16 @@
                         'title': 'Move down'
                     }).append($('<i>', {'class': 'fas fa-arrow-down'}))
                 );
+            // Per-grant state override. '' = no opinion: a later group that
+            // sets a state applies, else the entry's own state (GH-2129).
+            var entryLabel = item.entryState === 'absent' ? 'Absent' : 'Present',
+                stateSelect = $('<select>', {
+                    'class': 'form-select form-select-sm software-state d-inline-block w-auto ms-2'
+                }).append(
+                    $('<option>', {value: ''}).text('Not set (other groups, else ' + entryLabel + ')'),
+                    $('<option>', {value: 'present'}).text('Install (Present)'),
+                    $('<option>', {value: 'absent'}).text('Uninstall (Absent)')
+                ).val(item.state || '');
             groupSoftwareOrderList.append(
                 $('<li>', {
                     'class': 'list-group-item',
@@ -463,6 +473,7 @@
                 }).append(
                     $('<span>', {'class': 'software-order-pos'}),
                     $('<span>', {'class': 'software-order-name'}).text(item.name),
+                    stateSelect,
                     controls
                 )
             );
@@ -505,17 +516,20 @@
         e.preventDefault();
         var method = $(this).attr('method'),
             action = $(this).attr('action'),
-            order = [];
+            order = [],
+            states = {};
         groupSoftwareOrderList.children('li').each(function() {
             var id = $(this).attr('data-id');
             if (id) {
                 order.push(id);
+                states[id] = $(this).find('.software-state').val() || '';
             }
         });
         if (order.length === 0) {
             return;
         }
-        $.apiCall(method, action, {softwareorder: order});
+        // One request: the order plus softwarestate[<softwareID>].
+        $.apiCall(method, action, {softwareorder: order, softwarestate: states});
     });
 
     loadGroupSoftwareOrder();
