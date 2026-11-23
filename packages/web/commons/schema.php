@@ -12524,3 +12524,19 @@ $this->schema[] = [
     "ALTER TABLE `snapins` "
     . "ADD COLUMN `sOS` varchar(20) NOT NULL DEFAULT ''",
 ];
+// 467
+$this->schema[] = [
+    // A scheduled Capture can cancel the host's queued snapins first, like
+    // the instant Capture's "Cancel queued snapins first" option (forum
+    // 18325). stOther1..stOther5 are all in use, so the option gets its own
+    // column. Default 0 keeps the refusal for a new scheduled Capture.
+    "ALTER TABLE `scheduledTasks` "
+    . "ADD COLUMN `stCancelSnapins` tinyint(1) NOT NULL DEFAULT 0",
+    // Scheduled Capture rows that exist now were scheduled under the old
+    // rule (6c8aa43cb), where a Capture canceled queued snapins silently.
+    // Keeping that is what their owner scheduled. Without it they would start
+    // to wait on a host whose snapins never finish. 2 = Capture and
+    // 16 = Capture - Debug (TaskType::CAPTURE, TaskType::CAPTURE_DEBUG).
+    "UPDATE `scheduledTasks` SET `stCancelSnapins` = 1 "
+    . "WHERE `stTaskTypeID` IN (2, 16)",
+];

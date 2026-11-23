@@ -496,11 +496,12 @@ scheduledtask	21	stDateTime	scheduleTime	-	-
 scheduledtask	22	stActive	isActive	-	-
 scheduledtask	23	stImageID	imageID	-	-
 scheduledtask	24	stImageID	imageLink	f:classname	image
-scheduledtask	25	stGroupHostID	hostLink	f	group+host
-scheduledtask	26	stType	type	f	-
-scheduledtask	27	stID	starttime	f	-
-scheduledtask	28	stTaskTypeID	taskTypeName	f	tasktype
-scheduledtask	29	stActive	isActive	f	-
+scheduledtask	25	stCancelSnapins	cancelSnapins	-	-
+scheduledtask	26	stGroupHostID	hostLink	f	group+host
+scheduledtask	27	stType	type	f	-
+scheduledtask	28	stID	starttime	f	-
+scheduledtask	29	stTaskTypeID	taskTypeName	f	tasktype
+scheduledtask	30	stActive	isActive	f	-
 setting	0	settingID	id	-	-
 setting	1	settingID	DT_RowId	f	-
 setting	2	settingKey	name	-	-

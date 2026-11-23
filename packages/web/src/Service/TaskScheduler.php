@@ -330,7 +330,12 @@ class TaskScheduler extends FOGService
                         false,
                         (bool)$Task->get('other4'),
                         (bool)$Task->get('other5'),
-                        (bool)$Task->get('other1')
+                        (bool)$Task->get('other1'),
+                        0,
+                        0,
+                        // A scheduled Capture cancels the queued snapins when
+                        // its row says so, as the instant one does (forum 18325).
+                        (bool)$Task->get('cancelSnapins')
                     );
                     self::outall(
                         sprintf(

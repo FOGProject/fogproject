@@ -60,7 +60,10 @@ class ScheduledTask extends FOGController
         'other5' => 'stOther5',
         'scheduleTime' => 'stDateTime',
         'isActive' => 'stActive',
-        'imageID' => 'stImageID'
+        'imageID' => 'stImageID',
+        // A scheduled Capture cancels the host's queued snapins first
+        // (forum 18325). Own column: stOther1..stOther5 are all in use.
+        'cancelSnapins' => 'stCancelSnapins'
     ];
     /**
      * The required fields.
