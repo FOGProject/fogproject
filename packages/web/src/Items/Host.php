@@ -1396,7 +1396,7 @@ class Host extends FOGController
             // created below. The decision is made here, but the cancel waits
             // until the last point before the task row is written: a task
             // refused by a later check (image, storage node) must not have
-            // cancelled the host's queued snapin task (forum 18325).
+            // canceled the host's queued snapin task (forum 18325).
             $staleTask = null;
             if ($Task->isValid()
                 && $TaskType->isImagingTask
@@ -1663,7 +1663,7 @@ class Host extends FOGController
             // a full pool, BEFORE the cancel below and before the task row is
             // written. Both refusals used to come after the row and after
             // the snapin cancel, so a refused Multicast left a task row and
-            // had already cancelled the host's snapins (forum 18325). The
+            // had already canceled the host's snapins (forum 18325). The
             // lookup only reads; the session itself is still created below.
             $assoc = false;
             $MulticastSession = null;
@@ -1735,10 +1735,10 @@ class Host extends FOGController
             // A Deploy starts clean; a capture does only when asked to. Cancel
             // the snapins an earlier task left queued, and drop the cached job
             // so a Deploy with snapins opens a new job instead of appending to
-            // the cancelled one (forum 18325). This is the last point before
+            // the canceled one (forum 18325). This is the last point before
             // the task row is written, on purpose: a task refused by any check
             // above (InTask, image, storage node, multicast session) must not
-            // have cancelled anything. The same goes for the stale non-imaging
+            // have canceled anything. The same goes for the stale non-imaging
             // task set aside above.
             if ($staleTask) {
                 $staleTask->cancel();

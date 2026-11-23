@@ -440,7 +440,7 @@ check('fixture: tasktype 1 is a deploy', $deploy && $deploy->isDeploy && !$deplo
 check('fixture: tasktype 2 is a capture', $capture && $capture->isCapture && !$capture->isDeploy, $fails, $checks);
 
 // 1. Host Deploy over a leftover job and no active task: the job and its
-//    snapin tasks are cancelled, and the Deploy task is still written.
+//    snapin tasks are canceled, and the Deploy task is still written.
 $GLOBALS['leftoverOn'] = true;
 $error = taskHost($deploy);
 check('host deploy over a leftover job throws nothing (got: ' . $error . ')', '' === $error, $fails, $checks);
@@ -479,7 +479,7 @@ $error = taskHost($capture);
 check('host capture with no snapin job throws nothing (got: ' . $error . ')', '' === $error, $fails, $checks);
 check('host capture with no snapin job inserts its task row', 1 === count(taskRows($inserts)), $fails, $checks);
 
-// 5. Group Deploy: the host's queued snapin work is cancelled before the
+// 5. Group Deploy: the host's queued snapin work is canceled before the
 //    task row is written.
 $GLOBALS['leftoverOn'] = true;
 $error = taskSelection([1], $deploy);
@@ -494,7 +494,7 @@ check('group capture over queued snapins is refused (got: ' . $error . ')', $ref
 check('the refused group capture writes no task row', 0 === count(taskRows($inserts)), $fails, $checks);
 check('the refused group capture cancels nothing', 0 === updateCount(), $fails, $checks);
 
-// 7. The opt-in: cancelling first (what the "Cancel queued snapins first"
+// 7. The opt-in: canceling first (what the "Cancel queued snapins first"
 //    option does) lets the capture through. The helper reads the fixture, so
 //    the job is still served after the cancel; only the writes are asserted.
 $updates = [];
@@ -506,7 +506,7 @@ $GLOBALS['leftoverOn'] = false;
 check('queuedSnapinHosts is empty with no live job', [] === Host::queuedSnapinHosts([1]), $fails, $checks);
 check('queuedSnapinHosts is empty for no hosts', [] === Host::queuedSnapinHosts([]), $fails, $checks);
 
-// 8. The active All Snapins task row is cancelled too (not just the job).
+// 8. The active All Snapins task row is canceled too (not just the job).
 //    Called directly: a Host Deploy would also cancel it through Task::cancel(),
 //    which would hide a missing TaskManager update in the helper.
 $GLOBALS['leftoverOn'] = false;
@@ -519,7 +519,7 @@ check('cancelQueuedSnapins cancels the active All Snapins task row', 1 === count
 check('the task update targets task 77', in_array(77, array_map('intval', array_values($taskUpdate['params'])), true), $fails, $checks);
 $GLOBALS['snapinTaskRows'] = [];
 
-// 9. Capture with the opt-in over queued snapins: they are cancelled and the
+// 9. Capture with the opt-in over queued snapins: they are canceled and the
 //    capture task is written.
 $GLOBALS['leftoverOn'] = true;
 $error = taskHost($capture, false, true);
@@ -528,7 +528,7 @@ check('host capture with the opt-in cancels the snapin job', count(updatesTo('sn
 check('host capture with the opt-in inserts its task row', 1 === count(taskRows($inserts)), $fails, $checks);
 
 // 10. Capture with the opt-in on a host already in an imaging task: refused
-//     by InTask, and nothing is cancelled.
+//     by InTask, and nothing is canceled.
 // A Task load joins its task type's columns in, so the row carries them.
 $GLOBALS['activeTasks'] = [array_merge($fixture['taskTypes'][0],
     row('Task', ['taskID' => 88, 'taskHostID' => 1,
@@ -564,7 +564,7 @@ $taskedRows = taskRows($inserts);
 check('group capture with the opt-in tasks only host 1', 1 === count($taskedRows) && 1 === (int)($taskedRows[0]['hostID'] ?? 0), $fails, $checks);
 $GLOBALS['activeTasks'] = [];
 
-// 13. A host's ACTIVE queued All Snapins task is set aside early but cancelled
+// 13. A host's ACTIVE queued All Snapins task is set aside early but canceled
 //     late: a Deploy refused by a later check (image disabled) leaves it and
 //     its job alone, and a Deploy that goes through cancels it. The stale
 //     task's cancel saves the task row by its id (77); nothing else does.
@@ -585,7 +585,7 @@ $staleSaved = array_filter(insertsTo('tasks'), function ($ins) {
 check('the deploy that goes through cancels the stale snapin task', 1 === count($staleSaved), $fails, $checks);
 $GLOBALS['activeTasks'] = [];
 
-// 14. Group multicast Deploy over a leftover job: the job is cancelled.
+// 14. Group multicast Deploy over a leftover job: the job is canceled.
 $multicast = taskTypeObject(8);
 check('fixture: tasktype 8 is a multicast', $multicast && $multicast->isMulticast, $fails, $checks);
 $GLOBALS['leftoverOn'] = true;
@@ -614,7 +614,7 @@ check('the refused group multicast cancels nothing', 0 === updateCount(), $fails
 $GLOBALS['mcActive'] = 0;
 
 // 17. Group capture with the opt-in on TWO available hosts: refused as a
-//     one-host task type, and nothing is cancelled.
+//     one-host task type, and nothing is canceled.
 $error = taskSelection([1, 2], $capture, true);
 check('group capture on two hosts is refused (got: ' . $error . ')', false !== strpos($error, 'one host at a time'), $fails, $checks);
 check('the refused two-host capture cancels nothing', 0 === updateCount(), $fails, $checks);
