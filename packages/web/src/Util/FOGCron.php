@@ -371,10 +371,13 @@ class FOGCron extends FOGBase
      */
     private static function _checkIntValue($value, $min, $max, $extremity)
     {
-        $val = intval($value, 10);
-        if ($value != $val) {
+        // Digits only. The loose `$value != intval($value)` passed '' on PHP
+        // 7.4, where '' == 0, and refused it on PHP 8. So `-1`, split on
+        // `-` into '' and 1, was the range 0-1 on 7.4 and invalid on 8.
+        if (!preg_match('/^[0-9]+$/', (string)$value)) {
             return false;
         }
+        $val = (int)$value;
         if (!$extremity) {
             return true;
         }
