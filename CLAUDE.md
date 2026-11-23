@@ -39,6 +39,30 @@ every feature land twice. A doc or a memory that still says it is out of date.
 
 ---
 
+## Documentation
+
+User docs live in [FOGProject/fog-docs](https://github.com/FOGProject/fog-docs),
+published at <https://docs.fogproject.org/>. Every pull request here ships with
+its docs decision. Write it as a `Docs:` line in the pull request body:
+
+- `Docs: FOGProject/fog-docs#<n>` names the fog-docs pull request for the change.
+- `Docs: none — <reason>` is for a change that a user cannot see.
+- `Docs: needed — <what>` is for when you cannot open the fog-docs pull request.
+
+Where the docs go, under fog-docs `docs/`:
+
+| What changed | fog-docs target |
+|---|---|
+| An installer argument, added or changed | `installation/server/command-line-options.md` |
+| A UI feature, new or changed | the page for that area under `management/web/` |
+| A bug fix that a user can see | a `kb/troubleshooting/` entry: the symptom text verbatim, the cause, the fixed-in version, and a workaround |
+| A behavior that a page describes | that page, corrected |
+
+Follow fog-docs `CLAUDE.md` for the page format. Follow its `VERSIONING.md` for
+the 1.5/1.6 split. An ADR in `docs/adr/` is not user docs.
+
+---
+
 ## Development Workflow
 
 ### Sync Scripts
