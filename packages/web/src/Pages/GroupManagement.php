@@ -2571,6 +2571,10 @@ class GroupManagement extends FOGPage
             }
             $snapinAbortOnFailure = isset($_POST['snapinAbortOnFailure']);
 
+            // Cancel queued snapins before a capture (forum 18325). A
+            // scheduled task stores it in stCancelSnapins.
+            $cancelSnapins = isset($_POST['cancelSnapins']);
+
             // Generic setup
             $imagingTasks = $TaskType->isImagingTask();
             $taskName = sprintf(
@@ -2639,7 +2643,10 @@ class GroupManagement extends FOGPage
                     false,
                     $wol,
                     false,
-                    $snapinAbortOnFailure
+                    $snapinAbortOnFailure,
+                    0,
+                    0,
+                    $cancelSnapins
                 );
             } else {
                 $ScheduledTask = (new ScheduledTask())
@@ -2653,7 +2660,8 @@ class GroupManagement extends FOGPage
                     ->set('isGroupTask', 1)
                     ->set('other3', self::$FOGUser->get('name'))
                     ->set('isActive', 1)
-                    ->set('other4', $wol);
+                    ->set('other4', $wol)
+                    ->set('cancelSnapins', (int)$cancelSnapins);
                 if ($scheduleType == 'single') {
                     $ScheduledTask->set(
                         'scheduleTime',

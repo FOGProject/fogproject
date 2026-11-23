@@ -8457,8 +8457,9 @@ class HostManagement extends FOGPage
             // Bypass Bitlocker
             $bypassbitlocker = isset($_POST['bitlocker']);
 
-            // Cancel queued snapins before a capture (forum 18325). Not stored
-            // for a scheduled task: a scheduled capture meets the refusal when it runs.
+            // Cancel queued snapins before a capture (forum 18325). A
+            // scheduled task stores it in stCancelSnapins, so the capture
+            // does the same when it runs.
             $cancelSnapins = isset($_POST['cancelSnapins']);
 
             // WOL setup
@@ -8527,7 +8528,8 @@ class HostManagement extends FOGPage
                     ->set('other3', self::$FOGUser->get('name'))
                     ->set('isActive', 1)
                     ->set('other4', $wol)
-                    ->set('other5', $bypassbitlocker);
+                    ->set('other5', $bypassbitlocker)
+                    ->set('cancelSnapins', (int)$cancelSnapins);
                 if ($scheduleType == 'single') {
                     $ScheduledTask->set(
                         'scheduleTime',

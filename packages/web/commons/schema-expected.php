@@ -1017,7 +1017,7 @@ return [
             ],
         ],
         'scheduledTasks' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `scheduledTasks` ( `stID` int(11) NOT NULL AUTO_INCREMENT, `stName` varchar(240) NOT NULL DEFAULT \'\', `stDesc` longtext NOT NULL DEFAULT \'\', `stType` varchar(24) NOT NULL, `stTaskTypeID` mediumint(9) NOT NULL, `stMinute` varchar(240) NOT NULL DEFAULT \'\', `stHour` varchar(240) NOT NULL DEFAULT \'\', `stDOM` varchar(240) NOT NULL DEFAULT \'\', `stMonth` varchar(240) NOT NULL DEFAULT \'\', `stDOW` varchar(240) NOT NULL DEFAULT \'\', `stIsGroup` varchar(2) NOT NULL DEFAULT \'0\', `stGroupHostID` int(11) NOT NULL, `stImageID` int(11) DEFAULT NULL, `stShutDown` varchar(2) NOT NULL DEFAULT \'\', `stOther1` varchar(240) NOT NULL DEFAULT \'\', `stOther2` varchar(240) NOT NULL DEFAULT \'\', `stOther3` varchar(240) NOT NULL DEFAULT \'\', `stOther4` varchar(240) NOT NULL DEFAULT \'\', `stOther5` varchar(240) NOT NULL DEFAULT \'\', `stDateTime` bigint(20) unsigned NOT NULL DEFAULT 0, `stActive` varchar(2) NOT NULL DEFAULT \'1\', PRIMARY KEY (`stID`), KEY `fk_scheduledTasks_stTaskTypeID` (`stTaskTypeID`), KEY `fk_scheduledTasks_stImageID` (`stImageID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `scheduledTasks` ( `stID` int(11) NOT NULL AUTO_INCREMENT, `stName` varchar(240) NOT NULL DEFAULT \'\', `stDesc` longtext NOT NULL DEFAULT \'\', `stType` varchar(24) NOT NULL, `stTaskTypeID` mediumint(9) NOT NULL, `stMinute` varchar(240) NOT NULL DEFAULT \'\', `stHour` varchar(240) NOT NULL DEFAULT \'\', `stDOM` varchar(240) NOT NULL DEFAULT \'\', `stMonth` varchar(240) NOT NULL DEFAULT \'\', `stDOW` varchar(240) NOT NULL DEFAULT \'\', `stIsGroup` varchar(2) NOT NULL DEFAULT \'0\', `stGroupHostID` int(11) NOT NULL, `stImageID` int(11) DEFAULT NULL, `stShutDown` varchar(2) NOT NULL DEFAULT \'\', `stOther1` varchar(240) NOT NULL DEFAULT \'\', `stOther2` varchar(240) NOT NULL DEFAULT \'\', `stOther3` varchar(240) NOT NULL DEFAULT \'\', `stOther4` varchar(240) NOT NULL DEFAULT \'\', `stOther5` varchar(240) NOT NULL DEFAULT \'\', `stDateTime` bigint(20) unsigned NOT NULL DEFAULT 0, `stActive` varchar(2) NOT NULL DEFAULT \'1\', `stCancelSnapins` tinyint(1) NOT NULL DEFAULT 0, PRIMARY KEY (`stID`), KEY `fk_scheduledTasks_stTaskTypeID` (`stTaskTypeID`), KEY `fk_scheduledTasks_stImageID` (`stImageID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'stID' => 'int(11) NOT NULL',
                 'stName' => 'varchar(240) NOT NULL DEFAULT \'\'',
@@ -1040,6 +1040,7 @@ return [
                 'stOther5' => 'varchar(240) NOT NULL DEFAULT \'\'',
                 'stDateTime' => 'bigint(20) unsigned NOT NULL DEFAULT 0',
                 'stActive' => 'varchar(2) NOT NULL DEFAULT \'1\'',
+                'stCancelSnapins' => 'tinyint(1) NOT NULL DEFAULT 0',
             ],
         ],
         'schemaVersion' => [
