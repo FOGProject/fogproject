@@ -750,56 +750,9 @@ done
 detectOSFamily
 listPackages
 
-echo "Installing LSB_Release as needed"
-dots "Attempting to get release information"
-command -v lsb_release >$error_log 2>&1
-exitcode=$?
-if [[ ! $exitcode -eq 0 ]]; then
-    case $linuxReleaseName_lower in
-        *bian*|*ubuntu*|*mint*)
-            apt-get -yq install lsb-release >>$error_log 2>&1
-            ;;
-        *centos*|*red*hat*|*fedora*|*alma*|*rocky*)
-            command -v dnf >>$error_log 2>&1
-            exitcode=$?
-            case $exitcode in
-                0)
-                    dnf -y install redhat-lsb-core >>$error_log 2>&1
-                    exitcode=$?
-                    ;;
-                *)
-                    yum -y install redhat-lsb-core >>$error_log 2>&1
-                    exitcode=$?
-                    ;;
-            esac
-            if [[ ! $exitcode -eq 0 ]]; then
-                command -v dnf >>$error_log 2>&1
-                exitcode=$?
-                case $exitcode in
-                    0)
-                        dnf -y install lsb-release >>$error_log 2>&1
-                        exitcode=$?
-                        ;;
-                    *)
-                        yum -y install lsb-release >>$error_log 2>&1
-                        exitcode=$?
-                        ;;
-                esac
-            fi
-            ;;
+# detectOSFamily() sets OSVersion; the installer needs no lsb_release.
+# See tests/installer-no-lsb-release.test.sh.
 
-        *[Aa][Ll][Pp][Ii][Nn][Ee]*)
-            ;;
-        *arch*|*manjaro*)
-            # -Syu, not -Sy: Arch does not support partial upgrades, and this
-            # runs before lib/arch/config.sh has been sourced.
-            pacman -Syu --noconfirm lsb-release >>$error_log 2>&1
-            ;;
-    esac
-fi
-[[ -z $OSVersion ]] && OSVersion=$(lsb_release -rs| awk -F'.' '{print $1}')
-[[ -z $OSMinorVersion ]] && OSMinorVersion=$(lsb_release -rs| awk -F'.' '{print $2}')
-echo "Done"
 # GH-850: establish the FOG base directory BEFORE lib/common/config.sh, because
 # servicedst/servicelogs/snapindir and the .fogsettings location all derive from
 # it. Precedence, highest first:
