@@ -292,6 +292,48 @@ $t->check(
     'directory_join_observation_unknown' === $deployRefusal
 );
 
+// Forum 18330: the agent sends its membership block only when it changes. A
+// poll with no block reads the flag from the stored hostDirectory row, so a
+// server that missed the one block still sees a workgroup PC as one.
+$unflagged = ['last_deploy_task_id' => 500] + $verifiedState;
+unset($unflagged['workgroup']);
+$noBlockBody = ['directory_observation' => $workgroupObservation];
+$setMembership = $pdo->prepare('UPDATE hostDirectory SET hdJoined=?,hdKind=? WHERE hdHostID=7');
+$setMembership->execute([0, 'workgroup']);
+$writeState->execute([json_encode($config), json_encode($unflagged)]);
+FOG\Agent\DirectoryOperation::observe($host, $noBlockBody);
+$storedWorkgroup = FOG\Agent\DirectoryRejoin::settings($host)['state'];
+$storedJoin = FOG\Agent\DirectoryOperation::plan($host, $verifiedBody);
+$t->check(
+    'poll with no membership block takes the workgroup flag from the stored row and plans a join',
+    true === ($storedWorkgroup['workgroup'] ?? null)
+        && 'ready' === ($storedJoin['phase'] ?? null)
+        && 'join' === ($storedJoin['operation'] ?? null)
+);
+
+// A stored row for a domain member never sets the flag, so the AD checks
+// still apply and the PC stays blocked.
+$setMembership->execute([1, 'ad']);
+$writeState->execute([json_encode($config), json_encode($unflagged)]);
+FOG\Agent\DirectoryOperation::observe($host, $noBlockBody);
+$storedMember = FOG\Agent\DirectoryRejoin::settings($host)['state'];
+$memberPlan = FOG\Agent\DirectoryOperation::plan($host, $verifiedBody);
+$t->check(
+    'poll with no membership block and a stored domain row leaves the flag off',
+    false === ($storedMember['workgroup'] ?? null)
+        && 'directory_observation_unknown' === ($memberPlan['reason'] ?? null)
+);
+
+// A block in the poll still wins over the stored row.
+$setMembership->execute([1, 'ad']);
+$writeState->execute([json_encode($config), json_encode($unflagged)]);
+FOG\Agent\DirectoryOperation::observe($host, $noBlockBody + ['directory' => ['joined' => false, 'kind' => 'workgroup']]);
+$t->check(
+    'membership block in the poll wins over the stored row',
+    true === (FOG\Agent\DirectoryRejoin::settings($host)['state']['workgroup'] ?? null)
+);
+$setMembership->execute([0, '']);
+
 $malformed = $body;
 $malformed['directory_attempt']['unexpected'] = 'not-allowed';
 $malformedRejected = false;

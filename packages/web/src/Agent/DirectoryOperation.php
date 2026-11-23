@@ -202,12 +202,24 @@ class DirectoryOperation extends \FOG\Base\FOGBase
             }
             $s['protocol'] = 2;
             $fresh = $body['directory'] ?? [];
-            $workgroup = !empty($s['workgroup']);
-            $isWorkgroup = false === ($fresh['joined'] ?? null) && 'workgroup' === ($fresh['kind'] ?? '');
-            if (!empty($fresh)) {
-                $s['workgroup'] = $isWorkgroup;
-                $workgroup = $isWorkgroup;
+            if (empty($fresh)) {
+                // The agent sends its membership block only when it changes,
+                // and the server asks again only when it holds no hash. So the
+                // poll that carried the block may be long gone: it came before
+                // this flag existed (an upgrade from 1.6.0.14), or before the
+                // host was set to join AD. DirectoryFacts stored that block on
+                // this row, and change() holds the row lock, so read it here
+                // in the block's own shape. Without this, a workgroup PC
+                // blocks on directory_observation_unknown for good (forum 18330).
+                $q = self::$DB->link()->prepare('SELECT hdJoined, hdKind FROM hostDirectory WHERE hdHostID = ?');
+                $q->execute([(int)$host->get('id')]);
+                $row = $q->fetch(\PDO::FETCH_ASSOC);
+                $q->closeCursor();
+                $fresh = is_array($row)
+                    ? ['joined' => (bool)(int)$row['hdJoined'], 'kind' => (string)$row['hdKind']] : [];
             }
+            $workgroup = false === ($fresh['joined'] ?? null) && 'workgroup' === ($fresh['kind'] ?? '');
+            $s['workgroup'] = $workgroup;
             $o = $body['directory_observation'] ?? null;
             if (null === $o) {
                 // Even a recently accepted True is not this poll's observation.
