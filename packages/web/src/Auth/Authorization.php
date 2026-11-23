@@ -88,8 +88,8 @@ class Authorization extends FOGBase
         'logviewer' => 'settings'
     ];
     /**
-     * Report class => registry node, for reports whose data is not
-     * "a report" in the permission sense.
+     * Report class => registry node (or full permission), for reports whose
+     * data is not "a report" in the permission sense.
      *
      * Every report is one page node (`report`) selected by a base64 `f`
      * parameter, so without this they necessarily share one gate -- which
@@ -100,6 +100,11 @@ class Authorization extends FOGBase
      * is what FOGPageManager::loadPageClasses() turns `f` into. A report
      * absent from here keeps the `report` node, so an uploaded custom
      * report behaves exactly as it always has.
+     *
+     * A value is a registry node, and the request's sub then picks the
+     * action (view, for every report screen). A value may instead be a
+     * full permission ('host.edit') when the report's data needs more than
+     * view on its node. That permission is required as written.
      *
      * @var array
      */
@@ -150,7 +155,14 @@ class Authorization extends FOGBase
         // an audit row necessarily discloses attempted usernames, which is
         // why ADR 0021 gave audit.view its own permission. Serving the same
         // rows under report.view would hand that to every report holder.
-        'audit_report' => 'audit'
+        'audit_report' => 'audit',
+        // Product Keys reads every host's productKey. Its JSON feed and a
+        // server-side export carry the full key; the grid and its CSV button
+        // show the mask. A key is a secret the API never returns
+        // (GHSA-q38j-qx5x-w25v), and host.view is held by the read-only
+        // Legacy Restricted role. host.edit is the permission that can
+        // already set a key, so it is the one that may read them.
+        'product_keys' => 'host.edit'
     ];
     /**
      * Exact sub overrides that the naming conventions would misresolve.
@@ -953,10 +965,11 @@ class Authorization extends FOGBase
      * Resolve a management page request to a required permission.
      *
      * Resolution order: node-independent sub override; exempt node ->
-     * null; node alias; unregistered node -> 'unmapped.<node>' (deny to
-     * all but '*'); explicit sub override; naming convention on the base
-     * sub; fallback GET -> view, POST -> edit (a convention miss can
-     * never let a view-only user write).
+     * null; node alias; a report's REPORT_NODES entry (a full permission
+     * there is returned as written); unregistered node ->
+     * 'unmapped.<node>' (deny to all but '*'); explicit sub override;
+     * naming convention on the base sub; fallback GET -> view, POST ->
+     * edit (a convention miss can never let a view-only user write).
      *
      * @param string    $node   the page node (base value, e.g. 'host')
      * @param string    $sub    the base sub (without Ajax/Post suffix)
@@ -988,6 +1001,11 @@ class Authorization extends FOGBase
         }
         if ('report' === $node) {
             $node = self::_reportNode($rawSub);
+            // A full permission in REPORT_NODES is the answer as written;
+            // the sub-to-action mapping below would turn it back into view.
+            if (false !== strpos($node, '.')) {
+                return $node;
+            }
         }
         $registry = self::registry();
         if (!isset($registry[$node])) {
@@ -1047,7 +1065,8 @@ class Authorization extends FOGBase
      *
      * @param string $rawSub the sub exactly as passed, before lowercasing
      *
-     * @return string the registry node, 'report' when nothing maps
+     * @return string the registry node, or a full permission when the
+     *                REPORT_NODES entry is one; 'report' when nothing maps
      */
     private static function _reportNode($rawSub)
     {

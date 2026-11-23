@@ -206,12 +206,24 @@ foreach (Authorization::REPORT_NODES as $report => $node) {
         $failures,
         $checks
     );
+    // A value is a node, or a full permission 'node.action' (product_keys).
+    // Either way the node must be core, and a named action must exist on it,
+    // or the gate is a permission no role can be granted.
+    $parts = explode('.', $node, 2);
     check(
         "REPORT_NODES['$report'] names a core registry node",
-        isset($core[$node]),
+        isset($core[$parts[0]]),
         $failures,
         $checks
     );
+    if (isset($parts[1])) {
+        check(
+            "REPORT_NODES['$report'] names an action its node declares",
+            in_array($parts[1], (array)($core[$parts[0]] ?? []), true),
+            $failures,
+            $checks
+        );
+    }
 }
 
 /*
