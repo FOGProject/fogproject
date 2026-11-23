@@ -2213,6 +2213,18 @@ abstract class FOGBase
         }
         return self::$_displayTheme;
     }
+    /**
+     * A DateTime for a value, read in the storage zone or in UTC.
+     *
+     * $utc is a bool, and the tag says so for PHPStan. Passing
+     * storageTimeZone() here was a real bug: a DateTimeZone is truthy, so
+     * the value was read as UTC instead (forum 18328, #2125).
+     *
+     * @param mixed $date the value, or 'now'
+     * @param bool  $utc  true reads it as UTC; false, the storage zone
+     *
+     * @return \DateTime
+     */
     public static function niceDate($date = 'now', $utc = false)
     {
         /*
