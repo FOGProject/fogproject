@@ -4050,84 +4050,88 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="card-body">';
-        $warning = '<div class="alert alert-warning">'
-            . \Initiator::e(_('The effective software could not be loaded.'))
-            . '</div>';
+        // One path closes the card: a failed resolve (null) or a failed
+        // software or group read both fall through to the warning below.
         $rows = $this->_resolvedSoftware((int)$this->obj->get('id'));
-        if (null === $rows) {
-            echo $warning;
-            echo '</div>';
-            echo '</div>';
-            return;
-        }
+        $shown = false;
         try {
-            $softwareIDs = [];
-            $groupIDs = [];
-            foreach ($rows as $row) {
-                $softwareIDs[] = (int)$row['id'];
-                if ((int)$row['groupID'] > 0) {
-                    $groupIDs[] = (int)$row['groupID'];
+            if (null !== $rows) {
+                $softwareIDs = [];
+                $groupIDs = [];
+                foreach ($rows as $row) {
+                    $softwareIDs[] = (int)$row['id'];
+                    if ((int)$row['groupID'] > 0) {
+                        $groupIDs[] = (int)$row['groupID'];
+                    }
                 }
-            }
-            $softwares = [];
-            if (count($softwareIDs) > 0) {
-                foreach (Route::getList('software', ['id' => $softwareIDs]) as $Software) {
-                    $softwares[(int)$Software->id] = $Software;
+                $softwares = [];
+                if (count($softwareIDs) > 0) {
+                    foreach (Route::getList('software', ['id' => $softwareIDs]) as $Software) {
+                        $softwares[(int)$Software->id] = $Software;
+                    }
                 }
-            }
-            $groupNames = [];
-            if (count($groupIDs) > 0) {
-                foreach (Route::getList('group', ['id' => array_values(array_unique($groupIDs))]) as $Group) {
-                    $groupNames[(int)$Group->id] = $Group->name;
+                $groupNames = [];
+                if (count($groupIDs) > 0) {
+                    foreach (Route::getList('group', ['id' => array_values(array_unique($groupIDs))]) as $Group) {
+                        $groupNames[(int)$Group->id] = $Group->name;
+                    }
                 }
-            }
-            echo '<p class="form-text">';
-            echo \Initiator::e(
-                _(
-                    'What the agent is sent: one entry per package. This '
-                    . 'host\'s own entries come first, then each group\'s in '
-                    . 'group order. The state comes from this host if it '
-                    . 'sets one, else from the first group that sets one, '
-                    . 'else from the entry. Reload the page after saving to '
-                    . 'refresh it.'
-                )
-            );
-            echo '</p>';
-            echo '<table class="table table-sm">';
-            echo '<thead><tr>';
-            foreach ([_('Software'), _('Backend'), _('Package'), _('State'), _('From')] as $th) {
-                echo '<th>' . \Initiator::e($th) . '</th>';
-            }
-            echo '</tr></thead><tbody>';
-            foreach ($rows as $row) {
-                $Software = $softwares[(int)$row['id']] ?? null;
-                // Skip a stale link with no software row, and a disabled
-                // entry (Resolver still lists it; the agent is not sent it).
-                if (null === $Software || !(int)$Software->isEnabled) {
-                    continue;
+                echo '<p class="form-text">';
+                echo \Initiator::e(
+                    _(
+                        'What the agent is sent: one entry per package. This '
+                        . 'host\'s own entries come first, then each group\'s in '
+                        . 'group order. The state comes from this host if it '
+                        . 'sets one, else from the first group that sets one, '
+                        . 'else from the entry. Reload the page after saving to '
+                        . 'refresh it.'
+                    )
+                );
+                echo '</p>';
+                echo '<table class="table table-sm">';
+                echo '<thead><tr>';
+                foreach ([_('Software'), _('Backend'), _('Package'), _('State'), _('From')] as $th) {
+                    echo '<th>' . \Initiator::e($th) . '</th>';
                 }
-                $stateText = 'absent' === $row['effective']
-                    ? _('Absent')
-                    : _('Present');
-                if (null !== $row['state']) {
-                    $stateText .= ' ' . _('(override)');
+                echo '</tr></thead><tbody>';
+                foreach ($rows as $row) {
+                    $Software = $softwares[(int)$row['id']] ?? null;
+                    // Skip a stale link with no software row, and a disabled
+                    // entry (Resolver still lists it; the agent is not sent it).
+                    if (null === $Software || !(int)$Software->isEnabled) {
+                        continue;
+                    }
+                    $stateText = 'absent' === $row['effective']
+                        ? _('Absent')
+                        : _('Present');
+                    if (null !== $row['state']) {
+                        $stateText .= ' ' . _('(override)');
+                    }
+                    $groupID = (int)$row['groupID'];
+                    $from = $groupID > 0
+                        ? ($groupNames[$groupID] ?? '')
+                        : _('This host');
+                    echo '<tr>';
+                    echo '<td>' . \Initiator::e($Software->name) . '</td>';
+                    echo '<td>' . \Initiator::e($Software->backend) . '</td>';
+                    echo '<td>' . \Initiator::e($Software->package) . '</td>';
+                    echo '<td>' . \Initiator::e($stateText) . '</td>';
+                    echo '<td>' . \Initiator::e($from) . '</td>';
+                    echo '</tr>';
                 }
-                $groupID = (int)$row['groupID'];
-                $from = $groupID > 0
-                    ? ($groupNames[$groupID] ?? '')
-                    : _('This host');
-                echo '<tr>';
-                echo '<td>' . \Initiator::e($Software->name) . '</td>';
-                echo '<td>' . \Initiator::e($Software->backend) . '</td>';
-                echo '<td>' . \Initiator::e($Software->package) . '</td>';
-                echo '<td>' . \Initiator::e($stateText) . '</td>';
-                echo '<td>' . \Initiator::e($from) . '</td>';
-                echo '</tr>';
+                echo '</tbody></table>';
+                $shown = true;
             }
-            echo '</tbody></table>';
         } catch (\Exception $e) {
-            // A failed software or group read, after the resolve.
-            echo $warning;
+            // A failed software or group read, after the resolve. Both reads
+            // run before the first echo, so no half-written table precedes
+            // the warning.
+            $shown = false;
+        }
+        if (!$shown) {
+            echo '<div class="alert alert-warning">';
+            echo \Initiator::e(_('The effective software could not be loaded.'));
+            echo '</div>';
         }
         echo '</div>';
         echo '</div>';
