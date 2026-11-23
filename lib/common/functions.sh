@@ -1095,9 +1095,10 @@ applySystemHostname() {
 # Storage Management. Same choice _installNodeWebCert() makes when the master
 # declines to issue: say plainly what failed, then carry on.
 #
-# $1 status, $2 response body, $3 what the caller was trying to do.
+# $1 status, $2 response body, $3 what the caller was trying to do, $4 the
+# recovery to name, when "re-run this installer" would not retry the call.
 _reportNodePostFailure() {
-    local status="${1:-000}" body="$2" what="$3"
+    local status="${1:-000}" body="$2" what="$3" recovery="$4"
     echo "Failed"
     echo " * ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}maintenance/create_update_node.php"
     case $status in
@@ -1122,6 +1123,10 @@ _reportNodePostFailure() {
         echo " * The reply was markup, not this server's answer, so something on"
         echo "   the network answered in its place. A filtering proxy in front of"
         echo "   ${NET_fog_server_ip} is the usual cause; exempt this server from it."
+    fi
+    if [[ -n $recovery ]]; then
+        echo " * ${recovery}"
+        return 0
     fi
     echo " * Fix the cause and re-run this installer, or set it by hand under"
     echo "   Storage Management in the web UI."
@@ -1359,31 +1364,35 @@ updateStorageNodeAddress() {
     movebody=$(curl -s --noproxy '*' -k -w '\n%{http_code}' -X POST -d "nodeIp" -d "oldip=$(echo -n ${serverIpWas}|base64)" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "interface=$(echo -n ${NET_interface}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}maintenance/create_update_node.php)
     movestatus=${movebody##*$'\n'}
     movebody=${movebody%$'\n'*}
+    # This run saves the new address, so the next run sees no move and never
+    # posts again: "re-run this installer" would retry nothing. The by-hand
+    # edit is the recovery.
+    local stale="Storage Management still lists this node at ${serverIpWas}"
+    local byhand="Re-running the installer does not retry this. Set the node's IP Address to ${NET_fog_server_ip} under Storage Management in the web UI."
     case $movestatus in
         2*)
             if [[ $movebody == *'<'* ]]; then
-                _reportNodePostFailure "$movestatus" "$movebody" \
-                    "Storage Management still lists this node at ${serverIpWas}"
+                _reportNodePostFailure "$movestatus" "$movebody" "$stale" "$byhand"
             else
                 echo "Done"
             fi
             ;;
-        409)
-            # The endpoint's plain-text reason. Markup means something else
-            # answered in its place, as in the 2* arm.
-            if [[ $movebody == *'<'* ]]; then
-                _reportNodePostFailure "$movestatus" "$movebody" \
-                    "Storage Management still lists this node at ${serverIpWas}"
+        403|409)
+            # The endpoint's plain-text reason: another node holds the address
+            # (409), or it is not the address the request arrived on (403).
+            # Markup, or no reason at all (the same-machine gate's bare 403),
+            # means it was not that refusal, so report it like any failure.
+            if [[ -z $movebody || $movebody == *'<'* ]]; then
+                _reportNodePostFailure "$movestatus" "$movebody" "$stale" "$byhand"
                 return 0
             fi
             echo "Failed"
             echo " * ${movebody}"
-            echo " * Storage Management still lists this node at ${serverIpWas}."
-            echo "   Resolve the clash there, then re-run this installer."
+            echo " * ${stale}."
+            echo " * ${byhand}"
             ;;
         *)
-            _reportNodePostFailure "$movestatus" "$movebody" \
-                "Storage Management still lists this node at ${serverIpWas}"
+            _reportNodePostFailure "$movestatus" "$movebody" "$stale" "$byhand"
             ;;
     esac
 }
@@ -1399,10 +1408,11 @@ moveTftpHostSetting() {
     mysql $sqloptionsuser --password="${DB_password}" --execute="UPDATE globalSettings SET settingValue='${NET_fog_server_ip}' WHERE settingKey='FOG_TFTP_HOST' AND settingValue='${serverIpWas}'" ${DB_name} >>$error_log 2>&1
     errorStat $?
 }
-# The DHCP router and DNS questions. Moved unchanged out of lib/common/input.sh,
-# which asks them on a fresh install, so _offerDhcpRefresh can ask them again
-# on an upgrade. Each asks only while its value is empty. With -y each takes
-# ${strSuggestedRoute} or ${strSuggestedDNS}.
+# The DHCP router and DNS questions. Moved out of lib/common/input.sh, which
+# asks them on a fresh install, so _offerDhcpRefresh can ask them again on an
+# upgrade. Each asks only while its value is empty. With -y each takes
+# ${strSuggestedRoute} or ${strSuggestedDNS}, or "none" when that suggestion
+# is not an address -- the one change from the input.sh copy, which looped.
 askDhcpRouter() {
     local blRouter="" count=0
     while [[ -z ${DHCP_router} ]]; do
@@ -1527,7 +1537,7 @@ _offerDhcpRefresh() {
                 # start serving a new subnet nobody checked, which may already
                 # have its own DHCP server. Say plainly what that leaves.
                 echo " * DHCP is NOT changed. The server address and this node's"
-                echo "   storage record ARE changed to ${NET_fog_server_ip}."
+                echo "   storage record will be changed to ${NET_fog_server_ip}."
                 echo "   DHCP still offers the old pool and router, so PXE clients"
                 echo "   may get no address or a wrong one, and the DHCP service"
                 echo "   may fail to start."
@@ -1541,7 +1551,9 @@ _offerDhcpRefresh() {
     DHCP_range_end=${sDHCP_range_end}
     strSuggestedRoute=$(ip -4 route show default dev "${NET_interface}" 2>/dev/null | awk '{print $3; exit}')
     strSuggestedDNS=${DHCP_dns_server_ip}
-    [[ $(validip "$strSuggestedDNS") -eq 0 ]] || strSuggestedDNS=$(awk '/^nameserver/ && $2 ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ {print $2; exit}' /etc/resolv.conf 2>/dev/null)
+    # ${resolvconf} is a seam for tests/server-address-moves.test.sh, whose
+    # host resolv.conf would otherwise always supply an answer.
+    [[ $(validip "$strSuggestedDNS") -eq 0 ]] || strSuggestedDNS=$(awk '/^nameserver/ && $2 ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ {print $2; exit}' "${resolvconf:-/etc/resolv.conf}" 2>/dev/null)
     # A router or DNS the administrator declined is saved as a comment. A
     # subnet move does not make that answer wrong, so it stays declined.
     [[ ${DHCP_router} == '#'* ]] || DHCP_router=""
@@ -1549,6 +1561,23 @@ _offerDhcpRefresh() {
     askDhcpRouter
     askDhcpDns
     echo " * The DHCP pool is derived from ${newnet}/${NET_subnet_mask} when DHCP is configured."
+}
+# Forum 18327: --update-dhcp-subnet on a LATER run. The run that moved the
+# address saved the new one and, under -y or a "no", kept the old DHCP pool.
+# Its warning names this flag as the fix, but on the re-run the address no
+# longer looks moved, so checkServerAddress never reaches _offerDhcpRefresh.
+# This compares the saved pool start (or the router, with no pool saved) to
+# the server's current subnet instead. With neither saved there is nothing
+# stale: configureDHCP derives the pool from the current subnet anyway.
+_dhcpFollowSubnet() {
+    local saved
+    [[ -n $sDHCP_update_subnet ]] || return 0
+    # A move this run already offered the refresh.
+    [[ -n $serverIpWas && $serverIpWas != "${NET_fog_server_ip}" ]] && return 0
+    saved=${DHCP_range_start}
+    [[ $(validip "$saved") -eq 0 ]] || saved=${DHCP_router}
+    [[ $(validip "$saved") -eq 0 ]] || return 0
+    _offerDhcpRefresh "$saved" "${NET_subnet_mask}"
 }
 # Mirrors fog_git_path/fog_update_channel/extraServerNames/servicelogs into
 # globalSettings so the GUI can show them without SSH. Like fogprogramdir's

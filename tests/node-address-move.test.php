@@ -108,10 +108,12 @@ class StorageNode
 // phpcs:enable
 
 // The branch's wiring, which the lifted body cannot show: the old address,
-// then the decoded new one, then the NIC, and the status sent back.
+// then the decoded new one, then the NIC, then the address the request
+// arrived on, and the status sent back.
 $branch = substr($code, (int) strpos($code, "isset(\$_POST['nodeIp'])"));
 $wired = (bool) preg_match(
-    '/moveNodeAddress\(\s*\$stripped\[\'oldip\'\][^,]*,\s*\$ip,\s*\$stripped\[\'interface\'\]/',
+    '/moveNodeAddress\(\s*\$stripped\[\'oldip\'\][^,]*,\s*\$ip,\s*\$stripped\[\'interface\'\][^,]*,'
+    . '\s*\(string\)\s*\(\$_SERVER\[\'SERVER_ADDR\'\]/',
     $branch
 ) && false !== strpos($branch, 'http_response_code($status)');
 
@@ -145,7 +147,7 @@ function check($label, $cond)
 }
 $results = [];
 $results[] = check(
-    'the nodeIp branch passes oldip, ip and interface, and sends the status',
+    'the nodeIp branch passes oldip, ip, interface and SERVER_ADDR, and sends the status',
     $wired
 );
 function reset_table()
@@ -158,7 +160,7 @@ function reset_table()
 }
 
 reset_table();
-[$status, $reason] = $move('10.0.0.5', '10.0.0.9', 'ens18');
+[$status, $reason] = $move('10.0.0.5', '10.0.0.9', 'ens18', '10.0.0.9');
 $results[] = check('a free new address returns 200 with no reason', 200 === $status && '' === $reason);
 $results[] = check(
     'only the row at the old address is saved, with the new address and NIC',
@@ -166,21 +168,40 @@ $results[] = check(
 );
 
 reset_table();
-$move('10.0.0.5', '10.0.0.9', '');
+$move('10.0.0.5', '10.0.0.9', '', '10.0.0.9');
 $results[] = check(
     'an empty NIC leaves the NIC as it is',
     [[1, ['ip' => '10.0.0.9']]] === $GLOBALS['saves']
 );
 
+// Another node's record pointed at a host the caller chose: the request
+// arrived on 10.0.0.9, so 10.0.0.77 is not this box's address.
 reset_table();
-[$status, $reason] = $move('10.0.0.5', '10.0.0.6', 'ens18');
+[$status, $reason] = $move('10.0.0.6', '10.0.0.77', 'ens18', '10.0.0.9');
+$results[] = check('a new address the request did not arrive on returns 403', 403 === $status);
+$results[] = check('the 403 reason carries no markup', false === strpos($reason, '<'));
+$results[] = check('a 403 saves nothing', [] === $GLOBALS['saves']);
+[$status] = $move('10.0.0.5', '10.0.0.9', 'ens18', '');
+$results[] = check('an unknown arrival address returns 403', 403 === $status && [] === $GLOBALS['saves']);
+[$status] = $move('10.0.0.6', '10.0.0.77', 'ens18', '::ffff:10.0.0.9');
+$results[] = check('a mapped arrival address still refuses another address', 403 === $status);
+
+reset_table();
+[$status] = $move('10.0.0.5', '10.0.0.9', 'ens18', '::ffff:10.0.0.9');
+$results[] = check(
+    'an IPv4-mapped arrival address (dual-stack listener) matches its IPv4 form',
+    200 === $status && [[1, ['ip' => '10.0.0.9', 'interface' => 'ens18']]] === $GLOBALS['saves']
+);
+
+reset_table();
+[$status, $reason] = $move('10.0.0.5', '10.0.0.6', 'ens18', '10.0.0.6');
 $results[] = check('an address another node holds returns 409', 409 === $status);
 $results[] = check('the 409 reason names the address', false !== strpos($reason, '10.0.0.6'));
 $results[] = check('the 409 reason carries no markup', false === strpos($reason, '<'));
 $results[] = check('a refused move saves nothing', [] === $GLOBALS['saves']);
 
 reset_table();
-[$status] = $move('10.0.0.5', '10.0.0.5', 'ens18');
+[$status] = $move('10.0.0.5', '10.0.0.5', 'ens18', '10.0.0.5');
 $results[] = check('a NIC-only move is not refused by the node\'s own row', 200 === $status);
 $results[] = check(
     'a NIC-only move saves the new NIC',
@@ -188,16 +209,16 @@ $results[] = check(
 );
 
 reset_table();
-[$status] = $move('10.0.0.5', 'not-an-ip', 'ens18');
+[$status] = $move('10.0.0.5', 'not-an-ip', 'ens18', 'not-an-ip');
 $results[] = check('a new value that is not an address returns 400', 400 === $status);
-[$status] = $move('', '10.0.0.9', 'ens18');
+[$status] = $move('', '10.0.0.9', 'ens18', '10.0.0.9');
 $results[] = check('an empty old address returns 400', 400 === $status);
-[$status] = $move('10.0.0.5', '10.0.0.9', 'eth0;reboot');
+[$status] = $move('10.0.0.5', '10.0.0.9', 'eth0;reboot', '10.0.0.9');
 $results[] = check('an interface that is not an interface name returns 400', 400 === $status);
 $results[] = check('a 400 saves nothing', [] === $GLOBALS['saves']);
 
 reset_table();
-[$status] = $move('10.0.0.50', '10.0.0.9', 'ens18');
+[$status] = $move('10.0.0.50', '10.0.0.9', 'ens18', '10.0.0.9');
 $results[] = check('an old address no node holds is a no-op 200', 200 === $status && [] === $GLOBALS['saves']);
 
 $failed = count(array_filter($results, function ($r) {

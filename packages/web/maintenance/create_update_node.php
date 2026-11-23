@@ -112,22 +112,35 @@ function nodeRegistrationName($posted, $ip)
  * is refused: ngmHostname is how every node lookup in this file identifies a
  * node, so two rows at one address would make each later install update both.
  *
- * Same trust as nodePass: anything that can reach this file can already
- * rewrite this node's credentials.
+ * The new address must be the one this request arrived on. Without that, any
+ * process on the box could point ANY node's record at a host it chose, and
+ * the master would then replicate to that host with that node's FTP
+ * credentials. The installer posts to the new address itself, so a genuine
+ * move always passes, and a record can only be moved to the box moving it.
  *
- * @param string $oldip     The address the node is registered under.
- * @param string $ip        The address it has now.
- * @param string $interface The NIC that now holds $ip, or '' to keep it.
+ * @param string $oldip      The address the node is registered under.
+ * @param string $ip         The address it has now.
+ * @param string $interface  The NIC that now holds $ip, or '' to keep it.
+ * @param string $serverAddr The address this request arrived on.
  *
  * @return array{0: int, 1: string} HTTP status, and a plain-text reason
  *                                  on a refusal ('' on success).
  */
-function moveNodeAddress($oldip, $ip, $interface)
+function moveNodeAddress($oldip, $ip, $interface, $serverAddr)
 {
     if (!filter_var($oldip, FILTER_VALIDATE_IP)
         || !filter_var($ip, FILTER_VALIDATE_IP)
     ) {
         return [400, 'refused: both addresses must be IP addresses'];
+    }
+    // A dual-stack listener reports an IPv4 arrival as ::ffff:a.b.c.d.
+    if (0 === stripos($serverAddr, '::ffff:')
+        && filter_var(substr($serverAddr, 7), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)
+    ) {
+        $serverAddr = substr($serverAddr, 7);
+    }
+    if ($ip !== $serverAddr) {
+        return [403, "refused: $ip is not the address this request arrived on"];
     }
     // A Linux interface name: at most 15 characters, none of them a shell or
     // SQL metacharacter. The consumers escape it; this keeps the stored
@@ -213,7 +226,8 @@ if (isset($_POST['newNode'])) {
     [$status, $reason] = moveNodeAddress(
         $stripped['oldip'] ?? '',
         $ip,
-        $stripped['interface'] ?? ''
+        $stripped['interface'] ?? '',
+        (string)($_SERVER['SERVER_ADDR'] ?? '')
     );
     http_response_code($status);
     echo $reason;

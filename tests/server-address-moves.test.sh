@@ -47,6 +47,7 @@ trap 'kill %1 2>/dev/null; rm -rf "$tmp"' EXIT
     body askDhcpRouter
     body askDhcpDns
     body _offerDhcpRefresh
+    body _dhcpFollowSubnet
     body _reportNodePostFailure
     body _interfaceHolding
     body _globalAddresses
@@ -192,16 +193,36 @@ expect "a router the administrator declined stays declined" "$out" \
 
 # No default route on the new NIC: under -y the router question used to loop
 # on "Invalid router IP Address!" forever. timeout turns a hang into a FAIL.
-# The DNS fallback reads this box's own resolv.conf, so only "not empty" is
-# asserted for it.
-out=$(timeout 10 bash -c "$(declare -f run_check); tmp='$tmp'; run_check '' \"autoaccept=yes; sDHCP_update_subnet=1; $DHCP; GW=; DHCP_dns_server_ip=; NET_fog_server_ip=10.0.0.5; NET_interface=eth0\"" | awk 'NR <= 20')
-expect "under -y, no usable gateway means no router, not a hang" "$out" \
-    "ip=10.0.1.9" "router=#   No router address added"
-if printf '%s\n' "$out" | grep -qE '^dns=.+'; then
-    ok "under -y, the DNS question ends with a value"
-else
-    bad "under -y, the DNS question did not end -- got: $(printf '%s' "$out" | tr '\n' '|')"
-fi
+# The resolv.conf the fallback reads has only an IPv6 nameserver, so the DNS
+# question has nothing usable either.
+echo "nameserver fe80::1" > "$tmp/resolv.conf"
+out=$(timeout 10 bash -c "$(declare -f run_check); tmp='$tmp'; run_check '' \"autoaccept=yes; sDHCP_update_subnet=1; $DHCP; GW=; DHCP_dns_server_ip=; resolvconf='$tmp/resolv.conf'; NET_fog_server_ip=10.0.0.5; NET_interface=eth0\"")
+expect "under -y, nothing usable means no router and no DNS, not a hang" "$out" \
+    "ip=10.0.1.9" "router=#   No router address added" "dns=#   No dns added"
+
+# --update-dhcp-subnet on the run AFTER a move that kept DHCP: the address is
+# no longer moved, so only _dhcpFollowSubnet can see the stale pool.
+run_follow() {
+    printf '' | bash -c "
+        FIX='$tmp/fix'
+        $1
+        . '$tmp/stubs.sh'
+        . '$tmp/under-test.sh'
+        checkServerAddress >'$tmp/out' 2>&1
+        _dhcpFollowSubnet >>'$tmp/out' 2>&1
+        echo \"start=\$DHCP_range_start\"
+        echo \"router=\$DHCP_router\"
+    " 2>&1
+}
+out=$(run_follow "autoaccept=yes; sDHCP_update_subnet=1; $DHCP; NET_fog_server_ip=10.0.1.9; NET_interface=eth0")
+expect "a later run with --update-dhcp-subnet fixes a pool left on the old subnet" "$out" \
+    "start=" "router=10.0.1.1"
+out=$(run_follow "autoaccept=yes; $DHCP; NET_fog_server_ip=10.0.1.9; NET_interface=eth0")
+expect "a later run without the flag leaves DHCP alone" "$out" \
+    "start=10.0.0.10" "router=10.0.0.1"
+out=$(run_follow "autoaccept=yes; sDHCP_update_subnet=1; $DHCP; DHCP_range_start=10.0.1.10; DHCP_router=10.0.1.1; NET_fog_server_ip=10.0.1.9; NET_interface=eth0")
+expect "a later run with the flag leaves a pool already on this subnet alone" "$out" \
+    "start=10.0.1.10" "router=10.0.1.1"
 
 out=$(run_check $'y\nn' "$DHCP; NET_fog_server_ip=10.0.0.5; NET_interface=eth0")
 expect "answering no to the DHCP question keeps the saved settings" "$out" \
@@ -250,6 +271,12 @@ class H(BaseHTTPRequestHandler):
         if mode == 'conflict':
             b = b'refused: another storage node is already registered at 10.0.0.9'
             self.send_response(409)
+        elif mode == 'forbidden':
+            b = b'refused: 10.0.0.9 is not the address this request arrived on'
+            self.send_response(403)
+        elif mode == 'gate':
+            b = b''
+            self.send_response(403)
         elif mode == 'proxy':
             b = b'<!doctype html><html></html>'
             self.send_response(200)
@@ -307,6 +334,33 @@ PY
         bad "a 409 was not reported with its reason -- got: $(printf '%s' "$out" | tr '\n' '|')"
     fi
 
+    out=$(run_move forbidden 10.0.0.5)
+    if [[ $out == *Failed* && $out == *'not the address this request arrived on'* ]]; then
+        ok "a 403 with a reason reports Failed and shows the reason"
+    else
+        bad "a 403 was not reported with its reason -- got: $(printf '%s' "$out" | tr '\n' '|')"
+    fi
+
+    out=$(run_move gate 10.0.0.5)
+    if [[ $out == *Failed* && $out == *'answered HTTP 403'* ]]; then
+        ok "a bare 403 (the same-machine gate) is reported as a failed request"
+    else
+        bad "a bare 403 was not reported -- got: $(printf '%s' "$out" | tr '\n' '|')"
+    fi
+
+    # The next run sees no move and never posts again, so advice to re-run
+    # would retry nothing.
+    advice=""
+    for mode in conflict forbidden gate proxy; do
+        out=$(run_move "$mode" 10.0.0.5)
+        [[ $out == *'re-run this installer'* || $out != *'does not retry'* ]] && advice="$advice $mode"
+    done
+    if [[ -z $advice ]]; then
+        ok "every failure names the by-hand fix, never a re-run"
+    else
+        bad "these failures advise a re-run that cannot retry the move:$advice"
+    fi
+
     out=$(run_move proxy 10.0.0.5)
     if [[ $out == *Failed* && $out != *'<!doctype'* ]]; then
         ok "a 200 carrying markup reports Failed, and the markup stays out"
@@ -358,10 +412,10 @@ echo "4. installfog.sh calls them in the order they depend on"
 # The calls only, in file order, comments stripped. The node record has to
 # carry the new address before anything that finds the node by its address.
 calls=$(grep -vE '^[[:space:]]*#' bin/installfog.sh \
-    | grep -oE '^[[:space:]]*(normalizeIpAddress|checkServerAddress|updateStorageNodeAddress|moveTftpHostSetting|registerStorageNode|updateStorageNodeCredentials|_installNodeWebCert)[[:space:]]*$' \
+    | grep -oE '^[[:space:]]*(normalizeIpAddress|checkServerAddress|_dhcpFollowSubnet|updateStorageNodeAddress|moveTftpHostSetting|registerStorageNode|updateStorageNodeCredentials|_installNodeWebCert)[[:space:]]*$' \
     | awk '{print $1}' | tr '\n' ' ')
 for want in \
-    "normalizeIpAddress checkServerAddress" \
+    "normalizeIpAddress checkServerAddress _dhcpFollowSubnet" \
     "updateStorageNodeAddress _installNodeWebCert" \
     "updateStorageNodeAddress registerStorageNode updateStorageNodeCredentials _installNodeWebCert" \
     "updateStorageNodeAddress moveTftpHostSetting updateStorageNodeCredentials"; do

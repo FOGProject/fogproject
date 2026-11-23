@@ -1249,6 +1249,8 @@ normalizeIpAddress
 # will use. On an upgrade this is the only check that the recorded address is
 # still on the box.
 checkServerAddress
+# And --update-dhcp-subnet on the run after one that kept the old DHCP.
+_dhcpFollowSubnet
 echo
 echo "   ######################################################################"
 echo "   #     FOG now has everything it needs for this setup, but please     #"
