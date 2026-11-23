@@ -6968,8 +6968,10 @@ _installNodeWebCert() {
         # certificate from memory until something else restarts it.
         systemctl reload "${WEB_server_engine}" >>$error_log 2>&1 || \
             systemctl restart "${WEB_server_engine}" >>$error_log 2>&1
-    elif [[ -f $chain ]]; then
-        # The master issued one before, and it no longer names this address.
+    elif [[ -f $chain && -f ${PKI_web_vhost_cert} && -n ${NET_fog_server_ip} ]] && \
+        openssl verify -CAfile "$chain" "${PKI_web_vhost_cert}" >>$error_log 2>&1; then
+        # The master issued one before, it still verifies, and the guard above
+        # turned it down only because it does not name this address.
         echo "Skipped"
         echo " * This node keeps the certificate the master issued earlier. It"
         echo "   does not name ${NET_fog_server_ip}, so a client that connects by"
