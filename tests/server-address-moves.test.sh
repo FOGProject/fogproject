@@ -173,7 +173,10 @@ addr eth0 10.0.1.9/24 > "$tmp/fix"
 out=$(run_check "" "autoaccept=yes; $DHCP; NET_fog_server_ip=10.0.0.5; NET_interface=eth0")
 expect "-y alone keeps the saved DHCP settings on a new subnet" "$out" \
     "ip=10.0.1.9" "start=10.0.0.10" "end=10.0.0.254" "router=10.0.0.1" "dns=8.8.8.8"
-if grep -qF "DHCP is NOT changed" "$tmp/out" && grep -qF -- "--update-dhcp-subnet" "$tmp/out"; then
+# "will be changed", not "ARE changed": the record moves later in the run, and
+# that POST can still fail.
+if grep -qF "DHCP is NOT changed" "$tmp/out" && grep -qF -- "--update-dhcp-subnet" "$tmp/out" \
+        && grep -qF "will be changed" "$tmp/out" && ! grep -qF "ARE changed" "$tmp/out"; then
     ok "-y alone says DHCP is not changed and names the flag that changes it"
 else
     bad "-y alone kept DHCP without saying so -- got: $(tr '\n' '|' < "$tmp/out")"
@@ -277,6 +280,9 @@ class H(BaseHTTPRequestHandler):
         elif mode == 'gate':
             b = b''
             self.send_response(403)
+        elif mode == 'error':
+            b = b''
+            self.send_response(500)
         elif mode == 'proxy':
             b = b'<!doctype html><html></html>'
             self.send_response(200)
@@ -351,7 +357,7 @@ PY
     # The next run sees no move and never posts again, so advice to re-run
     # would retry nothing.
     advice=""
-    for mode in conflict forbidden gate proxy; do
+    for mode in conflict forbidden gate proxy error; do
         out=$(run_move "$mode" 10.0.0.5)
         [[ $out == *'re-run this installer'* || $out != *'does not retry'* ]] && advice="$advice $mode"
     done
