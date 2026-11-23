@@ -49,18 +49,23 @@ class FOGCron extends FOGBase
     /**
      * Verifies the fit of the string
      *
-     * @param string $str the string to check
-     * @param int    $num the num to check
+     * @param string $str   the string to check
+     * @param int    $num   the num to check
+     * @param int    $start the field's lowest value: 1 for the day of
+     *                      month and the month, 0 for the rest
      *
      * @return bool
      */
-    private static function _fit($str, $num)
+    private static function _fit($str, $num, $start = 0)
     {
+        if ('*' === $str) {
+            return true;
+        }
         if (strpos($str, ',') !== false) {
             $arr = explode(',', $str);
             $test = [];
             foreach ((array)$arr as &$ar) {
-                $test[] = (bool)self::_fit($ar, $num);
+                $test[] = (bool)self::_fit($ar, $num, $start);
                 unset($ar);
             }
             return in_array(true, $test, true);
@@ -75,8 +80,12 @@ class FOGCron extends FOGBase
             if ($step < 1) {
                 return false;
             }
+            // `*/n` counts from the field's first value, as cron does. So a
+            // day of month of `*/2` is 1, 3, 5 and a month of `*/3` is 1, 4,
+            // 7, 10. Counting from 0 gave even days and March, June,
+            // September, December.
             if ($pre == '*') {
-                return ((int)$num % $step == 0);
+                return (((int)$num - $start) % $step == 0);
             }
             // The step counts from the range's low end, and the high end
             // bounds the match. A bare start (`5/15`) has no high end.
@@ -125,14 +134,58 @@ class FOGCron extends FOGBase
             || self::_fit($field, $isoDow);
     }
     /**
-     * Returns the next run time
+     * Does this day match the day-of-month and weekday fields together?
      *
-     * @param string $cron    the cron to parse
-     * @param bool   $lastrun show the last run time
+     * Cron's rule: when both fields are restricted, a day matches if EITHER
+     * one does. `0 0 1 * 1` runs on the 1st and on every Monday. A field
+     * that starts with `*` is not restricted, so then BOTH must match:
+     * `0 22 *\/2 * 1-5` runs on odd days that are weekdays. FOG used to
+     * read `*\/2` as restricted and ran that on odd days OR weekdays.
+     *
+     * @param string    $dom  the day of month field
+     * @param string    $dow  the day of week field
+     * @param \DateTime $date the day to test
+     *
+     * @return bool
+     */
+    private static function _dayFits($dom, $dow, $date)
+    {
+        $domFits = self::_fit($dom, (int)$date->format('j'), 1);
+        $dowFits = self::_dowFits($dow, (int)$date->format('N'));
+        if ('*' === substr($dom, 0, 1) || '*' === substr($dow, 0, 1)) {
+            return $domFits && $dowFits;
+        }
+        return $domFits || $dowFits;
+    }
+    /**
+     * Returns the next run time, or the last one.
+     *
+     * The next run is the first matching minute AFTER the minute that $from
+     * falls in. The last run is the latest matching minute at or before
+     * $from. So with $from at 10:00:30, a `0 10 * * *` schedule's next run is
+     * tomorrow at 10:00, and its last run is today at 10:00.
+     *
+     * The search walks the calendar from the largest field down, the way
+     * cron's own matching does: a month that does not match jumps to the
+     * start of the next month, a day to the next midnight, an hour to the
+     * next top of the hour. The old walk kept the smaller fields on each
+     * jump, so `0 * * * 1` from a Sunday 14:00 gave Monday 14:00, not
+     * Monday 00:00.
+     *
+     * The walk is on wall-clock time, because the fields are wall-clock
+     * intent. Each match is then placed in the install's zone. On the
+     * spring-forward day, a time in the skipped hour runs one hour later
+     * (02:30 runs at 03:30). On the fall-back day, a time in the repeated
+     * hour runs once, at its first occurrence. That is how cron treats a
+     * fixed time too.
+     *
+     * @param string   $cron    the cron to parse
+     * @param bool     $lastrun show the last run time
+     * @param int|null $from    unix timestamp to search from; null is now
      *
      * @return int unix timestamp -- every caller feeds it to setTimestamp()
      */
-    public static function parse($cron, $lastrun = false)
+    public static function parse($cron, $lastrun = false, $from = null)
     {
         $parts = array_values(
             array_filter(
@@ -178,92 +231,69 @@ class FOGCron extends FOGBase
                 );
             }
         }
-        $Start = self::niceDate();
-        // A schedule with no matching date (`0 0 30 2 *`) must not loop
-        // forever. Five years covers the leap-day schedule `0 0 29 2 *`.
-        // The pass limit is the hard stop: where a DST change makes
-        // modify('-1 hour') land on the same wall time, the date limit
-        // alone is never reached.
-        $limit = self::niceDate()->modify(
-            sprintf('%s5 years', $lastrun ? '-' : '+')
+        $now = self::niceDate();
+        if (null !== $from) {
+            $now->setTimestamp((int)$from);
+        }
+        // The fields are wall-clock intent in the install's zone
+        // (FOG_TZ_INFO). niceDate() is the STORAGE zone, which is UTC once
+        // schema step 396 has recorded the UTC boundary. Evaluated there,
+        // `0 23 * * *` on a Chicago install ran at 17:00 local. Not the
+        // viewer's zone either: a schedule must not move with who reads it.
+        $now->setTimezone(self::defaultDisplayTimeZone());
+        $fromTs = $now->getTimestamp();
+        $zone = $now->getTimezone();
+        // The walk runs on a copy of the wall clock in UTC. UTC has no DST,
+        // so each step moves the clock in one direction only, and the
+        // five-year limit always ends the loop. Five years covers the
+        // leap-day schedule `0 0 29 2 *`; a schedule with no date at all
+        // (`0 0 30 2 *`) throws.
+        $utc = new \DateTimeZone('UTC');
+        $wall = new \DateTime($now->format('Y-m-d H:i'), $utc);
+        if (!$lastrun) {
+            $wall->modify('+1 minute');
+        }
+        $sign = $lastrun ? '-' : '+';
+        $limit = (clone $wall)->modify($sign . '5 years');
+        while ($lastrun ? $wall >= $limit : $wall <= $limit) {
+            if (!self::_fit($month, (int)$wall->format('n'), 1)) {
+                // Forward: the first minute of the next month. Back: the
+                // last minute of the month before.
+                $wall->modify('first day of this month')->setTime(0, 0);
+                $wall->modify($lastrun ? '-1 minute' : '+1 month');
+                continue;
+            }
+            if (!self::_dayFits($dom, $dow, $wall)) {
+                $wall->setTime(0, 0);
+                $wall->modify($lastrun ? '-1 minute' : '+1 day');
+                continue;
+            }
+            if (!self::_fit($hour, (int)$wall->format('G'))) {
+                $wall->setTime((int)$wall->format('G'), 0);
+                $wall->modify($lastrun ? '-1 minute' : '+1 hour');
+                continue;
+            }
+            if (!self::_fit($min, (int)$wall->format('i'))) {
+                $wall->modify($sign . '1 minute');
+                continue;
+            }
+            // Place the wall-clock match in the install's zone. A time in
+            // the spring-forward gap comes back one hour later. A time in
+            // the fall-back hour comes back as its first occurrence, which
+            // can be before $from: then the walk goes on.
+            $ts = (new \DateTime($wall->format('Y-m-d H:i'), $zone))
+                ->getTimestamp();
+            if ($lastrun ? $ts <= $fromTs : $ts > $fromTs) {
+                return $ts;
+            }
+            $wall->modify($sign . '1 minute');
+        }
+        throw new \InvalidArgumentException(
+            sprintf(
+                _('No run time within five years for cron expression: "%s"'),
+                $cron
+            )
         );
-        $passes = 0;
-        do {
-            if (++$passes > 1000000
-                || ($lastrun ? $Start < $limit : $Start > $limit)
-            ) {
-                throw new \InvalidArgumentException(
-                    sprintf(
-                        _('No run time within five years for cron expression: "%s"'),
-                        $cron
-                    )
-                );
-            }
-            list(
-                $nmin,
-                $nhour,
-                $ndom,
-                $nmonth,
-                $ndow
-            ) = array_map(
-                function ($val) {
-                    return intval(trim($val));
-                },
-                preg_split('/\s+/', $Start->format('i H j n N'))
-            );
-            // Fairly straight forward, check our minutes field.
-            if ($min != '*') {
-                if (!self::_fit($min, $nmin)) {
-                    $Start->modify(sprintf('%s1 minute', $lastrun ? '-' : '+'));
-                    continue;
-                }
-            }
-            // Check our hours field.
-            if ($hour != '*') {
-                if (!self::_fit($hour, $nhour)) {
-                    $Start->modify(sprintf('%s1 hour', $lastrun ? '-' : '+'));
-                    continue;
-                }
-            }
-            // Here comes tricky part. DOM and DOW checks.
-            // If dow AND dom are set to some value other than * the
-            // typical action is to run if the days are true OR the dow is true.
-            //
-            // For example:
-            // our crontab is:
-            // * * 2-5 * 5 it should run on the 2nd through 5th of the month
-            // AND every friday. If you only have the DOW, it will only run on
-            // that day of the week. (* * * * 5) would only run on fridays.
-            if ($dom != '*' && $dow != '*') {
-                if (!self::_fit($dom, $ndom) && !self::_dowFits($dow, $ndow)) {
-                    $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
-                    continue;
-                }
-            }
-            if ($dow == '*' && $dom != '*') {
-                if (!self::_fit($dom, $ndom)) {
-                    $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
-                    continue;
-                }
-            }
-            if ($dow != '*' && $dom == '*') {
-                if (!self::_dowFits($dow, $ndow)) {
-                    $Start->modify(sprintf('%s1 day', $lastrun ? '-' : '+'));
-                    continue;
-                }
-            }
-            if ($month != '*') {
-                if (!self::_fit($month, $nmonth)) {
-                    $Start->modify(sprintf('%s1 month', $lastrun ? '-' : '+'));
-                    continue;
-                }
-            }
-            return $Start->setTime(
-                (int) $Start->format('H'),
-                (int) $Start->format('i'),
-                0
-            )->getTimestamp();
-        } while (true);
     }
     /**
      * Check the fields
@@ -315,6 +345,11 @@ class FOGCron extends FOGBase
             }
             if ($res) {
                 $res = self::_checkIntValue($_max, $min, $max, true);
+            }
+            // Cron refuses a reversed range. `30-10` matches no value, so the
+            // schedule would be saved and then never run.
+            if ($res && (int)$_min > (int)$_max) {
+                $res = false;
             }
             if (!$res) {
                 break;
@@ -401,6 +436,47 @@ class FOGCron extends FOGBase
     public static function checkDOWField($dow)
     {
         return self::_checkField($dow, 0, 7);
+    }
+    /**
+     * Refuses a schedule that cron would refuse, or that never runs.
+     *
+     * One check for every form that saves a schedule: the scheduled task
+     * form and the host and group power-management forms. The
+     * power-management forms checked only the characters, so a minute of
+     * 99 or a 30th of February was saved and then skipped on every
+     * scheduler pass.
+     *
+     * @param string $min   the minute field
+     * @param string $hour  the hour field
+     * @param string $dom   the day of month field
+     * @param string $month the month field
+     * @param string $dow   the day of week field
+     *
+     * @throws \Exception naming the field that is wrong
+     *
+     * @return void
+     */
+    public static function validate($min, $hour, $dom, $month, $dow)
+    {
+        $checks = [
+            [self::checkMinutesField($min), _('Minutes field is invalid')],
+            [self::checkHoursField($hour), _('Hours field is invalid')],
+            [self::checkDOMField($dom), _('Day of Month field is invalid')],
+            [self::checkMonthField($month), _('Month field is invalid')],
+            [self::checkDOWField($dow), _('Day of Week field is invalid')],
+        ];
+        foreach ($checks as list($valid, $message)) {
+            if (!$valid) {
+                throw new \Exception($message);
+            }
+        }
+        try {
+            self::parse(implode(' ', [$min, $hour, $dom, $month, $dow]));
+        } catch (\InvalidArgumentException $e) {
+            throw new \Exception(
+                _('This schedule has no run time within five years')
+            );
+        }
     }
     /**
      * Check the time to see if it should be run now

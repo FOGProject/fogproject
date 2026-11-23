@@ -548,26 +548,7 @@ trait FOGPagePost
                 $dow = strval(
                     filter_input(INPUT_POST, 'scheduleCronDOW')
                 );
-                $tmin = FOGCron::checkMinutesField($min);
-                $thour = FOGCron::checkHoursField($hour);
-                $tdom = FOGCron::checkDOMField($dom);
-                $tmonth = FOGCron::checkMonthField($month);
-                $tdow = FOGCron::checkDOWField($dow);
-                if (!$tmin) {
-                    throw new \Exception(_('Minutes field is invalid'));
-                }
-                if (!$thour) {
-                    throw new \Exception(_('Hours field is invalid'));
-                }
-                if (!$tdom) {
-                    throw new \Exception(_('Day of Month field is invalid'));
-                }
-                if (!$tmonth) {
-                    throw new \Exception(_('Month field is invalid'));
-                }
-                if (!$tdow) {
-                    throw new \Exception(_('Day of Week field is invalid'));
-                }
+                FOGCron::validate($min, $hour, $dom, $month, $dow);
                 $schedule['min'] = $min;
                 $schedule['hour'] = $hour;
                 $schedule['dom'] = $dom;

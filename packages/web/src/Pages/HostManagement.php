@@ -4375,6 +4375,7 @@ class HostManagement extends FOGPage
             $dom = FOGCron::_sanitizeCronField($dom);
             $month = FOGCron::_sanitizeCronField($month);
             $dow = FOGCron::_sanitizeCronField($dow);
+            FOGCron::validate($min, $hour, $dom, $month, $dow);
             (new PowerManagement())
                 ->set('hostID', $this->obj->get('id'))
                 ->set('min', $min)
