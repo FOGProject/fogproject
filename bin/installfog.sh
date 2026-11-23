@@ -1530,6 +1530,10 @@ while [[ -z $blGo ]]; do
                     # not. See recordPreUpgradeSchema.
                     recordPreUpgradeSchema
                     updateDB
+                    # Forum 18327: once the schema is in place, and before
+                    # configureTFTPandPXE, whose _resolveNetbootHost reads
+                    # FOG_WEB_HOST once and caches the answer for the run.
+                    moveAddressSettings
                     configureStorage
                     # Before configureDHCP, not with the rest of the TFTP
                     # staging in configureTFTPandPXE. The generated DHCP config
@@ -1638,7 +1642,6 @@ while [[ -z $blGo ]]; do
                     # Forum 18327: before the credentials, which match the
                     # node by its address.
                     updateStorageNodeAddress
-                    moveTftpHostSetting
                     updateStorageNodeCredentials
                     recordGitUpdateSettings
                     applyNewInstallDefaults

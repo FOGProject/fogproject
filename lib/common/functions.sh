@@ -1283,7 +1283,7 @@ _globalAddresses() {
 #     interface, so keeping it is never the working answer.
 #
 # Sets serverIpWas and serverIfWas when something changed, for
-# updateStorageNodeAddress and moveTftpHostSetting. Runs on a fresh install
+# updateStorageNodeAddress and moveAddressSettings. Runs on a fresh install
 # too, where only --server-ip can make it change anything.
 checkServerAddress() {
     local holder newif newip answer oldmask=${NET_subnet_mask}
@@ -1396,16 +1396,24 @@ updateStorageNodeAddress() {
             ;;
     esac
 }
-# Forum 18327: FOG_TFTP_HOST follows the server to its new address, but only
-# when it still holds the old one. A name or another server's address was set
-# on purpose and stays. Normal servers only: on a storage node the row is the
-# master's. Both values must pass validip, which is also what makes them safe
-# to put in the statement.
-moveTftpHostSetting() {
+# Forum 18327: FOG_TFTP_HOST and FOG_WEB_HOST follow the server to its new
+# address, but only when they still hold the old one. A name or another
+# server's address was set on purpose and stays. Normal servers only: on a
+# storage node the rows are the master's. Both values must pass validip, which
+# is also what makes them safe to put in the statement.
+#
+# FOG_WEB_HOST is the one a stale value breaks hardest: IpxeBootMenu builds
+# every boot URL after boot.php from it, and the FOG client, PingHosts and
+# FOGURLRequests read it as this server's address. recordNetbootWebHost
+# corrects it under HTTPS netboot only, so on plain HTTP nothing else would.
+# Runs right after updateDB, before configureTFTPandPXE: _resolveNetbootHost
+# reads this row once there and caches the answer for the whole run, so a move
+# after it would be overwritten again by recordNetbootWebHost.
+moveAddressSettings() {
     [[ -n $serverIpWas && $serverIpWas != "${NET_fog_server_ip}" ]] || return 0
     [[ $(validip "$serverIpWas") -eq 0 && $(validip "${NET_fog_server_ip}") -eq 0 ]] || return 0
-    dots "Moving FOG_TFTP_HOST from ${serverIpWas} to ${NET_fog_server_ip}"
-    mysql $sqloptionsuser --password="${DB_password}" --execute="UPDATE globalSettings SET settingValue='${NET_fog_server_ip}' WHERE settingKey='FOG_TFTP_HOST' AND settingValue='${serverIpWas}'" ${DB_name} >>$error_log 2>&1
+    dots "Moving FOG_TFTP_HOST/FOG_WEB_HOST from ${serverIpWas} to ${NET_fog_server_ip}"
+    mysql $sqloptionsuser --password="${DB_password}" --execute="UPDATE globalSettings SET settingValue='${NET_fog_server_ip}' WHERE settingKey IN ('FOG_TFTP_HOST','FOG_WEB_HOST') AND settingValue='${serverIpWas}'" ${DB_name} >>$error_log 2>&1
     errorStat $?
 }
 # The DHCP router and DNS questions. Moved out of lib/common/input.sh, which
