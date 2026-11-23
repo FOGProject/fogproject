@@ -719,9 +719,10 @@ $check(
 );
 
 /*
- * Link state overrides (GH-2129). The first link for an entry carries the
- * state: the host's own link, else the first granting group in group
- * order. NULL uses the entry's own swState.
+ * Link state overrides (GH-2129). The first link that SETS a state supplies
+ * it: the host's own link, else the first group in group order that sets
+ * one. A link with no state has no opinion. With none set, the entry's own
+ * swState applies. The entry's position still comes from its first link.
  *
  *   host 10 -> 901 (entry Absent): host link says present
  *   group 1 middle   -> 904: absent   \ group 1 is before group 2 in

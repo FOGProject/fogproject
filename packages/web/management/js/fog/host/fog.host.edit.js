@@ -911,7 +911,7 @@
                 stateSelect = $('<select>', {
                     'class': 'form-select form-select-sm software-state d-inline-block w-auto ms-2'
                 }).append(
-                    $('<option>', {value: ''}).text('Inherit (group, else ' + entryLabel + ')'),
+                    $('<option>', {value: ''}).text('Inherit (groups, else ' + entryLabel + ')'),
                     $('<option>', {value: 'present'}).text('Install (Present)'),
                     $('<option>', {value: 'absent'}).text('Uninstall (Absent)')
                 ).val(item.state || '');

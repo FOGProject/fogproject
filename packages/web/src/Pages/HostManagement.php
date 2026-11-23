@@ -4050,11 +4050,17 @@ class HostManagement extends FOGPage
         echo '</h4>';
         echo '</div>';
         echo '<div class="card-body">';
+        $warning = '<div class="alert alert-warning">'
+            . \Initiator::e(_('The effective software could not be loaded.'))
+            . '</div>';
+        $rows = $this->_resolvedSoftware((int)$this->obj->get('id'));
+        if (null === $rows) {
+            echo $warning;
+            echo '</div>';
+            echo '</div>';
+            return;
+        }
         try {
-            $rows = $this->_resolvedSoftware((int)$this->obj->get('id'));
-            if (null === $rows) {
-                throw new \Exception('resolver failed');
-            }
             $softwareIDs = [];
             $groupIDs = [];
             foreach ($rows as $row) {
@@ -4120,9 +4126,8 @@ class HostManagement extends FOGPage
             }
             echo '</tbody></table>';
         } catch (\Exception $e) {
-            echo '<div class="alert alert-warning">';
-            echo \Initiator::e(_('The effective software could not be loaded.'));
-            echo '</div>';
+            // A failed software or group read, after the resolve.
+            echo $warning;
         }
         echo '</div>';
         echo '</div>';
