@@ -413,6 +413,47 @@ else
 fi
 
 echo
+echo "3b. a storage node re-requests a certificate that names its old address"
+
+# A CA, and a node leaf it signed for 10.0.0.5: one that still verifies.
+pki="$tmp/pki/web"
+mkdir -p "$pki/ca" "$pki/leaf"
+openssl req -x509 -newkey rsa:2048 -nodes -keyout "$tmp/ca.key" -out "$pki/ca/.nodeChain.pem" \
+    -subj "/CN=test web CA" -days 1 >/dev/null 2>&1
+openssl req -newkey rsa:2048 -nodes -keyout "$pki/leaf/node.key" -out "$tmp/node.csr" \
+    -subj "/CN=node" >/dev/null 2>&1
+printf 'subjectAltName=IP:10.0.0.5\n' > "$tmp/san.ext"
+openssl x509 -req -in "$tmp/node.csr" -CA "$pki/ca/.nodeChain.pem" -CAkey "$tmp/ca.key" \
+    -CAcreateserial -out "$pki/leaf/node.pem" -days 1 -extfile "$tmp/san.ext" >/dev/null 2>&1
+{ body _installNodeWebCert; } > "$tmp/nodecert.sh"
+
+# run_nodecert <node address> -- prints "requested" if it asked the master.
+run_nodecert() {
+    bash -c "
+        error_log=/dev/null
+        FOG_install_type=S
+        NET_fog_server_ip='$1'
+        PKI_web_vhost_key='$pki/leaf/node.key'
+        PKI_web_vhost_cert='$pki/leaf/node.pem'
+        dots() { :; }
+        _pkiZoneDir() { echo '$pki'; }
+        _requestNodeCert() { echo requested; return 1; }
+        . '$tmp/nodecert.sh'
+        _installNodeWebCert
+    " 2>&1
+}
+if [[ $(run_nodecert 10.0.0.5) != *requested* ]]; then
+    ok "a certificate that verifies and names this address is kept"
+else
+    bad "a certificate that already names this address was requested again"
+fi
+if [[ $(run_nodecert 10.0.0.9) == *requested* ]]; then
+    ok "a certificate that names the old address is requested again"
+else
+    bad "a node that moved kept a certificate naming its old address"
+fi
+
+echo
 echo "4. installfog.sh calls them in the order they depend on"
 
 # The calls only, in file order, comments stripped. The node record has to

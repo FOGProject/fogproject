@@ -217,6 +217,16 @@ $results[] = check('an empty old address returns 400', 400 === $status);
 $results[] = check('an interface that is not an interface name returns 400', 400 === $status);
 $results[] = check('a 400 saves nothing', [] === $GLOBALS['saves']);
 
+// Loopback passes the same-machine gate and matches its own arrival address,
+// so the reserved-range check is what refuses it.
+reset_table();
+foreach (['127.0.0.1', '::1', '169.254.10.1', 'fe80::1'] as $reserved) {
+    [$status, $reason] = $move('10.0.0.6', $reserved, 'lo', $reserved);
+    $results[] = check("a reserved new address ($reserved) returns 400", 400 === $status);
+}
+$results[] = check('a reserved address saves nothing', [] === $GLOBALS['saves']);
+$results[] = check('the reserved-address reason carries no markup', false === strpos($reason, '<'));
+
 reset_table();
 [$status] = $move('10.0.0.50', '10.0.0.9', 'ens18', '10.0.0.9');
 $results[] = check('an old address no node holds is a no-op 200', 200 === $status && [] === $GLOBALS['saves']);

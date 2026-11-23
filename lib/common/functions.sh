@@ -6940,8 +6940,15 @@ _installNodeWebCert() {
     local chain="$(_pkiZoneDir web)/ca/.nodeChain.pem"
     # Already issued and still good: nothing to do. Without this, every upgrade
     # would mint a new keypair and a new certificate for no reason.
+    #
+    # "Good" includes covering this node's address. A node whose address
+    # changed (forum 18327) still holds a certificate that verifies but names
+    # the old one, so ask the master again. The text, not the exit status:
+    # OpenSSL 1.1 exits 0 on a mismatch, 3.x exits 1.
     if [[ -f $chain && -f ${PKI_web_vhost_cert} ]] && \
-        openssl verify -CAfile "$chain" "${PKI_web_vhost_cert}" >>$error_log 2>&1; then
+        openssl verify -CAfile "$chain" "${PKI_web_vhost_cert}" >>$error_log 2>&1 && \
+        openssl x509 -in "${PKI_web_vhost_cert}" -noout -checkip "${NET_fog_server_ip}" 2>>$error_log \
+            | grep -q ' does match'; then
         # Still point ${PKI_web_trust_chain} at it. writeUpdateFile runs BEFORE this
         # function on a node (installfog.sh), so the assignment in the success
         # branch below is never persisted -- which means on every LATER run
