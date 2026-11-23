@@ -133,6 +133,12 @@ function moveNodeAddress($oldip, $ip, $interface, $serverAddr)
     ) {
         return [400, 'refused: both addresses must be IP addresses'];
     }
+    // Loopback, link-local and other reserved ranges are never a storage
+    // node's address. The same-machine gate admits 127.0.0.1 and ::1, so
+    // without this a post to loopback would pass the arrival check below.
+    if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE)) {
+        return [400, "refused: $ip is a loopback or reserved address"];
+    }
     // A dual-stack listener reports an IPv4 arrival as ::ffff:a.b.c.d.
     if (0 === stripos($serverAddr, '::ffff:')
         && filter_var(substr($serverAddr, 7), FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)
