@@ -34,7 +34,8 @@
 #      ${DB_password}.
 #
 # So this file does not say "never -k". It says: exactly the five Group C calls
-# -- registerStorageNode() makes two of them -- and no others. The count is pinned deliberately -- a NEW unverified
+# -- registerStorageNode() makes two of them -- plus updateStorageNodeAddress()
+# (forum 18327, see the count below), and no others. The count is pinned deliberately -- a NEW unverified
 # call cannot be added without also editing this number, which is a visible act
 # in the diff rather than a silent inheritance.
 #
@@ -134,10 +135,16 @@ fi
 # Pinning the count as well as the allowlist. Without this a fourth call to
 # create_update_node.php -- or a new one to nodecert.php -- would inherit the
 # exemption silently, which is exactly how the flag spread in the first place.
-if [[ $found -eq 6 ]]; then
-    ok "exactly 6 unverified calls remain (Group C node bootstrap + the liveness retry)"
+#
+# 7, not 6, since forum 18327: updateStorageNodeAddress() is the third
+# create_update_node.php call. It runs when the server's address just changed,
+# so the certificate it would verify against was issued for the OLD address
+# and cannot vouch for the new one. Like nodePass, it carries the node's own
+# address and NIC, and the endpoint answers only a same-machine request.
+if [[ $found -eq 7 ]]; then
+    ok "exactly 7 unverified calls remain (Group C node bootstrap + the liveness retry + the address move)"
 else
-    bad "expected exactly 6 unverified calls, found $found -- if this is deliberate, say why here"
+    bad "expected exactly 7 unverified calls, found $found -- if this is deliberate, say why here"
 fi
 
 # And each of the four must actually be the one it claims to be, not four
@@ -146,10 +153,10 @@ fi
 for ep in check_node_exists.php create_update_node.php nodecert.php nodesshkey.php; do
     n=$( { unverified "$FUNCS"; } | grep -c -- "$ep")
     case "$ep:$n" in
-        create_update_node.php:2|check_node_exists.php:1|nodecert.php:1|nodesshkey.php:1)
+        create_update_node.php:3|check_node_exists.php:1|nodecert.php:1|nodesshkey.php:1)
             ok "$ep: $n unverified call(s), as expected" ;;
         *)
-            bad "$ep: $n unverified call(s), expected 1 (2 for create_update_node.php)" ;;
+            bad "$ep: $n unverified call(s), expected 1 (3 for create_update_node.php)" ;;
     esac
 done
 
