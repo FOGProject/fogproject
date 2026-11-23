@@ -311,6 +311,9 @@ msgstr "（すべて空欄）"
 msgid "(none)"
 msgstr "（なし）"
 
+msgid "(override)"
+msgstr ""
+
 msgid "(set on all)"
 msgstr "（すべて設定済み）"
 
@@ -2910,6 +2913,10 @@ msgstr "LDAP の全体設定を編集"
 #, fuzzy, php-format
 msgid "Editing the %1$d hosts in group %2$s. Every field is left alone unless you choose otherwise."
 msgstr "選択した %d 台のホストを編集中です。変更を指定しなかったフィールドは、そのまま維持されます。"
+
+#, fuzzy
+msgid "Effective Software"
+msgstr "新しいソフトウェアを作成"
 
 msgid "Either half may be sent, or both. ABSENT IS NOT EMPTY: a body with no \"shares\" key leaves the share list alone, while one carrying empty lists means \"shared with nobody\" and clears it. The whole list is replaced rather than added to. Sharing needs no permission -- it can only add one named entry to the picker of somebody you could already name -- but editing a GLOBAL filter requires savedfilter.edit."
 msgstr "片方だけ、または両方を送信できます。「指定なし」と「空」は異なります。リクエスト本文に \"shares\" キーがなければ共有先一覧は変更されませんが、空のリストを指定すると「誰とも共有しない」ことになり、一覧がクリアされます。共有先は追加ではなく一覧全体が置き換えられます。共有操作自体に権限は不要です。既に指定可能なユーザーの選択肢に名前付き項目を追加するだけだからです。ただし、GLOBAL フィルターの編集には savedfilter.edit 権限が必要です。"
@@ -7847,6 +7854,10 @@ msgstr "保存は完了しましたが、有効な ID が割り当てられま�
 msgid "Save order"
 msgstr "順序を保存"
 
+#, fuzzy
+msgid "Save order and states"
+msgstr "順序を保存"
+
 msgid "Save the site before setting catch-all"
 msgstr "キャッチオールを設定する前にサイトを保存してください"
 
@@ -8579,7 +8590,8 @@ msgstr "ソフトウェア管理"
 msgid "Software Name"
 msgstr "ソフトウェア名"
 
-msgid "Software Order"
+#, fuzzy
+msgid "Software Order and State"
 msgstr "ソフトウェアの適用順序"
 
 msgid "Software Report"
@@ -8668,6 +8680,9 @@ msgstr "状態の変更"
 
 msgid "State filter"
 msgstr "状態で絞り込み"
+
+msgid "State must be present, absent or empty."
+msgstr ""
 
 msgid "State or province (ST)"
 msgstr "都道府県（ST）"
@@ -9409,6 +9424,10 @@ msgstr "このグループ内のホストに適用する既定のプリンター
 msgid "The desired state: revision, capabilities, and one block per capability listed. Absent when the agent is current."
 msgstr "目標状態です。リビジョン、機能一覧、および一覧にある各機能の設定ブロックを含みます。エージェントが最新の状態にある場合は含まれません。"
 
+#, fuzzy
+msgid "The effective software could not be loaded."
+msgstr "アーカイブを読み取れませんでした。"
+
 msgid "The enrollment is no longer pending."
 msgstr "この登録要求は既に保留中ではありません。"
 
@@ -9560,7 +9579,8 @@ msgstr "エージェントがこのホストの構成を目標状態に合わせ
 msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
 msgstr "このグループのスナップインの実行順序です。ホスト自身のスナップインを先に実行し、その後にグループから割り当てられたスナップインをこの順序で実行します。ただし、この順序が実際の実行順序に影響するのは、タスクで「スナップインが失敗した場合に後続の実行を中止する」が有効な場合だけです。"
 
-msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order."
+#, fuzzy
+msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order. A state set here applies to this group's hosts unless the host sets its own or an earlier group sets one."
 msgstr "このグループのソフトウェアの適用順序です。ホスト自身に割り当てられたソフトウェアを先に適用し、その後でグループから割り当てられたソフトウェアをこの順序で適用します。"
 
 msgid "The path requested is already in use by another image!"
@@ -9873,6 +9893,10 @@ msgstr "このエンドポイントは POST のみ受け付けます。"
 #, fuzzy
 msgid "This group has no hosts you can edit"
 msgstr "このモジュールには設定可能な項目がありません。"
+
+#, fuzzy
+msgid "This host"
+msgstr "%s 台のホスト"
 
 #, php-format
 msgid "This host failed imaging %1$s: %2$s"
@@ -10805,6 +10829,9 @@ msgstr "動作内容"
 
 msgid "What the agent did with one capability at one revision, recorded on the host as agent.result; or, with item, what happened to one thing under the capability (a snapin task, a software entry), answered with the outcome the agent acts on. One route for every kind of report. Same gate as poll."
 msgstr "エージェントが特定のリビジョンで 1 つの機能に対して実行した結果です。ホスト側では agent.result として記録されます。item を指定した場合は、その機能に属する個別項目（スナップインタスクやソフトウェア項目など）の処理結果を返し、エージェントはその結果に基づいて動作します。すべてのレポート種別で共通のルートを使用し、認証条件はポーリングと同じです。"
+
+msgid "What the agent is sent: one entry per package. This host's own entries come first, then each group's in group order. The state comes from this host if it sets one, else from the first group that sets one, else from the entry. Reload the page after saving to refresh it."
+msgstr ""
 
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
 msgstr "ブラウザーに提示される証明書です。ACME による更新が設定されている場合は、その更新時に置き換えられます。"
@@ -12110,10 +12137,6 @@ msgstr "{node}"
 #, php-format
 #~ msgid "%s ID %s is not valid"
 #~ msgstr "%s ID %s は無効です"
-
-#, php-format
-#~ msgid "%s hosts"
-#~ msgstr "%s 台のホスト"
 
 #~ msgid "<p>Dependencies: port TCP 445 open in the client side"
 #~ msgstr "<p>依存関係: クライアント側で TCP ポート 445 が開放されている必要があります"

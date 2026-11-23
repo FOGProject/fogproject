@@ -325,6 +325,9 @@ msgstr ""
 msgid "(none)"
 msgstr ""
 
+msgid "(override)"
+msgstr ""
+
 msgid "(set on all)"
 msgstr ""
 
@@ -3371,6 +3374,10 @@ msgstr "Descripción del Grupo"
 #, php-format
 msgid "Editing the %1$d hosts in group %2$s. Every field is left alone unless you choose otherwise."
 msgstr ""
+
+#, fuzzy
+msgid "Effective Software"
+msgstr "Crear nuevo software"
 
 msgid "Either half may be sent, or both. ABSENT IS NOT EMPTY: a body with no \"shares\" key leaves the share list alone, while one carrying empty lists means \"shared with nobody\" and clears it. The whole list is replaced rather than added to. Sharing needs no permission -- it can only add one named entry to the picker of somebody you could already name -- but editing a GLOBAL filter requires savedfilter.edit."
 msgstr ""
@@ -9191,6 +9198,10 @@ msgstr ""
 msgid "Save order"
 msgstr ""
 
+#, fuzzy
+msgid "Save order and states"
+msgstr "No se pudo crear la tarea"
+
 msgid "Save the site before setting catch-all"
 msgstr ""
 
@@ -10065,8 +10076,9 @@ msgstr "Gestión de usuarios"
 msgid "Software Name"
 msgstr "Nombre de la impresora"
 
-msgid "Software Order"
-msgstr ""
+#, fuzzy
+msgid "Software Order and State"
+msgstr "Crear nuevo grupo"
 
 #, fuzzy
 msgid "Software Report"
@@ -10169,6 +10181,9 @@ msgstr "Guardar cambios"
 #, fuzzy
 msgid "State filter"
 msgstr "actualización de la impresora ha fallado!"
+
+msgid "State must be present, absent or empty."
+msgstr ""
 
 msgid "State or province (ST)"
 msgstr ""
@@ -11059,6 +11074,10 @@ msgstr ""
 msgid "The desired state: revision, capabilities, and one block per capability listed. Absent when the agent is current."
 msgstr ""
 
+#, fuzzy
+msgid "The effective software could not be loaded."
+msgstr "No se pudo leer el archivo temporal"
+
 msgid "The enrollment is no longer pending."
 msgstr ""
 
@@ -11219,7 +11238,7 @@ msgstr ""
 msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
 msgstr ""
 
-msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order."
+msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order. A state set here applies to this group's hosts unless the host sets its own or an earlier group sets one."
 msgstr ""
 
 msgid "The path requested is already in use by another image!"
@@ -11556,6 +11575,10 @@ msgstr ""
 
 msgid "This group has no hosts you can edit"
 msgstr ""
+
+#, fuzzy
+msgid "This host"
+msgstr "anfitrión"
 
 #, fuzzy, php-format
 msgid "This host failed imaging %1$s: %2$s"
@@ -12610,6 +12633,9 @@ msgid "What it does"
 msgstr "se ha actualizado correctamente"
 
 msgid "What the agent did with one capability at one revision, recorded on the host as agent.result; or, with item, what happened to one thing under the capability (a snapin task, a software entry), answered with the outcome the agent acts on. One route for every kind of report. Same gate as poll."
+msgstr ""
+
+msgid "What the agent is sent: one entry per package. This host's own entries come first, then each group's in group order. The state comes from this host if it sets one, else from the first group that sets one, else from the entry. Reload the page after saving to refresh it."
 msgstr ""
 
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
@@ -14039,10 +14065,6 @@ msgstr ""
 msgid "{node}"
 msgstr ""
 
-#, fuzzy, php-format
-#~ msgid "%s hosts"
-#~ msgstr "anfitrión"
-
 #, fuzzy
 #~ msgid "A filter must be specified"
 #~ msgstr "No hay imagen especificada"
@@ -14834,10 +14856,6 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "The created task."
-#~ msgstr "No se pudo crear la tarea"
-
-#, fuzzy
-#~ msgid "The desired state."
 #~ msgstr "No se pudo crear la tarea"
 
 #, fuzzy
