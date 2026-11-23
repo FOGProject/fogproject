@@ -13,7 +13,7 @@
 #
 # Section 2 runs updateStorageNodeAddress() against a throwaway HTTP server,
 # like tests/node-registration-reports-truthfully.test.sh does for the other
-# node POSTs. Section 3 runs moveTftpHostSetting() against a stubbed mysql.
+# node POSTs. Section 3 runs moveAddressSettings() against a stubbed mysql.
 #
 # No root, no network beyond loopback, no FOG install.
 #
@@ -53,7 +53,7 @@ trap 'kill %1 2>/dev/null; rm -rf "$tmp"' EXIT
     body _globalAddresses
     body checkServerAddress
     body updateStorageNodeAddress
-    body moveTftpHostSetting
+    body moveAddressSettings
 } > "$tmp/under-test.sh"
 
 # `ip` answers from $FIX, which holds `ip -4 -o addr show` lines. Only the
@@ -376,9 +376,9 @@ PY
 fi
 
 echo
-echo "3. moveTftpHostSetting"
+echo "3. moveAddressSettings"
 
-run_tftp() {
+run_settings() {
     : > "$tmp/sql"
     bash -c "
         mysql() { printf '%s\n' \"\$*\" >> '$tmp/sql'; }
@@ -387,25 +387,27 @@ run_tftp() {
         NET_fog_server_ip='$2'
         serverIpWas='$1'
         . '$tmp/under-test.sh'
-        moveTftpHostSetting
+        moveAddressSettings
     " >/dev/null 2>&1
 }
 
-run_tftp 10.0.0.5 10.0.0.9
-if grep -qF "SET settingValue='10.0.0.9' WHERE settingKey='FOG_TFTP_HOST' AND settingValue='10.0.0.5'" "$tmp/sql"; then
-    ok "FOG_TFTP_HOST moves only where it still holds the old address"
+run_settings 10.0.0.5 10.0.0.9
+# FOG_WEB_HOST too: under plain-HTTP netboot nothing else rewrites it, and
+# every boot URL after boot.php is built from it.
+if grep -qF "SET settingValue='10.0.0.9' WHERE settingKey IN ('FOG_TFTP_HOST','FOG_WEB_HOST') AND settingValue='10.0.0.5'" "$tmp/sql"; then
+    ok "FOG_TFTP_HOST and FOG_WEB_HOST move only where they still hold the old address"
 else
-    bad "the FOG_TFTP_HOST statement is not conditioned on the old address -- got: $(cat "$tmp/sql")"
+    bad "the address statement does not cover both rows, conditioned on the old address -- got: $(cat "$tmp/sql")"
 fi
 
-run_tftp 10.0.0.5 10.0.0.5
+run_settings 10.0.0.5 10.0.0.5
 if [[ ! -s $tmp/sql ]]; then
     ok "a NIC-only move does not touch FOG_TFTP_HOST"
 else
     bad "a NIC-only move wrote FOG_TFTP_HOST"
 fi
 
-run_tftp "10.0.0.5' OR '1'='1" 10.0.0.9
+run_settings "10.0.0.5' OR '1'='1" 10.0.0.9
 if [[ ! -s $tmp/sql ]]; then
     ok "an old value that is not an address never reaches the statement"
 else
@@ -484,14 +486,17 @@ echo "4. installfog.sh calls them in the order they depend on"
 
 # The calls only, in file order, comments stripped. The node record has to
 # carry the new address before anything that finds the node by its address.
+# The address settings move before configureTFTPandPXE, whose
+# _resolveNetbootHost caches FOG_WEB_HOST for the rest of the run.
 calls=$(grep -vE '^[[:space:]]*#' bin/installfog.sh \
-    | grep -oE '^[[:space:]]*(normalizeIpAddress|checkServerAddress|_dhcpFollowSubnet|updateStorageNodeAddress|moveTftpHostSetting|registerStorageNode|updateStorageNodeCredentials|_installNodeWebCert)[[:space:]]*$' \
+    | grep -oE '^[[:space:]]*(normalizeIpAddress|checkServerAddress|_dhcpFollowSubnet|updateStorageNodeAddress|updateDB|moveAddressSettings|configureTFTPandPXE|registerStorageNode|updateStorageNodeCredentials|_installNodeWebCert)[[:space:]]*$' \
     | awk '{print $1}' | tr '\n' ' ')
 for want in \
     "normalizeIpAddress checkServerAddress _dhcpFollowSubnet" \
     "updateStorageNodeAddress _installNodeWebCert" \
     "updateStorageNodeAddress registerStorageNode updateStorageNodeCredentials _installNodeWebCert" \
-    "updateStorageNodeAddress moveTftpHostSetting updateStorageNodeCredentials"; do
+    "updateStorageNodeAddress updateStorageNodeCredentials" \
+    "updateDB moveAddressSettings configureTFTPandPXE"; do
     if [[ " $calls" == *" $want "* ]]; then
         ok "in order: $want"
     else
