@@ -109,7 +109,7 @@ Core carries five overlapping registries:
 
 | registry | what it does |
 |---|---|
-| `Route::$sensitiveFields` | tier 1 — stripped from lists, **kept** on a single-entity GET (fog-client reads `host.ADPass` back to join a domain) |
+| `Route::$sensitiveFields` | tier 1 — stripped from lists, **kept** on a single-entity GET. Since GHSA-q38j-qx5x-w25v it holds list-only state, not secrets: see the note under decision 6 |
 | `Route::$sensitiveAlwaysFields` | tier 2 — stripped from everything |
 | `API_SENSITIVE_FIELDS` hook | plugin-declared additions |
 | `Route::sensitiveFieldMap()` | the memoized union, and the **only** correct accessor |
@@ -333,6 +333,15 @@ breaks.
 because fog-client legitimately reads `host.ADPass` back to join a domain.
 There is no equivalent legitimate reader of an audit row's old password. So
 anything in either tier is redacted in `auditChange`.
+
+> **Note (2026-11-23, GHSA-q38j-qx5x-w25v).** The premise above was false.
+> fog-client never read `host.ADPass` through the REST API. It gets the
+> password on its MAC-authenticated client channel (`service/hostname.php`),
+> and fog-agent has no REST host read. The carve-out instead gave the
+> join password, the product key and the client tokens to any holder of
+> `host.view`. Those fields are tier 2 now. Tier 1 holds list-only state
+> (`sec_time`, `sec_vouched`). The audit decision is unchanged: it redacts
+> both tiers.
 
 **What is recorded.** `field` and `redacted = 1`. `oldValue` and `newValue`
 are `NULL` — not masked strings, not lengths, not hashes. "This column

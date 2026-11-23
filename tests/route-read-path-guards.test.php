@@ -340,10 +340,9 @@ $t = new FogChecks();
  *
  * Both tiers, because they behave differently at the emitter and the
  * difference is a documented contract: 'fields' comes back on a direct
- * single-entity GET (fog-client reads host.ADPass that way) and is stripped
- * everywhere else, while 'always' never leaves the server at all. Core ships
- * an empty 'always' tier, so without a plugin declaring one there is nothing
- * to tell the two apart with.
+ * single-entity GET and is stripped everywhere else, while 'always' never
+ * leaves the server at all. A plugin declaring both is how this file tells
+ * the two apart for a plugin's own fields.
  */
 class NetPluginSecretsHook extends Hook
 {
@@ -663,11 +662,9 @@ if (false !== cgiBinary()) {
  *
  *     Closed in getter(), because that is the one place that knows what
  *     class it is shaping whatever payload the result ends up inside.
- *     Tier 2 only there: tier 1 exists so a single-entity GET still
- *     carries it (fog-client reads host ADPass back to join a domain),
- *     and only the emitter knows whether it is emitting one record or a
- *     list. Both halves are asserted -- stripping without the carve-out
- *     would be just as wrong, and silently breaks domain joins.
+ *     Tier 2 only there: tier 1 is list-only state that a single-entity
+ *     GET still carries, and only the emitter knows whether it is
+ *     emitting one record or a list. Both halves are asserted.
  * ===========================================================================
  */
 // The core declaration itself, first: every check below is meaningless
@@ -722,39 +719,49 @@ $t->check(
 );
 
 // The tier-1 carve-out must NOT follow the nesting. A host reached through
-// GET /host/{id} keeps ADPass so fog-client can join a domain; the same
-// host reached as task.host is a different request and keeps nothing.
+// GET /host/{id} keeps its tier-1 fields; the same host reached as
+// task.host is a different request and keeps nothing.
 $nestedProp->setValue(null, ['task' => ['host' => 'host']]);
 $emitClass->setValue(null, 'task');
 $nestedHost = Route::stripSensitivePayload(
     [
         'id' => 1,
         '_lang' => 'task',
-        'host' => ['id' => 9, 'name' => 'pc', 'ADPass' => 'JOINPW'],
+        'host' => ['id' => 9, 'name' => 'pc', 'sec_time' => 'SECTIME'],
     ]
 );
 $t->check(
-    'tier 1 does NOT survive in a nested position (task.host.ADPass)',
-    !array_key_exists('ADPass', $nestedHost['host'])
+    'tier 1 does NOT survive in a nested position (task.host.sec_time)',
+    !array_key_exists('sec_time', $nestedHost['host'])
 );
 $nestedProp->setValue(null, []);
 $emitClass->setValue(null, '');
 
-// Tier 1 must NOT be dropped by the always-only pass -- that carve-out is
-// why fog-client can still read a host's ADPass back to join a domain,
-// and losing it breaks domain joins silently.
+// The always-only pass drops tier 2 and leaves tier 1. Tier 1 is list-only
+// state (sec_time), not a secret. ADPass is tier 2 now: no client reads it
+// back over the API, and a single GET needs only host.view
+// (GHSA-q38j-qx5x-w25v).
 $kept = Route::stripSensitive(
     'host',
-    ['id' => 1, 'name' => 'probe', 'ADPass' => 'JOINPW'],
+    [
+        'id' => 1,
+        'name' => 'probe',
+        'sec_time' => 'SECTIME',
+        'ADPass' => 'JOINPW',
+    ],
     true
 );
 $t->check(
-    'the always-only pass leaves tier 1 alone (fog-client reads ADPass)',
-    'JOINPW' === ($kept['ADPass'] ?? null)
+    'the always-only pass leaves tier 1 alone',
+    'SECTIME' === ($kept['sec_time'] ?? null)
 );
 $t->check(
-    'the both-tiers pass does drop it, which is what a list gets',
-    !isset(Route::stripSensitive('host', ['ADPass' => 'JOINPW'])['ADPass'])
+    'the always-only pass drops host ADPass',
+    !array_key_exists('ADPass', $kept)
+);
+$t->check(
+    'the both-tiers pass drops tier 1 too, which is what a list gets',
+    !isset(Route::stripSensitive('host', ['sec_time' => 'SECTIME'])['sec_time'])
 );
 
 /*
@@ -768,8 +775,8 @@ $listPayload = [
         [
             'id' => 1,
             'name' => 'a',
-            'sec_tok' => 'TIER1',
-            'productKey' => 'TIER1',
+            'sec_time' => 'TIER1',
+            'productKey' => 'TIER2',
             'kernelArgs' => 'PLUGIN-TIER1',
             'biosexit' => 'PLUGIN-TIER2',
         ],
@@ -778,14 +785,15 @@ $listPayload = [
 $stripped = Route::stripSensitivePayload($listPayload);
 $row = $stripped['data'][0];
 $t->check('list payload keeps the ordinary fields', isset($row['id'], $row['name']));
-$t->check('list payload drops tier 1', !isset($row['sec_tok'], $row['productKey']));
+$t->check('list payload drops tier 1', !isset($row['sec_time']));
+$t->check('list payload drops tier 2', !isset($row['productKey']));
 $t->check('list payload drops a plugin tier-1 field', !isset($row['kernelArgs']));
 $t->check('list payload drops a plugin tier-2 field', !isset($row['biosexit']));
 
 /*
- * A single-entity payload keeps tier 1 and drops tier 2. This is the
- * documented "secrets only on a direct single GET" contract fog-client
- * depends on for host ADPass, so it is pinned as a REQUIREMENT rather than
+ * A single-entity payload keeps tier 1 and drops tier 2. Every host secret
+ * is tier 2, so GET /host/{id} carries none of them: it needs only
+ * host.view (GHSA-q38j-qx5x-w25v). Pinned as a REQUIREMENT rather than
  * left as whatever falls out.
  */
 FogTestHarness::setStatic('Route', 'emitClassname', 'host');
@@ -793,12 +801,14 @@ $single = Route::stripSensitivePayload(
     [
         'id' => 1,
         'name' => 'a',
-        'ADPass' => 'TIER1',
+        'sec_time' => 'TIER1',
+        'ADPass' => 'TIER2',
         'kernelArgs' => 'PLUGIN-TIER1',
         'biosexit' => 'PLUGIN-TIER2',
     ]
 );
-$t->check('single-entity payload KEEPS tier 1 (fog-client reads ADPass)', isset($single['ADPass']));
+$t->check('single-entity payload keeps tier 1', isset($single['sec_time']));
+$t->check('single-entity payload drops host ADPass', !isset($single['ADPass']));
 $t->check('single-entity payload keeps a plugin tier-1 field', isset($single['kernelArgs']));
 $t->check('single-entity payload drops tier 2', !isset($single['biosexit']));
 FogTestHarness::setStatic('Route', 'emitClassname', '');
@@ -827,8 +837,12 @@ try {
 Route::$data = [];
 $t->check('printer() emitted something', null !== $emitted && '' !== $emitted);
 $t->check(
-    'printer() does not put a tier-1 secret on the wire',
+    'printer() does not put a list row\'s tier-1 field on the wire',
     null !== $emitted && false === strpos($emitted, 'TIER1')
+);
+$t->check(
+    'printer() does not put a host secret (productKey) on the wire',
+    null !== $emitted && false === strpos($emitted, 'TIER2')
 );
 $t->check(
     'printer() does not put a plugin secret on the wire',

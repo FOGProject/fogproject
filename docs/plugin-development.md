@@ -962,8 +962,8 @@ just-provisioned account has no id before then.
 
   | Tier | Stripped from | Use when |
   |---|---|---|
-  | `fields` | lists and expanded relations | a client legitimately reads it back on a direct single GET (as fog-client does with `host.ADPass`) |
-  | `always` | everything, single GET included | nothing outside the web tier ever needs it |
+  | `fields` | lists and expanded relations | it is not a secret, only kept out of grids, CSV export and filters |
+  | `always` | everything, single GET included | it is a secret. A single GET needs only `<node>.view`, so a secret in `fields` reaches every viewer (GHSA-q38j-qx5x-w25v) |
 
   ```php
   public function declareSensitiveFields($arguments)

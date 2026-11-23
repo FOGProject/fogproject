@@ -2688,6 +2688,26 @@ abstract class FOGPage extends FOGBase
             return;
         }
         self::checkAuthAndCSRF();
+        // The answer carries the global default domain-join password. Its
+        // only callers fill a host's AD fields on the create, edit and mass
+        // edit forms, so require a permission that can write those fields.
+        // The page gate alone resolves to host.view, which the read-only
+        // Legacy Restricted role holds (GHSA-q38j-qx5x-w25v).
+        if (!Authorization::can('host.create')
+            && !Authorization::can('host.edit')
+        ) {
+            $this->jsonSend(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                json_encode(
+                    [
+                        'error' => _(
+                            'You do not have permission to read the AD defaults.'
+                        ),
+                        'title' => _('AD Defaults Fail')
+                    ]
+                )
+            );
+        }
         header('Content-type: application/json');
         $names = [
             'FOG_AD_DEFAULT_DOMAINNAME',

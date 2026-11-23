@@ -707,6 +707,10 @@ msgid "A zero padded decimal string, not a JSON number."
 msgstr ""
 
 #, fuzzy
+msgid "AD Defaults Fail"
+msgstr "Cancellare i file"
+
+#, fuzzy
 msgid "API"
 msgstr "API?"
 
@@ -12379,6 +12383,10 @@ msgstr ""
 
 msgid "You do not have permission to read any activity source."
 msgstr ""
+
+#, fuzzy
+msgid "You do not have permission to read the AD defaults."
+msgstr "Nessuna connessione al database"
 
 msgid "You do not have permission to revoke API tokens."
 msgstr ""

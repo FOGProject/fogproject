@@ -62,11 +62,10 @@ use FOG\Router\Route;
  *      fails on a key that matches the pattern and is classified nowhere. A
  *      new credential column is caught by CI, not by memory.
  *
- * TIER-2 SEMANTICS FOR BOTH TIERS. Route keeps two tiers because fog-client
- * legitimately reads host.ADPass back to join a domain, so that field is
- * stripped from lists and kept on a single GET. There is no equivalent
- * legitimate reader of an audit row's old password, so anything in either
- * tier is redacted here.
+ * TIER-2 SEMANTICS FOR BOTH TIERS. Route's tier 1 is stripped from lists and
+ * kept on a single GET; it holds list-only state such as host.sec_time, not
+ * secrets. An audit row has no reason to keep either tier, so anything in
+ * either tier is redacted here.
  *
  * @category Redaction
  * @package  FOGProject
@@ -112,7 +111,7 @@ class Redaction extends FOGBase
      */
     public static $patternExempt = [
         // hostInfoLock: a boolean saying the host's info key is locked, not
-        // the key itself. host.token IS the key and is in Route's tier 1.
+        // the key itself. host.token IS the key and is in Route's tier 2.
         'host' => [
             'tokenlock',
         ],

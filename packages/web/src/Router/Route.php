@@ -396,7 +396,53 @@ class Route extends FOGBase
      * @var int
      */
     private static $_rethrowDepth = 0;
+    /**
+     * Fields stripped from list payloads only. A direct single-entity GET
+     * still carries them.
+     *
+     * Only state that is not a secret belongs here: things kept out of
+     * grids, CSV export and filters, but harmless to show on one record.
+     * A host's secrets used to be here, on the claim that fog-client read
+     * ADPass back through GET /host/{id}. It never did: the legacy client
+     * gets ADPass on its MAC-authenticated client channel, and fog-agent
+     * has no REST host read. The carve-out handed the domain-join password,
+     * the product key and the client tokens to any holder of host.view
+     * (GHSA-q38j-qx5x-w25v). They are in $sensitiveAlwaysFields now.
+     *
+     * @var array
+     */
     public static $sensitiveFields = [
+        'host' => [
+            'sec_time',
+            // Client-protocol state like sec_time: kept out of grids, CSV
+            // export and filters. The host page's AD tab shows it.
+            'sec_vouched',
+        ],
+    ];
+    /**
+     * Fields stripped from EVERY API payload, a direct single-entity GET
+     * included.
+     *
+     * A secret belongs here, so it never leaves the server at all. Put a
+     * field in $sensitiveFields instead only when some client legitimately
+     * reads it back over the API, and name that client.
+     *
+     * Anything listed here is also stripped from lists; the two tiers are
+     * unioned for list payloads.
+     *
+     * Read both tiers via sensitiveFieldMap(), never these properties
+     * directly, or plugin-declared fields (API_SENSITIVE_FIELDS) are
+     * skipped.
+     *
+     * @var array
+     */
+    public static $sensitiveAlwaysFields = [
+        // A host's domain-join password, product key and fog-client
+        // credentials. Every consumer reads them server-side: the client
+        // channel (service/hostname.php) and the Product Keys report
+        // (listem(), which never reaches the emitter). The host AD tab is
+        // set-only for ADPass, so the API does not read it back either.
+        // Write access is a separate question: see $serverOwnedFields.
         'host' => [
             'ADPass',
             'ADPassLegacy',
@@ -404,35 +450,8 @@ class Route extends FOGBase
             'pub_key',
             'sec_tok',
             'prev_sec_tok',
-            'sec_time',
-            // Client-protocol state like sec_time: kept out of grids, CSV
-            // export and filters. The host page's AD tab shows it.
-            'sec_vouched',
             'token',
         ],
-    ];
-    /**
-     * Fields stripped from EVERY API payload, a direct single-entity GET
-     * included.
-     *
-     * The single-GET carve-out above exists for one reason: fog-client reads
-     * a host's ADPass back out to join a domain, so that field has a real
-     * consumer and cannot be closed off. A secret with no such consumer
-     * belongs here instead, so it never leaves the server at all.
-     *
-     * Anything listed here is also stripped from lists; the two tiers are
-     * unioned for list payloads. Add a field here rather than above whenever
-     * "some client legitimately needs to read this" is not true of it.
-     *
-     * Empty in core: the only entry this ever held was the LDAP plugin's
-     * bindPwd, hand-written here because a plugin had no way to declare its
-     * own secrets. It declares them through API_SENSITIVE_FIELDS now -- read
-     * both tiers via sensitiveFieldMap(), never these properties directly,
-     * or plugin-declared fields are skipped.
-     *
-     * @var array
-     */
-    public static $sensitiveAlwaysFields = [
         // A storage node's FTP credential. It reaches the root-running
         // replicator's lftp invocation and the SSH helpers in
         // Snapin/TaskQueue, so holding it is holding the node -- the same
@@ -443,8 +462,7 @@ class Route extends FOGBase
         // in hand (snapin.class.php, taskqueue.class.php,
         // snapinclient.class.php, the node edit page), and the FOS handoff
         // in service/hostinfo.php sends the node's IP and path only. So
-        // there is no legitimate reader to carve out for, the way host
-        // ADPass has one in fog-client.
+        // there is no legitimate reader to carve out for.
         //
         // Found leaking through the storage GROUP list, not the node list:
         // the group's `masternode` column embeds the whole node object,
@@ -532,7 +550,7 @@ class Route extends FOGBase
      *
      * Deliberately NOT here: host.ADPass, ADPassLegacy and productKey.
      * They are secrets, and they are also things an admin legitimately
-     * sets through the API -- the emitter strips them from list output,
+     * sets through the API -- the emitter strips them from every payload,
      * which is a different question from who may write them. Nor
      * user.password: User::set() hashes it, so a supplied one is a real
      * and supported write.
@@ -7305,8 +7323,8 @@ class Route extends FOGBase
      *
      * Only list-shaped payloads are touched -- those carrying both the '_lang'
      * classname stamp and a 'data' array. A single-entity GET is a flat object
-     * with neither, so it keeps the documented "secrets only on a direct
-     * single GET" contract that fog-client depends on for host ADPass.
+     * with neither, so it loses only the $sensitiveAlwaysFields tier. Every
+     * secret is in that tier, so a single GET carries none of them.
      *
      * @param mixed $data The payload about to be encoded.
      *
@@ -7345,9 +7363,8 @@ class Route extends FOGBase
             }
             return $data;
         }
-        // Single-entity payload: only the fields no client may read back.
-        // Its nested entities are not covered by that carve-out -- see
-        // stripEntity().
+        // Single-entity payload: tier 2 at the top level. Its nested
+        // entities lose both tiers -- see stripEntity().
         return self::stripEntity($classname, $data, true);
     }
     /**
@@ -7360,12 +7377,11 @@ class Route extends FOGBase
      * expanded to-many relation is a list of entities under a single key.
      *
      * $alwaysOnly is TRUE only for the payload's top-level object on a direct
-     * single-entity GET, and never propagates into the nesting. That is the
-     * whole of the tier-1 carve-out: fog-client reads a host's ADPass back
-     * from GET /host/{id} to join a domain, so tier 1 survives there -- but a
-     * host nested inside a task is not that request, and GET /task/{id} was
-     * handing out the host's client token and the storage node's FTP password
-     * because nothing walked into it.
+     * single-entity GET, and never propagates into the nesting. Tier 1 is
+     * list-only state, not secrets, so it survives on the record a caller
+     * asked for -- but a host nested inside a task is not that request, and
+     * GET /task/{id} was handing out the host's client token and the storage
+     * node's FTP password because nothing walked into it.
      *
      * Depth is capped rather than tracked by identity. The recursion follows
      * the DATA, which is finite and already built, so it terminates on its

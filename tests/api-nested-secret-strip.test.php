@@ -144,22 +144,46 @@ check(
 );
 
 // ---------------------------------------------------------------------------
-// 2. The tier-1 carve-out: top level keeps it, nesting never does.
-//    fog-client reads a host's ADPass back from GET /host/{id} to join a
-//    domain. Propagating $alwaysOnly into the nesting would re-open case 1;
-//    dropping it at the top would break domain joins silently.
+// 2. A direct single-entity GET carries no host secret (GHSA-q38j-qx5x-w25v).
+//    GET /host/{id} needs only host.view, which the read-only Legacy
+//    Restricted role holds. It used to return the decrypted domain-join
+//    password, the product key and the client tokens. Tier 1 is list-only
+//    state, so the single GET still keeps it.
 // ---------------------------------------------------------------------------
-$single = emit([], 'host', ['id' => 9, 'name' => 'pc', 'ADPass' => 'JOINPW']);
+$hostSecrets = [
+    'ADPass' => 'JOINPW',
+    'ADPassLegacy' => 'LEGACYPW',
+    'productKey' => 'PRODKEY',
+    'pub_key' => 'PUBKEY',
+    'sec_tok' => 'SECTOK',
+    'prev_sec_tok' => 'PREVTOK',
+    'token' => 'HOSTTOKEN',
+];
+$single = emit(
+    [],
+    'host',
+    ['id' => 9, 'name' => 'pc', 'sec_time' => '2026-11-23 00:00:00']
+    + $hostSecrets
+);
+foreach (array_keys($hostSecrets) as $field) {
+    check(
+        'a direct single-entity GET does not carry host.' . $field,
+        !array_key_exists($field, $single)
+    );
+}
 check(
-    'a direct single-entity GET still carries tier 1 (fog-client ADPass)',
-    'JOINPW' === ($single['ADPass'] ?? null)
+    'a direct single-entity GET still carries tier 1 (sec_time)',
+    '2026-11-23 00:00:00' === ($single['sec_time'] ?? null)
+    && 'pc' === ($single['name'] ?? null)
 );
 $row = emit([], 'host', ['_lang' => 'host', 'data' => [
-    ['id' => 9, 'name' => 'pc', 'ADPass' => 'JOINPW'],
+    ['id' => 9, 'name' => 'pc', 'ADPass' => 'JOINPW',
+        'sec_time' => '2026-11-23 00:00:00'],
 ]]);
 check(
-    'a LIST row does not carry tier 1',
+    'a LIST row carries neither tier',
     !array_key_exists('ADPass', $row['data'][0])
+    && !array_key_exists('sec_time', $row['data'][0])
 );
 
 // ---------------------------------------------------------------------------
