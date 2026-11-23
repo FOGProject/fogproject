@@ -592,10 +592,117 @@ $t->check(
     )
 );
 
+// Forum 18328: a reimaged host joined through the rejoin protocol has no
+// hdJoinAt, so its result has to come from hdRejoinState.
+$rejoinState = function ($phase, $updatedAt = '2026-11-20T10:00:00+00:00') {
+    $s = ['version' => 1, 'attempt_id' => 'a1b2', 'phase' => $phase];
+    if (null !== $updatedAt) {
+        $s['updated_at'] = $updatedAt;
+    }
+    return json_encode($s);
+};
+$t->check(
+    'a verified rejoin with no hdJoinAt shows ok (rejoin), not blank',
+    'ok (rejoin)' === $rp->invoke(null, [
+        'hdJoinAt' => null, 'hdJoinError' => '',
+        'hdRejoinState' => $rejoinState('verified')
+    ])
+);
+$t->check(
+    'a failed rejoin says so',
+    'rejoin failed' === $rp->invoke(null, [
+        'hdJoinAt' => null, 'hdJoinError' => '',
+        'hdRejoinState' => $rejoinState('failed')
+    ])
+);
+$t->check(
+    'a legacy join result newer than the rejoin wins',
+    'adcli: Insufficient access' === $rp->invoke(null, [
+        'hdJoinAt' => '2026-11-21 10:00:00',
+        'hdJoinError' => 'adcli: Insufficient access',
+        'hdRejoinState' => $rejoinState('verified')
+    ])
+);
+$t->check(
+    'a rejoin newer than the legacy join result wins',
+    'ok (rejoin)' === $rp->invoke(null, [
+        'hdJoinAt' => '2026-11-19 10:00:00',
+        'hdJoinError' => 'adcli: Insufficient access',
+        'hdRejoinState' => $rejoinState('verified')
+    ])
+);
+$t->check(
+    'a plan not yet reported (no updated_at) leaves the legacy answer',
+    '' === $rp->invoke(null, [
+        'hdJoinAt' => null, 'hdJoinError' => '',
+        'hdRejoinState' => $rejoinState('started', null)
+    ])
+);
+$t->check(
+    'a rejoin awaiting its reboot says so',
+    'rejoin awaiting reboot' === $rp->invoke(null, [
+        'hdJoinAt' => null, 'hdJoinError' => '',
+        'hdRejoinState' => $rejoinState('awaiting_reboot')
+    ])
+);
+$t->check(
+    'a rejoin with an unknown result says so',
+    'rejoin result unknown' === $rp->invoke(null, [
+        'hdJoinAt' => null, 'hdJoinError' => '',
+        'hdRejoinState' => $rejoinState('unknown')
+    ])
+);
+
+// hdJoinAt is in the STORAGE zone. Before the UTC boundary that is
+// FOG_TZ_INFO, so the comparison and the cooldown must read it there, not
+// as UTC. A few hours apart, so a zone error flips the answer.
+$tzProp = new \ReflectionProperty(\FOG\Base\FOGBase::class, 'TimeZone');
+$tzProp->setAccessible(true);
+$tzWas = $tzProp->getValue();
+$tzProp->setValue(null, 'America/Chicago');
+$t->check(
+    'the storage zone is the one under test (no UTC boundary in the harness)',
+    'America/Chicago'
+        === \FOG\Base\FOGBase::storageTimeZone()->getName()
+);
+$t->check(
+    'a legacy stamp in a non-UTC storage zone is compared in that zone',
+    // 10:00 Chicago is 16:00Z: newer than the 12:00Z rejoin.
+    'adcli: Insufficient access' === $rp->invoke(null, [
+        'hdJoinAt' => '2026-11-20 10:00:00',
+        'hdJoinError' => 'adcli: Insufficient access',
+        'hdRejoinState' => $rejoinState(
+            'verified',
+            '2026-11-20T12:00:00+00:00'
+        )
+    ])
+);
+$cu = new \ReflectionMethod(\FOG\Agent\DirectoryJoin::class, 'coolingUntil');
+$cu->setAccessible(true);
+$stamped = new \FOG\Items\HostDirectory();
+$stamped->set('joinAt', '2026-11-20 10:00:00');
+$t->check(
+    'the cooldown reads the stamp in the storage zone',
+    (new \DateTime(
+        '2026-11-20 10:00:00',
+        new \DateTimeZone('America/Chicago')
+    ))->getTimestamp() + \FOG\Agent\DirectoryJoin::retryAfter()
+        === $cu->invoke(null, $stamped)
+);
+$tzProp->setValue(null, $tzWas);
+
+$t->check(
+    'an unreadable rejoin state leaves the legacy answer',
+    'ok' === $rp->invoke(null, [
+        'hdJoinAt' => '2026-09-04 21:00:00', 'hdJoinError' => '',
+        'hdRejoinState' => '{not json'
+    ])
+);
+
 $src = file_get_contents(
     dirname(__DIR__) . '/packages/web/src/Reports/Directory_Membership.php'
 );
-foreach (['hdJoinAt', 'hdJoinError'] as $column) {
+foreach (['hdJoinAt', 'hdJoinError', 'hdRejoinState'] as $column) {
     $t->check(
         sprintf('the report actually selects %s', $column),
         false !== strpos($src, '`' . $column . '`')

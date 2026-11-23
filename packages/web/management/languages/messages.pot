@@ -11656,6 +11656,9 @@ msgstr ""
 msgid "ok"
 msgstr ""
 
+msgid "ok (rejoin)"
+msgstr ""
+
 msgid "old"
 msgstr ""
 
@@ -11722,6 +11725,15 @@ msgid "register this at your provider"
 msgstr ""
 
 msgid "register this too, if you enable single logout"
+msgstr ""
+
+msgid "rejoin awaiting reboot"
+msgstr ""
+
+msgid "rejoin failed"
+msgstr ""
+
+msgid "rejoin result unknown"
 msgstr ""
 
 msgid "row(s)"

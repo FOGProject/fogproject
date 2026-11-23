@@ -13478,6 +13478,9 @@ msgstr "Dieser Host ist bereits vorhanden."
 msgid "ok"
 msgstr ""
 
+msgid "ok (rejoin)"
+msgstr ""
+
 msgid "old"
 msgstr ""
 
@@ -13547,6 +13550,16 @@ msgid "register this at your provider"
 msgstr ""
 
 msgid "register this too, if you enable single logout"
+msgstr ""
+
+msgid "rejoin awaiting reboot"
+msgstr ""
+
+#, fuzzy
+msgid "rejoin failed"
+msgstr "Laden fehlgeschlagen: %s"
+
+msgid "rejoin result unknown"
 msgstr ""
 
 msgid "row(s)"
@@ -14478,10 +14491,6 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Login accepted"
-#~ msgstr "Laden fehlgeschlagen: %s"
-
-#, fuzzy
-#~ msgid "Login failed"
 #~ msgstr "Laden fehlgeschlagen: %s"
 
 #, fuzzy

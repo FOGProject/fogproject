@@ -13479,6 +13479,9 @@ msgstr "Printer already exists"
 msgid "ok"
 msgstr ""
 
+msgid "ok (rejoin)"
+msgstr ""
+
 msgid "old"
 msgstr ""
 
@@ -13547,6 +13550,16 @@ msgid "register this at your provider"
 msgstr ""
 
 msgid "register this too, if you enable single logout"
+msgstr ""
+
+msgid "rejoin awaiting reboot"
+msgstr ""
+
+#, fuzzy
+msgid "rejoin failed"
+msgstr "Load failed: %s"
+
+msgid "rejoin result unknown"
 msgstr ""
 
 msgid "row(s)"
@@ -14461,10 +14474,6 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Login accepted"
-#~ msgstr "Load failed: %s"
-
-#, fuzzy
-#~ msgid "Login failed"
 #~ msgstr "Load failed: %s"
 
 #, fuzzy

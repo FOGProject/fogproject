@@ -13,6 +13,7 @@
 
 namespace FOG\Reports;
 
+use FOG\Agent\DirectoryRejoin;
 use FOG\Items\HostDirectory;
 use FOG\Pages\ReportManagement;
 
@@ -138,7 +139,8 @@ class Directory_Membership extends ReportManagement
                        `hdPlacementAt`,
                        `hdPlacementError`,
                        `hdJoinAt`,
-                       `hdJoinError`
+                       `hdJoinError`,
+                       `hdRejoinState`
                   FROM `hosts`
                   LEFT OUTER JOIN `hostDirectory` ON `hdHostID` = `hostID`
                  WHERE `hostUseAD` = 1
@@ -258,6 +260,14 @@ class Directory_Membership extends ReportManagement
      */
     protected static function join(array $row)
     {
+        // A join made through the rejoin protocol (a Deploy with an agent
+        // attempt) records its result in hdRejoinState, never in
+        // hdJoinAt, and checkout clears hdJoinAt. So a reimaged host that
+        // joined fine read as "never attempted" (forum 18328).
+        $rejoin = self::rejoin($row);
+        if (null !== $rejoin) {
+            return $rejoin;
+        }
         $error = trim((string)($row['hdJoinError'] ?? ''));
         if ('' !== $error) {
             return $error;
@@ -268,6 +278,51 @@ class Directory_Membership extends ReportManagement
             return '';
         }
         return _('ok');
+    }
+    /**
+     * What the last rejoin attempt reported, when it is the newer of the
+     * two join paths.
+     *
+     * Shown in the Join column, not a column of its own: both paths answer
+     * the same question, and the label says which path answered it. Only a
+     * phase the agent reported carries updated_at; a plan not yet run
+     * ('ready', 'started') or a cleared attempt has none and falls through.
+     *
+     * @param array $row the joined row
+     *
+     * @return string|null null when the hdJoinAt/hdJoinError answer stands
+     */
+    protected static function rejoin(array $row)
+    {
+        try {
+            $state = DirectoryRejoin::decode($row['hdRejoinState'] ?? null);
+        } catch (\RuntimeException $e) {
+            // An unreadable state is the host page's problem to show. The
+            // legacy columns still say something true.
+            return null;
+        }
+        $labels = [
+            'verified' => _('ok (rejoin)'),
+            'awaiting_reboot' => _('rejoin awaiting reboot'),
+            'failed' => _('rejoin failed'),
+            'unknown' => _('rejoin result unknown')
+        ];
+        $phase = (string)($state['phase'] ?? '');
+        $reported = strtotime((string)($state['updated_at'] ?? ''));
+        if (empty($state['attempt_id']) || !isset($labels[$phase])
+            || false === $reported
+        ) {
+            return null;
+        }
+        // A legacy join result stamped after the rejoin is the newer
+        // answer. hdJoinAt is in storage time; updated_at is ISO 8601.
+        $joinAt = trim((string)($row['hdJoinAt'] ?? ''));
+        if ('' !== $joinAt && self::validDate($joinAt)
+            && self::niceDate($joinAt)->getTimestamp() > $reported
+        ) {
+            return null;
+        }
+        return $labels[$phase];
     }
     /**
      * The drift verdict for one host.
