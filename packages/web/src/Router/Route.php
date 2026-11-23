@@ -6369,6 +6369,10 @@ class Route extends FOGBase
             if (isset($task->snapinAbortOnFailure)) {
                 $snapinAbortOnFailure = (bool)$task->snapinAbortOnFailure;
             }
+            // Opt-in for a capture: createImagePackage() cancels the target's
+            // queued snapins once the task is certain, instead of refusing
+            // the capture over them (forum 18325).
+            $cancelSnapins = !empty($task->cancelSnapins);
             $class->createImagePackage(
                 $TaskType,
                 ($task->taskName ?? ''),
@@ -6381,7 +6385,10 @@ class Route extends FOGBase
                 $task->sessionjoin ?? '',
                 $task->wol ?? 1,
                 false,
-                $snapinAbortOnFailure
+                $snapinAbortOnFailure,
+                0,
+                0,
+                $cancelSnapins
             );
         } catch (\Exception $e) {
             self::setErrorMessage(

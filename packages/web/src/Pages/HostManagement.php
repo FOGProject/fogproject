@@ -8176,6 +8176,9 @@ class HostManagement extends FOGPage
                     )
                 );
             }
+            // Opt-in for a capture: createImagePackage() cancels the hosts'
+            // queued snapins once the task is certain, so the capture is not
+            // refused over them (forum 18325).
             $Selection->createImagePackage(
                 $tasktype,
                 sprintf('%s Task', $TaskType->get('name')),
@@ -8188,7 +8191,10 @@ class HostManagement extends FOGPage
                 false,
                 $wol,
                 false,
-                $snapinAbortOnFailure
+                $snapinAbortOnFailure,
+                0,
+                0,
+                isset($_POST['cancelSnapins'])
             );
 
             $code = HTTPResponseCodes::HTTP_CREATED;
@@ -8451,6 +8457,10 @@ class HostManagement extends FOGPage
             // Bypass Bitlocker
             $bypassbitlocker = isset($_POST['bitlocker']);
 
+            // Cancel queued snapins before a capture (forum 18325). Not stored
+            // for a scheduled task: a scheduled capture meets the refusal when it runs.
+            $cancelSnapins = isset($_POST['cancelSnapins']);
+
             // WOL setup
             $wol = false;
             $wolon = isset($_POST['wol']);
@@ -8499,7 +8509,10 @@ class HostManagement extends FOGPage
                     false,
                     $wol,
                     $bypassbitlocker,
-                    $snapinAbortOnFailure
+                    $snapinAbortOnFailure,
+                    0,
+                    0,
+                    $cancelSnapins
                 );
             } else {
                 $ScheduledTask = (new ScheduledTask())

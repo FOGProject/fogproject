@@ -685,6 +685,14 @@ class Group extends FOGController
      * @param bool   $bypassbitlocker reserved to align Host/Group signatures.
      *                                Group tasking does not use this value.
      * @param bool   $snapinAbortOnFailure abort remaining snapins on failure?
+     * @param int    $sessExpected    reserved to align Host/Group signatures.
+     *                                Group tasking does not use this value.
+     * @param int    $sessMaxwait     reserved to align Host/Group signatures.
+     *                                Group tasking does not use this value.
+     * @param bool   $cancelSnapins   a capture cancels the queued snapins of
+     *                                the hosts it tasks instead of being
+     *                                refused over them (forum 18325). A
+     *                                Deploy always cancels them.
      *
      * @return array
      */
@@ -700,7 +708,10 @@ class Group extends FOGController
         $sessionjoin = false,
         $wol = false,
         $bypassbitlocker = false,
-        $snapinAbortOnFailure = false
+        $snapinAbortOnFailure = false,
+        $sessExpected = 0,
+        $sessMaxwait = 0,
+        $cancelSnapins = false
     ) {
         $taskName .= ' - '
             . $this->get('name')
@@ -727,6 +738,16 @@ class Group extends FOGController
             throw new \Exception(_('No hosts available to task'));
         }
         $imagingTypes = $TaskType->isImagingTask;
+        // A host with a queued snapin task is not excluded above, because its
+        // task type is not an init type. Refuse a capture over its snapins
+        // unless the caller asked to cancel them (forum 18325). The refusal
+        // writes nothing; the cancel waits until each arm below is past its
+        // checks, so a refused task cancels nothing.
+        $cancelFirst = $TaskType->isDeploy
+            || ($TaskType->isCapture && $cancelSnapins);
+        if ($imagingTypes && $TaskType->isCapture && !$cancelSnapins) {
+            Host::assertNoQueuedSnapinsForCapture($hostids);
+        }
         $now = $this->niceDate();
         // insertBatch() returns [insertID, affectedRows], which is what this
         // method documents itself as returning. Only one of the three
@@ -798,6 +819,12 @@ class Group extends FOGController
                 // taskID rewrite would duplicate that cleanup and start
                 // deleting rows this path has never deleted.
                 $MulticastSession->save();
+                // Past assertCapacity() and every other check: cancel the
+                // leftover snapins of the hosts being tasked, just before
+                // their task rows are written (forum 18325).
+                if ($cancelFirst) {
+                    Host::cancelQueuedSnapins(array_values($hostids));
+                }
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
                 $batchFields = [
@@ -894,6 +921,12 @@ class Group extends FOGController
                             $TaskType->name
                         )
                     );
+                }
+                // Past the one-host check: cancel the leftover snapins of the
+                // hosts being tasked, just before their task rows are written
+                // (forum 18325).
+                if ($cancelFirst) {
+                    Host::cancelQueuedSnapins(array_values($hostids));
                 }
                 $hostIDs = array_values($hostids);
                 $hostCount = count($hostIDs);
