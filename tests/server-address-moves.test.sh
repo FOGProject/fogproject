@@ -452,6 +452,17 @@ if [[ $(run_nodecert 10.0.0.9) == *requested* ]]; then
 else
     bad "a node that moved kept a certificate naming its old address"
 fi
+# openssl prints "IP  does match" for an empty address.
+if [[ $(run_nodecert '') == *requested* ]]; then
+    ok "an empty address is not taken as covered"
+else
+    bad "an empty address kept the certificate"
+fi
+if [[ $(run_nodecert 10.0.0.9) == *'issued earlier'* ]]; then
+    ok "a refused re-request says the old master certificate is kept, not a self-signed one"
+else
+    bad "a refused re-request did not say which certificate is kept"
+fi
 
 echo
 echo "4. installfog.sh calls them in the order they depend on"
