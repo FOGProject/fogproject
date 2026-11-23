@@ -175,9 +175,10 @@ class FOGCron extends FOGBase
      * The walk is on wall-clock time, because the fields are wall-clock
      * intent. Each match is then placed in the install's zone. On the
      * spring-forward day, a time in the skipped hour runs one hour later
-     * (02:30 runs at 03:30). On the fall-back day, a time in the repeated
-     * hour runs once, at its first occurrence. That is how cron treats a
-     * fixed time too.
+     * (02:30 runs at 03:30; cron runs it at the jump, 03:00). On the
+     * fall-back day, a time in the repeated hour runs once, at its first
+     * occurrence, as in cron. Unlike cron, a schedule with `*` in the
+     * minute or hour does not run in the second occurrence of that hour.
      *
      * @param string   $cron    the cron to parse
      * @param bool     $lastrun show the last run time

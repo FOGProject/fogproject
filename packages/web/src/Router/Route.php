@@ -4879,7 +4879,8 @@ class Route extends FOGBase
                         // this column: its db key is the integer stID. A
                         // delayed time is entered in the viewer's zone, so
                         // it now reads back as entered. REST stays in the
-                        // install's zone, like every other API date.
+                        // storage zone (UTC past the boundary), like every
+                        // other API date.
                         if (!self::$apiRequest) {
                             $date = self::toDisplay($date);
                         }
