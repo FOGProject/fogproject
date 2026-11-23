@@ -1664,7 +1664,7 @@ msgstr ""
 msgid "Blocked"
 msgstr ""
 
-msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
+msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, cancelSnapins (capture only), passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
 msgstr ""
 
 #, fuzzy
@@ -1855,6 +1855,9 @@ msgstr "删除所选"
 #, fuzzy, php-format
 msgid "Cancel a %s task"
 msgstr "删除所选"
+
+msgid "Cancel queued snapins first"
+msgstr ""
 
 #, fuzzy
 msgid "Cancel the selected tasks."
@@ -4767,6 +4770,9 @@ msgid "Host added!"
 msgstr "添加主机"
 
 msgid "Host has no active task to cancel"
+msgstr ""
+
+msgid "Host has queued snapins. Let them finish, or cancel them, before a capture."
 msgstr ""
 
 msgid "Host is already a member of an active task"
