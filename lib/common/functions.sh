@@ -6945,7 +6945,8 @@ _installNodeWebCert() {
     # changed (forum 18327) still holds a certificate that verifies but names
     # the old one, so ask the master again. The text, not the exit status:
     # OpenSSL 1.1 exits 0 on a mismatch, 3.x exits 1.
-    if [[ -f $chain && -f ${PKI_web_vhost_cert} ]] && \
+    # An empty address prints "IP  does match" on both, so it is not a match.
+    if [[ -f $chain && -f ${PKI_web_vhost_cert} && -n ${NET_fog_server_ip} ]] && \
         openssl verify -CAfile "$chain" "${PKI_web_vhost_cert}" >>$error_log 2>&1 && \
         openssl x509 -in "${PKI_web_vhost_cert}" -noout -checkip "${NET_fog_server_ip}" 2>>$error_log \
             | grep -q ' does match'; then
@@ -6967,6 +6968,14 @@ _installNodeWebCert() {
         # certificate from memory until something else restarts it.
         systemctl reload "${WEB_server_engine}" >>$error_log 2>&1 || \
             systemctl restart "${WEB_server_engine}" >>$error_log 2>&1
+    elif [[ -f $chain ]]; then
+        # The master issued one before, and it no longer names this address.
+        echo "Skipped"
+        echo " * This node keeps the certificate the master issued earlier. It"
+        echo "   does not name ${NET_fog_server_ip}, so a client that connects by"
+        echo "   that address rejects it."
+        echo " * Make sure Storage Management lists this node at"
+        echo "   ${NET_fog_server_ip}, then re-run the installer here."
     else
         echo "Skipped"
         echo " * This node keeps its own self-signed certificate, which is what"
