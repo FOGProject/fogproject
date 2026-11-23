@@ -192,6 +192,12 @@ usage() {
     echo -e "\t               \t\t\t\tonly needs giving on a first install"
     echo -e "\t      --hostname\t\tOverride the vhost/cert hostname"
     echo -e "\t                \t\tdefaults to \`hostname -f\`, remembered in .fogsettings"
+    echo -e "\t      --server-ip\t\tUse this IPv4 address for FOG. It must be on"
+    echo -e "\t                 \t\tthis server. An upgrade moves the old address"
+    echo -e "\t                 \t\tto it, in Storage Management too"
+    echo -e "\t      --update-dhcp-subnet\tWhen the new address is on another subnet,"
+    echo -e "\t                 \t\tupdate the DHCP pool, router and DNS without"
+    echo -e "\t                 \t\tasking. Without it, -y keeps them and warns"
     echo -e "\t      --extra-server-name\tAdd an extra vhost/cert name (repeatable)"
     echo -e "\t                       \t\talongside the primary hostname and detected IPs"
     echo -e "\t      --internal-domain\t\tPermit this domain in the Web and Secure Boot"
@@ -275,7 +281,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -344,6 +350,23 @@ while :; do
                 exit 9
             fi
             shift 2
+            ;;
+        --server-ip)
+            # Forum 18327. Applied by checkServerAddress, after .fogsettings
+            # is read, so it can tell what the address used to be.
+            if [[ -n "${2}" ]] && [[ $(validip "${2}") -eq 0 ]]; then
+                sNET_fog_server_ip="${2}"
+            else
+                echo "Error: --server-ip requires a valid IPv4 address"
+                exit 9
+            fi
+            shift 2
+            ;;
+        --update-dhcp-subnet)
+            # Forum 18327. Read by _offerDhcpRefresh; not saved, so each run
+            # that should change DHCP says so.
+            sDHCP_update_subnet=1
+            shift
             ;;
         --extra-server-name)
             if [[ -n "${2}" ]] && [[ $(validhostname "${2}") -eq 0 ]]; then
@@ -1174,6 +1197,13 @@ fi
 # by an older installer has the multi-line value persisted, so normalizing only
 # at detection would leave every upgrade carrying the broken form forward.
 normalizeIpAddress
+# Forum 18327: after normalizeIpAddress, so it compares the single primary
+# address, and before the summary below, so the summary shows what this run
+# will use. On an upgrade this is the only check that the recorded address is
+# still on the box.
+checkServerAddress
+# And --update-dhcp-subnet on the run after one that kept the old DHCP.
+_dhcpFollowSubnet
 echo
 echo "   ######################################################################"
 echo "   #     FOG now has everything it needs for this setup, but please     #"
@@ -1384,6 +1414,9 @@ while [[ -z $blGo ]]; do
                     linkOptFogDir
                     installUtilities
                     if [[ $bluseralreadyexists == 1 ]]; then
+                        # Forum 18327: before the certificate, which the
+                        # master issues to the node record at this address.
+                        updateStorageNodeAddress
                         # Already registered, so the master will answer.
                         _installNodeWebCert
                         # After it, not before: on a node the anchor is pulled
@@ -1399,6 +1432,10 @@ while [[ -z $blGo ]]; do
                         echo "\n * Upgrade complete\n"
                         echo
                     else
+                        # Forum 18327: before registering. A record left at
+                        # the old address is moved, so the existence check
+                        # finds it instead of registering a duplicate.
+                        updateStorageNodeAddress
                         registerStorageNode
                         updateStorageNodeCredentials
                         # AFTER registration: the master only issues to a node
@@ -1598,6 +1635,10 @@ while [[ -z $blGo ]]; do
                     writeUpdateFile
                     linkOptFogDir
                     installUtilities
+                    # Forum 18327: before the credentials, which match the
+                    # node by its address.
+                    updateStorageNodeAddress
+                    moveTftpHostSetting
                     updateStorageNodeCredentials
                     recordGitUpdateSettings
                     applyNewInstallDefaults

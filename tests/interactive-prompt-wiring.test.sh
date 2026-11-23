@@ -106,7 +106,26 @@ readTargets() {
     done
 }
 
-allReads="$(readTargets "${INPUTS[@]}")"
+# The DHCP router and DNS prompts moved into functions.sh (forum 18327), so an
+# upgrade that lands on a new subnet can ask them again. input.sh calls them.
+# Only those two bodies are scanned: the rest of functions.sh is not a prompt
+# file. The temp file is named for them, so a failure still names the prompt.
+promptDir=$(mktemp -d) || exit 1
+trap 'rm -rf "$promptDir"' EXIT
+promptFns="$promptDir/functions.sh-askDhcp"
+for fn in askDhcpRouter askDhcpDns; do
+    awk -v fn="$fn" '
+        $0 ~ "^" fn "\\(\\) \\{" { inside = 1 }
+        inside { print }
+        inside && /^}/ { exit }
+    ' "$FUNCS"
+done > "$promptFns"
+grep -qE '^[[:space:]]*askDhcpRouter$' "$REPO/lib/common/input.sh" \
+    && grep -qE '^[[:space:]]*askDhcpDns$' "$REPO/lib/common/input.sh" \
+    && ok "input.sh asks the DHCP router and DNS questions" \
+    || bad "input.sh no longer calls askDhcpRouter and askDhcpDns"
+
+allReads="$(readTargets "${INPUTS[@]}" "$promptFns")"
 count=$(printf '%s\n' "$allReads" | grep -cvE '^$')
 
 # A sanity floor. If the extraction silently stops matching -- a reformat, a

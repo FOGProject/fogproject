@@ -161,9 +161,6 @@ if [[ $strSuggestedHostname == ${NET_fog_server_ip} ]]; then
 fi
 case ${FOG_install_type} in
     [Nn])
-        count=0
-        blRouter=""
-        blDNS=""
         FOG_install_lang=""
         while [[ -z ${DHCP_enabled} ]]; do
             if [[ -z $autoaccept ]]; then
@@ -189,76 +186,10 @@ case ${FOG_install_type} in
             esac
         done
         if [[ ${DHCP_enabled} == yes ]]; then
-            while [[ -z ${DHCP_router} ]]; do
-                if [[ -z $autoaccept ]]; then
-                    echo
-                    echo -n "  Would you like to setup a router address for the DHCP server? [Y/n] "
-                    read blRouter
-                fi
-                case $blRouter in
-                    [Yy]|[Yy][Ee][Ss]|"")
-                        if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
-                            echo "  What is the IP address to be used for the router on"
-                            echo -n "      the DHCP server? [$strSuggestedRoute]"
-                            read DHCP_router
-                        fi
-                        case ${DHCP_router} in
-                            "")
-                                DHCP_router=$(echo $strSuggestedRoute | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                                ;;
-                            *)
-                                DHCP_router=$(echo ${DHCP_router} | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                                ;;
-                        esac
-                        if [[ ! $(validip ${DHCP_router}) -eq 0 ]]; then
-                            DHCP_router=""
-                            echo "  Invalid router IP Address!"
-                            continue
-                        fi
-                        DHCP_router=${DHCP_router}
-                        ;;
-                    [Nn]|[Nn][Oo])
-                        DHCP_router="#   No router address added"
-                        ;;
-                    *)
-                        echo "  Invalid input, please try again."
-                        ;;
-                esac
-            done
-            count=0
-            while [[ -z ${DHCP_dns_server_ip} ]]; do
-                if [[ -z $autoaccept ]]; then
-                    echo
-                    echo -n "  Would you like DHCP to handle DNS? [Y/n] "
-                    read blDNS
-                fi
-                case $blDNS in
-                    [Yy]|[Yy][Ee][Ss]|"")
-                        if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
-                            echo -n "  What DNS address should DHCP allow? [$strSuggestedDNS] "
-                            read DHCP_dns_server_ip
-                        fi
-                        case ${DHCP_dns_server_ip} in
-                            "")
-                                DHCP_dns_server_ip=$(echo $strSuggestedDNS | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                                ;;
-                            *)
-                                DHCP_dns_server_ip=$(echo ${DHCP_dns_server_ip} | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
-                                ;;
-                        esac
-                        if [[ ! $(validip ${DHCP_dns_server_ip}) -eq 0 ]]; then
-                            DHCP_dns_server_ip=""
-                            echo "  Invalid DNS IP address!"
-                        fi
-                        ;;
-                    [Nn]|[Nn][Oo])
-                        DHCP_dns_server_ip="#   No dns added"
-                        ;;
-                    *)
-                        echo "  Invalid input, please try again."
-                        ;;
-                esac
-            done
+            # In lib/common/functions.sh, so checkServerAddress can ask them
+            # again when an upgrade finds the server on a new subnet.
+            askDhcpRouter
+            askDhcpDns
         else
             DHCP_dns_server_ip="# No dns added"
             DHCP_router="# No router added"

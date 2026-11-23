@@ -1095,9 +1095,10 @@ applySystemHostname() {
 # Storage Management. Same choice _installNodeWebCert() makes when the master
 # declines to issue: say plainly what failed, then carry on.
 #
-# $1 status, $2 response body, $3 what the caller was trying to do.
+# $1 status, $2 response body, $3 what the caller was trying to do, $4 the
+# recovery to name, when "re-run this installer" would not retry the call.
 _reportNodePostFailure() {
-    local status="${1:-000}" body="$2" what="$3"
+    local status="${1:-000}" body="$2" what="$3" recovery="$4"
     echo "Failed"
     echo " * ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}maintenance/create_update_node.php"
     case $status in
@@ -1122,6 +1123,10 @@ _reportNodePostFailure() {
         echo " * The reply was markup, not this server's answer, so something on"
         echo "   the network answered in its place. A filtering proxy in front of"
         echo "   ${NET_fog_server_ip} is the usual cause; exempt this server from it."
+    fi
+    if [[ -n $recovery ]]; then
+        echo " * ${recovery}"
+        return 0
     fi
     echo " * Fix the cause and re-run this installer, or set it by hand under"
     echo "   Storage Management in the web UI."
@@ -1235,6 +1240,344 @@ updateStorageNodeCredentials() {
                 "this node's storage credentials were not written to the master"
             ;;
     esac
+}
+# The interface that carries IPv4 address $1, or nothing. `ip -o` prints one
+# line per address; a VLAN can print as name@parent, so the suffix is cut.
+_interfaceHolding() {
+    [[ -n $1 ]] || return 0
+    ip -4 -o addr show 2>/dev/null | awk -v want="$1" '
+        $3 != "inet" { next }
+        { split($4, a, "/") }
+        a[1] == want { sub(/@.*/, "", $2); print $2; exit }
+    '
+}
+# The usable addresses on interface $1, primary first. Same filter as the
+# fresh-install detection in lib/common/input.sh: global scope, and never
+# link-local 169.254.0.0/16 (GH-1747).
+_globalAddresses() {
+    [[ -n $1 ]] || return 0
+    ip -4 -o addr show dev "$1" 2>/dev/null | awk '
+        $3 == "inet" && / scope global / && $4 !~ /^169\.254\./ {
+            split($4, a, "/"); print a[1]
+        }
+    '
+}
+# Forum 18327: checks the address and NIC this server is known by against the
+# box itself.
+#
+# An upgrade does not run input.sh, so ${NET_fog_server_ip} and
+# ${NET_interface} are what .fogsettings recorded. When the server got a new
+# address since then, or its NIC was renamed (eth0 became ens18 after a
+# migration), every later step wrote the dead address into DHCP, the vhost,
+# the certificate SANs and default.ipxe. The node POSTs went to an address
+# nothing answered on, and Storage Management kept the old one.
+#
+# The rules, in order:
+#   * --server-ip given: it must be on this box. It wins with no prompt,
+#     because the flag is the administrator's answer.
+#   * the recorded address is on the recorded NIC: nothing changes.
+#   * the recorded address is on another NIC: follow it. The address stays.
+#   * the recorded address is on no NIC: offer the primary usable address of
+#     the recorded NIC, or of the interface a fresh install would pick when
+#     that NIC is gone. Ask first. With -y, take it: the old address is on no
+#     interface, so keeping it is never the working answer.
+#
+# Sets serverIpWas and serverIfWas when something changed, for
+# updateStorageNodeAddress and moveTftpHostSetting. Runs on a fresh install
+# too, where only --server-ip can make it change anything.
+checkServerAddress() {
+    local holder newif newip answer oldmask=${NET_subnet_mask}
+    serverIpWas=""
+    serverIfWas=""
+    if [[ -n ${sNET_fog_server_ip} ]]; then
+        newip=${sNET_fog_server_ip}
+        newif=$(_interfaceHolding "$newip")
+        if [[ -z $newif ]]; then
+            echo " * --server-ip ${newip} is not an address on this server."
+            echo "   Addresses here: $(ip -4 -o addr show scope global 2>/dev/null | awk '{split($4, a, "/"); printf "%s ", a[1]}')"
+            exit 9
+        fi
+    else
+        holder=$(_interfaceHolding "${NET_fog_server_ip}")
+        if [[ -n $holder ]]; then
+            newif=$holder
+            newip=${NET_fog_server_ip}
+        else
+            newif=${NET_interface}
+            if [[ -z $newif ]] || ! ip -4 link show dev "$newif" >/dev/null 2>&1; then
+                newif=$(getAllNetworkInterfaces | awk '{print $1}')
+            fi
+            newip=$(_globalAddresses "$newif" | awk 'NR == 1')
+            if [[ -z $newip ]]; then
+                echo " * ${NET_fog_server_ip} is no longer an address on this server,"
+                echo "   and ${newif:-no interface} has no usable address to use instead."
+                echo "   Continuing with ${NET_fog_server_ip}. Re-run with --server-ip to correct it."
+                return 0
+            fi
+            if [[ -z $autoaccept ]]; then
+                echo
+                echo " * ${NET_fog_server_ip} is no longer an address on this server."
+                echo "   ${newif} now has ${newip}."
+                echo -n "   Use ${newip} on ${newif} for FOG? [y/N] "
+                read answer
+                case $answer in
+                    [Yy]|[Yy][Ee][Ss])
+                        ;;
+                    *)
+                        echo " * Keeping ${NET_fog_server_ip}. Re-run with --server-ip to change it."
+                        return 0
+                        ;;
+                esac
+            fi
+        fi
+    fi
+    [[ $newip == "${NET_fog_server_ip}" && $newif == "${NET_interface}" ]] && return 0
+    serverIpWas=${NET_fog_server_ip}
+    serverIfWas=${NET_interface}
+    echo " * Server address: ${serverIpWas:-none} on ${serverIfWas:-none} -> ${newip} on ${newif}"
+    if [[ $newip != "${NET_fog_server_ip}" ]]; then
+        # The SAN list came from the old NIC's addresses. Rebuild it the way
+        # input.sh does, with the new primary first, which is what
+        # normalizeIpAddress and every certificate and vhost step read.
+        PKI_san_ip_addresses=$(echo ${newip} $(_globalAddresses "$newif" | grep -vxF "$newip"))
+        NET_subnet_mask=$(cidr2mask $(getCidr "$newif" "$newip"))
+    fi
+    NET_fog_server_ip=$newip
+    NET_interface=$newif
+    [[ $newip != "$serverIpWas" ]] && _offerDhcpRefresh "$serverIpWas" "$oldmask"
+    return 0
+}
+# Forum 18327: moves this server's storage node record from ${serverIpWas} to
+# ${NET_fog_server_ip}, after checkServerAddress found the server moved.
+# create_update_node.php's nodeIp branch changes only the row at the old
+# address, and refuses an address another node holds (HTTP 409).
+#
+# Before updateStorageNodeCredentials and the node certificate: both find this
+# node by its address, so they need the record to carry the new one first.
+#
+# -k on purpose -- see registerStorageNode. Not fatal, like the other node
+# POSTs: say what failed and how to recover by hand, then carry on.
+updateStorageNodeAddress() {
+    [[ -n $serverIpWas ]] || return 0
+    [[ -z ${WEB_root} ]] && WEB_root="/fog/"   # see registerStorageNode, GH-529
+    dots "Moving this node's record from ${serverIpWas} to ${NET_fog_server_ip}"
+    movebody=$(curl -s --noproxy '*' -k -w '\n%{http_code}' -X POST -d "nodeIp" -d "oldip=$(echo -n ${serverIpWas}|base64)" -d "ip=$(echo -n ${NET_fog_server_ip}|base64)" -d "interface=$(echo -n ${NET_interface}|base64)" -d "fogverified" ${WEB_url_proto}://${NET_fog_server_ip}${WEB_root}maintenance/create_update_node.php)
+    movestatus=${movebody##*$'\n'}
+    movebody=${movebody%$'\n'*}
+    # This run saves the new address, so the next run sees no move and never
+    # posts again: "re-run this installer" would retry nothing. The by-hand
+    # edit is the recovery.
+    local stale="Storage Management still lists this node at ${serverIpWas}"
+    local byhand="Re-running the installer does not retry this. Set the node's IP Address to ${NET_fog_server_ip} under Storage Management in the web UI."
+    case $movestatus in
+        2*)
+            if [[ $movebody == *'<'* ]]; then
+                _reportNodePostFailure "$movestatus" "$movebody" "$stale" "$byhand"
+            else
+                echo "Done"
+            fi
+            ;;
+        403|409)
+            # The endpoint's plain-text reason: another node holds the address
+            # (409), or it is not the address the request arrived on (403).
+            # Markup, or no reason at all (the same-machine gate's bare 403),
+            # means it was not that refusal, so report it like any failure.
+            if [[ -z $movebody || $movebody == *'<'* ]]; then
+                _reportNodePostFailure "$movestatus" "$movebody" "$stale" "$byhand"
+                return 0
+            fi
+            echo "Failed"
+            echo " * ${movebody}"
+            echo " * ${stale}."
+            echo " * ${byhand}"
+            ;;
+        *)
+            _reportNodePostFailure "$movestatus" "$movebody" "$stale" "$byhand"
+            ;;
+    esac
+}
+# Forum 18327: FOG_TFTP_HOST follows the server to its new address, but only
+# when it still holds the old one. A name or another server's address was set
+# on purpose and stays. Normal servers only: on a storage node the row is the
+# master's. Both values must pass validip, which is also what makes them safe
+# to put in the statement.
+moveTftpHostSetting() {
+    [[ -n $serverIpWas && $serverIpWas != "${NET_fog_server_ip}" ]] || return 0
+    [[ $(validip "$serverIpWas") -eq 0 && $(validip "${NET_fog_server_ip}") -eq 0 ]] || return 0
+    dots "Moving FOG_TFTP_HOST from ${serverIpWas} to ${NET_fog_server_ip}"
+    mysql $sqloptionsuser --password="${DB_password}" --execute="UPDATE globalSettings SET settingValue='${NET_fog_server_ip}' WHERE settingKey='FOG_TFTP_HOST' AND settingValue='${serverIpWas}'" ${DB_name} >>$error_log 2>&1
+    errorStat $?
+}
+# The DHCP router and DNS questions. Moved out of lib/common/input.sh, which
+# asks them on a fresh install, so _offerDhcpRefresh can ask them again on an
+# upgrade. Each asks only while its value is empty. With -y each takes
+# ${strSuggestedRoute} or ${strSuggestedDNS}, or "none" when that suggestion
+# is not an address -- the one change from the input.sh copy, which looped.
+askDhcpRouter() {
+    local blRouter="" count=0
+    while [[ -z ${DHCP_router} ]]; do
+        if [[ -z $autoaccept ]]; then
+            echo
+            echo -n "  Would you like to setup a router address for the DHCP server? [Y/n] "
+            read blRouter
+        fi
+        case $blRouter in
+            [Yy]|[Yy][Ee][Ss]|"")
+                if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
+                    echo "  What is the IP address to be used for the router on"
+                    echo -n "      the DHCP server? [$strSuggestedRoute]"
+                    read DHCP_router
+                fi
+                case ${DHCP_router} in
+                    "")
+                        DHCP_router=$(echo $strSuggestedRoute | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                        ;;
+                    *)
+                        DHCP_router=$(echo ${DHCP_router} | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                        ;;
+                esac
+                if [[ ! $(validip ${DHCP_router}) -eq 0 ]]; then
+                    # With -y nothing reads a new answer, so an unusable
+                    # suggestion (no default route on this NIC) looped here
+                    # forever. Take the No answer instead.
+                    if [[ -n $autoaccept ]]; then
+                        DHCP_router="#   No router address added"
+                        echo "  No usable router address found; none added."
+                        continue
+                    fi
+                    DHCP_router=""
+                    echo "  Invalid router IP Address!"
+                    continue
+                fi
+                DHCP_router=${DHCP_router}
+                ;;
+            [Nn]|[Nn][Oo])
+                DHCP_router="#   No router address added"
+                ;;
+            *)
+                echo "  Invalid input, please try again."
+                ;;
+        esac
+    done
+}
+askDhcpDns() {
+    local blDNS="" count=0
+    while [[ -z ${DHCP_dns_server_ip} ]]; do
+        if [[ -z $autoaccept ]]; then
+            echo
+            echo -n "  Would you like DHCP to handle DNS? [Y/n] "
+            read blDNS
+        fi
+        case $blDNS in
+            [Yy]|[Yy][Ee][Ss]|"")
+                if [[ $count -ge 1 ]] || [[ -z $autoaccept ]]; then
+                    echo -n "  What DNS address should DHCP allow? [$strSuggestedDNS] "
+                    read DHCP_dns_server_ip
+                fi
+                case ${DHCP_dns_server_ip} in
+                    "")
+                        DHCP_dns_server_ip=$(echo $strSuggestedDNS | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                        ;;
+                    *)
+                        DHCP_dns_server_ip=$(echo ${DHCP_dns_server_ip} | grep -o '^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$' | tr -d '[[:space:]]')
+                        ;;
+                esac
+                if [[ ! $(validip ${DHCP_dns_server_ip}) -eq 0 ]]; then
+                    # Same -y loop as the router question above.
+                    if [[ -n $autoaccept ]]; then
+                        DHCP_dns_server_ip="#   No dns added"
+                        echo "  No usable DNS address found; none added."
+                        continue
+                    fi
+                    DHCP_dns_server_ip=""
+                    echo "  Invalid DNS IP address!"
+                fi
+                ;;
+            [Nn]|[Nn][Oo])
+                DHCP_dns_server_ip="#   No dns added"
+                ;;
+            *)
+                echo "  Invalid input, please try again."
+                ;;
+        esac
+    done
+}
+# Forum 18327: called by checkServerAddress after the server moved from
+# address $1 with mask $2. An upgrade keeps the saved DHCP pool, router and
+# DNS, which belong to the old subnet. On a new subnet that puts the new
+# next-server beside a pool and gateway it cannot reach, and the DHCP service
+# fails to start or hands out wrong settings. A move inside the subnet keeps
+# them, because they are still right.
+#
+# Asks first. No, or -y alone, keeps the saved values and warns. Yes, or
+# --update-dhcp-subnet (with or without -y), clears the pool so configureDHCP
+# derives it from the new subnet (or takes -s/-e), and asks the router and DNS
+# questions again. The suggested router is the new NIC's
+# default gateway; the suggested DNS is the saved one, which a subnet move
+# does not usually change.
+_offerDhcpRefresh() {
+    local oldmask=${2:-${NET_subnet_mask}} oldnet newnet answer
+    [[ ${DHCP_enabled} == yes ]] || return 0
+    oldnet=$(mask2network "$1" "$oldmask")
+    newnet=$(mask2network "${NET_fog_server_ip}" "${NET_subnet_mask}")
+    [[ $oldnet == "$newnet" && $oldmask == "${NET_subnet_mask}" ]] && return 0
+    echo " * The new address is on another subnet: ${oldnet}/${oldmask} -> ${newnet}/${NET_subnet_mask}."
+    echo "   The saved DHCP settings are for the old one: pool ${DHCP_range_start} - ${DHCP_range_end},"
+    echo "   router ${DHCP_router}, DNS ${DHCP_dns_server_ip}."
+    if [[ -z $sDHCP_update_subnet ]]; then
+        if [[ -n $autoaccept ]]; then
+            answer=no
+        else
+            echo -n "   Change the DHCP settings for the new subnet? [Y/n] "
+            read answer
+        fi
+        case $answer in
+            [Nn]|[Nn][Oo])
+                # -y never changes DHCP on its own: an unattended run must not
+                # start serving a new subnet nobody checked, which may already
+                # have its own DHCP server. Say plainly what that leaves.
+                echo " * DHCP is NOT changed. The server address and this node's"
+                echo "   storage record will be changed to ${NET_fog_server_ip}."
+                echo "   DHCP still offers the old pool and router, so PXE clients"
+                echo "   may get no address or a wrong one, and the DHCP service"
+                echo "   may fail to start."
+                echo "   To fix it, re-run with --update-dhcp-subnet, or set the"
+                echo "   DHCP_* values in .fogsettings and re-run."
+                return 0
+                ;;
+        esac
+    fi
+    DHCP_range_start=${sDHCP_range_start}
+    DHCP_range_end=${sDHCP_range_end}
+    strSuggestedRoute=$(ip -4 route show default dev "${NET_interface}" 2>/dev/null | awk '{print $3; exit}')
+    strSuggestedDNS=${DHCP_dns_server_ip}
+    # ${resolvconf} is a seam for tests/server-address-moves.test.sh, whose
+    # host resolv.conf would otherwise always supply an answer.
+    [[ $(validip "$strSuggestedDNS") -eq 0 ]] || strSuggestedDNS=$(awk '/^nameserver/ && $2 ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/ {print $2; exit}' "${resolvconf:-/etc/resolv.conf}" 2>/dev/null)
+    # A router or DNS the administrator declined is saved as a comment. A
+    # subnet move does not make that answer wrong, so it stays declined.
+    [[ ${DHCP_router} == '#'* ]] || DHCP_router=""
+    [[ ${DHCP_dns_server_ip} == '#'* ]] || DHCP_dns_server_ip=""
+    askDhcpRouter
+    askDhcpDns
+    echo " * The DHCP pool is derived from ${newnet}/${NET_subnet_mask} when DHCP is configured."
+}
+# Forum 18327: --update-dhcp-subnet on a LATER run. The run that moved the
+# address saved the new one and, under -y or a "no", kept the old DHCP pool.
+# Its warning names this flag as the fix, but on the re-run the address no
+# longer looks moved, so checkServerAddress never reaches _offerDhcpRefresh.
+# This compares the saved pool start (or the router, with no pool saved) to
+# the server's current subnet instead. With neither saved there is nothing
+# stale: configureDHCP derives the pool from the current subnet anyway.
+_dhcpFollowSubnet() {
+    local saved
+    [[ -n $sDHCP_update_subnet ]] || return 0
+    # A move this run already offered the refresh.
+    [[ -n $serverIpWas && $serverIpWas != "${NET_fog_server_ip}" ]] && return 0
+    saved=${DHCP_range_start}
+    [[ $(validip "$saved") -eq 0 ]] || saved=${DHCP_router}
+    [[ $(validip "$saved") -eq 0 ]] || return 0
+    _offerDhcpRefresh "$saved" "${NET_subnet_mask}"
 }
 # Mirrors fog_git_path/fog_update_channel/extraServerNames/servicelogs into
 # globalSettings so the GUI can show them without SSH. Like fogprogramdir's
