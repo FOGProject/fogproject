@@ -647,6 +647,9 @@ msgstr ""
 msgid "A zero padded decimal string, not a JSON number."
 msgstr ""
 
+msgid "AD Defaults Fail"
+msgstr ""
+
 msgid "API"
 msgstr ""
 
@@ -10965,6 +10968,9 @@ msgid "You do not have permission to perform this action."
 msgstr ""
 
 msgid "You do not have permission to read any activity source."
+msgstr ""
+
+msgid "You do not have permission to read the AD defaults."
 msgstr ""
 
 msgid "You do not have permission to revoke API tokens."

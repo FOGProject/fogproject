@@ -720,6 +720,10 @@ msgstr ""
 msgid "A zero padded decimal string, not a JSON number."
 msgstr ""
 
+#, fuzzy
+msgid "AD Defaults Fail"
+msgstr "删除的文件数据"
+
 msgid "API"
 msgstr ""
 
@@ -12693,6 +12697,10 @@ msgstr ""
 
 msgid "You do not have permission to read any activity source."
 msgstr ""
+
+#, fuzzy
+msgid "You do not have permission to read the AD defaults."
+msgstr "没有连接到数据库"
 
 msgid "You do not have permission to revoke API tokens."
 msgstr ""

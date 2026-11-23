@@ -655,6 +655,10 @@ msgstr "最初の方法について、最初から最後までの具体例:"
 msgid "A zero padded decimal string, not a JSON number."
 msgstr ""
 
+#, fuzzy
+msgid "AD Defaults Fail"
+msgstr "削除に失敗しました"
+
 msgid "API"
 msgstr "API"
 
@@ -11040,6 +11044,10 @@ msgstr "この操作を実行する権限がありません。"
 
 msgid "You do not have permission to read any activity source."
 msgstr "アクティビティの情報源を参照する権限がありません。"
+
+#, fuzzy
+msgid "You do not have permission to read the AD defaults."
+msgstr "グループを作成する権限がありません。"
 
 msgid "You do not have permission to revoke API tokens."
 msgstr "API トークンを失効させる権限がありません。"
