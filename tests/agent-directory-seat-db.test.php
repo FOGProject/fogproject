@@ -270,4 +270,33 @@ FOG\Agent\State::facts($placed, []);
 Seat::$current = null;
 $t->check('placement: the Windows seat\'s poll does try', [null, ''] !== $placementMark());
 
+// (e) The directory fact hash is per host, but only the directory seat's
+// block is stored. A Linux seat's block must not store the hash: the Windows
+// seat's next identical block would then be skipped as already recorded, and
+// hostDirectory would keep the older value.
+$settingsCache['FOG_DIRECTORY_PLACEMENT_ENABLED'] = ['value' => '0'];
+FogTestHarness::setStatic('FOGBase', '_settingsCache', $settingsCache);
+$pdo->exec('DELETE FROM hostFactState');
+$pdo->exec("UPDATE hostDirectory SET hdJoined = 0, hdKind = 'workgroup', hdDomain = '' WHERE hdHostID = 201");
+$joinedBlock = ['directory' => ['joined' => true, 'kind' => 'ad', 'domain' => 'corp.example',
+    'netbios' => 'CORP', 'computer_dn' => '', 'machine_account' => 'DUALBOOT$', 'site' => '']];
+$directoryHash = function () use ($pdo) {
+    return $pdo->query("SELECT COUNT(*) FROM hostFactState WHERE hfsHostID = 201 AND hfsKind = 'directory'")->fetchColumn();
+};
+$polling(201, 'linux');
+$linuxAnswer = FOG\Agent\State::facts($hostObj(201), $joinedBlock);
+Seat::$current = null;
+$t->check(
+    'fact hash: the Linux seat\'s block stores no directory hash and is never asked for',
+    0 === (int)$directoryHash() && false === ($linuxAnswer['want_directory'] ?? null)
+);
+$polling(201, 'windows');
+FOG\Agent\State::facts($hostObj(201), $joinedBlock);
+Seat::$current = null;
+$t->check(
+    'fact hash: the Windows seat\'s identical block is still recorded',
+    1 === (int)$directoryHash()
+        && 'ad' === $pdo->query('SELECT hdKind FROM hostDirectory WHERE hdHostID = 201')->fetchColumn()
+);
+
 $t->finish();

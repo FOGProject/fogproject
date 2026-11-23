@@ -595,7 +595,19 @@ class State extends FOGBase
             return $answer;
         }
         $hostID = (int)$Host->get('id');
+        // One seat answer for the whole poll: the fact hash skip below and
+        // the placement move after the loop must agree on it.
+        $directorySeat = Seat::isDirectorySeat($Host);
         foreach (self::FACT_REPORTS as $kind => $class) {
+            // DirectoryFacts::report() drops a block from any seat but the
+            // directory seat. The hash is per host, so storing it for that
+            // block would mark the directory seat's next identical block as
+            // already recorded, and hostDirectory would keep an older value.
+            // Never ask that seat for it either.
+            if ('directory' === $kind && !$directorySeat) {
+                $answer['want_directory'] = false;
+                continue;
+            }
             $stored = self::_factHash($hostID, $kind);
             $block = $body[$kind] ?? null;
             if (is_array($block)) {
@@ -630,7 +642,7 @@ class State extends FOGBase
         //
         // Only the directory seat's poll moves the computer object
         // (fog-agent#53): every directory action follows one seat.
-        if (Seat::isDirectorySeat($Host)) {
+        if ($directorySeat) {
             DirectoryFacts::place($Host);
         }
 
