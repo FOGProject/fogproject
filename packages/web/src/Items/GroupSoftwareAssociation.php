@@ -41,7 +41,10 @@ class GroupSoftwareAssociation extends FOGController
         'id' => 'gswaID',
         'groupID' => 'gswaGroupID',
         'softwareID' => 'gswaSoftwareID',
-        'sequence' => 'gswaSequence'
+        'sequence' => 'gswaSequence',
+        // 'present' or 'absent' overrides the entry's own state for this
+        // group's members; empty (NULL) uses it (GH-2129).
+        'state' => 'gswaState'
     ];
     /**
      * The required fields.
@@ -52,4 +55,17 @@ class GroupSoftwareAssociation extends FOGController
         'groupID',
         'softwareID'
     ];
+    /**
+     * Saves, refusing a state that is not empty, present or absent.
+     *
+     * Here and not only on the page, because the REST API sets fields
+     * directly.
+     *
+     * @return object|bool
+     */
+    public function save()
+    {
+        Software::assertLinkState($this->get('state'));
+        return parent::save();
+    }
 }

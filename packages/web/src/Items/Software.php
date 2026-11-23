@@ -109,6 +109,37 @@ class Software extends FOGController
      */
     const STATES = ['present', 'absent'];
     /**
+     * Refuses a link state (softwareAssoc.swaState, groupSoftwareAssoc
+     * .gswaState) that is not empty or one of STATES. Empty means "use the
+     * entry's own state" (GH-2129).
+     *
+     * @param mixed $state the link's state
+     *
+     * @throws \Exception for any other value
+     *
+     * @return void
+     */
+    public static function assertLinkState($state)
+    {
+        $state = (string)$state;
+        if ('' !== $state && !in_array($state, self::STATES, true)) {
+            throw new \Exception(_('State must be present, absent or empty.'));
+        }
+    }
+    /**
+     * A link state as an override: 'present', 'absent', or null for
+     * anything else (empty included), meaning "use the entry's own state".
+     *
+     * @param mixed $state the link's state as stored or submitted
+     *
+     * @return string|null
+     */
+    public static function linkState($state)
+    {
+        $state = (string)$state;
+        return in_array($state, self::STATES, true) ? $state : null;
+    }
+    /**
      * Removes the entry and everything that hangs off it.
      *
      * @param string $key the key to match on

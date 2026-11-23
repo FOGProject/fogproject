@@ -14,6 +14,7 @@
 
 namespace FOG\Reports;
 
+use FOG\Assign\Resolver;
 use FOG\Audit\ReportWindow;
 use FOG\Pages\ReportManagement;
 
@@ -164,7 +165,9 @@ class Software_Report extends ReportManagement
             'cannot_run' => _('Cannot Run')
         ];
 
-        $sql = "SELECT `hosts`.`hostName` AS `hostName`,
+        $sql = "SELECT `softwareStatus`.`sstHostID` AS `hostID`,
+                       `softwareStatus`.`sstSoftwareID` AS `softwareID`,
+                       `hosts`.`hostName` AS `hostName`,
                        `software`.`swName` AS `softwareName`,
                        `software`.`swPackage` AS `package`,
                        `software`.`swState` AS `state`,
@@ -194,9 +197,23 @@ class Software_Report extends ReportManagement
             ->fetch(\PDO::FETCH_ASSOC, 'fetch_all')
             ->get();
 
+        $shown = array_slice($rows, 0, self::MAX_ROWS);
+        // A host or group link can override the entry's state (GH-2129),
+        // so the desired state is the resolved one, not swState alone.
+        // One resolve for every host in the window.
+        $effective = [];
+        $hostIDs = array_unique(array_map('intval', array_column($shown, 'hostID')));
+        foreach (Resolver::resolveSoftwareDetail($hostIDs) as $hostID => $links) {
+            foreach ($links as $link) {
+                $effective[$hostID][$link['id']] = $link['effective'];
+            }
+        }
+
         $data = [];
-        foreach (array_slice($rows, 0, self::MAX_ROWS) as $row) {
-            $state = (string)($row['state'] ?? '');
+        foreach ($shown as $row) {
+            // A row outside the resolved set keeps the entry's own state.
+            $state = $effective[(int)$row['hostID']][(int)$row['softwareID']]
+                ?? (string)($row['state'] ?? '');
             $data[] = [
                 'hostName' => (string)($row['hostName'] ?? ''),
                 'softwareName' => (string)($row['softwareName'] ?? ''),

@@ -56,6 +56,7 @@ groupsoftwareassociation	3	gswaGroupID	groupLink	f:node,relclass	group
 groupsoftwareassociation	4	gswaSoftwareID	softwareID	-	-
 groupsoftwareassociation	5	gswaSoftwareID	softwareLink	f:node,relclass	software
 groupsoftwareassociation	6	gswaSequence	sequence	-	-
+groupsoftwareassociation	7	gswaState	state	-	-
 history	0	hID	id	-	-
 history	1	hID	DT_RowId	f	-
 history	2	hText	info	-	-
@@ -609,6 +610,7 @@ softwareassociation	3	swaHostID	hostLink	f:classname	host
 softwareassociation	4	swaSoftwareID	softwareID	-	-
 softwareassociation	5	swaSoftwareID	softwareLink	f:node,relclass	software
 softwareassociation	6	swaSequence	sequence	-	-
+softwareassociation	7	swaState	state	-	-
 softwarestatus	0	sstID	id	-	-
 softwarestatus	1	sstID	DT_RowId	f	-
 softwarestatus	2	sstHostID	hostID	-	-

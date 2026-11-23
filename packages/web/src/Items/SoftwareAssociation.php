@@ -41,7 +41,10 @@ class SoftwareAssociation extends FOGController
         'id' => 'swaID',
         'hostID' => 'swaHostID',
         'softwareID' => 'swaSoftwareID',
-        'sequence' => 'swaSequence'
+        'sequence' => 'swaSequence',
+        // 'present' or 'absent' overrides the entry's own state for this
+        // host; empty (NULL) uses it (GH-2129).
+        'state' => 'swaState'
     ];
     /**
      * The required fields.
@@ -52,6 +55,19 @@ class SoftwareAssociation extends FOGController
         'hostID',
         'softwareID'
     ];
+    /**
+     * Saves, refusing a state that is not empty, present or absent.
+     *
+     * Here and not only on the page, because the REST API sets fields
+     * directly.
+     *
+     * @return object|bool
+     */
+    public function save()
+    {
+        Software::assertLinkState($this->get('state'));
+        return parent::save();
+    }
     /**
      * The host.
      *

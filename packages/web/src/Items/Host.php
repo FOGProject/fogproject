@@ -2324,6 +2324,41 @@ class Host extends FOGController
         return $this;
     }
     /**
+     * Sets the per-host Present/Absent override on software links.
+     *
+     * '' clears the override (swaState NULL: use the entry's own state);
+     * 'present' or 'absent' sets it. Anything else is ignored. The update is
+     * keyed on hostID + softwareID, so only a link that already exists is
+     * touched; no row is created here.
+     *
+     * @param array $states softwareID => '' | 'present' | 'absent'
+     *
+     * @return object
+     */
+    public function setSoftwareStates($states)
+    {
+        foreach ((array)$states as $softwareID => $given) {
+            $softwareID = (int)$softwareID;
+            if ($softwareID < 1 || !is_string($given)) {
+                continue;
+            }
+            $state = '' === $given ? null : Software::linkState($given);
+            if (null === $state && '' !== $given) {
+                continue;
+            }
+            (new SoftwareAssociationManager())
+                ->update(
+                    [
+                        'hostID' => $this->get('id'),
+                        'softwareID' => $softwareID
+                    ],
+                    '',
+                    ['state' => $state]
+                );
+        }
+        return $this;
+    }
+    /**
      * The module ids this host has STATED a state for.
      *
      * ADR 0038 gives a module three states on a host: a row with msState 1

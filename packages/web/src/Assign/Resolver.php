@@ -169,7 +169,7 @@ class Resolver extends FOGBase
      * rule as resolveSnapins (direct first, then groups in group order,
      * deduplicated), over the software tables (design 0003). Then one
      * enabled entry per backend and package, the first in that order
-     * (_onePerPackage(), GH-2129).
+     * (_onePerPackage(), GH-2129). The ids of resolveSoftwareDetail().
      *
      * @param array $hostIDs the hosts to resolve for
      *
@@ -178,6 +178,36 @@ class Resolver extends FOGBase
      */
     public static function resolveSoftware(array $hostIDs)
     {
+        $resolved = [];
+        foreach (self::resolveSoftwareDetail($hostIDs) as $hostID => $list) {
+            $resolved[$hostID] = array_column($list, 'id');
+        }
+        return $resolved;
+    }
+
+    /**
+     * Resolves each host's software set, with each entry's state override
+     * and the link it came from (GH-2129).
+     *
+     * An entry's position is set by its first link: the host's own links
+     * first, then each group's in group order. Its state is the first state
+     * SET along that same order: the host's own link if it says 'present'
+     * or 'absent', else the first group link that does. A link with no
+     * state (NULL, or any value other than those two) has no opinion and
+     * does not hide a group's. 'state' is null when no link sets one.
+     * 'groupID' is the link that set the state (0 = the host), or the
+     * first link when none did. 'effective' is the state that applies: the
+     * override, else the entry's own swState.
+     *
+     * @param array $hostIDs the hosts to resolve for
+     *
+     * @return array hostID => [['id' => softwareID, 'state' => string|null,
+     *               'groupID' => int, 'effective' => string], ...] in run
+     *               order; every host id is a key
+     * @throws \RuntimeException on any query failure
+     */
+    public static function resolveSoftwareDetail(array $hostIDs)
+    {
         $hostIDs = self::_ids($hostIDs);
         if (count($hostIDs) < 1) {
             return [];
@@ -185,41 +215,61 @@ class Resolver extends FOGBase
         $resolved = [];
         $direct = [];
         $rows = self::_rows(
-            'SELECT `swaHostID`, `swaSoftwareID` FROM `softwareAssoc` '
+            'SELECT `swaHostID`, `swaSoftwareID`, `swaState` FROM `softwareAssoc` '
             . 'WHERE `swaHostID` IN (' . implode(',', $hostIDs) . ') '
             . 'ORDER BY `swaHostID`, `swaSequence`, `swaID`'
         );
         foreach ($rows as $row) {
-            $direct[(int)$row['swaHostID']][] = (int)$row['swaSoftwareID'];
+            $direct[(int)$row['swaHostID']][] = [
+                'id' => (int)$row['swaSoftwareID'],
+                'state' => Software::linkState($row['swaState']),
+                'groupID' => 0
+            ];
         }
 
         list($groupsByHost, $groupIDs) = self::_membership($hostIDs);
         $byGroup = [];
         if (count($groupIDs) > 0) {
             $rows = self::_rows(
-                'SELECT `gswaGroupID`, `gswaSoftwareID` FROM `groupSoftwareAssoc` '
+                'SELECT `gswaGroupID`, `gswaSoftwareID`, `gswaState` '
+                . 'FROM `groupSoftwareAssoc` '
                 . 'WHERE `gswaGroupID` IN (' . implode(',', $groupIDs) . ') '
                 . 'ORDER BY `gswaSequence`, `gswaID`'
             );
             foreach ($rows as $row) {
-                $byGroup[(int)$row['gswaGroupID']][] = (int)$row['gswaSoftwareID'];
+                $groupID = (int)$row['gswaGroupID'];
+                $byGroup[$groupID][] = [
+                    'id' => (int)$row['gswaSoftwareID'],
+                    'state' => Software::linkState($row['gswaState']),
+                    'groupID' => $groupID
+                ];
             }
         }
         $ordered = self::_orderedGroupIDs($groupIDs);
 
         foreach ($hostIDs as $hostID) {
             $out = $direct[$hostID] ?? [];
-            $seen = array_flip($out);
+            // softwareID => its position in $out.
+            $seen = array_flip(array_column($out, 'id'));
             foreach ($ordered as $groupID) {
                 if (!isset($groupsByHost[$hostID][$groupID])) {
                     continue;
                 }
-                foreach ($byGroup[$groupID] ?? [] as $softwareID) {
-                    if (isset($seen[$softwareID])) {
+                foreach ($byGroup[$groupID] ?? [] as $link) {
+                    if (!isset($seen[$link['id']])) {
+                        $seen[$link['id']] = count($out);
+                        $out[] = $link;
                         continue;
                     }
-                    $seen[$softwareID] = true;
-                    $out[] = $softwareID;
+                    // Already placed by an earlier link that set no state:
+                    // a link with no state has no opinion, so this later
+                    // link's state applies, and it is the source. The
+                    // position stays where the first link put it.
+                    $at = $seen[$link['id']];
+                    if (null === $out[$at]['state'] && null !== $link['state']) {
+                        $out[$at]['state'] = $link['state'];
+                        $out[$at]['groupID'] = $link['groupID'];
+                    }
                 }
             }
             $resolved[$hostID] = $out;
@@ -244,17 +294,23 @@ class Resolver extends FOGBase
      * entry for the same package. An id with no software row also stays,
      * for the caller to skip as it already does.
      *
-     * @param array $resolved hostID => [softwareID, ...] in precedence order
+     * Every kept link also gets 'effective': its override ('state') or,
+     * when that is null, the entry's own swState ('' when the entry has no
+     * software row).
      *
-     * @return array the same shape, with shadowed entries removed
+     * @param array $resolved hostID => [['id' => softwareID, ...], ...] in
+     *                        precedence order
+     *
+     * @return array the same shape, with shadowed entries removed and
+     *               'effective' added to each link
      * @throws \RuntimeException on a failed software read
      */
     private static function _onePerPackage(array $resolved)
     {
         $ids = [];
         foreach ($resolved as $list) {
-            foreach ($list as $id) {
-                $ids[$id] = true;
+            foreach ($list as $link) {
+                $ids[$link['id']] = true;
             }
         }
         if (count($ids) < 1) {
@@ -263,11 +319,15 @@ class Resolver extends FOGBase
         // softwareID => backend."\0".package, for ENABLED entries only. An
         // id with no key here claims nothing and is always kept.
         $enabledKey = [];
+        // softwareID => the entry's own swState, for every row read.
+        $swState = [];
         $rows = self::_rows(
-            'SELECT `swID`, `swBackend`, `swPackage`, `swEnabled` FROM `software` '
+            'SELECT `swID`, `swBackend`, `swPackage`, `swEnabled`, `swState` '
+            . 'FROM `software` '
             . 'WHERE `swID` IN (' . implode(',', array_keys($ids)) . ')'
         );
         foreach ($rows as $row) {
+            $swState[(int)$row['swID']] = (string)$row['swState'];
             if (!(int)$row['swEnabled']) {
                 continue;
             }
@@ -287,14 +347,16 @@ class Resolver extends FOGBase
         foreach ($resolved as $hostID => $list) {
             $claimed = [];
             $kept = [];
-            foreach ($list as $id) {
+            foreach ($list as $link) {
+                $id = $link['id'];
                 if (isset($enabledKey[$id])) {
                     if (isset($claimed[$enabledKey[$id]])) {
                         continue;
                     }
                     $claimed[$enabledKey[$id]] = true;
                 }
-                $kept[] = $id;
+                $link['effective'] = $link['state'] ?? ($swState[$id] ?? '');
+                $kept[] = $link;
             }
             $resolved[$hostID] = $kept;
         }

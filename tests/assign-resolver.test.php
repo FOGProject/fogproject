@@ -718,6 +718,130 @@ $check(
     ($sw[13] ?? null) === [900] && ($sw[12] ?? null) === []
 );
 
+/*
+ * Link state overrides (GH-2129). The first link that SETS a state supplies
+ * it: the host's own link, else the first group in group order that sets
+ * one. A link with no state has no opinion. With none set, the entry's own
+ * swState applies. The entry's position still comes from its first link.
+ *
+ *   host 10 -> 901 (entry Absent): host link says present
+ *   group 1 middle   -> 904: absent   \ group 1 is before group 2 in
+ *   group 2 aaa-last -> 904: present  / group order, so absent wins
+ *   group 2 aaa-last -> 905: 'bogus'  -> reads as no override
+ *   host 13 -> 900 directly, absent; then that link is removed (Inherit)
+ */
+$pdo->exec(
+    "UPDATE `softwareAssoc` SET `swaState` = 'present' "
+    . "WHERE `swaHostID` = 10 AND `swaSoftwareID` = 901"
+);
+$pdo->exec(
+    "UPDATE `groupSoftwareAssoc` SET `gswaState` = 'absent' "
+    . "WHERE `gswaGroupID` = 1 AND `gswaSoftwareID` = 904"
+);
+$pdo->exec(
+    "UPDATE `groupSoftwareAssoc` SET `gswaState` = 'bogus' "
+    . "WHERE `gswaGroupID` = 2 AND `gswaSoftwareID` = 905"
+);
+$pdo->exec(
+    "INSERT INTO `groupSoftwareAssoc` "
+    . "(`gswaGroupID`,`gswaSoftwareID`,`gswaSequence`,`gswaState`) "
+    . "VALUES (2,904,9,'present')"
+);
+$pdo->exec(
+    "INSERT INTO `softwareAssoc` "
+    . "(`swaHostID`,`swaSoftwareID`,`swaSequence`,`swaState`) "
+    . "VALUES (13,900,0,'absent')"
+);
+$linkOf = static function ($detail, $hostID, $softwareID) {
+    foreach ($detail[$hostID] ?? [] as $row) {
+        if ($row['id'] === $softwareID) {
+            return [$row['state'], $row['groupID']];
+        }
+    }
+    return 'missing';
+};
+$detail = \FOG\Assign\Resolver::resolveSoftwareDetail([10, 13]);
+$check(
+    'a host link state overrides the entry state, from the host',
+    $linkOf($detail, 10, 901) === ['present', 0]
+);
+$check(
+    'the earlier group in group order supplies the override',
+    $linkOf($detail, 10, 904) === ['absent', 1]
+);
+$check(
+    'a link with no state, or an unknown one, is no override',
+    $linkOf($detail, 10, 903) === [null, 1] && $linkOf($detail, 10, 905) === [null, 2]
+);
+$effectiveOf = static function ($detail, $hostID, $softwareID) {
+    foreach ($detail[$hostID] ?? [] as $row) {
+        if ($row['id'] === $softwareID) {
+            return $row['effective'] ?? 'missing';
+        }
+    }
+    return 'missing';
+};
+$check(
+    'effective is the override, else the entry state',
+    $effectiveOf($detail, 10, 901) === 'present'
+        && $effectiveOf($detail, 10, 903) === 'present'
+        && $effectiveOf($detail, 10, 904) === 'absent'
+);
+$check(
+    'a host link beats its group for the same entry',
+    $linkOf($detail, 13, 900) === ['absent', 0]
+);
+$pdo->exec("DELETE FROM `softwareAssoc` WHERE `swaHostID` = 13");
+$detail = \FOG\Assign\Resolver::resolveSoftwareDetail([13]);
+$check(
+    'removing the host link (Inherit) restores the group link',
+    $linkOf($detail, 13, 900) === [null, 3]
+);
+// A host link with no state has no opinion: the group's state applies. The
+// classroom case from GH-2129 -- a PC that has the entry directly, left on
+// Inherit, must still follow the group's Uninstall.
+$pdo->exec(
+    "UPDATE `groupSoftwareAssoc` SET `gswaState` = 'absent' "
+    . "WHERE `gswaGroupID` = 3 AND `gswaSoftwareID` = 900"
+);
+$pdo->exec(
+    "INSERT INTO `softwareAssoc` (`swaHostID`,`swaSoftwareID`,`swaSequence`) "
+    . "VALUES (13,900,0)"
+);
+$detail = \FOG\Assign\Resolver::resolveSoftwareDetail([13]);
+$check(
+    'a host link with no state does not hide the group state',
+    $linkOf($detail, 13, 900) === ['absent', 3]
+        && $effectiveOf($detail, 13, 900) === 'absent'
+);
+$pdo->exec(
+    "UPDATE `softwareAssoc` SET `swaState` = 'present' "
+    . "WHERE `swaHostID` = 13 AND `swaSoftwareID` = 900"
+);
+$detail = \FOG\Assign\Resolver::resolveSoftwareDetail([13]);
+$check(
+    'a host link that sets a state still beats the group state',
+    $linkOf($detail, 13, 900) === ['present', 0]
+);
+$pdo->exec("DELETE FROM `softwareAssoc` WHERE `swaHostID` = 13");
+$check(
+    'resolveSoftware() is the ids of resolveSoftwareDetail()',
+    \FOG\Assign\Resolver::resolveSoftware([10])[10]
+        === array_column(\FOG\Assign\Resolver::resolveSoftwareDetail([10])[10], 'id')
+);
+
+// A source pin, not a behavior check: desired() loads each Software row and
+// reads settings, which this stub cannot serve (the same limit
+// tests/software-stop-snapins.test.php notes). The behavior it relies on is
+// resolveSoftwareDetail(), checked above.
+$check(
+    'SoftwareSet::desired() sends the link override, else the entry state',
+    false !== strpos(
+        (string)file_get_contents($webroot . '/src/Agent/SoftwareSet.php'),
+        "'state' => \$link['effective'],"
+    )
+);
+
 $pdo->exec('DROP TABLE `software`');
 $threw = false;
 try {

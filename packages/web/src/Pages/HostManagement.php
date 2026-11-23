@@ -3993,14 +3993,14 @@ class HostManagement extends FOGPage
 
         $orderButton = self::makeButton(
             'host-software-order-save',
-            _('Save order'),
+            _('Save order and states'),
             'btn btn-primary float-end',
             $props
         );
         echo '<div class="card card-primary card-outline">';
         echo '<div class="card-header">';
         echo '<h4 class="card-title">';
-        echo _('Software Order');
+        echo _('Software Order and State');
         echo '</h4>';
         echo '</div>';
         echo '<div class="card-body">';
@@ -4016,6 +4016,121 @@ class HostManagement extends FOGPage
         echo $orderButton;
         echo '</div>';
         echo '</div>';
+        $this->_effectiveSoftwareCard();
+    }
+    /**
+     * Resolves this host's software with the link detail
+     * (Resolver::resolveSoftwareDetail()).
+     *
+     * @param int $hostID the host
+     *
+     * @return array|null the host's links in run order, or null when the
+     *                    resolver fails
+     */
+    private function _resolvedSoftware($hostID)
+    {
+        try {
+            return Resolver::resolveSoftwareDetail([$hostID])[$hostID] ?? [];
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+    /**
+     * Renders the read-only "Effective Software" card: the entries the agent
+     * is sent for this host, one per package, as Resolver decides them.
+     *
+     * @return void
+     */
+    private function _effectiveSoftwareCard()
+    {
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Effective Software');
+        echo '</h4>';
+        echo '</div>';
+        echo '<div class="card-body">';
+        $warning = '<div class="alert alert-warning">'
+            . \Initiator::e(_('The effective software could not be loaded.'))
+            . '</div>';
+        $rows = $this->_resolvedSoftware((int)$this->obj->get('id'));
+        if (null === $rows) {
+            echo $warning;
+            echo '</div>';
+            echo '</div>';
+            return;
+        }
+        try {
+            $softwareIDs = [];
+            $groupIDs = [];
+            foreach ($rows as $row) {
+                $softwareIDs[] = (int)$row['id'];
+                if ((int)$row['groupID'] > 0) {
+                    $groupIDs[] = (int)$row['groupID'];
+                }
+            }
+            $softwares = [];
+            if (count($softwareIDs) > 0) {
+                foreach (Route::getList('software', ['id' => $softwareIDs]) as $Software) {
+                    $softwares[(int)$Software->id] = $Software;
+                }
+            }
+            $groupNames = [];
+            if (count($groupIDs) > 0) {
+                foreach (Route::getList('group', ['id' => array_values(array_unique($groupIDs))]) as $Group) {
+                    $groupNames[(int)$Group->id] = $Group->name;
+                }
+            }
+            echo '<p class="form-text">';
+            echo \Initiator::e(
+                _(
+                    'What the agent is sent: one entry per package. This '
+                    . 'host\'s own entries come first, then each group\'s in '
+                    . 'group order. The state comes from this host if it '
+                    . 'sets one, else from the first group that sets one, '
+                    . 'else from the entry. Reload the page after saving to '
+                    . 'refresh it.'
+                )
+            );
+            echo '</p>';
+            echo '<table class="table table-sm">';
+            echo '<thead><tr>';
+            foreach ([_('Software'), _('Backend'), _('Package'), _('State'), _('From')] as $th) {
+                echo '<th>' . \Initiator::e($th) . '</th>';
+            }
+            echo '</tr></thead><tbody>';
+            foreach ($rows as $row) {
+                $Software = $softwares[(int)$row['id']] ?? null;
+                // Skip a stale link with no software row, and a disabled
+                // entry (Resolver still lists it; the agent is not sent it).
+                if (null === $Software || !(int)$Software->isEnabled) {
+                    continue;
+                }
+                $stateText = 'absent' === $row['effective']
+                    ? _('Absent')
+                    : _('Present');
+                if (null !== $row['state']) {
+                    $stateText .= ' ' . _('(override)');
+                }
+                $groupID = (int)$row['groupID'];
+                $from = $groupID > 0
+                    ? ($groupNames[$groupID] ?? '')
+                    : _('This host');
+                echo '<tr>';
+                echo '<td>' . \Initiator::e($Software->name) . '</td>';
+                echo '<td>' . \Initiator::e($Software->backend) . '</td>';
+                echo '<td>' . \Initiator::e($Software->package) . '</td>';
+                echo '<td>' . \Initiator::e($stateText) . '</td>';
+                echo '<td>' . \Initiator::e($from) . '</td>';
+                echo '</tr>';
+            }
+            echo '</tbody></table>';
+        } catch (\Exception $e) {
+            // A failed software or group read, after the resolve.
+            echo $warning;
+        }
+        echo '</div>';
+        echo '</div>';
     }
     /**
      * Returns the assigned software for this host in run order.
@@ -4026,10 +4141,22 @@ class HostManagement extends FOGPage
     {
         $softwareIDs = (array)$this->obj->get('softwares');
         $names = [];
+        $entryStates = [];
+        $states = [];
         if (count($softwareIDs) > 0) {
             $Softwares = Route::getList('software', ['id' => $softwareIDs]);
             foreach ($Softwares as $Software) {
                 $names[$Software->id] = $Software->name;
+                $entryStates[$Software->id] = (string)$Software->state;
+            }
+            // The host's own override per link; '' when NULL (use the
+            // entry's state).
+            $links = Route::getList(
+                'softwareassociation',
+                ['hostID' => $this->obj->get('id')]
+            );
+            foreach ($links as $link) {
+                $states[(int)$link->softwareID] = (string)($link->state ?? '');
             }
         }
         $data = [];
@@ -4042,7 +4169,9 @@ class HostManagement extends FOGPage
             }
             $data[] = [
                 'id' => $softwareID,
-                'name' => $names[$softwareID]
+                'name' => $names[$softwareID],
+                'state' => $states[(int)$softwareID] ?? '',
+                'entryState' => $entryStates[$softwareID]
             ];
         }
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
@@ -4055,6 +4184,17 @@ class HostManagement extends FOGPage
     public function hostSoftwarePost()
     {
         $this->assocPost('addSoftware', 'removeSoftware', 'setSoftwareOrder', 'softwareorder');
+        // The order and the per-item states post together (one request), so
+        // the states are applied here after assocPost()'s order branch.
+        $states = filter_input(
+            INPUT_POST,
+            'softwarestate',
+            FILTER_DEFAULT,
+            FILTER_REQUIRE_ARRAY
+        );
+        if (is_array($states) && count($states) > 0) {
+            $this->obj->setSoftwareStates($states);
+        }
     }
     /**
      * Display's the host service stuff
@@ -5208,11 +5348,16 @@ class HostManagement extends FOGPage
     public function hostSoftwareStatus()
     {
         $hostID = (int)$this->obj->get('id');
-        $resolved = Resolver::resolveSoftware([$hostID])[$hostID] ?? [];
+        // A failed resolve (null) suppresses the alert.
+        $resolved = $this->_resolvedSoftware($hostID) ?? [];
         if (count($resolved) > 0) {
+            // GH-2129: count only rows for entries the host currently
+            // resolves to (disabled ones included), the same set the grid
+            // shows, so a dropped entry's stale row cannot trip the alert.
+            $resolvedIDs = array_map('intval', array_column($resolved, 'id'));
             $statuses = (array)Route::getIds(
                 'softwarestatus',
-                ['hostID' => $hostID],
+                ['hostID' => $hostID, 'softwareID' => $resolvedIDs],
                 'status'
             );
             // 'cannot_run' is the backend-missing status in
@@ -8667,6 +8812,32 @@ class HostManagement extends FOGPage
             $request
         );
         $hostID = (int)$this->obj->get('id');
+        // softwareID => the effective state (the link's override, else the
+        // entry's own swState), for the entries the resolver lists. The
+        // 'desired' column shows it.
+        $effective = [];
+        // GH-2129: show only rows for entries the host currently resolves
+        // to (disabled ones included). A dropped entry's last row never
+        // updates and reads as a live duplicate. Rows stay in the table.
+        // null = resolver failed, so no extra filter is applied.
+        $resolvedIDs = null;
+        $details = $this->_resolvedSoftware($hostID);
+        if (null !== $details) {
+            $resolvedIDs = [];
+            foreach ($details as $detail) {
+                $resolvedIDs[] = (int)$detail['id'];
+                $effective[(int)$detail['id']] = $detail['effective'];
+            }
+        }
+        $where = sprintf('`softwareStatus`.`sstHostID` = %d', $hostID);
+        if (null !== $resolvedIDs) {
+            // Ids are ints, so they are safe to inline. An empty set
+            // matches nothing.
+            $where .= count($resolvedIDs) > 0
+                ? ' AND `softwareStatus`.`sstSoftwareID` IN ('
+                    . implode(',', $resolvedIDs) . ')'
+                : ' AND 1 = 0';
+        }
         $columns = [
             ['db' => 'sstID', 'dt' => 'id'],
             ['db' => 'swName', 'dt' => 'software'],
@@ -8675,10 +8846,15 @@ class HostManagement extends FOGPage
             // 'desired' formatter below reads it off the row, so it still
             // has to be selected.
             ['db' => 'swVersion', 'dt' => 'version'],
+            // Likewise sstSoftwareID: not displayed, read by 'desired' to
+            // look up the effective state.
+            ['db' => 'sstSoftwareID', 'dt' => 'softwareID'],
             [
                 'db' => 'swState',
                 'dt' => 'desired',
-                'formatter' => function ($state, $row) {
+                'formatter' => function ($state, $row) use ($effective) {
+                    $state = $effective[(int)($row['sstSoftwareID'] ?? 0)]
+                        ?? $state;
                     if ('absent' === $state) {
                         return _('absent');
                     }
@@ -8718,7 +8894,7 @@ class HostManagement extends FOGPage
             $fltrstr,
             $ttlstr,
             null,
-            sprintf('`softwareStatus`.`sstHostID` = %d', $hostID),
+            $where,
             'checked'
         );
         $this->jsonSend(

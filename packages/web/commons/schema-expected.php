@@ -391,12 +391,13 @@ return [
             ],
         ],
         'groupSoftwareAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `groupSoftwareAssoc` ( `gswaID` int(11) NOT NULL AUTO_INCREMENT, `gswaGroupID` int(11) NOT NULL, `gswaSoftwareID` int(11) NOT NULL, `gswaSequence` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`gswaID`), UNIQUE KEY `gswaGroupSoftware` (`gswaGroupID`,`gswaSoftwareID`), KEY `gswaSoftwareID` (`gswaSoftwareID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `groupSoftwareAssoc` ( `gswaID` int(11) NOT NULL AUTO_INCREMENT, `gswaGroupID` int(11) NOT NULL, `gswaSoftwareID` int(11) NOT NULL, `gswaSequence` int(11) NOT NULL DEFAULT 0, `gswaState` varchar(8) DEFAULT NULL, PRIMARY KEY (`gswaID`), UNIQUE KEY `gswaGroupSoftware` (`gswaGroupID`,`gswaSoftwareID`), KEY `gswaSoftwareID` (`gswaSoftwareID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'gswaID' => 'int(11) NOT NULL',
                 'gswaGroupID' => 'int(11) NOT NULL',
                 'gswaSoftwareID' => 'int(11) NOT NULL',
                 'gswaSequence' => 'int(11) NOT NULL DEFAULT 0',
+                'gswaState' => 'varchar(8) DEFAULT NULL',
             ],
         ],
         'history' => [
@@ -1205,12 +1206,13 @@ return [
             ],
         ],
         'softwareAssoc' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `softwareAssoc` ( `swaID` int(11) NOT NULL AUTO_INCREMENT, `swaHostID` int(11) NOT NULL, `swaSoftwareID` int(11) NOT NULL, `swaSequence` int(11) NOT NULL DEFAULT 0, PRIMARY KEY (`swaID`), UNIQUE KEY `swaHostSoftware` (`swaHostID`,`swaSoftwareID`), KEY `swaSoftwareID` (`swaSoftwareID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `softwareAssoc` ( `swaID` int(11) NOT NULL AUTO_INCREMENT, `swaHostID` int(11) NOT NULL, `swaSoftwareID` int(11) NOT NULL, `swaSequence` int(11) NOT NULL DEFAULT 0, `swaState` varchar(8) DEFAULT NULL, PRIMARY KEY (`swaID`), UNIQUE KEY `swaHostSoftware` (`swaHostID`,`swaSoftwareID`), KEY `swaSoftwareID` (`swaSoftwareID`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'swaID' => 'int(11) NOT NULL',
                 'swaHostID' => 'int(11) NOT NULL',
                 'swaSoftwareID' => 'int(11) NOT NULL',
                 'swaSequence' => 'int(11) NOT NULL DEFAULT 0',
+                'swaState' => 'varchar(8) DEFAULT NULL',
             ],
         ],
         'softwareStatus' => [

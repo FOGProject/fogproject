@@ -512,6 +512,44 @@ class Group extends FOGController
         return $this;
     }
     /**
+     * Sets the Present/Absent override on the software this group grants.
+     *
+     * '' clears the override (gswaState NULL: use the entry's own state);
+     * 'present' or 'absent' sets it. Anything else is ignored. Only a grant
+     * that already exists is touched.
+     *
+     * @param array $states softwareID => '' | 'present' | 'absent'
+     *
+     * @return object
+     */
+    public function setSoftwareStates($states)
+    {
+        $groupID = (int)$this->get('id');
+        if ($groupID < 1) {
+            return $this;
+        }
+        foreach ((array)$states as $softwareID => $given) {
+            $softwareID = (int)$softwareID;
+            if ($softwareID < 1 || !is_string($given)) {
+                continue;
+            }
+            $state = '' === $given ? null : Software::linkState($given);
+            if (null === $state && '' !== $given) {
+                continue;
+            }
+            (new GroupSoftwareAssociationManager())
+                ->update(
+                    [
+                        'groupID' => $groupID,
+                        'softwareID' => $softwareID
+                    ],
+                    '',
+                    ['state' => $state]
+                );
+        }
+        return $this;
+    }
+    /**
      * Grants modules to this group.
      *
      * ADR 0038: presence is the whole statement. There is no state column on
