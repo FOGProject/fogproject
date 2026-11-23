@@ -12709,6 +12709,10 @@ msgstr "Pas de connexion à la base de données"
 msgid "You do not have permission to view API tokens."
 msgstr ""
 
+#, fuzzy
+msgid "You do not have permission to view Windows keys."
+msgstr "Pas de connexion à la base de données"
+
 msgid "You may not change a filter shared with everyone"
 msgstr ""
 

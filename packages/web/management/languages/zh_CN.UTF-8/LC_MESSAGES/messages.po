@@ -12712,6 +12712,10 @@ msgstr "没有连接到数据库"
 msgid "You do not have permission to view API tokens."
 msgstr ""
 
+#, fuzzy
+msgid "You do not have permission to view Windows keys."
+msgstr "没有连接到数据库"
+
 msgid "You may not change a filter shared with everyone"
 msgstr ""
 

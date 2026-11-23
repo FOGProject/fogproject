@@ -11059,6 +11059,10 @@ msgstr "%s タスクを開始する権限がありません。"
 msgid "You do not have permission to view API tokens."
 msgstr "API トークンを表示する権限がありません。"
 
+#, fuzzy
+msgid "You do not have permission to view Windows keys."
+msgstr "API トークンを表示する権限がありません。"
+
 msgid "You may not change a filter shared with everyone"
 msgstr "全員に共有されているフィルターは変更できません"
 

@@ -12882,6 +12882,10 @@ msgstr "Haga clic en el botón para exportar la base de datos."
 msgid "You do not have permission to view API tokens."
 msgstr ""
 
+#, fuzzy
+msgid "You do not have permission to view Windows keys."
+msgstr "Haga clic en el botón para exportar la base de datos."
+
 msgid "You may not change a filter shared with everyone"
 msgstr ""
 

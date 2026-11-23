@@ -10983,6 +10983,9 @@ msgstr ""
 msgid "You do not have permission to view API tokens."
 msgstr ""
 
+msgid "You do not have permission to view Windows keys."
+msgstr ""
+
 msgid "You may not change a filter shared with everyone"
 msgstr ""
 
