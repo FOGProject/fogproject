@@ -1303,6 +1303,25 @@ trait FOGPageRender
                             -1,
                             -1,
                             ''
+                        ),
+                        // A capture refuses a host with queued snapins; this
+                        // option cancels them first (forum 18325).
+                        self::makeLabel(
+                            $labelClass,
+                            'cancelSnapins',
+                            _('Cancel queued snapins first')
+                        ) => self::makeInput(
+                            '',
+                            'cancelSnapins',
+                            '',
+                            'checkbox',
+                            'cancelSnapins',
+                            '',
+                            false,
+                            false,
+                            -1,
+                            -1,
+                            ''
                         )
                     ]
                 );

@@ -2015,6 +2015,12 @@ parameters:
 		-
 			message: '#^Cannot access property \$isCapture on int\.$#'
 			identifier: property.nonObject
+			count: 3
+			path: packages/web/src/Items/Host.php
+
+		-
+			message: '#^Cannot access property \$isDeploy on int\.$#'
+			identifier: property.nonObject
 			count: 1
 			path: packages/web/src/Items/Host.php
 
@@ -2027,7 +2033,7 @@ parameters:
 		-
 			message: '#^Cannot access property \$isMulticast on int\.$#'
 			identifier: property.nonObject
-			count: 1
+			count: 2
 			path: packages/web/src/Items/Host.php
 
 		-

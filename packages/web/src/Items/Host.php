@@ -1093,6 +1093,126 @@ class Host extends FOGController
             );
     }
     /**
+     * Returns the hosts that still have a queued or in-progress snapin job
+     *
+     * A snapin job can outlive its task row (forum 18325), so a host is
+     * checked by its job, not by its task.
+     *
+     * @param array $hostIDs The host ids to check
+     *
+     * @return array The ids, among $hostIDs, that have a live snapin job
+     */
+    public static function queuedSnapinHosts(array $hostIDs)
+    {
+        $hostIDs = self::positiveIntIds($hostIDs);
+        if (count($hostIDs) < 1) {
+            return [];
+        }
+        $found = Route::getIds(
+            'snapinjob',
+            [
+                'hostID' => $hostIDs,
+                'stateID' => self::fastmerge(
+                    self::getQueuedStates(),
+                    (array)self::getProgressState()
+                )
+            ],
+            'hostID'
+        );
+        return array_values(array_unique(array_map('intval', (array)$found)));
+    }
+    /**
+     * Refuses a capture over queued snapins (forum 18325)
+     *
+     * @param array $hostIDs The host ids about to be captured
+     *
+     * @throws \Exception when any of them has a live snapin job
+     *
+     * @return void
+     */
+    public static function assertNoQueuedSnapinsForCapture(array $hostIDs)
+    {
+        if (count(self::queuedSnapinHosts($hostIDs)) > 0) {
+            throw new \Exception(
+                _('Host has queued snapins. Let them finish, or cancel them, before a capture.')
+            );
+        }
+    }
+    /**
+     * Cancels the queued and in-progress snapin work of the given hosts
+     *
+     * A new imaging task must not inherit the snapins an earlier task left
+     * behind (forum 18325). This cancels each snapin task, each snapin job,
+     * and each active snapin-typed task of the hosts.
+     *
+     * @param array $hostIDs The host ids to clean up
+     *
+     * @return void
+     */
+    public static function cancelQueuedSnapins(array $hostIDs)
+    {
+        $hostIDs = self::positiveIntIds($hostIDs);
+        if (count($hostIDs) < 1) {
+            return;
+        }
+        $liveStates = self::fastmerge(
+            self::getQueuedStates(),
+            (array)self::getProgressState()
+        );
+        $SnapinJobs = Route::getIds(
+            'snapinjob',
+            [
+                'hostID' => $hostIDs,
+                'stateID' => $liveStates
+            ]
+        );
+        if (count((array)$SnapinJobs) > 0) {
+            (new SnapinTaskManager())
+                ->update(
+                    [
+                        'jobID' => $SnapinJobs,
+                        'stateID' => $liveStates
+                    ],
+                    '',
+                    [
+                        'return' => -9999,
+                        'details' => _('Canceled due to new tasking.'),
+                        'stateID' => self::getCancelledState()
+                    ]
+                );
+            (new SnapinJobManager())
+                ->update(
+                    ['id' => $SnapinJobs],
+                    '',
+                    ['stateID' => self::getCancelledState()]
+                );
+        }
+        $SnapinTasks = Route::getIds(
+            'task',
+            [
+                'hostID' => $hostIDs,
+                'stateID' => $liveStates,
+                'typeID' => [
+                    TaskType::ALL_SNAPINS,
+                    TaskType::SINGLE_SNAPIN
+                ]
+            ]
+        );
+        if (count((array)$SnapinTasks) > 0) {
+            (new TaskManager())
+                ->update(
+                    ['id' => $SnapinTasks],
+                    '',
+                    [
+                        'stateID' => self::getCancelledState(),
+                        'stateChangedTime' => self::niceDate()->format(
+                            'Y-m-d H:i:s'
+                        )
+                    ]
+                );
+        }
+    }
+    /**
      * Creates the snapin tasking as needed
      *
      * @param int    $snapin The snapin to create tasking on (-1 = all)
@@ -1223,6 +1343,12 @@ class Host extends FOGController
      * @param bool   $wol             should we wake the host up
      * @param bool   $bypassbitlocker bypass bitlocker?
      * @param bool   $snapinAbortOnFailure abort remaining snapins on failure?
+     * @param int    $sessExpected    clients a multicast session waits for
+     * @param int    $sessMaxwait     seconds a multicast session waits
+     * @param bool   $cancelSnapins   a capture cancels the host's queued
+     *                                snapins instead of being refused over
+     *                                them (forum 18325). A Deploy always
+     *                                cancels them.
      *
      * @return string
      */
@@ -1240,7 +1366,8 @@ class Host extends FOGController
         $bypassbitlocker = false,
         $snapinAbortOnFailure = false,
         $sessExpected = 0,
-        $sessMaxwait = 0
+        $sessMaxwait = 0,
+        $cancelSnapins = false
     ) {
         if (!$sessionjoin) {
             $taskName .= ' - '
@@ -1254,15 +1381,28 @@ class Host extends FOGController
                 throw new \Exception(self::$foglang['HostNotValid']);
             }
             $Task = $this->get('task');
+            // A capture must not silently cancel queued snapins (forum 18325).
+            // Refuse before the cancel block below, which would cancel them.
+            // The refusal writes nothing, so it can stay this early; the
+            // cancel itself waits until the task is certain (see below).
+            if ($TaskType->isCapture && !$cancelSnapins) {
+                self::assertNoQueuedSnapinsForCapture(
+                    [(int)$this->get('id')]
+                );
+            }
             // A non-imaging active task (e.g. a queued snapin task) must not
             // block a new imaging task. Cancel it and reset $Task so the host
             // is treated as having no active task, letting the imaging task be
-            // created below.
+            // created below. The decision is made here, but the cancel waits
+            // until the last point before the task row is written: a task
+            // refused by a later check (image, storage node) must not have
+            // canceled the host's queued snapin task (forum 18325).
+            $staleTask = null;
             if ($Task->isValid()
                 && $TaskType->isImagingTask
                 && !$Task->getTaskType()->isImagingTask()
             ) {
-                $Task->cancel();
+                $staleTask = $Task;
                 $Task = new Task();
             }
             // Block only if the host is already in an imaging task.
@@ -1519,60 +1659,15 @@ class Host extends FOGController
                 }
                 $this->set('imageID', $imageTaskImgID);
             }
-            $username = ($username ? $username : self::$FOGUser->get('name'));
-            if (!$Task->isValid()) {
-                $Task = $this->_createTasking(
-                    $taskName,
-                    $TaskType->id,
-                    $username,
-                    // A non-imaging task -- inventory, wake-up, a snapin-only
-                    // run -- is served by no storage group and no node, and
-                    // "none" is NULL now that taskNFSGroupID and
-                    // taskNFSMemberID are nullable and constrained (ADR
-                    // 0031). The 0 that used to stand for it is not a
-                    // nfsGroups row, so the INSERT is refused outright with
-                    // 1452 and the task cannot be created at all.
-                    $imagingTypes ? $StorageGroup->get('id') : null,
-                    $imagingTypes ? $StorageNode->get('id') : null,
-                    $imagingTypes,
-                    $shutdown,
-                    $passreset,
-                    $debug,
-                    $wol,
-                    $bypassbitlocker
-                );
-                $Task->set('imageID', $this->get('imageID'));
-                if (!$Task->save()) {
-                    $serverFault = true;
-                    throw new \Exception(self::$foglang['FailedTask']);
-                }
-                $this->set('task', $Task);
-                // Best-effort: a wget-less U-Boot board can only find its
-                // task over TFTP (see UbootTftpSync), and this is what
-                // closes the gap between queuing and the board being
-                // rebooted right after. Never allowed to fail the task
-                // itself -- UbootTftpSync::materialize() swallows its own
-                // errors, and Service/TaskScheduler.php's reconcile() picks
-                // up anything this misses.
-                UbootTftpSync::materialize($this);
-            }
-            if ($TaskType->isSnapinTask) {
-                if ($deploySnapins === true) {
-                    $deploySnapins = -1;
-                }
-                $mac = $this->get('mac');
-                if ($deploySnapins) {
-                    $this->_createSnapinTasking(
-                        $deploySnapins,
-                        $snapinAbortOnFailure,
-                        $TaskType->isSnapinTasking,
-                        $Task
-                    );
-                }
-            }
+            // Multicast: find the session to join, and refuse a closed one or
+            // a full pool, BEFORE the cancel below and before the task row is
+            // written. Both refusals used to come after the row and after
+            // the snapin cancel, so a refused Multicast left a task row and
+            // had already canceled the host's snapins (forum 18325). The
+            // lookup only reads; the session itself is still created below.
+            $assoc = false;
+            $MulticastSession = null;
             if ($TaskType->isMulticast) {
-                $assoc = false;
-                $MulticastSession = null;
                 $showStates = self::fastmerge(
                     self::getQueuedStates(),
                     (array)self::getProgressState()
@@ -1631,12 +1726,86 @@ class Host extends FOGController
                     }
                 }
                 unset($MultiSessJoin);
+                if (!($MulticastSession instanceof MulticastSession
+                    && $MulticastSession->isValid())
+                ) {
+                    MulticastSession::assertCapacity();
+                }
+            }
+            // A Deploy starts clean; a capture does only when asked to. Cancel
+            // the snapins an earlier task left queued, and drop the cached job
+            // so a Deploy with snapins opens a new job instead of appending to
+            // the canceled one (forum 18325). This is the last point before
+            // the task row is written, on purpose: a task refused by any check
+            // above (InTask, image, storage node, multicast session) must not
+            // have canceled anything. The same goes for the stale non-imaging
+            // task set aside above.
+            if ($staleTask) {
+                $staleTask->cancel();
+            }
+            if ($TaskType->isDeploy
+                || ($TaskType->isCapture && $cancelSnapins)
+            ) {
+                self::cancelQueuedSnapins([(int)$this->get('id')]);
+                $this->set('snapinjob', new SnapinJob());
+            }
+            $username = ($username ? $username : self::$FOGUser->get('name'));
+            if (!$Task->isValid()) {
+                $Task = $this->_createTasking(
+                    $taskName,
+                    $TaskType->id,
+                    $username,
+                    // A non-imaging task -- inventory, wake-up, a snapin-only
+                    // run -- is served by no storage group and no node, and
+                    // "none" is NULL now that taskNFSGroupID and
+                    // taskNFSMemberID are nullable and constrained (ADR
+                    // 0031). The 0 that used to stand for it is not a
+                    // nfsGroups row, so the INSERT is refused outright with
+                    // 1452 and the task cannot be created at all.
+                    $imagingTypes ? $StorageGroup->get('id') : null,
+                    $imagingTypes ? $StorageNode->get('id') : null,
+                    $imagingTypes,
+                    $shutdown,
+                    $passreset,
+                    $debug,
+                    $wol,
+                    $bypassbitlocker
+                );
+                $Task->set('imageID', $this->get('imageID'));
+                if (!$Task->save()) {
+                    $serverFault = true;
+                    throw new \Exception(self::$foglang['FailedTask']);
+                }
+                $this->set('task', $Task);
+                // Best-effort: a wget-less U-Boot board can only find its
+                // task over TFTP (see UbootTftpSync), and this is what
+                // closes the gap between queuing and the board being
+                // rebooted right after. Never allowed to fail the task
+                // itself -- UbootTftpSync::materialize() swallows its own
+                // errors, and Service/TaskScheduler.php's reconcile() picks
+                // up anything this misses.
+                UbootTftpSync::materialize($this);
+            }
+            if ($TaskType->isSnapinTask) {
+                if ($deploySnapins === true) {
+                    $deploySnapins = -1;
+                }
+                $mac = $this->get('mac');
+                if ($deploySnapins) {
+                    $this->_createSnapinTasking(
+                        $deploySnapins,
+                        $snapinAbortOnFailure,
+                        $TaskType->isSnapinTasking,
+                        $Task
+                    );
+                }
+            }
+            if ($TaskType->isMulticast) {
                 if ($MulticastSession instanceof MulticastSession
                     && $MulticastSession->isValid()
                 ) {
                     $assoc = true;
                 } else {
-                    MulticastSession::assertCapacity();
                     $MulticastSession = (new MulticastSession())
                         ->set('name', $taskName)
                         ->set('port', MulticastSession::allocatePort())
@@ -1714,7 +1883,12 @@ class Host extends FOGController
                 _('Message'),
                 $message
             ));
-            if (preg_match('#/service/ipxe/boot.php#', self::$scriptname)) {
+            // Rethrow for the iPXE boot script, and for any CLI caller:
+            // FOGTaskScheduler wraps this call in try/catch and skips the one
+            // scheduled task, but the exit below would end the whole daemon.
+            if (preg_match('#/service/ipxe/boot.php#', (string)self::$scriptname)
+                || PHP_SAPI === 'cli'
+            ) {
                 throw new \Exception($message);
             }
             http_response_code($errcode);

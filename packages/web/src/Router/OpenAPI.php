@@ -1618,6 +1618,7 @@ class OpenAPI extends FOGBase
                     sprintf(_('Queue a task against a %s'), $class),
                     _('Body accepts taskTypeID (required), taskName, shutdown, '
                         . 'debug, deploySnapins, snapinAbortOnFailure, '
+                        . 'cancelSnapins (capture only), '
                         . 'passreset, sessionjoin and wol. A success answers '
                         . '200 with no body content, so read the queued task '
                         . 'from the task list. '
@@ -2259,6 +2260,12 @@ class OpenAPI extends FOGBase
                 // Read at Route::task() as (bool), so any value is accepted
                 // and a false-ish one means false. Default false.
                 'snapinAbortOnFailure' => self::_oneOfTypes(
+                    ['string', 'boolean']
+                ),
+                // Read at Route::task() with empty(), so a false-ish value
+                // means false. Only a capture reads it: it cancels the
+                // target's queued snapins first (forum 18325). Default false.
+                'cancelSnapins' => self::_oneOfTypes(
                     ['string', 'boolean']
                 ),
                 'passreset' => ['type' => 'string'],

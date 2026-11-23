@@ -1471,7 +1471,7 @@ msgid "Blocked"
 msgstr ""
 
 #, fuzzy
-msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
+msgid "Body accepts taskTypeID (required), taskName, shutdown, debug, deploySnapins, snapinAbortOnFailure, cancelSnapins (capture only), passreset, sessionjoin and wol. A success answers 200 with no body content, so read the queued task from the task list. Wake-on-lan is this route with wol set, not a route of its own. The caller also needs tasktype.{taskTypeID} (or tasktype.*); without it the answer is 403. The generic create and update routes for task and scheduledtask check the same permission against the row's type."
 msgstr "リクエスト本文には taskTypeID、taskName、shutdown、debug、deploySnapins、passreset、sessionjoin、wol を指定できます。Wake-on-LAN は独立したルートではなく、このルートで wol を指定して実行します。呼び出し元には tasktype.{taskTypeID}（または tasktype.*）の権限も必要です。この権限がない場合は 403 が返されます。task および scheduledtask の汎用作成・更新ルートでも、対象レコードのタスクタイプに対して同じ権限を確認します。"
 
 msgid "Boot File Deleted"
@@ -1634,6 +1634,9 @@ msgstr "選択したタスクをキャンセル"
 #, php-format
 msgid "Cancel a %s task"
 msgstr "%s タスクをキャンセル"
+
+msgid "Cancel queued snapins first"
+msgstr ""
 
 msgid "Cancel the selected tasks."
 msgstr "選択したタスクをキャンセルします。"
@@ -4136,6 +4139,9 @@ msgstr "ホストを追加しました！"
 
 msgid "Host has no active task to cancel"
 msgstr "このホストにはキャンセルできる実行中のタスクがありません"
+
+msgid "Host has queued snapins. Let them finish, or cancel them, before a capture."
+msgstr ""
 
 msgid "Host is already a member of an active task"
 msgstr "ホストは既に実行中のタスクに含まれています"
