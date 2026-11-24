@@ -1034,6 +1034,9 @@
     // same as every other column here, so no per-column handling is needed.
     var hostInstalledSoftwareTable = $('#host-installed-software-table').registerTable(null, {
         columns: [
+            // OS first: a dual-boot host reports one list per seat, and
+            // the column search filters by it.
+            $.escapedColumn('os'),
             $.escapedColumn('name'),
             $.escapedColumn('version'),
             $.escapedColumn('publisher'),
@@ -1043,8 +1046,9 @@
             $.escapedColumn('firstSeen'),
             $.escapedColumn('lastSeen')
         ],
+        // Still by name, now column 1.
         order: [
-            [0, 'asc']
+            [1, 'asc']
         ],
         rowId: 'id',
         processing: true,

@@ -5412,6 +5412,9 @@ class HostManagement extends FOGPage
     {
         $this->renderHistoryTab(
             [
+                // OS first: each seat of a dual-boot host reports its own
+                // list, so the rows are told apart by it.
+                _('OS'),
                 _('Name'),
                 _('Version'),
                 _('Publisher'),
@@ -5422,7 +5425,7 @@ class HostManagement extends FOGPage
                 _('Last Seen')
             ],
             [
-                [], [], [], [], [], [], [], []
+                [], [], [], [], [], [], [], [], []
             ],
             _('Installed Software'),
             'host-installed-software-table'
@@ -8926,6 +8929,7 @@ class HostManagement extends FOGPage
         $hostID = (int)$this->obj->get('id');
         $columns = [
             ['db' => 'hsID', 'dt' => 'id'],
+            ['db' => 'hsOS', 'dt' => 'os'],
             ['db' => 'hsName', 'dt' => 'name'],
             ['db' => 'hsVersion', 'dt' => 'version'],
             ['db' => 'hsPublisher', 'dt' => 'publisher'],

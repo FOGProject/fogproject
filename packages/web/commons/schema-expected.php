@@ -464,11 +464,11 @@ return [
             ],
         ],
         'hostFactState' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hostFactState` ( `hfsID` int(11) NOT NULL AUTO_INCREMENT, `hfsHostID` int(11) NOT NULL, `hfsKind` varchar(16) NOT NULL, `hfsHash` varchar(64) NOT NULL DEFAULT \'\', `hfsUpdated` datetime DEFAULT NULL, PRIMARY KEY (`hfsID`), UNIQUE KEY `hfsHostKind` (`hfsHostID`,`hfsKind`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostFactState` ( `hfsID` int(11) NOT NULL AUTO_INCREMENT, `hfsHostID` int(11) NOT NULL, `hfsKind` varchar(32) NOT NULL, `hfsHash` varchar(64) NOT NULL DEFAULT \'\', `hfsUpdated` datetime DEFAULT NULL, PRIMARY KEY (`hfsID`), UNIQUE KEY `hfsHostKind` (`hfsHostID`,`hfsKind`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hfsID' => 'int(11) NOT NULL',
                 'hfsHostID' => 'int(11) NOT NULL',
-                'hfsKind' => 'varchar(16) NOT NULL',
+                'hfsKind' => 'varchar(32) NOT NULL',
                 'hfsHash' => 'varchar(64) NOT NULL DEFAULT \'\'',
                 'hfsUpdated' => 'datetime DEFAULT NULL',
             ],
@@ -593,10 +593,11 @@ return [
             ],
         ],
         'hostSoftware' => [
-            'create' => 'CREATE TABLE IF NOT EXISTS `hostSoftware` ( `hsID` int(11) NOT NULL AUTO_INCREMENT, `hsHostID` int(11) NOT NULL, `hsName` varchar(255) NOT NULL, `hsVersion` varchar(128) NOT NULL DEFAULT \'\', `hsPublisher` varchar(255) NOT NULL DEFAULT \'\', `hsSource` varchar(16) NOT NULL DEFAULT \'\', `hsArch` varchar(16) NOT NULL DEFAULT \'\', `hsInstallDate` date DEFAULT NULL, `hsFirstSeen` datetime DEFAULT NULL, `hsLastSeen` datetime DEFAULT NULL, `hsRemovedAt` datetime DEFAULT NULL, PRIMARY KEY (`hsID`), UNIQUE KEY `hsHostNameSrcVer` (`hsHostID`,`hsName`,`hsSource`,`hsVersion`), KEY `hsName` (`hsName`), KEY `hsHostRemoved` (`hsHostID`,`hsRemovedAt`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
+            'create' => 'CREATE TABLE IF NOT EXISTS `hostSoftware` ( `hsID` int(11) NOT NULL AUTO_INCREMENT, `hsHostID` int(11) NOT NULL, `hsOS` varchar(20) NOT NULL DEFAULT \'\', `hsName` varchar(255) NOT NULL, `hsVersion` varchar(128) NOT NULL DEFAULT \'\', `hsPublisher` varchar(255) NOT NULL DEFAULT \'\', `hsSource` varchar(16) NOT NULL DEFAULT \'\', `hsArch` varchar(16) NOT NULL DEFAULT \'\', `hsInstallDate` date DEFAULT NULL, `hsFirstSeen` datetime DEFAULT NULL, `hsLastSeen` datetime DEFAULT NULL, `hsRemovedAt` datetime DEFAULT NULL, PRIMARY KEY (`hsID`), UNIQUE KEY `hsHostOSNameSrcVer` (`hsHostID`,`hsOS`,`hsName`,`hsSource`,`hsVersion`), KEY `hsName` (`hsName`), KEY `hsHostRemoved` (`hsHostID`,`hsRemovedAt`) ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci ROW_FORMAT=DYNAMIC',
             'columns' => [
                 'hsID' => 'int(11) NOT NULL',
                 'hsHostID' => 'int(11) NOT NULL',
+                'hsOS' => 'varchar(20) NOT NULL DEFAULT \'\'',
                 'hsName' => 'varchar(255) NOT NULL',
                 'hsVersion' => 'varchar(128) NOT NULL DEFAULT \'\'',
                 'hsPublisher' => 'varchar(255) NOT NULL DEFAULT \'\'',
