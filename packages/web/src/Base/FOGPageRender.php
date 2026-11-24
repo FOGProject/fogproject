@@ -272,6 +272,218 @@ trait FOGPageRender
     }
 
     /**
+     * Renders the Software tab: ONE card with ONE grid, plus the modals.
+     *
+     * The host and the group page differ in a few words and in the host's
+     * extra columns, so they share this card and the JS that drives it
+     * ($.registerSoftwareGrid). The grid is filled from getSoftwareGrid().
+     * Every string the script shows rides on a data attribute of the hidden
+     * #{slug}-i18n element, because the script cannot call _().
+     *
+     * Write controls (Save, Link, Create, Remove, the Action select, the
+     * drag handle) exist only for a user who holds {node}.edit. This is
+     * presentation only: the POST is gated on the server as before. Create
+     * also needs software.create, which renderAssocCreate() checks.
+     *
+     * The header buttons are one right cluster inside .card-tools. That is a
+     * block container, so float-end siblings land first-emitted rightmost:
+     * Link (primary) is emitted first and Create (secondary) after it.
+     *
+     * @param string $tabSlug   the tab slug: 'host-software' or 'group-software'
+     * @param string $node      the node being edited: 'host' or 'group'
+     * @param string $helpBlock the help line, translated, NOT escaped: it is
+     *                          escaped here
+     *
+     * @return void
+     */
+    protected function renderSoftwareGrid($tabSlug, $node, $helpBlock)
+    {
+        $canEdit = Authorization::can($node . '.edit');
+        $isHost = 'host' === $node;
+        $e = function ($text) {
+            return \Initiator::e($text);
+        };
+        $props = ' method="post" action="'
+            . $e(
+                self::makeTabUpdateURL(
+                    $tabSlug,
+                    $this->obj->get('id')
+                )
+            )
+            . '" type="button" ';
+        $buttons = '';
+        $modals = '';
+        if ($canEdit) {
+            $buttons = self::makeButton(
+                "$tabSlug-link",
+                _('Link software'),
+                'btn btn-primary float-end',
+                ' type="button" '
+            );
+            // Appends the Create button after Link, so it lands to its left.
+            $modals .= self::renderAssocCreate(
+                $tabSlug,
+                'software',
+                $buttons,
+                $this->obj->get('id')
+            );
+            $modals .= self::makeModal(
+                "$tabSlug-linkModal",
+                _('Link software'),
+                '<select id="' . $tabSlug . '-link-select" multiple="multiple" '
+                . 'class="form-select" style="width: 100%" '
+                . 'aria-label="' . $e(_('Software to link')) . '"></select>',
+                self::makeButton(
+                    "$tabSlug-link-cancel",
+                    _('Cancel'),
+                    'btn btn-outline-secondary float-start',
+                    ' type="button" data-bs-dismiss="modal" '
+                )
+                . self::makeButton(
+                    "$tabSlug-link-send",
+                    _('Link'),
+                    'btn btn-primary float-end',
+                    ' type="button" '
+                ),
+                '',
+                'primary'
+            );
+            // The forced choice for Remove, for one row or for every row
+            // checked. Cancel is dismiss (left); the two answers follow in
+            // emission order, the destructive one rightmost.
+            $modals .= self::makeModal(
+                "$tabSlug-removeModal",
+                _('Remove software'),
+                '<p id="' . $tabSlug . '-remove-text"></p>',
+                self::makeButton(
+                    "$tabSlug-remove-cancel",
+                    _('Cancel'),
+                    'btn btn-outline-secondary float-start',
+                    ' type="button" data-bs-dismiss="modal" '
+                )
+                . self::makeButton(
+                    "$tabSlug-remove-stop",
+                    _('Stop managing (leave installed)'),
+                    'btn btn-secondary',
+                    ' type="button" '
+                )
+                . self::makeButton(
+                    "$tabSlug-remove-uninstall",
+                    $isHost
+                        ? _('Uninstall from this host')
+                        : _('Uninstall from this group\'s hosts'),
+                    'btn btn-danger',
+                    ' type="button" '
+                ),
+                '',
+                'primary'
+            );
+        }
+        $labels = [
+            'inherit' => _('Inherit'),
+            'install' => _('Install'),
+            'uninstall' => _('Uninstall'),
+            // A group has no parent, so its Inherit says what an unset
+            // action falls back to; a host's Inherit is explained by the
+            // resolved text next to it.
+            'inheritGroup' => _('Not set (other groups, else package default)'),
+            'tplPackage' => _('{action} (package default)'),
+            'tplPackageVia' => _('{action} (package default, via group {group})'),
+            'tplGroup' => _('{action} (group {group})'),
+            'tplHost' => _('{action} (this host)'),
+            'statusConverged' => _('Converged'),
+            'statusInstalled' => _('Installed'),
+            'statusUpgraded' => _('Upgraded'),
+            'statusRemoved' => _('Removed'),
+            // Not agent statuses: SoftwareSet::report() stores the
+            // outcome (Snapins::OUTCOME_*) when an action exits non-zero.
+            'statusFailed' => _('Failed'),
+            'statusRetry' => _('Retry'),
+            'statusReboot' => _('Reboot'),
+            'statusTimeout' => _('Timeout'),
+            'statusCannotRun' => _('Cannot Run'),
+            'moveUp' => _('Move up'),
+            'moveDown' => _('Move down'),
+            'loadFailed' => _('The effective software could not be loaded.'),
+            'disabled' => _('disabled'),
+            'superseded' => _('superseded'),
+            'remove' => _('Remove'),
+            'removeLink' => _('Remove link'),
+            'undo' => _('Undo'),
+            'willUnlink' => _('Will stop managing'),
+            'willLink' => _('Will link on save'),
+            'empty' => _('No software is linked.'),
+            'dragTitle' => _('Drag to reorder'),
+            'removeText' => _('What should happen to {name}?'),
+            'nothing' => _('Nothing to save.')
+        ];
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header">';
+        echo '<h4 class="card-title">';
+        echo _('Software');
+        echo '</h4>';
+        if ('' !== $buttons) {
+            echo '<div class="card-tools float-end">';
+            echo $buttons;
+            echo '</div>';
+        }
+        if ('' !== $helpBlock) {
+            echo '<p class="form-text">';
+            echo $e($helpBlock);
+            echo '</p>';
+        }
+        echo '</div>';
+        echo '<div class="card-body">';
+        echo '<div id="' . $tabSlug . '-i18n" class="d-none"';
+        foreach ($labels as $key => $text) {
+            echo ' data-'
+                . strtolower(preg_replace('/([A-Z])/', '-$1', $key))
+                . '="' . $e($text) . '"';
+        }
+        echo '></div>';
+        echo '<table id="' . $tabSlug . '-grid" class="table table-sm w-100"'
+            . ' data-can-edit="' . ($canEdit ? '1' : '0') . '">';
+        echo '<thead><tr>';
+        // The first column is the row checkbox (bulk remove); the second
+        // holds the drag handle, the position and the up/down buttons.
+        $heads = [
+            '', '#', _('Software'), _('Package'), _('Backend'), _('Action')
+        ];
+        if ($isHost) {
+            $heads[] = _('Last result');
+        }
+        $heads[] = '';
+        foreach ($heads as $head) {
+            echo '<th>' . $e($head) . '</th>';
+        }
+        echo '</tr></thead><tbody></tbody></table>';
+        echo '</div>';
+        if ($canEdit) {
+            echo '<div class="card-footer">';
+            echo self::makeButton(
+                "$tabSlug-save",
+                _('Save changes'),
+                'btn btn-primary float-end',
+                $props
+            );
+            // Destructive, so left. Opens the same forced choice as a row's
+            // Remove, for every checked row.
+            echo self::makeButton(
+                "$tabSlug-remove-selected",
+                _('Remove selected'),
+                'btn btn-danger float-start',
+                ' type="button" disabled="disabled" '
+            );
+            echo '<span id="' . $tabSlug . '-dirty" '
+                . 'class="badge text-bg-warning float-end me-2 mt-2 d-none">'
+                . $e(_('Unsaved changes'))
+                . '</span>';
+            echo $modals;
+            echo '</div>';
+        }
+        echo '</div>';
+    }
+    /**
      * Renders a simple display tab: a box-primary panel with a title and a
      * single DataTable. Shared by the group/host history tabs whose only
      * differences are the column set, the title text and the table id.

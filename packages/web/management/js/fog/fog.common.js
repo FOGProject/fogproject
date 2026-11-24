@@ -1955,6 +1955,705 @@ $.registerCreateAndAssociate = function(slug, table, opts) {
     }
   });
 };
+// $.registerSoftwareGrid(opts) - the Software tab of a host or a group: ONE
+// DataTable that shows the owner's links in run order (and, on a host, what it
+// inherits from its groups), edits them in the browser, and saves them all
+// with one click.
+//
+// The server draws the card (FOGPageRender::renderSoftwareGrid) and answers
+// the rows (getSoftwareGrid). Every string rides on a data attribute of
+// #{slug}-i18n, because this script cannot call _().
+//
+// Nothing is written until Save. A change is a field on the row's data object:
+//   st      the Action the row will have: '' (inherit), 'present', 'absent'
+//   unlink  true when the link will be removed ("Stop managing")
+// A row that is not linked (inherited from a group) and has st !== '' will be
+// linked with that state. The Link modal and Create write at once, through the
+// same additems POST as Save step 1, and reload the grid. A reload keeps the
+// edits already made (see reload()), so linking never throws them away.
+//
+// Save posts to the tab's existing update URL, in two requests that stop on
+// the first failure:
+//   1. confirmadd/additems (new links) and confirmdel/remitems (stop managing)
+//   2. softwareorder[] (drag order of the links that remain) and
+//      softwarestate[id] (every remaining link)
+// They cannot be one request on a HOST: Host::addSoftware() only stages the
+// new rows and save() writes them after the handler returns, while
+// setSoftwareOrder()/setSoftwareStates() UPDATE rows, so on one request they
+// would touch rows that do not exist yet.
+//
+// opts.slug - 'host-software' or 'group-software'
+// opts.node - 'host' or 'group'
+// opts.id   - the owner id
+// Returns the DataTable API, so a page can apply the universal search to it.
+$.registerSoftwareGrid = function(opts) {
+  var slug = opts.slug,
+    node = opts.node,
+    id = opts.id,
+    isHost = node === 'host',
+    grid = $('#' + slug + '-grid'),
+    i18n = $('#' + slug + '-i18n').data() || {},
+    canEdit = grid.attr('data-can-edit') === '1',
+    saveBtn = $('#' + slug + '-save'),
+    removeSelBtn = $('#' + slug + '-remove-selected'),
+    dirtyBadge = $('#' + slug + '-dirty'),
+    linkModal = $('#' + slug + '-linkModal'),
+    linkSelect = $('#' + slug + '-link-select'),
+    removeModal = $('#' + slug + '-removeModal'),
+    // The rows the open Remove modal is asking about.
+    removing = [],
+    available = [],
+    // The ids of the linked rows in run order, as the server last sent them.
+    origOrder = [],
+    columns,
+    dt;
+
+  if (!grid.length) {
+    return null;
+  }
+
+  // Fills {name}-style placeholders in a translated template.
+  function fill(tpl, vals) {
+    var out = String(tpl || '');
+    $.each(vals, function(k, v) {
+      out = out.split('{' + k + '}').join(v);
+    });
+    return out;
+  }
+
+  function actionLabel(state) {
+    return state === 'absent' ? i18n.uninstall : i18n.install;
+  }
+
+  // "-> Install (group Lab PCs)": what an Action of Inherit comes to. It is
+  // only shown while the row still says what the server last said, because
+  // the server's answer is about the saved state, not an unsaved edit.
+  function resolvedText(r) {
+    // A group has no parent, so there is nothing to resolve: its Inherit
+    // option carries its own wording (inheritGroup) and no arrow text.
+    if (r.st !== '' || !isHost) {
+      return '';
+    }
+    if (r.st !== r.state || r.effective === null) {
+      return '';
+    }
+    var action = actionLabel(r.effective);
+    if (r.source === 'host') {
+      return '→ ' + fill(i18n.tplHost, {action: action});
+    }
+    if (r.source === 'group') {
+      return '→ ' + fill(i18n.tplGroup, {action: action, group: r.sourceName});
+    }
+    // No link set a state: the package default applies. Name the group that
+    // grants the entry, when one does.
+    if (r.viaName) {
+      return '→ ' + fill(i18n.tplPackageVia, {action: action, group: r.viaName});
+    }
+    return '→ ' + fill(i18n.tplPackage, {action: action});
+  }
+
+  // An agent status token as words: 'cannot_run' reads i18n.statusCannotRun.
+  // An unknown token is shown as sent.
+  function statusLabel(token) {
+    var key = 'status' + String(token).replace(/(?:^|_)([a-z])/g, function(m, c) {
+      return c.toUpperCase();
+    });
+    return i18n[key] || token;
+  }
+
+  function lastResult(r) {
+    var parts = [];
+    $.each([r.status ? statusLabel(r.status) : '', r.installedVersion, r.checked], function(i, v) {
+      if (v) {
+        parts.push(v);
+      }
+    });
+    return parts.length ? parts.join(' ') : '—';
+  }
+
+  // True when the row is changed from what the server sent.
+  function rowChanged(r) {
+    if (r.linked) {
+      return r.st !== r.state || r.unlink;
+    }
+    return r.st !== '';
+  }
+
+  // The ids of the linked rows, in the order they show.
+  function linkedOrder() {
+    var ids = [];
+    dt.rows({order: 'applied'}).data().each(function(r) {
+      if (r.linked) {
+        ids.push(r.id);
+      }
+    });
+    return ids;
+  }
+
+  function isDirty() {
+    var changed = false;
+    dt.rows().data().each(function(r) {
+      if (rowChanged(r)) {
+        changed = true;
+      }
+    });
+    return changed || linkedOrder().join(',') !== origOrder.join(',');
+  }
+
+  function updateDirty() {
+    dirtyBadge.toggleClass('d-none', !isDirty());
+  }
+
+  function redrawRow(tr) {
+    dt.row(tr).invalidate().draw(false);
+    updateDirty();
+  }
+
+  // The Remove selected button is live while any row is checked.
+  function updateBulk() {
+    var any = false;
+    dt.rows().data().each(function(r) {
+      if (r.sel) {
+        any = true;
+      }
+    });
+    removeSelBtn.prop('disabled', !any);
+  }
+
+  // Redraws every row after a change that spans rows.
+  function redrawAll() {
+    dt.rows().invalidate().draw(false);
+    updateDirty();
+    updateBulk();
+  }
+
+  // Moves a linked row one place, for a keyboard user who cannot drag. It
+  // swaps positions with the next linked row, which is what a drop does.
+  function moveRow(r, step) {
+    var rows = dt.rows({order: 'applied'}).data().toArray(),
+      at = $.inArray(r, rows),
+      to = at + step,
+      tmp;
+    // Skip inherited rows and rows marked for removal: neither is numbered,
+    // so a swap with one would look like the click did nothing.
+    while (to >= 0 && to < rows.length && (!rows[to].linked || rows[to].unlink)) {
+      to += step;
+    }
+    if (at < 0 || to < 0 || to >= rows.length || !rows[to].linked || rows[to].unlink) {
+      return;
+    }
+    tmp = r.pos;
+    r.pos = rows[to].pos;
+    rows[to].pos = tmp;
+    redrawAll();
+  }
+
+  columns = [
+    {
+      data: null,
+      defaultContent: '',
+      width: '2em',
+      render: function(d, type, r) {
+        if (type !== 'display' || !canEdit || !r.linked || r.unlink) {
+          return '';
+        }
+        return '<input type="checkbox" class="form-check-input sw-sel"'
+          + (r.sel ? ' checked' : '') + '>';
+      }
+    },
+    {
+      data: 'pos',
+      width: '8em',
+      render: function(d, type, r) {
+        if (type !== 'display') {
+          return d;
+        }
+        if (!r.linked) {
+          return '';
+        }
+        var html = '';
+        if (canEdit && !r.unlink) {
+          html += '<i class="fas fa-grip-vertical text-muted me-1" title="'
+            + $.escapeHtml(i18n.dragTitle) + '"></i>';
+        }
+        html += '<span class="sw-num"></span>';
+        if (canEdit && !r.unlink) {
+          // Keyboard access alongside drag.
+          html += ' <button type="button" class="btn btn-sm btn-link p-0 '
+            + 'sw-up" title="' + $.escapeHtml(i18n.moveUp) + '">'
+            + '<i class="fas fa-arrow-up"></i></button>'
+            + ' <button type="button" class="btn btn-sm btn-link p-0 '
+            + 'sw-down" title="' + $.escapeHtml(i18n.moveDown) + '">'
+            + '<i class="fas fa-arrow-down"></i></button>';
+        }
+        return html;
+      }
+    },
+    {
+      data: 'name',
+      render: function(d, type, r) {
+        if (type !== 'display') {
+          return d;
+        }
+        var html = $.escapeHtml(d);
+        if (r.note) {
+          html += ' <span class="badge text-bg-secondary">'
+            + $.escapeHtml(i18n[r.note]) + '</span>';
+        }
+        if (r.unlink) {
+          html += ' <span class="badge text-bg-warning">'
+            + $.escapeHtml(i18n.willUnlink) + '</span> '
+            + '<a href="#" class="sw-undo">' + $.escapeHtml(i18n.undo) + '</a>';
+        } else if (!r.linked && r.st !== '') {
+          html += ' <span class="badge text-bg-info">'
+            + $.escapeHtml(i18n.willLink) + '</span>';
+        }
+        return html;
+      }
+    },
+    {
+      data: 'package',
+      render: function(d, type) {
+        return type === 'display' ? $.escapeHtml(d) : d;
+      }
+    },
+    {
+      data: 'backend',
+      render: function(d, type) {
+        return type === 'display' ? $.escapeHtml(d) : d;
+      }
+    },
+    {
+      data: 'st',
+      render: function(d, type, r) {
+        if (type !== 'display') {
+          return d;
+        }
+        var text = resolvedText(r),
+          inherit = isHost ? i18n.inherit : i18n.inheritGroup,
+          label = d === '' ? inherit : actionLabel(d),
+          html = '';
+        if (canEdit) {
+          html = '<select class="form-select form-select-sm sw-action '
+            // A narrow column squeezes w-auto, and the arrow then covers
+            // the label: hold the select to its longest label.
+            + 'd-inline-block w-auto" style="min-width: 8.5em"'
+            + (r.unlink ? ' disabled' : '') + '>';
+          $.each([
+            ['', inherit],
+            ['present', i18n.install],
+            ['absent', i18n.uninstall]
+          ], function(i, o) {
+            html += '<option value="' + o[0] + '"'
+              + (o[0] === d ? ' selected' : '') + '>'
+              + $.escapeHtml(o[1]) + '</option>';
+          });
+          html += '</select>';
+        } else {
+          html = $.escapeHtml(label);
+        }
+        if (text) {
+          html += ' <span class="text-muted ms-1">' + $.escapeHtml(text) + '</span>';
+        }
+        return html;
+      }
+    }
+  ];
+  if (isHost) {
+    columns.push({
+      data: 'status',
+      render: function(d, type, r) {
+        return type === 'display' ? $.escapeHtml(lastResult(r)) : d;
+      }
+    });
+  }
+  columns.push({
+    data: null,
+    defaultContent: '',
+    render: function(d, type, r) {
+      if (type !== 'display' || !canEdit || !r.linked || r.unlink) {
+        return '';
+      }
+      var html = '<button type="button" '
+        + 'class="btn btn-danger btn-sm float-start me-1 sw-remove">'
+        + $.escapeHtml(i18n.remove) + '</button>';
+      // A removed package keeps its link only to show the result. Offer to
+      // drop the link itself. The SAVED state decides (not an unsaved edit),
+      // and the status stays 'removed' only until the agent's next report:
+      // SoftwareSet::report() then overwrites it with 'converged'.
+      if (isHost && r.state === 'absent'
+        && (r.status === 'removed' || r.status === 'converged')) {
+        html += '<button type="button" '
+          + 'class="btn btn-outline-secondary btn-sm sw-remove-link">'
+          + $.escapeHtml(i18n.removeLink) + '</button>';
+      }
+      return html;
+    }
+  });
+
+  dt = grid.DataTable({
+    data: [],
+    columns: columns,
+    // Rows are ordered by their position and by nothing else: RowReorder
+    // writes the new position into 'pos' and redraws, so the table has to sort
+    // on it. No column is orderable, so no header click can fight that.
+    orderFixed: [[1, 'asc']],
+    columnDefs: [{orderable: false, targets: '_all'}],
+    // No default order on top of orderFixed: it would sort column 0 too.
+    order: [],
+    // Nothing is user-sortable, so no header should show a sort arrow. This
+    // DataTables (2.0.8) has no option to hide the arrow orderFixed draws,
+    // so drop the empty spans that carry it.
+    initComplete: function() {
+      $(this.api().table().header()).find('.dt-column-order').remove();
+    },
+    paging: false,
+    info: false,
+    dom: 't',
+    autoWidth: false,
+    language: {emptyTable: i18n.empty},
+    rowReorder: canEdit ? {
+      dataSrc: 'pos',
+      selector: 'td.sw-handle',
+      // The up/down buttons live in the handle cell. RowReorder tests the
+      // clicked element itself ($(target).is(...)), and a click on a button
+      // lands on its <i> icon, so the icon has to be excluded too, or the
+      // mousedown starts a drag and the button never moves the row.
+      excludedChildren: 'a, a *, button, button *',
+      update: true
+    } : false,
+    rowCallback: function(tr, r) {
+      // The handle exists only on a linked row that is not marked for
+      // removal. An inherited row has none, so it cannot be picked up.
+      $(tr).children('td:nth-child(2)').toggleClass(
+        'sw-handle',
+        canEdit && r.linked && !r.unlink
+      );
+      $(tr).toggleClass('text-muted text-decoration-line-through', !!r.unlink);
+    },
+    drawCallback: function() {
+      // Number the rows that will remain, so a row marked for removal does
+      // not leave a gap.
+      var n = 0;
+      this.api().rows({order: 'applied'}).every(function() {
+        var r = this.data();
+        $(this.node()).find('.sw-num').text(r.linked && !r.unlink ? ++n : '');
+      });
+    }
+  });
+
+  // An inherited row sits after the linked ones and is not movable. A drop
+  // that would shift one is refused.
+  grid.on('row-reorder.dt', function(e, diff) {
+    var i;
+    for (i = 0; i < diff.length; i++) {
+      if (!dt.row(diff[i].node).data().linked) {
+        return false;
+      }
+    }
+  });
+  grid.on('row-reordered.dt', updateDirty);
+
+  // Loads the grid. keep=true carries the edits already made across the load
+  // (by software id), so a link made from the modal does not lose them.
+  function reload(keep) {
+    var edits = {},
+      order = null;
+    if (keep) {
+      dt.rows().data().each(function(r) {
+        edits[r.id] = {st: r.st, unlink: r.unlink};
+      });
+      order = linkedOrder();
+    }
+    $.ajax({
+      url: '../management/index.php?node=' + node
+        + '&sub=getSoftwareGrid&id=' + id,
+      dataType: 'json',
+      success: function(res) {
+        var rows = (res && res.data) ? res.data : [],
+          linked = [],
+          other = [];
+        available = (res && res.available) ? res.available : [];
+        $.each(rows, function(i, r) {
+          (r.linked ? linked : other).push(r);
+        });
+        origOrder = $.map(linked, function(r) {
+          return r.id;
+        });
+        if (order) {
+          // Keep the dragged order; anything new goes last.
+          linked.sort(function(a, b) {
+            var ia = $.inArray(a.id, order),
+              ib = $.inArray(b.id, order);
+            return (ia < 0 ? 1e6 : ia) - (ib < 0 ? 1e6 : ib);
+          });
+        }
+        $.each(linked.concat(other), function(i, r) {
+          // Inherited rows get positions after every linked one.
+          r.pos = r.linked ? i + 1 : 1000 + i;
+          r.st = r.state;
+          r.unlink = false;
+          if (edits[r.id]) {
+            // An unlink edit carries no Action. If its unlink went through
+            // before a later step failed, the row returns as inherited, and
+            // carrying the Action it had would mark it "Will link on save".
+            // If the unlink did not go through the row is still linked and
+            // r.unlink restores the mark.
+            if (edits[r.id].unlink) {
+              r.unlink = r.linked;
+            } else {
+              // Safe for an added link: if the add went through, the row is
+              // now linked and this Action is an unsaved edit on it (step 2
+              // never ran); if the add did not, the row is still inherited
+              // and this Action is what "Will link on save" means.
+              r.st = edits[r.id].st;
+            }
+          }
+        });
+        // Back to the normal empty text after an earlier failed load.
+        dt.settings()[0].oLanguage.sEmptyTable = i18n.empty;
+        dt.clear().rows.add(linked.concat(other)).draw();
+        updateDirty();
+        updateBulk();
+      },
+      error: function(jqXHR) {
+        // Say why in the grid, not only in a toast: an empty list would
+        // read as "nothing is linked" when the load failed.
+        available = [];
+        origOrder = [];
+        dt.settings()[0].oLanguage.sEmptyTable = i18n.loadFailed;
+        dt.clear().draw();
+        updateDirty();
+        updateBulk();
+        $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+      }
+    });
+  }
+
+  // Posts to the tab's update URL, calling next() on success only.
+  // quiet=true raises no success toast, for a step another request follows,
+  // so a Save shows one toast and not one per request. A failure always
+  // shows.
+  function post(data, next, failed, quiet) {
+    if (quiet) {
+      $.ajax({
+        type: 'post',
+        url: saveBtn.attr('action'),
+        cache: false,
+        data: data,
+        success: function(res) {
+          if (res && res.error) {
+            $.notifyFromAPI(res, true);
+            failed();
+            return;
+          }
+          next();
+        },
+        error: function(jqXHR) {
+          $.notifyFromAPI(jqXHR.responseJSON, jqXHR);
+          failed();
+        }
+      });
+      return;
+    }
+    $.apiCall(saveBtn.attr('method'), saveBtn.attr('action'), data, function(err, res) {
+      if (err || (res && res.error)) {
+        failed();
+        return;
+      }
+      next();
+    });
+  }
+
+  if (canEdit) {
+    grid.on('change', 'select.sw-action', function() {
+      var tr = $(this).closest('tr');
+      dt.row(tr).data().st = this.value;
+      redrawRow(tr);
+    });
+
+    grid.on('click', '.sw-undo', function(e) {
+      e.preventDefault();
+      var tr = $(this).closest('tr');
+      dt.row(tr).data().unlink = false;
+      redrawRow(tr);
+    });
+
+    grid.on('click', '.sw-remove-link', function() {
+      var tr = $(this).closest('tr');
+      dt.row(tr).data().unlink = true;
+      dt.row(tr).data().sel = false;
+      redrawRow(tr);
+      updateBulk();
+    });
+
+    grid.on('change', 'input.sw-sel', function() {
+      dt.row($(this).closest('tr')).data().sel = this.checked;
+      updateBulk();
+    });
+
+    grid.on('click', '.sw-up', function() {
+      moveRow(dt.row($(this).closest('tr')).data(), -1);
+    });
+
+    grid.on('click', '.sw-down', function() {
+      moveRow(dt.row($(this).closest('tr')).data(), 1);
+    });
+
+    // Remove asks what should happen: uninstall, or stop managing. It asks
+    // for one row, or for every checked row, and the answer applies to all
+    // of them.
+    function askRemove(rows) {
+      var names = $.map(rows, function(r) {
+        return r.name;
+      });
+      removing = rows;
+      $('#' + slug + '-remove-text').text(
+        fill(i18n.removeText, {name: names.join(', ')})
+      );
+      removeModal.modal('show');
+    }
+    grid.on('click', '.sw-remove', function() {
+      askRemove([dt.row($(this).closest('tr')).data()]);
+    });
+    removeSelBtn.on('click', function() {
+      var rows = [];
+      dt.rows({order: 'applied'}).data().each(function(r) {
+        if (r.sel && r.linked && !r.unlink) {
+          rows.push(r);
+        }
+      });
+      if (rows.length > 0) {
+        askRemove(rows);
+      }
+    });
+    // Applies the answer to the rows asked about, and clears their checks.
+    function answerRemove(apply) {
+      $.each(removing, function(i, r) {
+        apply(r);
+        r.sel = false;
+      });
+      removing = [];
+      removeModal.modal('hide');
+      redrawAll();
+    }
+    $('#' + slug + '-remove-uninstall').on('click', function() {
+      answerRemove(function(r) {
+        r.st = 'absent';
+      });
+    });
+    $('#' + slug + '-remove-stop').on('click', function() {
+      answerRemove(function(r) {
+        r.unlink = true;
+      });
+    });
+
+    // Link modal: a multi-select of what is not linked yet. The dropdown is
+    // pinned to the modal, or Bootstrap's focus trap hides it behind it.
+    $('#' + slug + '-link').on('click', function() {
+      linkModal.modal('show');
+    });
+    linkModal.on('show.bs.modal', function() {
+      linkSelect.empty();
+      $.each(available, function(i, s) {
+        linkSelect.append(new Option(s.name, s.id, false, false));
+      });
+      if (!linkSelect.data('select2')) {
+        linkSelect.select2({width: '100%', dropdownParent: linkModal});
+      }
+      linkSelect.val(null).trigger('change');
+    });
+    $('#' + slug + '-link-send').on('click', function() {
+      var ids = linkSelect.val() || [],
+        btn = $(this);
+      if (ids.length < 1) {
+        linkModal.modal('hide');
+        return;
+      }
+      btn.prop('disabled', true);
+      // Saves at once: the same additems POST as Save, then a reload.
+      $.apiCall(saveBtn.attr('method'), saveBtn.attr('action'), {
+        confirmadd: 1,
+        additems: ids
+      }, function() {
+        btn.prop('disabled', false);
+        linkModal.modal('hide');
+        reload(true);
+      });
+    });
+
+    // Create new: the shared create modal, then the same additems POST.
+    $.registerCreateAndAssociate(slug, {
+      draw: function() {
+        reload(true);
+      }
+    });
+
+    saveBtn.on('click', function(e) {
+      e.preventDefault();
+      var add = [],
+        rem = [],
+        order = [],
+        states = {},
+        stepOne = {},
+        stepTwo = {},
+        failed = function() {
+          // Keep what was typed; show what the server holds now.
+          saveBtn.prop('disabled', false);
+          reload(true);
+        },
+        finish = function() {
+          saveBtn.prop('disabled', false);
+          reload(false);
+        };
+      dt.rows({order: 'applied'}).data().each(function(r) {
+        if (r.unlink) {
+          rem.push(r.id);
+        } else if (r.linked) {
+          order.push(r.id);
+          states[r.id] = r.st;
+        } else if (r.st !== '') {
+          add.push(r.id);
+          order.push(r.id);
+          states[r.id] = r.st;
+        }
+      });
+      if (!isDirty()) {
+        $.notify(i18n.nothing, '', 'notice');
+        return;
+      }
+      if (add.length > 0) {
+        stepOne.confirmadd = 1;
+        stepOne.additems = add;
+      }
+      if (rem.length > 0) {
+        stepOne.confirmdel = 1;
+        stepOne.remitems = rem;
+      }
+      if (order.length > 0) {
+        stepTwo.softwareorder = order;
+        stepTwo.softwarestate = states;
+      }
+      saveBtn.prop('disabled', true);
+      var two = function() {
+        if (order.length < 1) {
+          finish();
+          return;
+        }
+        post(stepTwo, finish, failed);
+      };
+      if (add.length > 0 || rem.length > 0) {
+        // Quiet when step 2 follows, so the Save raises one toast.
+        post(stepOne, two, failed, order.length > 0);
+      } else {
+        two();
+      }
+    });
+  }
+
+  reload(false);
+  return dt;
+};
 // $.registerCreateAndSelect(slug, opts) - create-and-associate for a tab whose
 // association is a single DROPDOWN rather than a grid (the location/site/ou/
 // windowskey plugin tabs). The new option is appended and selected, then the

@@ -15,6 +15,7 @@
 
 namespace FOG\Pages;
 
+use FOG\Assign\SoftwareGrid;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGPage;
 use FOG\Items\Group;
@@ -618,53 +619,21 @@ class GroupManagement extends FOGPage
      */
     public function groupSoftware()
     {
-        $this->renderAssocTab(
+        // One card, one grid: the software this group grants, in run order.
+        // getSoftwareGrid() fills it.
+        $this->renderSoftwareGrid(
             'group-software',
-            _('Group Software Assignment'),
-            _('Software Name'),
-            'software',
-            'btn btn-primary float-end',
+            'group',
             _(
-                'Software granted here applies to every host in this group, '
-                . 'including hosts added later.'
-            ),
-            'software'
-        );
-
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'group-software',
-                $this->obj->get('id')
+                'Software granted here applies to every host in this '
+                . 'group, including hosts added later. The order this '
+                . 'group\'s software is applied in: a host applies its own '
+                . 'software first, then the software granted here, in this '
+                . 'order. An action set here applies to this group\'s hosts '
+                . 'unless the host sets its own or an earlier group sets '
+                . 'one.'
             )
-            . '" ';
-
-        $orderButton = self::makeButton(
-            'group-software-order-save',
-            _('Save order and states'),
-            'btn btn-primary float-end',
-            $props
         );
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo _('Software Order and State');
-        echo '</h4>';
-        echo '<p class="form-text">';
-        echo _(
-            'The order this group\'s software is applied in. A host applies '
-            . 'its own software first, then the software granted here, in '
-            . 'this order. A state set here applies to this group\'s hosts '
-            . 'unless the host sets its own or an earlier group sets one.'
-        );
-        echo '</p>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        echo '<ol id="group-software-order-list" class="list-group"></ol>';
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $orderButton;
-        echo '</div>';
-        echo '</div>';
     }
     /**
      * Group software post
@@ -2250,29 +2219,6 @@ class GroupManagement extends FOGPage
         );
     }
     /**
-     * Presents the software list table.
-     *
-     * @return void
-     */
-    public function getSoftwareList()
-    {
-        $this->assocItemsList(
-            'software',
-            'groupsoftwareassociation',
-            'groupSoftwareAssoc',
-            '`software`.`swID`',
-            '`groupSoftwareAssoc`.`gswaSoftwareID`',
-            '`groupSoftwareAssoc`.`gswaGroupID`',
-            [
-                [
-                    'db' => 'groupAssoc',
-                    'dt' => 'association',
-                    'removeFromQuery' => true
-                ]
-            ]
-        );
-    }
-    /**
      * Returns the snapins this group grants, in run order.
      *
      * ADR 0038: the group owns the rows, so the order is read straight off
@@ -2317,51 +2263,38 @@ class GroupManagement extends FOGPage
         $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
     }
     /**
-     * Returns the software this group grants, in run order.
+     * Returns the Software tab grid: the software this group grants, in run
+     * order (gswaSequence), and the entries the Link modal can offer.
      *
-     * Mirrors getSnapinOrderList() above over groupSoftwareAssoc/gswaSequence.
+     * A GET, so the 'get' prefix makes it view permission
+     * (Authorization::_subToAction). A group has no parent, so there is no
+     * resolver and no status: SoftwareGrid::groupRows() builds the rows.
      *
      * @return void
      */
-    public function getSoftwareOrderList()
+    public function getSoftwareGrid()
     {
-        $data = [];
-        $grants = Route::getList(
-            'groupsoftwareassociation',
-            ['groupID' => $this->obj->get('id')],
-            'AND',
-            'sequence'
+        $links = SoftwareGrid::links(
+            Route::getList(
+                'groupsoftwareassociation',
+                ['groupID' => $this->obj->get('id')],
+                'AND',
+                'sequence'
+            )
         );
-        $softwareIDs = [];
-        $states = [];
-        foreach ($grants as $grant) {
-            $softwareIDs[] = (int)$grant->softwareID;
-            // The grant's own override; '' when NULL (use the entry's state).
-            $states[(int)$grant->softwareID] = (string)($grant->state ?? '');
-        }
-        if (count($softwareIDs) > 0) {
-            $names = [];
-            $entryStates = [];
-            $Softwares = Route::getList('software', ['id' => $softwareIDs]);
-            foreach ($Softwares as $Software) {
-                $names[(int)$Software->id] = $Software->name;
-                $entryStates[(int)$Software->id] = (string)$Software->state;
-            }
-            foreach ($softwareIDs as $sid) {
-                // Same contract as the host tab: only list ids that resolve
-                // to a real software entry (skip stale/0 associations).
-                if (!isset($names[$sid])) {
-                    continue;
-                }
-                $data[] = [
-                    'id' => $sid,
-                    'name' => $names[$sid],
-                    'state' => $states[$sid],
-                    'entryState' => $entryStates[$sid]
-                ];
-            }
-        }
-        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
+        $software = SoftwareGrid::entries(Route::getList('software'));
+        $this->jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode(
+                [
+                    'data' => SoftwareGrid::groupRows($links, $software),
+                    'available' => SoftwareGrid::available(
+                        $software,
+                        array_column($links, 'id')
+                    )
+                ]
+            )
+        );
     }
     /**
      * Returns the module list as well as the associated
