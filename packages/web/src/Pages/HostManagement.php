@@ -4252,8 +4252,9 @@ class HostManagement extends FOGPage
                         'Based on the agent\'s last report and the saved '
                         . 'assignments. The agent keeps Chocolatey, its '
                         . 'extensions, dependencies of assigned packages, '
-                        . 'and snap bases and content providers, so it can '
-                        . 'remove fewer.'
+                        . 'snap bases and content providers, and the apps '
+                        . 'the OS shipped with (such as Firefox on Ubuntu), '
+                        . 'so it can remove fewer.'
                     )
                 )
                 . '</p>';
