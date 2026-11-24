@@ -13,7 +13,9 @@
 
 namespace FOG\Agent;
 
+use FOG\Audit\Audit;
 use FOG\Base\FOGBase;
+use FOG\Items\AgentEnrollment;
 use FOG\Items\Host;
 use FOG\Managers\HostManager;
 
@@ -61,6 +63,13 @@ class Seat extends FOGBase
         . '`ha`.`haFingerprint` AS `fingerprint`, '
         . '`ha`.`haNotAfter` AS `notAfter`, `ha`.`haVersion` AS `version`, '
         . '`ha`.`haUpdateState` AS `updateState`, `ha`.`haCheckin` AS `checkin`';
+
+    /**
+     * The text remove() stores in aeCSR of an enrollment row it makes for a
+     * seat that had none. It is not a PEM, so nothing can sign it.
+     * Enrollment::handle() replaces it with the agent's own CSR.
+     */
+    const MARKER_CSR = 'seat-removed: no request on file';
 
     /**
      * Host field => seat column, for the values record() writes.
@@ -284,6 +293,174 @@ class Seat extends FOGBase
     }
 
     /**
+     * An admin removes one seat of a host. The agent authenticates by the
+     * seat's key, so deleting the row is the revocation: its next poll fails
+     * and it enrolls again. The key's enrollment row goes back to pending with
+     * the reason seat-removed, and Enrollment::_autoApproval() lets only an
+     * admin's click approve that reason, so a token never re-binds it.
+     *
+     * The seat row, the mirror, the OS's open software rows and its software
+     * fact hash change together, in one transaction. The other seats of the
+     * host are not touched.
+     *
+     * @param int    $hostID the host
+     * @param string $os     the seat's OS, '' for a seat migration left blank
+     * @param string $by     the removing admin's name
+     *
+     * @throws \RuntimeException 404 when the host has no seat for that OS,
+     *                           500 when the mirror update fails
+     *
+     * @return void
+     */
+    public static function remove($hostID, $os, $by)
+    {
+        $hostID = (int)$hostID;
+        $os = (string)$os;
+        $now = self::niceDate()->format('Y-m-d H:i:s');
+        // Matches State::_factKey(): the software fact is stored per OS.
+        $kind = '' === $os ? 'software' : 'software:' . $os;
+        $fingerprint = '';
+
+        self::$DB->query('START TRANSACTION');
+        try {
+            // The one read of the seat, locked. The delete below names this
+            // key, so a key bound in between is never removed under the old
+            // key's audit row.
+            $rows = self::_rows(
+                'SELECT ' . self::COLUMNS . ' FROM `hostAgents` `ha`'
+                . ' WHERE `ha`.`haHostID` = :h AND `ha`.`haOS` = :os'
+                . ' LIMIT 1 FOR UPDATE',
+                ['h' => $hostID, 'os' => $os]
+            );
+            if (!count($rows)) {
+                throw new \RuntimeException('no such agent seat', 404);
+            }
+            $fingerprint = (string)$rows[0]['fingerprint'];
+            self::_run(
+                'DELETE FROM `hostAgents` WHERE `haHostID` = :h AND `haOS` = :os'
+                . ' AND `haFingerprint` = :fp',
+                ['h' => $hostID, 'os' => $os, 'fp' => $fingerprint]
+            );
+            // The mirror shows the seat that wrote last. Only when it
+            // showed the removed key does it need a new value.
+            $mirrored = self::_rows(
+                'SELECT `hostAgentFingerprint` AS `fp` FROM `hosts`'
+                . ' WHERE `hostID` = :h LIMIT 1',
+                ['h' => $hostID]
+            );
+            if (count($mirrored) && (string)$mirrored[0]['fp'] === $fingerprint) {
+                $next = self::_rows(
+                    'SELECT ' . self::COLUMNS . ' FROM `hostAgents` `ha`'
+                    . ' WHERE `ha`.`haHostID` = :h'
+                    . ' ORDER BY `ha`.`haCheckin` DESC, `ha`.`haID` DESC LIMIT 1',
+                    ['h' => $hostID]
+                );
+                $values = [
+                    'agentFingerprint' => '',
+                    'agentNotAfter' => null,
+                    'agentVersion' => '',
+                    'agentUpdateState' => '',
+                    'agentCheckin' => null
+                ];
+                if (count($next)) {
+                    $values = [
+                        'agentFingerprint' => (string)$next[0]['fingerprint'],
+                        'agentNotAfter' => $next[0]['notAfter'],
+                        'agentVersion' => (string)$next[0]['version'],
+                        'agentUpdateState' => (string)$next[0]['updateState'],
+                        'agentCheckin' => $next[0]['checkin']
+                    ];
+                }
+                // A refused mirror write rolls the whole removal back.
+                if (false === self::_mirror($hostID, $values)) {
+                    throw new \RuntimeException('agent seat mirror update failed', 500);
+                }
+            }
+            // The removed OS is no longer reporting, so its open programs
+            // are closed and its fact hash is dropped. A new seat for that
+            // OS then reports its list in full.
+            self::_run(
+                'UPDATE `hostSoftware` SET `hsRemovedAt` = :now'
+                . ' WHERE `hsHostID` = :h AND `hsOS` = :os'
+                . ' AND `hsRemovedAt` IS NULL',
+                ['now' => $now, 'h' => $hostID, 'os' => $os]
+            );
+            self::_run(
+                'DELETE FROM `hostFactState`'
+                . ' WHERE `hfsHostID` = :h AND `hfsKind` = :k',
+                ['h' => $hostID, 'k' => $kind]
+            );
+            // The agent keeps its key. Its enrollment row waits for an
+            // admin, and a denied key stays denied.
+            $known = self::_rows(
+                'SELECT `aeID` FROM `agentEnrollment` WHERE `aeFingerprint` = :fp LIMIT 1',
+                ['fp' => $fingerprint]
+            );
+            if (count($known)) {
+                self::_run(
+                    'UPDATE `agentEnrollment` SET `aeState` = :pending,'
+                    . ' `aeReason` = :reason'
+                    . ' WHERE `aeFingerprint` = :fp AND `aeState` <> :denied',
+                    [
+                        'pending' => AgentEnrollment::STATE_PENDING,
+                        'reason' => Enrollment::REASON_REMOVED,
+                        'fp' => $fingerprint,
+                        'denied' => AgentEnrollment::STATE_DENIED
+                    ]
+                );
+            } else {
+                // A seat from the schema 466 migration, or one whose row was
+                // cascaded away, has no enrollment row. Without one, the
+                // agent's next enroll is a first contact that a token can
+                // approve. This row has an empty identity and no real CSR:
+                // it exists so the key waits for an admin. The CSR column
+                // holds a marker, not a request, because the model treats an
+                // empty CSR as an invalid row and Enrollment::handle() would
+                // then ignore it. The marker is not a PEM, so nothing can
+                // sign it.
+                self::_run(
+                    'INSERT INTO `agentEnrollment` (`aeHostID`, `aeFingerprint`,'
+                    . ' `aeCSR`, `aeIdentity`, `aeOS`, `aeReason`, `aeState`,'
+                    . ' `aeCert`, `aeCreated`, `aeUpdated`)'
+                    . ' VALUES (:h, :fp, :csr, \'{}\','
+                    . " :os, :reason, :pending, '',"
+                    . ' :now, :now2)',
+                    [
+                        'csr' => self::MARKER_CSR,
+                        'h' => $hostID,
+                        'fp' => $fingerprint,
+                        'os' => $os,
+                        'reason' => Enrollment::REASON_REMOVED,
+                        'pending' => AgentEnrollment::STATE_PENDING,
+                        'now' => $now,
+                        'now2' => $now
+                    ]
+                );
+            }
+            self::$DB->query('COMMIT');
+        } catch (\Exception $e) {
+            self::$DB->query('ROLLBACK');
+            throw $e;
+        }
+
+        Audit::record(
+            [
+                'type' => 'agent.seat.remove',
+                'subjectType' => 'host',
+                'subjectID' => $hostID,
+                'subjectLabel' => (string)(new Host($hostID))->get('name'),
+                'renderable' => 1,
+                'text' => sprintf(
+                    'removed the %s seat, key %s, by %s',
+                    '' !== $os ? $os : 'unknown OS',
+                    substr($fingerprint, 0, 16),
+                    (string)$by
+                )
+            ]
+        );
+    }
+
+    /**
      * Refuses a key that is already a seat of another host. With $os, also
      * refuses a key that is a seat of this host for a different OS.
      *
@@ -370,11 +547,11 @@ class Seat extends FOGBase
      * @param int   $hostID the host
      * @param array $fields Host field => value
      *
-     * @return void
+     * @return bool whether the manager reported the update as done
      */
     private static function _mirror($hostID, array $fields)
     {
-        (new HostManager())->update(
+        return (new HostManager())->update(
             ['id' => (int)$hostID],
             '',
             $fields

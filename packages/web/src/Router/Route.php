@@ -1753,6 +1753,9 @@ class Route extends FOGBase
         self::_registerRoute($r, 'GET', '/agent/v1/payload/[a:capability]/[i:id]', [__CLASS__, 'agentPayload'], 'agentpayload');
         self::_registerRoute($r, 'GET', '/agent/enrollments', [__CLASS__, 'agentEnrollments'], 'agentenrollments');
         self::_registerRoute($r, 'POST', '/agent/enrollment/[i:id]/[*:action]', [__CLASS__, 'agentEnrollmentDecide'], 'agentenrollmentdecide');
+        // Revokes one of a host's agent seats. The OS is in the JSON body,
+        // not the path, because a seat migration left blank has an empty OS.
+        self::_registerRoute($r, 'POST', '/host/[i:id]/seat/remove', [__CLASS__, 'agentSeatRemove'], 'agentseatremove');
         self::_registerRoute($r, 'GET', '/agent/tokens', [__CLASS__, 'agentTokens'], 'agenttokens');
         self::_registerRoute($r, 'POST', '/agent/token', [__CLASS__, 'agentTokenMint'], 'agenttokenmint');
         self::_registerRoute($r, 'DELETE', '/agent/token/[i:id]', [__CLASS__, 'agentTokenRevoke'], 'agenttokenrevoke');
@@ -3510,6 +3513,52 @@ class Route extends FOGBase
             'state' => (string)$Row->get('state'),
             'msg' => _('success')
         ];
+    }
+    /**
+     * Removes one agent seat of a host. The agent's key stops
+     * authenticating, and its enrollment row waits for an admin.
+     *
+     * @param int $id the host
+     *
+     * @return void
+     */
+    public static function agentSeatRemove($id)
+    {
+        $body = self::_jsonBody();
+        // The OS must be sent, as a string. An empty string names the seat a
+        // migration left blank. A missing key or a non-string is refused.
+        if (!isset($body['os']) || !is_string($body['os'])) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(['error' => _('os is required, as a string')])
+            );
+            return;
+        }
+        // The host must be one this caller can see (site scope).
+        if (!count(self::getIds('host', ['id' => (int)$id], 'id'))) {
+            self::sendResponse(
+                HTTPResponseCodes::HTTP_NOT_FOUND,
+                json_encode(['error' => _('no such host')])
+            );
+            return;
+        }
+        // Plugin OBJECT_SCOPE_CHECK listeners are consulted here.
+        Authorization::requireApiObjectScope('host', (int)$id);
+        try {
+            \FOG\Agent\Seat::remove(
+                (int)$id,
+                $body['os'],
+                (string)self::$FOGUser->get('name')
+            );
+        } catch (\RuntimeException $e) {
+            $code = (int)$e->getCode();
+            self::sendResponse(
+                $code >= 400 && $code <= 599 ? $code : HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode(['error' => $e->getMessage()])
+            );
+            return;
+        }
+        self::$data = ['hostID' => (int)$id, 'msg' => _('success')];
     }
     /**
      * The enrollment tokens, for the admin's list. Never the hash.

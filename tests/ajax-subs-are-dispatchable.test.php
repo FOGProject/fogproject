@@ -178,7 +178,12 @@ function methodBody($class, $method)
 $anchors = 0;
 foreach ($byNode as $node => $class) {
     foreach (get_class_methods($class) as $method) {
-        if (false === strpos(methodBody($class, $method), 'methodNotAllowed(')) {
+        // An anchor is a bare method. A suffixed handler may call
+        // methodNotAllowed() to refuse a GET (removeAgentSeatAjax) and is
+        // not an anchor for anything.
+        if (1 === preg_match('/(Ajax|Post)$/', $method)
+            || false === strpos(methodBody($class, $method), 'methodNotAllowed(')
+        ) {
             continue;
         }
         $anchors++;

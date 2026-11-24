@@ -97,6 +97,18 @@ class FOGPageManager extends FOGBase
         return $this->_nodes[$override];
     }
     /**
+     * Whether a resolved method name is an Ajax or Post handler. Case
+     * insensitive, because method_exists() is.
+     *
+     * @param string $method the resolved method name
+     *
+     * @return bool
+     */
+    private static function _isSuffixedHandler(string $method): bool
+    {
+        return 1 === preg_match('/(ajax|post)$/i', $method);
+    }
+    /**
      * Gets the name of the page
      *
      * @return string
@@ -177,15 +189,20 @@ class FOGPageManager extends FOGBase
                 && self::validSchemaBootstrap());
             if (self::$ajax && method_exists($class, $method.'Ajax')) {
                 $method .= 'Ajax';
-                if (!$schemaBootstrap) {
-                    self::checkAuthAndCSRF();
-                }
             }
             if (self::$post && method_exists($class, $method.'Post')) {
                 $method .= 'Post';
-                if (!$schemaBootstrap) {
-                    self::checkAuthAndCSRF();
-                }
+            }
+            // One CSRF gate for every suffixed handler, after both suffix
+            // blocks. Two bypasses came from checking only where the suffix
+            // was appended. A request that names the suffixed method itself
+            // (sub=pendingAgentsAjax) passes method_exists(), so no suffix
+            // is appended and no check ran. And method_exists() ignores
+            // case, so sub=removeagentseatajax reaches the handler while a
+            // case-sensitive suffix test misses it. The handler then ran
+            // behind only the role permission, which lowercases the sub.
+            if (!$schemaBootstrap && self::_isSuffixedHandler($method)) {
+                self::checkAuthAndCSRF();
             }
             // Role-based permission gate: every page load, AJAX fragment,
             // and POST funnels through here. Resolution uses the base sub

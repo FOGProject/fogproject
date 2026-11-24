@@ -818,6 +818,73 @@ class HostManagement extends FOGPage
         $this->jsonSend($code, $msg);
     }
     /**
+     * The bare half of removeAgentSeatAjax(). FOGPageManager appends the
+     * Ajax suffix only after method_exists() passes for the bare name. A
+     * request that is not the Ajax call removes nothing and gets a 405.
+     *
+     * @return void
+     */
+    public function removeAgentSeat()
+    {
+        self::methodNotAllowed();
+    }
+    /**
+     * Removes one agent seat of a host. The permission is host.edit: a POST
+     * to this sub resolves to it through Authorization::_subToAction().
+     *
+     * @return void
+     */
+    public function removeAgentSeatAjax()
+    {
+        // FOGPageManager::render() runs checkAuthAndCSRF() for every
+        // suffixed method, so it is not repeated here.
+        header('Content-type: application/json');
+        // A GET resolves to host.view, and a seat removal needs host.edit.
+        // Only a POST, which the CSRF gate also covers, may remove.
+        if (!self::$post) {
+            self::methodNotAllowed();
+        }
+        $hostID = (int)filter_input(INPUT_GET, 'id');
+        Authorization::requirePageObjectScope('host', $hostID);
+        // The OS must be sent, as a string. An empty string names the seat a
+        // migration left blank. A missing key, or an array, is refused.
+        $os = filter_input(INPUT_POST, 'os');
+        if (!is_string($os)) {
+            $this->jsonSend(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                json_encode(['error' => _('os is required'), 'title' => _('Agent Seat Remove Fail')])
+            );
+        }
+        try {
+            Seat::remove(
+                $hostID,
+                $os,
+                (string)self::$FOGUser->get('name')
+            );
+            $code = HTTPResponseCodes::HTTP_SUCCESS;
+            $msg = json_encode(
+                [
+                    'msg' => _('Agent seat removed'),
+                    'title' => _('Agent Seat Remove Success')
+                ]
+            );
+        } catch (\RuntimeException $e) {
+            $found = 404 === (int)$e->getCode();
+            $code = $found
+                ? HTTPResponseCodes::HTTP_NOT_FOUND
+                : HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR;
+            $msg = json_encode(
+                [
+                    'error' => $found
+                        ? _('That agent seat no longer exists.')
+                        : _('The agent seat could not be removed.'),
+                    'title' => _('Agent Seat Remove Fail')
+                ]
+            );
+        }
+        $this->jsonSend($code, $msg);
+    }
+    /**
      * Agent enrollment tokens: mint, list, revoke.
      *
      * A token lets a machine enroll without an admin clicking (design 0001
@@ -1768,6 +1835,25 @@ class HostManagement extends FOGPage
                 self::dateOrNever($seat['notAfter'], 'hostAgents', 'haNotAfter')
             );
         }
+        // One Remove button per seat, for a user who may edit the host. The
+        // click opens a confirm modal (built below); the JS posts the OS to
+        // removeAgentSeat. Only the REST route and that sub remove a seat,
+        // and both require host.edit.
+        $seatRemove = '';
+        if (Authorization::can('host.edit') && count($hostSeats)) {
+            $seatRemove = '<ul class="list-unstyled mt-2 mb-0" id="agent-seat-list">';
+            foreach ($hostSeats as $seat) {
+                $seatName = '' !== $seat['os'] ? $seat['os'] : _('unknown OS');
+                $seatRemove .= '<li class="mb-1 clearfix">'
+                    . '<button type="button" '
+                    . 'class="btn btn-danger btn-sm float-start agent-seat-remove" '
+                    . 'data-os="' . \Initiator::e($seat['os']) . '" '
+                    . 'data-name="' . \Initiator::e($seatName) . '">'
+                    . \Initiator::e(sprintf(_('Remove %s seat'), $seatName))
+                    . '</button></li>';
+            }
+            $seatRemove .= '</ul>';
+        }
         // Two or more seats and none on Windows: no seat owns the directory,
         // so the host gets no join, rename or rejoin. Say so on the page.
         // Only worth saying when the host wants directory membership.
@@ -2108,7 +2194,7 @@ class HostManagement extends FOGPage
                 '',
                 true,
                 true
-            ),
+            ) . $seatRemove,
             // EDITABLE. The host's ring for FOG_AGENT_UPDATE_MODE Latest
             // (schema 438): 0 updates first, blank is the last ring. After
             // the state field, not between it and Desired Agent Version,
@@ -2301,6 +2387,40 @@ class HostManagement extends FOGPage
             'warning'
         );
         $buttons .= $modalreset;
+
+        // Confirm modal for the seat Remove buttons. The body template
+        // carries the translated sentence; the JS puts the OS in at %s.
+        if ('' !== $seatRemove) {
+            // Same shape as FOGPage::confirmDeleteModal(): the 'danger' modal
+            // type carries the red, and the commit button takes its fill.
+            $seatModalBtns = self::makeButton(
+                'removeseatConfirm',
+                _('Remove'),
+                'btn btn-outline-secondary float-end'
+            );
+            $seatModalBtns .= self::makeButton(
+                'removeseatCancel',
+                _('Cancel'),
+                'btn btn-outline-secondary float-start',
+                'data-bs-dismiss="modal"'
+            );
+            $buttons .= self::makeModal(
+                'removeseatmodal',
+                _('Remove agent seat'),
+                '<p id="removeseat-body" data-template="'
+                . \Initiator::e(
+                    _(
+                        'Remove the %s seat? Its agent stops authenticating '
+                        . 'at its next poll. It returns to Pending Agents, '
+                        . 'and only an admin can approve it again.'
+                    )
+                )
+                . '"></p>',
+                $seatModalBtns,
+                '',
+                'danger'
+            );
+        }
 
         $this->renderGeneralForm('host', $rendered, $buttons);
     }

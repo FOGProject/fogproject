@@ -1147,6 +1147,14 @@ msgid "Agent Release Sync"
 msgstr ""
 
 #, fuzzy
+msgid "Agent Seat Remove Fail"
+msgstr "Removido"
+
+#, fuzzy
+msgid "Agent Seat Remove Success"
+msgstr "Impressora atualizado!"
+
+#, fuzzy
 msgid "Agent Seats"
 msgstr "token de acesso"
 
@@ -1189,6 +1197,10 @@ msgstr "Snapin com esse nome já existe"
 
 msgid "Agent releases are current"
 msgstr ""
+
+#, fuzzy
+msgid "Agent seat removed"
+msgstr "token de acesso"
 
 msgid "Agent updates are off, and no host or minimum version needs a release"
 msgstr ""
@@ -2963,6 +2975,9 @@ msgstr "excluídos"
 
 #, php-format
 msgid "Deleted %1$d multicast session(s) with no storage group"
+msgstr ""
+
+msgid "Deletes the seat for the OS in the body, so that seat's agent stops authenticating at its next poll. The seat's open software rows are closed. The key's enrollment returns to pending with the reason seat-removed, and only an admin approves it again. The host's other seats are untouched. Audited as agent.seat.remove."
 msgstr ""
 
 #, fuzzy
@@ -7245,6 +7260,9 @@ msgstr ""
 msgid "No such filter"
 msgstr ""
 
+msgid "No such host, or the host has no seat for that OS."
+msgstr ""
+
 msgid "No such object."
 msgstr ""
 
@@ -8638,6 +8656,10 @@ msgstr "Remover"
 msgid "Remove %s Associations"
 msgstr "Associação imagem"
 
+#, fuzzy, php-format
+msgid "Remove %s seat"
+msgstr "Associação imagem"
+
 #, fuzzy
 msgid "Remove Fail"
 msgstr "Removido"
@@ -8659,6 +8681,13 @@ msgid "Remove Provider Group Associations"
 msgstr "Associação imagem"
 
 #, fuzzy
+msgid "Remove agent seat"
+msgstr "Removido"
+
+msgid "Remove an agent seat of a host"
+msgstr ""
+
+#, fuzzy
 msgid "Remove associated files"
 msgstr "Delete Selected"
 
@@ -8677,6 +8706,10 @@ msgstr "Removido"
 #, fuzzy
 msgid "Remove selected"
 msgstr "Remover snapins selecionados"
+
+#, php-format
+msgid "Remove the %s seat? Its agent stops authenticating at its next poll. It returns to Pending Agents, and only an admin can approve it again."
+msgstr ""
 
 msgid "Removed"
 msgstr "Removido"
@@ -8700,6 +8733,10 @@ msgstr "Remover snapins selecionados"
 #, php-format
 msgid "Removed the virus scan task types. %1$d task(s) and %2$d scheduled task(s) were deleted with them; their run history remains in the task log."
 msgstr ""
+
+#, fuzzy
+msgid "Removed."
+msgstr "Removido"
 
 #, fuzzy
 msgid "Removing Key"
@@ -10667,6 +10704,10 @@ msgid "Text to match against the name (and the id, when the text is a whole numb
 msgstr ""
 
 #, fuzzy
+msgid "That agent seat no longer exists."
+msgstr " não existe mais"
+
+#, fuzzy
 msgid "That certificate is not available on this server."
 msgstr "Não existem grupos neste servidor."
 
@@ -10809,6 +10850,10 @@ msgstr ""
 msgid "The agent replaces the FOG Client. Installing it removes the legacy client."
 msgstr ""
 
+#, fuzzy
+msgid "The agent seat could not be removed."
+msgstr "foi atualizado com sucesso"
+
 msgid "The agent speaks a protocol this server does not."
 msgstr ""
 
@@ -10947,6 +10992,10 @@ msgstr ""
 msgid "The grid key."
 msgstr "Falha ao criar tarefa"
 
+#, fuzzy
+msgid "The host record could not be updated. Nothing was removed."
+msgstr "Não foi possível ler arquivo temporário"
+
 msgid "The host this certificate is, the revision of its desired state, and the state when it is not what the agent applied."
 msgstr ""
 
@@ -11079,6 +11128,9 @@ msgstr ""
 msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order. A state set here applies to this group's hosts unless the host sets its own or an earlier group sets one."
 msgstr ""
 
+msgid "The os key is missing or is not a string."
+msgstr ""
+
 msgid "The path requested is already in use by another image!"
 msgstr ""
 
@@ -11202,6 +11254,9 @@ msgstr ""
 #, fuzzy
 msgid "The saved filter."
 msgstr "atualização da impressora falhou!"
+
+msgid "The seat's OS, such as windows or linux. Empty for a seat that has no OS recorded."
+msgstr ""
 
 #, fuzzy
 msgid "The selected site no longer exists"
@@ -12527,7 +12582,7 @@ msgstr ""
 msgid "Who a filter can be shared with"
 msgstr ""
 
-msgid "Why it waits: unknown-host, known-host-no-agent, rebind, new-seat (new OS on a host that already has an agent), identity-conflict, reissue."
+msgid "Why it waits: unknown-host, known-host-no-agent, rebind, new-seat (new OS on a host that already has an agent), identity-conflict, reissue, seat-removed (an admin removed this key's seat)."
 msgstr ""
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
@@ -13457,6 +13512,9 @@ msgstr ""
 msgid "no row id after save"
 msgstr ""
 
+msgid "no such host"
+msgstr ""
+
 msgid "node is the distributor of the images"
 msgstr ""
 
@@ -13548,6 +13606,14 @@ msgstr ""
 #, php-format
 msgid "orphaned udp-sender pid"
 msgstr ""
+
+#, fuzzy
+msgid "os is required"
+msgstr "%s é necessária"
+
+#, fuzzy
+msgid "os is required, as a string"
+msgstr "%s é necessária"
 
 #, fuzzy
 msgid "per host"
@@ -13839,6 +13905,10 @@ msgstr "fotografada"
 
 #, fuzzy
 msgid "unknown"
+msgstr "Desconhecido"
+
+#, fuzzy
+msgid "unknown OS"
 msgstr "Desconhecido"
 
 #, fuzzy

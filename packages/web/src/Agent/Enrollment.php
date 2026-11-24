@@ -66,6 +66,9 @@ class Enrollment extends FOGBase
     const REASON_NEW_SEAT = 'new-seat';
     const REASON_CONFLICT = 'identity-conflict';
     const REASON_REISSUE = 'reissue';
+    // An admin removed this key's seat (Seat::remove()). The agent still holds
+    // its key and token, so its next enroll must wait for an admin's click.
+    const REASON_REMOVED = 'seat-removed';
     const REASON_NO_MAC = 'no-mac';
 
     const VIA_TOKEN = 'token';
@@ -119,7 +122,17 @@ class Enrollment extends FOGBase
         if ($Row && !$Row->isValid()) {
             $Row = null;
         }
-        if ($Row) {
+        // A row Seat::remove() made for a seat that had no enrollment row
+        // (a schema 466 migration), still holding the marker, not a CSR. The
+        // agent's own request is the first real one, so it is adopted below.
+        // Without that, the key is locked out for good: the stored
+        // identity is empty, so the gate refuses it, and an admin cannot
+        // sign a marker. Admin Approve stays the only way back in.
+        $adopt = $Row
+            && AgentEnrollment::STATE_PENDING === $Row->get('state')
+            && self::REASON_REMOVED === $Row->get('reason')
+            && Seat::MARKER_CSR === $Row->get('csr');
+        if ($Row && !$adopt) {
             // This route is public. A refusal here must not write the row:
             // anyone who knows a fingerprint could otherwise block its agent.
             $savedIdentity = json_decode((string)$Row->get('identity'), true) ?: [];
@@ -141,6 +154,21 @@ class Enrollment extends FOGBase
             $Row->set('updated', $now)
                 ->set('remoteIP', (string)$remoteIP)
                 ->set('agentVersion', Update::normalize($body['agent_version'] ?? ''));
+            if ($adopt) {
+                // The row was found by this CSR's key fingerprint, so the
+                // two match by construction. Checked anyway before the
+                // write. State, reason, host and OS stay as they are, and
+                // no automatic approval runs: only an admin's click binds.
+                if (!hash_equals((string)$Row->get('fingerprint'), (string)$fingerprint)) {
+                    throw new \RuntimeException('enrollment_fingerprint_mismatch', 409);
+                }
+                // The identity is stored as first contact stores it, so the
+                // next poll's gate matches and does not refuse the key.
+                $Row->set('csr', $csr)
+                    ->set('identity', self::_storedIdentity($identity, $directoryIdentityRequired))
+                    ->save();
+                return [202, self::_pendingPayload($Row)];
+            }
             switch ($Row->get('state')) {
                 case AgentEnrollment::STATE_DENIED:
                     $Row->save();
@@ -187,7 +215,6 @@ class Enrollment extends FOGBase
             } else {
                 $reason = self::_seatReason($hostID, (string)($body['os'] ?? ''));
             }
-            $identity['_directoryIdentity'] = ['required' => true];
         } else {
             list($hostID, $reason) = self::_resolve(
                 $identity,
@@ -199,7 +226,7 @@ class Enrollment extends FOGBase
         $Row = (new AgentEnrollment())
             ->set('fingerprint', $fingerprint)
             ->set('csr', $csr)
-            ->set('identity', json_encode($identity))
+            ->set('identity', self::_storedIdentity($identity, $directoryIdentityRequired))
             ->set('hostname', (string)($body['hostname'] ?? ''))
             ->set('os', (string)($body['os'] ?? ''))
             ->set('arch', (string)($body['arch'] ?? ''))
@@ -296,7 +323,8 @@ class Enrollment extends FOGBase
 
     /**
      * The sha256 of the CSR's SubjectPublicKeyInfo, hex. Null when the CSR
-     * does not parse or carries no usable key.
+     * does not parse, carries no usable key, or its self-signature does not
+     * verify.
      *
      * The public key, not the CSR bytes: the same key in two differently
      * encoded requests must land on the same row, and the certificate a
@@ -309,6 +337,28 @@ class Enrollment extends FOGBase
     public static function fingerprint($csrPEM)
     {
         if (strpos($csrPEM, '-----BEGIN CERTIFICATE REQUEST-----') === false) {
+            return null;
+        }
+        // Parsing the key proves only that the caller KNOWS the public key,
+        // which leaks (an old client certificate carries it). The
+        // self-signature proves the caller HOLDS the private key. Without
+        // it, anyone with a public key could write a forged request onto
+        // that key's row, e.g. the one-time adopt of a seat-removed row,
+        // and lock the real agent out. PHP has no direct X509_REQ_verify:
+        // openssl_csr_sign() runs it, so sign once with a throwaway key and
+        // discard the result. An EC key costs well under a millisecond.
+        $probe = @openssl_pkey_new([
+            'private_key_type' => OPENSSL_KEYTYPE_EC,
+            'curve_name' => 'prime256v1',
+        ]);
+        if (false === $probe) {
+            // Fail closed, but say why: without this line a server whose
+            // OpenSSL cannot load its config refuses every enroll and renew
+            // as "bad CSR", and the operator has nothing to go on.
+            error_log('FOG agent enroll: cannot verify CSR signatures: OpenSSL could not make a key');
+            return null;
+        }
+        if (false === @openssl_csr_sign($csrPEM, null, $probe, 1, ['digest_alg' => 'sha256'])) {
             return null;
         }
         // Same bytes Principal::verify() hashes out of the issued
@@ -424,6 +474,24 @@ class Enrollment extends FOGBase
     }
 
     /**
+     * The identity as an enrollment row stores it: JSON, with the directory
+     * identity marker when the agent asked for it. First contact and the
+     * adoption of a seat-removed row both use this one encoding.
+     *
+     * @param array $identity the identity the agent sent
+     * @param bool  $required whether the agent asked for directory identity
+     *
+     * @return string
+     */
+    private static function _storedIdentity(array $identity, $required)
+    {
+        if ($required) {
+            $identity['_directoryIdentity'] = ['required' => true];
+        }
+        return json_encode($identity);
+    }
+
+    /**
      * Binds a pending directory identity request that has no host yet, when
      * its stored identity now resolves to one. When nothing names the
      * machine any more, it becomes a pending host, as on first contact.
@@ -492,7 +560,13 @@ class Enrollment extends FOGBase
         // recent deploy never does. The legacy resolver binds a conflict at
         // first contact. _bindFromStoredIdentity() binds a directory
         // conflict on a later poll.
-        if (self::REASON_CONFLICT === $Row->get('reason')) {
+        // The same holds for a removed seat: the agent still holds its key
+        // and maybe a valid token, so only an admin's click binds it again.
+        if (in_array(
+            $Row->get('reason'),
+            [self::REASON_CONFLICT, self::REASON_REMOVED],
+            true
+        )) {
             return '';
         }
         self::guardDirectoryIdentity($Row);
