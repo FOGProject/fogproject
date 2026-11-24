@@ -226,12 +226,14 @@ class SoftwareFacts extends FOGBase
      * The SQL condition and binds that scope a query to one seat's rows.
      *
      * A row with no OS (written before schema 469 on a host that had two
-     * seats) cannot be attributed to either seat. _adoptLegacy() moves the
-     * open ones to the first named seat that reports; this scope still
-     * names '' so a row adoption skipped (a duplicate of one the seat
-     * already has) is closed rather than left open forever. A seat with no
-     * OS names only the unattributed rows, so it never closes a row a named
-     * seat owns.
+     * seats) cannot be attributed to either seat. While the host has no
+     * seat with no OS, _adoptLegacy() moves the open ones to the first
+     * named seat that reports, and this scope still names '' so a row
+     * adoption skipped (a duplicate of one the seat already has) is closed
+     * rather than left open forever. When the host does have a seat with
+     * no OS, those rows are its own list, and a named seat's scope is its
+     * own OS only. A seat with no OS names only the rows with no OS, so it
+     * never closes a row a named seat owns.
      *
      * @param string $os     the reporting seat's OS, '' when unknown
      * @param bool   $legacy whether rows with no OS are legacy rows this
@@ -256,6 +258,7 @@ class SoftwareFacts extends FOGBase
 
     /**
      * Gives the host's open rows with no OS to the reporting seat's OS.
+     * report() calls it only while the host has no seat with no OS.
      *
      * Without this, a legacy row the seat still reports would be closed and
      * a second row opened under the seat's OS, because the OS is part of

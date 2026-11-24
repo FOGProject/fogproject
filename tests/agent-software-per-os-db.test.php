@@ -13,9 +13,11 @@
  *   - two seats of one host each report a list, and both lists stay open;
  *   - a later report closes only its own OS's missing program;
  *   - an open row with no OS is adopted by the first named seat that
- *     reports: kept with its own id and first-seen date when still
- *     installed, closed when not;
+ *     reports, while the host has no seat with no OS: kept with its own id
+ *     and first-seen date when still installed, closed when not;
  *   - a seat with no OS touches only the rows with no OS;
+ *   - when the host has a seat with no OS, a named seat's report leaves
+ *     the rows with no OS alone;
  *   - State::facts() stores one software hash per seat, and a seat with no
  *     OS stores it under the bare kind.
  *
