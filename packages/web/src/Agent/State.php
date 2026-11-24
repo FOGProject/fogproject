@@ -168,6 +168,18 @@ class State extends FOGBase
     ];
 
     /**
+     * Fact kinds whose stored hash is kept per seat OS.
+     *
+     * Only software: its list is one OS's programs, so two seats of a
+     * dual-boot host would keep invalidating one shared hash. Inventory,
+     * secureboot and the rest describe the one machine, so they stay one
+     * hash per host.
+     *
+     * @var array<int, string>
+     */
+    const PER_OS_FACTS = ['software'];
+
+    /**
      * The setting that gates fact collection for the whole install.
      */
     const FACTS_SETTING = 'FOG_AGENT_INVENTORY_ENABLED';
@@ -608,7 +620,9 @@ class State extends FOGBase
                 $answer['want_directory'] = false;
                 continue;
             }
-            $stored = self::_factHash($hostID, $kind);
+            // The stored hash key; the answer key below stays want_<kind>.
+            $key = self::_factKey($kind);
+            $stored = self::_factHash($hostID, $key);
             $block = $body[$kind] ?? null;
             if (is_array($block)) {
                 $hash = substr(
@@ -618,12 +632,12 @@ class State extends FOGBase
                 );
                 if ($hash !== $stored) {
                     $class::report($Host, $block);
-                    self::_setFactHash($hostID, $kind, $hash);
+                    self::_setFactHash($hostID, $key, $hash);
                     $stored = $hash;
                 } else {
                     // Same content, so nothing to write but something to
                     // record: this is the host's last known good report.
-                    self::_setFactHash($hostID, $kind, $hash);
+                    self::_setFactHash($hostID, $key, $hash);
                 }
             }
             $answer['want_' . $kind] = '' === $stored;
@@ -711,6 +725,30 @@ class State extends FOGBase
     public static function factsEnabled()
     {
         return (bool)self::getSetting(self::FACTS_SETTING);
+    }
+
+    /**
+     * The hostFactState kind under which one fact kind's hash is stored.
+     *
+     * A per-OS kind gets the authenticated seat's OS appended, so each seat
+     * of a dual-boot host keeps its own hash. A seat with no OS uses the
+     * bare kind.
+     *
+     * @param string $kind the fact kind
+     *
+     * @return string
+     */
+    private static function _factKey($kind)
+    {
+        if (!in_array($kind, self::PER_OS_FACTS, true)) {
+            return $kind;
+        }
+        $os = Seat::currentOS();
+        if ('' === $os) {
+            return $kind;
+        }
+
+        return $kind . ':' . $os;
     }
 
     /**

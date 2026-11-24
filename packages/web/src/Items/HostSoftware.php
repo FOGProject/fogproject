@@ -42,6 +42,7 @@ class HostSoftware extends FOGController
     protected $databaseFields = [
         'id' => 'hsID',
         'hostID' => 'hsHostID',
+        'os' => 'hsOS',
         'name' => 'hsName',
         'version' => 'hsVersion',
         'publisher' => 'hsPublisher',

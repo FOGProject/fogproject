@@ -69,12 +69,13 @@ class Installed_Software extends ReportManagement
         $this->title = self::reportTitle();
 
         $this->headerData = [
+            _('OS'),
             _('Name'),
             _('Version'),
             _('Hosts')
         ];
         $this->attributes = [
-            [], [], []
+            [], [], [], []
         ];
 
         $payload = $this->reportRows();
@@ -123,12 +124,15 @@ class Installed_Software extends ReportManagement
         // a host stops reporting a package -- so this IS NULL clause is
         // what makes the count "hosts that have it now" rather than "hosts
         // that ever had it".
-        $sql = "SELECT `hsName` AS `name`,
+        // Grouped by OS too: a dual-boot host reports one list per seat, so
+        // the same program on both of its OSes is two rows, one per OS.
+        $sql = "SELECT `hsOS` AS `os`,
+                       `hsName` AS `name`,
                        `hsVersion` AS `version`,
                        COUNT(DISTINCT `hsHostID`) AS `hostCount`
                   FROM `hostSoftware`
                  WHERE `hsRemovedAt` IS NULL
-                 GROUP BY `hsName`, `hsVersion`
+                 GROUP BY `hsOS`, `hsName`, `hsVersion`
                  ORDER BY `hostCount` DESC, `hsName` ASC
                  LIMIT " . (self::MAX_ROWS + 1);
 
@@ -139,6 +143,7 @@ class Installed_Software extends ReportManagement
         $data = [];
         foreach (array_slice($rows, 0, self::MAX_ROWS) as $row) {
             $data[] = [
+                'os' => (string)($row['os'] ?? ''),
                 'name' => (string)($row['name'] ?? ''),
                 'version' => (string)($row['version'] ?? ''),
                 'hostCount' => (string)(int)($row['hostCount'] ?? 0)

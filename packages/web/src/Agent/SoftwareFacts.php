@@ -72,8 +72,10 @@ class SoftwareFacts extends FOGBase
     /**
      * Records the host's current program list.
      *
-     * The list is complete by contract: anything currently installed for
-     * this host and absent from it is marked removed. That is why the
+     * The list is complete by contract for the reporting seat's OS, not for
+     * the host: a dual-boot host has one seat per OS, and each reports only
+     * its own. Anything currently installed under that OS and absent from
+     * the list is marked removed. That is why the
      * agent sends no block at all when its collector could not run -- an
      * empty list here means "this host has no software", and would close
      * out every row it has.
@@ -93,18 +95,21 @@ class SoftwareFacts extends FOGBase
         $hostID = (int)$Host->get('id');
         $incoming = self::_clean($list);
         $now = self::niceDate()->format('Y-m-d H:i:s');
+        // The OS comes from the authenticated seat, never the request body.
+        $os = Seat::currentOS();
 
-        // Close every open row, then let the insert reopen the ones still
-        // reported. Doing it in that order is what keeps the statement
-        // size constant: the alternative, an UPDATE excluding the reported
-        // identities, needs a NOT IN carrying all 2800 of them. Nothing
-        // observes the intermediate "everything removed" state because
-        // both halves are one transaction.
+        // Close every open row of this OS, then let the insert reopen the
+        // ones still reported. Doing it in that order is what keeps the
+        // statement size constant: the alternative, an UPDATE excluding the
+        // reported identities, needs a NOT IN carrying all 2800 of them.
+        // Nothing observes the intermediate "everything removed" state
+        // because both halves are one transaction.
         self::$DB->query('START TRANSACTION');
         try {
-            $before = self::_currentKeys($hostID);
-            self::_closeAll($hostID, $now);
-            self::_upsert($hostID, $incoming, $now);
+            $before = self::_currentKeys($hostID, $os);
+            self::_adoptLegacy($hostID, $os);
+            self::_closeAll($hostID, $os, $now);
+            self::_upsert($hostID, $os, $incoming, $now);
             self::$DB->query('COMMIT');
         } catch (\Exception $e) {
             self::$DB->query('ROLLBACK');
@@ -127,8 +132,9 @@ class SoftwareFacts extends FOGBase
                 'renderable' => 1,
                 'affectedCount' => $added + $removed,
                 'text' => sprintf(
-                    'agent reported %d installed programs: %d added, %d removed',
+                    'agent reported %d installed programs (%s): %d added, %d removed',
                     count($incoming),
+                    '' !== $os ? $os : 'unknown OS',
                     $added,
                     $removed
                 ),
@@ -211,19 +217,81 @@ class SoftwareFacts extends FOGBase
     }
 
     /**
-     * The identities currently installed for a host, for the audit count.
+     * The SQL condition and binds that scope a query to one seat's rows.
      *
-     * @param int $hostID the host
+     * A row with no OS (written before schema 469 on a host that had two
+     * seats) cannot be attributed to either seat. _adoptLegacy() moves the
+     * open ones to the first named seat that reports; this scope still
+     * names '' so a row adoption skipped (a duplicate of one the seat
+     * already has) is closed rather than left open forever. A seat with no
+     * OS names only the unattributed rows, so it never closes a row a named
+     * seat owns.
+     *
+     * @param string $os the reporting seat's OS, '' when unknown
+     *
+     * @return array [condition, binds]
+     */
+    private static function _osScope($os)
+    {
+        if ('' === $os) {
+            return ['`hsOS`=:emptyos', [':emptyos' => '']];
+        }
+
+        return [
+            '`hsOS` IN (:os, :legacyos)',
+            [':os' => $os, ':legacyos' => '']
+        ];
+    }
+
+    /**
+     * Gives the host's open rows with no OS to the reporting seat's OS.
+     *
+     * Without this, a legacy row the seat still reports would be closed and
+     * a second row opened under the seat's OS, because the OS is part of
+     * the unique key: a false "removed" record and a reset hsFirstSeen for
+     * a program that never left. Adopted, the upsert reopens the same row
+     * and its history stays whole. A row the seat does not report is then
+     * closed under the seat's OS, which is the best attribution available.
+     * IGNORE skips a row whose identity the seat already holds; _osScope()
+     * closes that one.
+     *
+     * @param int    $hostID the host
+     * @param string $os     the reporting seat's OS
+     *
+     * @return void
+     */
+    private static function _adoptLegacy($hostID, $os)
+    {
+        if ('' === $os) {
+            return;
+        }
+        self::$DB->query(
+            'UPDATE IGNORE `hostSoftware` SET `hsOS`=:os'
+            . ' WHERE `hsHostID`=:host AND `hsOS`=:emptyos'
+            . ' AND `hsRemovedAt` IS NULL',
+            [],
+            [':os' => $os, ':host' => (int)$hostID, ':emptyos' => '']
+        );
+    }
+
+    /**
+     * The identities currently installed for a host and OS, for the audit
+     * count.
+     *
+     * @param int    $hostID the host
+     * @param string $os     the reporting seat's OS
      *
      * @return array identity => true
      */
-    private static function _currentKeys($hostID)
+    private static function _currentKeys($hostID, $os)
     {
+        list($scope, $scopeBinds) = self::_osScope($os);
         $rows = self::$DB->query(
             'SELECT `hsName`,`hsSource`,`hsVersion` FROM `hostSoftware`'
-            . ' WHERE `hsHostID`=:host AND `hsRemovedAt` IS NULL',
+            . ' WHERE `hsHostID`=:host AND ' . $scope
+            . ' AND `hsRemovedAt` IS NULL',
             [],
-            [':host' => (int)$hostID]
+            array_merge([':host' => (int)$hostID], $scopeBinds)
         )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
         $out = [];
         foreach ((array)$rows as $row) {
@@ -238,24 +306,28 @@ class SoftwareFacts extends FOGBase
     }
 
     /**
-     * Marks every currently-installed row for a host as removed.
+     * Marks every currently-installed row for a host and OS as removed.
      *
      * Half of the reconcile: the insert that follows reopens whatever is
      * still reported. A row already closed keeps the date it was closed on,
-     * because the WHERE only touches open ones.
+     * because the WHERE only touches open ones. Rows of the host's other
+     * OS are left alone: their seat reports its own list.
      *
      * @param int    $hostID the host
+     * @param string $os     the reporting seat's OS
      * @param string $now    the timestamp for this reconcile
      *
      * @return void
      */
-    private static function _closeAll($hostID, $now)
+    private static function _closeAll($hostID, $os, $now)
     {
+        list($scope, $scopeBinds) = self::_osScope($os);
         self::$DB->query(
             'UPDATE `hostSoftware` SET `hsRemovedAt`=:now'
-            . ' WHERE `hsHostID`=:host AND `hsRemovedAt` IS NULL',
+            . ' WHERE `hsHostID`=:host AND ' . $scope
+            . ' AND `hsRemovedAt` IS NULL',
             [],
-            [':now' => $now, ':host' => (int)$hostID]
+            array_merge([':now' => $now, ':host' => (int)$hostID], $scopeBinds)
         );
     }
 
@@ -270,12 +342,13 @@ class SoftwareFacts extends FOGBase
      * its own row rather than starting a second one.
      *
      * @param int    $hostID   the host
+     * @param string $os       the reporting seat's OS
      * @param array  $incoming identity => normalized row
      * @param string $now      the timestamp for this reconcile
      *
      * @return void
      */
-    private static function _upsert($hostID, array $incoming, $now)
+    private static function _upsert($hostID, $os, array $incoming, $now)
     {
         if (empty($incoming)) {
             return;
@@ -290,9 +363,10 @@ class SoftwareFacts extends FOGBase
                 // emulating them rejects the repeat with a bound-parameter
                 // count error (the same trap ActivityWindow documents).
                 $p = ':r' . $i . '_';
-                $values[] = '(' . $p . 'h,' . $p . 'n,' . $p . 'v,' . $p . 'p,'
+                $values[] = '(' . $p . 'h,' . $p . 'o,' . $p . 'n,' . $p . 'v,' . $p . 'p,'
                     . $p . 's,' . $p . 'a,' . $p . 'd,' . $p . 'f,' . $p . 'l)';
                 $binds[$p . 'h'] = (int)$hostID;
+                $binds[$p . 'o'] = $os;
                 $binds[$p . 'n'] = $row['name'];
                 $binds[$p . 'v'] = $row['version'];
                 $binds[$p . 'p'] = $row['publisher'];
@@ -304,7 +378,7 @@ class SoftwareFacts extends FOGBase
             }
             self::$DB->query(
                 'INSERT INTO `hostSoftware` '
-                . '(`hsHostID`,`hsName`,`hsVersion`,`hsPublisher`,`hsSource`,'
+                . '(`hsHostID`,`hsOS`,`hsName`,`hsVersion`,`hsPublisher`,`hsSource`,'
                 . '`hsArch`,`hsInstallDate`,`hsFirstSeen`,`hsLastSeen`) VALUES '
                 . implode(',', $values)
                 . ' ON DUPLICATE KEY UPDATE '

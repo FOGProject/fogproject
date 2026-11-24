@@ -451,10 +451,11 @@
       var installedSoftwareTable = $('#installedsoftwarereport-table'),
         table = installedSoftwareTable.registerTable(null, {
           order: [
-            [2, 'desc']
+            [3, 'desc']
           ],
           buttons: reportFileButtons,
           columns: [
+            {data: 'os', render: $.fn.dataTable.render.text()},
             {data: 'name', render: $.fn.dataTable.render.text()},
             {data: 'version', render: $.fn.dataTable.render.text()},
             {data: 'hostCount', render: $.fn.dataTable.render.text()}

@@ -12556,3 +12556,34 @@ $this->schema[] = [
     "ALTER TABLE `groupSoftwareAssoc` "
     . "ADD COLUMN `gswaState` varchar(8) DEFAULT NULL",
 ];
+// 469
+$this->schema[] = [
+    // Installed software is kept per OS, not per host.
+    //
+    // A host can hold one agent seat per OS (hostAgents, dual-boot), and
+    // each seat reports the complete program list of its own OS. The
+    // reconcile used to treat that list as complete for the whole host, so
+    // the Windows seat closed the Linux seat's rows on every poll and the
+    // reverse. hsOS names the seat's OS (FOG\Agent\Seat::currentOS()) and
+    // is part of the row's identity, so the same program on two OSes is
+    // two rows.
+    "ALTER TABLE `hostSoftware` "
+    . "ADD COLUMN `hsOS` varchar(20) NOT NULL DEFAULT '' AFTER `hsHostID`, "
+    . "DROP INDEX `hsHostNameSrcVer`, "
+    . "ADD UNIQUE KEY `hsHostOSNameSrcVer` "
+    . "(`hsHostID`,`hsOS`,`hsName`,`hsSource`,`hsVersion`)",
+    // A host with exactly one seat has one OS, so its rows are attributable.
+    // A host with two seats stays '' (ambiguous): the first report from
+    // either seat closes those rows and reopens the ones still installed
+    // under that seat's OS (FOG\Agent\SoftwareFacts).
+    "UPDATE `hostSoftware` hs INNER JOIN ("
+    . "SELECT `haHostID`, MIN(`haOS`) AS os FROM `hostAgents` "
+    . "GROUP BY `haHostID` HAVING COUNT(*) = 1"
+    . ") one ON one.`haHostID` = hs.`hsHostID` SET hs.`hsOS` = one.os",
+    // Room for the per-OS software hash key, 'software:' plus an OS name of
+    // up to 20 characters.
+    "ALTER TABLE `hostFactState` MODIFY `hfsKind` varchar(32) NOT NULL",
+    // The old per-host software hash no longer matches any key. Dropping it
+    // makes each seat send its list once more, which is harmless.
+    "DELETE FROM `hostFactState` WHERE `hfsKind` = 'software'",
+];
