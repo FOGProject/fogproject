@@ -12,9 +12,14 @@
  *     exactly one seat;
  *   - two seats of one host each report a list, and both lists stay open;
  *   - a later report closes only its own OS's missing program;
- *   - a row with no OS is closed by the first seat's report and reopened
- *     under that seat's OS when it is still installed;
- *   - State::facts() stores one software hash per seat.
+ *   - an open row with no OS is adopted by the first named seat that
+ *     reports, while the host has no seat with no OS: kept with its own id
+ *     and first-seen date when still installed, closed when not;
+ *   - a seat with no OS touches only the rows with no OS;
+ *   - when the host has a seat with no OS, a named seat's report leaves
+ *     the rows with no OS alone;
+ *   - State::facts() stores one software hash per seat, and a seat with no
+ *     OS stores it under the bare kind.
  *
  * Needs FOG_TEST_DSN (and FOG_TEST_USER / FOG_TEST_PASS); skips without it.
  * The database is always fog_swos_test.
@@ -206,6 +211,18 @@ SoftwareFacts::report(new Host(1), [$prog('noos-app')]);
 $t->check('no OS: its report lands on rows with no OS', ['noos-app'] === $open(''));
 $t->check('no OS: the Windows list stays open', ['shared', 'winapp'] === $open('windows'));
 $t->check('no OS: the Linux list stays open', ['legacy-kept', 'linuxapp', 'shared'] === $open('linux'));
+
+// ---------------------------------------------------------------------------
+// 4c. When the host really has a seat with no OS, rows with no OS are that
+//     seat's own: a named seat's report neither adopts nor closes them.
+// ---------------------------------------------------------------------------
+$fpC = str_repeat('c', 64);
+$pdo->exec("INSERT INTO hostAgents (haHostID, haOS, haFingerprint) VALUES (1, '', '$fpC')");
+$asSeat('linux');
+SoftwareFacts::report(new Host(1), [$prog('legacy-kept'), $prog('linuxapp'), $prog('shared')]);
+$t->check('no-OS seat: its open row survives a named seat\'s report', ['noos-app'] === $open(''));
+$t->check('no-OS seat: the named seat did not take its row', ['legacy-kept', 'linuxapp', 'shared'] === $open('linux'));
+$pdo->exec("DELETE FROM hostAgents WHERE haHostID = 1 AND haOS = ''");
 $pdo->exec("UPDATE hostSoftware SET hsRemovedAt = NOW() WHERE hsOS = ''");
 
 // ---------------------------------------------------------------------------

@@ -106,9 +106,15 @@ class SoftwareFacts extends FOGBase
         // because both halves are one transaction.
         self::$DB->query('START TRANSACTION');
         try {
-            $before = self::_currentKeys($hostID, $os);
-            self::_adoptLegacy($hostID, $os);
-            self::_closeAll($hostID, $os, $now);
+            // Rows with no OS are legacy only while no seat on this host
+            // has an empty OS. When one does, those rows are that seat's
+            // own, and a named seat must leave them alone.
+            $legacy = '' !== $os && !Seat::exists($hostID, '');
+            $before = self::_currentKeys($hostID, $os, $legacy);
+            if ($legacy) {
+                self::_adoptLegacy($hostID, $os);
+            }
+            self::_closeAll($hostID, $os, $legacy, $now);
             self::_upsert($hostID, $os, $incoming, $now);
             self::$DB->query('COMMIT');
         } catch (\Exception $e) {
@@ -220,21 +226,28 @@ class SoftwareFacts extends FOGBase
      * The SQL condition and binds that scope a query to one seat's rows.
      *
      * A row with no OS (written before schema 469 on a host that had two
-     * seats) cannot be attributed to either seat. _adoptLegacy() moves the
-     * open ones to the first named seat that reports; this scope still
-     * names '' so a row adoption skipped (a duplicate of one the seat
-     * already has) is closed rather than left open forever. A seat with no
-     * OS names only the unattributed rows, so it never closes a row a named
-     * seat owns.
+     * seats) cannot be attributed to either seat. While the host has no
+     * seat with no OS, _adoptLegacy() moves the open ones to the first
+     * named seat that reports, and this scope still names '' so a row
+     * adoption skipped (a duplicate of one the seat already has) is closed
+     * rather than left open forever. When the host does have a seat with
+     * no OS, those rows are its own list, and a named seat's scope is its
+     * own OS only. A seat with no OS names only the rows with no OS, so it
+     * never closes a row a named seat owns.
      *
-     * @param string $os the reporting seat's OS, '' when unknown
+     * @param string $os     the reporting seat's OS, '' when unknown
+     * @param bool   $legacy whether rows with no OS are legacy rows this
+     *                       seat may claim (no seat on the host has no OS)
      *
      * @return array [condition, binds]
      */
-    private static function _osScope($os)
+    private static function _osScope($os, $legacy)
     {
         if ('' === $os) {
             return ['`hsOS`=:emptyos', [':emptyos' => '']];
+        }
+        if (!$legacy) {
+            return ['`hsOS`=:os', [':os' => $os]];
         }
 
         return [
@@ -245,6 +258,7 @@ class SoftwareFacts extends FOGBase
 
     /**
      * Gives the host's open rows with no OS to the reporting seat's OS.
+     * report() calls it only while the host has no seat with no OS.
      *
      * Without this, a legacy row the seat still reports would be closed and
      * a second row opened under the seat's OS, because the OS is part of
@@ -280,12 +294,13 @@ class SoftwareFacts extends FOGBase
      *
      * @param int    $hostID the host
      * @param string $os     the reporting seat's OS
+     * @param bool   $legacy whether this seat may claim rows with no OS
      *
      * @return array identity => true
      */
-    private static function _currentKeys($hostID, $os)
+    private static function _currentKeys($hostID, $os, $legacy)
     {
-        list($scope, $scopeBinds) = self::_osScope($os);
+        list($scope, $scopeBinds) = self::_osScope($os, $legacy);
         $rows = self::$DB->query(
             'SELECT `hsName`,`hsSource`,`hsVersion` FROM `hostSoftware`'
             . ' WHERE `hsHostID`=:host AND ' . $scope
@@ -315,13 +330,14 @@ class SoftwareFacts extends FOGBase
      *
      * @param int    $hostID the host
      * @param string $os     the reporting seat's OS
+     * @param bool   $legacy whether this seat may claim rows with no OS
      * @param string $now    the timestamp for this reconcile
      *
      * @return void
      */
-    private static function _closeAll($hostID, $os, $now)
+    private static function _closeAll($hostID, $os, $legacy, $now)
     {
-        list($scope, $scopeBinds) = self::_osScope($os);
+        list($scope, $scopeBinds) = self::_osScope($os, $legacy);
         self::$DB->query(
             'UPDATE `hostSoftware` SET `hsRemovedAt`=:now'
             . ' WHERE `hsHostID`=:host AND ' . $scope
