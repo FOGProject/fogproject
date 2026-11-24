@@ -70,6 +70,112 @@ class SoftwareSet extends FOGBase
     const FEATURE = 'software-backends-v1';
 
     /**
+     * The host's software management level (`hosts.hostSoftwareLevel`).
+     * '' is Assigned: install and remove only what the host gets. Exclusive
+     * also has the agent uninstall every package its software backends
+     * installed that the host does not get. Per host, never a group grant
+     * (Resolver::resolvePrinterLevel() gives the reason).
+     */
+    const LEVEL_EXCLUSIVE = 'exclusive';
+    const LEVELS = ['', self::LEVEL_EXCLUSIVE];
+
+    /**
+     * Reads a posted software level: the trimmed level, or null when it is
+     * not one a host can be set to. A missing value (null or false, which
+     * filter_input() returns) is not one.
+     *
+     * @param mixed $raw the posted level
+     *
+     * @return string|null one of LEVELS, or null
+     */
+    public static function parseLevel($raw)
+    {
+        if (!is_string($raw)) {
+            return null;
+        }
+        $raw = trim($raw);
+        return in_array($raw, self::LEVELS, true) ? $raw : null;
+    }
+
+    /**
+     * parseLevel() for a write: the one refusal both write paths (the
+     * Software tab POST and mass edit) use, so neither can store a value
+     * the agent would read differently from the page.
+     *
+     * @param mixed $raw the posted level
+     *
+     * @throws \Exception when the value is not one of LEVELS
+     * @return string one of LEVELS
+     */
+    public static function requireLevel($raw)
+    {
+        $level = self::parseLevel($raw);
+        if (null === $level) {
+            throw new \Exception(_('Please select a software level!'));
+        }
+        return $level;
+    }
+
+    /**
+     * The level a host runs at: 'exclusive' or ''. The one reading the
+     * agent's desired set, the level card and the grid all use, so a stored
+     * value such as 'exclusive ' cannot mean different things to them.
+     *
+     * @param Host $Host the host
+     *
+     * @return string one of LEVELS
+     */
+    public static function levelOf(Host $Host)
+    {
+        return self::parseLevel((string)$Host->get('softwareLevel')) ?? '';
+    }
+
+    /**
+     * Splits a host's resolved links into what it gets and what an
+     * Exclusive host must retain.
+     *
+     * retain is the disabled entries, plus the enabled entries sendable()
+     * drops for this request. Neither is sent as an entry, and the agent
+     * must never remove a package FOG still assigns. gets is the rest, in
+     * run order.
+     *
+     * @param array $links       Resolver::resolveSoftwareDetail() rows
+     * @param array $software    softwareID => ['backend', 'package',
+     *                           'enabled']; a link with no row is skipped
+     * @param bool  $allBackends whether the agent declared the feature; the
+     *                           preview has no request and passes true
+     *
+     * @return array [gets, retain], each [['id', 'backend', 'package'], ...]
+     */
+    public static function splitResolved(
+        array $links,
+        array $software,
+        $allBackends
+    ) {
+        $gets = [];
+        $retain = [];
+        foreach ($links as $link) {
+            $id = (int)$link['id'];
+            if (!isset($software[$id])) {
+                continue;
+            }
+            $row = [
+                'id' => $id,
+                'backend' => (string)$software[$id]['backend'],
+                'package' => (string)$software[$id]['package']
+            ];
+            if ($software[$id]['enabled']
+                && self::sendable($row['backend'], $allBackends)
+            ) {
+                $gets[] = $row;
+            } else {
+                $retain[] = $row;
+            }
+        }
+        return [$gets, $retain];
+    }
+
+    /**
      * Did the request declare the software backends feature?
      *
      * @param array $body the decoded JSON body
@@ -119,14 +225,33 @@ class SoftwareSet extends FOGBase
         $hostID = (int)$Host->get('id');
         $links = Resolver::resolveSoftwareDetail([$hostID])[$hostID] ?? [];
         $entries = [];
+        $rows = [];
+        $loaded = [];
+        $byID = [];
         foreach ($links as $link) {
             $Software = new Software((int)$link['id']);
-            if (!$Software->isValid() || !$Software->get('isEnabled')) {
+            if (!$Software->isValid()) {
                 continue;
             }
-            if (!self::sendable($Software->get('backend'), $allBackends)) {
-                continue;
-            }
+            $loaded[(int)$Software->get('id')] = $Software;
+            $byID[(int)$Software->get('id')] = $link;
+            $rows[(int)$Software->get('id')] = [
+                'backend' => (string)$Software->get('backend'),
+                'package' => (string)$Software->get('package'),
+                'enabled' => (bool)$Software->get('isEnabled')
+            ];
+        }
+        list($gets, $retained) = self::splitResolved($links, $rows, $allBackends);
+        $retain = [];
+        foreach ($retained as $row) {
+            $retain[] = [
+                'backend' => $row['backend'],
+                'package' => $row['package']
+            ];
+        }
+        foreach ($gets as $row) {
+            $Software = $loaded[$row['id']];
+            $link = $byID[$row['id']];
             $entries[] = [
                 'id' => (int)$Software->get('id'),
                 'backend' => (string)$Software->get('backend'),
@@ -141,7 +266,7 @@ class SoftwareSet extends FOGBase
                 'stop_snapins' => (bool)$Software->get('stopSnapins')
             ];
         }
-        return [
+        $desired = [
             'drift_interval' => (int)self::getSetting('FOG_SOFTWARE_DRIFT_INTERVAL'),
             // Empty url = no bootstrap; the agent then reports cannot_run
             // for a host without Chocolatey (design 0003 section 8).
@@ -151,6 +276,18 @@ class SoftwareSet extends FOGBase
             ],
             'entries' => $entries
         ];
+        // Only an Exclusive host carries the key, so the state revision of
+        // every other host does not change.
+        if (self::LEVEL_EXCLUSIVE === self::levelOf($Host)) {
+            $desired['manage'] = self::LEVEL_EXCLUSIVE;
+            // The packages of entries that are not sent (disabled, or a
+            // backend this agent cannot honor), which the agent must not
+            // uninstall. Omitted when empty.
+            if (count($retain) > 0) {
+                $desired['retain'] = $retain;
+            }
+        }
+        return $desired;
     }
 
     /**

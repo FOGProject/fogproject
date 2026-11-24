@@ -12587,3 +12587,16 @@ $this->schema[] = [
     // makes each seat send its list once more, which is harmless.
     "DELETE FROM `hostFactState` WHERE `hfsKind` = 'software'",
 ];
+// 470
+$this->schema[] = [
+    // The host's software management level. '' is Assigned, today's
+    // behavior: install and remove only what the host gets. 'exclusive'
+    // also has the agent uninstall every package its software backends
+    // installed that the host does not get.
+    //
+    // Per host, never a group grant, like hostPrinterLevel: a level that
+    // removes things must not arrive by joining a group.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostSoftwareLevel` varchar(16) NOT NULL DEFAULT '' "
+    . "AFTER `hostPrinterLevel`",
+];

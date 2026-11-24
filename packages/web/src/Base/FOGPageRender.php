@@ -24,6 +24,7 @@
 
 namespace FOG\Base;
 
+use FOG\Agent\SoftwareSet;
 use FOG\Auth\Authorization;
 use FOG\Auth\SiteScope;
 use FOG\Items\Site;
@@ -300,6 +301,7 @@ trait FOGPageRender
     {
         $canEdit = Authorization::can($node . '.edit');
         $isHost = 'host' === $node;
+        $level = $isHost ? SoftwareSet::levelOf($this->obj) : '';
         $e = function ($text) {
             return \Initiator::e($text);
         };
@@ -415,6 +417,10 @@ trait FOGPageRender
             'empty' => _('No software is linked.'),
             'dragTitle' => _('Drag to reorder'),
             'removeText' => _('What should happen to {name}?'),
+            'removeExclusive' => _(
+                'This host is Exclusive, so a package it no longer gets is '
+                . 'uninstalled.'
+            ),
             'nothing' => _('Nothing to save.')
         ];
         echo '<div class="card card-primary card-outline">';
@@ -442,7 +448,13 @@ trait FOGPageRender
         }
         echo '></div>';
         echo '<table id="' . $tabSlug . '-grid" class="table table-sm w-100"'
-            . ' data-can-edit="' . ($canEdit ? '1' : '0') . '">';
+            . ' data-can-edit="' . ($canEdit ? '1' : '0') . '"'
+            // The host's software level, so the Remove modal can drop
+            // "Stop managing" for an Exclusive host. A group has none.
+            . ($isHost
+                ? ' data-software-level="' . $e($level) . '"'
+                : '')
+            . '>';
         echo '<thead><tr>';
         // The first column is the row checkbox (bulk remove); the second
         // holds the drag handle, the position and the up/down buttons.

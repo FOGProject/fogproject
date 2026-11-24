@@ -2507,10 +2507,16 @@ $.registerSoftwareGrid = function(opts) {
       var names = $.map(rows, function(r) {
         return r.name;
       });
+      // An Exclusive host (data-software-level, host grids only) uninstalls
+      // what it no longer gets, so "Stop managing (leave installed)" is not
+      // an answer there. Read at ask time: the level card can change it.
+      var exclusive = grid.attr('data-software-level') === 'exclusive';
       removing = rows;
       $('#' + slug + '-remove-text').text(
         fill(i18n.removeText, {name: names.join(', ')})
+        + (exclusive ? ' ' + i18n.removeExclusive : '')
       );
+      $('#' + slug + '-remove-stop').toggle(!exclusive);
       removeModal.modal('show');
     }
     grid.on('click', '.sw-remove', function() {

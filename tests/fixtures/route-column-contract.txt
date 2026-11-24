@@ -122,11 +122,12 @@ host	46	hostAuthFailSince	authFailSince	f	-
 host	47	hostAuthFailCode	authFailCode	-	-
 host	48	hostAuthFailCount	authFailCount	-	-
 host	49	hostAuthFailIP	authFailIP	-	-
-host	50	imageName	imagename	-	-
-host	51	-	groups	f	(none)
-host	52	-	groups_list	f	-
-host	53	hmMAC	primac	-	-
-host	54	hmMAC	primac_vendor	f	(none)
+host	50	hostSoftwareLevel	softwareLevel	-	-
+host	51	imageName	imagename	-	-
+host	52	-	groups	f	(none)
+host	53	-	groups_list	f	-
+host	54	hmMAC	primac	-	-
+host	55	hmMAC	primac_vendor	f	(none)
 hostautologout	0	haloID	id	-	-
 hostautologout	1	haloID	DT_RowId	f	-
 hostautologout	2	haloHostID	hostID	-	-
