@@ -1649,7 +1649,7 @@ msgstr "Bandbreite sollte numerisch und größer als 0 sein."
 msgid "Base Only"
 msgstr "Nur Basis"
 
-msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, and snap bases and content providers, so it can remove fewer."
+msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, snap bases and content providers, and the apps the OS shipped with (such as Firefox on Ubuntu), so it can remove fewer."
 msgstr ""
 
 msgid "Bash Script"

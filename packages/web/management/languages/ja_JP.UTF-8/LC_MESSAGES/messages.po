@@ -1460,7 +1460,7 @@ msgstr "帯域幅は 0 より大きい数値で指定してください"
 msgid "Base Only"
 msgstr "ベースのみ"
 
-msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, and snap bases and content providers, so it can remove fewer."
+msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, snap bases and content providers, and the apps the OS shipped with (such as Firefox on Ubuntu), so it can remove fewer."
 msgstr ""
 
 msgid "Bash Script"
