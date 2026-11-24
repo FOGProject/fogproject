@@ -38,6 +38,17 @@ $t->check(
     )
 );
 $t->check(
+    'agent seat removal needs host.edit on the REST route',
+    'host.edit' === FOG\Auth\Authorization::resolveApiPermission(
+        'agentseatremove',
+        ''
+    )
+);
+$t->check(
+    'agent seat removal needs host.edit on the UI sub, for a POST',
+    'host.edit' === FOG\Auth\Authorization::resolvePagePermission('host', 'removeAgentSeat', true)
+);
+$t->check(
     'unknown route names remain unmapped and denied',
     'unmapped.route.agent-identity-test-unknown'
         === FOG\Auth\Authorization::resolveApiPermission(

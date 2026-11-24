@@ -83,6 +83,41 @@
         });
     });
 
+    // Remove agent seat. The Remove buttons and the modal exist only for a
+    // user who holds host.edit; the strings come from the PHP-rendered
+    // data attributes so they stay translated.
+    var seatModal = $('#removeseatmodal'),
+        seatConfirmBtn = $('#removeseatConfirm'),
+        seatOS = '';
+
+    $('#agent-seat-list').on('click', '.agent-seat-remove', function(e) {
+        e.preventDefault();
+        seatOS = $(this).attr('data-os') || '';
+        var body = $('#removeseat-body');
+        body.text(String(body.attr('data-template')).replace('%s', $(this).attr('data-name')));
+        seatConfirmBtn.prop('disabled', false);
+        seatModal.modal('show');
+    });
+
+    seatConfirmBtn.on('click', function(e) {
+        e.preventDefault();
+        $(this).prop('disabled', true);
+        $.apiCall(
+            'post',
+            '../management/index.php?node=host&sub=removeAgentSeat&id=' + Common.id,
+            {os: seatOS},
+            function(err) {
+                seatModal.modal('hide');
+                if (err) {
+                    seatConfirmBtn.prop('disabled', false);
+                    return;
+                }
+                // The seat list is rendered by PHP, so reload the page.
+                window.location.reload();
+            }
+        );
+    });
+
     // ---------------------------------------------------------------
     // MAC ADDRESS TAB
     var newmacForm = $('#macaddress-add-form'),

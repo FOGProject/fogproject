@@ -2846,7 +2846,9 @@ class OpenAPI extends FOGBase
                                             . 'known-host-no-agent, rebind, '
                                             . 'new-seat (new OS on a host '
                                             . 'that already has an agent), '
-                                            . 'identity-conflict, reissue.')
+                                            . 'identity-conflict, reissue, '
+                                            . 'seat-removed (an admin removed '
+                                            . 'this key\'s seat).')
                                     ],
                                     'retry_after' => ['type' => 'integer']
                                 ]
@@ -3587,6 +3589,40 @@ class OpenAPI extends FOGBase
                             'required' => true,
                             'schema' => ['type' => 'string', 'enum' => ['approve', 'deny']]
                         ]
+                    ]
+                )
+            ],
+            '/host/{id}/seat/remove' => [
+                'post' => self::_op(
+                    '',
+                    'agentseatremove',
+                    _('Remove an agent seat of a host'),
+                    _('Deletes the seat for the OS in the body, so that '
+                        . 'seat\'s agent stops authenticating at its next '
+                        . 'poll. The seat\'s open software rows are closed. '
+                        . 'The key\'s enrollment returns to pending with the '
+                        . 'reason seat-removed, and only an admin approves '
+                        . 'it again. The host\'s other seats are untouched. '
+                        . 'Audited as agent.seat.remove.'),
+                    [
+                        '200' => ['description' => _('Removed.')],
+                        '400' => ['description' => _('The os key is missing or is not a string.')],
+                        '404' => ['description' => _('No such host, or the host has no seat for that OS.')],
+                        '500' => ['description' => _('The host record could not be updated. Nothing was removed.')]
+                    ],
+                    [self::_idParameter()],
+                    [
+                        'required' => true,
+                        'content' => ['application/json' => ['schema' => [
+                            'type' => 'object',
+                            'required' => ['os'],
+                            'properties' => [
+                                'os' => [
+                                    'type' => 'string',
+                                    'description' => _('The seat\'s OS, such as windows or linux. Empty for a seat that has no OS recorded.')
+                                ]
+                            ]
+                        ]]]
                     ]
                 )
             ],

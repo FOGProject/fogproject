@@ -378,6 +378,7 @@ class Authorization extends FOGBase
         'agentpayload' => null,              // fog-agent: same gate
         'agentenrollments' => 'host.view',
         'agentenrollmentdecide' => 'host.edit',
+        'agentseatremove' => 'host.edit',
         // Tokens approve machines the admin has not seen, which creates
         // hosts; minting one is host.create and pulling one is host.delete.
         'agenttokens' => 'host.view',

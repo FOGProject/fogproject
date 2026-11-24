@@ -70,9 +70,12 @@
                     }
                     // A host holds one agent seat per OS. new-seat is the
                     // second OS of a host that already has an agent.
+                    // seat-removed is a key whose seat an admin removed.
                     var shown = data === 'new-seat'
                         ? 'New OS on a host that already has an agent'
-                        : data;
+                        : (data === 'seat-removed'
+                            ? 'Agent seat removed by an admin'
+                            : data);
                     if (!others.length) {
                         return esc(shown);
                     }
