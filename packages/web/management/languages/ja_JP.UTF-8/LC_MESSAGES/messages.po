@@ -1010,6 +1010,14 @@ msgid "Agent Release Sync"
 msgstr "エージェントリリースの同期"
 
 #, fuzzy
+msgid "Agent Seat Remove Fail"
+msgstr "削除に失敗しました"
+
+#, fuzzy
+msgid "Agent Seat Remove Success"
+msgstr "エージェントを拒否しました"
+
+#, fuzzy
 msgid "Agent Seats"
 msgstr "エージェントトークン"
 
@@ -1045,6 +1053,10 @@ msgstr "エージェントリリースの同期は全体設定で無効になっ
 
 msgid "Agent releases are current"
 msgstr "エージェントのリリースは最新です"
+
+#, fuzzy
+msgid "Agent seat removed"
+msgstr "エージェントトークン"
 
 msgid "Agent updates are off, and no host or minimum version needs a release"
 msgstr "エージェントの更新が無効で、リリースを必要とするホストや最低バージョンの要件もありません"
@@ -2586,6 +2598,9 @@ msgstr "削除済み"
 #, php-format
 msgid "Deleted %1$d multicast session(s) with no storage group"
 msgstr "ストレージグループが設定されていないマルチキャストセッションを %1$d 件削除しました"
+
+msgid "Deletes the seat for the OS in the body, so that seat's agent stops authenticating at its next poll. The seat's open software rows are closed. The key's enrollment returns to pending with the reason seat-removed, and only an admin approves it again. The host's other seats are untouched. Audited as agent.seat.remove."
+msgstr ""
 
 msgid "Deleting remote file"
 msgstr "リモートファイルを削除しています"
@@ -6265,6 +6280,9 @@ msgstr "ブートディレクトリに該当するファイルがありません
 msgid "No such filter"
 msgstr "該当するフィルターがありません"
 
+msgid "No such host, or the host has no seat for that OS."
+msgstr ""
+
 msgid "No such object."
 msgstr "該当するオブジェクトが存在しません。"
 
@@ -7484,6 +7502,10 @@ msgstr "削除"
 msgid "Remove %s Associations"
 msgstr "%s の関連付けを解除"
 
+#, fuzzy, php-format
+msgid "Remove %s seat"
+msgstr "%s の関連付けを解除"
+
 msgid "Remove Fail"
 msgstr "削除に失敗しました"
 
@@ -7499,6 +7521,13 @@ msgstr "LDAP グループの関連付けを解除"
 msgid "Remove Provider Group Associations"
 msgstr "プロバイダーグループの関連付けを解除"
 
+#, fuzzy
+msgid "Remove agent seat"
+msgstr "イメージを削除"
+
+msgid "Remove an agent seat of a host"
+msgstr ""
+
 msgid "Remove associated files"
 msgstr "関連ファイルを削除"
 
@@ -7513,6 +7542,10 @@ msgstr "インポート済みルート証明書を削除"
 
 msgid "Remove selected"
 msgstr "選択した項目を削除"
+
+#, php-format
+msgid "Remove the %s seat? Its agent stops authenticating at its next poll. It returns to Pending Agents, and only an admin can approve it again."
+msgstr ""
 
 msgid "Removed"
 msgstr "削除済み"
@@ -7535,6 +7568,10 @@ msgstr "タスクタイプを削除しました"
 #, php-format
 msgid "Removed the virus scan task types. %1$d task(s) and %2$d scheduled task(s) were deleted with them; their run history remains in the task log."
 msgstr "ウイルススキャン用のタスクタイプを削除しました。これに伴いタスク %1$d 件とスケジュール済みタスク %2$d 件も削除されましたが、実行履歴はタスクログに残っています。"
+
+#, fuzzy
+msgid "Removed."
+msgstr "削除済み"
 
 msgid "Removing Key"
 msgstr "キーを削除しています"
@@ -9207,6 +9244,10 @@ msgstr "ID と名前に対して照合する文字列です。一部のクラス
 msgid "Text to match against the name (and the id, when the text is a whole number). Matched literally: % and _ are not wildcards."
 msgstr "名前に対して照合する文字列です。文字列が整数の場合は ID とも照合します。文字列はそのまま照合され、% と _ はワイルドカードとして扱われません。"
 
+#, fuzzy
+msgid "That agent seat no longer exists."
+msgstr "選択したサイトは既に存在しません"
+
 msgid "That certificate is not available on this server."
 msgstr "その証明書はこのサーバーで利用できません。"
 
@@ -9332,6 +9373,10 @@ msgstr "FOG がストレージノード自体にログインするためのア�
 
 msgid "The agent replaces the FOG Client. Installing it removes the legacy client."
 msgstr "FOG エージェントは従来の FOG クライアントに代わるものです。インストールすると従来のクライアントは削除されます。"
+
+#, fuzzy
+msgid "The agent seat could not be removed."
+msgstr "%s を削除できませんでした。"
 
 msgid "The agent speaks a protocol this server does not."
 msgstr "このエージェントは、サーバーが対応していない通信プロトコルを使用しています。"
@@ -9462,6 +9507,10 @@ msgstr "呼び出し元から参照可能なフィルター。"
 msgid "The grid key."
 msgstr "グリッドキー。"
 
+#, fuzzy
+msgid "The host record could not be updated. Nothing was removed."
+msgstr "レコードを書き込めませんでした。"
+
 msgid "The host this certificate is, the revision of its desired state, and the state when it is not what the agent applied."
 msgstr "この証明書が識別するホスト、目標状態のリビジョン、およびエージェントが適用した内容と目標状態が異なる場合の状態です。"
 
@@ -9590,6 +9639,9 @@ msgstr "このグループのスナップインの実行順序です。ホスト
 msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order. A state set here applies to this group's hosts unless the host sets its own or an earlier group sets one."
 msgstr "このグループのソフトウェアの適用順序です。ホスト自身に割り当てられたソフトウェアを先に適用し、その後でグループから割り当てられたソフトウェアをこの順序で適用します。"
 
+msgid "The os key is missing or is not a string."
+msgstr ""
+
 msgid "The path requested is already in use by another image!"
 msgstr "要求されたパスは既に別のイメージで使用されています！"
 
@@ -9705,6 +9757,9 @@ msgstr ""
 
 msgid "The saved filter."
 msgstr "保存済みフィルター。"
+
+msgid "The seat's OS, such as windows or linux. Empty for a seat that has no OS recorded."
+msgstr ""
 
 msgid "The selected site no longer exists"
 msgstr "選択したサイトは既に存在しません"
@@ -10893,7 +10948,7 @@ msgid "Who a filter can be shared with"
 msgstr "フィルターの共有先として指定できる相手"
 
 #, fuzzy
-msgid "Why it waits: unknown-host, known-host-no-agent, rebind, new-seat (new OS on a host that already has an agent), identity-conflict, reissue."
+msgid "Why it waits: unknown-host, known-host-no-agent, rebind, new-seat (new OS on a host that already has an agent), identity-conflict, reissue, seat-removed (an admin removed this key's seat)."
 msgstr "保留理由: unknown-host、known-host-no-agent、rebind、identity-conflict、reissue。"
 
 msgid "Why the caller can see it, most specific grant first. A filter reachable several ways is still returned once and reports only the most specific reason."
@@ -11723,6 +11778,10 @@ msgstr "サーバーから応答がありません"
 msgid "no row id after save"
 msgstr "保存後に行 ID が取得できませんでした"
 
+#, fuzzy
+msgid "no such host"
+msgstr "該当するユーザーが存在しません。"
+
 msgid "node is the distributor of the images"
 msgstr "ノードがイメージの配布元になります"
 
@@ -11804,6 +11863,14 @@ msgstr "または、これは FOG の新規インストールです"
 #, php-format
 msgid "orphaned udp-sender pid"
 msgstr "孤立した udp-sender の PID"
+
+#, fuzzy
+msgid "os is required"
+msgstr "%s は必須です"
+
+#, fuzzy
+msgid "os is required, as a string"
+msgstr "ロケーションにはグループが必要です"
 
 msgid "per host"
 msgstr "ホストごと"
@@ -12070,6 +12137,10 @@ msgstr "次の期間、変更なし"
 msgid "unknown"
 msgstr "不明"
 
+#, fuzzy
+msgid "unknown OS"
+msgstr "不明"
+
 msgid "unknown action"
 msgstr "不明な操作"
 
@@ -12170,9 +12241,6 @@ msgstr "{node}"
 
 #~ msgid "A filter must be specified"
 #~ msgstr "フィルターを指定してください"
-
-#~ msgid "A group is required for a location"
-#~ msgstr "ロケーションにはグループが必要です"
 
 #~ msgid "A group is required!"
 #~ msgstr "グループは必須です！"
@@ -13763,9 +13831,6 @@ msgstr "{node}"
 
 #~ msgid "Remove Hosts"
 #~ msgstr "ホストを削除"
-
-#~ msgid "Remove Images"
-#~ msgstr "イメージを削除"
 
 #~ msgid "Remove MAC"
 #~ msgstr "MAC アドレスを削除"
