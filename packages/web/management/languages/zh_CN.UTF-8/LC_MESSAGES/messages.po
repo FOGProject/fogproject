@@ -1652,7 +1652,7 @@ msgstr "带宽应该是数字和大于0"
 msgid "Base Only"
 msgstr ""
 
-msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, and snap bases and content providers, so it can remove fewer."
+msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, snap bases and content providers, and the apps the OS shipped with (such as Firefox on Ubuntu), so it can remove fewer."
 msgstr ""
 
 msgid "Bash Script"
