@@ -1521,6 +1521,10 @@ msgid "Assigned"
 msgstr "zugeordneter Host"
 
 #, fuzzy
+msgid "Assigned (all)"
+msgstr "zugeordneter Host"
+
+#, fuzzy
 msgid "Assigned Group"
 msgstr "Name der Speichergruppe"
 
@@ -1546,6 +1550,9 @@ msgstr "Abbild ist nicht aktiv"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "Das zugewiesene Image ist geschützt"
+
+msgid "Assigned: install and remove only what this host gets"
+msgstr ""
 
 #, fuzzy
 msgid "Associated"
@@ -1641,6 +1648,9 @@ msgstr "Bandbreite sollte numerisch und größer als 0 sein."
 
 msgid "Base Only"
 msgstr "Nur Basis"
+
+msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, and snap bases and content providers, so it can remove fewer."
+msgstr ""
 
 msgid "Bash Script"
 msgstr ""
@@ -2191,6 +2201,9 @@ msgstr ""
 msgid "Clear on all: the hosts follow the server default."
 msgstr ""
 
+msgid "Clear on all: the hosts return to Assigned."
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2548,6 +2561,10 @@ msgstr "CPU-Anzahl"
 #, fuzzy
 msgid "Count failed"
 msgstr "Laden fehlgeschlagen: %s"
+
+#, fuzzy, php-format
+msgid "Counted from: %s."
+msgstr "CPU-Anzahl"
 
 msgid "Country code (C), two letters"
 msgstr ""
@@ -3551,6 +3568,16 @@ msgid "Every host in this group runs these schedules, including hosts added late
 msgstr ""
 
 msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
+msgstr ""
+
+msgid "Exclusive"
+msgstr ""
+
+#, php-format
+msgid "Exclusive would remove up to %d package(s):"
+msgstr ""
+
+msgid "Exclusive: also uninstall backend packages this host does not get"
 msgstr ""
 
 #, fuzzy
@@ -4754,6 +4781,10 @@ msgstr "zugeordneter Host"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "Host Snapinverlauf"
+
+#, fuzzy
+msgid "Host Software Management Level"
+msgstr "Keine Druckerverwaltung"
 
 msgid "Host Software Status"
 msgstr ""
@@ -7421,6 +7452,10 @@ msgstr "(empfohlen)"
 msgid "Not reported"
 msgstr "(empfohlen)"
 
+#, fuzzy, php-format
+msgid "Not reported yet: %s."
+msgstr "(empfohlen)"
+
 msgid "Not set (other groups, else package default)"
 msgstr ""
 
@@ -8031,6 +8066,10 @@ msgstr "Bitte ordnen Sie physisch"
 
 #, fuzzy
 msgid "Please select a printer level!"
+msgstr "Wählen Sie ein gültiges Abbild"
+
+#, fuzzy
+msgid "Please select a software level!"
 msgstr "Wählen Sie ein gültiges Abbild"
 
 #, fuzzy
@@ -9145,6 +9184,9 @@ msgstr "Änderungen speichern"
 msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
+msgid "Save or undo the software changes below first."
+msgstr ""
+
 msgid "Save order"
 msgstr ""
 
@@ -10002,6 +10044,10 @@ msgstr "zugeordneter Host"
 
 #, fuzzy
 msgid "Software Management"
+msgstr "Speicherverwaltung"
+
+#, fuzzy
+msgid "Software Management Level"
 msgstr "Speicherverwaltung"
 
 #, fuzzy
@@ -10888,6 +10934,9 @@ msgstr ""
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr ""
 
+msgid "The agent has not reported its backend packages yet. That needs a fog-agent with Exclusive support."
+msgstr ""
+
 msgid "The agent replaces the FOG Client. Installing it removes the legacy client."
 msgstr ""
 
@@ -11525,6 +11574,9 @@ msgid "This host has finished deploying image %s."
 msgstr ""
 
 msgid "This host has no system trust store that FOG recognizes, so an imported root is recorded and re-applied but never reaches the host's own HTTPS clients."
+msgstr ""
+
+msgid "This host is Exclusive, so a package it no longer gets is uninstalled."
 msgstr ""
 
 msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enroll into."

@@ -1495,6 +1495,10 @@ msgid "Assigned"
 msgstr "Host associato"
 
 #, fuzzy
+msgid "Assigned (all)"
+msgstr "Host associato"
+
+#, fuzzy
 msgid "Assigned Group"
 msgstr "Nome gruppo di archiviazione"
 
@@ -1520,6 +1524,9 @@ msgstr "L'immagine non è abilitato"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "L'immagine assegnata è protetta"
+
+msgid "Assigned: install and remove only what this host gets"
+msgstr ""
 
 #, fuzzy
 msgid "Associated"
@@ -1614,6 +1621,9 @@ msgstr "Larghezza di banda deve essere numerico e maggiore di 0"
 
 msgid "Base Only"
 msgstr "Solo base"
+
+msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, and snap bases and content providers, so it can remove fewer."
+msgstr ""
 
 msgid "Bash Script"
 msgstr ""
@@ -2149,6 +2159,9 @@ msgstr ""
 msgid "Clear on all: the hosts follow the server default."
 msgstr ""
 
+msgid "Clear on all: the hosts return to Assigned."
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2494,6 +2507,10 @@ msgstr "Conte CPU"
 #, fuzzy
 msgid "Count failed"
 msgstr "Caricamento non riuscito"
+
+#, fuzzy, php-format
+msgid "Counted from: %s."
+msgstr "Conte CPU"
 
 msgid "Country code (C), two letters"
 msgstr ""
@@ -3487,6 +3504,16 @@ msgid "Every host in this group runs these schedules, including hosts added late
 msgstr ""
 
 msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
+msgstr ""
+
+msgid "Exclusive"
+msgstr ""
+
+#, php-format
+msgid "Exclusive would remove up to %d package(s):"
+msgstr ""
+
+msgid "Exclusive: also uninstall backend packages this host does not get"
 msgstr ""
 
 #, fuzzy
@@ -4658,6 +4685,10 @@ msgstr "Host associato"
 
 msgid "Host Snapin History"
 msgstr "Storia Snapin Host"
+
+#, fuzzy
+msgid "Host Software Management Level"
+msgstr "No Printer Management"
 
 msgid "Host Software Status"
 msgstr ""
@@ -7236,6 +7267,10 @@ msgstr "Consigliato"
 msgid "Not reported"
 msgstr "Consigliato"
 
+#, fuzzy, php-format
+msgid "Not reported yet: %s."
+msgstr "Consigliato"
+
 msgid "Not set (other groups, else package default)"
 msgstr ""
 
@@ -7835,6 +7870,10 @@ msgstr "Si prega di associare fisicamente"
 
 #, fuzzy
 msgid "Please select a printer level!"
+msgstr "Selezionare un'immagine valida"
+
+#, fuzzy
+msgid "Please select a software level!"
 msgstr "Selezionare un'immagine valida"
 
 #, fuzzy
@@ -8926,6 +8965,9 @@ msgstr "Salva i cambiamenti"
 msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
+msgid "Save or undo the software changes below first."
+msgstr ""
+
 msgid "Save order"
 msgstr ""
 
@@ -9752,6 +9794,10 @@ msgstr "Host associato"
 
 #, fuzzy
 msgid "Software Management"
+msgstr "Storage Management"
+
+#, fuzzy
+msgid "Software Management Level"
 msgstr "Storage Management"
 
 #, fuzzy
@@ -10604,6 +10650,9 @@ msgstr ""
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr ""
 
+msgid "The agent has not reported its backend packages yet. That needs a fog-agent with Exclusive support."
+msgstr ""
+
 msgid "The agent replaces the FOG Client. Installing it removes the legacy client."
 msgstr ""
 
@@ -11236,6 +11285,9 @@ msgid "This host has finished deploying image %s."
 msgstr ""
 
 msgid "This host has no system trust store that FOG recognizes, so an imported root is recorded and re-applied but never reaches the host's own HTTPS clients."
+msgstr ""
+
+msgid "This host is Exclusive, so a package it no longer gets is uninstalled."
 msgstr ""
 
 msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enroll into."
