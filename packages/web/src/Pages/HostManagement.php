@@ -19,6 +19,7 @@ use FOG\Agent\DirectoryPlacementIntent;
 use FOG\Agent\DirectoryRejoin;
 use FOG\Agent\Seat;
 use FOG\Assign\Resolver;
+use FOG\Assign\SoftwareGrid;
 use FOG\Audit\Audit;
 use FOG\Auth\Authorization;
 use FOG\Base\FOGManagerController;
@@ -4092,51 +4093,19 @@ class HostManagement extends FOGPage
      */
     public function hostSoftware()
     {
-        // Trailing 'software' opts this tab into the "Create New Software"
-        // button and modal (see renderAssocCreate), matching hostSnapins().
-        $this->renderAssocTab(
+        // One card, one grid: this host's own links in run order, then what
+        // it inherits from its groups. getSoftwareGrid() fills it.
+        $this->renderSoftwareGrid(
             'host-software',
-            _('Host Software Assignment'),
-            _('Software Name'),
-            'software',
-            'btn btn-primary float-end',
-            '',
-            'software'
-        );
-
-        $props = ' method="post" action="'
-            . self::makeTabUpdateURL(
-                'host-software',
-                $this->obj->get('id')
+            'host',
+            _(
+                'The order software is applied in when the agent '
+                . 'reconciles this host: this host\'s own entries first, '
+                . 'then each group\'s. The action comes from this host if '
+                . 'it sets one, else from the first group that sets one, '
+                . 'else from the package.'
             )
-            . '" ';
-
-        $orderButton = self::makeButton(
-            'host-software-order-save',
-            _('Save order and states'),
-            'btn btn-primary float-end',
-            $props
         );
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo _('Software Order and State');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        echo '<p class="form-text">';
-        echo _(
-            'The order software is applied in when the agent reconciles '
-            . 'this host.'
-        );
-        echo '</p>';
-        echo '<ol id="host-software-order-list" class="list-group"></ol>';
-        echo '</div>';
-        echo '<div class="card-footer">';
-        echo $orderButton;
-        echo '</div>';
-        echo '</div>';
-        $this->_effectiveSoftwareCard();
     }
     /**
      * Resolves this host's software with the link detail
@@ -4156,149 +4125,83 @@ class HostManagement extends FOGPage
         }
     }
     /**
-     * Renders the read-only "Effective Software" card: the entries the agent
-     * is sent for this host, one per package, as Resolver decides them.
+     * Returns the Software tab grid: this host's links, then what it
+     * inherits, and the entries the Link modal can offer.
+     *
+     * A GET, so the 'get' prefix makes it view permission
+     * (Authorization::_subToAction). The rows are built by
+     * SoftwareGrid::hostRows(), which has no database in it; this method
+     * only reads the inputs. When the Resolver fails the answer is a 500
+     * rather than a grid that marks every entry superseded.
      *
      * @return void
      */
-    private function _effectiveSoftwareCard()
+    public function getSoftwareGrid()
     {
-        echo '<div class="card card-primary card-outline">';
-        echo '<div class="card-header">';
-        echo '<h4 class="card-title">';
-        echo _('Effective Software');
-        echo '</h4>';
-        echo '</div>';
-        echo '<div class="card-body">';
-        // One path closes the card: a failed resolve (null) or a failed
-        // software or group read both fall through to the warning below.
-        $rows = $this->_resolvedSoftware((int)$this->obj->get('id'));
-        $shown = false;
-        try {
-            if (null !== $rows) {
-                $softwareIDs = [];
-                $groupIDs = [];
-                foreach ($rows as $row) {
-                    $softwareIDs[] = (int)$row['id'];
-                    if ((int)$row['groupID'] > 0) {
-                        $groupIDs[] = (int)$row['groupID'];
-                    }
-                }
-                $softwares = [];
-                if (count($softwareIDs) > 0) {
-                    foreach (Route::getList('software', ['id' => $softwareIDs]) as $Software) {
-                        $softwares[(int)$Software->id] = $Software;
-                    }
-                }
-                $groupNames = [];
-                if (count($groupIDs) > 0) {
-                    foreach (Route::getList('group', ['id' => array_values(array_unique($groupIDs))]) as $Group) {
-                        $groupNames[(int)$Group->id] = $Group->name;
-                    }
-                }
-                echo '<p class="form-text">';
-                echo \Initiator::e(
-                    _(
-                        'What the agent is sent: one entry per package. This '
-                        . 'host\'s own entries come first, then each group\'s in '
-                        . 'group order. The state comes from this host if it '
-                        . 'sets one, else from the first group that sets one, '
-                        . 'else from the entry. Reload the page after saving to '
-                        . 'refresh it.'
-                    )
-                );
-                echo '</p>';
-                echo '<table class="table table-sm">';
-                echo '<thead><tr>';
-                foreach ([_('Software'), _('Backend'), _('Package'), _('State'), _('From')] as $th) {
-                    echo '<th>' . \Initiator::e($th) . '</th>';
-                }
-                echo '</tr></thead><tbody>';
-                foreach ($rows as $row) {
-                    $Software = $softwares[(int)$row['id']] ?? null;
-                    // Skip a stale link with no software row, and a disabled
-                    // entry (Resolver still lists it; the agent is not sent it).
-                    if (null === $Software || !(int)$Software->isEnabled) {
-                        continue;
-                    }
-                    $stateText = 'absent' === $row['effective']
-                        ? _('Absent')
-                        : _('Present');
-                    if (null !== $row['state']) {
-                        $stateText .= ' ' . _('(override)');
-                    }
-                    $groupID = (int)$row['groupID'];
-                    $from = $groupID > 0
-                        ? ($groupNames[$groupID] ?? '')
-                        : _('This host');
-                    echo '<tr>';
-                    echo '<td>' . \Initiator::e($Software->name) . '</td>';
-                    echo '<td>' . \Initiator::e($Software->backend) . '</td>';
-                    echo '<td>' . \Initiator::e($Software->package) . '</td>';
-                    echo '<td>' . \Initiator::e($stateText) . '</td>';
-                    echo '<td>' . \Initiator::e($from) . '</td>';
-                    echo '</tr>';
-                }
-                echo '</tbody></table>';
-                $shown = true;
-            }
-        } catch (\Exception $e) {
-            // A failed software or group read, after the resolve. Both reads
-            // run before the first echo, so no half-written table precedes
-            // the warning.
-            $shown = false;
-        }
-        if (!$shown) {
-            echo '<div class="alert alert-warning">';
-            echo \Initiator::e(_('The effective software could not be loaded.'));
-            echo '</div>';
-        }
-        echo '</div>';
-        echo '</div>';
-    }
-    /**
-     * Returns the assigned software for this host in run order.
-     *
-     * @return void
-     */
-    public function getSoftwareOrderList()
-    {
-        $softwareIDs = (array)$this->obj->get('softwares');
-        $names = [];
-        $entryStates = [];
-        $states = [];
-        if (count($softwareIDs) > 0) {
-            $Softwares = Route::getList('software', ['id' => $softwareIDs]);
-            foreach ($Softwares as $Software) {
-                $names[$Software->id] = $Software->name;
-                $entryStates[$Software->id] = (string)$Software->state;
-            }
-            // The host's own override per link; '' when NULL (use the
-            // entry's state).
-            $links = Route::getList(
-                'softwareassociation',
-                ['hostID' => $this->obj->get('id')]
+        $hostID = (int)$this->obj->get('id');
+        $resolved = $this->_resolvedSoftware($hostID);
+        if (null === $resolved) {
+            $this->jsonSend(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                json_encode(
+                    ['error' => _('The effective software could not be loaded.')]
+                )
             );
-            foreach ($links as $link) {
-                $states[(int)$link->softwareID] = (string)($link->state ?? '');
+        }
+        $links = SoftwareGrid::links(
+            Route::getList(
+                'softwareassociation',
+                ['hostID' => $hostID],
+                'AND',
+                'sequence'
+            )
+        );
+        $software = SoftwareGrid::entries(Route::getList('software'));
+        $groupIDs = [];
+        foreach ($resolved as $row) {
+            if ((int)$row['groupID'] > 0) {
+                $groupIDs[] = (int)$row['groupID'];
             }
         }
-        $data = [];
-        foreach ($softwareIDs as $softwareID) {
-            // Skip ids that don't resolve to a real software entry (a stale
-            // association left by a removed entry, or a 0/blank id).
-            // Mirrors setSoftwareOrder()'s "< 1" guard on the save path.
-            if (!isset($names[$softwareID])) {
-                continue;
+        $groupNames = [];
+        if (count($groupIDs) > 0) {
+            foreach (
+                Route::getList(
+                    'group',
+                    ['id' => array_values(array_unique($groupIDs))]
+                ) as $Group
+            ) {
+                $groupNames[(int)$Group->id] = (string)$Group->name;
             }
-            $data[] = [
-                'id' => $softwareID,
-                'name' => $names[$softwareID],
-                'state' => $states[(int)$softwareID] ?? '',
-                'entryState' => $entryStates[$softwareID]
+        }
+        $statuses = [];
+        foreach (
+            Route::getList('softwarestatus', ['hostID' => $hostID]) as $stat
+        ) {
+            $statuses[(int)$stat->softwareID] = [
+                'status' => $stat->status,
+                'installedVersion' => $stat->installedVersion,
+                'checked' => $stat->checked
             ];
         }
-        $this->jsonSend(HTTPResponseCodes::HTTP_SUCCESS, json_encode(['data' => $data]));
+        $this->jsonSend(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            json_encode(
+                [
+                    'data' => SoftwareGrid::hostRows(
+                        $links,
+                        $software,
+                        $resolved,
+                        $groupNames,
+                        $statuses
+                    ),
+                    'available' => SoftwareGrid::available(
+                        $software,
+                        array_column($links, 'id')
+                    )
+                ]
+            )
+        );
     }
     /**
      * Host software post
@@ -7541,34 +7444,6 @@ class HostManagement extends FOGPage
             '`snapins`.`sID`',
             '`snapinAssoc`.`saSnapinID`',
             '`snapinAssoc`.`saHostID`',
-            [
-                [
-                    'db' => 'hostAssoc',
-                    'dt' => 'association',
-                    'removeFromQuery' => true
-                ]
-            ]
-        );
-    }
-    /**
-     * Presents the software list table.
-     *
-     * @return void
-     */
-    public function getSoftwareList()
-    {
-        // Not `return`: assocItemsList() is void (it echoes and exit()s), and
-        // HostManagement's phpstan baseline already budgets a fixed count of
-        // the "void result used" finding that returning it would trip.
-        // GroupManagement::getSoftwareList() calls it the same, unreturned,
-        // way.
-        $this->assocItemsList(
-            'software',
-            'softwareassociation',
-            'softwareAssoc',
-            '`software`.`swID`',
-            '`softwareAssoc`.`swaSoftwareID`',
-            '`softwareAssoc`.`swaHostID`',
             [
                 [
                     'db' => 'hostAssoc',

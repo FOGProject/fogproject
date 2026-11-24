@@ -892,131 +892,13 @@
 
     // ---------------------------------------------------------------
     // SOFTWARE TAB
-    // Mirrors the snapin tab above. The software order panel (below)
-    // mirrors the assigned set, so refresh it after every add/remove
-    // commits via afterCommit.
-    var hostSoftwareTable = $.registerAssociationTab({
+    // One grid: this host's links in run order, then what it inherits. The
+    // shared helper draws, edits and saves it.
+    var hostSoftwareTable = $.registerSoftwareGrid({
         slug: 'host-software',
-        item: 'software',
-        sub: 'getSoftwareList',
-        afterCommit: loadSoftwareOrder
+        node: Common.node,
+        id: Common.id
     });
-    $.registerCreateAndAssociate('host-software', hostSoftwareTable);
-
-    // ---------------------------------------------------------------
-    // SOFTWARE ORDER
-    var hostSoftwareOrderList = $('#host-software-order-list'),
-        hostSoftwareOrderSaveBtn = $('#host-software-order-save');
-
-    function updateSoftwareOrderPositions() {
-        hostSoftwareOrderList.children('li').each(function(i) {
-            $(this).find('.software-order-pos').text((i + 1) + '. ');
-        });
-    }
-
-    function renderSoftwareOrder(items) {
-        hostSoftwareOrderList.empty();
-        if (!items || items.length === 0) {
-            hostSoftwareOrderList.append(
-                $('<li>', {'class': 'list-group-item text-muted'})
-                    .text('No software assigned.')
-            );
-            hostSoftwareOrderSaveBtn.prop('disabled', true);
-            return;
-        }
-        hostSoftwareOrderSaveBtn.prop('disabled', false);
-        $.each(items, function(i, item) {
-            var controls = $('<span>', {'class': 'float-end'})
-                .append(
-                    $('<button>', {
-                        'type': 'button',
-                        'class': 'btn btn-sm btn-secondary software-order-up',
-                        'title': 'Move up'
-                    }).append($('<i>', {'class': 'fas fa-arrow-up'})),
-                    ' ',
-                    $('<button>', {
-                        'type': 'button',
-                        'class': 'btn btn-sm btn-secondary software-order-down',
-                        'title': 'Move down'
-                    }).append($('<i>', {'class': 'fas fa-arrow-down'}))
-                );
-            // Per-host state override. '' = no opinion: the first group that
-            // sets a state applies, else the entry's own state (GH-2129).
-            var entryLabel = item.entryState === 'absent' ? 'Absent' : 'Present',
-                stateSelect = $('<select>', {
-                    'class': 'form-select form-select-sm software-state d-inline-block w-auto ms-2'
-                }).append(
-                    $('<option>', {value: ''}).text('Inherit (groups, else ' + entryLabel + ')'),
-                    $('<option>', {value: 'present'}).text('Install (Present)'),
-                    $('<option>', {value: 'absent'}).text('Uninstall (Absent)')
-                ).val(item.state || '');
-            hostSoftwareOrderList.append(
-                $('<li>', {
-                    'class': 'list-group-item',
-                    'data-id': item.id
-                }).append(
-                    $('<span>', {'class': 'software-order-pos'}),
-                    $('<span>', {'class': 'software-order-name'}).text(item.name),
-                    stateSelect,
-                    controls
-                )
-            );
-        });
-        updateSoftwareOrderPositions();
-    }
-
-    function loadSoftwareOrder() {
-        $.ajax({
-            url: '../management/index.php?node=' + Common.node
-                + '&sub=getSoftwareOrderList&id=' + Common.id,
-            dataType: 'json',
-            success: function(data) {
-                renderSoftwareOrder(data && data.data ? data.data : []);
-            }
-        });
-    }
-
-    hostSoftwareOrderList.on('click', '.software-order-up', function(e) {
-        e.preventDefault();
-        var li = $(this).closest('li'),
-            prev = li.prev('li');
-        if (prev.length) {
-            li.insertBefore(prev);
-            updateSoftwareOrderPositions();
-        }
-    });
-
-    hostSoftwareOrderList.on('click', '.software-order-down', function(e) {
-        e.preventDefault();
-        var li = $(this).closest('li'),
-            next = li.next('li');
-        if (next.length) {
-            li.insertAfter(next);
-            updateSoftwareOrderPositions();
-        }
-    });
-
-    hostSoftwareOrderSaveBtn.on('click', function(e) {
-        e.preventDefault();
-        var method = $(this).attr('method'),
-            action = $(this).attr('action'),
-            order = [],
-            states = {};
-        hostSoftwareOrderList.children('li').each(function() {
-            var id = $(this).attr('data-id');
-            if (id) {
-                order.push(id);
-                states[id] = $(this).find('.software-state').val() || '';
-            }
-        });
-        if (order.length === 0) {
-            return;
-        }
-        // One request: the order plus softwarestate[<softwareID>].
-        $.apiCall(method, action, {softwareorder: order, softwarestate: states});
-    });
-
-    loadSoftwareOrder();
 
     // ---------------------------------------------------------------
     // SOFTWARE STATUS TAB (read only)
@@ -1712,7 +1594,9 @@
         hostGroupsTable.search(Common.search).draw();
         hostPrintersTable.search(Common.search).draw();
         hostSnapinsTable.search(Common.search).draw();
-        hostSoftwareTable.search(Common.search).draw();
+        if (hostSoftwareTable) {
+            hostSoftwareTable.search(Common.search).draw();
+        }
         // FOG Client
         hostModulesTable.search(Common.search).draw();
         powermanagementTable.search(Common.search).draw();

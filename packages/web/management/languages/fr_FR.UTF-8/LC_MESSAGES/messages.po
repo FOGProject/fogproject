@@ -328,9 +328,6 @@ msgstr ""
 msgid "(none)"
 msgstr ""
 
-msgid "(override)"
-msgstr ""
-
 msgid "(set on all)"
 msgstr ""
 
@@ -3301,6 +3298,9 @@ msgstr "Échec du téléchargement"
 msgid "Downloaded file is not a bootable kernel image"
 msgstr ""
 
+msgid "Drag to reorder"
+msgstr ""
+
 msgid "Drift"
 msgstr ""
 
@@ -3364,10 +3364,6 @@ msgstr "hôte description de"
 #, php-format
 msgid "Editing the %1$d hosts in group %2$s. Every field is left alone unless you choose otherwise."
 msgstr ""
-
-#, fuzzy
-msgid "Effective Software"
-msgstr "Créer un nouveau logiciel"
 
 msgid "Either half may be sent, or both. ABSENT IS NOT EMPTY: a body with no \"shares\" key leaves the share list alone, while one carrying empty lists means \"shared with nobody\" and clears it. The whole list is replaced rather than added to. Sharing needs no permission -- it can only add one named entry to the picker of somebody you could already name -- but editing a GLOBAL filter requires savedfilter.edit."
 msgstr ""
@@ -4427,10 +4423,6 @@ msgid "Group Snapin History"
 msgstr "snapin Histoire"
 
 #, fuzzy
-msgid "Group Software Assignment"
-msgstr "snapin Histoire"
-
-#, fuzzy
 msgid "Group Task History"
 msgstr "Histoire de l'image"
 
@@ -4762,10 +4754,6 @@ msgstr "Aucun noeud associé"
 
 #, fuzzy
 msgid "Host Snapin History"
-msgstr "snapin Histoire"
-
-#, fuzzy
-msgid "Host Software Assignment"
 msgstr "snapin Histoire"
 
 msgid "Host Software Status"
@@ -5400,6 +5388,9 @@ msgstr ""
 msgid "Information"
 msgstr "Information"
 
+msgid "Inherit"
+msgstr ""
+
 msgid "Inherit - use the system ldap.conf setting"
 msgstr ""
 
@@ -5436,6 +5427,10 @@ msgstr ""
 
 msgid "Inspect the current directory candidate before confirming it."
 msgstr ""
+
+#, fuzzy
+msgid "Install"
+msgstr "Plugins installés"
 
 msgid "Install Plugins"
 msgstr "Installer Plugins"
@@ -6053,6 +6048,10 @@ msgid "Last operation result time (UTC)"
 msgstr ""
 
 #, fuzzy
+msgid "Last result"
+msgstr "hôte Créé"
+
+#, fuzzy
 msgid "Last ring"
 msgstr "Images"
 
@@ -6122,6 +6121,9 @@ msgstr "Ligne"
 msgid "Lines"
 msgstr "Ligne"
 
+msgid "Link"
+msgstr ""
+
 msgid "Link Pushbullet Account"
 msgstr "Compte Lien Pushbullet"
 
@@ -6155,6 +6157,10 @@ msgstr "Lien compte Slack"
 #, fuzzy
 msgid "Link ntfy Topic Success"
 msgstr "Lien compte Slack"
+
+#, fuzzy
+msgid "Link software"
+msgstr "Lister tous les logiciels"
 
 msgid "Linux"
 msgstr ""
@@ -6786,6 +6792,12 @@ msgstr "Carte mère Numéro de série"
 msgid "Motherboard Version"
 msgstr "Carte mère Version"
 
+msgid "Move down"
+msgstr ""
+
+msgid "Move up"
+msgstr ""
+
 msgid "Multicast"
 msgstr "Multicast"
 
@@ -7226,6 +7238,10 @@ msgid "No snapins associated with this group as master"
 msgstr "Il n'y a pas snapins associés à cet hôte"
 
 #, fuzzy
+msgid "No software is linked."
+msgstr "Ajouter SnapIn a échoué!"
+
+#, fuzzy
 msgid "No status reported"
 msgstr "Inventaire"
 
@@ -7399,6 +7415,9 @@ msgstr ""
 msgid "Not reported"
 msgstr "Inventaire"
 
+msgid "Not set (other groups, else package default)"
+msgstr ""
+
 msgid "Not set follows the module default, and a group may also enable this module. Off is the host's own answer and no group can override it."
 msgstr ""
 
@@ -7434,6 +7453,10 @@ msgstr "Nom du nœud de stockage"
 
 #, fuzzy
 msgid "Nothing to do on Storage Node Named"
+msgstr "Nom du nœud de stockage"
+
+#, fuzzy
+msgid "Nothing to save."
 msgstr "Nom du nœud de stockage"
 
 msgid "Null when this is the last page."
@@ -8702,8 +8725,16 @@ msgid "Remove imported root"
 msgstr "supprimé"
 
 #, fuzzy
+msgid "Remove link"
+msgstr "supprimé"
+
+#, fuzzy
 msgid "Remove selected"
 msgstr "Retirer snapins sélectionnés"
+
+#, fuzzy
+msgid "Remove software"
+msgstr "supprimé"
 
 #, php-format
 msgid "Remove the %s seat? Its agent stops authenticating at its next poll. It returns to Pending Agents, and only an admin can approve it again."
@@ -9099,15 +9130,15 @@ msgstr "Sauvegarder les modifications"
 msgid "Save a filter"
 msgstr "mise à jour de l'imprimante a échoué!"
 
+#, fuzzy
+msgid "Save changes"
+msgstr "Sauvegarder les modifications"
+
 msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
 msgid "Save order"
 msgstr ""
-
-#, fuzzy
-msgid "Save order and states"
-msgstr "Impossible de créer la tâche"
 
 msgid "Save the site before setting catch-all"
 msgstr ""
@@ -9970,10 +10001,6 @@ msgid "Software Name"
 msgstr "Nom de l'imprimante"
 
 #, fuzzy
-msgid "Software Order and State"
-msgstr "Créer un nouveau %s"
-
-#, fuzzy
 msgid "Software Report"
 msgstr "ID d'hôte"
 
@@ -9993,8 +10020,12 @@ msgstr "Installation / Mise à jour réussie!"
 msgid "Software added!"
 msgstr "Nom de l'imprimante"
 
-msgid "Software granted here applies to every host in this group, including hosts added later."
+msgid "Software granted here applies to every host in this group, including hosts added later. The order this group's software is applied in: a host applies its own software first, then the software granted here, in this order. An action set here applies to this group's hosts unless the host sets its own or an earlier group sets one."
 msgstr ""
+
+#, fuzzy
+msgid "Software to link"
+msgstr "mise à jour de l'imprimante a échoué!"
 
 #, fuzzy
 msgid "Software update failed!"
@@ -10086,6 +10117,9 @@ msgid "Status"
 msgstr "statut"
 
 msgid "Stop keeping"
+msgstr ""
+
+msgid "Stop managing (leave installed)"
 msgstr ""
 
 msgid "Stop snapins if this fails"
@@ -11116,13 +11150,10 @@ msgstr ""
 msgid "The one-shot start was claimed; includes the directory credential and public rejoin plan."
 msgstr ""
 
-msgid "The order software is applied in when the agent reconciles this host."
+msgid "The order software is applied in when the agent reconciles this host: this host's own entries first, then each group's. The action comes from this host if it sets one, else from the first group that sets one, else from the package."
 msgstr ""
 
 msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
-msgstr ""
-
-msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order. A state set here applies to this group's hosts unless the host sets its own or an earlier group sets one."
 msgstr ""
 
 msgid "The os key is missing or is not a string."
@@ -11463,10 +11494,6 @@ msgstr ""
 
 msgid "This group has no hosts you can edit"
 msgstr ""
-
-#, fuzzy
-msgid "This host"
-msgstr "hôte"
 
 #, fuzzy, php-format
 msgid "This host failed imaging %1$s: %2$s"
@@ -11954,8 +11981,21 @@ msgstr "Aucun noeud associé"
 msgid "Under https, the netboot URL has to address this server by a name the served certificate actually carries, so FOG_WEB_HOST becomes a record rather than a control -- rewritten on every run, and an edit through FOG Settings will not survive."
 msgstr ""
 
+msgid "Undo"
+msgstr ""
+
 msgid "Unicast"
 msgstr "Unicast"
+
+#, fuzzy
+msgid "Uninstall"
+msgstr "Plugins installés"
+
+msgid "Uninstall from this group's hosts"
+msgstr ""
+
+msgid "Uninstall from this host"
+msgstr ""
 
 #, fuzzy
 msgid "Uninstall plugins failed!"
@@ -12037,6 +12077,10 @@ msgstr ""
 #, php-format
 msgid "Unsafe hostname entered, please try again: %s"
 msgstr ""
+
+#, fuzzy
+msgid "Unsaved changes"
+msgstr "Sauvegarder les modifications"
 
 msgid "Unset"
 msgstr ""
@@ -12524,10 +12568,10 @@ msgstr "a été mis à jour avec succès"
 msgid "What it does"
 msgstr "a été mis à jour avec succès"
 
-msgid "What the agent did with one capability at one revision, recorded on the host as agent.result; or, with item, what happened to one thing under the capability (a snapin task, a software entry), answered with the outcome the agent acts on. One route for every kind of report. Same gate as poll."
+msgid "What should happen to {name}?"
 msgstr ""
 
-msgid "What the agent is sent: one entry per package. This host's own entries come first, then each group's in group order. The state comes from this host if it sets one, else from the first group that sets one, else from the entry. Reload the page after saving to refresh it."
+msgid "What the agent did with one capability at one revision, recorded on the host as agent.result; or, with item, what happened to one thing under the capability (a snapin task, a software entry), answered with the outcome the agent acts on. One route for every kind of report. Same gate as poll."
 msgstr ""
 
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
@@ -12586,6 +12630,12 @@ msgid "Why the caller can see it, most specific grant first. A filter reachable 
 msgstr ""
 
 msgid "Width must be 650 pixels."
+msgstr ""
+
+msgid "Will link on save"
+msgstr ""
+
+msgid "Will stop managing"
 msgstr ""
 
 msgid "Window size must be greater than 1"
@@ -13749,6 +13799,10 @@ msgstr ""
 msgid "success"
 msgstr "Accès"
 
+#, fuzzy
+msgid "superseded"
+msgstr "Réussi"
+
 #, php-format
 msgid "supports FOG up to %s; this server is %s"
 msgstr ""
@@ -13978,6 +14032,18 @@ msgid "with this group"
 msgstr "pas dans ce"
 
 msgid "you set the bandwidth field on that node to 1000"
+msgstr ""
+
+msgid "{action} (group {group})"
+msgstr ""
+
+msgid "{action} (package default)"
+msgstr ""
+
+msgid "{action} (package default, via group {group})"
+msgstr ""
+
+msgid "{action} (this host)"
 msgstr ""
 
 msgid "{node}"
@@ -14210,6 +14276,10 @@ msgstr ""
 #~ msgid "Domain username"
 #~ msgstr "Domaine Nom d'utilisateur"
 
+#, fuzzy
+#~ msgid "Effective Software"
+#~ msgstr "Créer un nouveau logiciel"
+
 #~ msgid "End"
 #~ msgstr "Fin"
 
@@ -14377,6 +14447,10 @@ msgstr ""
 #~ msgstr "Groupe ajouté"
 
 #, fuzzy
+#~ msgid "Group Software Assignment"
+#~ msgstr "snapin Histoire"
+
+#, fuzzy
 #~ msgid "Group Update Location Fail"
 #~ msgstr "Groupe create a échoué"
 
@@ -14434,6 +14508,10 @@ msgstr ""
 
 #, fuzzy
 #~ msgid "Host Snapins"
+#~ msgstr "snapin Histoire"
+
+#, fuzzy
+#~ msgid "Host Software Assignment"
 #~ msgstr "snapin Histoire"
 
 #, fuzzy
@@ -14527,10 +14605,6 @@ msgstr ""
 #~ msgid "InitRD Versions"
 #~ msgstr "CPU Version"
 
-#, fuzzy
-#~ msgid "Install"
-#~ msgstr "Plugins installés"
-
 #~ msgid "Invalid Storage Node"
 #~ msgstr "Invalid Storage Node"
 
@@ -14564,10 +14638,6 @@ msgstr ""
 #, fuzzy
 #~ msgid "Last Activity"
 #~ msgstr "actif"
-
-#, fuzzy
-#~ msgid "Last Event"
-#~ msgstr "hôte Créé"
 
 #, fuzzy
 #~ msgid "Latest SVN Version"
@@ -14729,6 +14799,10 @@ msgstr ""
 #~ msgstr "mise à jour de l'imprimante a échoué!"
 
 #, fuzzy
+#~ msgid "Save order and states"
+#~ msgstr "Impossible de créer la tâche"
+
+#, fuzzy
 #~ msgid "Screen Refresh Rate"
 #~ msgstr "Par défaut Taux de rafraîchissement"
 
@@ -14747,6 +14821,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "Snapin Pack File"
 #~ msgstr "snapin fichier"
+
+#, fuzzy
+#~ msgid "Software Order and State"
+#~ msgstr "Créer un nouveau %s"
 
 #, fuzzy
 #~ msgid "Storage Node Associated"
@@ -14799,6 +14877,10 @@ msgstr ""
 #, fuzzy
 #~ msgid "There are no snapins on this server"
 #~ msgstr "Il n'y a pas snapins sur ce serveur."
+
+#, fuzzy
+#~ msgid "This host"
+#~ msgstr "hôte"
 
 #, fuzzy
 #~ msgid "This server is not a master node"

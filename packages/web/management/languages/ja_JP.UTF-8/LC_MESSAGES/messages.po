@@ -311,9 +311,6 @@ msgstr "（すべて空欄）"
 msgid "(none)"
 msgstr "（なし）"
 
-msgid "(override)"
-msgstr ""
-
 msgid "(set on all)"
 msgstr "（すべて設定済み）"
 
@@ -2876,6 +2873,9 @@ msgstr "ダウンロード済み"
 msgid "Downloaded file is not a bootable kernel image"
 msgstr "ダウンロードしたファイルは起動可能なカーネルイメージではありません"
 
+msgid "Drag to reorder"
+msgstr ""
+
 msgid "Drift"
 msgstr "構成ドリフト"
 
@@ -2932,10 +2932,6 @@ msgstr "LDAP の全体設定を編集"
 #, fuzzy, php-format
 msgid "Editing the %1$d hosts in group %2$s. Every field is left alone unless you choose otherwise."
 msgstr "選択した %d 台のホストを編集中です。変更を指定しなかったフィールドは、そのまま維持されます。"
-
-#, fuzzy
-msgid "Effective Software"
-msgstr "新しいソフトウェアを作成"
 
 msgid "Either half may be sent, or both. ABSENT IS NOT EMPTY: a body with no \"shares\" key leaves the share list alone, while one carrying empty lists means \"shared with nobody\" and clears it. The whole list is replaced rather than added to. Sharing needs no permission -- it can only add one named entry to the picker of somebody you could already name -- but editing a GLOBAL filter requires savedfilter.edit."
 msgstr "片方だけ、または両方を送信できます。「指定なし」と「空」は異なります。リクエスト本文に \"shares\" キーがなければ共有先一覧は変更されませんが、空のリストを指定すると「誰とも共有しない」ことになり、一覧がクリアされます。共有先は追加ではなく一覧全体が置き換えられます。共有操作自体に権限は不要です。既に指定可能なユーザーの選択肢に名前付き項目を追加するだけだからです。ただし、GLOBAL フィルターの編集には savedfilter.edit 権限が必要です。"
@@ -3857,9 +3853,6 @@ msgstr "グループへのスナップイン割り当て"
 msgid "Group Snapin History"
 msgstr "グループのスナップイン履歴"
 
-msgid "Group Software Assignment"
-msgstr "グループへのソフトウェア割り当て"
-
 msgid "Group Task History"
 msgstr "グループのタスク履歴"
 
@@ -4138,9 +4131,6 @@ msgstr "ホストとスナップインの関連付け"
 
 msgid "Host Snapin History"
 msgstr "ホストのスナップイン履歴"
-
-msgid "Host Software Assignment"
-msgstr "ホストへのソフトウェア割り当て"
 
 msgid "Host Software Status"
 msgstr "ホストのソフトウェア状態"
@@ -4677,6 +4667,9 @@ msgstr "無限スクロール"
 msgid "Information"
 msgstr "情報"
 
+msgid "Inherit"
+msgstr ""
+
 msgid "Inherit - use the system ldap.conf setting"
 msgstr "継承（システムの ldap.conf 設定を使用）"
 
@@ -4707,6 +4700,9 @@ msgstr ""
 
 msgid "Inspect the current directory candidate before confirming it."
 msgstr ""
+
+msgid "Install"
+msgstr "インストール"
 
 msgid "Install Plugins"
 msgstr "プラグインをインストール"
@@ -5230,6 +5226,10 @@ msgstr "最終イメージ処理日時"
 msgid "Last operation result time (UTC)"
 msgstr ""
 
+#, fuzzy
+msgid "Last result"
+msgstr "最終イベント"
+
 msgid "Last ring"
 msgstr "前回の更新リング"
 
@@ -5294,6 +5294,9 @@ msgstr "行"
 msgid "Lines"
 msgstr "行"
 
+msgid "Link"
+msgstr ""
+
 msgid "Link Pushbullet Account"
 msgstr "Pushbullet アカウントをリンク"
 
@@ -5320,6 +5323,10 @@ msgstr "ntfy トピックのリンクに失敗しました"
 
 msgid "Link ntfy Topic Success"
 msgstr "ntfy トピックをリンクしました"
+
+#, fuzzy
+msgid "Link software"
+msgstr "すべてのソフトウェアを一覧表示"
 
 msgid "Linux"
 msgstr "Linux"
@@ -5863,6 +5870,12 @@ msgstr "マザーボードシリアル番号"
 msgid "Motherboard Version"
 msgstr "マザーボードバージョン"
 
+msgid "Move down"
+msgstr ""
+
+msgid "Move up"
+msgstr ""
+
 msgid "Multicast"
 msgstr "マルチキャスト"
 
@@ -6252,6 +6265,10 @@ msgid "No snapins associated with this group as master"
 msgstr "このグループにマスターとして関連付けられたスナップインはありません"
 
 #, fuzzy
+msgid "No software is linked."
+msgstr "ソフトウェアの追加に失敗しました！"
+
+#, fuzzy
 msgid "No status reported"
 msgstr "未報告"
 
@@ -6408,6 +6425,9 @@ msgstr "未記録"
 msgid "Not reported"
 msgstr "未報告"
 
+msgid "Not set (other groups, else package default)"
+msgstr ""
+
 #, fuzzy
 msgid "Not set follows the module default, and a group may also enable this module. Off is the host's own answer and no group can override it."
 msgstr "未設定の場合はグループからこのモジュールを有効化できます。「オフ」はホスト自身の設定であり、グループ側から上書きできません。"
@@ -6441,6 +6461,10 @@ msgstr "期限切れによる削除対象はありません"
 
 msgid "Nothing to do on Storage Node Named"
 msgstr "指定されたストレージノードで実行する処理はありません"
+
+#, fuzzy
+msgid "Nothing to save."
+msgstr "期限切れによる削除対象はありません"
 
 msgid "Null when this is the last page."
 msgstr "最終ページの場合は null になります。"
@@ -7540,8 +7564,16 @@ msgstr "ファイルデータを削除"
 msgid "Remove imported root"
 msgstr "インポート済みルート証明書を削除"
 
+#, fuzzy
+msgid "Remove link"
+msgstr "削除 "
+
 msgid "Remove selected"
 msgstr "選択した項目を削除"
+
+#, fuzzy
+msgid "Remove software"
+msgstr "削除に失敗しました"
 
 #, php-format
 msgid "Remove the %s seat? Its agent stops authenticating at its next poll. It returns to Pending Agents, and only an admin can approve it again."
@@ -7892,14 +7924,14 @@ msgstr "変更を保存"
 msgid "Save a filter"
 msgstr "フィルターを保存"
 
+#, fuzzy
+msgid "Save changes"
+msgstr "変更を保存"
+
 msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr "保存は完了しましたが、有効な ID が割り当てられませんでした（insertId=0）。重複キーによる更新、または自動採番が設定されていない可能性があります。"
 
 msgid "Save order"
-msgstr "順序を保存"
-
-#, fuzzy
-msgid "Save order and states"
 msgstr "順序を保存"
 
 msgid "Save the site before setting catch-all"
@@ -8634,10 +8666,6 @@ msgstr "ソフトウェア管理"
 msgid "Software Name"
 msgstr "ソフトウェア名"
 
-#, fuzzy
-msgid "Software Order and State"
-msgstr "ソフトウェアの適用順序"
-
 msgid "Software Report"
 msgstr "ソフトウェアレポート"
 
@@ -8653,8 +8681,13 @@ msgstr "ソフトウェアを更新しました"
 msgid "Software added!"
 msgstr "ソフトウェアを追加しました！"
 
-msgid "Software granted here applies to every host in this group, including hosts added later."
-msgstr "ここで割り当てたソフトウェアは、後からこのグループに追加されるホストも含め、グループ内のすべてのホストに適用されます。"
+#, fuzzy
+msgid "Software granted here applies to every host in this group, including hosts added later. The order this group's software is applied in: a host applies its own software first, then the software granted here, in this order. An action set here applies to this group's hosts unless the host sets its own or an earlier group sets one."
+msgstr "このグループのソフトウェアの適用順序です。ホスト自身に割り当てられたソフトウェアを先に適用し、その後でグループから割り当てられたソフトウェアをこの順序で適用します。"
+
+#, fuzzy
+msgid "Software to link"
+msgstr "ソフトウェアの作成に失敗しました"
 
 msgid "Software update failed!"
 msgstr "ソフトウェアの更新に失敗しました！"
@@ -8736,6 +8769,10 @@ msgstr "状態"
 
 msgid "Stop keeping"
 msgstr "保持を停止"
+
+#, fuzzy
+msgid "Stop managing (leave installed)"
+msgstr "インストールするスナップイン"
 
 msgid "Stop snapins if this fails"
 msgstr ""
@@ -9629,15 +9666,11 @@ msgstr "/unisearch?q= の旧形式です。末尾に整数を追加すると、�
 msgid "The one-shot start was claimed; includes the directory credential and public rejoin plan."
 msgstr ""
 
-msgid "The order software is applied in when the agent reconciles this host."
-msgstr "エージェントがこのホストの構成を目標状態に合わせる際の、ソフトウェアの適用順序です。"
+msgid "The order software is applied in when the agent reconciles this host: this host's own entries first, then each group's. The action comes from this host if it sets one, else from the first group that sets one, else from the package."
+msgstr ""
 
 msgid "The order this group's snapins run in. A host runs its own snapins first, then the ones granted here, in this order. Order only changes execution when \"Abort snapin sequence on failure\" is enabled for the task."
 msgstr "このグループのスナップインの実行順序です。ホスト自身のスナップインを先に実行し、その後にグループから割り当てられたスナップインをこの順序で実行します。ただし、この順序が実際の実行順序に影響するのは、タスクで「スナップインが失敗した場合に後続の実行を中止する」が有効な場合だけです。"
-
-#, fuzzy
-msgid "The order this group's software is applied in. A host applies its own software first, then the software granted here, in this order. A state set here applies to this group's hosts unless the host sets its own or an earlier group sets one."
-msgstr "このグループのソフトウェアの適用順序です。ホスト自身に割り当てられたソフトウェアを先に適用し、その後でグループから割り当てられたソフトウェアをこの順序で適用します。"
 
 msgid "The os key is missing or is not a string."
 msgstr ""
@@ -9955,10 +9988,6 @@ msgstr "このエンドポイントは POST のみ受け付けます。"
 #, fuzzy
 msgid "This group has no hosts you can edit"
 msgstr "このモジュールには設定可能な項目がありません。"
-
-#, fuzzy
-msgid "This host"
-msgstr "%s 台のホスト"
 
 #, php-format
 msgid "This host failed imaging %1$s: %2$s"
@@ -10399,8 +10428,22 @@ msgstr "分類なし"
 msgid "Under https, the netboot URL has to address this server by a name the served certificate actually carries, so FOG_WEB_HOST becomes a record rather than a control -- rewritten on every run, and an edit through FOG Settings will not survive."
 msgstr "HTTPS を使用する場合、ネットワークブート URL は、配信される証明書に実際に記載されている名前でこのサーバーを参照する必要があります。そのため FOG_WEB_HOST は操作用の設定値ではなく記録用の値となり、実行のたびに書き換えられます。FOG 設定から変更しても保持されません。"
 
+msgid "Undo"
+msgstr ""
+
 msgid "Unicast"
 msgstr "ユニキャスト"
+
+#, fuzzy
+msgid "Uninstall"
+msgstr "インストール"
+
+msgid "Uninstall from this group's hosts"
+msgstr ""
+
+#, fuzzy
+msgid "Uninstall from this host"
+msgstr "このノードの Init とカーネルを使用"
 
 msgid "Uninstall plugins failed!"
 msgstr "プラグインのアンインストールに失敗しました！"
@@ -10470,6 +10513,10 @@ msgstr "ページ分割も件数上限もありません。任意のフィルタ
 #, php-format
 msgid "Unsafe hostname entered, please try again: %s"
 msgstr "安全でないホスト名が入力されました。再試行してください: %s"
+
+#, fuzzy
+msgid "Unsaved changes"
+msgstr "変更を保存"
 
 msgid "Unset"
 msgstr "設定を解除"
@@ -10892,11 +10939,11 @@ msgstr "登録される内容"
 msgid "What it does"
 msgstr "動作内容"
 
+msgid "What should happen to {name}?"
+msgstr ""
+
 msgid "What the agent did with one capability at one revision, recorded on the host as agent.result; or, with item, what happened to one thing under the capability (a snapin task, a software entry), answered with the outcome the agent acts on. One route for every kind of report. Same gate as poll."
 msgstr "エージェントが特定のリビジョンで 1 つの機能に対して実行した結果です。ホスト側では agent.result として記録されます。item を指定した場合は、その機能に属する個別項目（スナップインタスクやソフトウェア項目など）の処理結果を返し、エージェントはその結果に基づいて動作します。すべてのレポート種別で共通のルートを使用し、認証条件はポーリングと同じです。"
-
-msgid "What the agent is sent: one entry per package. This host's own entries come first, then each group's in group order. The state comes from this host if it sets one, else from the first group that sets one, else from the entry. Reload the page after saving to refresh it."
-msgstr ""
 
 msgid "What the browser is shown. Replaced by an ACME renewal where one is configured."
 msgstr "ブラウザーに提示される証明書です。ACME による更新が設定されている場合は、その更新時に置き換えられます。"
@@ -10956,6 +11003,12 @@ msgstr "呼び出し元がこのフィルターを参照できる理由を、最
 
 msgid "Width must be 650 pixels."
 msgstr "幅は 650 ピクセルである必要があります。"
+
+msgid "Will link on save"
+msgstr ""
+
+msgid "Will stop managing"
+msgstr ""
 
 msgid "Window size must be greater than 1"
 msgstr "ウィンドウサイズは 1 より大きい必要があります"
@@ -11999,6 +12052,10 @@ msgstr "構造上の修復を適用しました"
 msgid "success"
 msgstr "成功"
 
+#, fuzzy
+msgid "superseded"
+msgstr "成功しました"
+
 #, php-format
 msgid "supports FOG up to %s; this server is %s"
 msgstr "FOG %s まで対応しています。このサーバーのバージョンは %s です"
@@ -12206,6 +12263,18 @@ msgstr "このグループと"
 
 msgid "you set the bandwidth field on that node to 1000"
 msgstr "そのノードの帯域幅フィールドを 1000 に設定します"
+
+msgid "{action} (group {group})"
+msgstr ""
+
+msgid "{action} (package default)"
+msgstr ""
+
+msgid "{action} (package default, via group {group})"
+msgstr ""
+
+msgid "{action} (this host)"
+msgstr ""
 
 msgid "{node}"
 msgstr "{node}"
@@ -12658,6 +12727,10 @@ msgstr "{node}"
 #~ msgid "Editable"
 #~ msgstr "編集可能"
 
+#, fuzzy
+#~ msgid "Effective Software"
+#~ msgstr "新しいソフトウェアを作成"
+
 #~ msgid "Either reboot or shutdown action must be used."
 #~ msgstr "再起動またはシャットダウン操作のいずれかを使用する必要があります。"
 
@@ -12984,6 +13057,9 @@ msgstr "{node}"
 #~ msgid "Group Site Updated!"
 #~ msgstr "グループのサイトを更新しました！"
 
+#~ msgid "Group Software Assignment"
+#~ msgstr "グループへのソフトウェア割り当て"
+
 #~ msgid "Group Update Location Fail"
 #~ msgstr "グループのロケーション更新に失敗しました"
 
@@ -13085,6 +13161,9 @@ msgstr "{node}"
 
 #~ msgid "Host Snapins"
 #~ msgstr "ホストのスナップイン"
+
+#~ msgid "Host Software Assignment"
+#~ msgstr "ホストへのソフトウェア割り当て"
 
 #~ msgid "Host Status is a plugin that adds a new entry in the Host edit Page"
 #~ msgstr "Host Status は、ホスト編集ページに新しい項目を追加するプラグインです"
@@ -13233,9 +13312,6 @@ msgstr "{node}"
 #~ msgid "Initrd Name"
 #~ msgstr "Initrd 名"
 
-#~ msgid "Install"
-#~ msgstr "インストール"
-
 #~ msgid "Install / Update Failed!"
 #~ msgstr "インストール/更新に失敗しました！"
 
@@ -13337,9 +13413,6 @@ msgstr "{node}"
 
 #~ msgid "Last Activity"
 #~ msgstr "最終アクティビティ"
-
-#~ msgid "Last Event"
-#~ msgstr "最終イベント"
 
 #~ msgid "Last Updated Time"
 #~ msgstr "最終更新時刻"
@@ -13823,9 +13896,6 @@ msgstr "{node}"
 #~ msgid "Releasing Staff Initials"
 #~ msgstr "貸出担当者のイニシャル"
 
-#~ msgid "Remove "
-#~ msgstr "削除 "
-
 #~ msgid "Remove Accesscontrol Rules"
 #~ msgstr "アクセス制御ルールを削除"
 
@@ -13909,6 +13979,10 @@ msgstr "{node}"
 
 #~ msgid "Rule value"
 #~ msgstr "ルール値"
+
+#, fuzzy
+#~ msgid "Save order and states"
+#~ msgstr "順序を保存"
 
 #~ msgid "Schedule as debug task"
 #~ msgstr "デバッグタスクとしてスケジュール"
@@ -14039,8 +14113,12 @@ msgstr "{node}"
 #~ msgid "Snapin task not completed"
 #~ msgstr "スナップインタスクが完了していません"
 
-#~ msgid "Snapin to be installed"
-#~ msgstr "インストールするスナップイン"
+#, fuzzy
+#~ msgid "Software Order and State"
+#~ msgstr "ソフトウェアの適用順序"
+
+#~ msgid "Software granted here applies to every host in this group, including hosts added later."
+#~ msgstr "ここで割り当てたソフトウェアは、後からこのグループに追加されるホストも含め、グループ内のすべてのホストに適用されます。"
 
 #~ msgid "Somebody will be able to help in some form"
 #~ msgstr "何らかの形で誰かがサポートできるはずです"
@@ -14150,6 +14228,9 @@ msgstr "{node}"
 #~ msgid "The old client was distributed with FOG 1.2.0 and earlier."
 #~ msgstr "旧クライアントは FOG 1.2.0 以前で配布されていました。"
 
+#~ msgid "The order software is applied in when the agent reconciles this host."
+#~ msgstr "エージェントがこのホストの構成を目標状態に合わせる際の、ソフトウェアの適用順序です。"
+
 #~ msgid "The task was already closed."
 #~ msgstr "このタスクは既に終了しています。"
 
@@ -14173,6 +14254,10 @@ msgstr "{node}"
 
 #~ msgid "This file will only work on Windows"
 #~ msgstr "このファイルは Windows でのみ使用できます"
+
+#, fuzzy
+#~ msgid "This host"
+#~ msgstr "%s 台のホスト"
 
 #~ msgid "This is ipxe script commands to operate with"
 #~ msgstr "iPXE を制御するためのスクリプトコマンドです"
@@ -14316,9 +14401,6 @@ msgstr "{node}"
 #, php-format
 #~ msgid "Upload failed for \"%s\" (error code %d)"
 #~ msgstr "\"%s\" のアップロードに失敗しました（エラーコード: %d）"
-
-#~ msgid "Use inits and kernels from this node"
-#~ msgstr "このノードの Init とカーネルを使用"
 
 #~ msgid "Use the forums to post issues so others"
 #~ msgstr "問題があればフォーラムへ投稿してください"

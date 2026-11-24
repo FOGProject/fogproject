@@ -323,7 +323,7 @@ class Group extends FOGController
         // sequence is deliberately NOT in the field list, for the same
         // reason isDefault is not in addPrinter's: insertBatch upserts on the
         // unique key and would overwrite the run order the admin set on the
-        // Software Order card. New rows therefore land at the column
+        // Software grid. New rows therefore land at the column
         // default of 0, and the sweep below numbers them.
         (new GroupSoftwareAssociationManager())
             ->insertBatch(

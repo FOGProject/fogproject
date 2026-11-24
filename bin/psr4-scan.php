@@ -163,6 +163,9 @@ const TABLE = [
     // was one of them. Same reasoning that puts SiteScope in Auth rather
     // than beside the sites row it reads. See ADR 0038 decision 8.
     'Resolver' => 'Assign',
+    // Assign, beside Resolver: it shapes Resolver's per-entry detail into
+    // the software grid's rows. It reads associations, it is not one.
+    'SoftwareGrid' => 'Assign',
     'Audit' => 'Audit',
     'ActivityWindow' => 'Audit',
     'AuditStats' => 'Audit',
