@@ -185,8 +185,9 @@ $t->check(
     'exclusive' === $normalize('exclusive')
 );
 
-// Write gate 2: requireLevel() is the refusal both write paths call (the
-// Software tab POST and the mass-edit normalizer above).
+// Write gate 2: requireLevel() refuses a bad level. The mass-edit normalizer
+// above reaches it end to end; the Software tab POST calls it too, but reads
+// filter_input(), which a CLI run cannot feed, so that call is not driven here.
 foreach (['bogus', 'Exclusive', null, false] as $bad) {
     $refused = false;
     try {
