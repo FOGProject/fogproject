@@ -212,6 +212,74 @@ class SoftwareGrid
         return $out;
     }
     /**
+     * Previews what an Exclusive host could lose: the packages its software
+     * backends installed that it does not get.
+     *
+     * Pure, like the rest of this class. It is an upper bound. The agent
+     * also keeps dependencies of assigned packages and snap bases and
+     * content providers, which the server cannot see, so it can remove
+     * fewer.
+     *
+     * @param array $facts    the host's open hostSoftware rows
+     *                        (hsRemovedAt IS NULL): [['name', 'source',
+     *                        'version'], ...]
+     * @param array $resolved what the host gets: [['backend', 'package'],
+     *                        ...]. An empty backend is Chocolatey. The
+     *                        package compares case-insensitively.
+     *
+     * @param array $retained the packages of disabled entries, which the
+     *                        agent keeps: [['backend', 'package'], ...]
+     *
+     * @return array [['source', 'name', 'version'], ...], by source then name
+     */
+    public static function exclusivePreview(
+        array $facts,
+        array $resolved,
+        array $retained = []
+    ) {
+        $gets = [];
+        foreach (array_merge($resolved, $retained) as $row) {
+            $backend = strtolower(trim((string)($row['backend'] ?? '')));
+            if ('' === $backend) {
+                $backend = Software::DEFAULT_BACKEND;
+            }
+            $gets[$backend . "\0" . strtolower(trim((string)($row['package'] ?? '')))] = true;
+        }
+        $out = [];
+        foreach ($facts as $fact) {
+            $source = (string)($fact['source'] ?? '');
+            $name = (string)($fact['name'] ?? '');
+            if (!array_key_exists($source, Software::BACKENDS)) {
+                continue;
+            }
+            $lower = strtolower($name);
+            if (isset($gets[$source . "\0" . $lower])) {
+                continue;
+            }
+            // Chocolatey itself and its extensions are never removed.
+            if ('choco' === $source
+                && ('chocolatey' === $lower
+                || 1 === preg_match('/^chocolatey-.*\.extension$/', $lower))
+            ) {
+                continue;
+            }
+            $out[] = [
+                'source' => $source,
+                'name' => $name,
+                'version' => (string)($fact['version'] ?? '')
+            ];
+        }
+        usort(
+            $out,
+            function ($a, $b) {
+                return strcmp($a['source'], $b['source'])
+                    ?: strcmp($a['name'], $b['name'])
+                    ?: strcmp($a['version'], $b['version']);
+            }
+        );
+        return $out;
+    }
+    /**
      * The fields every row carries, host or group.
      *
      * @param array  $entry  the software entry

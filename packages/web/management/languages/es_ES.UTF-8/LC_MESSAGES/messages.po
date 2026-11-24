@@ -1538,6 +1538,10 @@ msgid "Assigned"
 msgstr "No nodo asociado"
 
 #, fuzzy
+msgid "Assigned (all)"
+msgstr "No nodo asociado"
+
+#, fuzzy
 msgid "Assigned Group"
 msgstr "Nombre del grupo de almacenamiento"
 
@@ -1563,6 +1567,9 @@ msgstr "La imagen no está habilitada"
 #, fuzzy
 msgid "Assigned image is protected"
 msgstr "Ninguna seleccionada o artículo está protegido"
+
+msgid "Assigned: install and remove only what this host gets"
+msgstr ""
 
 #, fuzzy
 msgid "Associated"
@@ -1657,6 +1664,9 @@ msgid "Bandwidth should be numeric and greater than 0"
 msgstr ""
 
 msgid "Base Only"
+msgstr ""
+
+msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, and snap bases and content providers, so it can remove fewer."
 msgstr ""
 
 msgid "Bash Script"
@@ -2210,6 +2220,9 @@ msgstr ""
 msgid "Clear on all: the hosts follow the server default."
 msgstr ""
 
+msgid "Clear on all: the hosts return to Assigned."
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr ""
 
@@ -2569,6 +2582,10 @@ msgstr "Contador de la CPU"
 #, fuzzy
 msgid "Count failed"
 msgstr "Carga ha fallado: %s"
+
+#, fuzzy, php-format
+msgid "Counted from: %s."
+msgstr "Contador de la CPU"
 
 msgid "Country code (C), two letters"
 msgstr ""
@@ -3583,6 +3600,16 @@ msgid "Every host in this group runs these schedules, including hosts added late
 msgstr ""
 
 msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
+msgstr ""
+
+msgid "Exclusive"
+msgstr ""
+
+#, php-format
+msgid "Exclusive would remove up to %d package(s):"
+msgstr ""
+
+msgid "Exclusive: also uninstall backend packages this host does not get"
 msgstr ""
 
 #, fuzzy
@@ -4816,6 +4843,10 @@ msgstr "No nodo asociado"
 #, fuzzy
 msgid "Host Snapin History"
 msgstr "Camino snapin"
+
+#, fuzzy
+msgid "Host Software Management Level"
+msgstr "Sin administración de la impresora"
 
 msgid "Host Software Status"
 msgstr ""
@@ -7537,6 +7568,10 @@ msgstr ""
 msgid "Not reported"
 msgstr "ID de inventario"
 
+#, fuzzy, php-format
+msgid "Not reported yet: %s."
+msgstr "ID de inventario"
+
 msgid "Not set (other groups, else package default)"
 msgstr ""
 
@@ -8149,6 +8184,10 @@ msgstr ""
 
 #, fuzzy
 msgid "Please select a printer level!"
+msgstr "Seleccionar una imagen válida"
+
+#, fuzzy
+msgid "Please select a software level!"
 msgstr "Seleccionar una imagen válida"
 
 #, fuzzy
@@ -9274,6 +9313,9 @@ msgstr "Guardar cambios"
 msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr ""
 
+msgid "Save or undo the software changes below first."
+msgstr ""
+
 msgid "Save order"
 msgstr ""
 
@@ -10145,6 +10187,10 @@ msgstr "No nodo asociado"
 
 #, fuzzy
 msgid "Software Management"
+msgstr "Gestión de usuarios"
+
+#, fuzzy
+msgid "Software Management Level"
 msgstr "Gestión de usuarios"
 
 #, fuzzy
@@ -11050,6 +11096,9 @@ msgstr ""
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr ""
 
+msgid "The agent has not reported its backend packages yet. That needs a fog-agent with Exclusive support."
+msgstr ""
+
 msgid "The agent replaces the FOG Client. Installing it removes the legacy client."
 msgstr ""
 
@@ -11688,6 +11737,9 @@ msgid "This host has finished deploying image %s."
 msgstr ""
 
 msgid "This host has no system trust store that FOG recognizes, so an imported root is recorded and re-applied but never reaches the host's own HTTPS clients."
+msgstr ""
+
+msgid "This host is Exclusive, so a package it no longer gets is uninstalled."
 msgstr ""
 
 msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enroll into."

@@ -892,6 +892,46 @@
 
     // ---------------------------------------------------------------
     // SOFTWARE TAB
+    // Software Management Level card. The Exclusive preview shows only while
+    // the Exclusive radio is selected.
+    var softwareLevelBtn = $('#software-level-send'),
+        softwareLevelPreview = $('#software-level-preview');
+
+    $('input[name="softwarelevel"]').on('change', function() {
+        softwareLevelPreview.toggleClass(
+            'd-none',
+            $('input[name="softwarelevel"]:checked').val() !== 'exclusive'
+        );
+    });
+
+    softwareLevelBtn.on('click', function(e) {
+        e.preventDefault();
+        // An unsaved grid edit was chosen under the old level. A pending
+        // "Stop managing" saved after a switch to Exclusive would uninstall
+        // the package the admin chose to leave installed, so the level
+        // waits until the grid is saved or undone.
+        if (!$('#host-software-dirty').hasClass('d-none')) {
+            $.notify(softwareLevelBtn.attr('data-dirty'), '', 'notice');
+            return;
+        }
+        softwareLevelBtn.prop('disabled', true);
+        var method = $(this).attr('method'),
+            action = $(this).attr('action'),
+            level = $('input[name="softwarelevel"]:checked').val(),
+            opts = {
+                confirmlevel: 1,
+                softwarelevel: level
+            };
+        $.apiCall(method, action, opts, function(err) {
+            softwareLevelBtn.prop('disabled', false);
+            if (err) {
+                return;
+            }
+            // The grid's Remove modal reads the saved level from here.
+            $('#host-software-grid').attr('data-software-level', level);
+        });
+    });
+
     // One grid: this host's links in run order, then what it inherits. The
     // shared helper draws, edits and saves it.
     var hostSoftwareTable = $.registerSoftwareGrid({

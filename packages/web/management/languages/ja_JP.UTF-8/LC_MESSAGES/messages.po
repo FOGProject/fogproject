@@ -1348,6 +1348,10 @@ msgstr "領域"
 msgid "Assigned"
 msgstr "割り当て済み"
 
+#, fuzzy
+msgid "Assigned (all)"
+msgstr "割り当て済み"
+
 msgid "Assigned Group"
 msgstr "割り当てられたグループ"
 
@@ -1368,6 +1372,9 @@ msgstr "割り当てられたイメージが有効になっていません"
 
 msgid "Assigned image is protected"
 msgstr "割り当てられたイメージは保護されています"
+
+msgid "Assigned: install and remove only what this host gets"
+msgstr ""
 
 msgid "Associated"
 msgstr "関連付け済み"
@@ -1452,6 +1459,9 @@ msgstr "帯域幅は 0 より大きい数値で指定してください"
 
 msgid "Base Only"
 msgstr "ベースのみ"
+
+msgid "Based on the agent's last report and the saved assignments. The agent keeps Chocolatey, its extensions, dependencies of assigned packages, and snap bases and content providers, so it can remove fewer."
+msgstr ""
 
 msgid "Bash Script"
 msgstr "Bash スクリプト"
@@ -1929,6 +1939,9 @@ msgstr "すべての対象でクリア"
 msgid "Clear on all: the hosts follow the server default."
 msgstr ""
 
+msgid "Clear on all: the hosts return to Assigned."
+msgstr ""
+
 msgid "Clear one of your preferences"
 msgstr "個人設定の項目を 1 つクリア"
 
@@ -2233,6 +2246,10 @@ msgstr "%s の件数"
 
 msgid "Count failed"
 msgstr "件数の取得に失敗しました"
+
+#, fuzzy, php-format
+msgid "Counted from: %s."
+msgstr "%s の件数"
 
 msgid "Country code (C), two letters"
 msgstr "国コード（C、2 文字）"
@@ -3107,6 +3124,17 @@ msgstr "このグループ内のすべてのホストに、後から追加され
 
 msgid "Every preference belonging to the CALLING user, as a key/value map. There is no user in the path and no way to name one: the id comes from the session, so this cannot read anybody else's. Values are opaque strings the server does not interpret."
 msgstr "呼び出し元ユーザーのすべての個人設定をキーと値のマップとして返します。パスにユーザーは含まれず、別のユーザーを指定することもできません。ユーザー ID はセッションから取得するため、他人の設定は読み取れません。値はサーバーが内容を解釈しない文字列として扱われます。"
+
+#, fuzzy
+msgid "Exclusive"
+msgstr "排他的"
+
+#, php-format
+msgid "Exclusive would remove up to %d package(s):"
+msgstr ""
+
+msgid "Exclusive: also uninstall backend packages this host does not get"
+msgstr ""
 
 msgid "Existence check failed"
 msgstr "存在確認に失敗しました"
@@ -4131,6 +4159,10 @@ msgstr "ホストとスナップインの関連付け"
 
 msgid "Host Snapin History"
 msgstr "ホストのスナップイン履歴"
+
+#, fuzzy
+msgid "Host Software Management Level"
+msgstr "ホストのプリンター管理レベル"
 
 msgid "Host Software Status"
 msgstr "ホストのソフトウェア状態"
@@ -6425,6 +6457,10 @@ msgstr "未記録"
 msgid "Not reported"
 msgstr "未報告"
 
+#, fuzzy, php-format
+msgid "Not reported yet: %s."
+msgstr "未報告"
+
 msgid "Not set (other groups, else package default)"
 msgstr ""
 
@@ -6965,6 +7001,10 @@ msgstr "物理的に関連付けてください"
 
 #, fuzzy
 msgid "Please select a printer level!"
+msgstr "有効なプリンタータイプを選択してください。"
+
+#, fuzzy
+msgid "Please select a software level!"
 msgstr "有効なプリンタータイプを選択してください。"
 
 msgid "Please select a valid backend."
@@ -7931,6 +7971,9 @@ msgstr "変更を保存"
 msgid "Save completed but no valid ID was assigned (insertId=0). Possible duplicate-key update or missing auto-increment."
 msgstr "保存は完了しましたが、有効な ID が割り当てられませんでした（insertId=0）。重複キーによる更新、または自動採番が設定されていない可能性があります。"
 
+msgid "Save or undo the software changes below first."
+msgstr ""
+
 msgid "Save order"
 msgstr "順序を保存"
 
@@ -8661,6 +8704,10 @@ msgid "Software Host Associations"
 msgstr "ソフトウェアとホストの関連付け"
 
 msgid "Software Management"
+msgstr "ソフトウェア管理"
+
+#, fuzzy
+msgid "Software Management Level"
 msgstr "ソフトウェア管理"
 
 msgid "Software Name"
@@ -9408,6 +9455,9 @@ msgstr "ホストへ Ping を実行するには PHP の sockets 拡張機能が�
 msgid "The account on the node itself that FOG signs in as, over SSH to check the node is reachable and over FTP to move images and snapins. Created by the installer, normally \"fogproject\". This is not a FOG web user."
 msgstr "FOG がストレージノード自体にログインするためのアカウントです。SSH ではノードへの到達性を確認し、FTP ではイメージやスナップインを転送します。通常はインストーラーが「fogproject」という名前で作成します。FOG Web UI のユーザーアカウントではありません。"
 
+msgid "The agent has not reported its backend packages yet. That needs a fog-agent with Exclusive support."
+msgstr ""
+
 msgid "The agent replaces the FOG Client. Installing it removes the legacy client."
 msgstr "FOG エージェントは従来の FOG クライアントに代わるものです。インストールすると従来のクライアントは削除されます。"
 
@@ -10009,6 +10059,9 @@ msgstr "このホストへのイメージ %s の展開が完了しました。"
 
 msgid "This host has no system trust store that FOG recognizes, so an imported root is recorded and re-applied but never reaches the host's own HTTPS clients."
 msgstr "このホストには FOG が認識できるシステム信頼ストアがありません。そのため、インポートしたルート CA は記録され、再適用も試みられますが、ホスト上の HTTPS クライアントには反映されません。"
+
+msgid "This host is Exclusive, so a package it no longer gets is uninstalled."
+msgstr ""
 
 msgid "This host last booted in legacy BIOS mode, where Secure Boot does not exist. There is nothing for this task to enroll into."
 msgstr "このホストは前回、Secure Boot に対応していないレガシー BIOS モードで起動しました。このタスクで登録できる対象はありません。"

@@ -18,6 +18,7 @@ namespace FOG\Pages;
 use FOG\Agent\DirectoryPlacementIntent;
 use FOG\Agent\DirectoryRejoin;
 use FOG\Agent\Seat;
+use FOG\Agent\SoftwareSet;
 use FOG\Assign\Resolver;
 use FOG\Assign\SoftwareGrid;
 use FOG\Audit\Audit;
@@ -34,6 +35,7 @@ use FOG\Items\MACAddress;
 use FOG\Items\PowerManagement;
 use FOG\Items\ScheduledTask;
 use FOG\Items\Setting;
+use FOG\Items\Software;
 use FOG\Items\TaskType;
 use FOG\Managers\ArchitectureManager;
 use FOG\Managers\HostAutoLogoutManager;
@@ -3966,7 +3968,7 @@ class HostManagement extends FOGPage
     public function hostPrinterPost()
     {
         $this->assocPost('addPrinter', 'removePrinter');
-        if (isset($_POST['confirmdefault'])) {
+        if (null !== filter_input(INPUT_POST, 'confirmdefault')) {
             $this->obj->updateDefault(
                 filter_input(
                     INPUT_POST,
@@ -3974,7 +3976,7 @@ class HostManagement extends FOGPage
                 )
             );
         }
-        if (isset($_POST['confirmlevelup'])) {
+        if (null !== filter_input(INPUT_POST, 'confirmlevelup')) {
             $level = filter_input(INPUT_POST, 'level');
             // Refuse anything but the three levels and '' (use the server
             // default). A MISSING level is refused: it used to be stored as
@@ -4093,6 +4095,7 @@ class HostManagement extends FOGPage
      */
     public function hostSoftware()
     {
+        $this->_softwareLevelCard();
         // One card, one grid: this host's own links in run order, then what
         // it inherits from its groups. getSoftwareGrid() fills it.
         $this->renderSoftwareGrid(
@@ -4106,6 +4109,170 @@ class HostManagement extends FOGPage
                 . 'else from the package.'
             )
         );
+    }
+    /**
+     * Draws the Software Management Level card above the Software grid.
+     *
+     * Two radios, like the printer level card: Assigned ('') and Exclusive.
+     * Under them sits the Exclusive preview, shown by fog.host.edit.js only
+     * while Exclusive is selected. The preview is built from the agent's last
+     * report and the SAVED assignments, so it does not follow an unsaved edit
+     * of the grid below.
+     *
+     * @return void
+     */
+    private function _softwareLevelCard()
+    {
+        $hostID = (int)$this->obj->get('id');
+        $level = SoftwareSet::levelOf($this->obj);
+        $e = function ($text) {
+            return \Initiator::e($text);
+        };
+        $props = ' method="post" action="'
+            . $e(self::makeTabUpdateURL('host-software', $hostID))
+            . '" ';
+        $backends = array_keys(Software::BACKENDS);
+        $facts = (array)self::$DB->query(
+            'SELECT `hsName` AS `name`, `hsSource` AS `source`, '
+            . '`hsVersion` AS `version` FROM `hostSoftware` '
+            . 'WHERE `hsHostID` = :host AND `hsRemovedAt` IS NULL '
+            . 'AND `hsSource` IN (\'' . implode("','", $backends) . '\')',
+            [],
+            [':host' => $hostID]
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        // The backends with an open fact row, in the server's backend order.
+        $reported = array_values(
+            array_intersect($backends, array_column($facts, 'source'))
+        );
+        // What the host gets and what the agent retains: the same split
+        // desired() sends. The preview has no agent request, so every
+        // enabled entry counts as gets.
+        $gets = [];
+        $retained = [];
+        $resolved = $this->_resolvedSoftware($hostID);
+        if (null !== $resolved) {
+            list($gets, $retained) = SoftwareSet::splitResolved(
+                $resolved,
+                SoftwareGrid::entries(Route::getList('software')),
+                true
+            );
+        }
+        $preview = SoftwareGrid::exclusivePreview($facts, $gets, $retained);
+
+        echo '<div class="card card-primary card-outline">';
+        echo '<div class="card-header"><h4 class="card-title">';
+        echo _('Software Management Level');
+        echo '</h4></div>';
+        echo '<div class="card-body">';
+        $choices = [
+            ['software-level-assigned', '', _(
+                'Assigned: install and remove only what this host gets'
+            )],
+            ['software-level-exclusive', SoftwareSet::LEVEL_EXCLUSIVE, _(
+                'Exclusive: also uninstall backend packages this host does '
+                . 'not get'
+            )]
+        ];
+        foreach ($choices as $choice) {
+            echo '<div class="form-check">';
+            echo self::makeLabel(
+                '',
+                $choice[0],
+                self::makeInput(
+                    'software-level',
+                    'softwarelevel',
+                    '',
+                    'radio',
+                    $choice[0],
+                    $choice[1],
+                    false,
+                    false,
+                    -1,
+                    -1,
+                    ($choice[1] === $level ? 'checked' : '')
+                )
+                . ' ' . $e($choice[2])
+            );
+            echo '</div>';
+        }
+        echo '<div id="software-level-preview" class="mt-3'
+            . (SoftwareSet::LEVEL_EXCLUSIVE === $level ? '' : ' d-none')
+            . '">';
+        if (null === $resolved) {
+            echo '<p class="form-text">'
+                . $e(_('The effective software could not be loaded.'))
+                . '</p>';
+        } else {
+            if (count($facts) < 1) {
+                echo '<p class="form-text">'
+                    . $e(
+                        _(
+                            'The agent has not reported its backend packages '
+                            . 'yet. That needs a fog-agent with Exclusive '
+                            . 'support.'
+                        )
+                    )
+                    . '</p>';
+            } else {
+                echo '<p class="mb-1">'
+                    . $e(
+                        sprintf(
+                            _('Exclusive would remove up to %d package(s):'),
+                            count($preview)
+                        )
+                    )
+                    . '</p>';
+                echo '<ul class="mb-1" style="max-height: 15em; overflow: auto">';
+                foreach ($preview as $row) {
+                    echo '<li>' . $e(Software::BACKENDS[$row['source']] . ': ' . $row['name'])
+                        . '</li>';
+                }
+                echo '</ul>';
+                // Which backends the count rests on: a backend with no
+                // open rows has not reported, or has nothing installed.
+                $missing = array_values(array_diff($backends, $reported));
+                echo '<p class="form-text mb-1">'
+                    . $e(
+                        sprintf(
+                            _('Counted from: %s.'),
+                            implode(', ', $reported)
+                        )
+                        . (count($missing) > 0
+                            ? ' ' . sprintf(
+                                _('Not reported yet: %s.'),
+                                implode(', ', $missing)
+                            )
+                            : '')
+                    )
+                    . '</p>';
+            }
+            echo '<p class="form-text">'
+                . $e(
+                    _(
+                        'Based on the agent\'s last report and the saved '
+                        . 'assignments. The agent keeps Chocolatey, its '
+                        . 'extensions, dependencies of assigned packages, '
+                        . 'and snap bases and content providers, so it can '
+                        . 'remove fewer.'
+                    )
+                )
+                . '</p>';
+        }
+        echo '</div>';
+        echo '</div>';
+        if (Authorization::can('host.edit')) {
+            echo '<div class="card-footer">';
+            echo self::makeButton(
+                'software-level-send',
+                _('Update'),
+                'btn btn-primary float-end',
+                $props . ' type="button" data-dirty="'
+                . $e(_('Save or undo the software changes below first.'))
+                . '" '
+            );
+            echo '</div>';
+        }
+        echo '</div>';
     }
     /**
      * Resolves this host's software with the link detail
@@ -4211,6 +4378,14 @@ class HostManagement extends FOGPage
     public function hostSoftwarePost()
     {
         $this->assocPost('addSoftware', 'removeSoftware', 'setSoftwareOrder', 'softwareorder');
+        // The software management level (a host column, never a group
+        // grant). A missing or unknown level is refused rather than stored.
+        if (null !== filter_input(INPUT_POST, 'confirmlevel')) {
+            $level = SoftwareSet::requireLevel(
+                filter_input(INPUT_POST, 'softwarelevel')
+            );
+            $this->obj->set('softwareLevel', $level);
+        }
         // The order and the per-item states post together (one request), so
         // the states are applied here after assocPost()'s order branch.
         $states = filter_input(
@@ -6150,6 +6325,21 @@ class HostManagement extends FOGPage
                 // rest of this tab is: auto-logout, this.
                 'tab' => 'client'
             ],
+            // Software level, a `hosts` column like the printer level and
+            // never a group grant, for the same reason. CLEAR writes '',
+            // Assigned. SET is Exclusive, the only other level.
+            'softwareLevel' => [
+                'field' => 'softwareLevel',
+                'empty' => '',
+                'label' => _('Host Software Management Level'),
+                'kind' => 'softwarelevel',
+                'normalize' => static function ($value) {
+                    return SoftwareSet::requireLevel($value);
+                },
+                // FOG Client, with the printer level: how hard the agent
+                // works on a thing at check-in.
+                'tab' => 'client'
+            ],
             // The two booleans. A boolean has no meaningful "clear", so the
             // form draws them as No change / Enable on all / Disable on all
             // -- the shape the group page already gets right
@@ -6577,6 +6767,13 @@ class HostManagement extends FOGPage
                         '2' => _('All Printers'),
                     ]
                 );
+            case 'softwarelevel':
+                // Assigned is the empty value, which is what Clear writes.
+                return self::massEditSelect(
+                    $name,
+                    $id,
+                    [SoftwareSet::LEVEL_EXCLUSIVE => _('Exclusive')]
+                );
             case 'bool':
                 return self::massEditSelect(
                     $name,
@@ -6726,6 +6923,19 @@ class HostManagement extends FOGPage
                 }
                 $hints[$key] .= '<p class="form-text help-block-tight">'
                     . _('Clear on all: the hosts follow the server default.')
+                    . '</p>';
+            }
+            // A software level of '' is Assigned, not "unset".
+            if ('softwarelevel' === ($spec['kind'] ?? '')) {
+                if (!empty($shared[$key]['uniform'])
+                    && '' === (string)$shared[$key]['value']
+                ) {
+                    $hints[$key] = '<p class="form-text help-block-tight">'
+                        . _('Hosts:') . ' ' . _('Assigned (all)')
+                        . '</p>';
+                }
+                $hints[$key] .= '<p class="form-text help-block-tight">'
+                    . _('Clear on all: the hosts return to Assigned.')
                     . '</p>';
             }
         }

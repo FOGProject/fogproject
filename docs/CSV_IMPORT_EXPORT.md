@@ -236,6 +236,14 @@ exactly. `associations` is always the optional final column where supported.
 | 14 | `ADPassLegacy` | 30 | `tokenlock` |
 | 15 | `productKey` | 31 | `associations` *(optional)* |
 
+`softwareLevel` (`exclusive`, or empty for Assigned) is the last field column,
+after every other host column and before `associations`. It is not in the table
+above, which predates the agent and Secure Boot columns. Every new field goes
+last, so `associations` always follows the last field. No field column moves,
+but `associations` moves one place right. A file with a header row imports by
+column name. A file without one, exported before this column existed, needs
+an empty cell added before its `associations` cell.
+
 Associations: `groups`, `snapins`, `printers`, `modules`, `location`¹, `site`².
 
 ### Image

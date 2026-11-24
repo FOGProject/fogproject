@@ -172,7 +172,12 @@ class Host extends FOGController
         'authFailSince' => 'hostAuthFailSince',
         'authFailCode' => 'hostAuthFailCode',
         'authFailCount' => 'hostAuthFailCount',
-        'authFailIP' => 'hostAuthFailIP'
+        'authFailIP' => 'hostAuthFailIP',
+        // '' (Assigned) or 'exclusive'; see FOG\Agent\SoftwareSet::LEVELS.
+        // Per host, never a group grant. Last, because the CSV import reads
+        // this map positionally: a file exported before it existed must
+        // still line up.
+        'softwareLevel' => 'hostSoftwareLevel'
     ];
     /**
      * The required fields

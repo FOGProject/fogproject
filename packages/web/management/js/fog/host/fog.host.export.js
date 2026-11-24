@@ -45,6 +45,7 @@
         {data: 'authFailCode', visible: false},
         {data: 'authFailCount', visible: false},
         {data: 'authFailIP', visible: false},
+        {data: 'softwareLevel', visible: false},
         {data: 'associations', visible: false}
     ], {order: [[1, 'asc']]});
 })(jQuery);
