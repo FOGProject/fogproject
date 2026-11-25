@@ -271,6 +271,15 @@ hasnt "$leaftext" "IP Address:2001" "no --reissue-web-ca: the leaf leaves out th
 has "$leaftext" "IP Address:10.0.0.5" "no --reissue-web-ca: the IPv4 SAN stays"
 has "$WEB_PASS_OUT" "--reissue-web-ca" "no --reissue-web-ca: the output names the flag"
 has "$WEB_PASS_OUT" "Boot by DNS name works" "no --reissue-web-ca: the output says boot by name works"
+# The stock iPXE does not trust the Web CA, so its media needs no rebuild.
+hasnt "$WEB_PASS_OUT" "rebuild any USB" "stock iPXE: the hint does not ask for new boot media"
+# An iPXE built with this CA trusts it, so the hint asks for new boot media.
+embedca_out=$(
+    BOOT_rebuild_ipxe_with_my_ca=yes
+    web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1"
+    echo "$WEB_PASS_OUT"
+)
+has "$embedca_out" "Then rebuild any USB or ESP boot media." "iPXE built with this CA: the hint asks for new boot media"
 hasnt "$CA_PASS_OUT" "Re-issuing" "no --reissue-web-ca: no re-issue message"
 if openssl verify -trusted "$rootca" -untrusted "$webca" "$webleaf" >/dev/null 2>&1; then
     ok "no --reissue-web-ca: the leaf verifies"
@@ -296,9 +305,12 @@ noissuer_out=$(
 )
 has "$noissuer_out" "left off the web certificate" "root that cannot issue: the uncovered address is still left off"
 hasnt "$noissuer_out" "--reissue-web-ca" "root that cannot issue: the output does not suggest the flag"
-# The flag re-issues the CA.
+# The flag re-issues the CA. An iPXE built with this CA trusts it, so the
+# output asks for new boot media.
 reissueWebCA=1
+BOOT_rebuild_ipxe_with_my_ca=yes
 web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1"
+BOOT_rebuild_ipxe_with_my_ca=""
 ca_v6=$(fp "$webca")
 is "$(pubof "$webkey")" "$key_v4" "the re-issue keeps the Web CA key"
 is "$(ls -A "$fogprogramdir/pki/web/ca/" | grep -c '^\.fogWebCA\.key\.')" "0" "...and no key was set aside"
@@ -341,6 +353,10 @@ web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1"
 web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1 2001:db8:0:2::7"
 [[ $(fp "$webca") != "$ca_v6" ]] && ok "an address in a new /64 triggers one more re-issue" \
     || bad "an address in a new /64 did not trigger a re-issue"
+# The stock iPXE does not trust the Web CA, so this re-issue asks for no new
+# boot media. The storage nodes still get their message.
+hasnt "$CA_PASS_OUT" "Rebuild any USB" "stock iPXE re-issue: no boot media message"
+has "$CA_PASS_OUT" "storage node that builds its own iPXE" "stock iPXE re-issue: the storage node message stays"
 
 echo "== Web CA that cannot be re-issued: the leaf leaves out what it cannot cover =="
 
