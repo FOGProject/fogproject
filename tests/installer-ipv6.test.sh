@@ -286,6 +286,16 @@ stamp_default=$(_ipxeBuildStampValue)
 web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1"
 is "$(fp "$webleaf")" "$leaf_default" "no --reissue-web-ca: a second pass leaves the leaf as it was"
 is "$(_ipxeBuildStampValue)" "$stamp_default" "no --reissue-web-ca: a second pass leaves the iPXE build stamp as it was"
+# A root that cannot issue a CA: the flag would do nothing, so the output
+# must not suggest it. The subshell keeps the setting out of later passes.
+noissuer_out=$(
+    # _resolveRootCA runs this check on every pass, so stub its verdict.
+    _rootCACanIssue() { rootCAIssuer=0; }
+    web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1"
+    echo "$WEB_PASS_OUT"
+)
+has "$noissuer_out" "left off the web certificate" "root that cannot issue: the uncovered address is still left off"
+hasnt "$noissuer_out" "--reissue-web-ca" "root that cannot issue: the output does not suggest the flag"
 # The flag re-issues the CA.
 reissueWebCA=1
 web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1"
@@ -635,7 +645,6 @@ is "$(parse6 --dhcp6-range fd00::100,fd00::1ff)" "start=fd00::100 end=fd00::1ff"
 is "$(parse6 --dhcp6-range fd00::100)" "--dhcp6-range requires START,END IPv6 addresses after, like fd00::100,fd00::1ff" "a single address is refused"
 is "$(parse6 --dhcp6-range 10.0.0.1,10.0.0.9)" "--dhcp6-range requires START,END IPv6 addresses after, like fd00::100,fd00::1ff" "IPv4 addresses are refused"
 is "$(parse6 --dhcp6-range fd00::100,nonsense)" "--dhcp6-range requires START,END IPv6 addresses after, like fd00::100,fd00::1ff" "a bad end is refused"
-
 apply=$(grep -E '^\[\[ -n \$\{sDHCP6_range_(start|end)\} \]\]' "$INSTALLER")
 sDHCP6_range_start="fd00::100"; sDHCP6_range_end="fd00::1ff"; DHCP6_range_start="old"; DHCP6_range_end="old"
 eval "$apply"
