@@ -211,6 +211,10 @@ class Svc
     public static function globrecursive($p, $f = 0) { return []; }
     // Merges for real: the method needs the local file to stay in the list.
     public static function fastmerge() { return array_merge(...func_get_args()); }
+    // The method builds its ftp:// URL through FOGBase::urlHost(). This test
+    // uses IPv4 node addresses, which urlHost() returns unchanged, so a
+    // pass-through stands in. tests/url-host.test.php tests the real one.
+    public static function urlHost($h) { return trim((string)$h); }
     // The lftp argv startTasking() was handed, and the ftp:// URLs probed.
     public static $cmds = [];
     public static $urls = [];
