@@ -11248,7 +11248,10 @@ _dropUncoveredIp6Sans() {
     if [[ ${reissueWebCA:-0} -ne 1 && ${rootCAKeyOffline:-0} -ne 1 && ${rootCAIssuer:-1} -eq 1 ]] \
         && _rootIssuedWebCA; then
         echo "   To add them, run the installer with --reissue-web-ca."
-        echo "   Then rebuild any USB or ESP boot media."
+        # Only an iPXE built with this server's CA trusts the Web CA.
+        if [[ ${BOOT_rebuild_ipxe_with_my_ca} == yes ]]; then
+            echo "   Then rebuild any USB or ESP boot media."
+        fi
     fi
 }
 # The Web zone: an intermediate whose leaf is what the vhost serves. Replacing
@@ -11280,9 +11283,9 @@ createWebIntermediateCA() {
     # anything that pinned that key stays valid. Only the old certificate is
     # kept, beside the new one.
     #
-    # The installer does this only when the admin passes --reissue-web-ca. An
-    # unasked re-issue forces an iPXE rebuild and new USB media on every
-    # server that got IPv6 by itself.
+    # The installer does this only when the admin passes --reissue-web-ca. On a
+    # server that builds iPXE with its own CA, an unasked re-issue forces an
+    # iPXE rebuild and new USB media whenever the server gets IPv6 by itself.
     # Boot by DNS name does not need it. Without the flag, _dropUncoveredIp6Sans
     # leaves the uncovered addresses off the leaf.
     #
@@ -11309,10 +11312,14 @@ createWebIntermediateCA() {
                 echo "   Re-issuing it. Its key is missing, so it gets a new key."
             fi
             echo "   The old certificate is kept as ${PKI_web_ca_cert}.${timestamp}."
-            # iPXE trusts this certificate itself (TRUST=), not the root.
-            # This run rebuilds the iPXE binaries and boot kits it serves.
-            # Media written earlier still trusts the old certificate.
-            echo "   Rebuild any USB or ESP boot media made from an older kit."
+            # An iPXE built with this server's CA (--rebuild-ipxe-with-my-ca)
+            # trusts this certificate itself (TRUST=), not the root. This run
+            # rebuilds the iPXE binaries and boot kits it serves. Media
+            # written earlier still trusts the old certificate. The stock iPXE
+            # does not trust this CA, so it needs nothing.
+            if [[ ${BOOT_rebuild_ipxe_with_my_ca} == yes ]]; then
+                echo "   Rebuild any USB or ESP boot media made from an older kit."
+            fi
             echo "   Re-run the installer on each storage node that builds its own iPXE."
             mv -f "${PKI_web_ca_cert}" "${PKI_web_ca_cert}.${timestamp}" >>$error_log 2>&1
         fi
