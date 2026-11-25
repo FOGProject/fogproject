@@ -438,7 +438,10 @@ for s in autoexec.ipxe fog-ipxe/autoexec.ipxe secureboot-upstream/autoexec.ipxe;
                 ':ipv6' 'ifconf -c ipv6'; do
         grep -q -- "$want" "$X/$s" || bad "$s is missing \"$want\""
     done
-    if grep -qE '(^|&& )dhcp( |$)' "$X/$s"; then
+    # "dhcp" as a command: at the line start (indented or not), or after "&&"
+    # or "||" outside a comment. The "dhcp" in "ifconf -c dhcp" is an
+    # argument, so it does not match.
+    if grep -qE '^([[:space:]]*|[^#]*(&&|\|\|)[[:space:]]*)dhcp([[:space:]]|$)' "$X/$s"; then
         bad "$s runs a bare \"dhcp\", which also configures IPv6 (FOGProject/fogproject#2152)"
     fi
 done
