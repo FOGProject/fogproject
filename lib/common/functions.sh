@@ -11241,6 +11241,13 @@ _dropUncoveredIp6Sans() {
     [[ -z $dropped ]] && return 0
     echo " * These IPv6 addresses were left off the web certificate:${dropped}"
     echo "   The Web CA cannot cover them, and the certificate would not verify."
+    echo "   Boot by DNS name works without them."
+    # The installer re-issues only a CA that this root issued.
+    # It also needs the root key on this server.
+    if [[ ${reissueWebCA:-0} -ne 1 && ${rootCAKeyOffline:-0} -ne 1 ]] && _rootIssuedWebCA; then
+        echo "   To add them, run the installer with --reissue-web-ca."
+        echo "   Then rebuild any USB or ESP boot media."
+    fi
 }
 # The Web zone: an intermediate whose leaf is what the vhost serves. Replacing
 # this zone has zero endpoint impact -- browsers just need the root trusted,
@@ -11271,12 +11278,21 @@ createWebIntermediateCA() {
     # anything that pinned that key stays valid. Only the old certificate is
     # kept, beside the new one.
     #
+    # Only when the admin passes --reissue-web-ca. An unasked re-issue forces an
+    # iPXE rebuild and new USB media on every server that got IPv6 by itself.
+    # Boot by DNS name does not need it. Without the flag, _dropUncoveredIp6Sans
+    # leaves the uncovered addresses off the leaf.
+    #
     # Only a CA this root issued. An admin-supplied CA (--web-ca-cert or
     # --external-ca) is theirs and is never touched. The leaf follows by
     # itself, because _createWebLeaf stamps the CA's fingerprint.
-    if [[ -f ${PKI_web_ca_cert} && -n $(_serverIp6List) ]] && _rootIssuedWebCA \
-        && ! _webCAcoversIp6 "${PKI_web_ca_cert}"; then
-        if [[ ${rootCAKeyOffline:-0} -eq 1 ]]; then
+    if [[ ${reissueWebCA:-0} -eq 1 && -f ${PKI_web_ca_cert} && -n $(_serverIp6List) ]]; then
+        if ! _rootIssuedWebCA; then
+            echo " * The FOG Web CA is not one this server's root CA can re-issue."
+            echo "   It is admin-supplied, or it does not verify. The installer did not re-issue it."
+        elif _webCAcoversIp6 "${PKI_web_ca_cert}"; then
+            echo " * The FOG Web CA already permits this server's IPv6 addresses."
+        elif [[ ${rootCAKeyOffline:-0} -eq 1 ]]; then
             echo " * The FOG Web CA does not permit this server's IPv6 addresses."
             echo "   The Root CA private key is not on this server, so it cannot re-issue the CA."
             echo "   Restore ${PKI_root_ca_key} and run the installer again."

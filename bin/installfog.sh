@@ -169,6 +169,12 @@ usage() {
     echo -e "\t\t\t\t\tin a /64 where this server has an"
     echo -e "\t\t\t\t\taddress. Off by default. Kept across"
     echo -e "\t\t\t\t\tupgrades"
+    echo -e "\t      --reissue-web-ca\t\tRe-issue the FOG Web CA so it covers this"
+    echo -e "\t\t\t\t\tserver's IPv6 addresses. Rebuild USB and"
+    echo -e "\t\t\t\t\tESP boot media afterward. Needed only"
+    echo -e "\t\t\t\t\tfor clients that reach this server by"
+    echo -e "\t\t\t\t\ta literal IPv6 address. Not saved: it"
+    echo -e "\t\t\t\t\tapplies to this run"
     echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
     echo -e "\t                   \t\t\tImplies --recreate-keys below, and"
     echo -e "\t                   \t\t\tre-anchors what fog-client pins"
@@ -290,7 +296,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,skip-php-check,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,dhcp6-range:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,skip-php-check,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,dhcp6-range:,reissue-web-ca,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -461,6 +467,12 @@ while :; do
             ;;
         -C | --recreate-[Cc][Aa])
             srecreateCA="yes"
+            shift
+            ;;
+        --reissue-web-ca)
+            # Read by createWebIntermediateCA. Not saved, so each run that
+            # should re-issue the Web CA says so.
+            reissueWebCA=1
             shift
             ;;
         --external-ca)

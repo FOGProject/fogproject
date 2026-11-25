@@ -14,9 +14,10 @@
 #     only ULA, loopback and link-local ranges were ever permitted for IPv6. A
 #     leaf with the server's global (2001:...) address failed verification
 #     against its own CA. An install with a Web CA kept that CA forever.
-#     The installer now re-issues the CA once, with the same key, when it
-#     lacks the server's IPv6 addresses. It does this only for a CA that this
-#     server's own root issued. Any other CA gets a leaf without IPv6 SANs.
+#     With --reissue-web-ca the installer re-issues the CA, with the same key,
+#     when it lacks the server's IPv6 addresses. It does this only for a CA that
+#     this server's own root issued. Without the flag, and for any other CA,
+#     the leaf gets no IPv6 SANs the CA cannot cover.
 #   * "No IPv6 on the box -> no change at all". Every addition below is gated
 #     on an IPv6 address being present, and this suite pins the IPv4 side.
 #   * The bits that are emitted inside big functions (the nginx listen lines,
@@ -256,10 +257,37 @@ web_pass "10.0.0.5"
 is "$(fp "$webca")" "$ca_v4" "no IPv6: the Web CA is left as it was"
 is "$(fp "$webleaf")" "$leaf_v4" "no IPv6: the leaf is left as it was"
 
-# The box gains a global and a ULA address. The CA lacks both.
+# The box gains a global and a ULA address. The CA lacks both. Without the
+# flag the CA is left alone, and the leaf leaves the new addresses off.
 webkey="$fogprogramdir/pki/web/ca/.fogWebCA.key"
 pubof() { openssl pkey -in "$1" -pubout 2>/dev/null | openssl sha256 2>/dev/null; }
 key_v4=$(pubof "$webkey")
+reissueWebCA=0
+web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1"
+is "$(fp "$webca")" "$ca_v4" "no --reissue-web-ca: the Web CA is left as it was"
+is "$(ls -A "$fogprogramdir/pki/web/ca/" | grep -c '^\.fogWebCA\.pem\.[0-9]')" "0" "no --reissue-web-ca: no Web CA archive appears"
+leaftext=$(openssl x509 -in "$webleaf" -noout -text 2>/dev/null)
+hasnt "$leaftext" "IP Address:2001" "no --reissue-web-ca: the leaf leaves out the uncovered IPv6 SAN"
+has "$leaftext" "IP Address:10.0.0.5" "no --reissue-web-ca: the IPv4 SAN stays"
+has "$WEB_PASS_OUT" "--reissue-web-ca" "no --reissue-web-ca: the output names the flag"
+has "$WEB_PASS_OUT" "Boot by DNS name works" "no --reissue-web-ca: the output says boot by name works"
+hasnt "$CA_PASS_OUT" "Re-issuing" "no --reissue-web-ca: no re-issue message"
+if openssl verify -trusted "$rootca" -untrusted "$webca" "$webleaf" >/dev/null 2>&1; then
+    ok "no --reissue-web-ca: the leaf verifies"
+else
+    bad "no --reissue-web-ca: the leaf does not verify"
+fi
+# A second pass with the same addresses changes nothing. The leaf stays the
+# same, so the iPXE build stamp stays the same and no rebuild starts.
+ipxetrust="$webca"
+ipxeVer="test"
+leaf_default=$(fp "$webleaf")
+stamp_default=$(_ipxeBuildStampValue)
+web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1"
+is "$(fp "$webleaf")" "$leaf_default" "no --reissue-web-ca: a second pass leaves the leaf as it was"
+is "$(_ipxeBuildStampValue)" "$stamp_default" "no --reissue-web-ca: a second pass leaves the iPXE build stamp as it was"
+# The flag re-issues the CA.
+reissueWebCA=1
 web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1"
 ca_v6=$(fp "$webca")
 is "$(pubof "$webkey")" "$key_v4" "the re-issue keeps the Web CA key"
@@ -312,8 +340,17 @@ echo "== Web CA that cannot be re-issued: the leaf leaves out what it cannot cov
 ca_before=$(fp "$webca")
 rootkey="$fogprogramdir/pki/root/ca/.fogCA.key"
 mv "$rootkey" "$WORK/rootkey.away"
+# Without the flag the output must not name it: the CA cannot be re-issued.
+reissueWebCA=0
+web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1 2001:db8:0:2::7 2001:db8:0:3::9"
+hasnt "$WEB_PASS_OUT" "--reissue-web-ca" "offline root, no flag: the output does not name the flag"
+# With the flag the offline message shows.
+reissueWebCA=1
 web_pass "10.0.0.5 2001:db8:0:1::5 fd00:f06:0:1::1 2001:db8:0:2::7 2001:db8:0:3::9"
 mv "$WORK/rootkey.away" "$rootkey"
+# Nothing in one run clears this, and it would hide the hint in later passes.
+rootCAKeyOffline=0
+has "$CA_PASS_OUT" "Root CA private key is not on this server" "offline root with the flag: the offline message shows"
 is "$(fp "$webca")" "$ca_before" "offline root: the Web CA is left as it was"
 leaftext=$(openssl x509 -in "$webleaf" -noout -text 2>/dev/null)
 hasnt "$leaftext" "IP Address:2001:DB8:0:3:0:0:0:9" "offline root: the uncovered address is left off"
@@ -340,6 +377,7 @@ ca_before=$(fp "$webca")
     timestamp="1700000099"
     # The offline-root pass above set this, and nothing in one run clears it.
     rootCAKeyOffline=0
+    reissueWebCA=1
     createWebIntermediateCA > "$WORK/reissue.out" 2>&1
 )
 has "$(cat "$WORK/reissue.out")" "Re-issuing it with the same key." "failed re-issue: the re-issue branch ran"
@@ -381,11 +419,48 @@ is "$(ls -A "$fogprogramdir/pki/web/ca/" | grep -c '^\.fogWebCA\.pem\.[0-9]')" "
 leaftext=$(openssl x509 -in "$webleaf" -noout -text 2>/dev/null)
 hasnt "$leaftext" "IP Address:2001" "external CA: the leaf carries no IPv6 SAN"
 has "$WEB_PASS_OUT" "IPv6 addresses were left off the web certificate" "external CA: one message says why"
+has "$CA_PASS_OUT" "It is admin-supplied, or it does not verify. The installer did not re-issue it." "external CA with --reissue-web-ca: the output says it was not re-issued"
+# Without the flag, the output must not suggest the flag. The flag does nothing for this CA.
+reissueWebCA=0
+web_pass "10.0.0.5 2001:db8:0:1::5"
+reissueWebCA=1
+is "$(fp "$webca")" "$ext_fp" "external CA without the flag: left exactly as it was"
+has "$WEB_PASS_OUT" "IPv6 addresses were left off the web certificate" "external CA without the flag: one message says why"
+hasnt "$WEB_PASS_OUT" "--reissue-web-ca" "external CA: the output does not suggest the flag"
 if openssl verify -trusted "$WORK/ext-root.pem" -untrusted "$webca" "$webleaf" >/dev/null 2>&1; then
     ok "external CA: the leaf verifies against the admin's chain"
 else
     bad "external CA: the leaf does not verify against the admin's chain"
 fi
+
+echo "== Web CA: a fresh install with IPv6 needs no flag =="
+
+# No CA exists yet, so the installer creates one. It covers IPv6 from the start.
+(
+    reissueWebCA=0
+    fogprogramdir="$WORK/fresh/opt/fog"
+    PKI_root_dir="$fogprogramdir/pki"
+    snapindir="$fogprogramdir/snapins"
+    PKI_client_cert_dir="$snapindir/ssl"
+    unset PKI_root_ca_cert PKI_root_ca_key PKI_web_ca_cert PKI_web_ca_key PKI_web_trust_chain PKI_web_vhost_cert PKI_web_vhost_key
+    mkdir -p "${PKI_client_cert_dir}/CA"
+    # The offline-root pass above set this, and nothing in one run clears it.
+    rootCAKeyOffline=0
+    web_pass "10.0.0.5 2001:db8:0:1::5"
+) >/dev/null 2>&1
+freshleaf="$WORK/fresh/opt/fog/pki/web/leaf/.webLeaf.pem"
+freshca="$WORK/fresh/opt/fog/pki/web/ca/.fogWebCA.pem"
+freshroot="$WORK/fresh/opt/fog/snapins/ssl/CA/.fogCA.pem"
+[[ -s $freshca && -s $freshleaf ]] || bad "fresh install: no Web CA or leaf was created"
+has "$(openssl x509 -in "$freshleaf" -noout -text 2>/dev/null)" "IP Address:2001:DB8:0:1:0:0:0:5" "fresh install: the leaf carries the IPv6 SAN without the flag"
+_caCoversIp6 "$freshca" 2001:db8:0:1::5 && ok "fresh install: the Web CA permits the IPv6 address" \
+    || bad "fresh install: the Web CA does not permit the IPv6 address"
+if openssl verify -trusted "$freshroot" -untrusted "$freshca" "$freshleaf" >/dev/null 2>&1; then
+    ok "fresh install: the leaf verifies"
+else
+    bad "fresh install: the leaf does not verify"
+fi
+reissueWebCA=0
 
 echo "== nginx: IPv6 listeners =="
 
@@ -560,6 +635,7 @@ is "$(parse6 --dhcp6-range fd00::100,fd00::1ff)" "start=fd00::100 end=fd00::1ff"
 is "$(parse6 --dhcp6-range fd00::100)" "--dhcp6-range requires START,END IPv6 addresses after, like fd00::100,fd00::1ff" "a single address is refused"
 is "$(parse6 --dhcp6-range 10.0.0.1,10.0.0.9)" "--dhcp6-range requires START,END IPv6 addresses after, like fd00::100,fd00::1ff" "IPv4 addresses are refused"
 is "$(parse6 --dhcp6-range fd00::100,nonsense)" "--dhcp6-range requires START,END IPv6 addresses after, like fd00::100,fd00::1ff" "a bad end is refused"
+
 apply=$(grep -E '^\[\[ -n \$\{sDHCP6_range_(start|end)\} \]\]' "$INSTALLER")
 sDHCP6_range_start="fd00::100"; sDHCP6_range_end="fd00::1ff"; DHCP6_range_start="old"; DHCP6_range_end="old"
 eval "$apply"
@@ -572,6 +648,21 @@ is "$DHCP6_range_start,$DHCP6_range_end" "a,b" "without the flag a recorded pool
 persist=$(sed -n '/DHCP_range_start DHCP_range_end$/,+6p' "$FUNCS")
 has "$persist" "DHCP6_range_start DHCP6_range_end" "the DHCPv6 keys are persisted across upgrades"
 hasnt "$persist" "DHCP6_dns" "no DNS key is persisted"
+
+echo "== --reissue-web-ca: option parsing =="
+parsed=$(getopt -o "" -l "$longopts" -n test -- --reissue-web-ca 2>&1)
+is "$parsed" " --reissue-web-ca --" "getopt accepts --reissue-web-ca with no value"
+arm=$(sed -n '/^        --reissue-web-ca)$/,/^            ;;$/p' "$INSTALLER")
+[[ -n $arm ]] || { echo "ERROR: could not extract the --reissue-web-ca arm" >&2; exit 1; }
+parseReissue() {
+    ( reissueWebCA=""
+      eval "case \$1 in
+$arm
+esac"
+      echo "reissueWebCA=${reissueWebCA}" ) 2>&1
+}
+is "$(parseReissue --reissue-web-ca)" "reissueWebCA=1" "--reissue-web-ca sets reissueWebCA"
+is "$(parseReissue --other)" "reissueWebCA=" "without the option the variable stays unset"
 
 echo "== packages =="
 FOG_packages="isc-dhcp-server"
