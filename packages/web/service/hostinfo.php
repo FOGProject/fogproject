@@ -106,9 +106,11 @@ try {
         }
         $osid = $Image->get('osID');
         $osfamily = $Image->getOSFamily();
+        // An IPv6 literal must be in brackets in host:/path.
+        // Without them, FOS splits the mount source at the first colon.
         $storage = sprintf(
             '%s:/%s/%s',
-            trim($StorageNode->get('ip')),
+            FOGCore::urlHost($StorageNode->get('ip')),
             trim($StorageNode->get('path'), '/'),
             (
                 $TaskType->isCapture() ?
