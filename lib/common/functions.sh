@@ -11243,8 +11243,10 @@ _dropUncoveredIp6Sans() {
     echo "   The Web CA cannot cover them, and the certificate would not verify."
     echo "   Boot by DNS name works without them."
     # The installer re-issues only a CA that this root issued.
-    # It also needs the root key on this server.
-    if [[ ${reissueWebCA:-0} -ne 1 && ${rootCAKeyOffline:-0} -ne 1 ]] && _rootIssuedWebCA; then
+    # It also needs the root key on this server. A root that cannot issue a
+    # CA signs the leaf itself. Then createWebIntermediateCA never runs.
+    if [[ ${reissueWebCA:-0} -ne 1 && ${rootCAKeyOffline:-0} -ne 1 && ${rootCAIssuer:-1} -eq 1 ]] \
+        && _rootIssuedWebCA; then
         echo "   To add them, run the installer with --reissue-web-ca."
         echo "   Then rebuild any USB or ESP boot media."
     fi
@@ -11278,14 +11280,16 @@ createWebIntermediateCA() {
     # anything that pinned that key stays valid. Only the old certificate is
     # kept, beside the new one.
     #
-    # Only when the admin passes --reissue-web-ca. An unasked re-issue forces an
-    # iPXE rebuild and new USB media on every server that got IPv6 by itself.
+    # The installer does this only when the admin passes --reissue-web-ca. An
+    # unasked re-issue forces an iPXE rebuild and new USB media on every
+    # server that got IPv6 by itself.
     # Boot by DNS name does not need it. Without the flag, _dropUncoveredIp6Sans
     # leaves the uncovered addresses off the leaf.
     #
-    # Only a CA this root issued. An admin-supplied CA (--web-ca-cert or
-    # --external-ca) is theirs and is never touched. The leaf follows by
-    # itself, because _createWebLeaf stamps the CA's fingerprint.
+    # The installer re-issues only a CA this root issued. An admin-supplied CA
+    # (--web-ca-cert or --external-ca) is theirs and is never touched.
+    # The leaf follows by itself, because _createWebLeaf stamps the CA's
+    # fingerprint.
     if [[ ${reissueWebCA:-0} -eq 1 && -f ${PKI_web_ca_cert} && -n $(_serverIp6List) ]]; then
         if ! _rootIssuedWebCA; then
             echo " * The FOG Web CA is not one this server's root CA can re-issue."
