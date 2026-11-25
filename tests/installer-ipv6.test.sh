@@ -333,7 +333,8 @@ echo "== Web CA: a failed re-issue keeps the old certificate =="
 # the next run takes the create path and mints a new CA key.
 ca_before=$(fp "$webca")
 (
-    _issueIntermediateCA() { return 1; }
+    # As openssl x509 does on a failed sign: an empty output file, exit 1.
+    _issueIntermediateCA() { : > "$2/$4"; return 1; }
     NET_fog_server_ip="10.0.0.5"
     PKI_san_ip_addresses="10.0.0.5 2001:db8:0:4::1"
     timestamp="1700000099"

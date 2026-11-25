@@ -10491,15 +10491,15 @@ _nameConstraints() {
         ipnets+=("fc00::/fe00::")
         ipnets+=("fe80::/ffc0::")
         # The /64 network of each IPv6 address this server holds. The ranges
-        # above reach only ULA, loopback and link-local. A global (2001:...)
-        # address in the leaf's SAN was never permitted, so the leaf failed
-        # verification against its own CA.
+        # above reach only ULA, loopback and link-local. Without these entries
+        # the CA does not permit a global (2001:...) address in the leaf's
+        # SAN, and the leaf fails verification against its own CA.
         #
         # A /64, not the single address. A DHCPv6 or SLAAC address can change
         # inside its /64. A /128 entry would make each such change re-issue
         # the CA. Each re-issue forces an iPXE rebuild and new USB media. A /64
-        # is the server's own LAN segment. It is the IPv6 twin of the server's
-        # own /32 above, so --internal-subnet does not narrow it.
+        # is the server's own LAN segment. Like the server's own /32 entries
+        # above, --internal-subnet does not narrow it.
         for ip in $(_serverIp6List); do
             net="$(_ipv6Prefix64 "$ip")::/ffff:ffff:ffff:ffff::"
             [[ " ${v6nets[*]} " == *" $net "* ]] || v6nets+=("$net")
@@ -11308,6 +11308,8 @@ $(_nameConstraints)" "FOG Web UI" "" "$keepkey"
         st=$?
         # A failed re-issue puts the old certificate back. Otherwise the next
         # run finds no certificate, takes the create path and mints a new key.
+        # Only when the key was kept: with a new key the old certificate is
+        # of no use.
         [[ $st -ne 0 && -n $keepkey && ! -s ${PKI_web_ca_cert} ]] \
             && mv -f "${PKI_web_ca_cert}.${timestamp}" "${PKI_web_ca_cert}" >>$error_log 2>&1
         errorStat $st
