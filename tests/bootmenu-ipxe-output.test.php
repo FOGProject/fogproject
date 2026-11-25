@@ -733,6 +733,42 @@ $checks = [
         'expectLine' => ['storage=[fd00::2]:/images/', 'storageip=fd00::2'],
         'refuteLine' => ['storage=fd00::2', '\\['],
     ],
+    /*
+     * ipv6boot=1 tells FOS to bring IPv6 up. It follows how the client reached
+     * this server, so only an IPv6 REMOTE_ADDR earns it. An IPv4-mapped
+     * address (::ffff:a.b.c.d) is an IPv4 client on a dual-stack socket. Not
+     * in the golden: the IPv4 scenarios' bytes must not move.
+     */
+    'a client that reached the server over IPv6 gets ipv6boot=1 in a tasking' => [
+        'scenario' => array_merge(
+            $scenarios['task-deploy'],
+            ['remoteaddr' => 'fd00::50']
+        ),
+        'expectLine' => ['setmacto=${setmacto} ipv6boot=1'],
+    ],
+    'a client that reached the server over IPv6 gets ipv6boot=1 outside a tasking' => [
+        'scenario' => array_merge(
+            $scenarios['unregistered-bios-x86'],
+            ['remoteaddr' => '2001:db8::50']
+        ),
+        'expectLine' => ['setmacto=${setmacto} ipv6boot=1'],
+    ],
+    'an IPv4-mapped client address does not get ipv6boot=1' => [
+        'scenario' => array_merge(
+            $scenarios['task-deploy'],
+            ['remoteaddr' => '::ffff:10.0.0.7']
+        ),
+        'expectLine' => ['setmacto=${setmacto}'],
+        'refuteLine' => ['ipv6boot=1'],
+    ],
+    'an IPv4 client address does not get ipv6boot=1' => [
+        'scenario' => array_merge(
+            $scenarios['task-deploy'],
+            ['remoteaddr' => '10.0.0.7']
+        ),
+        'expectLine' => ['setmacto=${setmacto}'],
+        'refuteLine' => ['ipv6boot=1'],
+    ],
     'no host secret reaches this unauthenticated endpoint' => [
         'scenario' => [
             'host' => ['id' => 1, 'name' => 'testhost'],

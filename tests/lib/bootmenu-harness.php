@@ -817,6 +817,13 @@ class FOGBase
      */
     public static $requestMacs = [];
     /**
+     * The address the request came from, as FOGBase reads it from
+     * REMOTE_ADDR. A scenario sets it; unset, it is null, like a CLI run.
+     *
+     * @var string|null
+     */
+    public static $remoteaddr = null;
+    /**
      * Base constructor; nothing to bootstrap.
      */
     public function __construct()

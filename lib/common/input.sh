@@ -138,6 +138,10 @@ testInterface
 # GH-1747: global addresses only, and never link-local 169.254.0.0/16. A
 # link-local address appears when DHCP gets no answer on the deployment NIC.
 # No client can reach FOG there, and listed first it became the primary.
+#
+# IPv6 is not detected here. normalizeIpAddress() adds the interface's IPv6
+# addresses to ${PKI_san_ip_addresses}. It runs on an upgrade too. An upgrade
+# never reaches this file.
 while [[ -z ${NET_fog_server_ip} ]]; do
     NET_fog_server_ip=$(ip -4 addr show ${NET_interface} | awk '$1 == "inet" && / scope global / && $2 !~ /^169\.254\./ {gsub(/\/.*$/, "", $2); print $2}')
     PKI_san_ip_addresses="${NET_fog_server_ip}"

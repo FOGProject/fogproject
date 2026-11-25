@@ -92,6 +92,9 @@ fi
 [[ -z $iscservice ]] && iscservice="dhcpd4"
 [[ -z $keapackage ]] && keapackage="kea"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"
+# The one kea package carries the DHCPv6 daemon too.
+[[ -z $kea6package ]] && kea6package="kea"
+[[ -z $kea6service ]] && kea6service="kea-dhcp6"
 [[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"
 # Arch's fpm unit is plain php-fpm.service. Left unset, installPackages would
 # derive "php8.4-fpm" from the dotted version the php binary reports, which is

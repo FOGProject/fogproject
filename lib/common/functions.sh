@@ -1262,6 +1262,42 @@ _globalAddresses() {
         }
     '
 }
+# The stable IPv6 addresses on interface $1. Global and ULA addresses both
+# count, because `ip` calls both scope global. These are skipped:
+#   * link-local addresses.
+#   * tentative addresses, where duplicate address detection is not done.
+#   * deprecated addresses.
+#   * temporary (privacy) addresses. They rotate, so a certificate that
+#     names one goes stale.
+# The output is empty when the interface has no IPv6. Every caller then
+# stays unchanged.
+_globalAddresses6() {
+    [[ -n $1 ]] || return 0
+    ip -6 -o addr show dev "$1" scope global 2>/dev/null | awk '
+        $3 == "inet6" && $4 !~ /^fe80:/ && !/ (tentative|deprecated|temporary) / {
+            split($4, a, "/"); print a[1]
+        }
+    '
+}
+# This server's IPv6 addresses, taken from the combined address list.
+# normalizeIpAddress puts them there. The certificate and the name constraints
+# read them from the same list.
+_serverIp6List() {
+    local a
+    for a in ${PKI_san_ip_addresses}; do
+        [[ $a == *:* ]] && echo "$a"
+    done
+}
+# Mirrors FOGBase::urlHost(): brackets a bare IPv6 literal for use as a URL
+# host, and leaves a name or an IPv4 address alone.
+_urlHost() {
+    local h="$1"
+    if [[ $h == *:*:* && $h =~ ^[0-9A-Fa-f:.]+$ ]]; then
+        echo "[$h]"
+    else
+        echo "$h"
+    fi
+}
 # Forum 18327: checks the address and NIC this server is known by against the
 # box itself.
 #
@@ -1336,10 +1372,11 @@ checkServerAddress() {
     serverIfWas=${NET_interface}
     echo " * Server address: ${serverIpWas:-none} on ${serverIfWas:-none} -> ${newip} on ${newif}"
     if [[ $newip != "${NET_fog_server_ip}" ]]; then
-        # The SAN list came from the old NIC's addresses. Rebuild it the way
-        # input.sh does, with the new primary first, which is what
-        # normalizeIpAddress and every certificate and vhost step read.
-        PKI_san_ip_addresses=$(echo ${newip} $(_globalAddresses "$newif" | grep -vxF "$newip"))
+        # The SAN list came from the old NIC's addresses. Rebuild it from the
+        # new NIC: the new primary first, then its other IPv4 addresses, then
+        # its IPv6 addresses. normalizeIpAddress and every certificate and
+        # vhost step read this order.
+        PKI_san_ip_addresses=$(echo ${newip} $(_globalAddresses "$newif" | grep -vxF "$newip") $(_globalAddresses6 "$newif"))
         NET_subnet_mask=$(cidr2mask $(getCidr "$newif" "$newip"))
     fi
     NET_fog_server_ip=$newip
@@ -2441,6 +2478,29 @@ validip() {
     fi
     echo $stat
 }
+# Same calling convention as validip(): echo 0 for a valid IPv6 literal, 1
+# otherwise. Hex groups of at most four digits, eight of them, or fewer with one
+# "::". No zone id, no brackets, no embedded IPv4.
+validip6() {
+    local ip=$1 stat=1 g n=0 bad=0
+    local -a groups=()
+    if [[ $ip =~ ^[0-9A-Fa-f:]+$ && $ip != *:::* && $ip != *::*::* \
+        && $ip != :[!:]* && $ip != *[!:]: ]]; then
+        IFS=: read -ra groups <<< "$ip"
+        for g in "${groups[@]}"; do
+            [[ -z $g ]] && continue
+            n=$((n + 1))
+            [[ ${#g} -gt 4 ]] && bad=1
+        done
+        if [[ $ip == *::* ]]; then
+            [[ $n -le 7 ]] || bad=1
+        else
+            [[ $n -eq 8 ]] || bad=1
+        fi
+        [[ $bad -eq 0 ]] && stat=0
+    fi
+    echo $stat
+}
 # Same calling convention as validip(): echo 0/1, checked via
 # [[ $(validhostname "$x") -ne 0 ]]. RFC-1123-ish: dot-separated labels of
 # alphanumerics/hyphens, no leading/trailing hyphen per label. Needed because
@@ -3331,7 +3391,20 @@ configureFTP() {
     # the ports FTP will actually use. The bounds live in lib/common/config.sh
     # next to the multicast window so the daemon config and the firewall rules
     # cannot drift apart.
-    echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\nlisten=YES\npam_service_name=vsftpd\nuserlist_enable=NO\nchmod_enable=YES\npasv_min_port=${ftppasvmin}\npasv_max_port=${ftppasvmax}\n$seccompsand" > "$ftpconfig"
+    # vsftpd's listen=YES binds IPv4 only. With IPv6 on this server it can
+    # listen through listen_ipv6=YES instead. That socket takes both families
+    # only when net.ipv6.bindv6only is 0. When it is 1, the IPv6 socket would
+    # refuse IPv4 clients, so vsftpd keeps listen=YES and says so.
+    ftplisten="listen=YES"
+    ftpv6note=""
+    if [[ -n $(_serverIp6List) ]]; then
+        if [[ $(sysctl -n net.ipv6.bindv6only 2>/dev/null) == 0 ]]; then
+            ftplisten="listen=NO\nlisten_ipv6=YES"
+        else
+            ftpv6note="vsftpd stays IPv4 only: net.ipv6.bindv6only is not 0, so an IPv6 socket would refuse IPv4 clients."
+        fi
+    fi
+    echo -e  "max_per_ip=200\nanonymous_enable=NO\nlocal_enable=YES\nwrite_enable=YES\nlocal_umask=022\ndirmessage_enable=YES\nxferlog_enable=YES\nconnect_from_port_20=YES\nxferlog_std_format=YES\n${ftplisten}\npam_service_name=vsftpd\nuserlist_enable=NO\nchmod_enable=YES\npasv_min_port=${ftppasvmin}\npasv_max_port=${ftppasvmax}\n$seccompsand" > "$ftpconfig"
     diffconfig "${ftpconfig}"
     case $systemctl in
         yes)
@@ -3369,6 +3442,9 @@ configureFTP() {
             ;;
     esac
     errorStat $?
+    if [[ -n $ftpv6note ]]; then
+        echo " * $ftpv6note"
+    fi
 }
 configureDefaultiPXEfile() {
     dots 'Configuring default iPXE file'
@@ -3399,6 +3475,8 @@ configureDefaultiPXEfile() {
         _resolveNetbootHost || return 1
         nbhost="$netboothost"
     fi
+    # An IPv6 literal needs its brackets in a URL.
+    nbhost=$(_urlHost "$nbhost")
     # param manufacturer took ${product} for years, so every ipxeTable row
     # recorded the model twice and the vendor never once. iPXE exposes the two
     # as separate SMBIOS settings.
@@ -4612,6 +4690,13 @@ resolveDHCPEngine() {
         fi
     fi
 }
+# DHCPv6 is opt-in (--dhcp6-range): only then does the Kea DHCPv6 package join
+# the install set. It is separate from resolveDHCPEngine because DHCPv6 does
+# not depend on FOG hosting IPv4 DHCP, or on which engine does.
+resolveDHCP6() {
+    [[ -n ${DHCP6_range_start} && -n ${kea6package} ]] || return 0
+    FOG_packages="${FOG_packages} ${kea6package}"
+}
 # Bulk package-state helpers.
 #
 # installPackages used to answer "is it installed?" and "does it exist?" with
@@ -4908,6 +4993,7 @@ installPackages() {
     loadPackageSets
     errorStat $?
     resolveDHCPEngine
+    resolveDHCP6
     FOG_packages=$(echo ${FOG_packages[@]} | tr ' ' '\n' | sort -u | tr '\n' ' ')
     echo -e " * Packages to be installed:\n\n\t${FOG_packages}\n\n"
     newPackList=""
@@ -5510,6 +5596,9 @@ _firewallPortList() {
     echo "20048/tcp NFS mountd"
     echo "20048/udp NFS mountd"
     [[ ${DHCP_enabled} == yes ]] && echo "67/udp DHCP (FOG is your DHCP server)"
+    # DHCPv6 servers listen on 547, and only with --dhcp6-range.
+    # "; ipv6)" marks IPv6 traffic for _reportIptables.
+    [[ -n ${DHCP6_range_start} ]] && echo "547/udp DHCPv6 (FOG is your DHCPv6 server; ipv6)"
     # udpcast multicast. UDPCAST_STARTINGPORT is the base and each concurrent
     # session consumes two ports, so the window is base .. base + 2*sessions.
     echo "${mcastportmin}-${mcastportmax}/udp Multicast (udpcast)"
@@ -5523,10 +5612,11 @@ _configureFirewalld() {
     # of the actual transfer. Modern kernels no longer auto-assign helpers,
     # so this is not something the box does for us.
     local svc
-    for svc in http tftp ftp nfs mountd rpc-bind dhcp; do
+    for svc in http tftp ftp nfs mountd rpc-bind dhcp dhcpv6; do
         case $svc in
             tftp)     [[ ${BOOT_external_tftp_server} == yes ]] && continue ;;
             dhcp)     [[ ${DHCP_enabled} != yes ]] && continue ;;
+            dhcpv6)   [[ -z ${DHCP6_range_start} ]] && continue ;;
         esac
         firewall-cmd --permanent --add-service=$svc >>$error_log 2>&1 || failed=1
     done
@@ -5580,11 +5670,15 @@ _reportIptables() {
     echo " *   rule ordering and persistence are too distro-specific to do"
     echo " *   safely against a ruleset FOG did not create."
     echo " * Run these, then persist them the way your distro expects:"
-    local p d proto port
+    local p d proto port cmd
     while read -r p d; do
         proto="${p##*/}"
         port="${p%/*}"
-        echo " *   iptables -I INPUT -p $proto --dport ${port/-/:} -j ACCEPT"
+        # A port list line that ends in "; ipv6)" is IPv6 traffic, which
+        # iptables never sees. ip6tables handles it.
+        cmd=iptables
+        [[ $d == *"; ipv6)" ]] && cmd=ip6tables
+        echo " *   $cmd -I INPUT -p $proto --dport ${port/-/:} -j ACCEPT"
     done < <(_firewallPortList)
     if [[ ${BOOT_external_tftp_server} != yes ]]; then
         echo " * TFTP also needs the conntrack helper, or PXE transfers stall:"
@@ -8750,6 +8844,11 @@ writeUpdateFile() {
         # had the identical wart with no clean twin and gets the same treatment.
         DHCP_enabled DHCP_engine DHCP_service_name DHCP_router DHCP_dns_server_ip
         DHCP_range_start DHCP_range_end
+        # DHCPv6 (--dhcp6-range) is opt-in: the pool is its only setting.
+        # configureDHCP6 rewrites the whole Kea DHCPv6 config on every run.
+        # Without these keys an upgrade drops the pool and stops serving
+        # IPv6 clients.
+        DHCP6_range_start DHCP6_range_end
 
         # --- DB_: the database connection and its dump path
         #
@@ -9473,12 +9572,21 @@ normalizeWebroot() {
 # an install written by an older installer has the multi-line value persisted in
 # .fogsettings and would otherwise reload it unrepaired.
 normalizeIpAddress() {
+    local a
     [[ -z ${PKI_san_ip_addresses} ]] && PKI_san_ip_addresses="${NET_fog_server_ip}"
     # Unquoted on purpose: word splitting collapses the newline- or
     # space-separated forms to one space-separated list, which is what both
     # `for ip in ${PKI_san_ip_addresses}` and awk want.
     PKI_san_ip_addresses=$(echo ${PKI_san_ip_addresses})
     NET_fog_server_ip=$(echo ${PKI_san_ip_addresses} | awk '{print $1}')
+    # IPv6: the primary stays IPv4. The interface's own IPv6 addresses join the
+    # list, so the certificate and the CA name constraints cover them. An IPv6
+    # entry already in the list stays. An admin can add one by hand, or hold
+    # one on another NIC. Nothing is added twice. A box with no IPv6 keeps the
+    # list as it is.
+    for a in $(_globalAddresses6 "${NET_interface}"); do
+        [[ " ${PKI_san_ip_addresses} " == *" $a "* ]] || PKI_san_ip_addresses="${PKI_san_ip_addresses} ${a}"
+    done
 }
 emitNginxPhpBody() {
     echo "    set \$phproot ${WEB_docroot};" >> "$1"
@@ -10322,8 +10430,8 @@ _defaultServerNames() {
 # A DNS base matches itself and anything to its left ("example.com" permits
 # "fog.example.com"), so bare domains are emitted rather than dotted ones.
 _nameConstraints() {
-    local -a dnsnames=() ipnets=()
-    local n d ip cidr mask entry seen out=""
+    local -a dnsnames=() ipnets=() v6nets=()
+    local n d ip cidr mask entry seen net out=""
 
     # This server's own names, so a certificate this CA issues for another
     # host in the same domain -- a storage node -- verifies. Derived from
@@ -10378,10 +10486,25 @@ _nameConstraints() {
         [[ $ip == *:* ]] && continue
         ipnets+=("${ip}/255.255.255.255")
     done
-    if [[ ${PKI_san_ip_addresses} == *:* ]]; then
+    if [[ -n $(_serverIp6List) ]]; then
         ipnets+=("::1/ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
         ipnets+=("fc00::/fe00::")
         ipnets+=("fe80::/ffc0::")
+        # The /64 network of each IPv6 address this server holds. The ranges
+        # above reach only ULA, loopback and link-local. A global (2001:...)
+        # address in the leaf's SAN was never permitted, so the leaf failed
+        # verification against its own CA.
+        #
+        # A /64, not the single address. A DHCPv6 or SLAAC address can change
+        # inside its /64. A /128 entry would make each such change re-issue
+        # the CA. Each re-issue forces an iPXE rebuild and new USB media. A /64
+        # is the server's own LAN segment. It is the IPv6 twin of the server's
+        # own /32 above, so --internal-subnet does not narrow it.
+        for ip in $(_serverIp6List); do
+            net="$(_ipv6Prefix64 "$ip")::/ffff:ffff:ffff:ffff::"
+            [[ " ${v6nets[*]} " == *" $net "* ]] || v6nets+=("$net")
+        done
+        ipnets+=("${v6nets[@]}")
     fi
 
     seen=""
@@ -10902,9 +11025,10 @@ _reportNetbootProto() {
 # Issue an intermediate CA from the root. Shared by both zones so their
 # certificates differ only in subject, location and constraints, never in
 # shape. $5 carries the zone's own extension lines -- its extendedKeyUsage and,
-# where it applies, its nameConstraints.
+# where it applies, its nameConstraints. $8 = keep re-uses the key already on
+# disk, so only the certificate is new.
 _issueIntermediateCA() {
-    local cn="$1" outdir="$2" keyfile="$3" certfile="$4" extralines="$5" ou="$6" keyOfflineVar="$7"
+    local cn="$1" outdir="$2" keyfile="$3" certfile="$4" extralines="$5" ou="$6" keyOfflineVar="$7" keepkey="$8"
     local st=0
     mkdir -p "$outdir" >>$error_log 2>&1 || st=1
     chmod 0700 "$outdir" >>$error_log 2>&1
@@ -10935,7 +11059,10 @@ _issueIntermediateCA() {
         echo "   re-run the installer, then move it back to your vault."
         return 1
     fi
-    openssl genrsa -out "${outdir}/${keyfile}" 4096 >>$error_log 2>&1 || st=1
+    # $8 = keep: sign a new certificate for the key already on disk. A re-issue
+    # that keeps its key stays valid for anything that pinned that key.
+    [[ -n $keepkey && -s "${outdir}/${keyfile}" ]] \
+        || openssl genrsa -out "${outdir}/${keyfile}" 4096 >>$error_log 2>&1 || st=1
     # Written as a config file rather than passed with -addext: -addext needs
     # OpenSSL 1.1.1+, and the older RHEL variants this installer still supports
     # ship 1.0.2 where it fails with an unhelpful usage error. Same reason
@@ -11045,6 +11172,76 @@ _samePath() {
     [[ -n $1 && -n $2 ]] || return 1
     [[ "$(_canonPath "$1")" == "$(_canonPath "$2")" ]]
 }
+# IPv6 address $1 written the way OpenSSL prints it in a certificate: eight
+# groups, upper-case hex, no leading zeros. 2001:db8::5 -> 2001:DB8:0:0:0:0:0:5.
+_ipv6Canonical() {
+    local a="${1,,}" head tail g fill i out=""
+    local -a h=() t=()
+    if [[ $a == *::* ]]; then
+        head="${a%%::*}"
+        tail="${a#*::}"
+    else
+        head="$a"
+        tail=""
+    fi
+    IFS=: read -ra h <<< "$head"
+    IFS=: read -ra t <<< "$tail"
+    fill=$((8 - ${#h[@]} - ${#t[@]}))
+    for g in "${h[@]}"; do
+        out="${out}:$(printf '%X' "$((16#$g))")"
+    done
+    for ((i = 0; i < fill; i++)); do
+        out="${out}:0"
+    done
+    for g in "${t[@]}"; do
+        out="${out}:$(printf '%X' "$((16#$g))")"
+    done
+    echo "${out#:}"
+}
+# Does the name-constraints extension of CA certificate $1 permit IPv6
+# address $2? A CA without the extension permits anything. The address counts
+# as permitted when the CA lists it as a /128 or lists its /64. A unique-local
+# (fc00::/7) address also counts when the CA lists that whole range. The test
+# reads the certificate text. Every OpenSSL version prints it in the same form.
+_caCoversIp6() {
+    local text canon net
+    text=$(openssl x509 -in "$1" -noout -text 2>/dev/null)
+    [[ $text == *"Name Constraints"* ]] || return 0
+    canon=$(_ipv6Canonical "$2")
+    net="$(echo "$canon" | cut -d: -f1-4):0:0:0:0"
+    [[ $text == *"IP:${canon}/FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF"* ]] && return 0
+    [[ $text == *"IP:${net}/FFFF:FFFF:FFFF:FFFF:0:0:0:0"* ]] && return 0
+    [[ ${canon%%:*} =~ ^F[CD][0-9A-F][0-9A-F]$ && $text == *"IP:FC00:0:0:0:0:0:0:0/FE00:0:0:0:0:0:0:0"* ]] && return 0
+    return 1
+}
+# Does CA certificate $1 permit every IPv6 address this server holds?
+_webCAcoversIp6() {
+    local ip
+    for ip in $(_serverIp6List); do
+        _caCoversIp6 "$1" "$ip" || return 1
+    done
+    return 0
+}
+# Leaves out of the certificate request files each IPv6 address the Web CA
+# cannot cover. Run after the Web zone step, once the CA that will sign the
+# leaf is known. A CA cannot be re-issued when the root key is offline. An
+# admin-supplied CA is never re-issued. A leaf with an IPv6 SAN that the CA
+# does not permit fails verification, and that breaks IPv4 clients too. An
+# IPv6 address the CA does cover stays. The IPv4 lines always stay.
+_dropUncoveredIp6Sans() {
+    local cnf ip dropped=""
+    [[ -n ${PKI_web_ca_cert} && -s ${PKI_web_ca_cert} ]] || return 0
+    cnf="$(_pkiConfDir)/ca.cnf"
+    [[ -f $cnf ]] || return 0
+    for ip in $(sed -n 's/^IP\.[0-9][0-9]* = \(.*:.*\)$/\1/p' "$cnf"); do
+        _caCoversIp6 "${PKI_web_ca_cert}" "$ip" && continue
+        sed -i "/^IP\.[0-9][0-9]* = ${ip}\$/d" "$cnf" "$(_pkiConfDir)/req.cnf" >>$error_log 2>&1
+        dropped="${dropped} ${ip}"
+    done
+    [[ -z $dropped ]] && return 0
+    echo " * These IPv6 addresses were left off the web certificate:${dropped}"
+    echo "   The Web CA cannot cover them, and the certificate would not verify."
+}
 # The Web zone: an intermediate whose leaf is what the vhost serves. Replacing
 # this zone has zero endpoint impact -- browsers just need the root trusted,
 # and fog-client already trusts it, because the root is what it pins.
@@ -11053,7 +11250,7 @@ _samePath() {
 # they have always meant, and what validateExternalCA sets. They are repointed
 # at the intermediate here; the root stays in ${PKI_root_ca_cert}/${PKI_root_ca_key}.
 createWebIntermediateCA() {
-    local webdir cadir f
+    local webdir cadir f st keepkey=""
     webdir="$(_pkiZoneDir web)"
     cadir="${webdir}/ca"
     mkdir -p "$cadir" >>$error_log 2>&1
@@ -11067,6 +11264,39 @@ createWebIntermediateCA() {
     done
     PKI_web_ca_key="${cadir}/.fogWebCA.key"
     PKI_web_ca_cert="${cadir}/.fogWebCA.pem"
+    # A Web CA keeps the name constraints it was issued with. A CA minted
+    # before this server had IPv6 permits no IPv6 address. It cannot sign a
+    # leaf that carries one. Re-issue it, under the same root, when it lacks
+    # this server's IPv6 addresses. The new certificate uses the same CA key, so
+    # anything that pinned that key stays valid. Only the old certificate is
+    # kept, beside the new one.
+    #
+    # Only a CA this root issued. An admin-supplied CA (--web-ca-cert or
+    # --external-ca) is theirs and is never touched. The leaf follows by
+    # itself, because _createWebLeaf stamps the CA's fingerprint.
+    if [[ -f ${PKI_web_ca_cert} && -n $(_serverIp6List) ]] && _rootIssuedWebCA \
+        && ! _webCAcoversIp6 "${PKI_web_ca_cert}"; then
+        if [[ ${rootCAKeyOffline:-0} -eq 1 ]]; then
+            echo " * The FOG Web CA does not permit this server's IPv6 addresses."
+            echo "   The Root CA private key is not on this server, so it cannot re-issue the CA."
+            echo "   Restore ${PKI_root_ca_key} and run the installer again."
+        else
+            [[ -s ${PKI_web_ca_key} ]] && keepkey=keep
+            echo " * The FOG Web CA does not permit this server's IPv6 addresses."
+            if [[ -n $keepkey ]]; then
+                echo "   Re-issuing it with the same key."
+            else
+                echo "   Re-issuing it. Its key is missing, so it gets a new key."
+            fi
+            echo "   The old certificate is kept as ${PKI_web_ca_cert}.${timestamp}."
+            # iPXE trusts this certificate itself (TRUST=), not the root.
+            # This run rebuilds the iPXE binaries and boot kits it serves.
+            # Media written earlier still trusts the old certificate.
+            echo "   Rebuild any USB or ESP boot media made from an older kit."
+            echo "   Re-run the installer on each storage node that builds its own iPXE."
+            mv -f "${PKI_web_ca_cert}" "${PKI_web_ca_cert}.${timestamp}" >>$error_log 2>&1
+        fi
+    fi
     if [[ ! -f ${PKI_web_ca_cert} ]]; then
         dots "Creating FOG Web CA"
         # serverAuth alone. An EKU on a CA constrains what it may issue, which
@@ -11074,8 +11304,13 @@ createWebIntermediateCA() {
         # here can never be a code-signing certificate, whatever its leaf says.
         _issueIntermediateCA "FOG Web CA" "$cadir" ".fogWebCA.key" ".fogWebCA.pem" \
             "extendedKeyUsage = serverAuth
-$(_nameConstraints)" "FOG Web UI"
-        errorStat $?
+$(_nameConstraints)" "FOG Web UI" "" "$keepkey"
+        st=$?
+        # A failed re-issue puts the old certificate back. Otherwise the next
+        # run finds no certificate, takes the create path and mints a new key.
+        [[ $st -ne 0 && -n $keepkey && ! -s ${PKI_web_ca_cert} ]] \
+            && mv -f "${PKI_web_ca_cert}.${timestamp}" "${PKI_web_ca_cert}" >>$error_log 2>&1
+        errorStat $st
     fi
     # Chain file is root+intermediate, the same concat shape validateExternalCA
     # already produces, because a client validating the leaf needs both. Only
@@ -11772,7 +12007,7 @@ _warnNoWebIntermediate() {
 # _warnNoWebIntermediate because the cause and the remedy both differ: nothing
 # is missing, so pointing the admin at ACME chain files is wrong. For FOG's own
 # Web CA the usual cause is its name constraints, fixed when it was minted and
-# never re-issued, against a leaf that now carries a new name or address.
+# not re-issued for a name or IPv4 change, against a leaf that now carries one.
 _warnWebIssuerRejected() {
     local issuer
     issuer=$(openssl x509 -in "${PKI_web_vhost_cert}" -noout -issuer -nameopt RFC2253 2>/dev/null)
@@ -11786,7 +12021,7 @@ _warnWebIssuerRejected() {
         echo "   The leaf carries a name or address outside the CA's name"
         echo "   constraints -- this server was renamed, changed address, or"
         echo "   gained an --extra-server-name after the CA was created."
-        echo "   A CA is never re-issued once it exists, so remove it and re-run"
+        echo "   A name or IPv4 change never re-issues the CA, so remove it and re-run"
         echo "   (add --internal-domain <domain> if the name needs permitting):"
         echo "     rm -rf $(_pkiZoneDir web)"
     fi
@@ -11960,7 +12195,7 @@ _createWebLeaf() {
     # Prove the certificate we just signed actually verifies under the CA that
     # signed it. The failure this catches is specific and otherwise silent: the
     # Web CA's name constraints are fixed at the moment it is issued and the CA
-    # is never re-minted, so renaming this server, or adding an
+    # is not re-minted for a name or IPv4 change, so renaming this server, or adding an
     # --extra-server-name outside the permitted domains, produces a perfectly
     # well-formed certificate that no client will accept. Left undetected it
     # surfaces as a browser error days later with nothing connecting it to the
@@ -12010,8 +12245,8 @@ _createWebLeaf() {
             echo "  #                                                                 #"
             echo "  # Re-run with the name permitted:                                 #"
             echo "  #   --internal-domain <domain>                                    #"
-            echo "  # A CA is never re-issued once it exists, so also remove it so    #"
-            echo "  # the new constraints take effect:                                #"
+            echo "  # A name or IPv4 change never re-issues the CA, so also remove it #"
+            echo "  # so the new constraints take effect:                             #"
             echo "  #   rm -rf $(_pkiZoneDir web)"
         fi
         echo "  ###################################################################"
@@ -12742,6 +12977,8 @@ EOF
     # Web CA still needs an agent CA, and it is issued by the FOG root, which
     # every master holds whatever signs its web leaf.
     createAgentIntermediateCA
+    # Now the signing CA is known. Drop the IPv6 SANs it cannot permit.
+    _dropUncoveredIp6Sans
     _resolveWebLeafPaths
     _createWebLeaf
     _writeWebChainFiles
@@ -12845,6 +13082,7 @@ EOF
                     beginManagedVhost
                     echo "server {" > "$etcconf"
                     echo "    listen 80;" >> "$etcconf"
+                    [[ -n $(_serverIp6List) ]] && echo "    listen [::]:80;" >> "$etcconf"
                     echo "    server_name ${vhostname}${vhostaliases};" >> "$etcconf"
                     # Whether :80 SERVES the site or redirects away from it is
                     # the redirect's decision, not ${WEB_url_proto}'s. 443 listens
@@ -12914,6 +13152,10 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen ${NET_fog_server_ip}:443 ssl${nginxhttp2listen};" >> "$etcconf"
+                        # One IPv6 wildcard listener, same options as the IPv4 one. It
+                        # keeps working when an address is renumbered, and it does not
+                        # clash with the IPv4 listener (ipv6only is on by default).
+                        [[ -n $(_serverIp6List) ]] && echo "    listen [::]:443 ssl${nginxhttp2listen};" >> "$etcconf"
                         echo "    server_name ${vhostname}${vhostaliases};" >> "$etcconf"
                         echo "    root ${WEB_docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
@@ -13106,6 +13348,10 @@ EOF
                         fi
                         echo "server {" >> "$etcconf"
                         echo "    listen ${NET_fog_server_ip}:443 ssl${nginxhttp2listen};" >> "$etcconf"
+                        # One IPv6 wildcard listener, same options as the IPv4 one. It
+                        # keeps working when an address is renumbered, and it does not
+                        # clash with the IPv4 listener (ipv6only is on by default).
+                        [[ -n $(_serverIp6List) ]] && echo "    listen [::]:443 ssl${nginxhttp2listen};" >> "$etcconf"
                         echo "    server_name ${vhostname}${vhostaliases};" >> "$etcconf"
                         echo "    root ${WEB_docroot};" >> "$etcconf"
                         echo "    index index.html index.htm index.php;" >> "$etcconf"
@@ -17650,15 +17896,16 @@ _keaRunAs() {
 }
 _keaValidate() {
     # Syntax-check $1, dropping to the config directory's owner when root cannot
-    # read it (see _keaRunAs). Returns kea-dhcp4's exit status.
-    local runas
+    # read it (see _keaRunAs). Returns the daemon's exit status. $2 names the
+    # daemon, kea-dhcp4 unless the caller passes kea-dhcp6.
+    local runas daemon="${2:-kea-dhcp4}"
     runas=$(_keaRunAs "$1")
     if [[ -z $runas ]]; then
-        kea-dhcp4 -t "$1" >>$error_log 2>&1
+        $daemon -t "$1" >>$error_log 2>&1
     elif command -v runuser >/dev/null 2>&1; then
-        runuser -u "$runas" -- kea-dhcp4 -t "$1" >>$error_log 2>&1
+        runuser -u "$runas" -- $daemon -t "$1" >>$error_log 2>&1
     else
-        su -s /bin/sh -c "kea-dhcp4 -t '$1'" "$runas" >>$error_log 2>&1
+        su -s /bin/sh -c "$daemon -t '$1'" "$runas" >>$error_log 2>&1
     fi
 }
 _writeKeaConfig() {
@@ -18047,6 +18294,123 @@ configureDHCP() {
             writeKeaSample
             ;;
     esac
+}
+# The /64 network of IPv6 address $1, as its first four groups in lower case:
+# fd00:f06:0:1:: -> "fd00:f06:0:1". Two addresses share a /64 when this matches.
+_ipv6Prefix64() {
+    local canon
+    canon=$(_ipv6Canonical "$1")
+    canon="${canon,,}"
+    echo "${canon}" | cut -d: -f1-4
+}
+# Opt-in DHCPv6 (--dhcp6-range). Writes the Kea DHCPv6 config that lets an
+# IPv6-only client PXE boot. $1 is the target file. $2 is this server's address
+# in the pool's /64. It reads ${NET_interface}, ${DHCP6_range_start} and
+# ${DHCP6_range_end}. It sends no DNS servers. The client classes mirror
+# _keaBaseClasses. iPXE (user class "iPXE") gets default.ipxe. UEFI firmware gets the boot file the IPv4 config
+# names. iPXE also sends option 61, so the UEFI classes exclude it.
+_writeKea6Config() {
+    cat > "$1" <<EOFKEA6
+{
+    "Dhcp6": {
+        "interfaces-config": {
+            "interfaces": [ "${NET_interface}" ],
+            "service-sockets-max-retries": 30,
+            "service-sockets-retry-wait-time": 1000
+        },
+        "lease-database": { "type": "memfile", "lfc-interval": 3600 },
+        "preferred-lifetime": 3000,
+        "valid-lifetime": 4000,
+        "client-classes": [
+            {
+                "name": "ipxe",
+                "test": "substring(option[15].hex,2,4) == 'iPXE'",
+                "option-data": [
+                    { "name": "bootfile-url", "data": "tftp://[$2]/default.ipxe" }
+                ]
+            },
+            {
+                "name": "efi-x64",
+                "test": "not member('ipxe') and option[61].hex == 0x0007",
+                "option-data": [
+                    { "name": "bootfile-url", "data": "tftp://[$2]/$(_uefiBootFile x64)" }
+                ]
+            },
+            {
+                "name": "efi-arm64",
+                "test": "not member('ipxe') and option[61].hex == 0x000b",
+                "option-data": [
+                    { "name": "bootfile-url", "data": "tftp://[$2]/$(_uefiBootFile arm64)" }
+                ]
+            }
+        ],
+        "subnet6": [
+            {
+                "id": 1,
+                "subnet": "$(_ipv6Prefix64 "$2")::/64",
+                "interface": "${NET_interface}",
+                "pools": [ { "pool": "${DHCP6_range_start}-${DHCP6_range_end}" } ]
+            }
+        ]
+    }
+}
+EOFKEA6
+    # Same reason as _writeKeaConfig: the service account has to read it.
+    chmod 0644 "$1" >>$error_log 2>&1
+}
+configureDHCP6() {
+    [[ -n ${DHCP6_range_start} && -n ${DHCP6_range_end} ]] || return 0
+    dots "Setting up and starting DHCP Server (Kea, IPv6)"
+    local target="${kea6config:-/etc/kea/kea-dhcp6.conf}" addr="" ip prefix
+    prefix=$(_ipv6Prefix64 "${DHCP6_range_start}")
+    for ip in $(_serverIp6List); do
+        [[ $(_ipv6Prefix64 "$ip") == "$prefix" ]] && { addr="$ip"; break; }
+    done
+    if [[ -z $addr ]]; then
+        echo "Failed"
+        echo " * ${NET_interface} has no IPv6 address in the /64 of ${DHCP6_range_start}."
+        echo "   DHCPv6 needs this server's own address there to name it as the boot server."
+        [[ -z $exitFail ]] && exit 1
+        return
+    fi
+    [[ -d $(dirname "$target") ]] || mkdir -p "$(dirname "$target")" >>$error_log 2>&1
+    [[ -f $target ]] && mv -fv "$target" "${target}.${timestamp}" >>$error_log 2>&1
+    _writeKea6Config "$target" "$addr"
+    if command -v kea-dhcp6 >/dev/null 2>&1; then
+        if ! _keaValidate "$target" kea-dhcp6; then
+            echo "Failed"
+            echo "Kea DHCPv6 configuration failed validation (kea-dhcp6 -t); see $error_log"
+            [[ -z $exitFail ]] && exit 1
+            return
+        fi
+    else
+        echo " * Warning: kea-dhcp6 not found; wrote config without validation" >>$error_log 2>&1
+    fi
+    diffconfig "$target"
+    case $systemctl in
+        yes)
+            systemctl is-enabled --quiet ${kea6service} && true || systemctl enable ${kea6service} >>$error_log 2>&1
+            systemctl restart ${kea6service} >>$error_log 2>&1
+            systemctl status ${kea6service} >>$error_log 2>&1
+            ;;
+        *)
+            case ${FOG_os_id} in
+                1)
+                    chkconfig ${kea6service} on >>$error_log 2>&1
+                    service ${kea6service} restart >>$error_log 2>&1
+                    ;;
+                2)
+                    sysv-rc-conf ${kea6service} on >>$error_log 2>&1
+                    /etc/init.d/${kea6service} restart >>$error_log 2>&1
+                    ;;
+                3)
+                    rc-update add ${kea6service} default >>$error_log 2>&1
+                    rc-service ${kea6service} restart >>$error_log 2>&1
+                    ;;
+            esac
+            ;;
+    esac
+    errorStat $?
 }
 vercomp() {
     [[ $1 == $2 ]] && return 0

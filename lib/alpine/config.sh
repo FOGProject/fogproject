@@ -155,6 +155,9 @@ fi
 # neither. See the Kea-only note by the package list above.
 [[ -z $keapackage ]] && keapackage="kea-dhcp4"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"
+# Alpine splits the daemons by package, like kea-dhcp4 above.
+[[ -z $kea6package ]] && kea6package="kea-dhcp6"
+[[ -z $kea6service ]] && kea6service="kea-dhcp6"
 [[ -z ${DHCP_engine} ]] && DHCP_engine="kea"
 [[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"
 # Alpine's fpm service is php-fpm83, not php-fpm8.3: it takes the undotted

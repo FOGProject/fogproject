@@ -409,7 +409,7 @@ for key in WEB_https_redirect PKI_web_cert_publicly_trusted \
     fi
 done
 
-# All 72 keys of the model are managed, and NOTHING ELSE is: adding a key to
+# All 74 keys of the model are managed, and NOTHING ELSE is: adding a key to
 # this array turns a hand-set key into a managed one, and the admin's value
 # starts being overwritten. That is a behavior change even though it looks
 # like documentation, so the count is asserted as well as the membership.
@@ -425,6 +425,7 @@ modelKeys="
     DB_external DB_host DB_name DB_password
     DB_user DHCP_dns_server_ip DHCP_enabled DHCP_engine
     DHCP_range_end DHCP_range_start DHCP_router DHCP_service_name
+    DHCP6_range_end DHCP6_range_start
     FOG_copy_back_old FOG_git_path FOG_install_lang FOG_install_mode
     FOG_install_type FOG_installed FOG_last_good_commit FOG_os_id
     FOG_os_name

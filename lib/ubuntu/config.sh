@@ -118,3 +118,5 @@ fi
 [[ -z $iscservice ]] && iscservice="isc-dhcp-server"
 [[ -z $keapackage ]] && keapackage="kea-dhcp4-server"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4-server"
+[[ -z $kea6package ]] && kea6package="kea-dhcp6-server"
+[[ -z $kea6service ]] && kea6service="kea-dhcp6-server"

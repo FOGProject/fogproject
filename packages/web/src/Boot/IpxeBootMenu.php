@@ -1037,7 +1037,7 @@ class IpxeBootMenu extends BootMenuBase
             'kernel %s %s initrd=%s root=/dev/ram0 rw '
             . 'ramdisk_size=%s%sweb=%s%s consoleblank=0%s rootfstype=ext4%s%s '
             . '%s nvme_core.default_ps_max_latency_us=0 '
-            . 'setmacto=${setmacto}',
+            . 'setmacto=${setmacto}%s',
             $bzImage,
             $this->_loglevel,
             basename($initrd),
@@ -1052,7 +1052,8 @@ class IpxeBootMenu extends BootMenuBase
                 sprintf(' %s', self::$Host->get('kernelArgs')) :
                 ''
             ),
-            $this->_storage
+            $this->_storage,
+            self::_reachedOverIpv6() ? ' ipv6boot=1' : ''
         );
         $this->_initrd = "imgfetch $initrd";
         self::$HookManager
@@ -1124,6 +1125,23 @@ class IpxeBootMenu extends BootMenuBase
         );
 
         return substr((string)$value, 0, 64);
+    }
+    /**
+     * Whether the client reached this server over IPv6. FOS reads the
+     * ipv6boot=1 kernel argument this drives, to bring IPv6 up. The name is
+     * not ipv6=1: FOS exports each kernel argument as a shell variable, and
+     * busybox udhcpc's script reads $ipv6 as an address. An IPv4 client
+     * that a dual-stack socket reports as ::ffff:a.b.c.d is IPv4 still, so
+     * an IPv4-mapped address does not count.
+     *
+     * @return bool
+     */
+    private static function _reachedOverIpv6()
+    {
+        $bin = @inet_pton((string)self::$remoteaddr);
+        return is_string($bin)
+            && 16 === strlen($bin)
+            && "\0\0\0\0\0\0\0\0\0\0\xff\xff" !== substr($bin, 0, 12);
     }
     /**
      * Whether a kernel-argument string asks for debug mode.
