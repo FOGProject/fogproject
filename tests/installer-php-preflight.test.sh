@@ -90,6 +90,8 @@ run() {
         php_apk=""
         FOG_os_id=${FOG_os_id:-2}
         checkPhpRequirements
+        # Printed only when the function returned instead of exiting.
+        echo "returned=$?"
     ) 2>&1
     echo "rc=$?"
 }
@@ -103,11 +105,11 @@ check "no extension warning when all are loaded" \
 
 out=$(FAKE_CLI=7.3 FAKE_FPM=7.3 FAKE_MODS="$allmods" FAKE_FPM_MODS="$allmods" skipPhpCheck="" run)
 check "a CLI below the floor stops the installer (got: $out)" \
-    "$([[ $out == *"rc=1" && $out == *"PHP CLI is 7.3. FOG needs PHP"* ]]; echo $?)"
+    "$([[ $out == *"rc=1" && $out == *"PHP CLI is 7.3. FOG needs PHP"* && $out != *returned=* ]]; echo $?)"
 
 out=$(FAKE_CLI=8.9 FAKE_FPM=8.8 FAKE_MODS="$allmods" FAKE_FPM_MODS="$allmods" skipPhpCheck="" run)
 check "an FPM of another version stops the installer (got: $out)" \
-    "$([[ $out == *"rc=1" && $out == *"no PHP-FPM 8.9 is installed"* ]]; echo $?)"
+    "$([[ $out == *"rc=1" && $out == *"no PHP-FPM 8.9 is installed"* && $out != *returned=* ]]; echo $?)"
 
 out=$(FAKE_CLI=7.3 FAKE_FPM=7.3 FAKE_MODS="$allmods" FAKE_FPM_MODS="$allmods" skipPhpCheck=1 run)
 check "--skip-php-check continues past a failed check (got: $out)" \
@@ -127,7 +129,7 @@ check "Arch skips the extension check (got: $out)" \
 
 out=$(FAKE_CLI=7.3 FAKE_FPM=7.3 FAKE_MODS="$allmods" FAKE_FPM_MODS="$allmods" skipPhpCheck="" exitFail=1 run)
 check "-X (exitFail) returns 1 instead of exiting (got: $out)" \
-    "$([[ $out == *"rc=1" && $out == *"PHP CLI is 7.3"* ]]; echo $?)"
+    "$([[ $out == *"returned=1"* && $out == *"PHP CLI is 7.3"* ]]; echo $?)"
 
 # ---------------------------------------------------------------------------
 # The floor is read from _verCheck(). If that line changes shape, the read
