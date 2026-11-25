@@ -122,4 +122,7 @@ fi
 [[ -z $iscservice ]] && iscservice="dhcpd"
 [[ -z $keapackage ]] && keapackage="kea"
 [[ -z $keaservice ]] && keaservice="kea-dhcp4"
+# The one kea package carries the DHCPv6 daemon too.
+[[ -z $kea6package ]] && kea6package="kea"
+[[ -z $kea6service ]] && kea6service="kea-dhcp6"
 [[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"

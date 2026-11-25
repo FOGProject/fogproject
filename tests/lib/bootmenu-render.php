@@ -290,6 +290,12 @@ $_GET = $_REQUEST;
 FOGBase::$requestMacs = (array)($scenario['requestMacs'] ?? []);
 
 /*
+ * The client's address, for a scenario that needs it to be IPv6. Left null
+ * otherwise, which is what the golden scenarios have always rendered with.
+ */
+FOGBase::$remoteaddr = $scenario['remoteaddr'] ?? null;
+
+/*
  * There is no autoloader here -- the harness requires the class file by path
  * -- so the abstract half of the menu has to be loaded first. Sourced from
  * the same directory as the class under test rather than hardcoded, so a

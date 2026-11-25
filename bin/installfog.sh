@@ -163,6 +163,12 @@ usage() {
     echo -e "\t\t\t\t\tfirmware's NIC driver; ipxe uses iPXE's"
     echo -e "\t\t\t\t\town, for firmware that hangs at the"
     echo -e "\t\t\t\t\thandoff to FOS. Kept across upgrades"
+    echo -e "\t      --dhcp6-range\t\tSTART,END: also serve DHCPv6 (Kea)"
+    echo -e "\t\t\t\t\tfrom this IPv6 pool. IPv6-only clients"
+    echo -e "\t\t\t\t\tcan then PXE boot. The pool must sit"
+    echo -e "\t\t\t\t\tin a /64 where this server has an"
+    echo -e "\t\t\t\t\taddress. Off by default. Kept across"
+    echo -e "\t\t\t\t\tupgrades"
     echo -e "\t-C    --recreate-CA\t\tRecreate the CA Keys"
     echo -e "\t                   \t\t\tImplies --recreate-keys below, and"
     echo -e "\t                   \t\t\tre-anchors what fog-client pins"
@@ -284,7 +290,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,skip-php-check,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,skip-php-check,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,dhcp6-range:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -666,6 +672,18 @@ while :; do
             esac
             shift 2
             ;;
+        --dhcp6-range)
+            # Both ends validated here, for the same reason as --internal-subnet:
+            # the values go straight into a JSON config for the DHCPv6 daemon.
+            if [[ $2 != *,* || $(validip6 "${2%%,*}") -ne 0 || $(validip6 "${2#*,}") -ne 0 ]]; then
+                echo "$1 requires START,END IPv6 addresses after, like fd00::100,fd00::1ff"
+                usage
+                exit 3
+            fi
+            sDHCP6_range_start="${2%%,*}"
+            sDHCP6_range_end="${2#*,}"
+            shift 2
+            ;;
         --internal-domain)
             if [[ $(validhostname "${2}") -ne 0 ]]; then
                 echo "$1 requires a valid domain name after"
@@ -995,6 +1013,10 @@ _applyInstallMode
 [[ ${#sextraServerNames[@]} -gt 0 ]] && PKI_san_dns_names="${sextraServerNames[*]}"
 [[ -n ${sDHCP_range_start} ]] && DHCP_range_start=${sDHCP_range_start}
 [[ -n ${sDHCP_range_end} ]] && DHCP_range_end=${sDHCP_range_end}
+# After .fogsettings, so the flag beats a recorded pool. Never implies anything
+# else: DHCPv6 stays off unless this was given now or on an earlier run.
+[[ -n ${sDHCP6_range_start} ]] && DHCP6_range_start=${sDHCP6_range_start}
+[[ -n ${sDHCP6_range_end} ]] && DHCP6_range_end=${sDHCP6_range_end}
 # -s/-e imply "set DHCP up". These were written directly by the handlers, so on
 # an upgrade the .fogsettings sourced above overwrote them (both are managed
 # keys) and the ranges were accepted while DHCP configuration stayed off.
@@ -1401,6 +1423,8 @@ while [[ -z $blGo ]]; do
                     # fallback is exactly what a failure here selects.
                     downloadipxesecureboot
                     configureDHCP
+                    # Does nothing unless --dhcp6-range was given.
+                    configureDHCP6
                     configureTFTPandPXE
                     configureFTP
                     configureSnapins
@@ -1557,6 +1581,8 @@ while [[ -z $blGo ]]; do
                     # fallback is exactly what a failure here selects.
                     downloadipxesecureboot
                     configureDHCP
+                    # Does nothing unless --dhcp6-range was given.
+                    configureDHCP6
                     configureTFTPandPXE
                     # After configureTFTPandPXE -> downloadfiles() has re-laid
                     # the default-named kernel/init set, so restoring here puts

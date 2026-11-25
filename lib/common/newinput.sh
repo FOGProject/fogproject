@@ -133,8 +133,8 @@ done
 # Name constraints for the Web and Secure Boot CAs.
 #
 # Asked only where it can still be acted on. These are baked into a CA at the
-# moment it is issued and a CA is never re-issued, so on a server that already
-# has one the answer would be recorded and silently ignored.
+# moment it is issued. A name or IPv4 change never re-issues a CA, so on a
+# server that already has one the answer would be recorded and silently ignored.
 #
 # $caCreated used to be that test. GH-1120 retired it: it was a persisted key
 # standing in for "does the CA exist", and both of its uses already paired it
