@@ -430,12 +430,19 @@ ok "no copy of autoexec.ipxe chains a local .efi, so no chain loop is constructi
 # bug report -- which is exactly how the chain loop hid.
 for s in autoexec.ipxe fog-ipxe/autoexec.ipxe secureboot-upstream/autoexec.ipxe; do
     [[ -f $X/$s ]] || continue
-    for want in 'dhcp net0' 'dhcp net1' 'dhcp net2' ':proxycheck' \
-                ':nextservercheck' ':netboot' 'default.ipxe'; do
+    # "ifconf -c dhcp", not "dhcp": with IPv6 in the EFI builds a bare "dhcp"
+    # also runs the IPv6 configurator, so a NIC that sees only a router
+    # advertisement counts as configured and the next NIC is never tried.
+    for want in 'ifconf -c dhcp net0' 'ifconf -c dhcp net1' 'ifconf -c dhcp net2' \
+                ':proxycheck' ':nextservercheck' ':netboot' 'default.ipxe' \
+                ':ipv6' 'ifconf -c ipv6'; do
         grep -q -- "$want" "$X/$s" || bad "$s is missing \"$want\""
     done
+    if grep -qE '(^|&& )dhcp( |$)' "$X/$s"; then
+        bad "$s runs a bare \"dhcp\", which also configures IPv6 (FOGProject/fogproject#2152)"
+    fi
 done
-ok "every copy of autoexec.ipxe carries the full DHCP/proxyDHCP/next-server walk"
+ok "every copy of autoexec.ipxe carries the full DHCP/proxyDHCP/next-server/IPv6 walk"
 L="$X/fog-ipxe/autoexec.ipxe"
 for s in fog-ipxe/autoexec.ipxe secureboot-upstream/autoexec.ipxe; do
     [[ -f $X/$s ]] || continue
