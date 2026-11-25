@@ -16612,12 +16612,13 @@ _espFileNote() {
 # with a different preamble, so they cannot drift -- and a binary that reads
 # either one boots the same way.
 #
-# Keep this in step with fog-ipxe's own autoexec.ipxe and with src/ipxescript,
-# the script the BIOS binaries still embed. All three must behave identically,
-# or which platform a site booted becomes a variable in every bug report. The
-# :ipv6 step is the one exception, because BIOS builds have no IPv6. The body
-# below matches fog-ipxe's autoexec.ipxe, except that it names the repo of
-# src/ipxescript.
+# Keep this in step with fog-ipxe's own autoexec.ipxe and with fog-ipxe's
+# src/ipxescript, the script the BIOS binaries still embed. All three must
+# behave identically, or which platform a site booted becomes a variable in
+# every bug report. The :ipv6 step is the one exception, because BIOS builds
+# have no IPv6. The body below is a copy of fog-ipxe's autoexec.ipxe body. One
+# comment differs: here it says "fog-ipxe's src/ipxescript", because that path
+# is not in this repo.
 _espBootWalk() {
     cat <<'ESPWALK'
 # Each IPv4 step names its configurator: "ifconf -c dhcp", not "dhcp". In
@@ -16751,8 +16752,9 @@ _espAutoexecScript() {
 # binary it started, so which copy a machine used stops being a variable.
 #
 # Kept in step with the copy on the FOG server's TFTP root, with fog-ipxe's own
-# autoexec.ipxe, and with src/ipxescript, the script the BIOS binaries still
-# embed. All of them must behave identically, except the :ipv6 step below:
+# autoexec.ipxe, and with fog-ipxe's src/ipxescript, the script the BIOS
+# binaries still embed. All of them must behave identically, except the :ipv6
+# step below:
 # BIOS builds have no IPv6.
 ESPAUTOEXEC
     _bootDelayBlock
