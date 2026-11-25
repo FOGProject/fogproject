@@ -7,7 +7,12 @@
 
     // Backend labels are hardcoded rather than fetched, matching the design:
     // each backend is a row here, not a redesign.
-    var backendLabels = {choco: 'Chocolatey', flatpak: 'Flatpak', snap: 'Snap'};
+    var backendLabels = {
+        choco: 'Chocolatey',
+        flatpak: 'Flatpak',
+        snap: 'Snap',
+        winget: 'WinGet'
+    };
 
     function disableButtons(disable) {
         deleteSelected.prop('disabled', disable);

@@ -56,6 +56,8 @@ $t->check(
 $t->check('snap with any version saves', null === refusal('snap', ''));
 $t->check('flatpak tracking latest saves', null === refusal('flatpak', 'latest'));
 $t->check('a pinned choco entry still saves', null === refusal('choco', '1.2.3'));
+// winget takes --version, so a pinned entry saves (GH-2158).
+$t->check('a pinned winget entry saves', null === refusal('winget', '1.2.3'));
 $t->check('an empty backend takes the column default', null === refusal('', '1.2.3'));
 
 $t->finish();

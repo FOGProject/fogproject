@@ -6,8 +6,8 @@
  * hostSoftware rows and what the host gets, and answers the packages its
  * software backends installed that the host does not get. This pins the
  * filter an admin reads before choosing Exclusive: only backend sources,
- * nothing the host gets (case-insensitive), and never Chocolatey itself or
- * its extensions.
+ * nothing the host gets (case-insensitive), never Chocolatey itself or
+ * its extensions, and never App Installer, which holds winget.
  *
  * Usage: php tests/software-exclusive-preview.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -109,6 +109,22 @@ $got = SoftwareGrid::exclusivePreview(
 $t->check(
     'chocolatey and its extensions are excluded, nothing near them',
     ['choco:chocolatey-tool', 'snap:chocolatey'] === labels($got)
+);
+
+// App Installer holds winget, so it is never previewed (GH-2158). Another
+// unassigned winget package is, and the same name on another source is.
+$got = SoftwareGrid::exclusivePreview(
+    [
+        fact('Microsoft.AppInstaller', 'winget'),
+        fact('microsoft.appinstaller', 'winget'),
+        fact('Mozilla.Firefox', 'winget'),
+        fact('Microsoft.AppInstaller', 'choco'),
+    ],
+    []
+);
+$t->check(
+    'App Installer from winget is excluded, another winget package is not',
+    ['choco:Microsoft.AppInstaller', 'winget:Mozilla.Firefox'] === labels($got)
 );
 
 // Row shape and order within one source.
