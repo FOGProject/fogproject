@@ -233,6 +233,14 @@ if (!empty($scenario['inventoryRow'])) {
 }
 
 /*
+ * The address of the default storage node, for a scenario that needs a node
+ * other than 10.0.0.1 (an IPv6 literal, say).
+ */
+if (isset($scenario['storageNodeIp']) && !empty(Route::$rows['storagenode'])) {
+    Route::$rows['storagenode'][0]->ip = $scenario['storageNodeIp'];
+}
+
+/*
  * An install with no enabled storage node at all. Rare but reachable -- a
  * half-finished install, or every node disabled -- and it used to decide
  * whether the constructor emitted its header, '#!ipxe' included.

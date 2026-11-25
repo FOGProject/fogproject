@@ -146,6 +146,13 @@ $scenarios = [
             'task' => $deployTask,
         ],
     ],
+    // An IPv6 web host and node address: bracketed as URL and NFS hosts,
+    // bare in storageip=.
+    'task-deploy-ipv6' => [
+        'settings' => ['FOG_WEB_HOST' => 'fd00::1'],
+        'storageNodeIp' => 'fd00::2',
+        'host' => ['id' => 1, 'name' => 'pi4', 'task' => $deployTask],
+    ],
     // Host kernelArgs reach the append line, same as they do under iPXE.
     'host-kernel-args' => [
         'host' => [
@@ -273,6 +280,12 @@ $expect = [
         'initrd http://10.0.0.1/fog/service/ipxe/arm_init.cpio.gz',
         'type=down',
         'storage=10.0.0.1:/images/',
+    ],
+    'task-deploy-ipv6' => [
+        'kernel http://[fd00::1]/fog/service/ipxe/arm_Image',
+        'web=http://[fd00::1]/fog/',
+        'storage=[fd00::2]:/images/',
+        'storageip=fd00::2',
     ],
     'task-capture' => ['type=up'],
     'task-memtest' => ['localboot 0', 'FOG ships no ARM build'],

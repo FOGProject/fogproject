@@ -12600,3 +12600,10 @@ $this->schema[] = [
     . "ADD COLUMN `hostSoftwareLevel` varchar(16) NOT NULL DEFAULT '' "
     . "AFTER `hostPrinterLevel`",
 ];
+// 471
+$this->schema[] = [
+    // taskLog.ip holds the REMOTE_ADDR of the client that reported a state.
+    // An IPv6 address is up to 45 characters, and PDODB clears sql_mode, so
+    // varchar(15) truncated it silently.
+    "ALTER TABLE `taskLog` MODIFY `ip` varchar(45) NOT NULL DEFAULT ''",
+];

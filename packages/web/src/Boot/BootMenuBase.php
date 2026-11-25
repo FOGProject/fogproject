@@ -226,18 +226,20 @@ abstract class BootMenuBase extends FOGBase
                     ) {
                         throw new \Exception(_('No valid storage nodes found'));
                     }
-                    $storage = escapeshellcmd(
-                        sprintf(
-                            '%s:/%s/%s',
-                            $ip,
-                            trim($StorageNode->get('path'), '/'),
-                            (
-                                $TaskType->isCapture() ?
-                                'dev/' :
-                                ''
+                    // The host is bracketed after escapeshellcmd(), which would
+                    // put a backslash before each bracket.
+                    $storage = self::urlHost(escapeshellcmd($ip))
+                        . escapeshellcmd(
+                            sprintf(
+                                ':/%s/%s',
+                                trim($StorageNode->get('path'), '/'),
+                                (
+                                    $TaskType->isCapture() ?
+                                    'dev/' :
+                                    ''
+                                )
                             )
-                        )
-                    );
+                        );
                     $storageip = $ip;
                     $img = escapeshellcmd(
                         $Image->get('path')
@@ -271,13 +273,14 @@ abstract class BootMenuBase extends FOGBase
                         $ip = $tftp;
                         $ftp = $tftp;
                     }
-                    $storage = escapeshellcmd(
-                        sprintf(
-                            '%s:/%s/dev/',
-                            $ip,
-                            trim($StorageNode->get('path'), '/')
-                        )
-                    );
+                    // Bracketed after escapeshellcmd(), as above.
+                    $storage = self::urlHost(escapeshellcmd($ip))
+                        . escapeshellcmd(
+                            sprintf(
+                                ':/%s/dev/',
+                                trim($StorageNode->get('path'), '/')
+                            )
+                        );
                     $storageip = $ip;
                 }
             }

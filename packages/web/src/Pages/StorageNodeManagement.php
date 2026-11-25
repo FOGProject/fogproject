@@ -1458,7 +1458,8 @@ class StorageNodeManagement extends FOGPage
                 sprintf(
                     '%s://%s/%s/status/kernelvers.php',
                     self::$httpproto,
-                    $this->obj->get('ip'),
+                    // Bracket an IPv6 literal: URL host part.
+                    self::urlHost($this->obj->get('ip')),
                     self::webrootPath($this->obj->get('webroot'))
                 ),
                 FILTER_SANITIZE_URL

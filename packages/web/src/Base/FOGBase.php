@@ -632,6 +632,27 @@ abstract class FOGBase
         return false === $pos ? $name : substr($name, $pos + 1);
     }
     /**
+     * Returns a host in the form a URL or an NFS target needs.
+     *
+     * An IPv6 literal has to be in brackets where it is the host part of
+     * 'scheme://host/' or of 'host:/path', because its own colons would
+     * be read as a port or a path separator. A name, an IPv4 address, an
+     * already bracketed value, and an empty string pass through, trimmed.
+     * Only a value that filter_var() accepts as IPv6 gets brackets.
+     *
+     * @param mixed $host the web host or the storage node address
+     *
+     * @return string
+     */
+    public static function urlHost($host)
+    {
+        $host = trim((string) $host);
+        if (false !== filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            return "[$host]";
+        }
+        return $host;
+    }
+    /**
      * Defines string as class name.
      *
      * @return string
@@ -4508,13 +4529,19 @@ abstract class FOGBase
             $nodeURLs[] = sprintf(
                 $url,
                 self::$httpproto,
-                $StorageNode->ip
+                // Bracket an IPv6 literal: it is the host part of a URL.
+                self::urlHost($StorageNode->ip)
             );
             unset($StorageNode);
         }
+        // The web host gets the same full wakeEmUp URL as each node. It was a
+        // bare host, so the request went to the site root and woke nothing.
         $gHost = self::getSetting('FOG_WEB_HOST');
-        $ip = $gHost;
-        $nodeURLs[] = $ip;
+        $nodeURLs[] = sprintf(
+            $url,
+            self::$httpproto,
+            self::urlHost($gHost)
+        );
         $ret = self::$FOGURLRequests->process(
             $nodeURLs,
             'POST',

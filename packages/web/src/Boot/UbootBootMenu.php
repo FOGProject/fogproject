@@ -196,7 +196,13 @@ class UbootBootMenu extends BootMenuBase
         // such as '/apps/fog/' has to keep every segment.
         $bootroot = trim((string)$curroot, '/');
         $curroot = '/' . ('' === $bootroot ? '' : $bootroot . '/');
-        $web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
+        // An IPv6 literal is bracketed where it is the host part of a URL.
+        $web = sprintf(
+            '%s://%s%s',
+            self::$httpproto,
+            self::urlHost($webserver),
+            $curroot
+        );
 
         // A host (or its group) can name its own kernel and init. No
         // _fileFitsArch() check as iPXE does: that guard exists because iPXE
@@ -231,7 +237,8 @@ class UbootBootMenu extends BootMenuBase
             $nodeIp = trim((string)$StorageNode->get('ip'));
             $this->_storage = sprintf(
                 'storage=%s:/%s/ storageip=%s',
-                $nodeIp,
+                // Bracketed in the NFS target only; storageip stays bare.
+                self::urlHost($nodeIp),
                 trim((string)$StorageNode->get('path'), '/'),
                 $nodeIp
             );

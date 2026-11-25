@@ -63,7 +63,8 @@ class ClientManagement extends FOGPage
                 'FOG_WEB_HOST'
             ]
         ];
-        $ip = self::getSetting('FOG_WEB_HOST');
+        // Bracketed once: $ip is only the host part of the URLs below.
+        $ip = self::urlHost(self::getSetting('FOG_WEB_HOST'));
         $url = sprintf(
             '%s://%s/%s/client/download.php',
             self::$httpproto,

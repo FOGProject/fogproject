@@ -78,7 +78,8 @@ class ServerInfo extends FOGPage
         $url = sprintf(
             '%s://%s/%s/status/hw.php',
             self::$httpproto,
-            $this->obj->get('ip'),
+            // Bracket an IPv6 literal: URL host part.
+            self::urlHost($this->obj->get('ip')),
             self::webrootPath($this->obj->get('webroot'))
         );
         if (!$this->obj->get('online')) {

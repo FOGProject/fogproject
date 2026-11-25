@@ -785,7 +785,13 @@ class IpxeBootMenu extends BootMenuBase
          * says.
          */
         $webroot = $bootroot;
-        $this->_web = sprintf('%s://%s%s', self::$httpproto, $webserver, $curroot);
+        // An IPv6 literal is bracketed where it is the host part of a URL.
+        $this->_web = sprintf(
+            '%s://%s%s',
+            self::$httpproto,
+            self::urlHost($webserver),
+            $curroot
+        );
         /**
          * setmacto is the MAC FOS forces onto whichever interface it manages
          * to reach us on, so it has to be the MAC iPXE actually booted with.
@@ -798,7 +804,8 @@ class IpxeBootMenu extends BootMenuBase
          */
         $Send['booturl'] = [
             '#!ipxe',
-            "set fog-ip $webserver",
+            // Bracketed: the template below builds '://${fog-ip}/'.
+            'set fog-ip ' . self::urlHost($webserver),
             sprintf('set fog-webroot %s', $bootroot),
             'set boot-url '
             . self::$httpproto
@@ -962,7 +969,7 @@ class IpxeBootMenu extends BootMenuBase
         $this->_loglevel = "loglevel=$loglevel";
         $this->_KS = new KeySequence($keySequence);
         $this->_booturl = self::$httpproto
-            . "://{$webserver}/fog/service";
+            . '://' . self::urlHost($webserver) . '/fog/service';
         $this->_memdisk = "kernel $memdisk initrd=$memtest";
         // The bare file, not "initrd $memtest": _memtestChoice() boots it
         // with kernel or chain, and memdisk is no longer part of that path.
@@ -1008,7 +1015,8 @@ class IpxeBootMenu extends BootMenuBase
             ];
             $this->_storage = sprintf(
                 'storage=%s:/%s/ storageip=%s',
-                trim($StorageNode->get('ip')),
+                // Bracketed in the NFS target only; storageip stays bare.
+                self::urlHost($StorageNode->get('ip')),
                 trim($StorageNode->get('path'), '/'),
                 trim($StorageNode->get('ip'))
             );
@@ -1683,10 +1691,13 @@ class IpxeBootMenu extends BootMenuBase
         $StorageNode = $StorageGroup->getOptimalStorageNode();
         $osid = $Image->get('osID');
         $osfamily = $Image->getOSFamily();
-        $storage = escapeshellcmd(
+        // The host is bracketed after escapeshellcmd(), which would put a
+        // backslash before each bracket. A name or IPv4 address is unchanged.
+        $storage = self::urlHost(
+            escapeshellcmd(trim($StorageNode->get('ip')))
+        ) . escapeshellcmd(
             sprintf(
-                '%s:/%s/%s',
-                trim($StorageNode->get('ip')),
+                ':/%s/%s',
                 trim($StorageNode->get('path'), '/'),
                 ''
             )

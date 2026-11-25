@@ -328,7 +328,13 @@ class StorageNode extends FOGController
      */
     public function loadLocation_url()
     {
-        $this->location_url = sprintf('%s://%s/%s', self::$httpproto, $this->get('ip'), $this->get('webroot'));
+        // Bracket an IPv6 literal: the node address is the host part of a URL.
+        $this->location_url = sprintf(
+            '%s://%s/%s',
+            self::$httpproto,
+            self::urlHost($this->get('ip')),
+            $this->get('webroot')
+        );
         $this->set('location_url', $this->location_url);
     }
     /**
@@ -409,7 +415,8 @@ class StorageNode extends FOGController
         $url = sprintf(
             '%s://%s/fog/status/getfiles.php?path=%s',
             self::$httpproto,
-            $this->get('ip'),
+            // Bracket an IPv6 literal: URL host part.
+            self::urlHost($this->get('ip')),
             rtrim($items[$item], DS)
         );
         $response = self::$FOGURLRequests->process(

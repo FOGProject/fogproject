@@ -180,7 +180,8 @@ class FOGConfigurationPage extends FOGPage
                 sprintf(
                     '%s://%s/%s/status/kernelvers.php',
                     self::$httpproto,
-                    $StorageNode->ip,
+                    // Bracket an IPv6 literal: URL host part.
+                    self::urlHost($StorageNode->ip),
                     self::webrootPath($StorageNode->webroot ?? null)
                 ),
                 FILTER_SANITIZE_URL

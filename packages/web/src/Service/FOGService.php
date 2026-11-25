@@ -773,12 +773,14 @@ abstract class FOGService extends FOGBase
             $sizeurl = sprintf(
                 '%s://%s/fog/status/getsize.php',
                 'http',
-                $ip
+                // Bracket an IPv6 literal: URL host part. $ip stays bare
+                // because it is also the FTP host.
+                self::urlHost($ip)
             );
             $hashurl = sprintf(
                 '%s://%s/fog/status/gethash.php',
                 'http',
-                $ip
+                self::urlHost($ip)
             );
             $nodename = $StorageNode->name;
             // This target node's own ftp port (0 = FOG_FTP_PORT, then 21).
@@ -823,7 +825,10 @@ abstract class FOGService extends FOGBase
             unset($limitset, $remItem, $includeFile);
             // The port is in the URL too: file_exists() and the hash_file()
             // fallback open ftp:// streams that would otherwise dial 21.
-            $ftpstart = "ftp://{$username}:{$encpassword}@{$ip}:{$ftpPort}";
+            // urlHost() brackets an IPv6 node address. $ip stays bare,
+            // because FOGFTP->host takes the plain address.
+            $ftpstart = "ftp://{$username}:{$encpassword}@"
+                . self::urlHost($ip) . ":{$ftpPort}";
             // Both lists are reset per NODE, not per item. Neither branch
             // below assigns unconditionally -- the remote one only fires
             // when the file is already there, and the local one writes
@@ -937,7 +942,7 @@ abstract class FOGService extends FOGBase
                         $sizeurl = sprintf(
                             '%s://%s/fog/status/getsize.php',
                             'https',
-                            $ip
+                            self::urlHost($ip)
                         );
                         $rsize = self::$FOGURLRequests->process(
                             $sizeurl,
@@ -971,7 +976,7 @@ abstract class FOGService extends FOGBase
                             $hashurl = sprintf(
                                 '%s://%s/fog/status/gethash.php',
                                 'https',
-                                $ip
+                                self::urlHost($ip)
                             );
                             $rhash = self::$FOGURLRequests->process(
                                 $hashurl,
