@@ -263,6 +263,10 @@ class SoftwareGrid
             ) {
                 continue;
             }
+            // App Installer holds winget itself, so it is never removed.
+            if ('winget' === $source && 'microsoft.appinstaller' === $lower) {
+                continue;
+            }
             $out[] = [
                 'source' => $source,
                 'name' => $name,

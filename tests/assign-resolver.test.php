@@ -663,7 +663,10 @@ $check(
  * host 10: direct 901 (Absent 'Everything'), 902 (disabled 'firefox').
  *   group 3 zebra   (1st): 900 'everything'
  *   group 1 middle  (2nd): 903 'firefox', 907 '7zip', 904 'vlc',
- *                          908 flatpak 'org.Foo.App', 909 flatpak 'org.foo.app'
+ *                          908 flatpak 'org.Foo.App',
+ *                          909 flatpak 'org.foo.app',
+ *                          910 winget 'Mozilla.Firefox',
+ *                          911 winget 'mozilla.firefox'
  *   group 2 aaa-last(3rd): 906 '7zip', 905 snap 'vlc'
  * host 13 is in group 3 only.
  *
@@ -682,7 +685,9 @@ $pdo->exec(
     . "(906,'7zip (late)','choco','7zip','absent',1),"
     . "(907,'7zip','choco','7zip','present',1),"
     . "(908,'foo app','flatpak','org.Foo.App','present',1),"
-    . "(909,'foo app lower','flatpak','org.foo.app','present',1)"
+    . "(909,'foo app lower','flatpak','org.foo.app','present',1),"
+    . "(910,'firefox (winget)','winget','Mozilla.Firefox','present',1),"
+    . "(911,'firefox (winget lower)','winget','mozilla.firefox','present',1)"
 );
 $pdo->exec(
     "INSERT INTO `softwareAssoc` (`swaHostID`,`swaSoftwareID`,`swaSequence`) "
@@ -692,7 +697,7 @@ $pdo->exec(
     "INSERT INTO `groupSoftwareAssoc` "
     . "(`gswaGroupID`,`gswaSoftwareID`,`gswaSequence`) VALUES "
     . "(3,900,0),"
-    . "(1,903,0),(1,907,1),(1,904,2),(1,908,3),(1,909,4),"
+    . "(1,903,0),(1,907,1),(1,904,2),(1,908,3),(1,909,4),(1,910,5),(1,911,6),"
     . "(2,906,0),(2,905,1)"
 );
 $sw = \FOG\Assign\Resolver::resolveSoftware([10, 12, 13]);
@@ -711,7 +716,12 @@ $check(
 );
 $check(
     'one package name on two backends, or two Flatpak ids by case, are kept',
-    ($sw[10] ?? []) === [901, 902, 903, 907, 904, 908, 909, 905]
+    ($sw[10] ?? []) === [901, 902, 903, 907, 904, 908, 909, 910, 905]
+);
+// winget ids are case-insensitive, like Chocolatey (GH-2158).
+$check(
+    'two WinGet ids that differ only in case are one package',
+    in_array(910, $sw[10] ?? [], true) && !in_array(911, $sw[10] ?? [], true)
 );
 $check(
     'a host without the direct entry still gets the group entry',

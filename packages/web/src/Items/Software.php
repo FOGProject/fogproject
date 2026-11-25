@@ -79,7 +79,10 @@ class Software extends FOGController
     const BACKENDS = [
         'choco' => 'Chocolatey',
         'flatpak' => 'Flatpak',
-        'snap' => 'Snap'
+        'snap' => 'Snap',
+        // winget takes an exact version (--version), so it is pinnable
+        // and stays out of UNPINNABLE.
+        'winget' => 'WinGet'
     ];
     /**
      * The backends that cannot hold an exact version. These managers pin

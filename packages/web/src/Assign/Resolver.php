@@ -332,14 +332,15 @@ class Resolver extends FOGBase
                 continue;
             }
             // An empty backend is the column default, Chocolatey
-            // (Software::DEFAULT_BACKEND). Chocolatey package ids are
-            // case-insensitive; Flatpak and Snap ids are compared exactly.
+            // (Software::DEFAULT_BACKEND). Chocolatey and WinGet package
+            // ids are case-insensitive; Flatpak and Snap ids are compared
+            // exactly.
             $backend = strtolower(trim((string)$row['swBackend']));
             if ('' === $backend) {
                 $backend = Software::DEFAULT_BACKEND;
             }
             $package = trim((string)$row['swPackage']);
-            if ('choco' === $backend) {
+            if ('choco' === $backend || 'winget' === $backend) {
                 $package = strtolower($package);
             }
             $enabledKey[(int)$row['swID']] = $backend . "\0" . $package;

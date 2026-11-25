@@ -22,8 +22,8 @@ use FOG\Router\Route;
  * Software management page
  *
  * Software is desired state, not a task: an entry says a package from a
- * backend (Chocolatey, Flatpak or Snap) should be present (at a version
- * policy) or absent on a host, and the agent converges toward it and
+ * backend (Chocolatey, Flatpak, Snap or WinGet) should be present (at a
+ * version policy) or absent on a host, and the agent converges toward it and
  * reports the truth back (design 0003). This page is the CRUD surface
  * for that entry, modeled on SnapinManagement/PrinterManagement but with none of the
  * snapin's file-upload, storage-group, pack-type, run-with, reboot/
@@ -299,7 +299,9 @@ class SoftwareManagement extends FOGPage
             . _(
                 'Optional. Chocolatey: a feed URL, folder or share. '
                 . 'Flatpak: a remote name (empty means flathub). '
-                . 'Snap: a channel (empty means the snap\'s default).'
+                . 'Snap: a channel (empty means the snap\'s default). '
+                . 'WinGet: a source name (empty means winget; msstore is '
+                . 'not supported).'
             )
             . '</p>',
             self::makeLabel(

@@ -61,7 +61,7 @@ foreach (['choco', ''] as $backend) {
         true === \FOG\Agent\SoftwareSet::sendable($backend, true)
     );
 }
-foreach (['flatpak', 'snap'] as $backend) {
+foreach (['flatpak', 'snap', 'winget'] as $backend) {
     $t->check(
         "sendable: $backend withheld from an old agent",
         false === \FOG\Agent\SoftwareSet::sendable($backend, false)
