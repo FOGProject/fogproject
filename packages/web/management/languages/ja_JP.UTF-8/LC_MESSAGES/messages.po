@@ -3274,9 +3274,6 @@ msgstr "FOG ホームページ"
 msgid "FOG Log Viewer"
 msgstr "FOG ログビューアー"
 
-msgid "FOG Needs at least"
-msgstr "FOG には少なくとも"
-
 msgid "FOG Project"
 msgstr "FOG Project"
 
@@ -11145,9 +11142,6 @@ msgstr "毎年"
 msgid "Yes"
 msgstr "はい"
 
-msgid "You are currently running PHP Version"
-msgstr "現在使用している PHP のバージョン"
-
 msgid "You are impersonating another user"
 msgstr "現在、別のユーザーとして代理ログインしています"
 
@@ -11308,9 +11302,6 @@ msgstr "現在のすべてのストレージノード"
 
 msgid "an unnamed image"
 msgstr "名前のないイメージ"
-
-msgid "and below"
-msgstr "および下位階層"
 
 msgid "and if the Database service is running"
 msgstr "また、データベースサービスが実行中かどうか"
@@ -12930,6 +12921,9 @@ msgstr "{node}"
 
 #~ msgid "FOG License Information"
 #~ msgstr "FOG ライセンス情報"
+
+#~ msgid "FOG Needs at least"
+#~ msgstr "FOG には少なくとも"
 
 #~ msgid "FOG PXE Boot Menu Configuration"
 #~ msgstr "FOG PXE ブートメニュー設定"
@@ -14560,6 +14554,9 @@ msgstr "{node}"
 #~ msgid "Wrong file name!"
 #~ msgstr "ファイル名が正しくありません！"
 
+#~ msgid "You are currently running PHP Version"
+#~ msgstr "現在使用している PHP のバージョン"
+
 #~ msgid "You have version"
 #~ msgstr "現在のバージョン"
 
@@ -14592,6 +14589,9 @@ msgstr "{node}"
 
 #~ msgid "and agree to all the"
 #~ msgstr "および、次のすべてに同意します: "
+
+#~ msgid "and below"
+#~ msgstr "および下位階層"
 
 #~ msgid "and both the legacy and new FOG clients."
 #~ msgstr "および従来版と新しい FOG クライアントの両方。"

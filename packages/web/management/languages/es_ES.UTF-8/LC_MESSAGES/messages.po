@@ -3781,9 +3781,6 @@ msgstr ""
 msgid "FOG Log Viewer"
 msgstr "FOG Visor de registro"
 
-msgid "FOG Needs at least"
-msgstr ""
-
 #, fuzzy
 msgid "FOG Project"
 msgstr "Objeto"
@@ -12960,9 +12957,6 @@ msgstr "Anual"
 msgid "Yes"
 msgstr ""
 
-msgid "You are currently running PHP Version"
-msgstr ""
-
 msgid "You are impersonating another user"
 msgstr ""
 
@@ -13134,9 +13128,6 @@ msgstr "nodo de almacenamiento no válido"
 #, fuzzy
 msgid "an unnamed image"
 msgstr "carpeta no válida"
-
-msgid "and below"
-msgstr ""
 
 #, fuzzy
 msgid "and if the Database service is running"

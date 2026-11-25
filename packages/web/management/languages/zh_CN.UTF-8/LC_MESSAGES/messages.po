@@ -3746,9 +3746,6 @@ msgstr "FOG首页"
 msgid "FOG Log Viewer"
 msgstr "FOG日志查看器"
 
-msgid "FOG Needs at least"
-msgstr ""
-
 #, fuzzy
 msgid "FOG Project"
 msgstr "目的"
@@ -12790,9 +12787,6 @@ msgstr "每年"
 msgid "Yes"
 msgstr ""
 
-msgid "You are currently running PHP Version"
-msgstr ""
-
 msgid "You are impersonating another user"
 msgstr ""
 
@@ -12964,9 +12958,6 @@ msgstr "无效的存储节点"
 #, fuzzy
 msgid "an unnamed image"
 msgstr "图片无效"
-
-msgid "and below"
-msgstr ""
 
 #, fuzzy
 msgid "and if the Database service is running"
