@@ -5290,7 +5290,8 @@ class Route extends FOGBase
                         return sprintf(
                             '%s://%s/%s',
                             self::$httpproto,
-                            $node->get('ip'),
+                            // Bracket an IPv6 literal: URL host part.
+                            self::urlHost($node->get('ip')),
                             $node->get('webroot')
                         );
                     }
@@ -7693,7 +7694,8 @@ class Route extends FOGBase
                         'location_url' => sprintf(
                             '%s://%s/%s',
                             self::$httpproto,
-                            $class->get('ip'),
+                            // An IPv6 node address needs brackets in a URL.
+                            self::urlHost($class->get('ip')),
                             $class->get('webroot')
                         )
                     ];

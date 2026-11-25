@@ -681,6 +681,58 @@ $checks = [
         ],
         'expectLine' => ['imgfetch plugin-init.xz'],
     ],
+    /*
+     * An IPv6 web host and storage node address are bracketed wherever they
+     * become the host of a URL or of the NFS target, and stay bare in
+     * storageip=. Not in the golden: the IPv4 scenarios' bytes must not move.
+     */
+    'an IPv6 web host and node address are bracketed in URLs and storage=' => [
+        'scenario' => array_merge(
+            $scenarios['task-deploy'],
+            [
+                'settings' => ['FOG_WEB_HOST' => 'fd00::1'],
+                'storageNodeIp' => 'fd00::2',
+            ]
+        ),
+        'expectLine' => [
+            'set fog-ip [fd00::1]',
+            'web=http://[fd00::1]/fog/',
+            'storage=[fd00::2]:/images/',
+            'storageip=fd00::2',
+        ],
+        'refuteLine' => ['[fd00::2]:/images/ storageip=[', '\\['],
+    ],
+    /*
+     * The three sites the tasking check above does not reach. _booturl feeds
+     * every 'chain -ar .../fog/service/' line. _storage outside a tasking is
+     * the sysinfo kernel line. falseTasking() builds its own storage path.
+     */
+    'an IPv6 web host is bracketed in the boot-url chain lines' => [
+        'scenario' => array_merge(
+            $scenarios['unregistered-bios-x86'],
+            ['settings' => ['FOG_WEB_HOST' => 'fd00::1']]
+        ),
+        'expectLine' => [
+            'chain -ar http://[fd00::1]/fog/service/ipxe/boot.php##params',
+        ],
+        'refuteLine' => ['http://fd00::1'],
+    ],
+    'an IPv6 node address is bracketed in storage= outside a tasking' => [
+        'scenario' => array_merge(
+            $scenarios['unregistered-bios-x86'],
+            ['storageNodeIp' => 'fd00::2']
+        ),
+        'expectLine' => ['storage=[fd00::2]:/images/ storageip=fd00::2'],
+        'refuteLine' => ['storage=fd00::2'],
+    ],
+    'an IPv6 node address is bracketed in the false-tasking storage path' => [
+        'scenario' => array_merge(
+            $scenarios['falsetasking-unregistered'],
+            ['storageNodeIp' => 'fd00::2']
+        ),
+        'expectLine' => ['storage=[fd00::2]:/images/', 'storageip=fd00::2'],
+        'refuteLine' => ['storage=fd00::2', '\\['],
+    ],
     'no host secret reaches this unauthenticated endpoint' => [
         'scenario' => [
             'host' => ['id' => 1, 'name' => 'testhost'],

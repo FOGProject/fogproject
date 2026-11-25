@@ -116,7 +116,9 @@ class DashboardPage extends FOGPage
              * this server's, so use the node's. The collapse below tidies the
              * slashes whichever way the value was stored.
              */
-            $url = $ip . '/' . self::webrootPath($StorageNode->webroot ?? null) . '/';
+            // Bracket an IPv6 literal: it becomes the host of a URL below.
+            $url = self::urlHost($ip)
+                . '/' . self::webrootPath($StorageNode->webroot ?? null) . '/';
             $url = preg_replace(
                 '#/+#',
                 '/',
@@ -604,7 +606,8 @@ class DashboardPage extends FOGPage
         $url = sprintf(
             '%s://%s/fog/status/freespace.php?path=%s',
             self::$httpproto,
-            $this->obj->get('ip'),
+            // Bracket an IPv6 literal: URL host part.
+            self::urlHost($this->obj->get('ip')),
             base64_encode($this->obj->get('path'))
         );
         if (!$this->obj->get('online')) {
@@ -947,7 +950,8 @@ class DashboardPage extends FOGPage
             $url = preg_replace(
                 '#/+#',
                 '/',
-                $StorageNode->ip
+                // Bracket an IPv6 literal: URL host part.
+                self::urlHost($StorageNode->ip)
                 . '/' . self::webrootPath($StorageNode->webroot ?? null)
                 . '/service/getversion.php'
             );

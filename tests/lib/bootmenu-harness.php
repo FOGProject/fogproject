@@ -847,6 +847,25 @@ class FOGBase
         return is_string($key) ? $out[0] : $out;
     }
     /**
+     * Brackets an IPv6 literal for use as the host of a URL or NFS target.
+     *
+     * Same body as the real FOGBase::urlHost(). tests/url-host.test.php
+     * compares this body with the real one (whitespace aside) and fails if
+     * they differ, so the two cannot drift unseen.
+     *
+     * @param mixed $host the host
+     *
+     * @return string
+     */
+    public static function urlHost($host)
+    {
+        $host = trim((string) $host);
+        if (false !== filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            return "[$host]";
+        }
+        return $host;
+    }
+    /**
      * Factory for the classes IpxeBootMenu asks for by name.
      *
      * @param string $class the class name
