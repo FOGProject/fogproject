@@ -16587,7 +16587,7 @@ _espFileNote() {
         fog-ipxe*/fogsnponly.efi)
             echo "FOG's build bound to the SNP device iPXE was loaded FROM. Booted off an ESP that device is the disk, so in principle it finds no NIC -- though it booted fine on every machine tested here, so try it rather than assuming. Also the right binary when something chainloads it over the network." ;;
         autoexec.ipxe|*/autoexec.ipxe)
-            echo "FOG's boot script, read by whichever iPXE binary in THIS directory runs. Walks net0/net1/net2 for DHCP, handles proxyDHCP and next-server, then chains default.ipxe from the server. Every copy in this archive is identical, because iPXE only reads the one beside the binary it started. Edit it to change how this ESP boots; a pre-DHCP sleep for STP or port power-save is commented out at the top." ;;
+            echo "FOG's boot script, read by whichever iPXE binary in THIS directory runs. Walks net0/net1/net2 for DHCP, handles proxyDHCP and next-server, then chains default.ipxe from the server. When no IPv4 DHCP answers, it tries IPv6 and chains the DHCPv6 boot URL. Every copy in this archive is identical, because iPXE only reads the one beside the binary it started. Edit it to change how this ESP boots; a pre-DHCP sleep for STP or port power-save is commented out at the top." ;;
         refind/refind.conf)
             echo "rEFInd's configuration, read from its own directory. Data, not a PE image, so it carries no signature and needs none." ;;
         refind/*.efi)
@@ -16614,26 +16614,56 @@ _espFileNote() {
 #
 # Keep this in step with fog-ipxe's own autoexec.ipxe and with src/ipxescript,
 # the script the BIOS binaries still embed. All three must behave identically,
-# or which platform a site booted becomes a variable in every bug report.
+# or which platform a site booted becomes a variable in every bug report. The
+# :ipv6 step is the one exception, because BIOS builds have no IPv6. The body
+# below matches fog-ipxe's autoexec.ipxe, except that it names the repo of
+# src/ipxescript.
 _espBootWalk() {
     cat <<'ESPWALK'
+# Each IPv4 step names its configurator: "ifconf -c dhcp", not "dhcp". In
+# iPXE 2.x "dhcp" is a synonym for "ifconf" with every configurator, IPv6
+# included. The EFI builds have IPv6, so a bare "dhcp" has two effects:
+#   - A NIC that sees only an IPv6 router advertisement counts as configured,
+#     so the script stops on it and never tries the next NIC.
+#   - ifconf waits for every configurator to finish, so a dual-stack segment
+#     also waits for DHCPv6.
+# With "-c dhcp" each IPv4 step does what "dhcp" did before IPv6 was built in.
+# fog-ipxe's src/ipxescript keeps a bare "dhcp". BIOS builds have no IPv6, so
+# there the two forms are the same and the scripts still behave the same.
 echo Checking net0 for DHCP...
-isset ${net0/mac} && ifopen net0 && dhcp net0 || goto dhcpnet1
+isset ${net0/mac} && ifopen net0 && ifconf -c dhcp net0 || goto dhcpnet1
 echo Received DHCP answer on interface net0 && goto proxycheck
 
 :dhcpnet1
 echo Checking net1 for DHCP...
-isset ${net1/mac} && ifopen net1 && dhcp net1 || goto dhcpnet2
+isset ${net1/mac} && ifopen net1 && ifconf -c dhcp net1 || goto dhcpnet2
 echo Received DHCP answer on interface net1 && goto proxycheck
 
 :dhcpnet2
 echo Checking net2 for DHCP...
-isset ${net2/mac} && ifopen net2 && dhcp net2 || goto dhcpall
+isset ${net2/mac} && ifopen net2 && ifconf -c dhcp net2 || goto dhcpall
 echo Received DHCP answer on interface net2 && goto proxycheck
 
 :dhcpall
 echo No DHCP answer on any interface, trying proxy DHCP...
-dhcp && goto proxycheck || goto dhcperror
+ifconf -c dhcp && goto proxycheck || goto ipv6
+
+# IPv6-only segment (FOGProject/fogproject#2152). This step runs only after
+# every IPv4 step fails, so an IPv4 or dual-stack site never reaches it. The
+# ipv6 configurator waits for a router advertisement, then asks DHCPv6.
+# DHCPv6 has no next-server. The DHCPv6 server gives the iPXE user-class a
+# bootfile-url (option 59) that is the whole URL of default.ipxe. iPXE
+# stores that URL as ${filename}. On a segment with no DHCP and no router
+# advertisement, this step adds about 4 s before the DHCP error prompt.
+:ipv6
+echo No IPv4 DHCP answer, trying IPv6...
+ifconf -c ipv6 || goto dhcperror
+isset ${filename} || goto dhcperror
+echo starting netboot to ${filename}...
+chain ${filename} || goto chainloadfailed
+# Stop here if the chained image returns, so the script does not fall into
+# the DHCP error prompt below.
+exit
 
 :dhcperror
 echo DHCP error!
@@ -16679,8 +16709,8 @@ ESPWALK
 # rejected. It could not be bounded: each chained binary re-reads the root script
 # from the top, and iPXE settings do not survive a chain into a new image, so
 # there is no sentinel to break a second pass. It also only checked net0-net2,
-# where the walk below falls back to a bare `dhcp` covering every interface iPXE
-# enumerated -- so a machine with its NIC at net3 would have been handed off
+# where the walk below falls back to an `ifconf -c dhcp` covering every interface
+# iPXE enumerated -- so a machine with its NIC at net3 would have been handed off
 # instead of booting. Removing the chain removes both problems: with no `chain`
 # anywhere, no loop is constructible, and the flat-name re-read above becomes
 # harmless because every copy of this file is identical.
@@ -16722,7 +16752,8 @@ _espAutoexecScript() {
 #
 # Kept in step with the copy on the FOG server's TFTP root, with fog-ipxe's own
 # autoexec.ipxe, and with src/ipxescript, the script the BIOS binaries still
-# embed. All of them must behave identically.
+# embed. All of them must behave identically, except the :ipv6 step below:
+# BIOS builds have no IPv6.
 ESPAUTOEXEC
     _bootDelayBlock
     _espBootWalk
