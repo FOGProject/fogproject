@@ -78,7 +78,7 @@ foreach ([$schemaFile, $systemFile] as $path) {
 }
 
 // Read from source rather than by booting System, whose constructor also
-// defines FOG_VERSION and FOG_CHANNEL and calls _versionCompare(). The same
+// defines FOG_VERSION and FOG_CHANNEL. The same
 // regex tests/schema-gate.test.php uses, so the two cannot disagree about
 // what the constant says.
 $const = [];

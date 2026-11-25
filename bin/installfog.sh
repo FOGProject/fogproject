@@ -254,6 +254,9 @@ usage() {
     echo -e "\t-e    --endrange\t\tDHCP End range"
     echo -e "\t-E    --no-exportbuild\t\tSkip building nfs file"
     echo -e "\t-X    --exitFail\t\tDo not exit if item fails"
+    echo -e "\t      --skip-php-check\t\tContinue when installed PHP is below"
+    echo -e "\t               \t\t\t\tFOG's minimum, or has no PHP-FPM of"
+    echo -e "\t               \t\t\t\tthe same version. FOG will not run."
     echo -e "\t-T    --no-tftpbuild\t\tDo not rebuild the tftpd config file"
     echo -e "\t-F    --no-vhost\t\tDo not touch the vhost file at all. FOG"
     echo -e "\t                \t\t\tnormally rewrites only the region between its"
@@ -281,7 +284,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,skip-php-check,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -591,6 +594,11 @@ while :; do
             ;;
         -X | --exitFail)
             sexitFail=1
+            shift
+            ;;
+        --skip-php-check)
+            # One run only; never written to .fogsettings.
+            skipPhpCheck=1
             shift
             ;;
         -T | --no-tftpbuild)
@@ -1334,6 +1342,10 @@ while [[ -z $blGo ]]; do
             echo " * Confirming package installation"
             echo
             confirmPackageInstallation
+            # Forum 18333: PHP is installed now, and nothing of FOG's has
+            # been copied or migrated yet. A PHP below the floor used to pass
+            # the whole run and fail only on the first web request.
+            checkPhpRequirements
             echo
             echo " * Configuring services"
             echo

@@ -5079,6 +5079,88 @@ confirmPackageInstallation() {
         errorStat $?
     done
 }
+# Forum 18333. Runs after the packages install and before anything of FOG's
+# is copied or migrated, so a PHP that cannot run the new tree stops the
+# upgrade while the old install still works. Before this, the only gate was
+# Initiator::_verCheck(), which runs on a web request -- after the upgrade.
+#
+# The floor is read from _verCheck() in the tree being installed, so there is
+# one number to change. tests/installer-php-preflight.test.sh fails if this
+# read stops finding it.
+#
+# PHP-FPM serves the UI; the CLI runs the services and this installer. They
+# are separate binaries and need not match (forum 18289: ondrej's PPA gave a
+# CLI of 8.5 and an FPM of 8.4). So the check needs an FPM of the CLI's own
+# major.minor. That also puts FPM above the floor.
+checkPhpRequirements() {
+    local initphp="../packages/web/commons/init.php"
+    local phpbin="php"
+    [[ -n $php_apk ]] && command -v "php${php_apk}" >/dev/null 2>&1 && phpbin="php${php_apk}"
+    local floor cliver fpmver fpmbin candidate found="" problem=""
+    dots "Checking PHP version"
+    floor=$(sed -n "s/.*version_compare(phpversion(), '\([0-9.]*\)', '<').*/\1/p" "$initphp" 2>/dev/null | head -1)
+    cliver=$($phpbin -r 'echo PHP_MAJOR_VERSION . "." . PHP_MINOR_VERSION;' 2>/dev/null)
+    if [[ -z $floor ]]; then
+        problem="Could not read FOG's minimum PHP version from $initphp."
+    elif [[ -z $cliver ]]; then
+        problem="Could not run the PHP CLI ($phpbin)."
+    elif ! $phpbin -r "exit(version_compare(PHP_VERSION, '$floor', '<') ? 1 : 0);" 2>/dev/null; then
+        problem="PHP CLI is $cliver. FOG needs PHP $floor or later."
+    else
+        # Debian: php-fpm8.3. Alpine: php-fpm83. RHEL and Arch: php-fpm.
+        for candidate in "php-fpm${cliver}" ${php_apk:+"php-fpm${php_apk}"} php-fpm /usr/sbin/php-fpm*; do
+            fpmbin=$(command -v "$candidate" 2>/dev/null) || continue
+            fpmver=$("$fpmbin" -v 2>/dev/null | sed -n '1s/^PHP \([0-9]*\.[0-9]*\).*/\1/p')
+            [[ -z $fpmver ]] && continue
+            [[ $fpmver == "$cliver" ]] && { found="$fpmbin"; break; }
+        done
+        [[ -z $found ]] && problem="PHP CLI is $cliver, but no PHP-FPM $cliver is installed."
+    fi
+    if [[ -n $problem ]]; then
+        echo "Failed!"
+        echo
+        echo "   $problem"
+        if [[ -n $skipPhpCheck ]]; then
+            echo "   Continuing because --skip-php-check was given."
+            echo "   The FOG web UI will not work until PHP is fixed."
+            echo
+            return 0
+        fi
+        echo "   Nothing of FOG's has been changed yet."
+        echo "   Install a supported PHP, then run the installer again."
+        echo "   To continue anyway, run it with --skip-php-check."
+        echo
+        # -X (--exitFail) means "do not exit if an item fails", as in errorStat.
+        [[ -z $exitFail ]] && exit 1
+        return 1
+    fi
+    echo "OK (CLI and FPM $cliver, minimum $floor)"
+    # Arch ships these extensions disabled and configureHttpd enables them
+    # later in this run, so a check here would report a false gap there.
+    [[ ${FOG_os_id} -eq 4 ]] && return 0
+    # The services also fork and signal, which FPM never does.
+    local exts="curl ftp gettext json mbstring openssl pdo_mysql"
+    checkPhpExtensions "PHP CLI" "$phpbin" $exts pcntl posix
+    checkPhpExtensions "PHP-FPM" "$found" $exts
+}
+# A warning, not a stop: the package step already confirmed the packages, and
+# a missing extension breaks one feature rather than the whole UI.
+checkPhpExtensions() {
+    local label=$1 bin=$2 ext missing=""
+    shift 2
+    local loaded
+    loaded=$("$bin" -m 2>/dev/null)
+    for ext in "$@"; do
+        grep -qix "$ext" <<< "$loaded" || missing="$missing $ext"
+    done
+    dots "Checking $label extensions"
+    if [[ -z $missing ]]; then
+        echo "OK"
+    else
+        echo "Missing:$missing"
+        echo "   Warning: FOG calls these extensions. Install them for $label."
+    fi
+}
 installSELinuxModule() {
     # GH-964: FOG's web tier needs outbound HTTP, FTP and SSH. httpd_t gets
     # none of them by default, and the boolean everyone reaches for --
