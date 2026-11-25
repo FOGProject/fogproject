@@ -11308,8 +11308,8 @@ $(_nameConstraints)" "FOG Web UI" "" "$keepkey"
         st=$?
         # A failed re-issue puts the old certificate back. Otherwise the next
         # run finds no certificate, takes the create path and mints a new key.
-        # Only when the key was kept: with a new key the old certificate is
-        # of no use.
+        # This happens only when the key was kept. A new key makes the old
+        # certificate useless.
         [[ $st -ne 0 && -n $keepkey && ! -s ${PKI_web_ca_cert} ]] \
             && mv -f "${PKI_web_ca_cert}.${timestamp}" "${PKI_web_ca_cert}" >>$error_log 2>&1
         errorStat $st
