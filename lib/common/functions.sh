@@ -1813,6 +1813,10 @@ backupDB() {
     dbhastables=$(mysql $sqloptionsuser --password="${DB_password}" --skip-column-names --execute="SHOW TABLES" ${DB_name} 2>>$error_log | head -n 1)
     if [[ -n $dbhastables ]]; then
         [[ ! -d ${DB_backup_path}/fogDBbackups ]] && mkdir -p ${DB_backup_path}/fogDBbackups >>$error_log 2>&1
+        # Root-only: each dump is the whole database, users and hashes
+        # included. Set every run, so a directory an older install left open
+        # is closed too. revertfog.sh and revertupdate.sh read it as root.
+        chmod 0700 "${DB_backup_path}/fogDBbackups" >>$error_log 2>&1
         local selfName=$(_servedCertName)
         url="${WEB_url_proto}://${selfName}${WEB_root}maintenance/backup_db.php"
         # %H, not %I: %I is the 12-hour clock with no AM/PM marker, so an
@@ -6482,9 +6486,10 @@ configureFOGService() {
     [[ ! -d $servicedst ]] && mkdir -p $servicedst >>$error_log 2>&1
     [[ ! -d $servicedst/etc ]] && mkdir -p $servicedst/etc >>$error_log 2>&1
     echo "<?php define('WEBROOT','${webdirdest}');" > $servicedst/etc/config.php
-    # Forum 18335: the three $apacheuser daemons require this file, and a
-    # hardened umask would leave it (and etc/) root-only. It holds only the web
-    # root path, no credential. etc/ gets traverse only, not list.
+    # Forum 18335: the three $apacheuser daemons require this file. An install
+    # made under a hardened umask, before installfog.sh set its own, left it
+    # (and etc/) root-only, and `>` keeps an existing file's mode. It holds
+    # only the web root path, no credential. etc/ gets traverse only, not list.
     chmod a+x "$servicedst/etc" >>$error_log 2>&1
     chmod 0644 "$servicedst/etc/config.php" >>$error_log 2>&1
     startInitScript
@@ -6955,9 +6960,10 @@ _installPkiAdminHelper() {
     dots "Installing the certificate management helper"
     mkdir -p "$bindir" >>$error_log 2>&1
     # Forum 18336: the Certificates page tests is_executable() on the helper
-    # as $apacheuser before it calls sudo, and a hardened umask (027) leaves
-    # $bindir 0750 root:root. Traverse only, not list; fog-build-sb-authvars
-    # in the same directory stays 0700.
+    # as $apacheuser before it calls sudo. An install made under a hardened
+    # umask (027), before installfog.sh set its own, left $bindir 0750
+    # root:root, and mkdir -p keeps it. Traverse only, not list;
+    # fog-build-sb-authvars in the same directory stays 0700.
     chmod a+x "$bindir" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/fog-pki-admin "$helper" >>$error_log 2>&1 || {
         echo "Failed"
@@ -14600,6 +14606,19 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
+    # Forum 18336: cp -R keeps the checkout's modes, and the installer's own
+    # umask cannot widen them. A checkout made under umask 027 is 0640/0750, so
+    # the web tree came out 0640/0750 where a default install has 0644/0755.
+    # Only the paths that came from the checkout: --oldcopy has restored
+    # config.class.php and any admin file in management/other or lib/plugins,
+    # and those keep the modes they had.
+    # The source's relative paths, applied from inside the destination. The
+    # pipeline skips a link. --oldcopy restores any link www-data planted in
+    # the old tree, and chmod would open its target.
+    chmod a+rX "$webdirdest" >>$error_log 2>&1
+    (cd "$webdirsrc" && find . -mindepth 1 -print0) \
+        | (cd "$webdirdest" && xargs -0 -r sh -c \
+            'find "$@" -maxdepth 0 ! -type l -exec chmod a+rX {} +' sh) >>$error_log 2>&1
     # The web root was rm -rf'd above and rebuilt, so any file the new release
     # DROPPED is genuinely gone. Initiator::classFileList() caches the scanned
     # class-file list to $fogprogramdir/cache with a 300 second TTL, and that
@@ -14961,6 +14980,130 @@ die();
     chmod 2775 "${webdirdest%/}/management/logs" >>$error_log 2>&1
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
     chown -R ${SVC_user}:${apacheuser} "$webdirdest/service/ipxe"
+    _openWebDownloads
+}
+# Forum 18336: kernels, inits and client installers come from the download
+# cache in the checkout's tmp/, not from the checkout tree, so the chmod after
+# the web-tree copy does not reach them. An install made under umask 027
+# cached them 0640, and every later run copies that mode back.
+#
+# Both directories are writable by a non-root account, so the chmod goes
+# through _rootSafePath. Everything below both is 0644/0755 in a default
+# install, so the recursion opens nothing closed.
+_openWebDownloads() {
+    local dlpath
+    for dlpath in "${webdirdest%/}/service/ipxe" "${webdirdest%/}/client"; do
+        _rootSafePath "$dlpath" && _chmodNoFollow go+rX "$dlpath" >>$error_log 2>&1
+    done
+    return 0
+}
+# Whether root may chmod $1 without being steered elsewhere by a symlink.
+#
+# Returns 0 when $1 is absolute, exists, and no component of it is a symlink in
+# a directory that a non-root account can change. chmod follows a symlink it is
+# given, and the installer runs as root: if www-data replaced a file it owns,
+# say management/other/agent-ca-bundle.pem, with a link to /etc/shadow, a later
+# chmod go+r on that path would open /etc/shadow. A link that root placed in a
+# root-only directory (an admin's /var/www -> /srv/www) is trusted.
+#
+# This check cannot close a swap before the chmod. For a file or a tree, use
+# _chmodNoFollow. For one directory, use chmod "$d/.". A link to a file then
+# fails with ENOTDIR. A link to a directory opens that directory itself, but
+# no file in it changes mode.
+_rootSafePath() {
+    local path="$1" cur="" parent part
+    # Relative would be walked as if it hung off /, a different path.
+    [[ $path == /* && -e $path ]] || return 1
+    local -a parts
+    IFS=/ read -ra parts <<< "${path#/}"
+    for part in "${parts[@]}"; do
+        [[ -z $part ]] && continue
+        parent="${cur:-/}"
+        cur="${cur}/${part}"
+        [[ -L $cur ]] || continue
+        # "$parent/." is the directory itself when $parent is a link this
+        # loop already trusted, as /bin is for /bin/sh.
+        [[ $(stat -c %u "$parent/." 2>/dev/null) == 0 ]] || return 1
+        [[ -z $(find "$parent/." -maxdepth 0 -perm /022 2>/dev/null) ]] || return 1
+    done
+    return 0
+}
+# Forum 18335/18336: repair a server installed before installfog.sh set its own
+# umask. A umask applies only when a path is created, and mkdir -p and `>` keep
+# an existing path's mode, so an upgrade over an install made under umask 027
+# kept each path below at 0750 or 0640. A default install has 0755 or 0644, and
+# the web user, tftp and the service account need some of them, /etc/fog first.
+#
+# An explicit list, not a rule over the whole tree. A rule such as "0750 with
+# group == owner" also matches the www-data staging directories and
+# config.class.php, which are 0750/0640 on purpose. The PKI file pattern names
+# only public formats, so a private key under any name stays closed.
+#
+# Runs before the install steps, so a later mkdir -p or `>` keeps the repaired
+# mode. It sets only bits a default install has, so it does nothing on one.
+#
+# PKI_root_dir, not _pkiRootDir: that accessor also runs the /opt/fog/pki
+# migration, which must stay where the PKI steps call it. The PKI root's
+# parent is /etc/fog, except under a legacy PKI_root_dir=/opt/fog/pki, where it
+# is $fogprogramdir. That directory stays traverse-only (GH-2166), so it is
+# skipped.
+#
+# Several of these paths sit in directories www-data or the service account
+# can write, so every chmod goes through _rootSafePath.
+_repairHardenedUmaskModes() {
+    local pki d f
+    local -a pkiparent=()
+    pki="${PKI_root_dir:-/etc/fog/pki}"
+    pki="${pki%/}"
+    [[ $(dirname "$pki") == "${fogprogramdir%/}" ]] || pkiparent=("$(dirname "$pki")")
+    for d in "${pkiparent[@]}" "$pki"/{agent,client,root,web} \
+        "${snapindir}/ssl" "${snapindir}/ssl/CA" \
+        "${servicelogs}"/{agentreleasesync,fos,plugins,retention} \
+        /etc/exports.d /etc/nfs.conf.d /usr/etc/nfs.conf.d \
+        "/home/${SVC_user}" "/home/${SVC_user}/.config" \
+        "/home/${SVC_user}/.config/autostart"; do
+        [[ -d $d ]] && _rootSafePath "$d" && chmod go+rx "$d/." >>$error_log 2>&1
+    done
+    for d in "$pki" "${snapindir}/ssl/CA"; do
+        [[ -d $d ]] && _rootSafePath "$d" || continue
+        find "$d" -type f \( -name '*.csr' -o -name '*.cnf' -o -name '*.srl' \
+            -o -name '*.sans' -o -name '.trustAnchor.pem' \) \
+            -exec chmod go+r {} + >>$error_log 2>&1
+    done
+    # ${WEB_docroot}/index.php and $webredirect are the same file on Debian
+    # and differ on the RHEL family.
+    for f in /etc/nfs.conf.d/fog-nfs.conf /usr/etc/nfs.conf.d/fog-nfs.conf \
+        /etc/systemd/system/fog-tftp.socket \
+        "/home/${SVC_user}/.bashrc" \
+        "/home/${SVC_user}/.config/autostart/warnfogaccount.desktop" \
+        "${WEB_docroot%/}/index.php" "$webredirect" \
+        "${webdirdest%/}/management/other/agent-ca-bundle.pem"; do
+        [[ -f $f ]] && _rootSafePath "$f" && _chmodNoFollow go+r "$f" >>$error_log 2>&1
+    done
+    # FOG's copies of the boot files configureHttpd downloads, and of the
+    # admin's iPXE background and binaries. configureHttpd restores the web
+    # tree from here with cp -a, so a closed copy here would close the
+    # restored file again. kernel-backups/keep is www-data-writable; see
+    # _rootSafePath.
+    d="${fogprogramdir}/customizations"
+    [[ -d $d ]] && _rootSafePath "$d" && _chmodNoFollow go+rX "$d" >>$error_log 2>&1
+    return 0
+}
+# chmod -R MODE PATH, following no symlink, the named one included, where
+# chmod has -P (GNU coreutils 9.5 and later). Older GNU chmod and BusyBox have
+# no -P. Their chmod -R skips links inside the tree. It follows the named
+# path. There, _rootSafePath is the only guard. A swap between that check
+# and this chmod stays open on those systems.
+_chmodNoFollow() {
+    if _chmodHasNoFollow; then
+        chmod -R -P "$@"
+    else
+        chmod -R "$@"
+    fi
+}
+# Whether chmod takes -P. It changes nothing: --version only prints.
+_chmodHasNoFollow() {
+    chmod -R -P --version >/dev/null 2>&1
 }
 # The installer's scratch directory, as an ABSOLUTE path, or non-zero with a
 # reason on stderr.
@@ -14998,6 +15141,9 @@ _installerTmpDir() {
         echo "       See ${error_log} for the reason." >&2
         return 1
     fi
+    # Root-only: configureMySql writes the database and fogstorage passwords
+    # here, and installfog.sh's umask 022 would leave them world-readable.
+    chmod 0700 "$d" 2>>$error_log
     ( cd "$d" 2>/dev/null && pwd ) || {
         echo "ERROR: ${d} exists but could not be entered." >&2
         return 1
@@ -16049,8 +16195,9 @@ _installSecureBootSigner() {
     }
     mkdir -p "$bindir" >>$error_log 2>&1
     # Forum 18336: secureBootStagingDir() tests is_executable() on this helper
-    # as $apacheuser. A $bindir left 0750 by a hardened umask fails that test,
-    # and kernels then download unsigned with no error. Traverse only.
+    # as $apacheuser. A $bindir left 0750 by an older install under a hardened
+    # umask fails that test, and kernels then download unsigned with no error.
+    # Traverse only.
     chmod a+x "$bindir" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/secureboot/fog-sign-kernel "$helper" >>$error_log 2>&1 || {
         echo "Failed"
