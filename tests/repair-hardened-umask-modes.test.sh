@@ -25,18 +25,20 @@ bad() { FAIL=$((FAIL + 1)); printf '  FAIL  %s\n' "$1"; }
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
+# The function names /home/${SVC_user}; SVC_user below resolves that through
+# /home/.. into $WORK, so the shipped text runs unchanged.
+[[ -d /home ]] || { echo "ERROR: no /home on this system" >&2; exit 1; }
+
 # shellcheck source=/dev/null
 . "$FUNCS" >/dev/null 2>&1
-# The real one migrates /opt/fog/pki; the test needs only the path.
-_pkiRootDir() { echo "$WORK/etc/fog/pki"; }
 
+PKI_root_dir="$WORK/etc/fog/pki"
 error_log="$WORK/error.log"
 fogprogramdir="$WORK/opt/fog"
 snapindir="$fogprogramdir/snapins"
 servicelogs="$fogprogramdir/log"
 webdirdest="$WORK/var/www/html/fog/"
 webredirect="$WORK/var/www/html/index.php"
-# The function names /home/${SVC_user}; this resolves that under $WORK.
 SVC_user="..$WORK/home/fogproject"
 home="$WORK/home/fogproject"
 
@@ -135,6 +137,20 @@ is "$WORK/etc/fog/ssh/fog_ssh_key" 640 "kept closed"
 is "$fogprogramdir/pkiadmin-staging" 750 "kept closed"
 is "$servicelogs/faults" 750 "kept closed"
 is "${webdirdest}commons/config.class.php" 640 "kept closed"
+
+# Order: the repair must run before the steps that mkdir -p or `>` into these
+# paths, or they keep the old mode. In installfog.sh it follows configureUsers
+# and precedes every configureHttpd, configureMinHttpd and installFOGServices.
+INSTALLER="$REPO/bin/installfog.sh"
+repair=$(grep -n '^ *_repairHardenedUmaskModes$' "$INSTALLER" | head -1 | cut -d: -f1)
+users=$(grep -n '^ *configureUsers$' "$INSTALLER" | tail -1 | cut -d: -f1)
+first=$(grep -nE '^ *(configureHttpd|configureMinHttpd|installFOGServices)$' "$INSTALLER" \
+    | head -1 | cut -d: -f1)
+if [[ -n $repair && -n $users && -n $first ]] && (( users < repair && repair < first )); then
+    ok "installfog.sh calls the repair after configureUsers, before the web and service steps"
+else
+    bad "installfog.sh call order: configureUsers=$users repair=$repair first step=$first"
+fi
 
 echo
 echo "$PASS passed, $FAIL failed"

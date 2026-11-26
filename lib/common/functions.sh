@@ -14977,30 +14977,6 @@ die();
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
     chown -R ${SVC_user}:${apacheuser} "$webdirdest/service/ipxe"
 }
-# The installer's scratch directory, as an ABSOLUTE path, or non-zero with a
-# reason on stderr.
-#
-# Callers used to write this inline as
-#
-#     [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
-#     cd ../tmp/
-#
-# which has three faults that compound into a bad failure. "../tmp/" resolves
-# against whatever the ambient cwd happens to be; the mkdir error goes to
-# /dev/null, so the one message explaining a failure is destroyed at the moment
-# it occurs; and the cd is unguarded, so execution CONTINUES in the wrong
-# directory. Because the copy step that follows was also relative, a failed cd
-# downloaded 60-80MB of kernels into bin/ and then copied them from there -- the
-# install "succeeded", left untracked binaries in the source tree, and reported
-# only a bare "cd: ../tmp/: No such file or directory" that nothing could act on.
-#
-# Anchored on $workingdir, which installfog.sh captures with pwd before anything
-# has a chance to move, so this is correct regardless of who cd'd where.
-#
-# The not-a-directory case is called out separately because it is the one that
-# does NOT clear on a re-run: mkdir -p refuses when the path exists as a file or
-# a dangling symlink, so every subsequent attempt fails the same way, and the
-# generic message sends people looking for a permissions problem they do not have.
 # Forum 18335/18336: repair a server installed before installfog.sh set its own
 # umask. A umask applies only when a path is created, and mkdir -p and `>` keep
 # an existing path's mode, so an upgrade over an install made under umask 027
@@ -15014,9 +14990,13 @@ die();
 #
 # Runs before the install steps, so a later mkdir -p or `>` keeps the repaired
 # mode. It sets only bits a default install has, so it does nothing on one.
+#
+# PKI_root_dir, not _pkiRootDir: that accessor also runs the /opt/fog/pki
+# migration, which must stay where the PKI steps call it.
 _repairHardenedUmaskModes() {
     local pki d f
-    pki="$(_pkiRootDir)"
+    pki="${PKI_root_dir:-/etc/fog/pki}"
+    pki="${pki%/}"
     for d in "$(dirname "$pki")" "$pki"/{agent,client,root,web} \
         "${snapindir}/ssl" "${snapindir}/ssl/CA" \
         "${servicelogs}"/{agentreleasesync,fos,plugins,retention} \
@@ -15051,6 +15031,30 @@ _repairHardenedUmaskModes() {
     fi
     return 0
 }
+# The installer's scratch directory, as an ABSOLUTE path, or non-zero with a
+# reason on stderr.
+#
+# Callers used to write this inline as
+#
+#     [[ ! -d ../tmp/ ]] && mkdir -p ../tmp/ >/dev/null 2>&1
+#     cd ../tmp/
+#
+# which has three faults that compound into a bad failure. "../tmp/" resolves
+# against whatever the ambient cwd happens to be; the mkdir error goes to
+# /dev/null, so the one message explaining a failure is destroyed at the moment
+# it occurs; and the cd is unguarded, so execution CONTINUES in the wrong
+# directory. Because the copy step that follows was also relative, a failed cd
+# downloaded 60-80MB of kernels into bin/ and then copied them from there -- the
+# install "succeeded", left untracked binaries in the source tree, and reported
+# only a bare "cd: ../tmp/: No such file or directory" that nothing could act on.
+#
+# Anchored on $workingdir, which installfog.sh captures with pwd before anything
+# has a chance to move, so this is correct regardless of who cd'd where.
+#
+# The not-a-directory case is called out separately because it is the one that
+# does NOT clear on a re-run: mkdir -p refuses when the path exists as a file or
+# a dangling symlink, so every subsequent attempt fails the same way, and the
+# generic message sends people looking for a permissions problem they do not have.
 _installerTmpDir() {
     local d="${workingdir%/}/../tmp"
     if [[ -e $d && ! -d $d ]]; then
