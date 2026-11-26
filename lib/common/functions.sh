@@ -14674,6 +14674,11 @@ configureHttpd() {
         esac
         cp -Rf $i ${webdirdest}/management/other/ >>$error_log 2>&1
     done
+    # Forum 18336: cp -R keeps the checkout's modes, and the installer's own
+    # umask cannot widen them. A checkout made under umask 027 is 0640/0750, so
+    # the web tree came out 0640/0750 where a default install has 0644/0755.
+    # Before config.class.php is written, so its explicit 0640 below stands.
+    chmod -R a+rX "$webdirdest" >>$error_log 2>&1
     if [[ ${FOG_install_lang} == yes ]]; then
         dots "Creating the language binaries"
         langpath="${webdirdest}/management/languages"
