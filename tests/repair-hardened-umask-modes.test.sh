@@ -208,7 +208,10 @@ _openWebDownloads
 . "$FUNCS" >/dev/null 2>&1
 
 # Only where chmod has -P. Elsewhere _chmodNoFollow falls back, by design.
+# The test's own probe, so a broken _chmodHasNoFollow cannot skip these.
 if chmod -R -P --version >/dev/null 2>&1; then
+    _chmodHasNoFollow && ok "_chmodHasNoFollow finds -P" \
+        || bad "_chmodHasNoFollow misses -P, which this chmod has"
     is "$SWP/shadow" 600 "swapped-in link target kept closed"
     is "$SWP/keytree" 700 "swapped-in link target kept closed"
     is "$SWP/keytree/key" 600 "swapped-in link target kept closed"

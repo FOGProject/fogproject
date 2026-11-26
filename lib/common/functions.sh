@@ -15090,15 +15090,19 @@ _repairHardenedUmaskModes() {
 }
 # chmod -R MODE PATH, following no symlink, the named one included, where
 # chmod has -P (GNU coreutils 9.5 and later). Older GNU chmod and BusyBox have
-# no -P. Their chmod -R skips links inside the tree but follows the named
-# path, so there _rootSafePath is the only guard. A swap between that check
+# no -P. Their chmod -R skips links inside the tree. It follows the named
+# path. There, _rootSafePath is the only guard. A swap between that check
 # and this chmod stays open on those systems.
 _chmodNoFollow() {
-    if chmod -R -P --version >/dev/null 2>&1; then
+    if _chmodHasNoFollow; then
         chmod -R -P "$@"
     else
         chmod -R "$@"
     fi
+}
+# Whether chmod takes -P. It changes nothing: --version only prints.
+_chmodHasNoFollow() {
+    chmod -R -P --version >/dev/null 2>&1
 }
 # The installer's scratch directory, as an ABSOLUTE path, or non-zero with a
 # reason on stderr.
