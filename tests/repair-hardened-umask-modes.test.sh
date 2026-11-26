@@ -83,11 +83,6 @@ chmod 750 "$fogprogramdir/customizations" "$fogprogramdir/customizations/kernel-
 mk "$fogprogramdir/pkiadmin-staging/" 750
 mk "$servicelogs/plugins/" 750
 mk "$servicelogs/faults/" 750
-# A cache file root wrote, and one the web user wrote. Only root's goes.
-mk "$fogprogramdir/cache/settings.cache.json" 600
-mk "$fogprogramdir/cache/web.cache.json" 600
-chmod 1777 "$fogprogramdir/cache"
-(( EUID == 0 )) && chown nobody "$fogprogramdir/cache/web.cache.json"
 mk "${webdirdest}management/other/agent-ca-bundle.pem" 640
 mk "${webdirdest}commons/config.class.php" 640
 mk "$webredirect" 640
@@ -143,13 +138,6 @@ is "$WORK/etc/fog/ssh/fog_ssh_key" 640 "kept closed"
 is "$fogprogramdir/pkiadmin-staging" 750 "kept closed"
 is "$servicelogs/faults" 750 "kept closed"
 is "${webdirdest}commons/config.class.php" 640 "kept closed"
-is "$fogprogramdir/cache/web.cache.json" 600 "a non-root cache file is kept"
-# As a non-root runner, the "root" file is this user's, so it stays.
-if (( EUID == 0 )); then
-    [[ ! -e $fogprogramdir/cache/settings.cache.json ]] \
-        && ok "a root-owned cache file is removed" \
-        || bad "a root-owned cache file was kept"
-fi
 
 # _openWebDownloads, which configureHttpd runs on every install: the
 # downloaded boot files and client installers, cached 0640 by a 027 install.

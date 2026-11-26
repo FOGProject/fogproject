@@ -8551,8 +8551,9 @@ installUtilities() {
     cp -a "$workingdir/../utils/." "$fogprogramdir/utils/" >>$error_log 2>&1 || st=1
     cp -a "$workingdir/../lib/." "$fogprogramdir/lib/" >>$error_log 2>&1 || st=1
     # Forum 18336: cp -a keeps the checkout's modes. A checkout cloned under
-    # umask 027 is 0750/0640, where a default install has 0755/0644. Root
-    # made both trees just above, so no link in them can steer this chmod.
+    # umask 027 is 0750/0640, where a default install has 0755/0644. The
+    # rm -rf above removed both trees, and root made them again. So no link in
+    # them can steer this chmod.
     chmod -R go+rX "$fogprogramdir/utils" "$fogprogramdir/lib" >>$error_log 2>&1 || st=1
     find "$fogprogramdir/utils" "$fogprogramdir/lib" -type f -name '*.sh' \
         -exec chmod 755 {} \; >>$error_log 2>&1 || st=1
@@ -15101,13 +15102,6 @@ _repairHardenedUmaskModes() {
         /var/lib/apache2/site/enabled_by_admin /var/lib/apache2/module/disabled_by_admin; do
         [[ -d $d ]] && _rootSafePath "$d" && _chmodNoFollow go+rX "$d" >>$error_log 2>&1
     done
-    # The daemons run as root and wrote these caches while $apacheuser could
-    # not reach the directory. They stayed root:root 0600, and the 1777 sticky
-    # bit stops $apacheuser replacing them. They are caches; FOG writes them
-    # again. find -delete follows no link.
-    d="${fogprogramdir}/cache"
-    [[ -d $d ]] && _rootSafePath "$d" \
-        && find "$d" -maxdepth 1 -type f -user 0 -name '*.json' -delete >>$error_log 2>&1
     return 0
 }
 # chmod -R MODE PATH, following no symlink, the named one included, where
