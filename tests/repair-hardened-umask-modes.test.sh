@@ -134,6 +134,33 @@ is "$fogprogramdir/pkiadmin-staging" 750 "kept closed"
 is "$servicelogs/faults" 750 "kept closed"
 is "${webdirdest}commons/config.class.php" 640 "kept closed"
 
+# Symlinks planted by an account that can write the parent. The repair runs
+# as root, and chmod follows a link it is given, so each would open the link's
+# target. This test runs as a non-root user, so every parent here is
+# non-root-owned, which is the case _rootSafePath must refuse.
+ATK="$WORK/attack"
+mkdir -p "$ATK"
+mk "$ATK/shadow" 600
+mk "$ATK/keydir/" 700
+fogprogramdir="$ATK/opt/fog"
+snapindir="$fogprogramdir/snapins"
+servicelogs="$fogprogramdir/log"
+webdirdest="$ATK/var/www/html/fog/"
+webredirect="$ATK/var/www/html/index.php"
+SVC_user="..$ATK/home/fogproject"
+PKI_root_dir="$ATK/etc/fog/pki"
+mkdir -p "${webdirdest}management/other" "$snapindir" "$fogprogramdir" \
+    "$ATK/home/fogproject/.config/autostart"
+ln -s "$ATK/shadow" "${webdirdest}management/other/agent-ca-bundle.pem"
+ln -s "$ATK/shadow" "$ATK/home/fogproject/.bashrc"
+ln -s "$ATK/keydir" "$snapindir/ssl"
+ln -s "$ATK/keydir" "$fogprogramdir/customizations"
+
+_repairHardenedUmaskModes
+
+is "$ATK/shadow" 600 "link target kept closed"
+is "$ATK/keydir" 700 "link target kept closed"
+
 # Order: the repair must run before the steps that mkdir -p or `>` into these
 # paths, or they keep the old mode. In installfog.sh it follows configureUsers
 # and precedes every configureHttpd, configureMinHttpd and installFOGServices.

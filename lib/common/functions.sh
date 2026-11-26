@@ -14980,10 +14980,40 @@ die();
     # download cache in the checkout's tmp/, not from the checkout tree, so the
     # chmod after the web-tree copy does not reach them. An install made under
     # umask 027 cached them 0640, and every later run copies that mode back.
+    # Both directories are writable by a non-root account; see
+    # _rootSafePath for why that matters to a chmod run as root.
     local dlpath
     for dlpath in "${webdirdest%/}/service/ipxe" "${webdirdest%/}/client"; do
-        [[ -d $dlpath ]] && find "$dlpath" -maxdepth 1 -type f -exec chmod go+r {} + >>$error_log 2>&1
+        _rootSafePath "$dlpath" && chmod -R go+rX "$dlpath" >>$error_log 2>&1
     done
+}
+# Whether root may chmod $1 without being steered elsewhere by a symlink.
+#
+# Returns 0 when $1 exists and no component of it is a symlink in a directory
+# that a non-root account can change. chmod follows a symlink it is given, and
+# the installer runs as root: if www-data replaced a file it owns, say
+# management/other/agent-ca-bundle.pem, with a link to /etc/shadow, a later
+# chmod go+r on that path would open /etc/shadow. A link that root placed in a
+# root-only directory (an admin's /var/www -> /srv/www) is trusted.
+#
+# Pair with chmod -R for a tree: GNU chmod skips the symlinks it meets while
+# recursing, so only the named path itself needs this check. What it cannot
+# close is a swap between this check and the chmod; that window is the same
+# one every other root write into these trees already has.
+_rootSafePath() {
+    local path="$1" cur="" parent part
+    [[ -e $path ]] || return 1
+    local -a parts
+    IFS=/ read -ra parts <<< "${path#/}"
+    for part in "${parts[@]}"; do
+        [[ -z $part ]] && continue
+        parent="${cur:-/}"
+        cur="${cur}/${part}"
+        [[ -L $cur ]] || continue
+        [[ $(stat -c %u "$parent" 2>/dev/null) == 0 ]] || return 1
+        [[ -z $(find "$parent" -maxdepth 0 -perm /022 2>/dev/null) ]] || return 1
+    done
+    return 0
 }
 # Forum 18335/18336: repair a server installed before installfog.sh set its own
 # umask. A umask applies only when a path is created, and mkdir -p and `>` keep
@@ -15000,20 +15030,27 @@ die();
 # mode. It sets only bits a default install has, so it does nothing on one.
 #
 # PKI_root_dir, not _pkiRootDir: that accessor also runs the /opt/fog/pki
-# migration, which must stay where the PKI steps call it.
+# migration, which must stay where the PKI steps call it. The PKI root's
+# parent is /etc/fog, except under a legacy PKI_root_dir=/opt/fog/pki, where it
+# is $fogprogramdir: that one #2166 keeps traverse-only, so it is skipped.
+#
+# Several of these paths sit in directories www-data or the service account
+# can write, so every chmod goes through _rootSafePath.
 _repairHardenedUmaskModes() {
     local pki d f
+    local -a pkiparent=()
     pki="${PKI_root_dir:-/etc/fog/pki}"
     pki="${pki%/}"
-    for d in "$(dirname "$pki")" "$pki"/{agent,client,root,web} \
+    [[ $(dirname "$pki") == "${fogprogramdir%/}" ]] || pkiparent=("$(dirname "$pki")")
+    for d in "${pkiparent[@]}" "$pki"/{agent,client,root,web} \
         "${snapindir}/ssl" "${snapindir}/ssl/CA" \
         "${servicelogs}"/{agentreleasesync,fos,plugins,retention} \
         /etc/exports.d "/home/${SVC_user}/.config" \
         "/home/${SVC_user}/.config/autostart"; do
-        [[ -d $d ]] && chmod go+rx "$d" >>$error_log 2>&1
+        [[ -d $d ]] && _rootSafePath "$d" && chmod go+rx "$d" >>$error_log 2>&1
     done
     for d in "$pki" "${snapindir}/ssl/CA"; do
-        [[ -d $d ]] || continue
+        [[ -d $d ]] && _rootSafePath "$d" || continue
         find "$d" -type f \( -name '*.csr' -o -name '*.cnf' -o -name '*.srl' \
             -o -name '*.sans' -o -name '.trustAnchor.pem' \) \
             -exec chmod go+r {} + >>$error_log 2>&1
@@ -15022,16 +15059,15 @@ _repairHardenedUmaskModes() {
         "/home/${SVC_user}/.bashrc" \
         "/home/${SVC_user}/.config/autostart/warnfogaccount.desktop" \
         "$webredirect" "${webdirdest%/}/management/other/agent-ca-bundle.pem"; do
-        [[ -f $f ]] && chmod go+r "$f" >>$error_log 2>&1
+        [[ -f $f ]] && _rootSafePath "$f" && chmod go+r "$f" >>$error_log 2>&1
     done
-    # FOG's copies of the boot files configureHttpd downloads, and of the admin's iPXE background and
-    # binaries. configureHttpd restores the web tree from here with cp -a, so
-    # a closed copy here would close the restored file again.
+    # FOG's copies of the boot files configureHttpd downloads, and of the
+    # admin's iPXE background and binaries. configureHttpd restores the web
+    # tree from here with cp -a, so a closed copy here would close the
+    # restored file again. chmod -R skips links inside; kernel-backups/keep is
+    # www-data-writable.
     d="${fogprogramdir}/customizations"
-    if [[ -d $d ]]; then
-        find "$d" -type d -exec chmod go+rx {} + >>$error_log 2>&1
-        find "$d" -type f -exec chmod go+r {} + >>$error_log 2>&1
-    fi
+    [[ -d $d ]] && _rootSafePath "$d" && chmod -R go+rX "$d" >>$error_log 2>&1
     return 0
 }
 # The installer's scratch directory, as an ABSOLUTE path, or non-zero with a
