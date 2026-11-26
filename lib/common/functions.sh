@@ -6954,6 +6954,11 @@ _installPkiAdminHelper() {
 
     dots "Installing the certificate management helper"
     mkdir -p "$bindir" >>$error_log 2>&1
+    # Forum 18336: the Certificates page tests is_executable() on the helper
+    # as $apacheuser before it calls sudo, and a hardened umask (027) leaves
+    # $bindir 0750 root:root. Traverse only, not list; fog-build-sb-authvars
+    # in the same directory stays 0700.
+    chmod a+x "$bindir" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/fog-pki-admin "$helper" >>$error_log 2>&1 || {
         echo "Failed"
         return 0
@@ -16042,6 +16047,10 @@ _installSecureBootSigner() {
         return 0
     }
     mkdir -p "$bindir" >>$error_log 2>&1
+    # Forum 18336: secureBootStagingDir() tests is_executable() on this helper
+    # as $apacheuser. A $bindir left 0750 by a hardened umask fails that test,
+    # and kernels then download unsigned with no error. Traverse only.
+    chmod a+x "$bindir" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/secureboot/fog-sign-kernel "$helper" >>$error_log 2>&1 || {
         echo "Failed"
         return 0
