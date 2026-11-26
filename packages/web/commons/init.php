@@ -1351,6 +1351,7 @@ class Initiator
 
     /**
      * Persist a scan result atomically, 0600, in the world-writable cache dir.
+     * A root process does not persist it.
      *
      * Takes the payload already shaped by its caller rather than reshaping
      * it: pluginFileList() stores a LIST of paths and srcFileList() stores a
@@ -1371,6 +1372,20 @@ class Initiator
         }
         $tmp = $file . '.' . getmypid() . '.tmp';
         if (@file_put_contents($tmp, $json, LOCK_EX) === false) {
+            return;
+        }
+        // The FOG daemons run as root. A copy root writes is root:root 0600:
+        // the web user cannot read it, and the sticky bit stops the web user
+        // replacing it. So every web request rescanned until the next
+        // installer run. Root reads the web user's copy instead, and removes
+        // a root copy that an older release left. unlink() never follows a
+        // link.
+        if (@fileowner($tmp) === 0) {
+            @unlink($tmp);
+            clearstatcache(true, $file);
+            if (!is_link($file) && @fileowner($file) === 0) {
+                @unlink($file);
+            }
             return;
         }
         @chmod($tmp, 0600);
