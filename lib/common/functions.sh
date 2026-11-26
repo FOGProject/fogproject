@@ -6488,8 +6488,8 @@ configureFOGService() {
     echo "<?php define('WEBROOT','${webdirdest}');" > $servicedst/etc/config.php
     # Forum 18335: the three $apacheuser daemons require this file. An install
     # made under a hardened umask, before installfog.sh set its own, left it
-    # (and etc/) root-only, and `>` keeps an existing file's mode. It holds only the web
-    # root path, no credential. etc/ gets traverse only, not list.
+    # (and etc/) root-only, and `>` keeps an existing file's mode. It holds
+    # only the web root path, no credential. etc/ gets traverse only, not list.
     chmod a+x "$servicedst/etc" >>$error_log 2>&1
     chmod 0644 "$servicedst/etc/config.php" >>$error_log 2>&1
     startInitScript
@@ -6962,8 +6962,8 @@ _installPkiAdminHelper() {
     # Forum 18336: the Certificates page tests is_executable() on the helper
     # as $apacheuser before it calls sudo. An install made under a hardened
     # umask (027), before installfog.sh set its own, left $bindir 0750
-    # root:root, and mkdir -p keeps it. Traverse only, not list; fog-build-sb-authvars
-    # in the same directory stays 0700.
+    # root:root, and mkdir -p keeps it. Traverse only, not list;
+    # fog-build-sb-authvars in the same directory stays 0700.
     chmod a+x "$bindir" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/fog-pki-admin "$helper" >>$error_log 2>&1 || {
         echo "Failed"
@@ -14611,10 +14611,10 @@ configureHttpd() {
     # Only the paths that came from the checkout: --oldcopy has restored
     # config.class.php and any admin file in management/other or lib/plugins,
     # and those keep the modes they had.
+    # The source's relative paths, applied from inside the destination.
     chmod a+rX "$webdirdest" >>$error_log 2>&1
-    while IFS= read -r -d '' webpath; do
-        chmod a+rX "${webdirdest%/}/${webpath#./}" >>$error_log 2>&1
-    done < <(cd "$webdirsrc" && find . -mindepth 1 -print0)
+    (cd "$webdirsrc" && find . -mindepth 1 -print0) \
+        | (cd "$webdirdest" && xargs -0 -r chmod a+rX) >>$error_log 2>&1
     # The web root was rm -rf'd above and rebuilt, so any file the new release
     # DROPPED is genuinely gone. Initiator::classFileList() caches the scanned
     # class-file list to $fogprogramdir/cache with a 300 second TTL, and that
@@ -14983,10 +14983,9 @@ die();
 # the web-tree copy does not reach them. An install made under umask 027
 # cached them 0640, and every later run copies that mode back.
 #
-# Both directories are writable by a non-root account; see _rootSafePath for
-# why that matters to a chmod run as root. chmod -R, not find -exec: it skips
-# the links it meets while recursing. Everything below both directories is
-# 0644/0755 in a default install, so the recursion opens nothing closed.
+# Both directories are writable by a non-root account, so the chmod goes
+# through _rootSafePath. Everything below both is 0644/0755 in a default
+# install, so the recursion opens nothing closed.
 _openWebDownloads() {
     local dlpath
     for dlpath in "${webdirdest%/}/service/ipxe" "${webdirdest%/}/client"; do
@@ -14996,8 +14995,9 @@ _openWebDownloads() {
 }
 # Whether root may chmod $1 without being steered elsewhere by a symlink.
 #
-# Returns 0 when $1 is absolute, exists, and no component of it is a symlink in a directory
-# that a non-root account can change. chmod follows a symlink it is given, and
+# Returns 0 when $1 is absolute, exists, and no component of it is a symlink in
+# a directory that a non-root account can change. chmod follows a symlink it is
+# given, and
 # the installer runs as root: if www-data replaced a file it owns, say
 # management/other/agent-ca-bundle.pem, with a link to /etc/shadow, a later
 # chmod go+r on that path would open /etc/shadow. A link that root placed in a
@@ -15040,7 +15040,8 @@ _rootSafePath() {
 # PKI_root_dir, not _pkiRootDir: that accessor also runs the /opt/fog/pki
 # migration, which must stay where the PKI steps call it. The PKI root's
 # parent is /etc/fog, except under a legacy PKI_root_dir=/opt/fog/pki, where it
-# is $fogprogramdir: that one #2166 keeps traverse-only, so it is skipped.
+# is $fogprogramdir. That directory stays traverse-only (GH-2166), so it is
+# skipped.
 #
 # Several of these paths sit in directories www-data or the service account
 # can write, so every chmod goes through _rootSafePath.
@@ -15077,8 +15078,8 @@ _repairHardenedUmaskModes() {
     # FOG's copies of the boot files configureHttpd downloads, and of the
     # admin's iPXE background and binaries. configureHttpd restores the web
     # tree from here with cp -a, so a closed copy here would close the
-    # restored file again. chmod -R skips links inside; kernel-backups/keep is
-    # www-data-writable.
+    # restored file again. kernel-backups/keep is www-data-writable; see
+    # _rootSafePath.
     d="${fogprogramdir}/customizations"
     [[ -d $d ]] && _rootSafePath "$d" && chmod -R go+rX "$d" >>$error_log 2>&1
     return 0
@@ -16174,8 +16175,8 @@ _installSecureBootSigner() {
     mkdir -p "$bindir" >>$error_log 2>&1
     # Forum 18336: secureBootStagingDir() tests is_executable() on this helper
     # as $apacheuser. A $bindir left 0750 by an older install under a hardened
-    # umask fails that test,
-    # and kernels then download unsigned with no error. Traverse only.
+    # umask fails that test, and kernels then download unsigned with no error.
+    # Traverse only.
     chmod a+x "$bindir" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/secureboot/fog-sign-kernel "$helper" >>$error_log 2>&1 || {
         echo "Failed"

@@ -1415,7 +1415,8 @@ while [[ -z $blGo ]]; do
             # get this too -- configureMinHttpd still runs as httpd_t and still
             # has to reach the master over HTTP.
             installSELinuxModule
-            # After configureUsers, which creates the service account's home.
+            # After configureUsers, which creates the service account's home,
+            # and before the steps that mkdir -p or write into the repaired paths.
             _repairHardenedUmaskModes
             case ${FOG_install_type} in
                 [Ss])
