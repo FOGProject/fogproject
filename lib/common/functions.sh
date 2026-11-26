@@ -14611,9 +14611,9 @@ configureHttpd() {
     # Only the paths that came from the checkout: --oldcopy has restored
     # config.class.php and any admin file in management/other or lib/plugins,
     # and those keep the modes they had.
-    # The source's relative paths, applied from inside the destination. A link
-    # is skipped: --oldcopy restores any link www-data planted in the old tree,
-    # and chmod would open its target.
+    # The source's relative paths, applied from inside the destination. The
+    # pipeline skips a link. --oldcopy restores any link www-data planted in
+    # the old tree, and chmod would open its target.
     chmod a+rX "$webdirdest" >>$error_log 2>&1
     (cd "$webdirsrc" && find . -mindepth 1 -print0) \
         | (cd "$webdirdest" && xargs -0 -r sh -c \
@@ -14992,7 +14992,7 @@ die();
 _openWebDownloads() {
     local dlpath
     for dlpath in "${webdirdest%/}/service/ipxe" "${webdirdest%/}/client"; do
-        _rootSafePath "$dlpath" && chmod -R -P go+rX "$dlpath" >>$error_log 2>&1
+        _rootSafePath "$dlpath" && _chmodNoFollow go+rX "$dlpath" >>$error_log 2>&1
     done
     return 0
 }
@@ -15005,12 +15005,10 @@ _openWebDownloads() {
 # chmod go+r on that path would open /etc/shadow. A link that root placed in a
 # root-only directory (an admin's /var/www -> /srv/www) is trusted.
 #
-# This check cannot close a swap between it and the chmod, so the chmod also
-# refuses to follow the final component. For a file or a tree, chmod -R -P:
-# it follows no symlink, the named one included. BusyBox chmod has no -P, so
-# on Alpine it fails and the mode stays closed. For one directory, chmod
-# "$d/.": a link swapped in to a file then fails with ENOTDIR, and a link to a
-# directory opens only that directory's listing, not the files in it.
+# This check cannot close a swap before the chmod. For a file or a tree, use
+# _chmodNoFollow. For one directory, use chmod "$d/.". A link to a file then
+# fails with ENOTDIR. A link to a directory opens that directory itself, but
+# no file in it changes mode.
 _rootSafePath() {
     local path="$1" cur="" parent part
     # Relative would be walked as if it hung off /, a different path.
@@ -15079,7 +15077,7 @@ _repairHardenedUmaskModes() {
         "/home/${SVC_user}/.config/autostart/warnfogaccount.desktop" \
         "${WEB_docroot%/}/index.php" "$webredirect" \
         "${webdirdest%/}/management/other/agent-ca-bundle.pem"; do
-        [[ -f $f ]] && _rootSafePath "$f" && chmod -R -P go+r "$f" >>$error_log 2>&1
+        [[ -f $f ]] && _rootSafePath "$f" && _chmodNoFollow go+r "$f" >>$error_log 2>&1
     done
     # FOG's copies of the boot files configureHttpd downloads, and of the
     # admin's iPXE background and binaries. configureHttpd restores the web
@@ -15087,8 +15085,20 @@ _repairHardenedUmaskModes() {
     # restored file again. kernel-backups/keep is www-data-writable; see
     # _rootSafePath.
     d="${fogprogramdir}/customizations"
-    [[ -d $d ]] && _rootSafePath "$d" && chmod -R -P go+rX "$d" >>$error_log 2>&1
+    [[ -d $d ]] && _rootSafePath "$d" && _chmodNoFollow go+rX "$d" >>$error_log 2>&1
     return 0
+}
+# chmod -R MODE PATH, following no symlink, the named one included, where
+# chmod has -P (GNU coreutils 9.5 and later). Older GNU chmod and BusyBox have
+# no -P. Their chmod -R skips links inside the tree but follows the named
+# path, so there _rootSafePath is the only guard. A swap between that check
+# and this chmod stays open on those systems.
+_chmodNoFollow() {
+    if chmod -R -P --version >/dev/null 2>&1; then
+        chmod -R -P "$@"
+    else
+        chmod -R "$@"
+    fi
 }
 # The installer's scratch directory, as an ABSOLUTE path, or non-zero with a
 # reason on stderr.

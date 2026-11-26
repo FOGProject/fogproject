@@ -180,10 +180,10 @@ _openWebDownloads
 is "$ATK/shadow" 600 "link target kept closed"
 is "$ATK/keydir" 700 "link target kept closed"
 
-# A link swapped in after _rootSafePath passed. Stand that in by letting the
-# guard pass everything: the chmod itself must still not follow a link to a
-# file, and chmod -R -P must not follow a link to a tree. A link to a directory
-# at a single-directory site opens that directory's listing, by design.
+# This block stands in for a link swapped in after _rootSafePath passes. The
+# stub guard passes every path. The chmod must not follow a link to a file.
+# chmod -R -P must not follow a link to a tree. At a single-directory site, a
+# link to a directory opens that directory's listing, by design.
 SWP="$WORK/swap"
 mkdir -p "$SWP"
 mk "$SWP/shadow" 600
@@ -207,14 +207,19 @@ _repairHardenedUmaskModes
 _openWebDownloads
 . "$FUNCS" >/dev/null 2>&1
 
-is "$SWP/shadow" 600 "swapped-in link target kept closed"
-is "$SWP/keytree" 700 "swapped-in link target kept closed"
-is "$SWP/keytree/key" 600 "swapped-in link target kept closed"
+# Only where chmod has -P. Elsewhere _chmodNoFollow falls back, by design.
+if chmod -R -P --version >/dev/null 2>&1; then
+    is "$SWP/shadow" 600 "swapped-in link target kept closed"
+    is "$SWP/keytree" 700 "swapped-in link target kept closed"
+    is "$SWP/keytree/key" 600 "swapped-in link target kept closed"
+else
+    echo "  skip  this chmod has no -P, so a swapped-in link is followed"
+fi
 
-# A link that root placed in a root-only directory is trusted, or an admin's
-# /var/www -> /srv/www would leave the whole repair undone. /bin/sh is a link
-# inside the linked /bin on merged-/usr systems, so it also checks a trusted
-# link as a parent.
+# The guard trusts a link that root placed in a root-only directory. Without
+# that, an admin's /var/www -> /srv/www would undo the whole repair. On a
+# merged-/usr system, /bin/sh is a link inside the linked /bin. So this also
+# checks a trusted link as a parent.
 if [[ -L /bin && $(stat -c %u /) == 0 ]]; then
     _rootSafePath /bin/sh && ok "_rootSafePath trusts /bin/sh, links root placed" \
         || bad "_rootSafePath refused /bin/sh, links root placed"
