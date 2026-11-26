@@ -3100,9 +3100,31 @@ installFOGServices() {
     dots "Setting up FOG Services"
     mkdir -p $servicedst
     cp -Rf $servicesrc/* $servicedst/
-    chmod +x -R $servicedst/
+    # Forum 18335: FOGPluginRunner, FOGRetentionRunner and FOGAgentReleaseSync
+    # run as $apacheuser (ADR 0010), so that account must traverse $servicedst
+    # and read each daemon plus lib/. cp -R keeps the checkout's modes, and a
+    # checkout made under a hardened umask (027) is 0750 root:root -- so every
+    # root daemon started and those three died on "Could not open input file".
+    #
+    # a+rx names "all" explicitly; the old bare "+x" was filtered through the
+    # umask, so under 027 it never reached "other". It covers only the trees
+    # copied from $servicesrc. The old "chmod +x -R $servicedst/" also walked
+    # $servicedst/etc, which can hold a 1.5-era pki/ with private keys.
     mkdir -p $servicelogs
     errorStat $?
+    dots "Setting FOG service permissions"
+    local svcitem permrc=0
+    chmod a+rx "$servicedst" >>$error_log 2>&1 || permrc=1
+    for svcitem in "$servicesrc"/*; do
+        chmod -R a+rx "$servicedst/$(basename "$svcitem")" >>$error_log 2>&1 || permrc=1
+    done
+    # Traverse only, not list. $servicelogs: $apacheuser must reach its own
+    # subdirectories below (plugins/, retention/, agentreleasesync/, fos/).
+    # $fogprogramdir is FOG's own directory and the parent of both by default.
+    # A parent outside it (servicelogs=/var/log/fog) belongs to the host, and
+    # its mode is the admin's choice, so it is left alone.
+    chmod a+x "$fogprogramdir" "$servicelogs" >>$error_log 2>&1 || permrc=1
+    errorStat $permrc
     # ADR 0010: FOGPluginRunner runs as the web user, so it cannot write into
     # $servicelogs, which is root's. It gets its own subdirectory instead of
     # group-write on the shared one -- log rotation renames and unlinks, so
@@ -6457,6 +6479,11 @@ configureFOGService() {
     [[ ! -d $servicedst ]] && mkdir -p $servicedst >>$error_log 2>&1
     [[ ! -d $servicedst/etc ]] && mkdir -p $servicedst/etc >>$error_log 2>&1
     echo "<?php define('WEBROOT','${webdirdest}');" > $servicedst/etc/config.php
+    # Forum 18335: the three $apacheuser daemons require this file, and a
+    # hardened umask would leave it (and etc/) root-only. It holds only the web
+    # root path, no credential. etc/ gets traverse only, not list.
+    chmod a+x "$servicedst/etc" >>$error_log 2>&1
+    chmod 0644 "$servicedst/etc/config.php" >>$error_log 2>&1
     startInitScript
 }
 # True when the image staging export (<share>/dev) carries no_root_squash.
