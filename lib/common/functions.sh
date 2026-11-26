@@ -15053,7 +15053,8 @@ _repairHardenedUmaskModes() {
     for d in "${pkiparent[@]}" "$pki"/{agent,client,root,web} \
         "${snapindir}/ssl" "${snapindir}/ssl/CA" \
         "${servicelogs}"/{agentreleasesync,fos,plugins,retention} \
-        /etc/exports.d "/home/${SVC_user}/.config" \
+        /etc/exports.d /etc/nfs.conf.d /usr/etc/nfs.conf.d \
+        "/home/${SVC_user}" "/home/${SVC_user}/.config" \
         "/home/${SVC_user}/.config/autostart"; do
         [[ -d $d ]] && _rootSafePath "$d" && chmod go+rx "$d" >>$error_log 2>&1
     done
@@ -15063,10 +15064,14 @@ _repairHardenedUmaskModes() {
             -o -name '*.sans' -o -name '.trustAnchor.pem' \) \
             -exec chmod go+r {} + >>$error_log 2>&1
     done
+    # ${WEB_docroot}/index.php and $webredirect are the same file on Debian
+    # and differ on the RHEL family.
     for f in /etc/nfs.conf.d/fog-nfs.conf /usr/etc/nfs.conf.d/fog-nfs.conf \
+        /etc/systemd/system/fog-tftp.socket \
         "/home/${SVC_user}/.bashrc" \
         "/home/${SVC_user}/.config/autostart/warnfogaccount.desktop" \
-        "$webredirect" "${webdirdest%/}/management/other/agent-ca-bundle.pem"; do
+        "${WEB_docroot%/}/index.php" "$webredirect" \
+        "${webdirdest%/}/management/other/agent-ca-bundle.pem"; do
         [[ -f $f ]] && _rootSafePath "$f" && chmod go+r "$f" >>$error_log 2>&1
     done
     # FOG's copies of the boot files configureHttpd downloads, and of the

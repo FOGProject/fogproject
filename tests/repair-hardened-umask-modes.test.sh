@@ -38,7 +38,9 @@ fogprogramdir="$WORK/opt/fog"
 snapindir="$fogprogramdir/snapins"
 servicelogs="$fogprogramdir/log"
 webdirdest="$WORK/var/www/html/fog/"
-webredirect="$WORK/var/www/html/index.php"
+# The RHEL-family layout, where these are two files.
+WEB_docroot="$WORK/var/www/html/"
+webredirect="${webdirdest}index.php"
 SVC_user="..$WORK/home/fogproject"
 home="$WORK/home/fogproject"
 
@@ -86,7 +88,8 @@ mk "${webdirdest}commons/config.class.php" 640
 mk "$webredirect" 640
 mk "$home/.bashrc" 640
 mk "$home/.config/autostart/warnfogaccount.desktop" 640
-chmod 750 "$home/.config" "$home/.config/autostart"
+mk "${WEB_docroot}index.php" 640
+chmod 750 "$home" "$home/.config" "$home/.config/autostart"
 
 _repairHardenedUmaskModes
 
@@ -118,6 +121,8 @@ is "$servicelogs/plugins" 755 opened
 is "${webdirdest}management/other/agent-ca-bundle.pem" 644 opened
 is "$webredirect" 644 opened
 is "$home/.bashrc" 644 opened
+is "$home" 755 opened
+is "${WEB_docroot}index.php" 644 opened
 is "$home/.config" 755 opened
 is "$home/.config/autostart/warnfogaccount.desktop" 644 opened
 
