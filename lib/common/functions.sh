@@ -3525,7 +3525,8 @@ configureDefaultiPXEfile() {
     local chainline="chain ${BOOT_url_proto}://${nbhost}${bootpath}"
     # An IPv6-only client cannot reach the IPv4 URL. Chain it only when iPXE has
     # an IPv4 lease; else use the IPv6 URL. Keep one line: iPXE has no
-    # cross-line "||". ${ip} is the IPv4 lease, unset on IPv6 only (net/ipv4.c:948, core/settings.c:714).
+    # cross-line "||". ${ip} is the IPv4 lease, unset with IPv6 only
+    # (iPXE net/ipv4.c:948, core/settings.c:714).
     local bootip6
     if [[ ${BOOT_url_proto} == http && ${nbhost} != *:* ]]; then
         bootip6=$(_bootServerIp6)
