@@ -37,6 +37,22 @@ defined('UDPSENDERPATH') || define('UDPSENDERPATH', '/usr/local/sbin/udp-sender'
 abstract class FOGBase
 {
     /**
+     * Same as the real FOGBase::isIPv6().
+     *
+     * @param mixed $ip The value.
+     *
+     * @return bool
+     */
+    protected static function isIPv6($ip)
+    {
+        return false !== filter_var(
+            trim((string)$ip),
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV6
+        );
+    }
+
+    /**
      * wlog() reads the log size before it writes.
      *
      * @param string $path File.
@@ -258,6 +274,19 @@ check(
     "low 32 bits did not wrap: $wrap",
     false !== strpos($wrap, ' --mcast-data-address ff15::1 ')
 );
+
+// A value inet_pton rejects reaches a root shell if it is kept as typed.
+foreach (['x;id', 'ff15::zz;id', '$(id)', 'ff15::1;id'] as $evil) {
+    $bad = cmdFor('fd00:f06:0:1::1', $evil, '');
+    check(
+        "an invalid IPv6-session address reached the command line: $evil",
+        false === strpos($bad, $evil)
+    );
+    check(
+        "an invalid IPv6-session address left --mcast-data-address: $evil",
+        false === strpos(senderArgs($bad), '--mcast-data-address')
+    );
+}
 
 // --- 3. cross-family settings are dropped, and logged -------------------
 $mixed = senderArgs(cmdFor('fd00:f06:0:1::1', '239.0.0.1', '239.0.0.9'));

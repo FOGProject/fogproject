@@ -59,6 +59,22 @@ defined('UDPSENDERPATH') || define('UDPSENDERPATH', '/usr/local/sbin/udp-sender'
 abstract class FOGBase
 {
     /**
+     * Same as the real FOGBase::isIPv6(); getCMD() asks the session's family.
+     *
+     * @param mixed $ip The value.
+     *
+     * @return bool
+     */
+    protected static function isIPv6($ip)
+    {
+        return false !== filter_var(
+            trim((string)$ip),
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV6
+        );
+    }
+
+    /**
      * Settings reader.
      *
      * @param mixed $keys One key, or a list of them.

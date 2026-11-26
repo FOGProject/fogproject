@@ -62,6 +62,9 @@ $matrix = [
     ['ff15::9', 'fd00::2', true],
     ['239.0.0.9', 'fd00::2', false],
     ['ff15::9', '192.0.2.5', false],
+    // A hostname node is resolved as IPv4 by the multicast daemon.
+    ['239.0.0.9', 'node1.example.test', true],
+    ['ff15::9', 'node1.example.test', false],
 ];
 
 $failures = [];

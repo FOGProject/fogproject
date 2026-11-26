@@ -772,9 +772,13 @@ ufw() { echo "ufw $*" >> "$ufwcalls"; return 0; }
 _configureUfw >/dev/null 2>&1
 has "$(cat "$ufwcalls")" "ufw allow 547/udp" "--dhcp6-range: ufw allows 547/udp"
 unset -f ufw
+mcastportmin=63100
+mcastportmax=63228
 hint=$(_reportIptables 2>&1)
 has "$hint" "ip6tables -I INPUT -p udp --dport 547 -j ACCEPT" "--dhcp6-range: the iptables hint names 547/udp, with ip6tables"
 has "$hint" "iptables -I INPUT -p tcp --dport 80 -j ACCEPT" "the other hint lines still use iptables"
+has "$hint" "ip6tables -I INPUT -p udp --dport 63100:63228 -j ACCEPT" "the iptables hint opens the multicast range for IPv6"
+has "$hint" " iptables -I INPUT -p udp --dport 63100:63228 -j ACCEPT" "the iptables hint still opens the multicast range for IPv4"
 
 echo
 echo "installer-ipv6: $PASS passed, $FAIL failed"

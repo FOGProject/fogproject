@@ -89,12 +89,8 @@ class MulticastTask extends FOGService
         // routing lookup cannot answer for it. getCMD() reads the session's
         // family from this value.
         $resolvedIP = self::resolveHostname($StorageNode->ip);
-        $nodeIP = trim($resolvedIP, '[]');
-        $nodeIsV6 = false !== filter_var(
-            $nodeIP,
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_IPV6
-        );
+        $nodeIP = self::canonicalIP($resolvedIP);
+        $nodeIsV6 = self::isIPv6($nodeIP);
         $Interface = $nodeIsV6
             ? $nodeIP
             : self::getMasterInterface($resolvedIP);
@@ -730,6 +726,53 @@ class MulticastTask extends FOGService
         return $lvimages;
     }
     /**
+     * Logs a message once per message and value, not on every session.
+     *
+     * @param string $message What was ignored.
+     * @param string $value   The setting value.
+     *
+     * @return void
+     */
+    private static function _noteOnce($message, $value)
+    {
+        static $noted = [];
+        $key = $message . '|' . $value;
+        if (isset($noted[$key])) {
+            return;
+        }
+        $noted[$key] = true;
+        self::outall(sprintf(' | %s: %s', $message, $value));
+    }
+    /**
+     * Drops a multicast address of the other IP family than the session.
+     *
+     * udp-sender cannot send an IPv6 session to an IPv4 group or the other
+     * way round, so the value is dropped and udp-sender uses its default.
+     * A value that is not an IP at all is returned unchanged: the checks
+     * further down judge it.
+     *
+     * @param string $value       The setting value.
+     * @param bool   $sessionIsV6 Whether the session is IPv6.
+     *
+     * @return string
+     */
+    private static function _dropOtherFamily($value, $sessionIsV6)
+    {
+        if (!$value || !filter_var($value, FILTER_VALIDATE_IP)) {
+            return $value;
+        }
+        if (self::isIPv6($value) === $sessionIsV6) {
+            return $value;
+        }
+        self::_noteOnce(
+            $sessionIsV6
+            ? _('Ignoring IPv4 multicast address on an IPv6 session')
+            : _('Ignoring IPv6 multicast address on an IPv4 session'),
+            $value
+        );
+        return '';
+    }
+    /**
      * Sets/Gets the command needed to start the tasking
      *
      * @return string
@@ -757,40 +800,9 @@ class MulticastTask extends FOGService
         // there is one setting for each, so a value of the other family is
         // dropped: udp-sender then uses its own default for that family.
         // Said once per value, not on every session.
-        static $familyNoted = [];
-        $sessionIsV6 = false !== filter_var(
-            (string)$this->getInterface(),
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_IPV6
-        );
-        $dropOtherFamily = function ($value) use ($sessionIsV6, &$familyNoted) {
-            if (!$value || !filter_var($value, FILTER_VALIDATE_IP)) {
-                return $value;
-            }
-            $valueIsV6 = false !== filter_var(
-                $value,
-                FILTER_VALIDATE_IP,
-                FILTER_FLAG_IPV6
-            );
-            if ($valueIsV6 === $sessionIsV6) {
-                return $value;
-            }
-            if (!isset($familyNoted[$value])) {
-                $familyNoted[$value] = true;
-                self::outall(
-                    sprintf(
-                        ' | %s: %s',
-                        $sessionIsV6
-                        ? _('Ignoring IPv4 multicast address on an IPv6 session')
-                        : _('Ignoring IPv6 multicast address on an IPv4 session'),
-                        $value
-                    )
-                );
-            }
-            return '';
-        };
-        $address = $dropOtherFamily($address);
-        $multicastrdv = $dropOtherFamily($multicastrdv);
+        $sessionIsV6 = self::isIPv6($this->getInterface());
+        $address = self::_dropOtherFamily($address, $sessionIsV6);
+        $multicastrdv = self::_dropOtherFamily($multicastrdv, $sessionIsV6);
         if ($address) {
             // Each concurrent session needs its own data address. With a
             // port pool configured the port's position in that pool gives
@@ -811,7 +823,8 @@ class MulticastTask extends FOGService
             if ($sessionIsV6) {
                 // The same pool arithmetic as IPv4, on the low 32 bits of
                 // the address. The add wraps there and never carries into
-                // the prefix. A value inet_pton rejects is left as typed.
+                // the prefix. A value inet_pton rejects is dropped: it would
+                // reach the root shell below as typed.
                 $packed = @inet_pton($address);
                 if (false !== $packed && 16 === strlen($packed)) {
                     $low = unpack('N', substr($packed, 12, 4))[1];
@@ -819,6 +832,12 @@ class MulticastTask extends FOGService
                     $address = inet_ntop(
                         substr($packed, 0, 12) . pack('N', $low)
                     );
+                } else {
+                    self::_noteOnce(
+                        _('Ignoring invalid multicast address'),
+                        $address
+                    );
+                    $address = '';
                 }
             } else {
                 $address = long2ip(ip2long($address) + $offset);
@@ -1586,11 +1605,7 @@ class MulticastTask extends FOGService
         // An IPv6 sender needs the address bracketed in the URL and an IPv6
         // wildcard to bind: an IPv4 source cannot reach it. IPv4 is
         // unchanged.
-        $senderIsV6 = false !== filter_var(
-            trim((string)$senderIP, '[]'),
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_IPV6
-        );
+        $senderIsV6 = self::isIPv6(self::canonicalIP($senderIP));
         $sock = @stream_socket_client(
             sprintf('udp://%s:%d', self::urlHost($senderIP), $port + 1),
             $errno,

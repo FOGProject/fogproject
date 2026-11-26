@@ -547,8 +547,8 @@ abstract class BootMenuBase extends FOGBase
      *
      * udp-receiver joins the node's session in the node's own IP family, so
      * a rendezvous address of the other family cannot work and is left off
-     * the kernel line. A node named by hostname has no family to compare, so
-     * the address passes unchanged, as does every IPv4 pair.
+     * the kernel line. A node named by hostname counts as IPv4, because the
+     * multicast daemon resolves a hostname to an IPv4 address.
      *
      * @param string $rdv    the FOG_MULTICAST_RENDEZVOUS setting
      * @param string $nodeIP the storage node address
@@ -558,26 +558,14 @@ abstract class BootMenuBase extends FOGBase
     protected static function mcastRdvForNode($rdv, $nodeIP)
     {
         $rdv = (string)$rdv;
-        $nodeIP = trim((string)$nodeIP, '[] ');
-        if ('' === $rdv
-            || !filter_var($rdv, FILTER_VALIDATE_IP)
-            || !filter_var($nodeIP, FILTER_VALIDATE_IP)
-        ) {
+        if ('' === $rdv || !filter_var($rdv, FILTER_VALIDATE_IP)) {
             return $rdv;
         }
-        $rdvIsV6 = false !== filter_var(
-            $rdv,
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_IPV6
-        );
-        $nodeIsV6 = false !== filter_var(
-            $nodeIP,
-            FILTER_VALIDATE_IP,
-            FILTER_FLAG_IPV6
-        );
+        $nodeIsV6 = self::isIPv6(self::canonicalIP($nodeIP));
 
-        return $rdvIsV6 === $nodeIsV6 ? $rdv : '';
+        return self::isIPv6($rdv) === $nodeIsV6 ? $rdv : '';
     }
+
     /**
      * Whether a kernel-argument string asks for a shutdown when the task
      * ends.

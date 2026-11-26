@@ -653,6 +653,45 @@ abstract class FOGBase
         return $host;
     }
     /**
+     * Whether a value is an IPv6 literal.
+     *
+     * @param mixed $ip the value to test
+     *
+     * @return bool
+     */
+    protected static function isIPv6($ip)
+    {
+        return false !== filter_var(
+            trim((string) $ip),
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV6
+        );
+    }
+    /**
+     * Returns an IPv6 literal in the one canonical form `ip` prints.
+     *
+     * A node row can hold FD00::1, fd00:0:0::1 or [fd00::1] for the same
+     * address, and the machine's own list holds fd00::1. One pair of
+     * brackets is removed. An IPv4 address or a name is returned trimmed
+     * and otherwise unchanged.
+     *
+     * @param mixed $host the address as stored
+     *
+     * @return string
+     */
+    public static function canonicalIP($host)
+    {
+        $host = trim((string) $host);
+        $bare = $host;
+        if (strlen($bare) > 1 && '[' === $bare[0] && ']' === substr($bare, -1)) {
+            $bare = substr($bare, 1, -1);
+        }
+        if (self::isIPv6($bare)) {
+            return inet_ntop(inet_pton($bare));
+        }
+        return $host;
+    }
+    /**
      * Defines string as class name.
      *
      * @return string
@@ -4366,17 +4405,16 @@ abstract class FOGBase
                 $retVal
             );
         }
-        // Global IPv6 addresses go after the IPv4 ones, so the IPv4 entries
-        // and their order do not change. A storage node row can hold an IPv6
-        // literal, and checkIfNodeMaster() must recognize it as this machine.
-        // Tentative addresses are not usable yet, deprecated ones are on the
-        // way out, and temporary (privacy) ones rotate: none of them can name
-        // a node. Same filter as _globalAddresses6() in the installer.
+        // Global IPv6 addresses, appended after the IPv4 list below.
+        // checkIfNodeMaster() must find a node row that holds an IPv6 literal.
+        // Tentative, deprecated and temporary addresses cannot name a node.
+        $IPs6 = [];
         exec(
             '/sbin/ip -6 -o addr show scope global 2>/dev/null',
             $IPs6,
             $retVal6
         );
+        $globalIPs6 = [];
         foreach ((array) $IPs6 as $line6) {
             if (preg_match('/\s(tentative|deprecated|temporary)(\s|$)/', $line6)) {
                 continue;
@@ -4384,7 +4422,7 @@ abstract class FOGBase
             if (!preg_match('/\sinet6\s+([0-9a-fA-F:.]+)\//', $line6, $m6)) {
                 continue;
             }
-            $IPs[] = $m6[1];
+            $globalIPs6[] = self::canonicalIP($m6[1]);
         }
         unset($IPs6, $line6, $m6);
         /*$test = self::$FOGURLRequests->isAvailable('ipinfo.io', 2, 80, 'tcp');
@@ -4425,6 +4463,10 @@ abstract class FOGBase
         unset($IPs, $Names);
         @natcasesort($output);
         self::$ips = array_values(array_filter(array_unique((array) $output)));
+        // After the sorted IPv4 entries, which keep their order.
+        self::$ips = array_values(
+            array_unique(array_merge(self::$ips, $globalIPs6))
+        );
 
         return self::$ips;
     }
@@ -4716,7 +4758,9 @@ abstract class FOGBase
      */
     public static function resolveHostname($host, $negativeTtl = 0)
     {
-        $host = trim($host);
+        // An IPv6 literal comes back in the form `ip` prints, so it compares
+        // equal to this machine's own addresses. Anything else is unchanged.
+        $host = self::canonicalIP($host);
         if (filter_var($host, FILTER_VALIDATE_IP)) {
             return $host;
         }
@@ -5713,7 +5757,16 @@ abstract class FOGBase
      */
     protected static function getLocalGroupTrustedCIDRs()
     {
-        $localIPs = self::getIPAddress();
+        // IPv4 entries and names only: matching an IPv6 node row here would
+        // newly enable a group's trusted CIDRs, which is an access change.
+        $localIPs = array_values(
+            array_filter(
+                (array)self::getIPAddress(),
+                function ($ip) {
+                    return !self::isIPv6($ip);
+                }
+            )
+        );
         if (count($localIPs ?: []) < 1) {
             return [];
         }

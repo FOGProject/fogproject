@@ -88,6 +88,20 @@ namespace {
             . ' (expected ' . implode(',', $expect) . ')';
     }
 
+    // IPv6 comes after every IPv4 entry, not sorted in among them.
+    $lastV4 = -1;
+    $firstV6 = PHP_INT_MAX;
+    foreach ($ips as $i => $ip) {
+        if (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            $lastV4 = $i;
+        } elseif (false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            $firstV6 = min($firstV6, $i);
+        }
+    }
+    if ($firstV6 < $lastV4) {
+        $fails[] = 'an IPv6 address is listed before an IPv4 one';
+    }
+
     // No IPv6 on the box: the list is exactly the IPv4 list.
     $stubIp6 = [];
     $ips = (array)$get->invoke(null, true);
