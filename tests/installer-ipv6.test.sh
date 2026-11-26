@@ -577,6 +577,44 @@ configureDefaultiPXEfile >/dev/null 2>&1
 has "$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)" "chain http://10.0.0.1/fog/service/ipxe/boot.php" \
     "an IPv4 host is not bracketed"
 
+echo "== default.ipxe: HTTP netboot on a server with IPv6 =="
+
+# On an IPv6-only segment iPXE reaches default.ipxe over tftp://[v6]/, and an
+# IPv4 chain URL is then unreachable. The IPv4 server keeps the IPv4 URL first.
+ip() { [[ $* == *"-6"* ]] && printf '%s\n' "$IP6_FIXTURE"; }   # no IPv4 fixture
+NET_interface=eth0
+DHCP6_range_start=""; DHCP6_range_end=""
+NET_fog_server_ip="10.0.0.1"
+PKI_san_ip_addresses="10.0.0.1 2001:db8:0:1::5 fd00:f06:0:1::1"
+configureDefaultiPXEfile >/dev/null 2>&1
+d6=$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)
+has "$d6" ':bootme
+isset ${ip} && chain http://10.0.0.1/fog/service/ipxe/boot.php##params || chain http://[2001:db8:0:1::5]/fog/service/ipxe/boot.php##params' \
+    "HTTP + IPv6, no DHCPv6 range: one line, IPv4 chain first, bracketed first stable IPv6 as fallback"
+DHCP6_range_start="fd00:f06:0:1::100"; DHCP6_range_end="fd00:f06:0:1::1ff"
+configureDefaultiPXEfile >/dev/null 2>&1
+has "$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)" "chain http://[fd00:f06:0:1::1]/fog/service/ipxe/boot.php##params" \
+    "with --dhcp6-range the fallback is the address Kea's option 59 names"
+DHCP6_range_start=""; DHCP6_range_end=""
+
+# No IPv6 on the box: the file is byte-identical to what the old function wrote.
+ip() { :; }
+PKI_san_ip_addresses="10.0.0.1"
+configureDefaultiPXEfile >/dev/null 2>&1
+is "$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)" "$(cat "$HERE/fixtures/default-ipxe-ipv4-only.golden")" \
+    "an IPv4-only server's default.ipxe is unchanged"
+
+# HTTPS names a host that resolves for both families, so it stays one line.
+ip() { printf '%s\n' "$IP6_FIXTURE"; }
+BOOT_url_proto="https"; sBOOT_url_proto="https"
+_resolveNetbootHost() { netboothost="fog.example.org"; }
+configureDefaultiPXEfile >/dev/null 2>&1
+d6=$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)
+has "$d6" "
+chain https://fog.example.org/fog/service/ipxe/boot.php##params" "HTTPS netboot chains once, by name"
+hasnt "$d6" 'isset ${ip}' "HTTPS netboot gets no IPv4/IPv6 split"
+BOOT_url_proto="http"; sBOOT_url_proto="http"
+
 echo "== Kea DHCPv6 (--dhcp6-range) =="
 
 NET_interface=eth0

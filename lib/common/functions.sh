@@ -1288,6 +1288,21 @@ _serverIp6List() {
         [[ $a == *:* ]] && echo "$a"
     done
 }
+# The IPv6 address this server offers to clients as its boot server. With
+# --dhcp6-range it is the server address in the /64 of the range start, the one
+# Kea's bootfile-url (option 59) names. Without a range it is the first stable
+# address on the FOG interface. Empty output means the server has no usable IPv6.
+_bootServerIp6() {
+    local ip prefix
+    if [[ -n ${DHCP6_range_start} && -n ${DHCP6_range_end} ]]; then
+        prefix=$(_ipv6Prefix64 "${DHCP6_range_start}")
+        for ip in $(_serverIp6List); do
+            [[ $(_ipv6Prefix64 "$ip") == "$prefix" ]] && { echo "$ip"; return 0; }
+        done
+        return 0
+    fi
+    _globalAddresses6 "${NET_interface:-$interface}" | head -n1
+}
 # Mirrors FOGBase::urlHost(): brackets a bare IPv6 literal for use as a URL
 # host, and leaves a name or an IPv4 address alone.
 _urlHost() {
@@ -3506,6 +3521,19 @@ configureDefaultiPXEfile() {
     fi
     # An IPv6 literal needs its brackets in a URL.
     nbhost=$(_urlHost "$nbhost")
+    local bootpath="${WEB_root}service/ipxe/boot.php##params"
+    local chainline="chain ${BOOT_url_proto}://${nbhost}${bootpath}"
+    # An IPv6-only client cannot reach the IPv4 URL. Chain it only when iPXE has
+    # an IPv4 lease; else use the IPv6 URL. Keep one line: iPXE has no
+    # cross-line "||". ${ip} is the IPv4 lease, unset with IPv6 only
+    # (iPXE net/ipv4.c:948, core/settings.c:714).
+    local bootip6
+    if [[ ${BOOT_url_proto} == http && ${nbhost} != *:* ]]; then
+        bootip6=$(_bootServerIp6)
+        if [[ -n $bootip6 ]]; then
+            chainline='isset ${ip} && '"${chainline} || chain http://$(_urlHost "$bootip6")${bootpath}"
+        fi
+    fi
     # param manufacturer took ${product} for years, so every ipxeTable row
     # recorded the model twice and the vendor never once. iPXE exposes the two
     # as separate SMBIOS settings.
@@ -3532,7 +3560,7 @@ configureDefaultiPXEfile() {
     # PXE boot costs far more than a missing observation, so hosts read as
     # "never reported" until the iPXE binaries read those two variables
     # directly. boot.php still accepts both params for when they come back.
-    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${manufacturer}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nparam sysserial \${serial}\nparam mbserial \${board-serial}\nparam caseasset \${asset}\nisset \${netX/mac} && param macboot \${netX/mac} ||\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\nisset \${net3/mac} && param mac3 \${net3/mac} || goto bootme\nisset \${net4/mac} && param mac4 \${net4/mac} || goto bootme\nisset \${net5/mac} && param mac5 \${net5/mac} || goto bootme\nisset \${net6/mac} && param mac6 \${net6/mac} || goto bootme\nisset \${net7/mac} && param mac7 \${net7/mac} || goto bootme\n:bootme\nchain ${BOOT_url_proto}://${nbhost}${WEB_root}service/ipxe/boot.php##params" > "$tftpdirdst/default.ipxe"
+    echo -e "#!ipxe\nset arch \${buildarch}\niseq \${arch} i386 && cpuid --ext 29 && set arch x86_64 ||\nparams\nparam mac0 \${net0/mac}\nparam arch \${arch}\nparam platform \${platform}\nparam product \${product}\nparam manufacturer \${manufacturer}\nparam ipxever \${version}\nparam filename \${filename}\nparam sysuuid \${uuid}\nparam sysserial \${serial}\nparam mbserial \${board-serial}\nparam caseasset \${asset}\nisset \${netX/mac} && param macboot \${netX/mac} ||\nisset \${net1/mac} && param mac1 \${net1/mac} || goto bootme\nisset \${net2/mac} && param mac2 \${net2/mac} || goto bootme\nisset \${net3/mac} && param mac3 \${net3/mac} || goto bootme\nisset \${net4/mac} && param mac4 \${net4/mac} || goto bootme\nisset \${net5/mac} && param mac5 \${net5/mac} || goto bootme\nisset \${net6/mac} && param mac6 \${net6/mac} || goto bootme\nisset \${net7/mac} && param mac7 \${net7/mac} || goto bootme\n:bootme\n${chainline}" > "$tftpdirdst/default.ipxe"
     errorStat $?
 }
 prepareiPXEsource() {
@@ -18600,11 +18628,8 @@ EOFKEA6
 configureDHCP6() {
     [[ -n ${DHCP6_range_start} && -n ${DHCP6_range_end} ]] || return 0
     dots "Setting up and starting DHCP Server (Kea, IPv6)"
-    local target="${kea6config:-/etc/kea/kea-dhcp6.conf}" addr="" ip prefix
-    prefix=$(_ipv6Prefix64 "${DHCP6_range_start}")
-    for ip in $(_serverIp6List); do
-        [[ $(_ipv6Prefix64 "$ip") == "$prefix" ]] && { addr="$ip"; break; }
-    done
+    local target="${kea6config:-/etc/kea/kea-dhcp6.conf}" addr=""
+    addr=$(_bootServerIp6)
     if [[ -z $addr ]]; then
         echo "Failed"
         echo " * ${NET_interface} has no IPv6 address in the /64 of ${DHCP6_range_start}."
