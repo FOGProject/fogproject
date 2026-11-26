@@ -3100,6 +3100,9 @@ installFOGServices() {
     dots "Setting up FOG Services"
     mkdir -p $servicedst
     cp -Rf $servicesrc/* $servicedst/
+    mkdir -p $servicelogs
+    errorStat $?
+    dots "Setting FOG service permissions"
     # Forum 18335: FOGPluginRunner, FOGRetentionRunner and FOGAgentReleaseSync
     # run as $apacheuser (ADR 0010), so that account must traverse $servicedst
     # and read each daemon plus lib/. cp -R keeps the checkout's modes, and a
@@ -3110,9 +3113,6 @@ installFOGServices() {
     # umask, so under 027 it never reached "other". It covers only the trees
     # copied from $servicesrc. The old "chmod +x -R $servicedst/" also walked
     # $servicedst/etc, which can hold a 1.5-era pki/ with private keys.
-    mkdir -p $servicelogs
-    errorStat $?
-    dots "Setting FOG service permissions"
     local svcitem permrc=0
     chmod a+rx "$servicedst" >>$error_log 2>&1 || permrc=1
     for svcitem in "$servicesrc"/*; do
@@ -3124,7 +3124,10 @@ installFOGServices() {
     # A parent outside it (servicelogs=/var/log/fog) belongs to the host, and
     # its mode is the admin's choice, so it is left alone.
     chmod a+x "$fogprogramdir" "$servicelogs" >>$error_log 2>&1 || permrc=1
-    errorStat $permrc
+    # Warn, never exit: this runs before updateDB, and stopping the install
+    # here costs more than the three web-user daemons failing to start.
+    [[ $permrc -ne 0 ]] && echo -n "(some modes could not be set, see $error_log) "
+    errorStat 0
     # ADR 0010: FOGPluginRunner runs as the web user, so it cannot write into
     # $servicelogs, which is root's. It gets its own subdirectory instead of
     # group-write on the shared one -- log rotation renames and unlinks, so
