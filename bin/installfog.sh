@@ -25,6 +25,14 @@ if [[ ! $EUID -eq 0 ]]; then
     exit 1 # Fail Sudo
 fi
 
+# Forum 18335/18336: the installer used to inherit the admin's umask. Under a
+# hardened umask (027) every path it created without an explicit chmod was
+# root-only: /etc/fog, /opt/fog/bin, /tftpboot/default.ipxe and more. So the
+# web user, tftp and fogproject lost files they must read. A package manager
+# installs with fixed modes whatever the admin's umask, and so does this now.
+# Every secret is already set to its own mode explicitly, so 022 exposes none.
+umask 022
+
 # The installer calls a number of tools that live in an sbin directory, so it
 # has to be sure they are reachable. This used to be inferred rather than
 # tested: `which adduser`, plus a demand that the string "sbin" appear at least
