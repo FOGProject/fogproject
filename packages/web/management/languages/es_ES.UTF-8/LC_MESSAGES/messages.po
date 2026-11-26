@@ -5074,9 +5074,21 @@ msgstr "Clientela"
 msgid "Ignored unknown header columns"
 msgstr ""
 
+#, fuzzy
+msgid "Ignoring IPv4 multicast address on an IPv6 session"
+msgstr "Iniciar la sesión de multidifusión"
+
+#, fuzzy
+msgid "Ignoring IPv6 multicast address on an IPv4 session"
+msgstr "Iniciar la sesión de multidifusión"
+
 #, php-format
 msgid "Ignoring configured interface %s; %s routes over %s"
 msgstr ""
+
+#, fuzzy
+msgid "Ignoring invalid multicast address"
+msgstr "Iniciar la sesión de multidifusión"
 
 #, fuzzy
 msgid "Ignoring invalid multicast bitrate"

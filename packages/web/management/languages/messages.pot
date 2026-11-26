@@ -4323,8 +4323,17 @@ msgstr ""
 msgid "Ignored unknown header columns"
 msgstr ""
 
+msgid "Ignoring IPv4 multicast address on an IPv6 session"
+msgstr ""
+
+msgid "Ignoring IPv6 multicast address on an IPv4 session"
+msgstr ""
+
 #, php-format
 msgid "Ignoring configured interface %s; %s routes over %s"
+msgstr ""
+
+msgid "Ignoring invalid multicast address"
 msgstr ""
 
 msgid "Ignoring invalid multicast bitrate"
