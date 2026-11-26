@@ -4366,6 +4366,27 @@ abstract class FOGBase
                 $retVal
             );
         }
+        // Global IPv6 addresses go after the IPv4 ones, so the IPv4 entries
+        // and their order do not change. A storage node row can hold an IPv6
+        // literal, and checkIfNodeMaster() must recognize it as this machine.
+        // Tentative addresses are not usable yet, deprecated ones are on the
+        // way out, and temporary (privacy) ones rotate: none of them can name
+        // a node. Same filter as _globalAddresses6() in the installer.
+        exec(
+            '/sbin/ip -6 -o addr show scope global 2>/dev/null',
+            $IPs6,
+            $retVal6
+        );
+        foreach ((array) $IPs6 as $line6) {
+            if (preg_match('/\s(tentative|deprecated|temporary)(\s|$)/', $line6)) {
+                continue;
+            }
+            if (!preg_match('/\sinet6\s+([0-9a-fA-F:.]+)\//', $line6, $m6)) {
+                continue;
+            }
+            $IPs[] = $m6[1];
+        }
+        unset($IPs6, $line6, $m6);
         /*$test = self::$FOGURLRequests->isAvailable('ipinfo.io', 2, 80, 'tcp');
         $test = array_shift($test);
         if (false !== $test) {
