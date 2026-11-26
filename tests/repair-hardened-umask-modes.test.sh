@@ -1,0 +1,141 @@
+#!/bin/bash
+#
+# Pins _repairHardenedUmaskModes: an upgrade over an install made under
+# umask 027 opens the listed paths to the modes a default install has, and
+# leaves every path that is closed on purpose closed.
+#
+#   tests/repair-hardened-umask-modes.test.sh
+#
+# Forum 18335/18336. installfog.sh now sets umask 022, but a umask applies
+# only when a path is created. mkdir -p and `>` keep an existing path's mode,
+# so /etc/fog and the rest stayed 0750/0640 after an upgrade. The modes built
+# below are the ones a Debian 13 install under umask 027 left.
+#
+# No root. Exit status 0 = pass, 1 = fail.
+
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$HERE/.." && pwd)"
+FUNCS="$REPO/lib/common/functions.sh"
+[[ -f $FUNCS ]] || { echo "ERROR: $FUNCS not found" >&2; exit 1; }
+
+PASS=0 FAIL=0
+ok()  { PASS=$((PASS + 1)); printf '  ok    %s\n' "$1"; }
+bad() { FAIL=$((FAIL + 1)); printf '  FAIL  %s\n' "$1"; }
+
+WORK="$(mktemp -d)"
+trap 'rm -rf "$WORK"' EXIT
+
+# shellcheck source=/dev/null
+. "$FUNCS" >/dev/null 2>&1
+# The real one migrates /opt/fog/pki; the test needs only the path.
+_pkiRootDir() { echo "$WORK/etc/fog/pki"; }
+
+error_log="$WORK/error.log"
+fogprogramdir="$WORK/opt/fog"
+snapindir="$fogprogramdir/snapins"
+servicelogs="$fogprogramdir/log"
+webdirdest="$WORK/var/www/html/fog/"
+webredirect="$WORK/var/www/html/index.php"
+# The function names /home/${SVC_user}; this resolves that under $WORK.
+SVC_user="..$WORK/home/fogproject"
+home="$WORK/home/fogproject"
+
+# path mode: create it with that mode. A trailing / makes a directory.
+mk() {
+    if [[ $1 == */ ]]; then
+        mkdir -p "$1"
+    else
+        mkdir -p "$(dirname "$1")"
+        : > "$1"
+    fi
+    chmod "$2" "$1"
+}
+# The 027 install, as measured.
+mk "$WORK/etc/fog/" 750
+mk "$WORK/etc/fog/pki/" 755
+mk "$WORK/etc/fog/pki/agent/" 750
+mk "$WORK/etc/fog/pki/agent/ca/" 700
+mk "$WORK/etc/fog/pki/agent/ca/int.csr" 640
+mk "$WORK/etc/fog/pki/agent/ca/.fogAgentCA.key" 600
+mk "$WORK/etc/fog/pki/client/" 750
+mk "$WORK/etc/fog/pki/client/leaf/" 710
+mk "$WORK/etc/fog/pki/client/leaf/fog.csr" 640
+mk "$WORK/etc/fog/pki/client/leaf/.srvprivate.key" 640
+mk "$WORK/etc/fog/pki/root/" 750
+mk "$WORK/etc/fog/pki/root/ca/.fogCA.key" 400
+mk "$WORK/etc/fog/pki/web/" 750
+mk "$WORK/etc/fog/pki/web/ca/.trustAnchor.pem" 640
+mk "$WORK/etc/fog/pki/web/ca/.fogWebCA.srl" 640
+mk "$WORK/etc/fog/pki/web/leaf/.webLeaf.sans" 640
+mk "$WORK/etc/fog/pki/web/leaf/.webLeaf.key" 600
+mk "$WORK/etc/fog/ssh/" 750
+mk "$WORK/etc/fog/ssh/fog_ssh_key" 640
+mk "$snapindir/ssl/CA/root.cnf" 640
+chmod 750 "$snapindir/ssl" "$snapindir/ssl/CA"
+mk "$fogprogramdir/customizations/kernel-backups/gen-1/bzImage" 640
+mk "$fogprogramdir/customizations/ipxe-bg/bg.png" 640
+chmod 750 "$fogprogramdir/customizations" "$fogprogramdir/customizations/kernel-backups" \
+    "$fogprogramdir/customizations/ipxe-bg"
+mk "$fogprogramdir/pkiadmin-staging/" 750
+mk "$servicelogs/plugins/" 750
+mk "$servicelogs/faults/" 750
+mk "${webdirdest}service/ipxe/bzImage" 640
+mk "${webdirdest}client/FOGService.msi" 640
+mk "${webdirdest}management/other/agent-ca-bundle.pem" 640
+mk "${webdirdest}commons/config.class.php" 640
+mk "$webredirect" 640
+mk "$home/.bashrc" 640
+mk "$home/.config/autostart/warnfogaccount.desktop" 640
+chmod 750 "$home/.config" "$home/.config/autostart"
+
+_repairHardenedUmaskModes
+
+is() {
+    local mode
+    mode=$(stat -c %a "$1" 2>/dev/null) || { bad "${1#$WORK/} missing"; return; }
+    [[ $mode == "$2" ]] && ok "${1#$WORK/} is $2 ($3)" || bad "${1#$WORK/} is $mode, want $2 ($3)"
+}
+
+# Opened to the default-install mode.
+is "$WORK/etc/fog" 755 opened
+is "$WORK/etc/fog/pki/agent" 755 opened
+is "$WORK/etc/fog/pki/client" 755 opened
+is "$WORK/etc/fog/pki/root" 755 opened
+is "$WORK/etc/fog/pki/web" 755 opened
+is "$WORK/etc/fog/pki/agent/ca/int.csr" 644 opened
+is "$WORK/etc/fog/pki/client/leaf/fog.csr" 644 opened
+is "$WORK/etc/fog/pki/web/ca/.trustAnchor.pem" 644 opened
+is "$WORK/etc/fog/pki/web/ca/.fogWebCA.srl" 644 opened
+is "$WORK/etc/fog/pki/web/leaf/.webLeaf.sans" 644 opened
+is "$snapindir/ssl" 755 opened
+is "$snapindir/ssl/CA" 755 opened
+is "$snapindir/ssl/CA/root.cnf" 644 opened
+is "$fogprogramdir/customizations" 755 opened
+is "$fogprogramdir/customizations/kernel-backups" 755 opened
+is "$fogprogramdir/customizations/kernel-backups/gen-1/bzImage" 644 opened
+is "$fogprogramdir/customizations/ipxe-bg/bg.png" 644 opened
+is "$servicelogs/plugins" 755 opened
+is "${webdirdest}service/ipxe/bzImage" 644 opened
+is "${webdirdest}client/FOGService.msi" 644 opened
+is "${webdirdest}management/other/agent-ca-bundle.pem" 644 opened
+is "$webredirect" 644 opened
+is "$home/.bashrc" 644 opened
+is "$home/.config" 755 opened
+is "$home/.config/autostart/warnfogaccount.desktop" 644 opened
+
+# Closed on purpose, and left closed.
+is "$WORK/etc/fog/pki/agent/ca" 700 "kept closed"
+is "$WORK/etc/fog/pki/agent/ca/.fogAgentCA.key" 600 "kept closed"
+is "$WORK/etc/fog/pki/client/leaf" 710 "kept closed"
+is "$WORK/etc/fog/pki/client/leaf/.srvprivate.key" 640 "kept closed"
+is "$WORK/etc/fog/pki/root/ca/.fogCA.key" 400 "kept closed"
+is "$WORK/etc/fog/pki/web/leaf/.webLeaf.key" 600 "kept closed"
+is "$WORK/etc/fog/ssh" 750 "kept closed"
+is "$WORK/etc/fog/ssh/fog_ssh_key" 640 "kept closed"
+is "$fogprogramdir/pkiadmin-staging" 750 "kept closed"
+is "$servicelogs/faults" 750 "kept closed"
+is "${webdirdest}commons/config.class.php" 640 "kept closed"
+
+echo
+echo "$PASS passed, $FAIL failed"
+(( FAIL == 0 ))
