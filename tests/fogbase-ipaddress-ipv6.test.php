@@ -50,9 +50,11 @@ namespace {
     // What the first exec() in getIPAddress() returns: already reduced to
     // addresses by its own awk.
     $stubIp4 = ['192.0.2.10', '10.9.8.7'];
-    // `ip -6 -o addr show scope global` output.
+    // `ip -6 -o addr show scope global` output. A natural sort reads the
+    // 2a00: address as the number 2, so it would land before 10.9.8.7.
     $tail = 'valid_lft forever preferred_lft forever';
     $stubIp6 = [
+        "2: eth0    inet6 2a00:f06:0:1::1/64 scope global \\       $tail",
         "2: eth0    inet6 fd00:f06:0:1::1/64 scope global \\       $tail",
         "2: eth0    inet6 fd00:f06:0:1:aaaa::5/64 scope global dynamic mngtmpaddr noprefixroute \\       $tail",
         "2: eth0    inet6 fd00:f06:0:1:bbbb::6/64 scope global tentative \\       $tail",
@@ -65,7 +67,7 @@ namespace {
     $get->setAccessible(true);
     $ips = (array)$get->invoke(null, true);
 
-    foreach (['fd00:f06:0:1::1', 'fd00:f06:0:1:aaaa::5'] as $want) {
+    foreach (['2a00:f06:0:1::1','fd00:f06:0:1::1', 'fd00:f06:0:1:aaaa::5'] as $want) {
         if (!in_array($want, $ips, true)) {
             $fails[] = "global IPv6 address $want is not listed";
         }
