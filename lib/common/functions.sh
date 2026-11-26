@@ -3527,14 +3527,17 @@ configureDefaultiPXEfile() {
     # dual-stack network iPXE holds an IPv4 lease too, so ${ip} alone would drop
     # IPv6. The dhcpv6 settings block exists only when iPXE ran DHCPv6, so a
     # lease (ip6) or option 59 (filename, set with stateless DHCPv6) there means
-    # a PXEv6 boot (net/udp/dhcpv6.c:403). iPXE has no cross-line "||": use goto.
-    local bootip6 url6 v6first
+    # a PXEv6 boot (iPXE net/udp/dhcpv6.c:403,409). iPXE has no cross-line "||",
+    # so use goto. The single-quoted parts are iPXE text and stay literal.
+    local bootip6 url4 url6 v6first v4check
     if [[ ${BOOT_url_proto} == http && ${nbhost} != *:* ]]; then
         bootip6=$(_bootServerIp6)
         if [[ -n $bootip6 ]]; then
+            url4="$chainline"
             url6="chain http://$(_urlHost "$bootip6")${bootpath}"
             v6first='isset ${netX.dhcpv6/filename} && goto bootv6 ||\nisset ${netX.dhcpv6/ip6} && goto bootv6 ||\n'
-            chainline="${v6first}"'isset ${ip} && '"${chainline} || ${url6}\nexit\n:bootv6\n${url6} || ${chainline}"
+            v4check='isset ${ip} && '
+            chainline="${v6first}${v4check}${url4} || ${url6}\nexit\n:bootv6\n${url6} || ${url4}"
         fi
     fi
     # param manufacturer took ${product} for years, so every ipxeTable row
