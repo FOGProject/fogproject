@@ -14976,6 +14976,14 @@ die();
     chmod 2775 "${webdirdest%/}/management/logs" >>$error_log 2>&1
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
     chown -R ${SVC_user}:${apacheuser} "$webdirdest/service/ipxe"
+    # Forum 18336: kernels, inits and client installers come from the
+    # download cache in the checkout's tmp/, not from the checkout tree, so the
+    # chmod after the web-tree copy does not reach them. An install made under
+    # umask 027 cached them 0640, and every later run copies that mode back.
+    local dlpath
+    for dlpath in "${webdirdest%/}/service/ipxe" "${webdirdest%/}/client"; do
+        [[ -d $dlpath ]] && find "$dlpath" -maxdepth 1 -type f -exec chmod go+r {} + >>$error_log 2>&1
+    done
 }
 # Forum 18335/18336: repair a server installed before installfog.sh set its own
 # umask. A umask applies only when a path is created, and mkdir -p and `>` keep
@@ -15016,12 +15024,7 @@ _repairHardenedUmaskModes() {
         "$webredirect" "${webdirdest%/}/management/other/agent-ca-bundle.pem"; do
         [[ -f $f ]] && chmod go+r "$f" >>$error_log 2>&1
     done
-    # Kernels, inits and client installers: downloaded, not copied from the
-    # checkout, so the web-tree chmod in configureHttpd does not reach them.
-    for d in "${webdirdest%/}/service/ipxe" "${webdirdest%/}/client"; do
-        [[ -d $d ]] && find "$d" -maxdepth 1 -type f -exec chmod go+r {} + >>$error_log 2>&1
-    done
-    # FOG's copies of those boot files and of the admin's iPXE background and
+    # FOG's copies of the boot files configureHttpd downloads, and of the admin's iPXE background and
     # binaries. configureHttpd restores the web tree from here with cp -a, so
     # a closed copy here would close the restored file again.
     d="${fogprogramdir}/customizations"
