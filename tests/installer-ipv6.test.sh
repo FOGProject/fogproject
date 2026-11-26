@@ -599,6 +599,22 @@ has "$k6" "tftp://[fd00:f06:0:1::1]/$(_uefiBootFile arm64)" "the arm64 class nam
 has "$k6" "0x0007" "x64 UEFI is matched on option 61 = 0x0007"
 has "$k6" "0x000b" "arm64 UEFI is matched on option 61 = 0x000b"
 hasnt "$k6" "dns-servers" "no DNS servers are sent"
+DHCP6_dns="fd00:f06:0:1::53,fd00:f06:0:1::54"
+_writeKea6Config "$WORK/k6dns.conf" "fd00:f06:0:1::1"
+k6dns=$(cat "$WORK/k6dns.conf")
+has "$k6dns" '"option-data": [ { "name": "dns-servers", "data": "fd00:f06:0:1::53, fd00:f06:0:1::54" } ]' \
+    "--dhcp6-dns writes a dns-servers option with the comma-separated list"
+has "$k6dns" '"pool": "fd00:f06:0:1::100-fd00:f06:0:1::1ff" } ],' "...inside the subnet6 entry, after the pools"
+if command -v python3 >/dev/null 2>&1; then
+    if python3 -I -c 'import json,sys; d=json.load(open(sys.argv[1])); o=d["Dhcp6"]["subnet6"][0]["option-data"][0]; assert o=={"name":"dns-servers","data":"fd00:f06:0:1::53, fd00:f06:0:1::54"}' "$WORK/k6dns.conf" 2>/dev/null; then
+        ok "the config with --dhcp6-dns is valid JSON and the option sits in subnet6"
+    else
+        bad "the config with --dhcp6-dns is not valid JSON, or the option is misplaced"
+    fi
+fi
+DHCP6_dns=""
+_writeKea6Config "$WORK/k6nodns.conf" "fd00:f06:0:1::1"
+is "$(cat "$WORK/k6nodns.conf")" "$k6" "without --dhcp6-dns the config is unchanged"
 BOOT_uefi_bootfile=ipxe
 _writeKea6Config "$WORK/k6b.conf" "fd00:f06:0:1::1"
 has "$(cat "$WORK/k6b.conf")" "tftp://[fd00:f06:0:1::1]/ipxe.efi" "--uefi-bootfile ipxe carries into the DHCPv6 boot file"
@@ -672,7 +688,39 @@ is "$DHCP6_range_start,$DHCP6_range_end" "a,b" "without the flag a recorded pool
 # Persistence: written to .fogsettings with the other DHCP keys.
 persist=$(sed -n '/DHCP_range_start DHCP_range_end$/,+6p' "$FUNCS")
 has "$persist" "DHCP6_range_start DHCP6_range_end" "the DHCPv6 keys are persisted across upgrades"
-hasnt "$persist" "DHCP6_dns" "no DNS key is persisted"
+has "$persist" "DHCP6_dns" "the DHCPv6 DNS key is persisted across upgrades"
+
+echo "== --dhcp6-dns: option parsing =="
+parsed=$(getopt -o "" -l "$longopts" -n test -- --dhcp6-dns fd00::53,fd00::54 2>&1)
+is "$parsed" " --dhcp6-dns 'fd00::53,fd00::54' --" "getopt accepts --dhcp6-dns and keeps its value"
+arm=$(sed -n '/^        --dhcp6-dns)$/,/^            ;;$/p' "$INSTALLER")
+[[ -n $arm ]] || { echo "ERROR: could not extract the --dhcp6-dns arm" >&2; exit 1; }
+parsedns() {
+    ( sDHCP6_dns=""
+      eval "case \$1 in
+$arm
+esac"
+      echo "dns=${sDHCP6_dns}" ) 2>&1
+}
+dnserr="--dhcp6-dns requires ADDR[,ADDR...] IPv6 addresses after, like fd00::53,fd00::54"
+is "$(parsedns --dhcp6-dns fd00::53)" "dns=fd00::53" "one address is accepted"
+is "$(parsedns --dhcp6-dns fd00::53,fd00::54)" "dns=fd00::53,fd00::54" "a list is kept as given"
+is "$(parsedns --dhcp6-dns 10.0.0.1)" "$dnserr" "an IPv4 address is refused"
+is "$(parsedns --dhcp6-dns fd00::53,nonsense)" "$dnserr" "a bad address in the list is refused"
+is "$(parsedns --dhcp6-dns fd00::53,,fd00::54)" "$dnserr" "an empty list entry is refused"
+apply=$(grep -E '^\[\[ -n \$\{sDHCP6_dns\} \]\] && DHCP6_dns=' "$INSTALLER")
+sDHCP6_dns="fd00::53"; DHCP6_dns="old"
+eval "$apply"
+is "$DHCP6_dns" "fd00::53" "the flag beats a recorded DNS list"
+sDHCP6_dns=""; DHCP6_dns="kept"
+eval "$apply"
+is "$DHCP6_dns" "kept" "without the flag a recorded DNS list is kept"
+warn=$(grep -E '^\[\[ -n \$\{sDHCP6_dns\} && -z \$\{DHCP6_range_start\} \]\]' "$INSTALLER")
+sDHCP6_dns="fd00::53"; DHCP6_range_start=""
+has "$(eval "$warn")" "--dhcp6-dns has no effect without --dhcp6-range" "a DNS list with no pool warns"
+DHCP6_range_start="fd00::100"
+is "$(eval "$warn")" "" "a DNS list with a pool does not warn"
+sDHCP6_dns=""; DHCP6_range_start=""; DHCP6_dns=""
 
 echo "== --reissue-web-ca: option parsing =="
 parsed=$(getopt -o "" -l "$longopts" -n test -- --reissue-web-ca 2>&1)

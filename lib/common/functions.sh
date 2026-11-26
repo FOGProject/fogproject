@@ -8879,11 +8879,12 @@ writeUpdateFile() {
         # had the identical wart with no clean twin and gets the same treatment.
         DHCP_enabled DHCP_engine DHCP_service_name DHCP_router DHCP_dns_server_ip
         DHCP_range_start DHCP_range_end
-        # DHCPv6 (--dhcp6-range) is opt-in: the pool is its only setting.
+        # DHCPv6 (--dhcp6-range) is opt-in. The pool and the optional DNS list
+        # (--dhcp6-dns) are its only settings.
         # configureDHCP6 rewrites the whole Kea DHCPv6 config on every run.
-        # Without these keys an upgrade drops the pool and stops serving
-        # IPv6 clients.
-        DHCP6_range_start DHCP6_range_end
+        # Without these keys an upgrade drops the pool and the DNS list, and
+        # stops serving IPv6 clients.
+        DHCP6_range_start DHCP6_range_end DHCP6_dns
 
         # --- DB_: the database connection and its dump path
         #
@@ -18374,10 +18375,15 @@ _ipv6Prefix64() {
 # Opt-in DHCPv6 (--dhcp6-range). Writes the Kea DHCPv6 config that lets an
 # IPv6-only client PXE boot. $1 is the target file. $2 is this server's address
 # in the pool's /64. It reads ${NET_interface}, ${DHCP6_range_start} and
-# ${DHCP6_range_end}. It sends no DNS servers. The client classes mirror
+# ${DHCP6_range_end}. It sends DNS servers (option 23) only when ${DHCP6_dns}
+# is set. ${DHCP6_dns} is a comma-separated list. The client classes mirror
 # _keaBaseClasses. iPXE (user class "iPXE") gets default.ipxe. UEFI firmware gets the boot file the IPv4 config
 # names. iPXE also sends option 61, so the UEFI classes exclude it.
 _writeKea6Config() {
+    # Empty without ${DHCP6_dns}, so the config stays the same as before.
+    local dns6=""
+    [[ -n ${DHCP6_dns} ]] && dns6=",
+                \"option-data\": [ { \"name\": \"dns-servers\", \"data\": \"${DHCP6_dns//,/, }\" } ]"
     cat > "$1" <<EOFKEA6
 {
     "Dhcp6": {
@@ -18417,7 +18423,7 @@ _writeKea6Config() {
                 "id": 1,
                 "subnet": "$(_ipv6Prefix64 "$2")::/64",
                 "interface": "${NET_interface}",
-                "pools": [ { "pool": "${DHCP6_range_start}-${DHCP6_range_end}" } ]
+                "pools": [ { "pool": "${DHCP6_range_start}-${DHCP6_range_end}" } ]${dns6}
             }
         ]
     }

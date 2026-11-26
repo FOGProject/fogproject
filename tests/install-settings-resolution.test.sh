@@ -425,7 +425,7 @@ modelKeys="
     DB_external DB_host DB_name DB_password
     DB_user DHCP_dns_server_ip DHCP_enabled DHCP_engine
     DHCP_range_end DHCP_range_start DHCP_router DHCP_service_name
-    DHCP6_range_end DHCP6_range_start
+    DHCP6_dns DHCP6_range_end DHCP6_range_start
     FOG_copy_back_old FOG_git_path FOG_install_lang FOG_install_mode
     FOG_install_type FOG_installed FOG_last_good_commit FOG_os_id
     FOG_os_name
