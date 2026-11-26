@@ -589,6 +589,7 @@ PKI_san_ip_addresses="10.0.0.1 2001:db8:0:1::5 fd00:f06:0:1::1"
 configureDefaultiPXEfile >/dev/null 2>&1
 d6=$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)
 has "$d6" ':bootme
+isset ${netX.dhcpv6/filename} && goto bootv6 ||
 isset ${netX.dhcpv6/ip6} && goto bootv6 ||
 isset ${ip} && chain http://10.0.0.1/fog/service/ipxe/boot.php##params || chain http://[2001:db8:0:1::5]/fog/service/ipxe/boot.php##params
 exit
@@ -598,6 +599,7 @@ chain http://[2001:db8:0:1::5]/fog/service/ipxe/boot.php##params || chain http:/
 DHCP6_range_start="fd00:f06:0:1::100"; DHCP6_range_end="fd00:f06:0:1::1ff"
 configureDefaultiPXEfile >/dev/null 2>&1
 has "$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)" ':bootme
+isset ${netX.dhcpv6/filename} && goto bootv6 ||
 isset ${netX.dhcpv6/ip6} && goto bootv6 ||
 isset ${ip} && chain http://10.0.0.1/fog/service/ipxe/boot.php##params || chain http://[fd00:f06:0:1::1]/fog/service/ipxe/boot.php##params
 exit

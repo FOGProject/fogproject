@@ -3525,18 +3525,16 @@ configureDefaultiPXEfile() {
     local chainline="chain ${BOOT_url_proto}://${nbhost}${bootpath}"
     # An IPv6-only client cannot reach the IPv4 URL. After a PXEv6 boot on a
     # dual-stack network iPXE holds an IPv4 lease too, so ${ip} alone would drop
-    # IPv6. A dhcpv6 settings block exists only after PXEv6 or on IPv6 only, so
-    # ${netX.dhcpv6/ip6} picks the IPv6 URL first. Else chain IPv4 when ${ip} is
-    # set. iPXE has no cross-line "||", so use goto. "netX" redirects to a
-    # device (net/netdev_settings.c:389-404), the block is "dhcpv6"
-    # (include/ipxe/dhcpv6.h:266, net/udp/dhcpv6.c:464), and "exit" ends only
-    # this script (core/exec.c:467, image/script.c:166).
-    local bootip6
+    # IPv6. The dhcpv6 settings block exists only when iPXE ran DHCPv6, so a
+    # lease (ip6) or option 59 (filename, set with stateless DHCPv6) there means
+    # a PXEv6 boot (net/udp/dhcpv6.c:403). iPXE has no cross-line "||": use goto.
+    local bootip6 url6 v6first
     if [[ ${BOOT_url_proto} == http && ${nbhost} != *:* ]]; then
         bootip6=$(_bootServerIp6)
         if [[ -n $bootip6 ]]; then
-            local url6="chain http://$(_urlHost "$bootip6")${bootpath}"
-            chainline='isset ${netX.dhcpv6/ip6} && goto bootv6 ||\nisset ${ip} && '"${chainline} || ${url6}"'\nexit\n:bootv6\n'"${url6} || ${chainline}"
+            url6="chain http://$(_urlHost "$bootip6")${bootpath}"
+            v6first='isset ${netX.dhcpv6/filename} && goto bootv6 ||\nisset ${netX.dhcpv6/ip6} && goto bootv6 ||\n'
+            chainline="${v6first}"'isset ${ip} && '"${chainline} || ${url6}\nexit\n:bootv6\n${url6} || ${chainline}"
         fi
     fi
     # param manufacturer took ${product} for years, so every ipxeTable row
