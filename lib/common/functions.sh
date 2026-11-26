@@ -3523,15 +3523,20 @@ configureDefaultiPXEfile() {
     nbhost=$(_urlHost "$nbhost")
     local bootpath="${WEB_root}service/ipxe/boot.php##params"
     local chainline="chain ${BOOT_url_proto}://${nbhost}${bootpath}"
-    # An IPv6-only client cannot reach the IPv4 URL. Chain it only when iPXE has
-    # an IPv4 lease; else use the IPv6 URL. Keep one line: iPXE has no
-    # cross-line "||". ${ip} is the IPv4 lease, unset with IPv6 only
-    # (iPXE net/ipv4.c:948, core/settings.c:714).
+    # An IPv6-only client cannot reach the IPv4 URL. After a PXEv6 boot on a
+    # dual-stack network iPXE holds an IPv4 lease too, so ${ip} alone would drop
+    # IPv6. A dhcpv6 settings block exists only after PXEv6 or on IPv6 only, so
+    # ${netX.dhcpv6/ip6} picks the IPv6 URL first. Else chain IPv4 when ${ip} is
+    # set. iPXE has no cross-line "||", so use goto. "netX" redirects to a
+    # device (net/netdev_settings.c:389-404), the block is "dhcpv6"
+    # (include/ipxe/dhcpv6.h:266, net/udp/dhcpv6.c:464), and "exit" ends only
+    # this script (core/exec.c:467, image/script.c:166).
     local bootip6
     if [[ ${BOOT_url_proto} == http && ${nbhost} != *:* ]]; then
         bootip6=$(_bootServerIp6)
         if [[ -n $bootip6 ]]; then
-            chainline='isset ${ip} && '"${chainline} || chain http://$(_urlHost "$bootip6")${bootpath}"
+            local url6="chain http://$(_urlHost "$bootip6")${bootpath}"
+            chainline='isset ${netX.dhcpv6/ip6} && goto bootv6 ||\nisset ${ip} && '"${chainline} || ${url6}"'\nexit\n:bootv6\n'"${url6} || ${chainline}"
         fi
     fi
     # param manufacturer took ${product} for years, so every ipxeTable row

@@ -589,12 +589,21 @@ PKI_san_ip_addresses="10.0.0.1 2001:db8:0:1::5 fd00:f06:0:1::1"
 configureDefaultiPXEfile >/dev/null 2>&1
 d6=$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)
 has "$d6" ':bootme
-isset ${ip} && chain http://10.0.0.1/fog/service/ipxe/boot.php##params || chain http://[2001:db8:0:1::5]/fog/service/ipxe/boot.php##params' \
-    "HTTP + IPv6, no DHCPv6 range: one line, IPv4 chain first, bracketed first stable IPv6 as fallback"
+isset ${netX.dhcpv6/ip6} && goto bootv6 ||
+isset ${ip} && chain http://10.0.0.1/fog/service/ipxe/boot.php##params || chain http://[2001:db8:0:1::5]/fog/service/ipxe/boot.php##params
+exit
+:bootv6
+chain http://[2001:db8:0:1::5]/fog/service/ipxe/boot.php##params || chain http://10.0.0.1/fog/service/ipxe/boot.php##params' \
+    "HTTP + IPv6, no DHCPv6 range: a DHCPv6 lease picks IPv6 first, else IPv4 first, bracketed first stable IPv6"
 DHCP6_range_start="fd00:f06:0:1::100"; DHCP6_range_end="fd00:f06:0:1::1ff"
 configureDefaultiPXEfile >/dev/null 2>&1
-has "$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)" "chain http://[fd00:f06:0:1::1]/fog/service/ipxe/boot.php##params" \
-    "with --dhcp6-range the fallback is the address Kea's option 59 names"
+has "$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)" ':bootme
+isset ${netX.dhcpv6/ip6} && goto bootv6 ||
+isset ${ip} && chain http://10.0.0.1/fog/service/ipxe/boot.php##params || chain http://[fd00:f06:0:1::1]/fog/service/ipxe/boot.php##params
+exit
+:bootv6
+chain http://[fd00:f06:0:1::1]/fog/service/ipxe/boot.php##params || chain http://10.0.0.1/fog/service/ipxe/boot.php##params' \
+    "with --dhcp6-range both IPv6 chains use the address Kea's option 59 names"
 DHCP6_range_start=""; DHCP6_range_end=""
 
 # No IPv6 on the box: the file is byte-identical to what the old function wrote.
