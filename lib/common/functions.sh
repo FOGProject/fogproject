@@ -14976,20 +14976,27 @@ die();
     chmod 2775 "${webdirdest%/}/management/logs" >>$error_log 2>&1
     chown -R ${apacheuser}:${apacheuser} "$webdirdest"
     chown -R ${SVC_user}:${apacheuser} "$webdirdest/service/ipxe"
-    # Forum 18336: kernels, inits and client installers come from the
-    # download cache in the checkout's tmp/, not from the checkout tree, so the
-    # chmod after the web-tree copy does not reach them. An install made under
-    # umask 027 cached them 0640, and every later run copies that mode back.
-    # Both directories are writable by a non-root account; see
-    # _rootSafePath for why that matters to a chmod run as root.
+    _openWebDownloads
+}
+# Forum 18336: kernels, inits and client installers come from the download
+# cache in the checkout's tmp/, not from the checkout tree, so the chmod after
+# the web-tree copy does not reach them. An install made under umask 027
+# cached them 0640, and every later run copies that mode back.
+#
+# Both directories are writable by a non-root account; see _rootSafePath for
+# why that matters to a chmod run as root. chmod -R, not find -exec: it skips
+# the links it meets while recursing. Everything below both directories is
+# 0644/0755 in a default install, so the recursion opens nothing closed.
+_openWebDownloads() {
     local dlpath
     for dlpath in "${webdirdest%/}/service/ipxe" "${webdirdest%/}/client"; do
         _rootSafePath "$dlpath" && chmod -R go+rX "$dlpath" >>$error_log 2>&1
     done
+    return 0
 }
 # Whether root may chmod $1 without being steered elsewhere by a symlink.
 #
-# Returns 0 when $1 exists and no component of it is a symlink in a directory
+# Returns 0 when $1 is absolute, exists, and no component of it is a symlink in a directory
 # that a non-root account can change. chmod follows a symlink it is given, and
 # the installer runs as root: if www-data replaced a file it owns, say
 # management/other/agent-ca-bundle.pem, with a link to /etc/shadow, a later
@@ -15002,7 +15009,8 @@ die();
 # one every other root write into these trees already has.
 _rootSafePath() {
     local path="$1" cur="" parent part
-    [[ -e $path ]] || return 1
+    # Relative would be walked as if it hung off /, a different path.
+    [[ $path == /* && -e $path ]] || return 1
     local -a parts
     IFS=/ read -ra parts <<< "${path#/}"
     for part in "${parts[@]}"; do

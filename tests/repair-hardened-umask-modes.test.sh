@@ -134,6 +134,14 @@ is "$fogprogramdir/pkiadmin-staging" 750 "kept closed"
 is "$servicelogs/faults" 750 "kept closed"
 is "${webdirdest}commons/config.class.php" 640 "kept closed"
 
+# _openWebDownloads, which configureHttpd runs on every install: the
+# downloaded boot files and client installers, cached 0640 by a 027 install.
+mk "${webdirdest}service/ipxe/bzImage" 640
+mk "${webdirdest}client/FOGService.msi" 640
+_openWebDownloads
+is "${webdirdest}service/ipxe/bzImage" 644 opened
+is "${webdirdest}client/FOGService.msi" 644 opened
+
 # Symlinks planted by an account that can write the parent. The repair runs
 # as root, and chmod follows a link it is given, so each would open the link's
 # target. This test runs as a non-root user, so every parent here is
@@ -149,14 +157,20 @@ webdirdest="$ATK/var/www/html/fog/"
 webredirect="$ATK/var/www/html/index.php"
 SVC_user="..$ATK/home/fogproject"
 PKI_root_dir="$ATK/etc/fog/pki"
-mkdir -p "${webdirdest}management/other" "$snapindir" "$fogprogramdir" \
+mkdir -p "${webdirdest}management/other" "${webdirdest}service/ipxe" "$snapindir" \
     "$ATK/home/fogproject/.config/autostart"
 ln -s "$ATK/shadow" "${webdirdest}management/other/agent-ca-bundle.pem"
 ln -s "$ATK/shadow" "$ATK/home/fogproject/.bashrc"
+ln -s "$ATK/shadow" "${webdirdest}service/ipxe/bzImage"
 ln -s "$ATK/keydir" "$snapindir/ssl"
 ln -s "$ATK/keydir" "$fogprogramdir/customizations"
+ln -s "$ATK/keydir" "${webdirdest}client"
+# As root, mkdir made these parents root-owned, which the guard trusts. Hand
+# them to an unprivileged owner, as www-data and fogproject own them on a server.
+(( EUID == 0 )) && chown -R nobody "$ATK"
 
 _repairHardenedUmaskModes
+_openWebDownloads
 
 is "$ATK/shadow" 600 "link target kept closed"
 is "$ATK/keydir" 700 "link target kept closed"
