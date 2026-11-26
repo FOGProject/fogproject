@@ -180,6 +180,48 @@ _openWebDownloads
 is "$ATK/shadow" 600 "link target kept closed"
 is "$ATK/keydir" 700 "link target kept closed"
 
+# A link swapped in after _rootSafePath passed. Stand that in by letting the
+# guard pass everything: the chmod itself must still not follow a link to a
+# file, and chmod -R -P must not follow a link to a tree. A link to a directory
+# at a single-directory site opens that directory's listing, by design.
+SWP="$WORK/swap"
+mkdir -p "$SWP"
+mk "$SWP/shadow" 600
+mk "$SWP/keytree/key" 600
+chmod 700 "$SWP/keytree"
+fogprogramdir="$SWP/opt/fog"
+snapindir="$fogprogramdir/snapins"
+servicelogs="$fogprogramdir/log"
+webdirdest="$SWP/var/www/html/fog/"
+webredirect="$SWP/var/www/html/index.php"
+SVC_user="..$SWP/home/fogproject"
+PKI_root_dir="$SWP/etc/fog/pki"
+mkdir -p "${webdirdest}management/other" "${webdirdest}service" "$fogprogramdir" \
+    "$SWP/home/fogproject/.config"
+ln -s "$SWP/shadow" "${webdirdest}management/other/agent-ca-bundle.pem"
+ln -s "$SWP/shadow" "$SWP/home/fogproject/.config/autostart"
+ln -s "$SWP/keytree" "${webdirdest}service/ipxe"
+ln -s "$SWP/keytree" "$fogprogramdir/customizations"
+_rootSafePath() { [[ $1 == /* && -e $1 ]]; }
+_repairHardenedUmaskModes
+_openWebDownloads
+. "$FUNCS" >/dev/null 2>&1
+
+is "$SWP/shadow" 600 "swapped-in link target kept closed"
+is "$SWP/keytree" 700 "swapped-in link target kept closed"
+is "$SWP/keytree/key" 600 "swapped-in link target kept closed"
+
+# A link that root placed in a root-only directory is trusted, or an admin's
+# /var/www -> /srv/www would leave the whole repair undone. /bin/sh is a link
+# inside the linked /bin on merged-/usr systems, so it also checks a trusted
+# link as a parent.
+if [[ -L /bin && $(stat -c %u /) == 0 ]]; then
+    _rootSafePath /bin/sh && ok "_rootSafePath trusts /bin/sh, links root placed" \
+        || bad "_rootSafePath refused /bin/sh, links root placed"
+else
+    echo "  skip  no root-placed /bin link on this system"
+fi
+
 # Order: the repair must run before the steps that mkdir -p or `>` into these
 # paths, or they keep the old mode. In installfog.sh it follows configureUsers
 # and precedes every configureHttpd, configureMinHttpd and installFOGServices.

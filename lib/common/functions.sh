@@ -14611,10 +14611,13 @@ configureHttpd() {
     # Only the paths that came from the checkout: --oldcopy has restored
     # config.class.php and any admin file in management/other or lib/plugins,
     # and those keep the modes they had.
-    # The source's relative paths, applied from inside the destination.
+    # The source's relative paths, applied from inside the destination. A link
+    # is skipped: --oldcopy restores any link www-data planted in the old tree,
+    # and chmod would open its target.
     chmod a+rX "$webdirdest" >>$error_log 2>&1
     (cd "$webdirsrc" && find . -mindepth 1 -print0) \
-        | (cd "$webdirdest" && xargs -0 -r chmod a+rX) >>$error_log 2>&1
+        | (cd "$webdirdest" && xargs -0 -r sh -c \
+            'find "$@" -maxdepth 0 ! -type l -exec chmod a+rX {} +' sh) >>$error_log 2>&1
     # The web root was rm -rf'd above and rebuilt, so any file the new release
     # DROPPED is genuinely gone. Initiator::classFileList() caches the scanned
     # class-file list to $fogprogramdir/cache with a 300 second TTL, and that
@@ -14989,7 +14992,7 @@ die();
 _openWebDownloads() {
     local dlpath
     for dlpath in "${webdirdest%/}/service/ipxe" "${webdirdest%/}/client"; do
-        _rootSafePath "$dlpath" && chmod -R go+rX "$dlpath" >>$error_log 2>&1
+        _rootSafePath "$dlpath" && chmod -R -P go+rX "$dlpath" >>$error_log 2>&1
     done
     return 0
 }
@@ -14997,16 +15000,17 @@ _openWebDownloads() {
 #
 # Returns 0 when $1 is absolute, exists, and no component of it is a symlink in
 # a directory that a non-root account can change. chmod follows a symlink it is
-# given, and
-# the installer runs as root: if www-data replaced a file it owns, say
-# management/other/agent-ca-bundle.pem, with a link to /etc/shadow, a later
+# given, and the installer runs as root: if www-data replaced a file it owns,
+# say management/other/agent-ca-bundle.pem, with a link to /etc/shadow, a later
 # chmod go+r on that path would open /etc/shadow. A link that root placed in a
 # root-only directory (an admin's /var/www -> /srv/www) is trusted.
 #
-# Pair with chmod -R for a tree: GNU chmod skips the symlinks it meets while
-# recursing, so only the named path itself needs this check. What it cannot
-# close is a swap between this check and the chmod; that window is the same
-# one every other root write into these trees already has.
+# This check cannot close a swap between it and the chmod, so the chmod also
+# refuses to follow the final component. For a file or a tree, chmod -R -P:
+# it follows no symlink, the named one included. BusyBox chmod has no -P, so
+# on Alpine it fails and the mode stays closed. For one directory, chmod
+# "$d/.": a link swapped in to a file then fails with ENOTDIR, and a link to a
+# directory opens only that directory's listing, not the files in it.
 _rootSafePath() {
     local path="$1" cur="" parent part
     # Relative would be walked as if it hung off /, a different path.
@@ -15018,8 +15022,10 @@ _rootSafePath() {
         parent="${cur:-/}"
         cur="${cur}/${part}"
         [[ -L $cur ]] || continue
-        [[ $(stat -c %u "$parent" 2>/dev/null) == 0 ]] || return 1
-        [[ -z $(find "$parent" -maxdepth 0 -perm /022 2>/dev/null) ]] || return 1
+        # "$parent/." is the directory itself when $parent is a link this
+        # loop already trusted, as /bin is for /bin/sh.
+        [[ $(stat -c %u "$parent/." 2>/dev/null) == 0 ]] || return 1
+        [[ -z $(find "$parent/." -maxdepth 0 -perm /022 2>/dev/null) ]] || return 1
     done
     return 0
 }
@@ -15057,7 +15063,7 @@ _repairHardenedUmaskModes() {
         /etc/exports.d /etc/nfs.conf.d /usr/etc/nfs.conf.d \
         "/home/${SVC_user}" "/home/${SVC_user}/.config" \
         "/home/${SVC_user}/.config/autostart"; do
-        [[ -d $d ]] && _rootSafePath "$d" && chmod go+rx "$d" >>$error_log 2>&1
+        [[ -d $d ]] && _rootSafePath "$d" && chmod go+rx "$d/." >>$error_log 2>&1
     done
     for d in "$pki" "${snapindir}/ssl/CA"; do
         [[ -d $d ]] && _rootSafePath "$d" || continue
@@ -15073,7 +15079,7 @@ _repairHardenedUmaskModes() {
         "/home/${SVC_user}/.config/autostart/warnfogaccount.desktop" \
         "${WEB_docroot%/}/index.php" "$webredirect" \
         "${webdirdest%/}/management/other/agent-ca-bundle.pem"; do
-        [[ -f $f ]] && _rootSafePath "$f" && chmod go+r "$f" >>$error_log 2>&1
+        [[ -f $f ]] && _rootSafePath "$f" && chmod -R -P go+r "$f" >>$error_log 2>&1
     done
     # FOG's copies of the boot files configureHttpd downloads, and of the
     # admin's iPXE background and binaries. configureHttpd restores the web
@@ -15081,7 +15087,7 @@ _repairHardenedUmaskModes() {
     # restored file again. kernel-backups/keep is www-data-writable; see
     # _rootSafePath.
     d="${fogprogramdir}/customizations"
-    [[ -d $d ]] && _rootSafePath "$d" && chmod -R go+rX "$d" >>$error_log 2>&1
+    [[ -d $d ]] && _rootSafePath "$d" && chmod -R -P go+rX "$d" >>$error_log 2>&1
     return 0
 }
 # The installer's scratch directory, as an ABSOLUTE path, or non-zero with a
