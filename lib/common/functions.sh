@@ -3521,18 +3521,16 @@ configureDefaultiPXEfile() {
     fi
     # An IPv6 literal needs its brackets in a URL.
     nbhost=$(_urlHost "$nbhost")
-    local chainline="chain ${BOOT_url_proto}://${nbhost}${WEB_root}service/ipxe/boot.php##params" bootip6
-    # HTTP netboot addresses the server by IP, and the IPv4 URL is unreachable
-    # from an IPv6-only segment (autoexec.ipxe chains default.ipxe over
-    # tftp://[v6]/, Kea option 59). When the server has an IPv6 address, try the
-    # IPv4 URL only if iPXE holds an IPv4 address, and fall back to the IPv6 URL.
-    # ${ip} is iPXE's IPv4 address setting (ip_setting, src/net/ipv4.c); an
-    # unqualified name is searched in every settings block, and it is unset on an
-    # IPv6-only client. HTTPS uses a name that resolves for both families.
+    local bootpath="${WEB_root}service/ipxe/boot.php##params"
+    local chainline="chain ${BOOT_url_proto}://${nbhost}${bootpath}"
+    # An IPv6-only client cannot reach the IPv4 URL. Chain it only when iPXE has
+    # an IPv4 lease; else use the IPv6 URL. Keep one line: iPXE has no
+    # cross-line "||". ${ip} is the IPv4 lease, unset on IPv6 only (net/ipv4.c:948, core/settings.c:714).
+    local bootip6
     if [[ ${BOOT_url_proto} == http && ${nbhost} != *:* ]]; then
         bootip6=$(_bootServerIp6)
         if [[ -n $bootip6 ]]; then
-            chainline='isset ${ip} && '"${chainline} ||\nchain http://$(_urlHost "$bootip6")${WEB_root}service/ipxe/boot.php##params"
+            chainline='isset ${ip} && '"${chainline} || chain http://$(_urlHost "$bootip6")${bootpath}"
         fi
     fi
     # param manufacturer took ${product} for years, so every ipxeTable row

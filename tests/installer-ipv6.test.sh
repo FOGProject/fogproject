@@ -589,9 +589,8 @@ PKI_san_ip_addresses="10.0.0.1 2001:db8:0:1::5 fd00:f06:0:1::1"
 configureDefaultiPXEfile >/dev/null 2>&1
 d6=$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)
 has "$d6" ':bootme
-isset ${ip} && chain http://10.0.0.1/fog/service/ipxe/boot.php##params ||
-chain http://[2001:db8:0:1::5]/fog/service/ipxe/boot.php##params' \
-    "HTTP + IPv6, no DHCPv6 range: IPv4 chain first, bracketed first stable IPv6 as fallback"
+isset ${ip} && chain http://10.0.0.1/fog/service/ipxe/boot.php##params || chain http://[2001:db8:0:1::5]/fog/service/ipxe/boot.php##params' \
+    "HTTP + IPv6, no DHCPv6 range: one line, IPv4 chain first, bracketed first stable IPv6 as fallback"
 DHCP6_range_start="fd00:f06:0:1::100"; DHCP6_range_end="fd00:f06:0:1::1ff"
 configureDefaultiPXEfile >/dev/null 2>&1
 has "$(cat "$tftpdirdst/default.ipxe" 2>/dev/null)" "chain http://[fd00:f06:0:1::1]/fog/service/ipxe/boot.php##params" \
