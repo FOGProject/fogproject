@@ -1813,6 +1813,10 @@ backupDB() {
     dbhastables=$(mysql $sqloptionsuser --password="${DB_password}" --skip-column-names --execute="SHOW TABLES" ${DB_name} 2>>$error_log | head -n 1)
     if [[ -n $dbhastables ]]; then
         [[ ! -d ${DB_backup_path}/fogDBbackups ]] && mkdir -p ${DB_backup_path}/fogDBbackups >>$error_log 2>&1
+        # Root-only: each dump is the whole database, users and hashes
+        # included. Set every run, so a directory an older install left open
+        # is closed too. revertfog.sh and revertupdate.sh read it as root.
+        chmod 0700 "${DB_backup_path}/fogDBbackups" >>$error_log 2>&1
         local selfName=$(_servedCertName)
         url="${WEB_url_proto}://${selfName}${WEB_root}maintenance/backup_db.php"
         # %H, not %I: %I is the 12-hour clock with no AM/PM marker, so an
@@ -6482,8 +6486,9 @@ configureFOGService() {
     [[ ! -d $servicedst ]] && mkdir -p $servicedst >>$error_log 2>&1
     [[ ! -d $servicedst/etc ]] && mkdir -p $servicedst/etc >>$error_log 2>&1
     echo "<?php define('WEBROOT','${webdirdest}');" > $servicedst/etc/config.php
-    # Forum 18335: the three $apacheuser daemons require this file, and a
-    # hardened umask would leave it (and etc/) root-only. It holds only the web
+    # Forum 18335: the three $apacheuser daemons require this file. An install
+    # made under a hardened umask, before installfog.sh set its own, left it
+    # (and etc/) root-only, and `>` keeps an existing file's mode. It holds only the web
     # root path, no credential. etc/ gets traverse only, not list.
     chmod a+x "$servicedst/etc" >>$error_log 2>&1
     chmod 0644 "$servicedst/etc/config.php" >>$error_log 2>&1
@@ -6955,8 +6960,9 @@ _installPkiAdminHelper() {
     dots "Installing the certificate management helper"
     mkdir -p "$bindir" >>$error_log 2>&1
     # Forum 18336: the Certificates page tests is_executable() on the helper
-    # as $apacheuser before it calls sudo, and a hardened umask (027) leaves
-    # $bindir 0750 root:root. Traverse only, not list; fog-build-sb-authvars
+    # as $apacheuser before it calls sudo. An install made under a hardened
+    # umask (027), before installfog.sh set its own, left $bindir 0750
+    # root:root, and mkdir -p keeps it. Traverse only, not list; fog-build-sb-authvars
     # in the same directory stays 0700.
     chmod a+x "$bindir" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/pki/fog-pki-admin "$helper" >>$error_log 2>&1 || {
@@ -14599,6 +14605,16 @@ configureHttpd() {
     dots "Copying new files to web folder"
     cp -Rf $webdirsrc/* $webdirdest/
     errorStat $?
+    # Forum 18336: cp -R keeps the checkout's modes, and the installer's own
+    # umask cannot widen them. A checkout made under umask 027 is 0640/0750, so
+    # the web tree came out 0640/0750 where a default install has 0644/0755.
+    # Only the paths that came from the checkout: --oldcopy has restored
+    # config.class.php and any admin file in management/other or lib/plugins,
+    # and those keep the modes they had.
+    chmod a+rX "$webdirdest" >>$error_log 2>&1
+    while IFS= read -r -d '' webpath; do
+        chmod a+rX "${webdirdest%/}/${webpath#./}" >>$error_log 2>&1
+    done < <(cd "$webdirsrc" && find . -mindepth 1 -print0)
     # The web root was rm -rf'd above and rebuilt, so any file the new release
     # DROPPED is genuinely gone. Initiator::classFileList() caches the scanned
     # class-file list to $fogprogramdir/cache with a 300 second TTL, and that
@@ -14674,11 +14690,6 @@ configureHttpd() {
         esac
         cp -Rf $i ${webdirdest}/management/other/ >>$error_log 2>&1
     done
-    # Forum 18336: cp -R keeps the checkout's modes, and the installer's own
-    # umask cannot widen them. A checkout made under umask 027 is 0640/0750, so
-    # the web tree came out 0640/0750 where a default install has 0644/0755.
-    # Before config.class.php is written, so its explicit 0640 below stands.
-    chmod -R a+rX "$webdirdest" >>$error_log 2>&1
     if [[ ${FOG_install_lang} == yes ]]; then
         dots "Creating the language binaries"
         langpath="${webdirdest}/management/languages"
@@ -15002,6 +15013,9 @@ _installerTmpDir() {
         echo "       See ${error_log} for the reason." >&2
         return 1
     fi
+    # Root-only: configureMySql writes the database and fogstorage passwords
+    # here, and installfog.sh's umask 022 would leave them world-readable.
+    chmod 0700 "$d" 2>>$error_log
     ( cd "$d" 2>/dev/null && pwd ) || {
         echo "ERROR: ${d} exists but could not be entered." >&2
         return 1
@@ -16053,7 +16067,8 @@ _installSecureBootSigner() {
     }
     mkdir -p "$bindir" >>$error_log 2>&1
     # Forum 18336: secureBootStagingDir() tests is_executable() on this helper
-    # as $apacheuser. A $bindir left 0750 by a hardened umask fails that test,
+    # as $apacheuser. A $bindir left 0750 by an older install under a hardened
+    # umask fails that test,
     # and kernels then download unsigned with no error. Traverse only.
     chmod a+x "$bindir" >>$error_log 2>&1
     install -o root -g root -m 0755 ../packages/secureboot/fog-sign-kernel "$helper" >>$error_log 2>&1 || {
