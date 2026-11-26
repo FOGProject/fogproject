@@ -4906,9 +4906,21 @@ msgstr "Cliente"
 msgid "Ignored unknown header columns"
 msgstr ""
 
+#, fuzzy
+msgid "Ignoring IPv4 multicast address on an IPv6 session"
+msgstr "Sessione multicast non valida"
+
+#, fuzzy
+msgid "Ignoring IPv6 multicast address on an IPv4 session"
+msgstr "Sessione multicast non valida"
+
 #, php-format
 msgid "Ignoring configured interface %s; %s routes over %s"
 msgstr ""
+
+#, fuzzy
+msgid "Ignoring invalid multicast address"
+msgstr "Sessione multicast non valida"
 
 #, fuzzy
 msgid "Ignoring invalid multicast bitrate"

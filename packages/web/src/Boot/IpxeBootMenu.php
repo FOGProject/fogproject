@@ -1721,6 +1721,7 @@ class IpxeBootMenu extends BootMenuBase
             )
         );
         $storageip = $StorageNode->get('ip');
+        $mcastrdv = self::mcastRdvForNode($mcastrdv, $storageip);
         $img = escapeshellcmd($Image->get('path'));
         $imgFormat = (int)$Image->get('format');
         $imgType = $Image->getImageType()->get('type');

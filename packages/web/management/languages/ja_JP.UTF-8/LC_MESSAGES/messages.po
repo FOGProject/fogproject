@@ -4361,9 +4361,21 @@ msgstr "イメージ処理から除外"
 msgid "Ignored unknown header columns"
 msgstr "不明なヘッダー列を無視しました"
 
+#, fuzzy
+msgid "Ignoring IPv4 multicast address on an IPv6 session"
+msgstr "無効なマルチキャストのデュプレックス設定を無視します"
+
+#, fuzzy
+msgid "Ignoring IPv6 multicast address on an IPv4 session"
+msgstr "無効なマルチキャストのデュプレックス設定を無視します"
+
 #, php-format
 msgid "Ignoring configured interface %s; %s routes over %s"
 msgstr "設定されたインターフェイス %s を無視します。%s の通信経路は %s です"
+
+#, fuzzy
+msgid "Ignoring invalid multicast address"
+msgstr "無効なマルチキャストのランデブーアドレス設定を無視します"
 
 msgid "Ignoring invalid multicast bitrate"
 msgstr "無効なマルチキャストのビットレート設定を無視します"

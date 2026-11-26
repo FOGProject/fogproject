@@ -5709,6 +5709,9 @@ _reportIptables() {
         [[ $d == *"; ipv6)" ]] && cmd=ip6tables
         echo " *   $cmd -I INPUT -p $proto --dport ${port/-/:} -j ACCEPT"
     done < <(_firewallPortList)
+    # The port list line for udpcast carries no "; ipv6)" marker, so it prints
+    # iptables only. IPv6 multicast needs the same range through ip6tables.
+    echo " *   ip6tables -I INPUT -p udp --dport ${mcastportmin}:${mcastportmax} -j ACCEPT"
     if [[ ${BOOT_external_tftp_server} != yes ]]; then
         echo " * TFTP also needs the conntrack helper, or PXE transfers stall:"
         echo " *   modprobe nf_conntrack_tftp"

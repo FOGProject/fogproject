@@ -873,6 +873,41 @@ class FOGBase
         return $host;
     }
     /**
+     * Whether a value is an IPv6 literal. Same as the real FOGBase::isIPv6().
+     *
+     * @param mixed $ip the value
+     *
+     * @return bool
+     */
+    protected static function isIPv6($ip)
+    {
+        return false !== filter_var(
+            trim((string) $ip),
+            FILTER_VALIDATE_IP,
+            FILTER_FLAG_IPV6
+        );
+    }
+    /**
+     * The canonical form of an IPv6 literal. Same as the real
+     * FOGBase::canonicalIP().
+     *
+     * @param mixed $host the address as stored
+     *
+     * @return string
+     */
+    public static function canonicalIP($host)
+    {
+        $host = trim((string) $host);
+        $bare = $host;
+        if (strlen($bare) > 1 && '[' === $bare[0] && ']' === substr($bare, -1)) {
+            $bare = substr($bare, 1, -1);
+        }
+        if (self::isIPv6($bare)) {
+            return inet_ntop(inet_pton($bare));
+        }
+        return $host;
+    }
+    /**
      * Factory for the classes IpxeBootMenu asks for by name.
      *
      * @param string $class the class name

@@ -140,10 +140,15 @@ abstract class FOGService extends FOGBase
      */
     public static function loadKnownIps()
     {
-        return Route::getIds(
-            'storagenode',
-            ['isEnabled' => 1],
-            'ip'
+        // Canonical, so an IPv6 node row typed as FD00::1 or [fd00::1]
+        // still matches this machine's own address list.
+        return array_map(
+            [self::class, 'canonicalIP'],
+            (array)Route::getIds(
+                'storagenode',
+                ['isEnabled' => 1],
+                'ip'
+            )
         );
     }
     /**

@@ -51,7 +51,10 @@
 [[ -z $inetMaxTime ]] && inetMaxTime=15
 [[ -z $internet_ok ]] && internet_ok=1
 fog_udpversion="20250223"
-[[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-${fog_udpversion}.tar.gz"
+# The -ipv6 tarball is the 20250223 source with the IPv6 port applied and a
+# regenerated configure, so the server needs no autoconf. It unpacks to the
+# same udpcast-${fog_udpversion} directory, so udpcastout is unchanged.
+[[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-${fog_udpversion}-ipv6.tar.gz"
 [[ -z $udpcastout ]] && udpcastout="udpcast-${fog_udpversion}"
 [[ -z $servicesrc ]] && servicesrc="../packages/service"
 # fogprogramdir is the single source of truth for the FOG base path and must be
