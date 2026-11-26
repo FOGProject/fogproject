@@ -1374,16 +1374,21 @@ class Initiator
         if (@file_put_contents($tmp, $json, LOCK_EX) === false) {
             return;
         }
-        // The FOG daemons run as root. A copy root writes is root:root 0600:
-        // the web user cannot read it, and the sticky bit stops the web user
-        // replacing it. So every web request rescanned until the next
-        // installer run. Root reads the web user's copy instead, and removes
-        // a root copy that an older release left. unlink() never follows a
-        // link.
-        if (@fileowner($tmp) === 0) {
+        // The FOG daemons run as root. A copy that root writes is root:root
+        // 0600. The web user cannot read it. The sticky bit stops the web
+        // user replacing it. Each web request then rescans until the next
+        // installer run. So root reads the web user's copy instead. Root also
+        // removes a root copy that an older release left. unlink() never
+        // follows a link. The euid test also covers NFS root_squash, where
+        // root's file belongs to nobody; fileowner() is the fallback.
+        $owner = @fileowner($tmp);
+        $isRoot = function_exists('posix_geteuid')
+            ? posix_geteuid() === 0
+            : $owner === 0;
+        if ($isRoot) {
             @unlink($tmp);
             clearstatcache(true, $file);
-            if (!is_link($file) && @fileowner($file) === 0) {
+            if (!is_link($file) && $owner !== false && @fileowner($file) === $owner) {
                 @unlink($file);
             }
             return;
