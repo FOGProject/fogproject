@@ -169,6 +169,9 @@ usage() {
     echo -e "\t\t\t\t\tin a /64 where this server has an"
     echo -e "\t\t\t\t\taddress. Off by default. Kept across"
     echo -e "\t\t\t\t\tupgrades"
+    echo -e "\t      --dhcp6-dns\t\tADDR[,ADDR...]: IPv6 DNS servers that"
+    echo -e "\t\t\t\t\tDHCPv6 clients receive. Needs"
+    echo -e "\t\t\t\t\t--dhcp6-range. Kept across upgrades"
     echo -e "\t      --reissue-web-ca\t\tRe-issue the FOG Web CA so it covers this"
     echo -e "\t\t\t\t\tserver's IPv6 addresses. Needed only"
     echo -e "\t\t\t\t\tfor clients that reach this server by"
@@ -297,7 +300,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,skip-php-check,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,dhcp6-range:,reissue-web-ca,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,skip-php-check,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,dhcp6-range:,dhcp6-dns:,reissue-web-ca,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -697,6 +700,26 @@ while :; do
             sDHCP6_range_end="${2#*,}"
             shift 2
             ;;
+        --dhcp6-dns)
+            # Each address is validated here, for the same reason as --dhcp6-range:
+            # the list goes straight into a JSON config for the DHCPv6 daemon.
+            dns6ok=0
+            # read -a drops an empty field, so refuse empty entries first.
+            if [[ -n $2 && $2 != ,* && $2 != *, && $2 != *,,* ]]; then
+                dns6ok=1
+                IFS=, read -ra dns6list <<< "$2"
+                for dns6addr in "${dns6list[@]}"; do
+                    [[ $(validip6 "$dns6addr") -eq 0 ]] || dns6ok=0
+                done
+            fi
+            if [[ $dns6ok -ne 1 ]]; then
+                echo "$1 requires ADDR[,ADDR...] IPv6 addresses after, like fd00::53,fd00::54"
+                usage
+                exit 3
+            fi
+            sDHCP6_dns="$2"
+            shift 2
+            ;;
         --internal-domain)
             if [[ $(validhostname "${2}") -ne 0 ]]; then
                 echo "$1 requires a valid domain name after"
@@ -1030,6 +1053,9 @@ _applyInstallMode
 # else: DHCPv6 stays off unless this was given now or on an earlier run.
 [[ -n ${sDHCP6_range_start} ]] && DHCP6_range_start=${sDHCP6_range_start}
 [[ -n ${sDHCP6_range_end} ]] && DHCP6_range_end=${sDHCP6_range_end}
+[[ -n ${sDHCP6_dns} ]] && DHCP6_dns=${sDHCP6_dns}
+# The DNS list lives in the DHCPv6 config. Without a pool there is no such config.
+[[ -n ${sDHCP6_dns} && -z ${DHCP6_range_start} ]] && echo " * Warning: --dhcp6-dns has no effect without --dhcp6-range."
 # -s/-e imply "set DHCP up". These were written directly by the handlers, so on
 # an upgrade the .fogsettings sourced above overwrote them (both are managed
 # keys) and the ranges were accepted while DHCP configuration stayed off.
