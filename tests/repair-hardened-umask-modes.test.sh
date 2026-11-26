@@ -81,8 +81,6 @@ chmod 750 "$fogprogramdir/customizations" "$fogprogramdir/customizations/kernel-
 mk "$fogprogramdir/pkiadmin-staging/" 750
 mk "$servicelogs/plugins/" 750
 mk "$servicelogs/faults/" 750
-mk "${webdirdest}service/ipxe/bzImage" 640
-mk "${webdirdest}client/FOGService.msi" 640
 mk "${webdirdest}management/other/agent-ca-bundle.pem" 640
 mk "${webdirdest}commons/config.class.php" 640
 mk "$webredirect" 640
@@ -117,8 +115,6 @@ is "$fogprogramdir/customizations/kernel-backups" 755 opened
 is "$fogprogramdir/customizations/kernel-backups/gen-1/bzImage" 644 opened
 is "$fogprogramdir/customizations/ipxe-bg/bg.png" 644 opened
 is "$servicelogs/plugins" 755 opened
-is "${webdirdest}service/ipxe/bzImage" 644 opened
-is "${webdirdest}client/FOGService.msi" 644 opened
 is "${webdirdest}management/other/agent-ca-bundle.pem" 644 opened
 is "$webredirect" 644 opened
 is "$home/.bashrc" 644 opened
