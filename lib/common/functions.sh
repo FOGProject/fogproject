@@ -15001,6 +15001,56 @@ die();
 # does NOT clear on a re-run: mkdir -p refuses when the path exists as a file or
 # a dangling symlink, so every subsequent attempt fails the same way, and the
 # generic message sends people looking for a permissions problem they do not have.
+# Forum 18335/18336: repair a server installed before installfog.sh set its own
+# umask. A umask applies only when a path is created, and mkdir -p and `>` keep
+# an existing path's mode, so an upgrade over an install made under umask 027
+# kept each path below at 0750 or 0640. A default install has 0755 or 0644, and
+# the web user, tftp and the service account need some of them, /etc/fog first.
+#
+# An explicit list, not a rule over the whole tree. A rule such as "0750 with
+# group == owner" also matches the www-data staging directories and
+# config.class.php, which are 0750/0640 on purpose. The PKI file pattern names
+# only public formats, so a private key under any name stays closed.
+#
+# Runs before the install steps, so a later mkdir -p or `>` keeps the repaired
+# mode. It sets only bits a default install has, so it does nothing on one.
+_repairHardenedUmaskModes() {
+    local pki d f
+    pki="$(_pkiRootDir)"
+    for d in "$(dirname "$pki")" "$pki"/{agent,client,root,web} \
+        "${snapindir}/ssl" "${snapindir}/ssl/CA" \
+        "${servicelogs}"/{agentreleasesync,fos,plugins,retention} \
+        /etc/exports.d "/home/${SVC_user}/.config" \
+        "/home/${SVC_user}/.config/autostart"; do
+        [[ -d $d ]] && chmod go+rx "$d" >>$error_log 2>&1
+    done
+    for d in "$pki" "${snapindir}/ssl/CA"; do
+        [[ -d $d ]] || continue
+        find "$d" -type f \( -name '*.csr' -o -name '*.cnf' -o -name '*.srl' \
+            -o -name '*.sans' -o -name '.trustAnchor.pem' \) \
+            -exec chmod go+r {} + >>$error_log 2>&1
+    done
+    for f in /etc/nfs.conf.d/fog-nfs.conf /usr/etc/nfs.conf.d/fog-nfs.conf \
+        "/home/${SVC_user}/.bashrc" \
+        "/home/${SVC_user}/.config/autostart/warnfogaccount.desktop" \
+        "$webredirect" "${webdirdest%/}/management/other/agent-ca-bundle.pem"; do
+        [[ -f $f ]] && chmod go+r "$f" >>$error_log 2>&1
+    done
+    # Kernels, inits and client installers: downloaded, not copied from the
+    # checkout, so the web-tree chmod in configureHttpd does not reach them.
+    for d in "${webdirdest%/}/service/ipxe" "${webdirdest%/}/client"; do
+        [[ -d $d ]] && find "$d" -maxdepth 1 -type f -exec chmod go+r {} + >>$error_log 2>&1
+    done
+    # FOG's copies of those boot files and of the admin's iPXE background and
+    # binaries. configureHttpd restores the web tree from here with cp -a, so
+    # a closed copy here would close the restored file again.
+    d="${fogprogramdir}/customizations"
+    if [[ -d $d ]]; then
+        find "$d" -type d -exec chmod go+rx {} + >>$error_log 2>&1
+        find "$d" -type f -exec chmod go+r {} + >>$error_log 2>&1
+    fi
+    return 0
+}
 _installerTmpDir() {
     local d="${workingdir%/}/../tmp"
     if [[ -e $d && ! -d $d ]]; then
