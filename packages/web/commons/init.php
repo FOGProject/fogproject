@@ -1380,7 +1380,7 @@ class Initiator
         // installer run. So root reads the web user's copy instead. Root also
         // removes a root copy that an older release left. unlink() never
         // follows a link. The euid test also covers NFS root_squash, where
-        // root's file belongs to nobody; fileowner() is the fallback.
+        // root's file belongs to nobody. Without posix, fileowner() decides.
         $owner = @fileowner($tmp);
         $isRoot = function_exists('posix_geteuid')
             ? posix_geteuid() === 0

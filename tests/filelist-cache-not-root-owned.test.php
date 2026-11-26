@@ -43,7 +43,7 @@ define('FOG_LOG_DIR', $tmp . '/log');
 
 require_once $init;
 
-$write = new ReflectionMethod('Initiator', '_writeFileListCache');
+$write = new \ReflectionMethod('Initiator', '_writeFileListCache');
 $write->setAccessible(true);
 
 $failures = [];
@@ -57,6 +57,7 @@ function check($label, $cond, array &$failures, &$checks)
 }
 
 $file = $tmp . '/cache/srcmap.test.json';
+// id -u, not posix_geteuid(): it needs no extension and reads 0 under unshare.
 $root = trim((string) shell_exec('id -u')) === '0';
 
 if ($root) {
@@ -86,6 +87,8 @@ if ($root) {
                 $checks
             );
         }
+    } else {
+        echo "SKIP: the namespace maps no other user, so the keep-copy check did not run\n";
     }
 } else {
     $write->invoke(null, $file, ['a' => '/x']);
@@ -98,7 +101,7 @@ if ($root) {
         $checks
     );
     // The root half, as uid 0 in a user namespace.
-    exec('unshare -r true 2>/dev/null', $out, $rc);
+    exec('unshare -r true 2>/dev/null', $unused, $rc);
     if ($rc !== 0) {
         echo "SKIP: no user namespaces, so the root half did not run\n";
     } else {
