@@ -68,7 +68,7 @@ class System
             include_once $generated;
         }
         if (!defined('FOG_VERSION')) {
-            define('FOG_VERSION', '1.6.0');
+            define('FOG_VERSION', '1.6.1');
         }
         if (!defined('FOG_CHANNEL')) {
             define('FOG_CHANNEL', 'Stable');
