@@ -104,9 +104,14 @@ git -C "$fx" checkout -q dev-branch
 # FOGProject/fos for a release that does not exist.
 git -C "$fx" checkout -q -b line16 master
 commit '2020-04-01T00:00:00Z' 'release 1.6.0'
-git -C "$fx" tag -a 1.6.0 -m '1.6.0'
+GIT_COMMITTER_DATE='2020-04-01T00:00:00Z' git -C "$fx" tag -a 1.6.0 -m '1.6.0'
 commit '2020-04-02T00:00:00Z' 'patch'
-lcount=$(git -C "$fx" rev-list master..line16 --count)
+# The dev arm counts from the base release tag, not from master. Here master
+# sits BEHIND the 1.6.0 commit, and the fixture has no origin to fetch from.
+# That is a checkout that could not fetch master after a cut. Counting from
+# master gave 1.6.0.2 here. On real checkouts after the 1.6.1 cut it gave
+# 1.6.1.402, and the update check expected 1.6.1.0 (forum 18337).
+lcount=$(git -C "$fx" rev-list 1.6.0..line16 --count)
 for arm in dev-branch stable; do
     got=$(cd "$fx" && sh .githooks/lib/fog-version.sh "$arm" head 2>/dev/null | sed -n '1p')
     if [ "$arm" = stable ]; then
@@ -118,6 +123,23 @@ for arm in dev-branch stable; do
     [ "$got" = "$want16" ] || bad "$arm after a three-part release tag computed '$got', expected '$want16'."
 done
 git -C "$fx" checkout -q dev-branch
+
+# A HEAD that does not reach the base tag, while that tag exists: a pull
+# request's merge ref. The branch pr-x forks from line17 one commit before
+# the 1.6.1 tag. HEAD reaches no release tag, so the newest one, 1.6.1, is
+# the base. A count from that tag would skip the shared commit and give
+# 1.6.1.1. The dev arm must count from master instead and give 1.6.1.2.
+git -C "$fx" checkout -q -b line17 master
+commit '2020-05-01T00:00:00Z' 'shared'
+git -C "$fx" checkout -q -b pr-x
+commit '2020-05-03T00:00:00Z' 'pr work'
+git -C "$fx" checkout -q line17
+commit '2020-05-02T00:00:00Z' 'release 1.6.1'
+GIT_COMMITTER_DATE='2020-05-02T00:00:00Z' git -C "$fx" tag -a 1.6.1 -m '1.6.1'
+pcount=$(git -C "$fx" rev-list master..pr-x --count)
+got=$(cd "$fx" && git checkout -q pr-x && sh .githooks/lib/fog-version.sh dev-branch head 2>/dev/null | sed -n '1p')
+git -C "$fx" checkout -q dev-branch
+[ "$got" = "1.6.1.$pcount" ] || bad "dev arm on a HEAD that does not reach the base tag computed '$got', expected '1.6.1.$pcount'."
 
 # A plain clone of stable, the way bootstrap.sh and a 1.5 server's own
 # checkout get one: no local dev-branch. The stable arm used to count

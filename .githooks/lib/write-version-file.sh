@@ -5,8 +5,9 @@
 #
 # WHY THIS FILE EXISTS AT ALL
 #
-# FOG_VERSION is `git rev-list master..HEAD --count`. It is a property of the
-# commit graph, and every attempt to keep a copy of it in a TRACKED file has
+# FOG_VERSION ends in a commit count (`git rev-list <release tag>..HEAD
+# --count` on dev-branch, `master..HEAD` on the other count-based branches).
+# It is a property of the commit graph, and every attempt to keep a copy of it in a TRACKED file has
 # failed the same way: the value differs per branch, it lives on one line, and
 # so any two branches open at once conflict on it. Worse, the quantity is
 # self-perturbing -- getting a branch current adds a commit, which changes the
@@ -57,8 +58,8 @@ out="$project_dir/packages/web/commons/version.php"
 #
 # So an unrecognized name is resolved to the long-lived branch this work is
 # actually based on -- the one closest to HEAD by commit count. The COUNT is
-# unaffected either way, since fog-version.sh measures `master..HEAD` from the
-# tree rather than from the name. master is the one name kept as it is, not
+# unaffected either way, since fog-version.sh measures it from the tree
+# rather than from the name. master is the one name kept as it is, not
 # resolved: it is the release pin, and it carries the committed release values.
 branch=$(git branch --show-current 2>/dev/null || true)
 case "$branch" in
