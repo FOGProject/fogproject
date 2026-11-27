@@ -2909,6 +2909,9 @@ msgstr "プラグイン名が重複しています。後から読み込まれた
 msgid "Duration"
 msgstr "所要時間"
 
+msgid "Each address must be a valid email address. Separate addresses with commas."
+msgstr ""
+
 msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr "各クライアントでは、端末の前にいる担当者がこの証明書を一度登録する必要があります"
 
@@ -3022,6 +3025,9 @@ msgstr "名前を手動で入力"
 #, php-format
 msgid "Enter a valid %s name"
 msgstr "有効な %s 名を入力してください"
+
+msgid "Enter an address to send the test email to."
+msgstr ""
 
 msgid "Entry Type"
 msgstr "エントリタイプ"
@@ -3305,8 +3311,15 @@ msgstr ""
 msgid "FOG refuses to deploy an image to a host that cannot run it."
 msgstr "FOG は、そのイメージを実行できないホストへの展開を拒否します。"
 
+msgid "FOG sends all email through this command. It is sendmail_path in php.ini. Change it there."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr "FOG サーバーは次のフォルダーを既定で使用します"
+
+#, fuzzy
+msgid "FOG test email"
+msgstr "FOG には少なくとも"
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
 msgstr "FOG は、Web サーバー、暗号化された FOG クライアントのチェックイン、FOS カーネルの署名という 3 つの異なる用途で証明書を使用します。これらは共通の信頼の起点の下にある別々の CA から発行されるため、いずれか 1 つの証明書を置き換えても、残りの 2 つには影響しません。"
@@ -5623,6 +5636,10 @@ msgstr "イメージ処理済みのマシン"
 msgid "Machines that PXE boot cannot fix this themselves. That is the whole reason this is a deliberate setting rather than a default."
 msgstr "PXE ブートするマシンは、この問題を自身で修正できません。そのため、この設定は既定で有効にするのではなく、明示的に選択する仕組みになっています。"
 
+#, fuzzy
+msgid "Mail command"
+msgstr "スナップインコマンド"
+
 msgid "Main Menu"
 msgstr "メインメニュー"
 
@@ -6777,6 +6794,9 @@ msgstr "1 年超"
 
 msgid "Over the certificate being renewed: the same gate as poll binds the caller to its host, and the body carries a request for the same key. The answer is the enroll \"issued\" shape. A request for any other key is refused; a key change goes through enroll and an admin."
 msgstr "更新対象の証明書に対して、ポーリングと同じ認証処理で呼び出し元をホストに紐付け、リクエスト本文に同じ鍵に対する署名要求を含めます。応答は登録時の「発行済み」と同じ形式です。別の鍵に対する要求は拒否されます。鍵を変更する場合は、登録手続きと管理者による操作が必要です。"
+
+msgid "PHP has no mail command. Set sendmail_path in php.ini."
+msgstr ""
 
 msgid "PLUGIN OPTIONS"
 msgstr "プラグインオプション"
@@ -8176,6 +8196,12 @@ msgstr "選択したタスクをキャンセルしました！"
 msgid "Self-signed"
 msgstr "自己署名"
 
+msgid "Send a test email to"
+msgstr ""
+
+msgid "Send test email"
+msgstr ""
+
 msgid "Sensitive one-shot credential; returned only after the mTLS host has claimed the ready attempt."
 msgstr ""
 
@@ -9328,6 +9354,13 @@ msgstr "チーム"
 msgid "Terminal"
 msgstr "ターミナル"
 
+#, fuzzy
+msgid "Test Email Failed"
+msgstr "ブートファイルの処理に失敗しました"
+
+msgid "Test Email Sent"
+msgstr ""
+
 msgid "Text"
 msgstr "テキスト"
 
@@ -9691,8 +9724,18 @@ msgstr ""
 msgid "The live identity matches the certificate principal."
 msgstr ""
 
+msgid "The local mail server accepted the email. Check the inbox. If it does not arrive, read the mail server log, for example: journalctl -u postfix"
+msgstr ""
+
 msgid "The logical sector size of the disk this image was captured from."
 msgstr "このイメージをキャプチャしたディスクの論理セクターサイズです。"
+
+#, php-format
+msgid "The mail command %s is not installed or is not executable. Install a mail server such as postfix, or set sendmail_path in php.ini."
+msgstr ""
+
+msgid "The mail command refused the email."
+msgstr ""
 
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
@@ -10107,6 +10150,13 @@ msgstr "これは単発実行タスクで、現時点では実行対象ではあ
 
 msgid "This is a single run task that should run now."
 msgstr "これは単発実行タスクで、現在実行する条件を満たしています。"
+
+#, php-format
+msgid ""
+"This is a test email from FOG, sent by %s at %s.\n"
+"\n"
+"If you can read it, FOG can send the image task completion email.\n"
+msgstr ""
 
 msgid "This is a transport failure -- no credentials were sent -- so check sshd on the node."
 msgstr "これは通信経路上の接続失敗であり、認証情報は送信されていません。ノードの sshd を確認してください。"
@@ -11219,6 +11269,10 @@ msgstr "グループを作成する権限がありません。"
 msgid "You do not have permission to revoke API tokens."
 msgstr "API トークンを失効させる権限がありません。"
 
+#, fuzzy
+msgid "You do not have permission to send a test email."
+msgstr "グループを作成する権限がありません。"
+
 #, php-format
 msgid "You do not have permission to start %s tasks."
 msgstr "%s タスクを開始する権限がありません。"
@@ -11295,6 +11349,9 @@ msgstr "アクセス"
 
 msgid "additional macs"
 msgstr "追加 MAC アドレス"
+
+msgid "admin@example.com"
+msgstr ""
 
 msgid "after"
 msgstr "後"
@@ -12933,9 +12990,6 @@ msgstr "{node}"
 
 #~ msgid "FOG License Information"
 #~ msgstr "FOG ライセンス情報"
-
-#~ msgid "FOG Needs at least"
-#~ msgstr "FOG には少なくとも"
 
 #~ msgid "FOG PXE Boot Menu Configuration"
 #~ msgstr "FOG PXE ブートメニュー設定"

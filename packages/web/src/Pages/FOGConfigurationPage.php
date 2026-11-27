@@ -34,6 +34,7 @@ use FOG\Managers\SettingManager;
 use FOG\Managers\UserManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
+use FOG\Util\Mailer;
 
 /**
  * The FOG Configuration Page display.
@@ -46,6 +47,12 @@ use FOG\Router\Route;
  */
 class FOGConfigurationPage extends FOGPage
 {
+    /**
+     * The settingCategory whose panel carries the test email form.
+     *
+     * @var string
+     */
+    const EMAIL_CATEGORY = 'FOG Email Settings';
     /**
      * The node this page enacts for.
      *
@@ -5799,6 +5806,10 @@ class FOGConfigurationPage extends FOGPage
         // `settings.edit` is not the gate for these.
         $mayManageAudit = Authorization::can('audit.manage');
         $retentionKeys = Retention::settingKeys();
+        // The test email form sends mail as the server, so it takes the
+        // same permission as the settings it tests (see testEmailPost()).
+        // The read-only mail command row needs no more than this page.
+        $mayEdit = Authorization::can('settings.edit');
 
         $byCat = [];
         foreach ((array) $rows as $row) {
@@ -5903,6 +5914,9 @@ class FOGConfigurationPage extends FOGPage
                 echo '<div class="settings-control">' . $input . '</div>';
                 echo '</div>';
             }
+            if (self::EMAIL_CATEGORY === $cat) {
+                echo $this->_renderEmailTest($catRows, $mayEdit);
+            }
             echo '</div>'; // .settings-panel-body
             echo '</div>'; // .settings-panel
             $first = false;
@@ -5913,6 +5927,205 @@ class FOGConfigurationPage extends FOGPage
 
         echo '</div>';
         return ob_get_clean();
+    }
+    /**
+     * The mail command (read-only) and the test email form.
+     *
+     * Rendered as settings rows so the search box finds them. The inputs
+     * carry `settings-nosave`, so fog.about.settings.js does not post them
+     * as settings.
+     *
+     * @param array $catRows the FOG Email Settings rows
+     * @param bool  $mayEdit whether to include the test email form
+     *
+     * @return string
+     */
+    private function _renderEmailTest(array $catRows, $mayEdit)
+    {
+        $command = Mailer::command();
+        $problem = Mailer::problem();
+        // Prefill with the report address, unless it holds a placeholder
+        // such as ${user-name} that only a real task fills in.
+        $to = '';
+        foreach ($catRows as $row) {
+            if ('FOG_EMAIL_ADDRESS' === $row['settingKey']
+                && false === strpos((string)$row['settingValue'], '${')
+            ) {
+                $to = (string)$row['settingValue'];
+            }
+        }
+        ob_start();
+        echo '<div class="form-group settings-row" data-search="'
+            . \Initiator::e('mail command sendmail_path php.ini email binary')
+            . '">';
+        echo '<label class="col-form-label settings-label" '
+            . 'for="settings-mail-command" data-bs-toggle="tooltip" '
+            . 'data-bs-placement="top" title="'
+            . \Initiator::e(
+                _(
+                    'FOG sends all email through this command. It is '
+                    . 'sendmail_path in php.ini. Change it there.'
+                )
+            )
+            . '">' . _('Mail command') . '</label>';
+        echo '<div class="settings-control">';
+        echo '<input type="text" id="settings-mail-command" '
+            . 'class="form-control settings-nosave" readonly value="'
+            . \Initiator::e($command) . '">';
+        if (null !== $problem) {
+            echo '<small class="form-text text-danger">'
+                . \Initiator::e($problem) . '</small>';
+        }
+        echo '</div>';
+        echo '</div>';
+        if (!$mayEdit) {
+            return ob_get_clean();
+        }
+        echo '<div class="form-group settings-row" data-search="'
+            . \Initiator::e('test email send test mail')
+            . '">';
+        echo '<label class="col-form-label settings-label" '
+            . 'for="settings-test-email-to">'
+            . _('Send a test email to') . '</label>';
+        echo '<div class="settings-control">';
+        echo '<div class="input-group">';
+        echo '<input type="text" id="settings-test-email-to" '
+            . 'class="form-control settings-nosave" autocomplete="off" '
+            . 'placeholder="' . \Initiator::e(_('admin@example.com')) . '" '
+            . 'value="' . \Initiator::e($to) . '">';
+        echo '<button type="button" id="settings-test-email" '
+            . 'class="btn btn-primary">' . _('Send test email')
+            . '</button>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+        return ob_get_clean();
+    }
+    /**
+     * Dispatch anchor for sub=testEmail. See _postOnly().
+     *
+     * @return void
+     */
+    public function testEmail()
+    {
+        $this->_postOnly();
+    }
+    /**
+     * Send one test email through the same path as the image report.
+     *
+     * @return void
+     */
+    public function testEmailPost()
+    {
+        self::checkAuthAndCSRF();
+        header('Content-type: application/json');
+        $title = _('Test Email Failed');
+        if (!Authorization::can('settings.edit')) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_FORBIDDEN,
+                [
+                    'error' => _('You do not have permission to send a '
+                        . 'test email.'),
+                    'title' => $title
+                ]
+            );
+        }
+        $addresses = array_values(
+            array_filter(
+                array_map(
+                    'trim',
+                    explode(',', (string)filter_input(INPUT_POST, 'to'))
+                ),
+                function ($address) {
+                    return '' !== $address;
+                }
+            )
+        );
+        if (!$addresses) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_BAD_REQUEST,
+                [
+                    'error' => _('Enter an address to send the test email to.'),
+                    'title' => $title
+                ]
+            );
+        }
+        // FILTER_VALIDATE_EMAIL refuses a line break, so no address can
+        // add a mail header.
+        foreach ($addresses as $address) {
+            if (false === filter_var($address, FILTER_VALIDATE_EMAIL)) {
+                $this->_jsonExit(
+                    HTTPResponseCodes::HTTP_BAD_REQUEST,
+                    [
+                        'error' => _('Each address must be a valid email '
+                            . 'address. Separate addresses with commas.'),
+                        'title' => $title
+                    ]
+                );
+            }
+        }
+        $problem = Mailer::problem();
+        if (null !== $problem) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                ['error' => $problem, 'title' => $title]
+            );
+        }
+        // The name _email() uses when a task has no storage node, so
+        // ${server-name} resolves the same way here.
+        $from = Mailer::fromAddress(
+            (string)self::getSetting('FOG_FROM_EMAIL'),
+            Mailer::DEFAULT_NODE
+        );
+        $to = implode(',', $addresses);
+        error_clear_last();
+        $sent = Mailer::send(
+            $to,
+            _('FOG test email'),
+            sprintf(
+                _(
+                    "This is a test email from FOG, sent by %s at %s.\n\n"
+                    . "If you can read it, FOG can send the image task "
+                    . "completion email.\n"
+                ),
+                (string)self::$FOGUser->get('name'),
+                // Display zone, named, for the person reading the email.
+                // Nothing stores this value.
+                self::formatTime('now', 'Y-m-d H:i:s T')
+            ),
+            $from
+        );
+        Audit::record(
+            [
+                'type' => 'email.test',
+                'subjectType' => 'setting',
+                'subjectLabel' => $to,
+                'permission' => 'settings.edit',
+                'renderable' => 1
+            ]
+        );
+        if (!$sent) {
+            $last = error_get_last();
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_INTERNAL_SERVER_ERROR,
+                [
+                    'error' => _('The mail command refused the email.')
+                        . ($last ? ' ' . $last['message'] : ''),
+                    'title' => $title
+                ]
+            );
+        }
+        $this->_jsonExit(
+            HTTPResponseCodes::HTTP_SUCCESS,
+            [
+                'msg' => _(
+                    'The local mail server accepted the email. Check the '
+                    . 'inbox. If it does not arrive, read the mail server '
+                    . 'log, for example: journalctl -u postfix'
+                ),
+                'title' => _('Test Email Sent')
+            ]
+        );
     }
     /**
      * AJAX fragment: the settings body only (nav + panels).

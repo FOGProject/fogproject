@@ -24,6 +24,7 @@ use FOG\Items\Task;
 use FOG\Items\TaskType;
 use FOG\Managers\HostManager;
 use FOG\Router\Route;
+use FOG\Util\Mailer;
 
 /**
  * The queue handling system for FOG's checkin/checkout processes.
@@ -336,13 +337,11 @@ class TaskQueue extends TaskingElement
         $keys = [
             'FOG_EMAIL_ACTION',
             'FOG_EMAIL_ADDRESS',
-            'FOG_EMAIL_BINARY',
             'FOG_FROM_EMAIL'
         ];
         list(
             $emailAction,
             $emailAddress,
-            $emailBinary,
             $fromEmail
         ) = self::getSetting($keys);
         if (!$emailAction || !$emailAddress) {
@@ -370,32 +369,14 @@ class TaskQueue extends TaskingElement
                 'name'
             );
         }
-        if (!$emailBinary) {
-            $emailBinary = '/usr/sbin/sendmail -t -f noreply@fogserver.com -i';
-        }
-        $reg = '#\$\{server\-name\}#';
-        $nodeName = 'fogserver';
+        $reg = Mailer::SERVER_NAME;
+        $nodeName = Mailer::DEFAULT_NODE;
         if ($this->StorageNode->isValid()) {
             $nodeName = $this->StorageNode->get('name');
         }
-        $emailBinary = preg_replace(
-            $reg,
-            $nodeName,
-            $emailBinary
-        );
-        if (!$fromEmail) {
-            $fromEmail = 'noreply@fogserver.com';
-        }
-        $fromEmail = preg_replace(
-            $reg,
-            $nodeName,
-            $fromEmail
-        );
-        $headers = sprintf(
-            "From: %s\r\nX-Mailer: PHP/%s",
-            $fromEmail,
-            phpversion()
-        );
+        // Mailer sends through php.ini sendmail_path, the same path the
+        // FOG Settings test email uses.
+        $fromEmail = Mailer::fromAddress((string)$fromEmail, $nodeName);
         $engineer = $this->Task->get('createdBy');
         // A task no person created (quick registration) is recorded as the
         // machine actor, which is not a mailbox. Keep the address such a
@@ -461,14 +442,14 @@ class TaskQueue extends TaskingElement
             _('Image Task Completed')
         );
         if ($Inventory->get('other1')) {
-            mail(
+            Mailer::send(
                 $emailAddress,
                 sprintf(
                     'ISSUE=%s PROJ=1',
                     $Inventory->get('other1')
                 ),
                 $emailMe,
-                $headers
+                $fromEmail
             );
             $emailMe .= sprintf(
                 "\n%s (%s): %s",
@@ -478,11 +459,11 @@ class TaskQueue extends TaskingElement
             );
             //$Inventory->set('other1', '')->save();
         }
-        mail(
+        Mailer::send(
             $emailAddress,
             $stat,
             $emailMe,
-            $headers
+            $fromEmail
         );
     }
     /**
