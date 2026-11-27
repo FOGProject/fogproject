@@ -107,6 +107,12 @@
         {
           responsivePriority: -1,
           render: function(data, type, row) {
+            // A task for an unregistered host has no host row, only the MAC
+            // it booted with (forum 18086). Nothing to link to. The server
+            // sends the translated text.
+            if (!row.hostid && row.hostLabel) {
+              return $.escapeHtml(row.hostLabel);
+            }
             return '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + $.escapeHtml(data) + '</a>';
           },
           targets: 0
@@ -360,6 +366,10 @@
         {
           responsivePriority: -1,
           render: function(data, type, row) {
+            // No host row but a MAC: an unregistered host (forum 18086).
+            if (!row.hostid && row.hostLabel) {
+              return $.escapeHtml(row.hostLabel);
+            }
             if (!row.hostid) {
               return $.escapeHtml(data);
             }
@@ -463,6 +473,10 @@
         {
           responsivePriority: 1,
           render: function(data, type, row) {
+            // No host row but a MAC: an unregistered host (forum 18086).
+            if (!row.hostid && row.hostLabel) {
+              return $.escapeHtml(row.hostLabel);
+            }
             // A row can genuinely have no name to show: state rows written
             // before schema 341 carry no copy of one, and once their task is
             // deleted the join has nothing to fall back on either. Schema 373
@@ -564,7 +578,9 @@
         ['Time', $.escapeHtml(row.logtime || '')],
         ['Host', row.hostid ?
           '<a href="../management/index.php?node=host&sub=edit&id=' + row.hostid + '">' + $.escapeHtml(row.hostname || '') + '</a>' :
-          $.escapeHtml(row.hostname || '')],
+          (row.hostLabel ?
+            $.escapeHtml(row.hostLabel) :
+            $.escapeHtml(row.hostname || ''))],
         ['Task', $.escapeHtml(String(row.taskid || '')) + ' &mdash; ' + $.escapeHtml(row.tasktypename || '')],
         ['State at the time', $.escapeHtml(row.taskstatename || '')
           + ' <i class="fas fa-' + $.escapeHtml(row.taskstateicon || '') + '"></i>'],

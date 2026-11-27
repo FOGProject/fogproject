@@ -692,6 +692,46 @@ abstract class FOGBase
         return $host;
     }
     /**
+     * The multicast rendezvous address FOS may use with this storage node.
+     *
+     * udp-receiver joins the node's session in the node's own IP family, so
+     * a rendezvous address of the other family cannot work and is left off
+     * the kernel line. A node named by hostname counts as IPv4, because the
+     * multicast daemon resolves a hostname to an IPv4 address.
+     *
+     * Here, not in BootMenuBase, so service/hostinfo.php shares it without
+     * loading the boot menu.
+     *
+     * @param string $rdv    the FOG_MULTICAST_RENDEZVOUS setting
+     * @param string $nodeIP the storage node address
+     *
+     * @return string
+     */
+    public static function mcastRdvForNode($rdv, $nodeIP)
+    {
+        $rdv = (string)$rdv;
+        if ('' === $rdv || !filter_var($rdv, FILTER_VALIDATE_IP)) {
+            return $rdv;
+        }
+        $nodeIsV6 = self::isIPv6(self::canonicalIP($nodeIP));
+
+        return self::isIPv6($rdv) === $nodeIsV6 ? $rdv : '';
+    }
+    /**
+     * The chkdsk value FOS reads from FOG_DISABLE_CHKDSK.
+     *
+     * The setting disables the check and FOS enables it, so the value is
+     * flipped: 1 (disabled) sends 0, anything else sends 1.
+     *
+     * @param mixed $disabled the FOG_DISABLE_CHKDSK setting
+     *
+     * @return int
+     */
+    public static function chkdskFlag($disabled)
+    {
+        return $disabled == 1 ? 0 : 1;
+    }
+    /**
      * Defines string as class name.
      *
      * @return string
@@ -4083,6 +4123,24 @@ abstract class FOGBase
     public static function getFailedState()
     {
         return TaskState::getFailedState();
+    }
+    /**
+     * Get no report state id.
+     *
+     * @return int
+     */
+    public static function getNoReportState()
+    {
+        return TaskState::getNoReportState();
+    }
+    /**
+     * Get the terminal state ids.
+     *
+     * @return array
+     */
+    public static function getTerminalStates()
+    {
+        return TaskState::getTerminalStates();
     }
     /**
      * Normalizes a value to a re-indexed list of positive integer ids.

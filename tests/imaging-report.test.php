@@ -95,10 +95,23 @@ $t->check(
         $code
     )
 );
-foreach (['getCompleteState', 'getCancelledState', 'getFailedState'] as $st) {
+// The terminal set is TaskState's one list, so a new finished state is added
+// there and not here.
+$t->check(
+    'and the terminal set is TaskState::getTerminalStates()',
+    false !== strpos($code, '$terminal = TaskState::getTerminalStates();')
+);
+$stateSrc = (string)file_get_contents($web . '/src/Items/TaskState.php');
+preg_match('/function getTerminalStates\(\).*?\n    }/s', $stateSrc, $term);
+foreach ([
+    'getCompleteState',
+    'getCancelledState',
+    'getFailedState',
+    'getNoReportState'
+] as $st) {
     $t->check(
         "and `$st` counts as terminal",
-        false !== strpos($code, 'TaskState::' . $st . '()')
+        false !== strpos($term[0] ?? '', 'self::' . $st . '()')
     );
 }
 
@@ -116,10 +129,13 @@ $db->responder = function ($sql) {
         return null;
     }
     return [
-        ['taskID' => '0', 'hostID' => '0', 'hostName' => '',
+        // A host-less task that completed (forum 18086): a real task id, no
+        // host, the MAC it booted with.
+        ['taskID' => '9', 'hostID' => '0', 'hostName' => '',
          'mac' => 'aa:bb:cc:dd:ee:ff', 'imageName' => 'win11',
-         'taskTypeName' => 'Deploy', 'stateID' => '0',
-         'started' => '2026-03-01 09:00:00', 'createdBy' => 'menu'],
+         'taskTypeName' => 'Deploy', 'stateID' => '4',
+         'started' => '2026-03-01 09:00:00',
+         'ended' => '2026-03-01 09:30:00', 'createdBy' => 'menu'],
         ['taskID' => '7', 'hostID' => '3', 'hostName' => 'lab-pc',
          'mac' => '', 'imageName' => 'win11',
          'taskTypeName' => 'Deploy', 'stateID' => '0',
@@ -148,15 +164,15 @@ $t->check(
     'a host name wins over a MAC',
     'lab-pc2' === ($served[2]['hostName'] ?? null)
 );
-// A false tasking never reports an end, so its state says it started rather
-// than leaving it In-Progress forever; a run with a task keeps its state.
+// A host-less run is a real task with real states, so it is not relabeled:
+// a Complete one has a finish time like any other.
 $t->check(
-    'a taskID 0 run is labeled Started (unregistered)',
-    'Started (unregistered)' === ($served[0]['state'] ?? null)
+    'a completed host-less run shows its finish time',
+    '2026-03-01 09:30:00' === ($served[0]['ended'] ?? null)
 );
 $t->check(
-    'a run with a task keeps its own state label',
-    'Started (unregistered)' !== ($served[1]['state'] ?? null)
+    'no run is relabeled "Started (unregistered)"',
+    false === strpos(json_encode($served), 'Started (unregistered)')
 );
 
 /*

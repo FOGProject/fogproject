@@ -140,11 +140,12 @@ class MulticastManager extends FOGService
      *
      * Tasks are not the whole membership of a session. One with a size
      * (sessclients) can be joined by name from the PXE menu, by any machine
-     * that knows the name. A registered host gets a task; an unregistered
-     * one does not (IpxeBootMenu::falseTasking()), so the server never sees
-     * it. Such a session can have no live task at all -- before anyone has
-     * joined, or with only unregistered machines in it -- and still be in
-     * use. It is empty only when no task is live AND it expects no machine
+     * that knows the name. A registered host gets a task, and so does an
+     * unregistered one: a hostless task found by a boot token (forum 18086,
+     * ADR 0044). An unregistered machine whose token could not be issued, or
+     * whose FOS is too old to send it, still has no live task here. Such a
+     * session can have no live task at all -- before anyone has joined, or
+     * with only such machines in it -- and still be in use. It is empty only when no task is live AND it expects no machine
      * by name. Issue #1922.
      *
      * @param array $liveIDs  The session's task IDs that are not canceled.

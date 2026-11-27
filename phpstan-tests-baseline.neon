@@ -667,6 +667,12 @@ parameters:
 			path: tests/lib/bootmenu-harness.php
 
 		-
+			message: '#^Access to an undefined static property FOG\\Base\\FOGBase\:\:\$login\.$#'
+			identifier: staticProperty.notFound
+			count: 1
+			path: tests/lib/bootmenu-render.php
+
+		-
 			message: '#^Access to an undefined static property FOG\\Base\\FOGBase\:\:\$settings\.$#'
 			identifier: staticProperty.notFound
 			count: 1
@@ -675,7 +681,7 @@ parameters:
 		-
 			message: '#^Access to an undefined static property FOG\\Router\\Route\:\:\$rows\.$#'
 			identifier: staticProperty.notFound
-			count: 6
+			count: 8
 			path: tests/lib/bootmenu-render.php
 
 		-

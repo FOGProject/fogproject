@@ -222,11 +222,7 @@ class Imaging_Report extends ReportManagement
         // finish time only once the run has finished -- for one still in
         // progress it is the last transition, and printing that under
         // "Finished" says a deploy completed when it is still copying.
-        $terminal = [
-            (int)TaskState::getCompleteState(),
-            (int)TaskState::getCancelledState(),
-            (int)TaskState::getFailedState()
-        ];
+        $terminal = TaskState::getTerminalStates();
         $data = [];
         foreach ($rows as $row) {
             $stateID = (int)($row['stateID'] ?? 0);
@@ -255,13 +251,7 @@ class Imaging_Report extends ReportManagement
                 'ended' => in_array($stateID, $terminal, true)
                     ? (string)($row['ended'] ?? '')
                     : '',
-                // A taskID 0 run is a false tasking: no Task row, so FOS
-                // never reports back and the row's In-Progress is only where
-                // the run started. Saying "In-Progress" would read as a
-                // deploy still copying forever (forum 18086).
-                'state' => 0 === (int)($row['taskID'] ?? 0)
-                    ? _('Started (unregistered)')
-                    : ($states[$stateID] ?? ''),
+                'state' => $states[$stateID] ?? '',
                 'createdBy' => (string)($row['createdBy'] ?? '')
             ];
         }

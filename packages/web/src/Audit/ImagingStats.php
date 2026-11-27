@@ -108,12 +108,7 @@ class ImagingStats extends WindowedStats
      *
      * All three rules from the class docblock are here and nowhere else:
      *
-     *   GROUP BY the run key  the fold itself. The key is `taskID`, except
-     *                         that a row with taskID 0 is a false tasking:
-     *                         a deploy to an unregistered host has no Task
-     *                         row, so every such run is written with taskID
-     *                         0. There is no task id to fold on, so that row
-     *                         is a run on its own, keyed on its own -`id`
+     *   GROUP BY `taskID`     the fold itself
      *   HAVING SUM(...) > 0   at least one non-canceled row, which is the
      *                         canceled rule stated over the RUN rather than
      *                         row by row. A deploy whose only rows are
@@ -139,18 +134,14 @@ class ImagingStats extends WindowedStats
      */
     private static function _foldSql()
     {
-        // MAX(`taskID`) because the group key is no longer the bare column;
-        // taskID is constant within a group, so the aggregate is exact and
-        // stays valid under ONLY_FULL_GROUP_BY. -`id` is negative, so it
-        // cannot collide with a real task id.
-        return "SELECT MAX(`taskID`) AS `taskID`,
+        return "SELECT `taskID`,
                        MIN(`createTime`) AS `started`,
                        MAX(`createTime`) AS `ended`,
                        MAX(`id`) AS `lastID`
                   FROM `taskLog`
                  WHERE `createTime` BETWEEN :start AND :end
                    AND `logImageName` <> ''
-                 GROUP BY CASE WHEN `taskID` = 0 THEN -`id` ELSE `taskID` END
+                 GROUP BY `taskID`
                 HAVING SUM(`taskStateID` <> :canceled) > 0";
     }
 

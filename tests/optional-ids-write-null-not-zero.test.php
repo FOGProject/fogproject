@@ -76,13 +76,14 @@ foreach ($nullable as $column) {
             && !preg_match('/\bNOT\s+NULL\b/i', $columns[$column])
     );
 }
-// The control. taskHostID is a foreign key too, but a task always belongs to
-// a host, so "no host" is not a state it can be in -- the column stays NOT
-// NULL and 0 stays the right answer for it.
+// taskHostID is nullable since step 473: a task for an unregistered host has
+// no host (forum 18086), and "no host" is NULL because the foreign key
+// refuses 0. It is not in $nullable above because the saves below give it a
+// real id.
 $t->check(
-    'premise: tasks.taskHostID is declared NOT NULL',
+    'premise: tasks.taskHostID is declared nullable',
     isset($columns['taskHostID'])
-        && (bool)preg_match('/\bNOT\s+NULL\b/i', $columns['taskHostID'])
+        && !preg_match('/\bNOT\s+NULL\b/i', $columns['taskHostID'])
 );
 
 /**
@@ -147,9 +148,8 @@ foreach ($nullable as $column) {
     );
 }
 
-// The control again, this time through save(): a NOT NULL column still gets
-// a number, because the fix is conditioned on the column and not on the key
-// looking like an id.
+// The control again, this time through save(): a real host id is still
+// written as itself, because the rule only acts on an empty value.
 $t->check(
     'taskHostID is untouched by the null rule',
     isset($bound[':taskHostID_insert'])

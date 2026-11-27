@@ -246,6 +246,13 @@ check(
     $checks
 );
 
+check(
+    'the task scheduler runs the sweep for silent hostless tasks too',
+    false !== strpos($sched, 'reapSilentHostless()'),
+    $failures,
+    $checks
+);
+
 /*
  * ORDER IS THE POINT. The "No tasks found!" exit counts SCHEDULED and
  * power-management tasks and throws when there are none, ending the pass. Both

@@ -487,6 +487,12 @@ class Route extends FOGBase
             'token',
             'password',
         ],
+        // A hostless task's boot token hash (forum 18086). The hash finds
+        // the task for whoever holds the raw token, and FOS is the only
+        // reader, server-side, so no API reader needs it.
+        'task' => [
+            'tokenHash',
+        ],
         'storagenode' => [
             'pass',
             'key',
@@ -569,6 +575,11 @@ class Route extends FOGBase
             'dataCopied',
             'dataTotal',
             'percent',
+            // Only BootToken::issue() sets these. A REST caller choosing
+            // tokenHash could mint a hostless task that FOS then finds;
+            // mac names the machine that task belongs to.
+            'tokenHash',
+            'mac',
         ],
         'host' => [
             'pub_key',

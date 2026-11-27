@@ -280,6 +280,10 @@ const TABLE = [
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',
+    // The boot token of a hostless task (forum 18086, ADR 0044): issues the
+    // task from the boot menu and finds it again from every FOS endpoint.
+    // Task machinery, beside TaskingElement, which calls it first.
+    'BootToken' => 'TaskHandling',
     'Timer' => 'Util',
     'FOGCron' => 'Util',
     'FOGLogPaths' => 'Util',
@@ -290,6 +294,9 @@ const TABLE = [
     // Util for the same reason: reducing a submission to leave/set/clear
     // belongs to whichever form is doing the editing, and to none of them.
     'MassEdit' => 'Util',
+    // Util for the same reason: the image task report and the FOG Settings
+    // test email both send through it, and neither page owns it.
+    'Mailer' => 'Util',
     'SnapinSaveException' => 'Exception',
     'UploadException' => 'Exception',
 ];

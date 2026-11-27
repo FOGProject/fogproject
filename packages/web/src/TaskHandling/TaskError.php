@@ -154,11 +154,20 @@ class TaskError extends FOGBase
                     self::MAX_TEXT
                 );
             }
-            self::getHostItem(false);
-            $Task = self::$Host->get('task');
+            // Token first, then host. A token that finds an active hostless
+            // task leaves self::$Host an empty Host; the host flow below is
+            // unchanged when none was posted.
+            $Task = BootToken::resolve();
+            if (null === $Task) {
+                self::getHostItem(false);
+                $Task = self::$Host->get('task');
+            }
             if (!$Task->isValid()) {
                 throw new \Exception(_('No active task found for this host'));
             }
+            // "<MAC> (unregistered)" for a hostless task, the host name
+            // otherwise.
+            $label = BootToken::label($Task, self::$Host);
             // Recorded for EVERY task type, imaging or not. A wipe that dies
             // on a bad disk is exactly as worth having in the task's log as a
             // deploy that dies on a bad image, and this is the half of the
@@ -171,7 +180,7 @@ class TaskError extends FOGBase
                 sprintf(
                     'FOG: %s reported by host %s (task %d): %s',
                     $type,
-                    self::$Host->get('name'),
+                    $label,
                     (int) $Task->get('id'),
                     self::_flatten($text)
                 )
@@ -192,7 +201,7 @@ class TaskError extends FOGBase
                 'authSource' => Audit::SOURCE_ANONYMOUS,
                 'subjectType' => 'task',
                 'subjectID' => (int)$Task->get('id'),
-                'subjectLabel' => (string)self::$Host->get('name'),
+                'subjectLabel' => $label,
                 'renderable' => 1
             ]);
             // The task is finished, whatever kind it was. A Memtest or an
@@ -211,10 +220,14 @@ class TaskError extends FOGBase
                 return;
             }
             $Image = $Task->getImage();
+            // A notification, unlike a host hook, fires for a hostless task
+            // too (forum 18086): HostName carries "<MAC> (unregistered)",
+            // the same as TaskQueue::_notifyImagingOutcome() sends on a
+            // checkout, so both failure paths tell a listener the same thing.
             self::$EventManager->notify(
                 'HOST_IMAGE_FAIL',
                 [
-                    'HostName' => self::$Host->get('name'),
+                    'HostName' => $label,
                     'Host' => self::$Host,
                     'Task' => $Task,
                     'Image' => $Image,
@@ -224,13 +237,14 @@ class TaskError extends FOGBase
                         ''
                     ),
                     'TaskType' => $Task->getTaskTypeText(),
-                    // The short, single-line half. The stored row keeps the
-                    // whole report and its line breaks; a phone notification
-                    // gets the opening of it, flattened so a caller cannot
-                    // forge a second message inside one. Cut here rather
-                    // than at the top so that widening what is stored never
-                    // widens what is pushed. Flattened BEFORE the cut, so
-                    // the 500 is spent on text rather than on whitespace.
+                    // The short, single-line half. The stored row keeps
+                    // the whole report and its line breaks; a phone
+                    // notification gets the opening of it, flattened so a
+                    // caller cannot forge a second message inside one.
+                    // Cut here rather than at the top so that widening
+                    // what is stored never widens what is pushed.
+                    // Flattened BEFORE the cut, so the 500 is spent on
+                    // text rather than on whitespace.
                     'Reason' => mb_substr(
                         self::_flatten($text),
                         0,
@@ -238,7 +252,9 @@ class TaskError extends FOGBase
                     )
                 ]
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            // Throwable, not Exception: the exit in the finally below would
+            // swallow an \Error (a TypeError, say) with no trace at all.
             // A report that cannot be matched to a task is still worth a line
             // in the log -- it is the only trace that a machine tried to say
             // something -- but it is not worth an answer a caller can probe
@@ -249,17 +265,29 @@ class TaskError extends FOGBase
                     $e->getMessage()
                 )
             );
+        } finally {
+            // In a finally so the two early returns above (a warning, and a
+            // task that is not imaging) answer the same as everything else.
+            // They used to skip the ack and answer with an empty body, which
+            // told a caller apart a MAC with an active task from one without.
+            self::_ack();
         }
-        /*
-         * Always the same ack, always 200, whatever happened.
-         *
-         * FOS calls this on its way out of handleError() and cannot act on
-         * the answer -- it is about to print a banner and exit either way --
-         * so there is nothing to tell it. Answering identically also means
-         * the endpoint cannot be used to ask whether a given MAC has an
-         * active imaging task, which a distinguishing response would allow
-         * anyone who can reach the web tier to do.
-         */
+    }
+
+    /**
+     * Always the same ack, always 200, whatever happened.
+     *
+     * FOS calls this on its way out of handleError() and cannot act on
+     * the answer -- it is about to print a banner and exit either way --
+     * so there is nothing to tell it. Answering identically also means
+     * the endpoint cannot be used to ask whether a given MAC has an
+     * active imaging task, which a distinguishing response would allow
+     * anyone who can reach the web tier to do.
+     *
+     * @return void
+     */
+    private static function _ack()
+    {
         echo '##';
         exit;
     }
@@ -314,8 +342,11 @@ class TaskError extends FOGBase
             ->set('createdBy', 'fos')
             ->set('type', $type)
             ->set('text', $text)
-            ->set('hostID', self::$Host->get('id'))
+            // 0 and '' for a hostless task: the host column is NOT NULL, and
+            // the MAC below is what names the machine.
+            ->set('hostID', self::$Host->isValid() ? self::$Host->get('id') : 0)
             ->set('hostName', self::$Host->get('name'))
+            ->set('mac', (string)$Task->get('mac'))
             ->set('taskTypeName', $Task->getTaskTypeText())
             ->save();
     }

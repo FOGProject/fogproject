@@ -50,11 +50,29 @@ class TaskStub
 {
     private $capture;
     private $typeText;
+    private $mac;
 
-    public function __construct($capture, $typeText)
+    /**
+     * @param bool        $capture  Capture rather than deploy.
+     * @param string      $typeText The task type text.
+     * @param string|null $mac      The MAC of a HOSTLESS task, or null for a
+     *                              task that belongs to a registered host.
+     */
+    public function __construct($capture, $typeText, $mac = null)
     {
         $this->capture = $capture;
         $this->typeText = $typeText;
+        $this->mac = $mac;
+    }
+
+    public function isHostless()
+    {
+        return null !== $this->mac;
+    }
+
+    public function get($field)
+    {
+        return 'mac' === $field ? (string)$this->mac : '';
     }
 
     public function isCapture()
@@ -113,10 +131,18 @@ $method->setAccessible(true);
  * @param bool   $capture  Capture rather than deploy.
  * @param object $image    The image stub, or null.
  * @param string $reason   Empty for success.
+ * @param string $mac      The MAC of a hostless task, or null for the task of
+ *                         a registered host.
  *
  * @return array
  */
-$run = function ($imaging, $capture, $image, $reason = '') use (
+$run = function (
+    $imaging,
+    $capture,
+    $image,
+    $reason = '',
+    $mac = null
+) use (
     $bare,
     $hostProp,
     $emProp,
@@ -129,7 +155,7 @@ $run = function ($imaging, $capture, $image, $reason = '') use (
     $tq = $bare('FOG\TaskHandling\TaskQueue');
     foreach ([
         'imagingTask' => $imaging,
-        'Task' => new TaskStub($capture, $capture ? 'Upload' : 'Deploy'),
+        'Task' => new TaskStub($capture, $capture ? 'Upload' : 'Deploy', $mac),
         'Image' => $image,
     ] as $name => $value) {
         $p = new \ReflectionProperty('FOG\TaskHandling\TaskingElement', $name);
@@ -187,6 +213,35 @@ if (1 !== count($calls) || 'HOST_IMAGE_FAIL' !== $calls[0]['event']) {
 $calls = $run(true, false, new NamedStub('Win11-Lab'));
 if (isset($calls[0]['data']['Reason'])) {
     $fails[] = 'a successful task carries a failure Reason';
+}
+
+// ------------------------------------------------------------- hostless
+
+// Forum 18086: an unregistered machine is imaged under a hostless task. It
+// has no host name, so HostName is its MAC and says why there is no name.
+// The registered case above keeps the host's name, unchanged.
+$calls = $run(true, false, new NamedStub('Win11-Lab'), '', 'aa:bb:cc:dd:ee:ff');
+if (1 !== count($calls) || 'HOST_IMAGE_COMPLETE' !== $calls[0]['event']) {
+    $fails[] = 'a completed hostless deploy does not notify HOST_IMAGE_COMPLETE';
+} elseif (($calls[0]['data']['HostName'] ?? null)
+    !== 'aa:bb:cc:dd:ee:ff (unregistered)'
+) {
+    $fails[] = 'a hostless deploy is not named by its MAC in HostName, got '
+        . var_export($calls[0]['data']['HostName'] ?? null, true);
+}
+$calls = $run(
+    true,
+    false,
+    new NamedStub('Win11-Lab'),
+    'Failed to update task',
+    'aa:bb:cc:dd:ee:ff'
+);
+if (1 !== count($calls)
+    || 'HOST_IMAGE_FAIL' !== $calls[0]['event']
+    || ($calls[0]['data']['HostName'] ?? null) !== 'aa:bb:cc:dd:ee:ff (unregistered)'
+) {
+    $fails[] = 'a failed hostless deploy is not announced as HOST_IMAGE_FAIL'
+        . ' under its MAC';
 }
 
 // ------------------------------------------------------------ not imaging

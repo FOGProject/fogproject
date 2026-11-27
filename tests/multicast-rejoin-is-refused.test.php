@@ -133,6 +133,17 @@ abstract class RejoinBase
     }
 
     /**
+     * The current time.
+     *
+     * @return \DateTime
+     */
+    public static function niceDate()
+    {
+        // Only the clock the check-in time is stamped with.
+        return new \DateTime();
+    }
+
+    /**
      * The in-progress state id.
      *
      * @return int
@@ -286,7 +297,23 @@ class Task
     }
 
     /**
-     * Whether this is a forced task.
+     * Persists the row.
+     *
+     * @return bool
+     */
+    public function save()
+    {
+        // The clean stop. checkIn() saves the task right after the join, and
+        // an unresolvable host no longer ends the method early (a hostless
+        // task, found by its boot token, has no host and must check in like
+        // any other). Everything past this save is task-log and event work
+        // this harness has no business standing in for. The catch arm
+        // echoes the message, so '##@GO' still means "the join was allowed".
+        throw new \Exception('##@GO');
+    }
+
+    /**
+     * Whether the task is forced.
      *
      * @return bool
      */
@@ -376,14 +403,48 @@ class MulticastSession
 }
 
 /**
+ * The audit trail, which checkIn() writes to after the join.
+ */
+class Audit
+{
+    const SOURCE_ANONYMOUS = 'anonymous';
+
+    public static function record(array $row)
+    {
+    }
+}
+
+/**
+ * The task naming helper checkIn() asks for the audit label.
+ */
+class RejoinTokenStub
+{
+    public static function label($Task, $Host)
+    {
+        return '';
+    }
+}
+// Aliased straight to the real name rather than declared as FOG\BootToken,
+// which tests/lib/bootmenu-harness.php already declares as a different stub.
+class_alias('FOG\\RejoinTokenStub', 'FOG\\TaskHandling\\BootToken');
+
+/**
+ * The storage node checkIn() reads after the join.
+ */
+class RejoinNode
+{
+    public function get($key)
+    {
+        return '';
+    }
+}
+
+/**
  * The host.
  *
- * Deliberately invalid. checkIn() throws '##@GO' for a host it cannot
- * resolve immediately after the session is joined, which is a clean stop
- * just past the code under test -- everything after it is storage-node and
- * audit work this harness has no business standing in for. So an answer of
- * '##@GO' means "the join was allowed", and it is the same token the client
- * waits for on the wire.
+ * Deliberately invalid: nothing past the join in checkIn() reads it, and an
+ * invalid host is what an unregistered machine's hostless task leaves
+ * behind, which checkIn() must now carry through rather than stop at.
  */
 class Host
 {
@@ -428,6 +489,7 @@ class CheckInProbe extends TaskQueue
     {
         $this->Task = $Task;
         $this->imagingTask = true;
+        $this->StorageNode = new RejoinNode();
     }
 }
 

@@ -269,9 +269,20 @@ check(
     $checks
 );
 check(
-    'and still requires typeID and hostID',
-    false !== strpos($required, "'typeID'")
-    && false !== strpos($required, "'hostID'"),
+    'and still requires typeID',
+    false !== strpos($required, "'typeID'"),
+    $failures,
+    $checks
+);
+// hostID left the list so a hostless task (forum 18086) can save. The
+// guarantee it gave -- a task never points at nothing -- now lives in
+// Task::save() and isValid(): a host id OR a boot token hash.
+check(
+    'hostID is not required, and a host or a token hash is (hostless task)',
+    false === strpos($required, "'hostID'")
+    && false !== strpos($task, 'function _hasHostOrToken')
+    && false !== strpos($task, 'function save()')
+    && false !== strpos($task, 'function isValid()'),
     $failures,
     $checks
 );

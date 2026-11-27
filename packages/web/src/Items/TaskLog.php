@@ -216,60 +216,15 @@ class TaskLog extends FOGController
             ->set('taskID', $Task->get('id'))
             ->set('taskStateID', $Task->get('stateID'))
             ->set('createdTime', self::niceDate()->format('Y-m-d H:i:s'))
-            ->set('createdBy', $Task->get('createdBy'))
+            // taskLog.createdBy is varchar(30); tasks.taskCreateBy is 200.
+            // An uncut value fails the INSERT on a strict server.
+            ->set('createdBy', substr((string)$Task->get('createdBy'), 0, 30))
             ->set('hostID', ($hasHost ? $Host->get('id') : 0))
             ->set('hostName', ($hasHost ? $Host->get('name') : ''))
             ->set('taskTypeName', $Task->getTaskTypeText())
             ->set('imageName', $imageName)
-            ->save();
-    }
-    /**
-     * Records the start of a deploy to an unregistered or pending host.
-     *
-     * A false tasking is a deploy to a host that is unregistered or pending.
-     * Neither has a Task, so recordState() cannot record it. This writes one
-     * row per boot, at the moment the server sends the machine to FOS, so the
-     * Imaging report shows who imaged which machine (forum 18086). An
-     * unregistered host has no row, so the MAC it booted with is the only
-     * identity the row carries. A pending host has a row, and its id and name
-     * are written as well. The MAC is written either way.
-     *
-     * The row says In-Progress because that is the last state the server ever
-     * learns: FOS reports nothing back for a run with no task. The row is the
-     * start of the run and never shows an end.
-     *
-     * @param object $Host      the host, valid when it is pending.
-     * @param object $TaskType  the task type being run.
-     * @param object $Image     the image being deployed.
-     * @param string $mac       the MAC the machine booted with.
-     * @param string $createdBy who started the run.
-     *
-     * @return bool|object the save result.
-     */
-    public static function recordFalseTasking(
-        $Host,
-        $TaskType,
-        $Image,
-        $mac,
-        $createdBy
-    ) {
-        $imageName = '';
-        if ($Image->isValid()) {
-            $imageName = (string)$Image->get('name');
-        }
-        $hostValid = $Host->isValid();
-
-        return (new TaskLog())
-            ->set('taskID', 0)
-            ->set('stateID', TaskState::getProgressState())
-            ->set('createdTime', self::niceDate()->format('Y-m-d H:i:s'))
-            // createdBy is varchar(30).
-            ->set('createdBy', substr((string)$createdBy, 0, 30))
-            ->set('hostID', $hostValid ? (int)$Host->get('id') : 0)
-            ->set('hostName', $hostValid ? (string)$Host->get('name') : '')
-            ->set('taskTypeName', (string)$TaskType->get('name'))
-            ->set('imageName', $imageName)
-            ->set('mac', (string)$mac)
+            // The MAC of a hostless task; '' for a task with a host.
+            ->set('mac', (string)$Task->get('mac'))
             ->save();
     }
     /**
@@ -326,6 +281,7 @@ class TaskLog extends FOGController
             "SELECT `tasks`.`taskID` AS `taskID`, "
             . "`tasks`.`taskStateID` AS `stateID`, "
             . "`tasks`.`taskCreateBy` AS `createdBy`, "
+            . "`tasks`.`taskMAC` AS `mac`, "
             . "`tasks`.`taskTypeID` AS `typeID`, "
             . "`hosts`.`hostID` AS `hostID`, "
             . "COALESCE(`hosts`.`hostName`, '') AS `hostName`, "
@@ -366,7 +322,8 @@ class TaskLog extends FOGController
             'hostID',
             'hostName',
             'taskTypeName',
-            'imageName'
+            'imageName',
+            'mac'
         ];
         $now = self::niceDate()->format('Y-m-d H:i:s');
         $values = [];
@@ -383,7 +340,8 @@ class TaskLog extends FOGController
                 // and from TaskManager::reapUnrunnable(), both daemons.
                 (string)self::$remoteaddr,
                 $now,
-                (string)$row['createdBy'],
+                // varchar(30), as in recordState().
+                substr((string)$row['createdBy'], 0, 30),
                 self::TYPE_STATE,
                 (int)$row['hostID'],
                 (string)$row['hostName'],
@@ -392,7 +350,8 @@ class TaskLog extends FOGController
                     in_array((int)$row['typeID'], $imagingTypes)
                     ? (string)$row['imageName']
                     : ''
-                )
+                ),
+                (string)$row['mac']
             ];
         }
         /*

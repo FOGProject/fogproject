@@ -294,7 +294,7 @@ abstract class BootMenuBase extends FOGBase
                 // undefined index and produced an empty argument.
                 $mac = self::$requestMacs[0] ?? '';
             }
-            $chkdsk = !isset($chkdsk) || $chkdsk == 1 ? 0 : 1;
+            $chkdsk = self::chkdskFlag(isset($chkdsk) ? $chkdsk : 1);
             $MACs = self::$Host->getMyMacs();
             $clientMacs = array_filter(
                 (array)self::parseMacList(
@@ -540,30 +540,6 @@ abstract class BootMenuBase extends FOGBase
     protected static function _extraArgs()
     {
         return (string)($_REQUEST['extraargs'] ?? '');
-    }
-
-    /**
-     * The multicast rendezvous address FOS may use with this storage node.
-     *
-     * udp-receiver joins the node's session in the node's own IP family, so
-     * a rendezvous address of the other family cannot work and is left off
-     * the kernel line. A node named by hostname counts as IPv4, because the
-     * multicast daemon resolves a hostname to an IPv4 address.
-     *
-     * @param string $rdv    the FOG_MULTICAST_RENDEZVOUS setting
-     * @param string $nodeIP the storage node address
-     *
-     * @return string
-     */
-    protected static function mcastRdvForNode($rdv, $nodeIP)
-    {
-        $rdv = (string)$rdv;
-        if ('' === $rdv || !filter_var($rdv, FILTER_VALIDATE_IP)) {
-            return $rdv;
-        }
-        $nodeIsV6 = self::isIPv6(self::canonicalIP($nodeIP));
-
-        return self::isIPv6($rdv) === $nodeIsV6 ? $rdv : '';
     }
 
     /**

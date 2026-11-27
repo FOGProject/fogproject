@@ -67,7 +67,12 @@ class Task extends TaskType
         'imageID' => 'taskImageID',
         'wol' => 'taskWOL',
         'bypassbitlocker' => 'taskBypassBitlocker',
-        'stateChangedTime' => 'taskStateChangedTime'
+        'stateChangedTime' => 'taskStateChangedTime',
+        // The MAC a hostless task was issued for (forum 18086).
+        'mac' => 'taskMAC',
+        // sha256 of the single-use boot token. Server-owned: only
+        // BootToken sets it, and it never leaves the server.
+        'tokenHash' => 'taskTokenHash'
     ];
     /**
      * The required fields.
@@ -77,7 +82,8 @@ class Task extends TaskType
     protected $databaseFieldsRequired = [
         'id',
         'typeID',
-        'hostID',
+        // hostID is not listed: a hostless task has none (taskHostID NULL).
+        // isValid() and save() require a host OR a boot token instead.
         // A task must name a taskStates row. It was not on this list, so
         // save() filled an empty stateID with 0 -- not a state, so the task
         // was invisible in Active Tasks and could never run. One path did
@@ -305,8 +311,8 @@ class Task extends TaskType
             // that never booted forced every other host to start over
             // (fos#48, forums topic 16528). The session ends here only when
             // it is empty: this was its last host, and it expects no machine
-            // to join by name. Unregistered machines join a named session
-            // without a task, so "no task left" alone would drop them. The
+            // to join by name. A machine that is still expected by name has
+            // no task yet, so "no task left" alone would drop it. The
             // same rule TaskManager::cancel() applies to a bulk cancel.
             // Issues #1903, #1922.
             $find = ['taskID' => $this->get('id')];
@@ -405,6 +411,57 @@ class Task extends TaskType
         if ($store_update && !$this->save()) {
             throw new \Exception(_('Failed to update task'));
         }
+    }
+    /**
+     * Returns true when the task has no host row (taskHostID NULL).
+     *
+     * @return bool
+     */
+    public function isHostless()
+    {
+        return (int) $this->get('hostID') < 1;
+    }
+    /**
+     * Returns true when the task names a host or carries a boot token.
+     *
+     * A task with neither cannot be found by anything. A REST caller cannot
+     * make a hostless task, because the token hash is server-owned.
+     *
+     * @return bool
+     */
+    private function _hasHostOrToken()
+    {
+        return !$this->isHostless()
+            || trim((string) $this->get('tokenHash')) !== '';
+    }
+    /**
+     * Tests if the task is valid: the generic checks plus a host or token.
+     *
+     * @return bool
+     */
+    public function isValid()
+    {
+        return parent::isValid() && $this->_hasHostOrToken();
+    }
+    /**
+     * Stores the task, refusing one with neither a host nor a boot token.
+     *
+     * @return bool|object
+     */
+    public function save()
+    {
+        if (!$this->_hasHostOrToken()) {
+            self::debug(
+                sprintf(
+                    '%s: %s: %s: hostID',
+                    _('Failed'),
+                    _('Error'),
+                    self::$foglang['RequiredDB']
+                )
+            );
+            return false;
+        }
+        return parent::save();
     }
     /**
      * Returns the host object.

@@ -183,10 +183,6 @@ msgstr "%s \"%s\" existe déjà"
 msgid "%s %s log (%s)"
 msgstr "Journal %s %s (%s)"
 
-#, fuzzy, php-format
-msgid "%s (unregistered)"
-msgstr "Inscrit"
-
 #, php-format
 msgid "%s Manager"
 msgstr "Gestionnaire %s"
@@ -2913,6 +2909,9 @@ msgstr "Nom de plugin en double ; le dernier est ignoré."
 msgid "Duration"
 msgstr "Durée"
 
+msgid "Each address must be a valid email address. Separate addresses with commas."
+msgstr ""
+
 msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr "Chaque client doit obtenir ce certificat une seule fois, par une personne physiquement présente à la machine."
 
@@ -3026,6 +3025,9 @@ msgstr "Saisissez un nom manuellement"
 #, php-format
 msgid "Enter a valid %s name"
 msgstr "Saisissez un nom %s valide"
+
+msgid "Enter an address to send the test email to."
+msgstr ""
 
 msgid "Entry Type"
 msgstr "Type d'entrée"
@@ -3307,8 +3309,15 @@ msgstr ""
 msgid "FOG refuses to deploy an image to a host that cannot run it."
 msgstr "FOG refuse de déployer une image sur un hôte incapable de l'exécuter."
 
+msgid "FOG sends all email through this command. It is sendmail_path in php.ini. Change it there."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr "Le serveur FOG se trouve par défaut dans le dossier"
+
+#, fuzzy
+msgid "FOG test email"
+msgstr "FOG a besoin d'au moins"
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
 msgstr "FOG utilise des certificats pour trois fonctions distinctes : le serveur web, l’authentification chiffrée du client FOG et la signature des noyaux FOS. Ces certificats sont émis par des autorités de certification différentes sous une même ancre ; par conséquent, le remplacement de l’un d’eux n’affecte pas les deux autres."
@@ -5618,6 +5627,10 @@ msgstr "Machines ayant reçu une image"
 msgid "Machines that PXE boot cannot fix this themselves. That is the whole reason this is a deliberate setting rather than a default."
 msgstr "Les machines qui démarrent via PXE ne peuvent pas résoudre ce problème automatiquement. C'est précisément pour cette raison qu'il s'agit d'un paramètre délibéré et non d'une valeur par défaut."
 
+#, fuzzy
+msgid "Mail command"
+msgstr "Commande du snapin"
+
 msgid "Main Menu"
 msgstr "Menu principal"
 
@@ -6763,6 +6776,9 @@ msgstr "Plus d'un an"
 
 msgid "Over the certificate being renewed: the same gate as poll binds the caller to its host, and the body carries a request for the same key. The answer is the enroll \"issued\" shape. A request for any other key is refused; a key change goes through enroll and an admin."
 msgstr "Lors du renouvellement du certificat : la même passerelle que celle utilisée pour l’interrogation établit la connexion entre l’appelant et son hôte, et le corps de la requête contient une demande pour la même clé. La réponse est de type « issued » (enregistrement). Toute autre demande de clé est refusée ; un changement de clé passe par l’enregistrement et un administrateur."
+
+msgid "PHP has no mail command. Set sendmail_path in php.ini."
+msgstr ""
 
 msgid "PLUGIN OPTIONS"
 msgstr "OPTIONS DE PLUGIN"
@@ -8154,6 +8170,12 @@ msgstr "Tâches sélectionnées annulées !"
 msgid "Self-signed"
 msgstr "Auto-signé"
 
+msgid "Send a test email to"
+msgstr ""
+
+msgid "Send test email"
+msgstr ""
+
 msgid "Sensitive one-shot credential; returned only after the mTLS host has claimed the ready attempt."
 msgstr "Identifiant unique sensible ; renvoyé uniquement après que l’hôte mTLS a validé la tentative prête."
 
@@ -8756,9 +8778,6 @@ msgstr "Lancer une tentative de réintégration à l’annuaire"
 msgid "Started"
 msgstr "Commencé"
 
-msgid "Started (unregistered)"
-msgstr ""
-
 msgid "Started By"
 msgstr "Commencé par"
 
@@ -9304,6 +9323,16 @@ msgstr "Équipe"
 msgid "Terminal"
 msgstr "Terminal"
 
+#, fuzzy
+msgid "Test Email Failed"
+msgstr "Échec du traitement du fichier de démarrage"
+
+msgid "Test Email Queued, Not Sent"
+msgstr ""
+
+msgid "Test Email Sent"
+msgstr ""
+
 msgid "Text"
 msgstr "Texte"
 
@@ -9664,8 +9693,22 @@ msgstr "Identité SMBIOS et MAC courante, signalée par fog-agent."
 msgid "The live identity matches the certificate principal."
 msgstr "L'identité réelle correspond au titulaire du certificat."
 
+msgid "The local mail server accepted the email. Check the inbox. If it does not arrive, read the mail server log, for example: journalctl -u postfix"
+msgstr ""
+
 msgid "The logical sector size of the disk this image was captured from."
 msgstr "Taille du secteur logique du disque à partir duquel cette image a été capturée."
+
+#, php-format
+msgid "The mail command %s is not installed or is not executable. Install a mail server such as postfix, or set sendmail_path in php.ini."
+msgstr ""
+
+#, php-format
+msgid "The mail command is %1$s, but nothing is listening on port %2$d on this server, so %1$s may be stopped. The mail command accepts a message while %1$s is stopped, and the message then waits in the queue. Start it, for example: systemctl enable --now %1$s"
+msgstr ""
+
+msgid "The mail command refused the email."
+msgstr ""
 
 #, php-format
 msgid "The manifest calls this plugin '%s' but the directory is '%s'. They must match."
@@ -10078,6 +10121,13 @@ msgstr "Il s'agit d'une tâche à exécution unique qui ne devrait pas être ex�
 
 msgid "This is a single run task that should run now."
 msgstr "Il s'agit d'une tâche à exécution unique qui devrait s'exécuter maintenant."
+
+#, php-format
+msgid ""
+"This is a test email from FOG, sent by %s at %s.\n"
+"\n"
+"If you can read it, FOG can send the image task completion email.\n"
+msgstr ""
 
 msgid "This is a transport failure -- no credentials were sent -- so check sshd on the node."
 msgstr "Il s'agit d'une erreur de transport -- aucune information d'identification n'a été envoyée -- veuillez donc vérifier le serveur SSH sur le nœud."
@@ -11185,6 +11235,10 @@ msgstr "Vous n'êtes pas autorisé à créer des groupes."
 msgid "You do not have permission to revoke API tokens."
 msgstr "Vous n'êtes pas autorisé à révoquer les jetons d'API."
 
+#, fuzzy
+msgid "You do not have permission to send a test email."
+msgstr "Vous n'êtes pas autorisé à créer des groupes."
+
 #, php-format
 msgid "You do not have permission to start %s tasks."
 msgstr "Vous n'êtes pas autorisé à démarrer les tâches %s."
@@ -11261,6 +11315,9 @@ msgstr "accès"
 
 msgid "additional macs"
 msgstr "adresses MAC supplémentaires"
+
+msgid "admin@example.com"
+msgstr ""
 
 msgid "after"
 msgstr "après"
@@ -12593,9 +12650,6 @@ msgstr "{node}"
 #, fuzzy
 #~ msgid "FOG Agent software result"
 #~ msgstr "Aucun fichier a été téléchargé"
-
-#~ msgid "FOG Needs at least"
-#~ msgstr "FOG a besoin d'au moins"
 
 #~ msgid "Failed to add/update snapin file"
 #~ msgstr "Impossible d'ajouter le fichier de snapin / mise à jour"

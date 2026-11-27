@@ -13,6 +13,7 @@
 
 use FOG\Base\FOGCore;
 use FOG\Items\TaskType;
+use FOG\TaskHandling\BootToken;
 
 /**
  * Updates the progress information
@@ -34,8 +35,13 @@ define('FOG_MACHINE_REQUEST', true);
 
 require '../commons/base.inc.php';
 try {
-    FOGCore::getHostItem(false);
-    $Task = FOGCore::$Host->get('task');
+    // Token first, then host. A token that finds an active hostless task
+    // leaves the host empty; the host flow is unchanged when none was posted.
+    $Task = BootToken::resolve();
+    if (null === $Task) {
+        FOGCore::getHostItem(false);
+        $Task = FOGCore::$Host->get('task');
+    }
     $TaskType = new TaskType($Task->get('typeID'));
     if (!$Task->isValid()) {
         throw new \Exception(

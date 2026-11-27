@@ -55,6 +55,16 @@ class TaskManager extends FOGManagerController
             $findWhere,
             'hostID'
         );
+        // A hostless task has no host: its taskHostID is NULL and comes back
+        // as a NULL entry, which has no host to reset and no PXE file.
+        $hostIDs = array_values(
+            array_filter(
+                (array)$hostIDs,
+                function ($hostID) {
+                    return (int)$hostID > 0;
+                }
+            )
+        );
         $updateFields = [];
         foreach ($hostIDs as $hostID) {
             $updateFields[] = [
@@ -62,12 +72,16 @@ class TaskManager extends FOGManagerController
                 'tokenlock' => false
             ];
         }
-        // Reset token and lock on hosts from task cancel
-        (new HostManager())->update(
-            ['id' => $hostIDs],
-            '',
-            $updateFields
-        );
+        // Reset token and lock on hosts from task cancel. Only when there is
+        // a host: with none (every canceled task hostless) the update would
+        // be `UPDATE hosts SET  WHERE hostID=''`, a statement with no SET.
+        if (count($hostIDs) > 0) {
+            (new HostManager())->update(
+                ['id' => $hostIDs],
+                '',
+                $updateFields
+            );
+        }
         // Enumerated BEFORE the update, because $findWhere selects on the
         // states being canceled out of and matches nothing once they are
         // gone. Route::cancel() sends the group arm and the task arm here, so
@@ -269,6 +283,7 @@ class TaskManager extends FOGManagerController
             . "`tasks`.`taskImageID` AS `imageID`, "
             . "`tasks`.`taskCreateBy` AS `createdBy`, "
             . "`tasks`.`taskStateID` AS `stateID`, "
+            . "`tasks`.`taskMAC` AS `mac`, "
             . "`hosts`.`hostID` AS `hostFound`, "
             . "COALESCE(`hosts`.`hostName`, '') AS `hostName`, "
             . "`taskTypes`.`ttID` AS `typeFound`, "
@@ -283,7 +298,13 @@ class TaskManager extends FOGManagerController
             . "ON `images`.`imageID` = `tasks`.`taskImageID` "
             . "WHERE `tasks`.`taskStateID` IN (" . implode(',', $active) . ") "
             . "AND ("
-            . "`hosts`.`hostID` IS NULL "
+            // A hostless task carrying a boot token has no host row by
+            // design (forum 18086); reapSilentHostless() is its own sweep.
+            // A hostless task with no token can never be found, so it is
+            // still reaped here.
+            . "(`hosts`.`hostID` IS NULL "
+            . "AND (`tasks`.`taskHostID` IS NOT NULL "
+            . "OR `tasks`.`taskTokenHash` = '')) "
             . "OR `taskTypes`.`ttID` IS NULL "
             . "OR ("
             . "`images`.`imageID` IS NULL "
@@ -352,7 +373,9 @@ class TaskManager extends FOGManagerController
                 $text,
                 (int)($row['hostFound'] ?: 0),
                 (string)$row['hostName'],
-                (string)$row['taskTypeName']
+                (string)$row['taskTypeName'],
+                // The MAC of a hostless task; '' for a task with a host.
+                (string)$row['mac']
             ];
         }
 
@@ -389,7 +412,8 @@ class TaskManager extends FOGManagerController
                     'text',
                     'hostID',
                     'hostName',
-                    'taskTypeName'
+                    'taskTypeName',
+                    'mac'
                 ],
                 $logRows
             );
@@ -404,6 +428,125 @@ class TaskManager extends FOGManagerController
             );
         }
 
+        return $reasons;
+    }
+    /**
+     * Ends a hostless task FOS never reported on, 24 hours after it was made.
+     *
+     * Forum 18086: a deploy from the iPXE menu for an unregistered host is a
+     * hostless task found by a boot token, and it stays Queued until FOS
+     * checks in with that token. An init older than this server ignores the
+     * token and never reports, so the task would stay Queued for ever.
+     * reapUnrunnable() leaves such a task alone on purpose.
+     *
+     * The state is No Report, not Failed: nothing is known to have broken,
+     * the server only never heard back. Only a task still Queued is taken.
+     * One that left Queued has been reported on, and the 24 hours are not a
+     * limit on how long an image takes.
+     *
+     * The state rows are written as reapUnrunnable() writes them: the
+     * transition through TaskLog::recordStates(), and the reason as an error
+     * row, which the log pane shows by default.
+     *
+     * @return array taskID => the reason, empty if none were ended.
+     */
+    public function reapSilentHostless()
+    {
+        // Guarded on the row existing, as reapUnrunnable() is: a web tree can
+        // be updated ahead of its database, and this runs from a daemon.
+        $noReport = (int)self::getNoReportState();
+        if (!(new TaskState($noReport))->isValid()) {
+            return [];
+        }
+        $cutoff = self::niceDate('-24 hours')->format('Y-m-d H:i:s');
+        $rows = self::$DB->query(
+            "SELECT `tasks`.`taskID` AS `taskID`, "
+            . "`tasks`.`taskCreateBy` AS `createdBy`, "
+            . "`tasks`.`taskMAC` AS `mac`, "
+            . "COALESCE(`taskTypes`.`ttName`, '') AS `taskTypeName` "
+            . "FROM `tasks` "
+            . "LEFT OUTER JOIN `taskTypes` "
+            . "ON `taskTypes`.`ttID` = `tasks`.`taskTypeID` "
+            . "WHERE `tasks`.`taskHostID` IS NULL "
+            . "AND `tasks`.`taskTokenHash` <> '' "
+            . "AND `tasks`.`taskStateID` = :state "
+            . "AND `tasks`.`taskCreateTime` < :cutoff",
+            [],
+            [
+                ':state' => (int)self::getQueuedState(),
+                ':cutoff' => $cutoff
+            ]
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        if (!count((array)$rows ?: [])) {
+            return [];
+        }
+        $text = _('FOS sent no report within 24 hours; an init older than this server does not report for an unregistered host');
+        $reasons = [];
+        $logRows = [];
+        $now = self::niceDate()->format('Y-m-d H:i:s');
+        foreach ((array)$rows as $row) {
+            $reasons[(int)$row['taskID']] = $text;
+            // `ip` and `type`, as reapUnrunnable() sets them: a batched
+            // INSERT never runs TaskLog's constructor.
+            $logRows[] = [
+                (int)$row['taskID'],
+                $noReport,
+                (string)self::$remoteaddr,
+                $now,
+                substr((string)$row['createdBy'], 0, 30),
+                TaskLog::TYPE_ERROR,
+                $text,
+                0,
+                '',
+                (string)$row['taskTypeName'],
+                (string)$row['mac']
+            ];
+        }
+        // Found on Queued as well as the id: a task that checked in between
+        // the SELECT and this UPDATE is active, and is left alone.
+        $updated = $this->update(
+            [
+                'id' => array_keys($reasons),
+                'stateID' => (int)self::getQueuedState()
+            ],
+            '',
+            [
+                'stateID' => $noReport,
+                'stateChangedTime' => $now
+            ]
+        );
+        if (!$updated) {
+            return [];
+        }
+        TaskLog::recordStates(array_keys($reasons));
+        // Caught, because the tasks have already moved: see reapUnrunnable().
+        try {
+            (new TaskLogManager())->insertBatch(
+                [
+                    'taskID',
+                    'stateID',
+                    'ip',
+                    'createdTime',
+                    'createdBy',
+                    'type',
+                    'text',
+                    'hostID',
+                    'hostName',
+                    'taskTypeName',
+                    'mac'
+                ],
+                $logRows
+            );
+        } catch (\Exception $e) {
+            self::logFault(
+                sprintf(
+                    '%s: %s: %s',
+                    _('Failed to record why tasks were reaped'),
+                    _('Error'),
+                    $e->getMessage()
+                )
+            );
+        }
         return $reasons;
     }
 }

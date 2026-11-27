@@ -259,7 +259,8 @@ class ActivityWindow extends FOGBase
      * Whether a state means the work is over.
      *
      * The taskStates vocabulary is shared by all five tables (ADR 0022
-     * context), and the terminal values are the three the helpers name.
+     * context), and the terminal values are the ones getTerminalStates()
+     * names.
      * Read through TaskState rather than compared to literals because each
      * one is hook-overridable.
      *
@@ -271,11 +272,7 @@ class ActivityWindow extends FOGBase
     {
         return in_array(
             (int)$state,
-            [
-                (int)TaskState::getCompleteState(),
-                (int)TaskState::getCancelledState(),
-                (int)TaskState::getFailedState()
-            ],
+            TaskState::getTerminalStates(),
             true
         );
     }
