@@ -3270,6 +3270,9 @@ msgstr ""
 msgid "Duration"
 msgstr "Durata"
 
+msgid "Each address must be a valid email address. Separate addresses with commas."
+msgstr ""
+
 msgid "Each client needs this certificate enrolled once, by someone physically at the machine"
 msgstr ""
 
@@ -3395,6 +3398,9 @@ msgstr ""
 #, fuzzy, php-format
 msgid "Enter a valid %s name"
 msgstr "Si prega di inserire un nome host valido"
+
+msgid "Enter an address to send the test email to."
+msgstr ""
 
 #, fuzzy
 msgid "Entry Type"
@@ -3709,8 +3715,14 @@ msgstr ""
 msgid "FOG refuses to deploy an image to a host that cannot run it."
 msgstr ""
 
+msgid "FOG sends all email through this command. It is sendmail_path in php.ini. Change it there."
+msgstr ""
+
 msgid "FOG server defaulting under the folder"
 msgstr "server FOG per default nella cartella"
+
+msgid "FOG test email"
+msgstr ""
 
 msgid "FOG uses certificates for three unrelated jobs: the web server, the encrypted fog-client check-in, and the signature on the FOS kernels. They are issued by separate CAs beneath one anchor, so replacing any one of them leaves the other two alone."
 msgstr ""
@@ -6331,6 +6343,10 @@ msgstr "Immagine assegnata"
 msgid "Machines that PXE boot cannot fix this themselves. That is the whole reason this is a deliberate setting rather than a default."
 msgstr ""
 
+#, fuzzy
+msgid "Mail command"
+msgstr "Snapin comando"
+
 msgid "Main Menu"
 msgstr "Menu principale"
 
@@ -7616,6 +7632,9 @@ msgid "Over a year"
 msgstr ""
 
 msgid "Over the certificate being renewed: the same gate as poll binds the caller to its host, and the body carries a request for the same key. The answer is the enroll \"issued\" shape. A request for any other key is refused; a key change goes through enroll and an admin."
+msgstr ""
+
+msgid "PHP has no mail command. Set sendmail_path in php.ini."
 msgstr ""
 
 msgid "PLUGIN OPTIONS"
@@ -9189,6 +9208,12 @@ msgstr "Attività pianificate create con successo"
 msgid "Self-signed"
 msgstr ""
 
+msgid "Send a test email to"
+msgstr ""
+
+msgid "Send test email"
+msgstr ""
+
 msgid "Sensitive one-shot credential; returned only after the mTLS host has claimed the ready attempt."
 msgstr ""
 
@@ -10507,6 +10532,13 @@ msgstr "Squadra"
 msgid "Terminal"
 msgstr "Terminale"
 
+#, fuzzy
+msgid "Test Email Failed"
+msgstr "Opzioni di avvio:"
+
+msgid "Test Email Sent"
+msgstr ""
+
 msgid "Text"
 msgstr "Testo"
 
@@ -10898,7 +10930,17 @@ msgstr ""
 msgid "The live identity matches the certificate principal."
 msgstr ""
 
+msgid "The local mail server accepted the email. Check the inbox. If it does not arrive, read the mail server log, for example: journalctl -u postfix"
+msgstr ""
+
 msgid "The logical sector size of the disk this image was captured from."
+msgstr ""
+
+#, php-format
+msgid "The mail command %s is not installed or is not executable. Install a mail server such as postfix, or set sendmail_path in php.ini."
+msgstr ""
+
+msgid "The mail command refused the email."
 msgstr ""
 
 #, php-format
@@ -11333,6 +11375,13 @@ msgid "This is a single run task that should not run now."
 msgstr ""
 
 msgid "This is a single run task that should run now."
+msgstr ""
+
+#, php-format
+msgid ""
+"This is a test email from FOG, sent by %s at %s.\n"
+"\n"
+"If you can read it, FOG can send the image task completion email.\n"
 msgstr ""
 
 msgid "This is a transport failure -- no credentials were sent -- so check sshd on the node."
@@ -12554,6 +12603,10 @@ msgstr "Nessuna connessione al database"
 msgid "You do not have permission to revoke API tokens."
 msgstr ""
 
+#, fuzzy
+msgid "You do not have permission to send a test email."
+msgstr "Nessuna connessione al database"
+
 #, fuzzy, php-format
 msgid "You do not have permission to start %s tasks."
 msgstr "Nessuna connessione al database"
@@ -12632,6 +12685,9 @@ msgstr "Accesso"
 
 msgid "additional macs"
 msgstr "MAC aggiuntivi"
+
+msgid "admin@example.com"
+msgstr ""
 
 msgid "after"
 msgstr ""
