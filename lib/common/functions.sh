@@ -3379,16 +3379,17 @@ configureUDPCast() {
     # download both files. The hash is compared directly, not by sha256sum -c,
     # because the .sha256 names the release file and udpcastsrc may be renamed.
     # Same flags and retries as bin/fetch-plugins.sh, and no -k: the checksum
-    # comes down the same connection as the tarball.
-    local udpsum=1 udpcnt=0 udpwant="" udphave=""
-    while [[ $udpsum -ne 0 && $udpcnt -lt 5 ]]; do
+    # comes down the same connection as the tarball. Five downloads, each one
+    # checked: the check is at the top, so the loop runs six times.
+    local udpsum=1 udpcnt=0 udptries=5 udpwant="" udphave=""
+    while [[ $udpsum -ne 0 && $udpcnt -le $udptries ]]; do
         udpsum=1
         if [[ -f $udpcastsrc && -f ${udpcastsrc}.sha256 ]]; then
             udpwant="$(awk '{print $1; exit}' "${udpcastsrc}.sha256" 2>/dev/null)"
             udphave="$(sha256sum "$udpcastsrc" 2>/dev/null | awk '{print $1}')"
             [[ -n $udpwant && $udpwant == "$udphave" ]] && udpsum=0
         fi
-        if [[ $udpsum -ne 0 ]]; then
+        if [[ $udpsum -ne 0 && $udpcnt -lt $udptries ]]; then
             mkdir -p "$udpsrcdir" >>$error_log 2>&1
             curl --silent -fL --connect-timeout "$inetConnectTimeout" \
                 --speed-time 30 --speed-limit 1024 -o "$udpcastsrc" "$udpurl" >>$error_log 2>&1
@@ -3419,6 +3420,8 @@ configureUDPCast() {
         echo "Failed"
         echo " * ${udpsrc} did not unpack to ${udpcastout}. See ${error_log}."
         cd "$cur"
+        # Fatal for the same reason as a failed fetch above.
+        [[ -z $exitFail ]] && exit 1
         return 1
     fi
     grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$error_log 2>&1
