@@ -186,6 +186,10 @@ msgid "%s %s log (%s)"
 msgstr ""
 
 #, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "Registrado"
+
+#, fuzzy, php-format
 msgid "%s Manager"
 msgstr "Administrador de imágenes"
 
@@ -3856,6 +3860,9 @@ msgstr ""
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
+msgid "FOS sent no report within 24 hours; an init older than this server does not report for an unregistered host"
+msgstr ""
+
 #, fuzzy
 msgid "FTP Connection Failed"
 msgstr "Añadir fallidos SNAPin!"
@@ -3968,6 +3975,10 @@ msgid "Failed to install logo file"
 msgstr "No se ha podido destruir"
 
 #, fuzzy
+msgid "Failed to issue a boot token"
+msgstr "No se pudo leer el archivo tmp."
+
+#, fuzzy
 msgid "Failed to move uploaded file."
 msgstr "No se pudo crear el usuario"
 
@@ -3989,6 +4000,10 @@ msgstr "No se ha podido destruir nodo de almacenamiento"
 
 #, fuzzy
 msgid "Failed to remove hosts"
+msgstr "No se pudo crear la tarea"
+
+#, fuzzy
+msgid "Failed to save the task"
 msgstr "No se pudo crear la tarea"
 
 #, fuzzy
@@ -6671,6 +6686,10 @@ msgid "Marked failed, task"
 msgstr "Carga ha fallado: %s"
 
 #, fuzzy
+msgid "Marked no report, task"
+msgstr "Carga ha fallado: %s"
+
+#, fuzzy
 msgid "Mass Edit Fail"
 msgstr "actualización Valoración falló"
 
@@ -7163,6 +7182,10 @@ msgstr "Nombre snapin"
 
 msgid "No Printer Management"
 msgstr "Sin administración de la impresora"
+
+#, fuzzy
+msgid "No Report"
+msgstr "Reiniciar"
 
 msgid "No access is allowed"
 msgstr ""

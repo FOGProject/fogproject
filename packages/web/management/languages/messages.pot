@@ -164,6 +164,10 @@ msgid "%s %s log (%s)"
 msgstr ""
 
 #, php-format
+msgid "%s (unregistered)"
+msgstr ""
+
+#, php-format
 msgid "%s Manager"
 msgstr ""
 
@@ -3312,6 +3316,9 @@ msgstr ""
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
+msgid "FOS sent no report within 24 hours; an init older than this server does not report for an unregistered host"
+msgstr ""
+
 msgid "FTP Connection Failed"
 msgstr ""
 
@@ -3402,6 +3409,9 @@ msgstr ""
 msgid "Failed to install logo file"
 msgstr ""
 
+msgid "Failed to issue a boot token"
+msgstr ""
+
 msgid "Failed to move uploaded file."
 msgstr ""
 
@@ -3418,6 +3428,9 @@ msgid "Failed to remove File Path from Storage Node Named"
 msgstr ""
 
 msgid "Failed to remove hosts"
+msgstr ""
+
+msgid "Failed to save the task"
 msgstr ""
 
 msgid "Failed to uninstall "
@@ -5637,6 +5650,9 @@ msgstr ""
 msgid "Marked failed, task"
 msgstr ""
 
+msgid "Marked no report, task"
+msgstr ""
+
 msgid "Mass Edit Fail"
 msgstr ""
 
@@ -6055,6 +6071,9 @@ msgid "No OU selected."
 msgstr ""
 
 msgid "No Printer Management"
+msgstr ""
+
+msgid "No Report"
 msgstr ""
 
 msgid "No access is allowed"

@@ -182,6 +182,10 @@ msgstr "Dieser Host ist bereits vorhanden."
 msgid "%s %s log (%s)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "Registriert"
+
 #, php-format
 msgid "%s Manager"
 msgstr "%s Manager"
@@ -3819,6 +3823,9 @@ msgstr ""
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
+msgid "FOS sent no report within 24 hours; an init older than this server does not report for an unregistered host"
+msgstr ""
+
 #, fuzzy
 msgid "FTP Connection Failed"
 msgstr "FTP-Verbindung fehlgeschlagen"
@@ -3924,6 +3931,10 @@ msgid "Failed to install logo file"
 msgstr "Starten fehlgeschlagen"
 
 #, fuzzy
+msgid "Failed to issue a boot token"
+msgstr "Tmp-Datei konnte nicht gelesen werden."
+
+#, fuzzy
 msgid "Failed to move uploaded file."
 msgstr "Löschen der Datei fehlgeschlagen"
 
@@ -3946,6 +3957,10 @@ msgstr "Zerstören des Speicherknotens fehlgeschlagen"
 #, fuzzy
 msgid "Failed to remove hosts"
 msgstr "Host erstellen fehlgeschlagen"
+
+#, fuzzy
+msgid "Failed to save the task"
+msgstr "Fehler beim Erstellen eines Tasks"
 
 #, fuzzy
 msgid "Failed to uninstall "
@@ -6569,6 +6584,10 @@ msgid "Marked failed, task"
 msgstr "Laden fehlgeschlagen: %s"
 
 #, fuzzy
+msgid "Marked no report, task"
+msgstr "Laden fehlgeschlagen: %s"
+
+#, fuzzy
 msgid "Mass Edit Fail"
 msgstr "Aktualisierung der Rolle fehlgeschlagen"
 
@@ -7053,6 +7072,10 @@ msgstr "Snapin geschützt"
 
 msgid "No Printer Management"
 msgstr "Keine Druckerverwaltung"
+
+#, fuzzy
+msgid "No Report"
+msgstr "Bericht"
 
 msgid "No access is allowed"
 msgstr "Kein Zugriff erlaubt"
