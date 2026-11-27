@@ -171,6 +171,10 @@ msgstr "このホストは既に存在します"
 msgid "%s %s log (%s)"
 msgstr "%s %s ログ（%s）"
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "登録済み"
+
 #, php-format
 msgid "%s Manager"
 msgstr "%s 管理"
@@ -8780,6 +8784,9 @@ msgstr ""
 
 msgid "Started"
 msgstr "開始済み"
+
+msgid "Started (unregistered)"
+msgstr ""
 
 msgid "Started By"
 msgstr "開始者"

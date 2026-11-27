@@ -187,6 +187,10 @@ msgstr "打印机已经存在"
 msgid "%s %s log (%s)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "注册"
+
 #, php-format
 msgid "%s Manager"
 msgstr "%s经理"
@@ -10124,6 +10128,9 @@ msgstr ""
 #, fuzzy
 msgid "Started"
 msgstr "开始"
+
+msgid "Started (unregistered)"
+msgstr ""
 
 #, fuzzy
 msgid "Started By"

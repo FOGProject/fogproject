@@ -164,6 +164,10 @@ msgid "%s %s log (%s)"
 msgstr ""
 
 #, php-format
+msgid "%s (unregistered)"
+msgstr ""
+
+#, php-format
 msgid "%s Manager"
 msgstr ""
 
@@ -8700,6 +8704,9 @@ msgid "Start one directory rejoin attempt"
 msgstr ""
 
 msgid "Started"
+msgstr ""
+
+msgid "Started (unregistered)"
 msgstr ""
 
 msgid "Started By"

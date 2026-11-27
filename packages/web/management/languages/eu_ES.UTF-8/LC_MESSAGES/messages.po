@@ -182,6 +182,10 @@ msgstr "Dieser Host ist bereits vorhanden."
 msgid "%s %s log (%s)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "Registriert"
+
 #, php-format
 msgid "%s Manager"
 msgstr "%s Manager"
@@ -10129,6 +10133,9 @@ msgstr ""
 #, fuzzy
 msgid "Started"
 msgstr "Start"
+
+msgid "Started (unregistered)"
+msgstr ""
 
 #, fuzzy
 msgid "Started By"

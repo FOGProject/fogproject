@@ -186,6 +186,10 @@ msgid "%s %s log (%s)"
 msgstr ""
 
 #, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "Registrado"
+
+#, fuzzy, php-format
 msgid "%s Manager"
 msgstr "Administrador de imágenes"
 
@@ -10272,6 +10276,9 @@ msgstr ""
 #, fuzzy
 msgid "Started"
 msgstr "comienzo"
+
+msgid "Started (unregistered)"
+msgstr ""
 
 #, fuzzy
 msgid "Started By"

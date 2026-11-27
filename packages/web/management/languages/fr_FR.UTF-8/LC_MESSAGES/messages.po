@@ -183,6 +183,10 @@ msgstr "%s \"%s\" existe déjà"
 msgid "%s %s log (%s)"
 msgstr "Journal %s %s (%s)"
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "Inscrit"
+
 #, php-format
 msgid "%s Manager"
 msgstr "Gestionnaire %s"
@@ -8751,6 +8755,9 @@ msgstr "Lancer une tentative de réintégration à l’annuaire"
 
 msgid "Started"
 msgstr "Commencé"
+
+msgid "Started (unregistered)"
+msgstr ""
 
 msgid "Started By"
 msgstr "Commencé par"
