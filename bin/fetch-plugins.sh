@@ -116,10 +116,14 @@ say "Fetching plugins ${pluginsVer}"
 : "${inetConnectTimeout:=5}"
 checksum=1
 cnt=0
-while [[ $checksum -ne 0 && $cnt -lt 5 ]]; do
+# Five downloads, and a check after each one. The check runs at the top of the
+# loop, so the loop runs six times: with five, the fifth download was never
+# checked, and a good last attempt was reported as a failure.
+tries=5
+while [[ $checksum -ne 0 && $cnt -le $tries ]]; do
     [[ -f $tmp/$tarball.sha256 ]] && (cd "$tmp" && sha256sum -c "$tarball.sha256" >/dev/null 2>&1)
     checksum=$?
-    if [[ $checksum -ne 0 ]]; then
+    if [[ $checksum -ne 0 && $cnt -lt $tries ]]; then
         # No -k. The sha256 fetched on the next line comes down the same
         # connection, so an unverified transport voids the checksum as well as
         # the tarball -- and this tarball becomes PHP that runs in the web tier.
