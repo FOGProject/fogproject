@@ -824,6 +824,8 @@ kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 w
 imgfetch init.xz
 boot
 
+#tasklog [{"host":"","taskType":"Deploy","image":"","mac":"aa:bb:cc:dd:ee:ff","createdBy":""}]
+
 ########## falsetasking-registered-pending ##########
 #!ipxe
 set fog-ip 10.0.0.1
@@ -942,6 +944,8 @@ autoboot
 kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4  nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} mac=00:11:22:33:44:55 ftp=10.0.0.1 storage=10.0.0.1:/images/ storageip=10.0.0.1 osid=50 osfamily=linux irqpoll chkdsk=0 img=testimage imgType=mps imgPartitionType=all imgid=1 imgFormat=5
 imgfetch init.xz
 boot
+
+#tasklog [{"host":"testhost","taskType":"Deploy","image":"","mac":"00:11:22:33:44:55","createdBy":""}]
 
 ########## task-snapin-falls-to-menu ##########
 #!ipxe

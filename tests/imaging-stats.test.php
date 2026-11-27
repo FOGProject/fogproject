@@ -97,7 +97,31 @@ $t->check(
  */
 $t->check(
     'rule 1: transition rows are folded per task',
-    1 === preg_match('/GROUP\s+BY\s+`taskID`/i', $sql)
+    1 === preg_match(
+        '/GROUP\s+BY\s+CASE\s+WHEN\s+`taskID`\s*=\s*0\s+THEN\s+-`id`'
+        . '\s+ELSE\s+`taskID`\s+END/i',
+        $sql
+    )
+);
+// A deploy to an unregistered host has no Task row, so every such run is
+// written with taskID 0. Grouping on the bare column folds all of them into
+// one; the key has to split them on the row's own id. Read off the fold the
+// default run (no DSN) can reach.
+$t->check(
+    'rule 1b: taskID 0 rows are each a run, not one folded run',
+    false !== strpos($sql, 'THEN -`id`')
+        && 0 === preg_match('/GROUP\s+BY\s+`taskID`/i', $sql)
+);
+$t->check(
+    'the fold selects the task id as an aggregate, for ONLY_FULL_GROUP_BY',
+    false !== strpos($sql, 'MAX(`taskID`) AS `taskID`')
+);
+$t->check(
+    'the run grid selects the MAC the unregistered host booted with',
+    false !== strpos(
+        FogTestHarness::callStatic('FOG\Audit\ImagingStats', '_runsSql'),
+        '`l`.`logMAC` AS `mac`'
+    )
 );
 $t->check(
     'rule 2: the canceled state is excluded',
@@ -247,16 +271,36 @@ $db->responder = function ($sql) {
          'imageName' => 'ubuntu', 'started' => '2026-03-04 09:00:00'],
         ['taskID' => '5', 'hostID' => '0', 'hostName' => 'alsogone',
          'imageName' => 'ubuntu', 'started' => '2026-03-05 09:00:00'],
+        // Unregistered (forum 18086): no id and no name, only the MAC. Two
+        // machines, one of them imaged twice.
+        ['taskID' => '0', 'hostID' => null, 'hostName' => '',
+         'mac' => 'aa:bb:cc:dd:ee:01',
+         'imageName' => 'win11', 'started' => '2026-03-05 10:00:00'],
+        ['taskID' => '0', 'hostID' => null, 'hostName' => '',
+         'mac' => 'aa:bb:cc:dd:ee:02',
+         'imageName' => 'win11', 'started' => '2026-03-05 11:00:00'],
+        ['taskID' => '0', 'hostID' => null, 'hostName' => '',
+         'mac' => 'aa:bb:cc:dd:ee:02',
+         'imageName' => 'win11', 'started' => '2026-03-05 12:00:00'],
+        // A pending host: imaged as a false tasking (taskID 0, MAC set), then
+        // approved and imaged with a task (no MAC). One machine.
+        ['taskID' => '0', 'hostID' => '12', 'hostName' => 'p',
+         'mac' => 'aa:bb:cc:dd:ee:03',
+         'imageName' => 'win11', 'started' => '2026-03-05 13:00:00'],
+        ['taskID' => '6', 'hostID' => '12', 'hostName' => 'p',
+         'mac' => '',
+         'imageName' => 'win11', 'started' => '2026-03-05 14:00:00'],
     ];
 };
 $totals = ImagingStats::totals(
     new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
     new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
-$t->check('the runs tile counts the run rows', 5 === $totals['runs']);
+$t->check('the runs tile counts the run rows', 10 === $totals['runs']);
 $t->check(
-    'the machines tile counts DISTINCT hosts, not runs',
-    4 === $totals['hosts']
+    'the machines tile counts DISTINCT hosts, not runs, each MAC of an '
+    . 'unregistered run as its own machine, and a pending host once',
+    7 === $totals['hosts']
 );
 $t->check(
     'the images tile counts DISTINCT images',
@@ -496,6 +540,10 @@ $rows = [
     [5, $COMPLETE,   '2026-03-06 12:00:00', ''],
     // The window itself. Well outside it.
     [6, $COMPLETE,   '2026-02-01 12:00:00', 'win11'],
+    // Unregistered hosts, the 7th. No Task row, so taskID is 0 on both, and
+    // they are TWO runs. Folding on taskID alone would make them one.
+    [0, $INPROGRESS, '2026-03-07 09:00:00', 'win11'],
+    [0, $INPROGRESS, '2026-03-07 10:00:00', 'ubuntu'],
 ];
 $ins = $pdo->prepare(
     'INSERT INTO `taskLog` (`taskID`,`taskStateID`,`createTime`,'
@@ -566,8 +614,13 @@ $t->check(
     !isset($got['2026-02-01'])
 );
 $t->check(
-    'exactly the three expected days came back',
-    ['2026-03-01', '2026-03-03', '2026-03-04'] === array_keys($got)
+    'taskID 0 holds: two unregistered runs the same day are TWO runs',
+    2 === ($got['2026-03-07'] ?? null)
+);
+$t->check(
+    'exactly the four expected days came back',
+    ['2026-03-01', '2026-03-03', '2026-03-04', '2026-03-07']
+        === array_keys($got)
 );
 
 /*
@@ -588,7 +641,7 @@ foreach ($byImage->fetchAll(\PDO::FETCH_ASSOC) as $row) {
 }
 $t->check(
     'runs are grouped by image, biggest first',
-    ['win11' => 2, 'ubuntu' => 1] === $images
+    ['win11' => 3, 'ubuntu' => 2] === $images
 );
 
 $runsStmt = $pdo->prepare(
@@ -597,19 +650,23 @@ $runsStmt = $pdo->prepare(
 $runsStmt->execute($params);
 $runRows = $runsStmt->fetchAll(\PDO::FETCH_ASSOC);
 $byTask = [];
+$unregistered = 0;
 foreach ($runRows as $row) {
     $byTask[(int)$row['taskID']] = $row;
+    if (0 === (int)$row['taskID']) {
+        $unregistered++;
+    }
 }
 
-$t->check('one row per run, and only the runs', 3 === count($runRows));
+$t->check('one row per run, and only the runs', 5 === count($runRows));
 $t->check(
-    'the runs are the folded tasks 1, 3 and 4',
-    isset($byTask[1], $byTask[3], $byTask[4])
+    'the runs are the folded tasks 1, 3 and 4, and two taskID 0 runs',
+    isset($byTask[1], $byTask[3], $byTask[4]) && 2 === $unregistered
 );
 // Newest first, so the most recent run is at the top of the grid.
 $t->check(
     'the grid is ordered newest first',
-    4 === (int)$runRows[0]['taskID'] && 1 === (int)$runRows[2]['taskID']
+    0 === (int)$runRows[0]['taskID'] && 1 === (int)$runRows[4]['taskID']
 );
 // THE ONE THE HAVING BUYS.
 $t->check(

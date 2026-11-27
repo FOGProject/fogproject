@@ -232,6 +232,25 @@ class StubTask extends StubModel
 class TaskType extends StubModel
 {
     /**
+     * The names of the task types falseTasking() builds by id.
+     *
+     * @var array
+     */
+    private static $_names = [1 => 'Deploy', 8 => 'Multicast'];
+    /**
+     * Instantiates the type. `new TaskType(1)` is an id, and the real model
+     * loads its name from the row; here the id selects the name.
+     *
+     * @param mixed $data the field data, or the id
+     */
+    public function __construct($data = [])
+    {
+        parent::__construct($data);
+        if (is_int($data) && isset(self::$_names[$data])) {
+            $this->data['name'] = self::$_names[$data];
+        }
+    }
+    /**
      * Whether the type images a disk.
      *
      * @return bool
@@ -1104,6 +1123,47 @@ class FOGBase
     public static function niceDate()
     {
         return new \DateTime('2026-01-01 00:00:00');
+    }
+}
+
+/**
+ * Task log stub. The real TaskLog::recordFalseTasking() writes a database
+ * row; this keeps what it was handed so a scenario can print it.
+ */
+class TaskLog
+{
+    /**
+     * The calls received, in order.
+     *
+     * @var array
+     */
+    public static $recorded = [];
+    /**
+     * Records one false tasking.
+     *
+     * @param mixed  $Host      the host, valid when it is pending
+     * @param mixed  $TaskType  the task type
+     * @param mixed  $Image     the image
+     * @param string $mac       the machine's MAC
+     * @param string $createdBy the menu user's login
+     *
+     * @return bool
+     */
+    public static function recordFalseTasking(
+        $Host,
+        $TaskType,
+        $Image,
+        $mac,
+        $createdBy
+    ) {
+        self::$recorded[] = [
+            'host' => $Host->isValid() ? (string)$Host->get('name') : '',
+            'taskType' => $TaskType->get('name'),
+            'image' => $Image->get('name'),
+            'mac' => $mac,
+            'createdBy' => $createdBy,
+        ];
+        return true;
     }
 }
 

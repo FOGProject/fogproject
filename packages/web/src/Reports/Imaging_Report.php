@@ -234,19 +234,34 @@ class Imaging_Report extends ReportManagement
                 $states[$stateID] = (string)(new TaskState($stateID))
                     ->get('name');
             }
+            $hostName = (string)($row['hostName'] ?? '');
+            $mac = (string)($row['mac'] ?? '');
             $data[] = [
                 // The name as it was AT THE TIME, out of the log row, not
                 // resolved from `hosts` now. A machine that has since been
                 // renamed or deleted still has to name itself in a report
                 // about what happened last month.
-                'hostName' => (string)($row['hostName'] ?? ''),
+                //
+                // An unregistered host has no name, only the MAC it booted
+                // with. It is shown in the Host cell rather than in a new
+                // column, because the grid's column contract (headers and
+                // the JS column list) would change with one.
+                'hostName' => ('' === $hostName && '' !== $mac)
+                    ? sprintf(_('%s (unregistered)'), $mac)
+                    : $hostName,
                 'imageName' => (string)($row['imageName'] ?? ''),
                 'taskTypeName' => (string)($row['taskTypeName'] ?? ''),
                 'started' => (string)($row['started'] ?? ''),
                 'ended' => in_array($stateID, $terminal, true)
                     ? (string)($row['ended'] ?? '')
                     : '',
-                'state' => $states[$stateID] ?? '',
+                // A taskID 0 run is a false tasking: no Task row, so FOS
+                // never reports back and the row's In-Progress is only where
+                // the run started. Saying "In-Progress" would read as a
+                // deploy still copying forever (forum 18086).
+                'state' => 0 === (int)($row['taskID'] ?? 0)
+                    ? _('Started (unregistered)')
+                    : ($states[$stateID] ?? ''),
                 'createdBy' => (string)($row['createdBy'] ?? '')
             ];
         }

@@ -394,5 +394,14 @@ if ($falseTasking) {
     // Built through StubTask rather than `new Image` directly: Image is
     // declared in the harness, so only a call site INSIDE the harness
     // resolves to the stub -- from here the name reaches the real model.
-    $menu->falseTasking('', (new \FOG\StubTask(['image' => $falseTasking]))->getImage());
+    $falseImage = (new \FOG\StubTask(['image' => $falseTasking]))->getImage();
+    // The menu user's login. Set here, after the constructor, because a
+    // 'username' in the request would send the constructor to verifyCreds().
+    if (isset($scenario['falseTaskingUser'])) {
+        $_REQUEST['username'] = $scenario['falseTaskingUser'];
+    }
+    $menu->falseTasking('', $falseImage);
+    // What falseTasking() handed TaskLog::recordFalseTasking(). The stub
+    // is FOG\TaskLog; stub-buckets.php publishes it as FOG\Items\TaskLog.
+    echo "\n#tasklog ", json_encode(\FOG\TaskLog::$recorded), "\n";
 }

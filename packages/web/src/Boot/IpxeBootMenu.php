@@ -27,6 +27,7 @@ use FOG\Items\MulticastSession;
 use FOG\Items\MulticastSessionAssociation;
 use FOG\Items\PXEMenuOptions;
 use FOG\Items\StorageNode;
+use FOG\Items\TaskLog;
 use FOG\Items\TaskType;
 use FOG\Managers\HostManager;
 use FOG\Router\Route;
@@ -1799,6 +1800,17 @@ class IpxeBootMenu extends BootMenuBase
             $TaskType->get('kernelArgs'),
             $kargs
         ];
+        // A false tasking has no Task row, so recordState() never sees it.
+        // This row is the only record that an unregistered machine was
+        // imaged, and by whom (forum 18086). It comes before _printTasking()
+        // because that call may end the request.
+        TaskLog::recordFalseTasking(
+            self::$Host,
+            $TaskType,
+            $Image,
+            $mac,
+            (string)($_REQUEST['username'] ?? '')
+        );
         $this->_printTasking($kernelArgsArray);
     }
     /**

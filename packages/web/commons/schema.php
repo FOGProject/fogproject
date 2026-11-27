@@ -12607,3 +12607,12 @@ $this->schema[] = [
     // varchar(15) truncated it silently.
     "ALTER TABLE `taskLog` MODIFY `ip` varchar(45) NOT NULL DEFAULT ''",
 ];
+// 472
+$this->schema[] = [
+    // A deploy to an unregistered host has no host row and no task row, so
+    // the MAC the machine booted with is the only thing that says which
+    // machine was imaged (forum 18086). varchar(17) is a colon-separated MAC.
+    "ALTER TABLE `taskLog` "
+    . "ADD COLUMN `logMAC` varchar(17) NOT NULL DEFAULT '' "
+    . "AFTER `logImageName`",
+];

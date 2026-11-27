@@ -108,7 +108,12 @@ class ImagingStats extends WindowedStats
      *
      * All three rules from the class docblock are here and nowhere else:
      *
-     *   GROUP BY `taskID`     the fold itself
+     *   GROUP BY the run key  the fold itself. The key is `taskID`, except
+     *                         that a row with taskID 0 is a false tasking:
+     *                         a deploy to an unregistered host has no Task
+     *                         row, so every such run is written with taskID
+     *                         0. There is no task id to fold on, so that row
+     *                         is a run on its own, keyed on its own -`id`
      *   HAVING SUM(...) > 0   at least one non-canceled row, which is the
      *                         canceled rule stated over the RUN rather than
      *                         row by row. A deploy whose only rows are
@@ -134,14 +139,18 @@ class ImagingStats extends WindowedStats
      */
     private static function _foldSql()
     {
-        return "SELECT `taskID`,
+        // MAX(`taskID`) because the group key is no longer the bare column;
+        // taskID is constant within a group, so the aggregate is exact and
+        // stays valid under ONLY_FULL_GROUP_BY. -`id` is negative, so it
+        // cannot collide with a real task id.
+        return "SELECT MAX(`taskID`) AS `taskID`,
                        MIN(`createTime`) AS `started`,
                        MAX(`createTime`) AS `ended`,
                        MAX(`id`) AS `lastID`
                   FROM `taskLog`
                  WHERE `createTime` BETWEEN :start AND :end
                    AND `logImageName` <> ''
-                 GROUP BY `taskID`
+                 GROUP BY CASE WHEN `taskID` = 0 THEN -`id` ELSE `taskID` END
                 HAVING SUM(`taskStateID` <> :canceled) > 0";
     }
 
@@ -205,6 +214,7 @@ class ImagingStats extends WindowedStats
                        `runs`.`ended` AS `ended`,
                        `l`.`logHostID` AS `hostID`,
                        `l`.`logHostName` AS `hostName`,
+                       `l`.`logMAC` AS `mac`,
                        `l`.`logImageName` AS `imageName`,
                        `l`.`logTaskTypeName` AS `taskTypeName`,
                        `l`.`taskStateID` AS `stateID`,
@@ -314,8 +324,16 @@ class ImagingStats extends WindowedStats
             // Keyed on the id where there is one and the name otherwise, so
             // a run whose host has since been deleted still counts as a
             // machine rather than collapsing every deleted host into one.
-            $hosts[(string)($row['hostID'] ?? '') . '/'
-                . (string)($row['hostName'] ?? '')] = true;
+            // An unregistered run has neither id nor name, so it is keyed on
+            // its MAC; without that every unregistered machine is one. Only
+            // then: a pending host imaged before and after approval keeps
+            // one key, and is one machine.
+            $hostID = (int)($row['hostID'] ?? 0);
+            $hostName = (string)($row['hostName'] ?? '');
+            $key = (0 === $hostID && '' === $hostName)
+                ? 'mac/' . (string)($row['mac'] ?? '')
+                : $hostID . '/' . $hostName;
+            $hosts[$key] = true;
             $images[(string)($row['imageName'] ?? '')] = true;
         }
 

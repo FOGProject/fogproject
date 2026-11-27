@@ -734,6 +734,29 @@ $checks = [
         'refuteLine' => ['storage=fd00::2', '\\['],
     ],
     /*
+     * A false tasking has no Task row, so the task log row is the only record
+     * that an unregistered machine was imaged (forum 18086). Exactly one
+     * entry, carrying the first request MAC, the image's name and the menu
+     * user. The needle is the whole #tasklog line, so a second entry or a
+     * missing field fails it.
+     */
+    'a false tasking records one task log entry for the MAC, image and user' => [
+        'scenario' => array_merge(
+            $scenarios['falsetasking-unregistered'],
+            [
+                'falseTasking' => array_merge(
+                    $scenarios['falsetasking-unregistered']['falseTasking'],
+                    ['name' => 'testimage']
+                ),
+                'falseTaskingUser' => 'menuuser',
+            ]
+        ),
+        'expectLine' => [
+            '#tasklog [{"host":"","taskType":"Deploy","image":"testimage",'
+            . '"mac":"aa:bb:cc:dd:ee:ff","createdBy":"menuuser"}]',
+        ],
+    ],
+    /*
      * ipv6boot=1 tells FOS to bring IPv6 up. It follows how the client reached
      * this server, so only an IPv6 REMOTE_ADDR earns it. An IPv4-mapped
      * address (::ffff:a.b.c.d) is an IPv4 client on a dual-stack socket. Not
