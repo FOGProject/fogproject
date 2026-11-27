@@ -209,6 +209,26 @@ function reaperResponder(array $tasks, array &$seen)
             }
             return $out;
         }
+        // The sweep's read-back after its UPDATE: which of the candidates are
+        // in No Report now. A row marked 'racedIn' checked in between the
+        // SELECT and the UPDATE, so the UPDATE (found on Queued) left it.
+        if (0 === strpos($sql, 'SELECT `taskID` FROM `tasks` '
+            . 'WHERE `taskStateID` = :noreport')
+        ) {
+            $asked = [];
+            foreach ($params as $key => $value) {
+                if (0 === strpos((string)$key, ':id')) {
+                    $asked[(int)$value] = true;
+                }
+            }
+            $out = [];
+            foreach ($tasks as $row) {
+                if (isset($asked[(int)$row['id']]) && empty($row['racedIn'])) {
+                    $out[] = ['taskID' => $row['id']];
+                }
+            }
+            return $out;
+        }
         if (0 === strpos($sql, 'SELECT `tasks`.`taskID` AS `taskID`, '
             . '`tasks`.`taskStateID` AS `stateID`')
         ) {
@@ -327,6 +347,19 @@ $reaped = (new TaskManager())->reapSilentHostless();
 $t->check(
     'with nothing 24 hours old and silent the sweep writes nothing',
     [] === $reaped && [] === reaperWrites($seen, 'UPDATE', 'tasks')
+);
+
+// A task that checks in between the SELECT and the UPDATE keeps its state,
+// so it must get no "no report" row and no state row either.
+$seen = [];
+$raced = $tasks[7];
+$raced['racedIn'] = true;
+$db->responder = reaperResponder([7 => $raced], $seen);
+$reaped = (new TaskManager())->reapSilentHostless();
+$t->check(
+    'a task that checked in during the sweep is not logged as No Report'
+    . ' (got: ' . json_encode($reaped) . ')',
+    [] === $reaped && [] === reaperWrites($seen, 'INSERT INTO', 'taskLog')
 );
 
 $t->finish();

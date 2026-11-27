@@ -82,8 +82,8 @@ create a hostless Task.
 **The 24 hour reaper ends a silent hostless Task in a new state, No Report.**
 The reaper moves a hostless token Task that is still Queued after 24 hours to
 No Report. It counts from the create time. A Task that left Queued has
-reported, so the reaper leaves it alone. No Report is not Failed. A Failed Task says
-imaging failed. This Task says only that FOS never reported. The imaging may
+reported, so the reaper leaves it alone. No Report is not Failed. A Failed Task
+says imaging failed. This Task says only that FOS never reported. The imaging may
 have worked. The reaper writes the reason "FOS sent no report within 24 hours;
 an init older than this server does not report for an unregistered host". The
 existing reaper for Tasks with no host skips hostless token Tasks, so the two

@@ -518,6 +518,37 @@ class TaskManager extends FOGManagerController
         if (!$updated) {
             return [];
         }
+        // update() reports that the statement ran, not which rows it moved.
+        // Read back the ids that are in No Report now, and log only those:
+        // a task that checked in after the SELECT kept its state, so it gets
+        // no state row and no "no report" error row.
+        $holders = [];
+        $params = [':noreport' => $noReport];
+        foreach (array_keys($reasons) as $i => $id) {
+            $holders[] = ':id' . $i;
+            $params[':id' . $i] = (int)$id;
+        }
+        $moved = self::$DB->query(
+            "SELECT `taskID` FROM `tasks` "
+            . "WHERE `taskStateID` = :noreport "
+            . "AND `taskID` IN (" . implode(',', $holders) . ")",
+            [],
+            $params
+        )->fetch(\PDO::FETCH_ASSOC, 'fetch_all')->get();
+        $movedIDs = [];
+        foreach ((array)$moved as $row) {
+            $movedIDs[(int)$row['taskID']] = true;
+        }
+        $reasons = array_intersect_key($reasons, $movedIDs);
+        $logRows = array_values(array_filter(
+            $logRows,
+            function ($logRow) use ($movedIDs) {
+                return isset($movedIDs[(int)$logRow[0]]);
+            }
+        ));
+        if (!$reasons) {
+            return [];
+        }
         TaskLog::recordStates(array_keys($reasons));
         // Caught, because the tasks have already moved: see reapUnrunnable().
         try {

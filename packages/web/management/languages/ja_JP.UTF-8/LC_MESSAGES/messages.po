@@ -171,6 +171,10 @@ msgstr "このホストは既に存在します"
 msgid "%s %s log (%s)"
 msgstr "%s %s ログ（%s）"
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "登録済み"
+
 #, php-format
 msgid "%s Manager"
 msgstr "%s 管理"
@@ -3345,6 +3349,9 @@ msgstr ""
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr "このサーバー上の FOS カーネルは UEFI Secure Boot 用に署名されています"
 
+msgid "FOS sent no report within 24 hours; an init older than this server does not report for an unregistered host"
+msgstr ""
+
 msgid "FTP Connection Failed"
 msgstr "FTP 接続に失敗しました"
 
@@ -3436,6 +3443,10 @@ msgstr "%s のインストールに失敗しました"
 msgid "Failed to install logo file"
 msgstr "ロゴファイルのインストールに失敗しました"
 
+#, fuzzy
+msgid "Failed to issue a boot token"
+msgstr "トークンを発行できませんでした！"
+
 msgid "Failed to move uploaded file."
 msgstr "アップロードしたファイルの移動に失敗しました。"
 
@@ -3453,6 +3464,10 @@ msgstr "次のストレージノードからファイルパスを削除できま
 
 msgid "Failed to remove hosts"
 msgstr "ホストの削除に失敗しました"
+
+#, fuzzy
+msgid "Failed to save the task"
+msgstr "タスクの作成に失敗しました"
 
 msgid "Failed to uninstall "
 msgstr "アンインストールに失敗しました: "
@@ -5685,6 +5700,10 @@ msgstr "選択した項目を保留中に設定"
 msgid "Marked failed, task"
 msgstr "失敗として記録したタスク:"
 
+#, fuzzy
+msgid "Marked no report, task"
+msgstr "失敗として記録したタスク:"
+
 msgid "Mass Edit Fail"
 msgstr "一括編集に失敗しました"
 
@@ -6106,6 +6125,10 @@ msgstr "OU が選択されていません。"
 
 msgid "No Printer Management"
 msgstr "プリンター管理なし"
+
+#, fuzzy
+msgid "No Report"
+msgstr "レポート"
 
 msgid "No access is allowed"
 msgstr "アクセスは許可されていません"

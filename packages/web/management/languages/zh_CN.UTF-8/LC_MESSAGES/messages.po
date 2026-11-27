@@ -187,6 +187,10 @@ msgstr "打印机已经存在"
 msgid "%s %s log (%s)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "注册"
+
 #, php-format
 msgid "%s Manager"
 msgstr "%s经理"
@@ -3820,6 +3824,9 @@ msgstr ""
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
+msgid "FOS sent no report within 24 hours; an init older than this server does not report for an unregistered host"
+msgstr ""
+
 #, fuzzy
 msgid "FTP Connection Failed"
 msgstr "FTP连接失败"
@@ -3925,6 +3932,10 @@ msgid "Failed to install logo file"
 msgstr "未能摧毁"
 
 #, fuzzy
+msgid "Failed to issue a boot token"
+msgstr "无法读取tmp文件。"
+
+#, fuzzy
 msgid "Failed to move uploaded file."
 msgstr "无法删除文件"
 
@@ -3947,6 +3958,10 @@ msgstr "未能摧毁存储节点"
 #, fuzzy
 msgid "Failed to remove hosts"
 msgstr "无法创建主机"
+
+#, fuzzy
+msgid "Failed to save the task"
+msgstr "无法创建任务"
 
 #, fuzzy
 msgid "Failed to uninstall "
@@ -6566,6 +6581,10 @@ msgid "Marked failed, task"
 msgstr "加载失败： %s"
 
 #, fuzzy
+msgid "Marked no report, task"
+msgstr "加载失败： %s"
+
+#, fuzzy
 msgid "Mass Edit Fail"
 msgstr "用户更新失败"
 
@@ -7050,6 +7069,10 @@ msgstr "更新管理单元"
 
 msgid "No Printer Management"
 msgstr "没有打印机管理"
+
+#, fuzzy
+msgid "No Report"
+msgstr "报告"
 
 msgid "No access is allowed"
 msgstr ""
