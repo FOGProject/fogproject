@@ -3420,6 +3420,8 @@ configureUDPCast() {
         echo "Failed"
         echo " * ${udpsrc} did not unpack to ${udpcastout}. See ${error_log}."
         cd "$cur"
+        # Fatal for the same reason as a failed fetch above.
+        [[ -z $exitFail ]] && exit 1
         return 1
     fi
     grep -q 'BCM[0-9][0-9][0-9][0-9]' /proc/cpuinfo >>$error_log 2>&1
