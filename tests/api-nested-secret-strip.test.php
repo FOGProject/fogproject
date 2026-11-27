@@ -98,6 +98,29 @@ check(
     in_array('ADPass', $host, true) && in_array('token', $host, true)
 );
 
+// A hostless task's boot token hash is never read back (forum 18086), on a
+// single-entity read or inside another object's embed.
+$taskDecl = Route::unfilterableFields('task');
+check('task tokenHash is declared sensitive', in_array('tokenHash', $taskDecl, true));
+$hostless = emit(
+    ['task' => []],
+    'task',
+    [
+        'id' => 9,
+        '_lang' => 'task',
+        'mac' => 'aa:bb:cc:dd:ee:ff',
+        'tokenHash' => str_repeat('a', 64),
+    ]
+);
+check(
+    'GET /task/{id} never returns tokenHash',
+    !array_key_exists('tokenHash', $hostless)
+);
+check(
+    'GET /task/{id} still returns the MAC',
+    'aa:bb:cc:dd:ee:ff' === ($hostless['mac'] ?? null)
+);
+
 // ---------------------------------------------------------------------------
 // 1. The exact payload that leaked: GET /task/{id}.
 // ---------------------------------------------------------------------------

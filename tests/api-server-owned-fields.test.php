@@ -194,6 +194,27 @@ $check(
     )
 );
 
+// A hostless task is found by its boot token hash and belongs to its MAC
+// (forum 18086). Only BootToken::issue() may set either: a REST create that
+// could write tokenHash would mint a task FOS then trusts.
+$check(
+    'task.tokenHash and task.mac are not server-owned, so REST can create '
+    . 'or edit a task that carries a chosen token',
+    [] === array_diff(['tokenHash', 'mac'], $task)
+);
+// The key the edit and create loops compare is the model's own key, so the
+// listed names have to be keys of Task, spelled the way key() returns them.
+// Without the constructor: it resets the stub HookManager set above.
+$taskModel = (new \ReflectionClass(\FOG\Items\Task::class))
+    ->newInstanceWithoutConstructor();
+$tokenKey = 'tokenHash';
+$macKey = 'mac';
+$check(
+    'the task server-owned names are real Task keys',
+    'tokenHash' === $taskModel->key($tokenKey)
+    && 'mac' === $taskModel->key($macKey)
+);
+
 $check(
     'the host client-protocol token set is not server-owned; choosing a '
     . "host's sec_tok is impersonating that host",

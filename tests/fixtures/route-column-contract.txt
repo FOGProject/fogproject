@@ -698,6 +698,8 @@ task	30	taskImageID	imageLink	f:classname	image
 task	31	taskWOL	wol	-	-
 task	32	taskBypassBitlocker	bypassbitlocker	-	-
 task	33	taskStateChangedTime	stateChangedTime	-	-
+task	34	taskMAC	mac	-	-
+task	35	taskTokenHash	tokenHash	-	-
 tasklog	0	id	id	-	-
 tasklog	1	id	DT_RowId	f	-
 tasklog	2	taskID	taskID	-	-
@@ -712,8 +714,9 @@ tasklog	10	logHostID	hostLink	f:classname	host
 tasklog	11	logHostName	hostName	-	-
 tasklog	12	logTaskTypeName	taskTypeName	-	-
 tasklog	13	logImageName	imageName	-	-
-tasklog	14	taskStateID	statename	f:taskStates	-
-tasklog	15	-	summary	f:classname,taskStates	-
+tasklog	14	logMAC	mac	-	-
+tasklog	15	taskStateID	statename	f:taskStates	-
+tasklog	16	-	summary	f:classname,taskStates	-
 taskstate	0	tsID	id	-	-
 taskstate	1	tsID	DT_RowId	f	-
 taskstate	2	tsName	name	-	-

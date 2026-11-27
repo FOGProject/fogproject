@@ -30,6 +30,7 @@ use FOG\Items\StorageNode;
 use FOG\Items\TaskType;
 use FOG\Managers\HostManager;
 use FOG\Router\Route;
+use FOG\TaskHandling\BootToken;
 
 /**
  * iPXE boot menu for the FOG PXE system
@@ -1727,7 +1728,7 @@ class IpxeBootMenu extends BootMenuBase
         $imgType = $Image->getImageType()->get('type');
         $imgPartitionType = $Image->getPartitionType();
         $imgid = $Image->get('id');
-        $chkdsk = $chkdsk == 1 ? 0 : 1;
+        $chkdsk = self::chkdskFlag($chkdsk);
         $ftp = $StorageNode->get('ip');
         $port = ($mc ? $mc->get('port') : null);
         // A false tasking is by definition a machine that may not be
@@ -1750,6 +1751,23 @@ class IpxeBootMenu extends BootMenuBase
         $mac = self::$Host->isValid()
             ? (string) self::$Host->get('mac')
             : (string) (self::$requestMacs[0] ?? '');
+        // A false tasking is a real hostless Task found by a single-use
+        // boot token, so FOS can report progress for it (forum 18086). It
+        // comes before _printTasking() because that call may end the
+        // request. null means the task could not be saved: the machine boots
+        // as it did before this existed, with no token and no report.
+        $fogtoken = BootToken::issue(
+            $TaskType,
+            $Image,
+            $StorageNode,
+            $mac,
+            (string)(
+                filter_input(INPUT_POST, 'username')
+                ?: filter_input(INPUT_GET, 'username')
+                ?: ''
+            ),
+            $mc ?: null
+        );
         $kernelArgsArray = [
             "mac=$mac",
             "ftp=$ftp",
@@ -1774,7 +1792,15 @@ class IpxeBootMenu extends BootMenuBase
             ],
             [
                 'value' => "capone=1",
-                'active' => !self::$Host || !self::$Host->isValid(),
+                // A pending host has a row but cannot check in as a host, so
+                // it images as an unregistered one.
+                'active' => !self::$Host
+                    || !self::$Host->isValid()
+                    || self::$Host->get('pending'),
+            ],
+            [
+                'value' => "fogtoken=$fogtoken",
+                'active' => null !== $fogtoken,
             ],
             [
                 'value' => "port=$port mc=yes",
@@ -2161,6 +2187,11 @@ class IpxeBootMenu extends BootMenuBase
             if (isset($_REQUEST['keyreg']) && $_REQUEST['keyreg']) {
                 $this->keyreg();
             } elseif (isset($_REQUEST['qihost']) && $_REQUEST['qihost']) {
+                // Refused before any Task or token exists: the menu does not
+                // show Deploy Image to this host, so it may not post it.
+                if ($this->_refuseUnregistered('fog.deployimage')) {
+                    return;
+                }
                 // Quick image is a deploy, so the account needs the Deploy
                 // task type (GH-1878). It used to need only a password.
                 if (!$this->_mayStart($tmpUser, TaskType::DEPLOY)) {
@@ -2168,6 +2199,10 @@ class IpxeBootMenu extends BootMenuBase
                 }
                 $this->setTasking($_REQUEST['imageID'] ?? '');
             } elseif (isset($_REQUEST['sessionJoin']) && $_REQUEST['sessionJoin']) {
+                // Same refusal as qihost, for the join item.
+                if ($this->_refuseUnregistered('fog.multijoin')) {
+                    return;
+                }
                 // Joining or creating a session builds real tasking against
                 // a host, so holding a valid password is not enough -- the
                 // account has to actually be allowed to task. Unrestricted
@@ -2229,7 +2264,9 @@ class IpxeBootMenu extends BootMenuBase
             $this->printImageList();
             return;
         }
-        if (!self::$Host->isValid()) {
+        // A pending host is imaged as an unregistered one: a normal task
+        // for it can never check in.
+        if (!self::$Host->isValid() || self::$Host->get('pending')) {
             $this->falseTasking('', new Image($imgID));
             return;
         }
@@ -2730,6 +2767,89 @@ class IpxeBootMenu extends BootMenuBase
         );
     }
     /**
+     * The pxemenuoptions regMenu values this host is shown.
+     *
+     * 0 is not registered, 1 registered, 2 all, 6 pending, and 3, 4 and 5 are
+     * debug, advanced and advanced-login. The menu builder and the refusal in
+     * _refuseUnregistered() both call this, so what the menu hides is exactly
+     * what the handlers refuse.
+     *
+     * @return array
+     */
+    private static function _visibleRegMenus()
+    {
+        list(
+            $AdvLogin,
+            $Advanced,
+            $regEnabled
+        ) = self::getSetting(
+            [
+                'FOG_ADVANCED_MENU_LOGIN',
+                'FOG_PXE_ADVANCED',
+                'FOG_REGISTRATION_ENABLED',
+            ]
+        );
+        $RegArrayOfStuff = [
+            (
+                self::$Host->isValid() ?
+                (
+                    self::$Host->get('pending') ?
+                    6 :
+                    1
+                ) :
+                0
+            ),
+            2
+        ];
+        if (!$regEnabled) {
+            $RegArrayOfStuff = array_diff($RegArrayOfStuff, [0]);
+        }
+        if (isset($_REQUEST['debug'])) {
+            $RegArrayOfStuff[] = 3;
+        }
+        if ($Advanced) {
+            $RegArrayOfStuff[] = (
+                $AdvLogin ?
+                5 :
+                4
+            );
+        }
+        // Ints, so the refusal can compare strictly.
+        return array_map('intval', array_values($RegArrayOfStuff));
+    }
+    /**
+     * Refuses a deploy or join the menu does not show an unregistered host.
+     *
+     * Hiding a menu item is not access control: iPXE posts qihost=1 and
+     * sessionJoin=1 back with a login, and a client can send either without
+     * ever drawing the item. So the handlers ask the same question the menu
+     * builder does. A registered host is never refused here. For any other
+     * host, at least one row with that name must be visible, as in
+     * printDefault(). It fails closed: a missing row is hidden from
+     * everyone, so it is refused.
+     *
+     * @param string $itemName the pxemenuoptions name of the item
+     *
+     * @return bool true when it said no, so the caller must stop
+     */
+    private function _refuseUnregistered($itemName)
+    {
+        if (self::$Host->isValid() && !self::$Host->get('pending')) {
+            return false;
+        }
+        $visible = self::_visibleRegMenus();
+        foreach (Route::getList('pxemenuoptions', ['name' => $itemName]) as $row) {
+            if (in_array((int)$row->regMenu, $visible, true)) {
+                return false;
+            }
+        }
+        $this->_say(
+            'mustregister',
+            ['echo This host must be registered before it can be imaged.']
+        );
+        return true;
+    }
+    /**
      * Print the default information for all hosts
      *
      * @return void
@@ -2747,7 +2867,6 @@ class IpxeBootMenu extends BootMenuBase
         }
 
         $ipxeGrabs = [
-            'FOG_ADVANCED_MENU_LOGIN',
             'FOG_IPXE_BG_FILE',
             'FOG_IPXE_HOST_CPAIRS',
             'FOG_IPXE_INVALID_HOST_COLOURS',
@@ -2755,20 +2874,15 @@ class IpxeBootMenu extends BootMenuBase
             'FOG_IPXE_MAIN_CPAIRS',
             'FOG_IPXE_MAIN_FALLBACK_CPAIRS',
             'FOG_IPXE_VALID_HOST_COLOURS',
-            'FOG_PXE_ADVANCED',
-            'FOG_REGISTRATION_ENABLED',
         ];
         list(
-            $AdvLogin,
             $bgfile,
             $hostCpairs,
             $hostInvalid,
             $mainColors,
             $mainCpairs,
             $mainFallback,
-            $hostValid,
-            $Advanced,
-            $regEnabled
+            $hostValid
         ) = self::getSetting($ipxeGrabs);
         $Send['head'] = self::fastmerge(
             self::_archDetect(),
@@ -2790,7 +2904,6 @@ class IpxeBootMenu extends BootMenuBase
                 . "--right 80 && goto console_set || goto alt_console"
             ]
         );
-        $showDebug = isset($_REQUEST['debug']);
         $hostRegColor = self::$Host->isValid() ? $hostValid : $hostInvalid;
         $reg_string = 'NOT registered!';
         if (self::$Host->isValid()) {
@@ -2812,34 +2925,9 @@ class IpxeBootMenu extends BootMenuBase
                 'item --gap -- -------------------------------------'
             ]
         );
-        $RegArrayOfStuff = [
-            (
-                self::$Host->isValid() ?
-                (
-                    self::$Host->get('pending') ?
-                    6 :
-                    1
-                ) :
-                0
-            ),
-            2
-        ];
-        if (!$regEnabled) {
-            $RegArrayOfStuff = array_diff($RegArrayOfStuff, [0]);
-        }
-        if ($showDebug) {
-            $RegArrayOfStuff[] = 3;
-        }
-        if ($Advanced) {
-            $RegArrayOfStuff[] = (
-                $AdvLogin ?
-                5 :
-                4
-            );
-        }
         $Menus = Route::getList(
             'pxemenuoptions',
-            ['regMenu' => $RegArrayOfStuff],
+            ['regMenu' => self::_visibleRegMenus()],
             'AND',
             'id'
         );

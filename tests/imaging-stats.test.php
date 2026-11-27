@@ -100,6 +100,13 @@ $t->check(
     1 === preg_match('/GROUP\s+BY\s+`taskID`/i', $sql)
 );
 $t->check(
+    'the run grid selects the MAC the unregistered host booted with',
+    false !== strpos(
+        FogTestHarness::callStatic('FOG\Audit\ImagingStats', '_runsSql'),
+        '`l`.`logMAC` AS `mac`'
+    )
+);
+$t->check(
     'rule 2: the canceled state is excluded',
     1 === preg_match('/`taskStateID`\s*<>\s*:canceled/i', $sql)
 );
@@ -247,16 +254,37 @@ $db->responder = function ($sql) {
          'imageName' => 'ubuntu', 'started' => '2026-03-04 09:00:00'],
         ['taskID' => '5', 'hostID' => '0', 'hostName' => 'alsogone',
          'imageName' => 'ubuntu', 'started' => '2026-03-05 09:00:00'],
+        // Unregistered (forum 18086): a real task with no host row, so no
+        // id and no name, only the MAC. Two machines, one of them imaged
+        // twice.
+        ['taskID' => '9', 'hostID' => null, 'hostName' => '',
+         'mac' => 'aa:bb:cc:dd:ee:01',
+         'imageName' => 'win11', 'started' => '2026-03-05 10:00:00'],
+        ['taskID' => '10', 'hostID' => null, 'hostName' => '',
+         'mac' => 'aa:bb:cc:dd:ee:02',
+         'imageName' => 'win11', 'started' => '2026-03-05 11:00:00'],
+        ['taskID' => '11', 'hostID' => null, 'hostName' => '',
+         'mac' => 'aa:bb:cc:dd:ee:02',
+         'imageName' => 'win11', 'started' => '2026-03-05 12:00:00'],
+        // A pending host: imaged as an unregistered task (MAC set), then
+        // approved and imaged as a registered one (no MAC). One machine.
+        ['taskID' => '12', 'hostID' => '12', 'hostName' => 'p',
+         'mac' => 'aa:bb:cc:dd:ee:03',
+         'imageName' => 'win11', 'started' => '2026-03-05 13:00:00'],
+        ['taskID' => '6', 'hostID' => '12', 'hostName' => 'p',
+         'mac' => '',
+         'imageName' => 'win11', 'started' => '2026-03-05 14:00:00'],
     ];
 };
 $totals = ImagingStats::totals(
     new \DateTimeImmutable('2026-03-01 00:00:00', new \DateTimeZone('UTC')),
     new \DateTimeImmutable('2026-03-05 23:59:59', new \DateTimeZone('UTC'))
 );
-$t->check('the runs tile counts the run rows', 5 === $totals['runs']);
+$t->check('the runs tile counts the run rows', 10 === $totals['runs']);
 $t->check(
-    'the machines tile counts DISTINCT hosts, not runs',
-    4 === $totals['hosts']
+    'the machines tile counts DISTINCT hosts, not runs, each MAC of an '
+    . 'unregistered run as its own machine, and a pending host once',
+    7 === $totals['hosts']
 );
 $t->check(
     'the images tile counts DISTINCT images',
@@ -496,6 +524,10 @@ $rows = [
     [5, $COMPLETE,   '2026-03-06 12:00:00', ''],
     // The window itself. Well outside it.
     [6, $COMPLETE,   '2026-02-01 12:00:00', 'win11'],
+    // An unregistered host, the 7th (forum 18086). A task with no host
+    // row: a Queued row and a Complete row, one run. Its MAC is set below.
+    [7, 1, '2026-03-07 09:00:00', 'win11'],
+    [7, $COMPLETE, '2026-03-07 09:30:00', 'win11'],
 ];
 $ins = $pdo->prepare(
     'INSERT INTO `taskLog` (`taskID`,`taskStateID`,`createTime`,'
@@ -505,6 +537,9 @@ $ins = $pdo->prepare(
 foreach ($rows as $r) {
     $ins->execute($r);
 }
+$pdo->exec(
+    "UPDATE `taskLog` SET `logMAC` = 'aa:bb:cc:dd:ee:07' WHERE `taskID` = 7"
+);
 
 // Bound against the placeholders the statement ACTUALLY has, rather than a
 // fixed three. Not defensiveness: if a rule is ever deleted from the query
@@ -566,8 +601,13 @@ $t->check(
     !isset($got['2026-02-01'])
 );
 $t->check(
-    'exactly the three expected days came back',
-    ['2026-03-01', '2026-03-03', '2026-03-04'] === array_keys($got)
+    'an unregistered host run with a Queued row is ONE run',
+    1 === ($got['2026-03-07'] ?? null)
+);
+$t->check(
+    'exactly the four expected days came back',
+    ['2026-03-01', '2026-03-03', '2026-03-04', '2026-03-07']
+        === array_keys($got)
 );
 
 /*
@@ -588,7 +628,7 @@ foreach ($byImage->fetchAll(\PDO::FETCH_ASSOC) as $row) {
 }
 $t->check(
     'runs are grouped by image, biggest first',
-    ['win11' => 2, 'ubuntu' => 1] === $images
+    ['win11' => 3, 'ubuntu' => 1] === $images
 );
 
 $runsStmt = $pdo->prepare(
@@ -601,15 +641,20 @@ foreach ($runRows as $row) {
     $byTask[(int)$row['taskID']] = $row;
 }
 
-$t->check('one row per run, and only the runs', 3 === count($runRows));
+$t->check('one row per run, and only the runs', 4 === count($runRows));
 $t->check(
-    'the runs are the folded tasks 1, 3 and 4',
-    isset($byTask[1], $byTask[3], $byTask[4])
+    'the runs are the folded tasks 1, 3, 4 and 7',
+    isset($byTask[1], $byTask[3], $byTask[4], $byTask[7])
+);
+$t->check(
+    'an unregistered host run carries its MAC and ends Complete',
+    'aa:bb:cc:dd:ee:07' === ($byTask[7]['mac'] ?? null)
+        && $COMPLETE === (int)($byTask[7]['stateID'] ?? 0)
 );
 // Newest first, so the most recent run is at the top of the grid.
 $t->check(
     'the grid is ordered newest first',
-    4 === (int)$runRows[0]['taskID'] && 1 === (int)$runRows[2]['taskID']
+    7 === (int)$runRows[0]['taskID'] && 1 === (int)$runRows[3]['taskID']
 );
 // THE ONE THE HAVING BUYS.
 $t->check(

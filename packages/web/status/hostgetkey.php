@@ -60,15 +60,18 @@ try {
         throw new \Exception(_('Host token is currently in use'));
     }
     if (!FOGCore::$Host->get('token')) {
+        // Echo the token just minted. $Host was loaded before the update, so
+        // reading it back returned the old empty value and FOS got no token.
+        $newToken = FOGCore::createSecToken();
         (new HostManager())->update(
             ['id' => FOGCore::$Host->get('id')],
             '',
             [
-                'token' => FOGCore::createSecToken(),
+                'token' => $newToken,
                 'tokenlock' => true
             ]
         );
-        throw new \Exception(FOGCore::$Host->get('token'));
+        throw new \Exception($newToken);
     }
     if (FOGCore::$Host->isValid() && !FOGCore::$Host->get('tokenlock')) {
         (new HostManager())->update(

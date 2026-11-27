@@ -185,19 +185,23 @@ $db->responder = function ($sql, $params) use (
                 'hostID' => 42,
                 'hostName' => 'lab-07',
                 'taskTypeName' => 'Deploy',
-                'imageName' => 'win11-base'
+                'imageName' => 'win11-base',
+                // A hostless task: the MAC is the only identity it has.
+                'mac' => 'aa:bb:cc:dd:ee:ff'
             ],
             [
                 // Host deleted out from under the task: the join misses, so
                 // the id must come out 0 rather than the dangling taskHostID.
                 'taskID' => 8,
                 'stateID' => 5,
-                'createdBy' => 'fog',
+                // Longer than taskLog.createdBy (varchar(30)).
+                'createdBy' => str_repeat('y', 50),
                 'typeID' => 12,
                 'hostID' => null,
                 'hostName' => '',
                 'taskTypeName' => 'All Snapins',
-                'imageName' => 'should-not-be-recorded'
+                'imageName' => 'should-not-be-recorded',
+                'mac' => ''
             ]
         ];
     }
@@ -227,7 +231,8 @@ if ($t->check('recordStates() writes to taskLog', '' !== $bulkInsert)) {
             'logHostID',
             'logHostName',
             'logTaskTypeName',
-            'logImageName'
+            'logImageName',
+            'logMAC'
         ] as $column
     ) {
         $t->check(
@@ -235,6 +240,19 @@ if ($t->check('recordStates() writes to taskLog', '' !== $bulkInsert)) {
             false !== strpos($bulkInsert, '`' . $column . '`')
         );
     }
+    $t->check(
+        'the batch reads the MAC from tasks.taskMAC',
+        false !== strpos($bulkSelect, '`tasks`.`taskMAC` AS `mac`')
+    );
+    $t->check(
+        "a hostless task's MAC reaches the log row",
+        in_array('aa:bb:cc:dd:ee:ff', $bulkBound, true)
+    );
+    $t->check(
+        'createdBy is cut to the 30 characters of the column',
+        in_array(str_repeat('y', 30), $bulkBound, true)
+        && !in_array(str_repeat('y', 50), $bulkBound, true)
+    );
     $t->check(
         'the state comes from the reloaded task',
         in_array(5, $bulkBound, true)

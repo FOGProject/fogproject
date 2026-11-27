@@ -297,6 +297,21 @@ $scenarios = [
             'partitiontype' => 'all',
         ],
     ],
+    // A pending host has a row but cannot check in as a host, so it gets
+    // the unregistered treatment: capone=1 and a boot token.
+    'falsetasking-pending-host' => [
+        'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
+        'requestMacs' => ['aa:bb:cc:dd:ee:ff'],
+        'host' => ['id' => 1, 'name' => 'testhost', 'pending' => 1],
+        'falseTasking' => [
+            'id' => 1,
+            'osID' => 50,
+            'path' => 'testimage',
+            'format' => 5,
+            'imagetype' => 'mps',
+            'partitiontype' => 'all',
+        ],
+    ],
     'task-snapin-falls-to-menu' => [
         'request' => ['arch' => 'x86_64', 'platform' => 'bios'],
         'host' => [
@@ -734,6 +749,44 @@ $checks = [
         'refuteLine' => ['storage=fd00::2', '\\['],
     ],
     /*
+     * A false tasking issues one boot token for a hostless task (forum
+     * 18086). Exactly one call, carrying the first request MAC, the image's
+     * name and the menu user. The needle is the whole #boottoken line, so a
+     * second call or a missing field fails it.
+     */
+    'a false tasking issues one boot token for the MAC, image and user' => [
+        'scenario' => array_merge(
+            $scenarios['falsetasking-unregistered'],
+            [
+                'falseTasking' => array_merge(
+                    $scenarios['falsetasking-unregistered']['falseTasking'],
+                    ['name' => 'testimage']
+                ),
+                'falseTaskingUser' => 'menuuser',
+            ]
+        ),
+        'expectLine' => [
+            '#boottoken [{"taskType":"Deploy","image":"testimage",'
+            . '"mac":"aa:bb:cc:dd:ee:ff","createdBy":"menuuser"}]',
+        ],
+    ],
+    /*
+     * The token reaches FOS on the kernel line, and a pending host gets
+     * capone=1 as well: it has a row but cannot check in as a host.
+     */
+    'an unregistered false tasking sends capone=1 and the fogtoken' => [
+        'scenario' => $scenarios['falsetasking-unregistered'],
+        'expectLine' => [' capone=1 fogtoken=fixedtoken0123456789abcdef'],
+    ],
+    'a pending host false tasking sends capone=1 and the fogtoken' => [
+        'scenario' => $scenarios['falsetasking-pending-host'],
+        'expectLine' => [' capone=1 fogtoken=fixedtoken0123456789abcdef'],
+    ],
+    'a registered non-pending false tasking sends no capone' => [
+        'scenario' => $scenarios['falsetasking-registered-pending'],
+        'refuteLine' => ['capone=1'],
+    ],
+    /*
      * ipv6boot=1 tells FOS to bring IPv6 up. It follows how the client reached
      * this server, so only an IPv6 REMOTE_ADDR earns it. An IPv4-mapped
      * address (::ffff:a.b.c.d) is an IPv4 client on a dual-stack socket. Not
@@ -1029,6 +1082,127 @@ $checks = [
             ],
         ],
         'expectLine' => [' osid= osfamily= irqpoll '],
+    ],
+    /*
+     * Forum 18086: qihost and sessionJoin refuse an unregistered or
+     * pending host when the menu would not show it the item, before any Task
+     * or token exists. The fixture rows ship fog.deployimage and
+     * fog.multijoin at regMenu 1 (registered only). 'login' signs the menu
+     * account in so the constructor reaches the dispatch.
+     */
+    'qihost is refused for an unregistered host the menu hides it from' => [
+        'scenario' => $qihost = [
+            'request' => [
+                'arch' => 'x86_64', 'platform' => 'bios',
+                'qihost' => '1', 'imageID' => '1',
+                'username' => 'menuuser', 'password' => 'x',
+            ],
+            'requestMacs' => ['aa:bb:cc:dd:ee:ff'],
+            'login' => true,
+        ],
+        'expectLine' => [
+            'echo This host must be registered before it can be imaged.',
+        ],
+        'refuteLine' => ['fogtoken=', 'capone=1', 'Fatal error'],
+    ],
+    'qihost is refused for a pending host the menu hides it from' => [
+        'scenario' => array_merge(
+            $qihost,
+            ['host' => ['id' => 1, 'name' => 'testhost', 'pending' => 1]]
+        ),
+        'expectLine' => [
+            'echo This host must be registered before it can be imaged.',
+        ],
+        'refuteLine' => ['fogtoken=', 'Fatal error'],
+    ],
+    'qihost is refused when registration is off and the item is for 0' => [
+        'scenario' => array_merge(
+            $qihost,
+            [
+                'regMenu' => ['fog.deployimage' => 0],
+                'settings' => ['FOG_REGISTRATION_ENABLED' => '0'],
+            ]
+        ),
+        'expectLine' => [
+            'echo This host must be registered before it can be imaged.',
+        ],
+        'refuteLine' => ['fogtoken='],
+    ],
+    'qihost issues a token for an unregistered host the menu shows it to' => [
+        'scenario' => array_merge(
+            $qihost,
+            ['regMenu' => ['fog.deployimage' => 0]]
+        ),
+        'expectLine' => [' capone=1 fogtoken=fixedtoken0123456789abcdef'],
+        'refuteLine' => ['must be registered', 'Fatal error'],
+    ],
+    'qihost issues a token for a pending host the menu shows it to' => [
+        'scenario' => array_merge(
+            $qihost,
+            [
+                'host' => ['id' => 1, 'name' => 'testhost', 'pending' => 1],
+                'regMenu' => ['fog.deployimage' => 6],
+            ]
+        ),
+        'expectLine' => [' capone=1 fogtoken=fixedtoken0123456789abcdef'],
+        'refuteLine' => ['must be registered'],
+    ],
+    // The registered path is the one that must not move, even when an admin
+    // sets the item to 0: the gate never applies to a registered host.
+    'qihost is never refused for a registered host' => [
+        'scenario' => array_merge(
+            $qihost,
+            [
+                'host' => ['id' => 1, 'name' => 'testhost'],
+                'regMenu' => ['fog.deployimage' => 0],
+            ]
+        ),
+        // The registered path renders the host's own lines and no token.
+        'expectLine' => ['set hostname testhost'],
+        'refuteLine' => ['must be registered', 'fogtoken=', 'Fatal error'],
+    ],
+    // Fail closed: no row for the item means the menu shows it to nobody.
+    'qihost is refused when the item has no row at all' => [
+        'scenario' => array_merge($qihost, ['dropItems' => ['fog.deployimage']]),
+        'expectLine' => [
+            'echo This host must be registered before it can be imaged.',
+        ],
+        'refuteLine' => ['fogtoken=', 'Fatal error'],
+    ],
+    // printDefault shows an item if any row of that name is visible, so the
+    // gate allows it too: the first row is hidden (1), the second shown (0).
+    'qihost is allowed when one of two same-name rows is visible' => [
+        'scenario' => array_merge($qihost, ['extraItems' => ['fog.deployimage' => 0]]),
+        'expectLine' => [' capone=1 fogtoken=fixedtoken0123456789abcdef'],
+        'refuteLine' => ['must be registered', 'Fatal error'],
+    ],
+    'sessionJoin is refused for an unregistered host the menu hides it from' => [
+        'scenario' => [
+            'request' => [
+                'arch' => 'x86_64', 'platform' => 'bios',
+                'sessionJoin' => '1',
+                'username' => 'menuuser', 'password' => 'x',
+            ],
+            'requestMacs' => ['aa:bb:cc:dd:ee:ff'],
+            'login' => true,
+        ],
+        'expectLine' => [
+            'echo This host must be registered before it can be imaged.',
+        ],
+        'refuteLine' => ['fogtoken=', 'Fatal error'],
+    ],
+    'sessionJoin is not refused for a host the menu shows it to' => [
+        'scenario' => [
+            'request' => [
+                'arch' => 'x86_64', 'platform' => 'bios',
+                'sessionJoin' => '1',
+                'username' => 'menuuser', 'password' => 'x',
+            ],
+            'requestMacs' => ['aa:bb:cc:dd:ee:ff'],
+            'login' => true,
+            'regMenu' => ['fog.multijoin' => 0],
+        ],
+        'refuteLine' => ['must be registered', 'Fatal error'],
     ],
 ];
 

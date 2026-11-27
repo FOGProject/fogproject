@@ -29,7 +29,7 @@ require __DIR__ . '/lib/fog-test-harness.php';
 require __DIR__ . '/lib/report-wiring.php';
 
 FogTestHarness::boot('imaging-report');
-FogTestHarness::fakeDb();
+$db = FogTestHarness::fakeDb();
 
 $t = new FogChecks();
 $web = dirname(__DIR__) . '/packages/web';
@@ -95,12 +95,85 @@ $t->check(
         $code
     )
 );
-foreach (['getCompleteState', 'getCancelledState', 'getFailedState'] as $st) {
+// The terminal set is TaskState's one list, so a new finished state is added
+// there and not here.
+$t->check(
+    'and the terminal set is TaskState::getTerminalStates()',
+    false !== strpos($code, '$terminal = TaskState::getTerminalStates();')
+);
+$stateSrc = (string)file_get_contents($web . '/src/Items/TaskState.php');
+preg_match('/function getTerminalStates\(\).*?\n    }/s', $stateSrc, $term);
+foreach ([
+    'getCompleteState',
+    'getCancelledState',
+    'getFailedState',
+    'getNoReportState'
+] as $st) {
     $t->check(
         "and `$st` counts as terminal",
-        false !== strpos($code, 'TaskState::' . $st . '()')
+        false !== strpos($term[0] ?? '', 'self::' . $st . '()')
     );
 }
+
+/*
+ * 6b. An unregistered host names itself by its MAC.
+ *
+ * A deploy to an unregistered host is logged with no host id and no host
+ * name, only the MAC it booted with. An empty Host cell reads as a defect, so
+ * the cell carries the MAC instead -- in the existing column, because a new
+ * one would change the grid's column contract. Behavioral: canned run rows go
+ * through the real reportRows().
+ */
+$db->responder = function ($sql) {
+    if (false === strpos($sql, 'taskLog')) {
+        return null;
+    }
+    return [
+        // A host-less task that completed (forum 18086): a real task id, no
+        // host, the MAC it booted with.
+        ['taskID' => '9', 'hostID' => '0', 'hostName' => '',
+         'mac' => 'aa:bb:cc:dd:ee:ff', 'imageName' => 'win11',
+         'taskTypeName' => 'Deploy', 'stateID' => '4',
+         'started' => '2026-03-01 09:00:00',
+         'ended' => '2026-03-01 09:30:00', 'createdBy' => 'menu'],
+        ['taskID' => '7', 'hostID' => '3', 'hostName' => 'lab-pc',
+         'mac' => '', 'imageName' => 'win11',
+         'taskTypeName' => 'Deploy', 'stateID' => '0',
+         'started' => '2026-03-02 09:00:00', 'createdBy' => 'fog'],
+        // A named host keeps its name even when a MAC is present.
+        ['taskID' => '8', 'hostID' => '4', 'hostName' => 'lab-pc2',
+         'mac' => '11:22:33:44:55:66', 'imageName' => 'win11',
+         'taskTypeName' => 'Deploy', 'stateID' => '0',
+         'started' => '2026-03-03 09:00:00', 'createdBy' => 'fog'],
+    ];
+};
+$report = (new \ReflectionClass('FOG\Reports\Imaging_Report'))
+    ->newInstanceWithoutConstructor();
+$reportRows = new \ReflectionMethod('FOG\Reports\Imaging_Report', 'reportRows');
+$reportRows->setAccessible(true);
+$served = $reportRows->invoke($report)['data'];
+$t->check(
+    'an unregistered run shows its MAC in the Host cell',
+    'aa:bb:cc:dd:ee:ff (unregistered)' === ($served[0]['hostName'] ?? null)
+);
+$t->check(
+    'a run with a host name keeps it',
+    'lab-pc' === ($served[1]['hostName'] ?? null)
+);
+$t->check(
+    'a host name wins over a MAC',
+    'lab-pc2' === ($served[2]['hostName'] ?? null)
+);
+// A host-less run is a real task with real states, so it is not relabeled:
+// a Complete one has a finish time like any other.
+$t->check(
+    'a completed host-less run shows its finish time',
+    '2026-03-01 09:30:00' === ($served[0]['ended'] ?? null)
+);
+$t->check(
+    'no run is relabeled "Started (unregistered)"',
+    false === strpos(json_encode($served), 'Started (unregistered)')
+);
 
 /*
  * 7. The chart payload is embedded, and cannot become script.

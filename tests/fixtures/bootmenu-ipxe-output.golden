@@ -820,9 +820,11 @@ boot || goto MENU
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
 goto MENU
 autoboot
-kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4  nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} mac=aa:bb:cc:dd:ee:ff ftp=10.0.0.1 storage=10.0.0.1:/images/ storageip=10.0.0.1 osid=50 osfamily=linux irqpoll chkdsk=0 img=testimage imgType=mps imgPartitionType=all imgid=1 imgFormat=5 capone=1
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4  nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} mac=aa:bb:cc:dd:ee:ff ftp=10.0.0.1 storage=10.0.0.1:/images/ storageip=10.0.0.1 osid=50 osfamily=linux irqpoll chkdsk=0 img=testimage imgType=mps imgPartitionType=all imgid=1 imgFormat=5 capone=1 fogtoken=fixedtoken0123456789abcdef0123456789abcdef0123456789abcdef01
 imgfetch init.xz
 boot
+
+#boottoken [{"taskType":"Deploy","image":"","mac":"aa:bb:cc:dd:ee:ff","createdBy":""}]
 
 ########## falsetasking-registered-pending ##########
 #!ipxe
@@ -939,9 +941,84 @@ boot || goto MENU
 chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
 goto MENU
 autoboot
-kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4  nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} mac=00:11:22:33:44:55 ftp=10.0.0.1 storage=10.0.0.1:/images/ storageip=10.0.0.1 osid=50 osfamily=linux irqpoll chkdsk=0 img=testimage imgType=mps imgPartitionType=all imgid=1 imgFormat=5
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4  nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} mac=00:11:22:33:44:55 ftp=10.0.0.1 storage=10.0.0.1:/images/ storageip=10.0.0.1 osid=50 osfamily=linux irqpoll chkdsk=0 img=testimage imgType=mps imgPartitionType=all imgid=1 imgFormat=5 fogtoken=fixedtoken0123456789abcdef0123456789abcdef0123456789abcdef01
 imgfetch init.xz
 boot
+
+#boottoken [{"taskType":"Deploy","image":"","mac":"00:11:22:33:44:55","createdBy":""}]
+
+########## falsetasking-pending-host ##########
+#!ipxe
+set fog-ip 10.0.0.1
+set fog-webroot fog
+set boot-url http://${fog-ip}/${fog-webroot}
+set setmacto ${netX/mac}
+set hostname testhost
+set storage-ip 10.0.0.1
+set arch ${buildarch}
+iseq ${arch} i386 && cpuid --ext 29 && set arch x86_64 ||
+goto get_console
+:console_set
+colour --rgb 0x00567a 1 ||
+colour --rgb 0x00567a 2 ||
+colour --rgb 0x00567a 4 ||
+cpair --foreground 7 --background 2 2 ||
+goto MENU
+:alt_console
+cpair --background 0 1 ||
+cpair --background 1 2 ||
+goto MENU
+:get_console
+console --picture http://10.0.0.1/fog/service/ipxe/bg.png --left 100 --right 80 && goto console_set || goto alt_console
+:MENU
+menu
+colour --rgb 0x00567a 0 ||
+cpair --foreground 1 1 ||
+cpair --foreground 0 3 ||
+cpair --foreground 4 4 ||
+item --gap Host is pending approval!
+item --gap -- -------------------------------------
+item fog.local Boot from hard disk
+item fog.memtest Run Memtest86+
+item fog.sysinfo Client System Information (Compatibility)
+item fog.approvehost Approve This Host
+choose --default fog.local --timeout 3000 target && goto ${target}
+:fog.local
+console && sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82 || goto MENU
+:fog.memtest
+iseq ${platform} efi && goto fog.memtest.efi ||
+kernel mt86plus_x86_64
+boot || goto MENU
+:fog.memtest.efi
+chain mt86plus_x86_64 || goto MENU
+:fog.sysinfo
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4 storage=10.0.0.1:/images/ storageip=10.0.0.1 nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} loglevel=4 mode=sysinfo
+imgfetch init.xz
+boot || goto MENU
+:fog.approvehost
+login
+params
+param mac0 ${net0/mac}
+param arch ${arch}
+param username ${username}
+param password ${password}
+param approveHost 1
+isset ${net1/mac} && param mac1 ${net1/mac} || goto bootme
+isset ${net2/mac} && param mac2 ${net2/mac} || goto bootme
+param sysuuid ${uuid}
+param sysserial ${serial}
+param mbserial ${board-serial}
+param caseasset ${asset}
+goto bootme
+:bootme
+chain -ar http://10.0.0.1/fog/service/ipxe/boot.php##params ||
+goto MENU
+autoboot
+kernel bzImage loglevel=4 initrd=init.xz root=/dev/ram0 rw ramdisk_size=275000 web=http://10.0.0.1/fog/ consoleblank=0  rootfstype=ext4  nvme_core.default_ps_max_latency_us=0 setmacto=${setmacto} mac=00:11:22:33:44:55 ftp=10.0.0.1 storage=10.0.0.1:/images/ storageip=10.0.0.1 osid=50 osfamily=linux irqpoll chkdsk=0 img=testimage imgType=mps imgPartitionType=all imgid=1 imgFormat=5 capone=1 fogtoken=fixedtoken0123456789abcdef0123456789abcdef0123456789abcdef01
+imgfetch init.xz
+boot
+
+#boottoken [{"taskType":"Deploy","image":"","mac":"00:11:22:33:44:55","createdBy":""}]
 
 ########## task-snapin-falls-to-menu ##########
 #!ipxe

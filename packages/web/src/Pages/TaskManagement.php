@@ -494,6 +494,11 @@ class TaskManagement extends FOGPage
         echo '<label class="btn btn-outline-primary" for="recent-state-failed">'
             . _('Failed')
             . '</label>';
+        echo '<input type="radio" class="btn-check" name="recent-state-filter"'
+            . ' id="recent-state-noreport" value="noreport" autocomplete="off"/>';
+        echo '<label class="btn btn-outline-primary" for="recent-state-noreport">'
+            . _('No Report')
+            . '</label>';
         echo '</div>';
         echo '</div>';
         echo '</div>';
@@ -650,7 +655,8 @@ class TaskManagement extends FOGPage
                 COALESCE(
                     NULLIF(`taskLog`.`logHostName`, ''),
                     `hosts`.`hostName`
-                ) AS `logHostName`
+                ) AS `logHostName`,
+                `taskLog`.`logMAC` AS `logMAC`
             FROM `taskLog`
             LEFT OUTER JOIN `taskStates`
             ON `taskLog`.`taskStateID` = `taskStates`.`tsID`
@@ -719,6 +725,17 @@ class TaskManagement extends FOGPage
             ['db' => 'logTime', 'dt' => 'logtime'],
             ['db' => 'logHostName', 'dt' => 'hostname'],
             ['db' => 'logHostID', 'dt' => 'hostid'],
+            ['db' => 'logMAC', 'dt' => 'mac'],
+            [
+                'db' => 'logMAC',
+                'dt' => 'hostLabel',
+                'formatter' => function ($d, $row) {
+                    return self::_unregisteredLabel(
+                        $row['logHostID'] ?? null,
+                        $d
+                    );
+                }
+            ],
             ['db' => 'logTypeName', 'dt' => 'tasktypename'],
             ['db' => 'logTypeIcon', 'dt' => 'tasktypeicon'],
             ['db' => 'logStateName', 'dt' => 'taskstatename'],
@@ -848,6 +865,9 @@ class TaskManagement extends FOGPage
         // active state, so the active pane excludes it by construction, and
         // this is the only view of finished tasks there is.
         $failed = (int)self::getFailedState();
+        // Same reasoning for No Report, the 24 hour reap of a host-less
+        // token task (forum 18086).
+        $noReport = (int)self::getNoReportState();
         switch ($pass_vars['states'] ?? '') {
             case 'complete':
                 $states = [$complete];
@@ -858,8 +878,11 @@ class TaskManagement extends FOGPage
             case 'failed':
                 $states = [$failed];
                 break;
+            case 'noreport':
+                $states = [$noReport];
+                break;
             default:
-                $states = [$complete, $canceled, $failed];
+                $states = self::getTerminalStates();
         }
         $where = "`tasks`.`taskStateID` IN ("
             . implode(',', $states)
@@ -982,6 +1005,12 @@ class TaskManagement extends FOGPage
         foreach ((new TaskManager())
             ->getColumns() as $common => &$real
         ) {
+            // The boot token's hash is a credential-equivalent: it must
+            // never reach a task grid's JSON (forum 18086).
+            if ('tokenHash' === $common) {
+                unset($real);
+                continue;
+            }
             $columns[] = [
                 'db' => $real,
                 'dt' => $common
@@ -1046,7 +1075,34 @@ class TaskManagement extends FOGPage
             break;
             unset($real);
         }
+        // The Host cell's text for a task with no host row (forum 18086),
+        // translated here so the JS does not carry English.
+        $columns[] = [
+            'db' => 'taskMAC',
+            'dt' => 'hostLabel',
+            'formatter' => function ($d, $row) {
+                return self::_unregisteredLabel($row['hostID'] ?? null, $d);
+            }
+        ];
         return $columns;
+    }
+    /**
+     * The Host cell text for a row with no host: "<MAC> (unregistered)".
+     *
+     * @param mixed $hostID the joined host id, null when there is no host
+     * @param mixed $mac    the MAC the machine booted with
+     *
+     * @return string empty when the row has a host or no MAC
+     */
+    private static function _unregisteredLabel($hostID, $mac)
+    {
+        $mac = (string)$mac;
+        if ($hostID || '' === $mac) {
+            return '';
+        }
+        // Translated because it is for the UI. The stored audit and
+        // notification text stays English: see BootToken::label().
+        return sprintf(_('%s (unregistered)'), $mac);
     }
     /**
      * Live counts for the tab badges. Each count mirrors the WHERE

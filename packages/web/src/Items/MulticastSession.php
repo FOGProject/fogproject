@@ -321,10 +321,10 @@ class MulticastSession extends FOGController
         }
         // The manager records the moment udp-sender's log says the
         // transfer started. That is the one signal that counts every
-        // receiver: an unregistered machine joins a named session without
-        // a task, so the association count below never sees it, and the
-        // sender could start while the menu still let a late machine in.
-        // Issue #1922.
+        // receiver. A machine that joined by name before forum 18086 had no
+        // task, so the association count below never saw it; one that joins
+        // now has a hostless task and an association row, and this stays the
+        // signal for any join that is not counted there. Issue #1922.
         if ($this->get('transferstart')) {
             return false;
         }

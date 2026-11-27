@@ -15,6 +15,7 @@
 namespace FOG\Audit;
 
 use FOG\Items\NodeFailure;
+use FOG\TaskHandling\BootToken;
 use FOG\TaskHandling\TaskingElement;
 
 /**
@@ -41,7 +42,10 @@ class Blame extends TaskingElement
         $taskStorageGroupID = $this->Task->get('storagegroupID');
         $failtime = self::niceDate('+5 minutes')
             ->format('Y-m-d H:i:s');
-        if ($taskStorageNodeID > 0
+        // A node failure is recorded per host, and a hostless task has none:
+        // the node is not blamed, the task still goes back in the queue.
+        if (!$this->Task->isHostless()
+            && $taskStorageNodeID > 0
             && !in_array(
                 $taskStorageNodeID,
                 self::getAllBlamedNodes(self::$Host)
@@ -64,7 +68,7 @@ class Blame extends TaskingElement
             'authSource' => Audit::SOURCE_ANONYMOUS,
             'subjectType' => 'task',
             'subjectID' => (int)$this->Task->get('id'),
-            'subjectLabel' => (string)self::$Host->get('name'),
+            'subjectLabel' => BootToken::label($this->Task, self::$Host),
             'renderable' => 1
         ]);
         $this->Task->set('stateID', self::getQueuedState());

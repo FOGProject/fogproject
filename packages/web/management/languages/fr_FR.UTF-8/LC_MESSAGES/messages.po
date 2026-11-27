@@ -183,6 +183,10 @@ msgstr "%s \"%s\" existe déjà"
 msgid "%s %s log (%s)"
 msgstr "Journal %s %s (%s)"
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "Inscrit"
+
 #, php-format
 msgid "%s Manager"
 msgstr "Gestionnaire %s"
@@ -3343,6 +3347,9 @@ msgstr "Versions du noyau FOS disponibles au téléchargement"
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr "Les noyaux FOS de ce serveur sont signés pour le démarrage sécurisé UEFI"
 
+msgid "FOS sent no report within 24 hours; an init older than this server does not report for an unregistered host"
+msgstr ""
+
 msgid "FTP Connection Failed"
 msgstr "Échec de la connexion FTP"
 
@@ -3433,6 +3440,10 @@ msgstr "Échec de l'installation de %s"
 msgid "Failed to install logo file"
 msgstr "Échec de l'installation du fichier logo"
 
+#, fuzzy
+msgid "Failed to issue a boot token"
+msgstr "Impossible d'émettre le jeton !"
+
 msgid "Failed to move uploaded file."
 msgstr "Impossible de déplacer le fichier téléversé."
 
@@ -3450,6 +3461,10 @@ msgstr "Échec de la suppression du chemin d'accès au fichier du nœud de stock
 
 msgid "Failed to remove hosts"
 msgstr "Échec de la suppression des hôtes"
+
+#, fuzzy
+msgid "Failed to save the task"
+msgstr "Impossible de créer la tâche"
 
 msgid "Failed to uninstall "
 msgstr "Échec de la désinstallation "
@@ -5676,6 +5691,10 @@ msgstr "Marquer la sélection comme en attente"
 msgid "Marked failed, task"
 msgstr "Échec de la tâche"
 
+#, fuzzy
+msgid "Marked no report, task"
+msgstr "Échec de la tâche"
+
 msgid "Mass Edit Fail"
 msgstr "Échec de la modification en masse"
 
@@ -6095,6 +6114,10 @@ msgstr "Aucune unité organisationnelle sélectionnée."
 
 msgid "No Printer Management"
 msgstr "Aucune gestion des imprimantes"
+
+#, fuzzy
+msgid "No Report"
+msgstr "Rapport"
 
 msgid "No access is allowed"
 msgstr "L'accès est interdit."

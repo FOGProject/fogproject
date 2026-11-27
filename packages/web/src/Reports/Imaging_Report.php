@@ -222,11 +222,7 @@ class Imaging_Report extends ReportManagement
         // finish time only once the run has finished -- for one still in
         // progress it is the last transition, and printing that under
         // "Finished" says a deploy completed when it is still copying.
-        $terminal = [
-            (int)TaskState::getCompleteState(),
-            (int)TaskState::getCancelledState(),
-            (int)TaskState::getFailedState()
-        ];
+        $terminal = TaskState::getTerminalStates();
         $data = [];
         foreach ($rows as $row) {
             $stateID = (int)($row['stateID'] ?? 0);
@@ -234,12 +230,21 @@ class Imaging_Report extends ReportManagement
                 $states[$stateID] = (string)(new TaskState($stateID))
                     ->get('name');
             }
+            $hostName = (string)($row['hostName'] ?? '');
+            $mac = (string)($row['mac'] ?? '');
             $data[] = [
                 // The name as it was AT THE TIME, out of the log row, not
                 // resolved from `hosts` now. A machine that has since been
                 // renamed or deleted still has to name itself in a report
                 // about what happened last month.
-                'hostName' => (string)($row['hostName'] ?? ''),
+                //
+                // An unregistered host has no name, only the MAC it booted
+                // with. It is shown in the Host cell rather than in a new
+                // column, because the grid's column contract (headers and
+                // the JS column list) would change with one.
+                'hostName' => ('' === $hostName && '' !== $mac)
+                    ? sprintf(_('%s (unregistered)'), $mac)
+                    : $hostName,
                 'imageName' => (string)($row['imageName'] ?? ''),
                 'taskTypeName' => (string)($row['taskTypeName'] ?? ''),
                 'started' => (string)($row['started'] ?? ''),

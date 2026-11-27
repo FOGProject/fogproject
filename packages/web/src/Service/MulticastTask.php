@@ -1578,19 +1578,27 @@ class MulticastTask extends FOGService
         // TaskQueue::checkIn() then moves it to in progress. Either state
         // means "this host has arrived". Counting checked-in alone never
         // matched a live session, so the start message was never sent.
-        $arrived = count(
-            (array)Route::getIds(
-                'task',
-                [
-                    'id' => $liveIDs,
-                    'stateID' => [
-                        self::getCheckedInState(),
-                        self::getProgressState()
-                    ]
+        $arrivedIDs = (array)Route::getIds(
+            'task',
+            [
+                'id' => $liveIDs,
+                'stateID' => [
+                    self::getCheckedInState(),
+                    self::getProgressState()
                 ]
-            )
+            ]
         );
-        if ($arrived < count($liveIDs)) {
+        // A hostless token task (forum 18086) from an old FOS never checks
+        // in. While it is still Queued it does not hold the registered hosts
+        // back, as the unregistered joiner (no task) never did. A registered
+        // task that has not arrived still blocks.
+        foreach (array_diff($liveIDs, $arrivedIDs) as $pendingID) {
+            $pending = new Task($pendingID);
+            if ($pending->isHostless()
+                && (int)$pending->get('stateID') === (int)self::getQueuedState()
+            ) {
+                continue;
+            }
             return false;
         }
         $logfile = $this->getUDPCastLogFile();

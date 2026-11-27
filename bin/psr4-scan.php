@@ -280,6 +280,10 @@ const TABLE = [
     'TaskingElement' => 'TaskHandling',
     'TaskQueue' => 'TaskHandling',
     'TaskError' => 'TaskHandling',
+    // The boot token of a hostless task (forum 18086, ADR 0044): issues the
+    // task from the boot menu and finds it again from every FOS endpoint.
+    // Task machinery, beside TaskingElement, which calls it first.
+    'BootToken' => 'TaskHandling',
     'Timer' => 'Util',
     'FOGCron' => 'Util',
     'FOGLogPaths' => 'Util',

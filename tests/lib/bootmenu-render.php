@@ -18,6 +18,8 @@ require_once __DIR__ . '/bootmenu-harness.php';
 // IpxeBootMenu's own imports expect since Move 2. Must run before the first
 // use of a bucketed name, not just before the class under test is required.
 require_once __DIR__ . '/stub-buckets.php';
+// filter_input() has no request under the CLI; this feeds it `username` only.
+require_once __DIR__ . '/bootmenu-filter-input-shim.php';
 
 use FOG\Base\FOGBase;
 use FOG\Router\Route;
@@ -281,6 +283,45 @@ $_REQUEST = (array)($scenario['request'] ?? []);
 $_GET = $_REQUEST;
 
 /*
+ * Login mode and menu visibility, for the qihost / sessionJoin scenarios
+ * (forum 18086). 'login' signs the menu account in, so the constructor dispatches
+ * the posted qihost or sessionJoin. 'regMenu' moves a pxemenuoptions item
+ * to another regMenu value, the way an admin hides or shows it.
+ */
+if (!empty($scenario['login'])) {
+    FOGBase::$login = new \FOG\StubLogin();
+}
+// 'dropItems' removes every row of that name; 'extraItems' adds a second row
+// of an existing name as [name => regMenu], for the missing-row and
+// duplicate-name cases.
+Route::$rows['pxemenuoptions'] = array_values(
+    array_filter(
+        Route::$rows['pxemenuoptions'],
+        function ($menuRow) use ($scenario) {
+            return !in_array(
+                $menuRow->name,
+                (array)($scenario['dropItems'] ?? []),
+                true
+            );
+        }
+    )
+);
+foreach ((array)($scenario['extraItems'] ?? []) as $itemName => $regMenu) {
+    Route::$rows['pxemenuoptions'][] = (object)[
+        'id' => 900, 'name' => $itemName, 'description' => $itemName,
+        'default' => '0', 'regMenu' => (string)$regMenu, 'args' => null,
+        'params' => '', 'hotkey' => '0', 'keysequence' => '',
+    ];
+}
+foreach ((array)($scenario['regMenu'] ?? []) as $itemName => $regMenu) {
+    foreach (Route::$rows['pxemenuoptions'] as $menuRow) {
+        if ($menuRow->name === $itemName) {
+            $menuRow->regMenu = (string)$regMenu;
+        }
+    }
+}
+
+/*
  * What getHostItem() resolved out of the request's mac0/macboot/mac1..mac7
  * fields. Set here rather than derived from 'request' because that is what
  * the real boot.php does -- it merges those fields itself and never writes a
@@ -378,8 +419,8 @@ if (!empty($scenario['hooks'])) {
 /*
  * False-tasking mode. falseTasking() is not reachable from the constructor
  * without a valid login -- the menu item that leads to it posts credentials
- * and authenticateOnly() is stubbed to refuse -- so a scenario names it
- * directly. It is worth reaching: it is the ONLY path that boots FOS with no
+ * and authenticateOnly() refuses unless the scenario sets 'login' -- so a
+ * scenario names it directly. It is worth reaching: it is the ONLY path that boots FOS with no
  * task row behind it, and the reason it had never been rendered here is the
  * reason GH-1767 survived in it.
  *
@@ -394,5 +435,15 @@ if ($falseTasking) {
     // Built through StubTask rather than `new Image` directly: Image is
     // declared in the harness, so only a call site INSIDE the harness
     // resolves to the stub -- from here the name reaches the real model.
-    $menu->falseTasking('', (new \FOG\StubTask(['image' => $falseTasking]))->getImage());
+    $falseImage = (new \FOG\StubTask(['image' => $falseTasking]))->getImage();
+    // The menu user's login. Set here, after the constructor, because a
+    // 'username' in the request would send the constructor to verifyCreds().
+    if (isset($scenario['falseTaskingUser'])) {
+        $_REQUEST['username'] = $scenario['falseTaskingUser'];
+    }
+    $menu->falseTasking('', $falseImage);
+    // What falseTasking() handed BootToken::issue(). The stub is
+    // FOG\BootToken; stub-buckets.php publishes it as
+    // FOG\TaskHandling\BootToken.
+    echo "\n#boottoken ", json_encode(\FOG\BootToken::$recorded), "\n";
 }

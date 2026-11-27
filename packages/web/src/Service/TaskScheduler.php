@@ -204,6 +204,18 @@ class TaskScheduler extends FOGService
             if (count($reaped ?: []) < 1) {
                 self::outall(' * ' . _('No unrunnable tasks found.'));
             }
+            // A hostless task FOS never reported on within 24 hours
+            // (forum 18086) ends as No Report.
+            foreach ((new TaskManager())->reapSilentHostless() as $taskID => $why) {
+                self::outall(
+                    sprintf(
+                        ' * %s %d: %s',
+                        _('Marked no report, task'),
+                        $taskID,
+                        $why
+                    )
+                );
+            }
             //check for expired check-ins on active Tasks
             self::outall(
                 ' * '

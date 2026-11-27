@@ -558,17 +558,19 @@ class GoTask extends MulticastTask
  * Runs startIfAllConnected() for a session launched for three hosts, after
  * one was canceled: tasks 7 and 8 remain, both connected to udp-sender.
  *
- * @param int $state The stateID both remaining tasks are in.
+ * @param int   $state The stateID both remaining tasks are in.
+ * @param array $rows  The tasks rows, when the two are not alike.
  *
  * @return array [returned, bytes the sender's port received]
  */
-function goWith($state)
+function goWith($state, $rows = null)
 {
     global $db;
     $m = freshTables();
-    $m->rows['tasks'] = [
-        ['taskID' => 7, 'taskStateID' => $state],
-        ['taskID' => 8, 'taskStateID' => $state],
+    // Both are registered hosts (taskHostID set) unless the caller says not.
+    $m->rows['tasks'] = $rows ?: [
+        ['taskID' => 7, 'taskStateID' => $state, 'taskHostID' => 5],
+        ['taskID' => 8, 'taskStateID' => $state, 'taskHostID' => 6],
     ];
     $db->responder = [$m, 'answer'];
     $port = 47000 + 2 * mt_rand(0, 900);
@@ -617,6 +619,30 @@ $t->check(
 list($ret, $got) = goWith(1);
 $t->check(
     'a host still queued has not arrived, so nothing is sent',
+    false === $ret && '' === $got
+);
+// Forum 18086: a hostless token task from an old FOS never checks in. It
+// must not hold back the registered hosts in the same session.
+list($ret, $got) = goWith(
+    0,
+    [
+        ['taskID' => 7, 'taskStateID' => 3, 'taskHostID' => 5],
+        ['taskID' => 8, 'taskStateID' => 1, 'taskHostID' => null],
+    ]
+);
+$t->check(
+    'a hostless task still queued does not block the early start',
+    true === $ret && pack('nn', 2, 0) === $got
+);
+list($ret, $got) = goWith(
+    0,
+    [
+        ['taskID' => 7, 'taskStateID' => 1, 'taskHostID' => 5],
+        ['taskID' => 8, 'taskStateID' => 3, 'taskHostID' => null],
+    ]
+);
+$t->check(
+    'a registered task still queued blocks it, whatever the hostless one does',
     false === $ret && '' === $got
 );
 

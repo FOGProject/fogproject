@@ -178,4 +178,75 @@ class TaskState extends FOGController
         );
         return $failedState;
     }
+    /**
+     * The No Report state id, resolved once per request. Null until read.
+     *
+     * @var int|null
+     */
+    private static $_noReportId = null;
+    /**
+     * Gets the literal no report state
+     *
+     * A task for a host with no host row (an unregistered host) is ended
+     * here when 24 hours pass and the FOS image never reported on it. An
+     * older FOS init does not report for such a host (forum 18086). Not
+     * Failed, because nothing is known to have broken; the server only
+     * never heard back.
+     *
+     * Resolved by NAME, not a fixed id. tsID is AUTO_INCREMENT and an
+     * administrator can add states, so a fixed id may already belong to
+     * one of theirs; the schema step seeds the row by name (tsName is
+     * UNIQUE) and takes whatever id it gets. The lookup is cached for the
+     * request.
+     *
+     * Returns 0 when no such row exists (the schema step has not run).
+     * No task has state 0, so a caller that uses it matches nothing
+     * rather than guessing at another state's id. The hook can still
+     * override the value.
+     *
+     * Like Failed, it is inactive by construction: every "is this task
+     * live" test is an allowlist of queued and progress states.
+     *
+     * @return int
+     */
+    public static function getNoReportState()
+    {
+        // Only a found id is cached: a daemon that started before the
+        // schema step must see the row once it exists.
+        if (!self::$_noReportId) {
+            self::$_noReportId = (int)(new self())
+                ->set('name', 'No Report')
+                ->load('name')
+                ->get('id');
+        }
+        $noReportState = self::$_noReportId;
+        self::$HookManager->processEvent(
+            'NO_REPORT_STATE',
+            ['noReportState' => &$noReportState]
+        );
+        return $noReportState;
+    }
+    /**
+     * Gets the states after which nothing more happens to a task.
+     *
+     * One list for every "is this finished" test, so a new terminal state
+     * is added in one place. No Report is left out while it does not
+     * resolve (0), so a missing row cannot make state 0 count as finished.
+     *
+     * @return array of int
+     */
+    public static function getTerminalStates()
+    {
+        return array_values(array_filter(
+            [
+                (int)self::getCompleteState(),
+                (int)self::getCancelledState(),
+                (int)self::getFailedState(),
+                (int)self::getNoReportState()
+            ],
+            function ($id) {
+                return $id > 0;
+            }
+        ));
+    }
 }

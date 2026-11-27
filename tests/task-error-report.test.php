@@ -200,6 +200,14 @@ if (!preg_match(
         . ' widens -- or breaks the line discipline of -- what is pushed to'
         . ' an administrator\'s phone';
 }
+// The finally ends in exit, which swallows an uncaught \Error without a
+// trace. Only \Throwable lets _record() write the line first. The harness
+// cannot raise a TypeError through the real handler (it ends in exit), so
+// the catch type is pinned.
+if (!preg_match('#catch \(\\\\Throwable \$e\)\s*\{[^}]*?self::_record\(#s', $src)) {
+    $fails[] = 'the report handler does not catch \\Throwable before its'
+        . ' finally exits, so an \\Error is lost without a log line';
+}
 // The log file is the other single-line contract. Its entries are one
 // timestamped line each, written by _record().
 if (!preg_match('#self::_record\(\s*sprintf\((?:[^;]*?)self::_flatten\(\$text\)#s', $src)) {
@@ -231,9 +239,25 @@ if (false === strpos($src, '$Task->isImagingTask()')) {
     $fails[] = 'the endpoint no longer checks the task is an imaging one, so a'
         . ' failed wipe fires HOST_IMAGE_FAIL';
 }
-if (false === strpos($src, "notify(\n                'HOST_IMAGE_FAIL'")) {
+// notify(), not processEvent(), at any indent.
+if (!preg_match("/->notify\\(\\s*'HOST_IMAGE_FAIL'/", $src)) {
     $fails[] = 'the endpoint no longer notifies HOST_IMAGE_FAIL, which is the'
         . ' whole reason it exists';
+}
+// A notification fires for a hostless task too (forum 18086), the same as
+// TaskQueue::checkout() sends it, so it must not sit behind a hostless guard.
+if (preg_match(
+    "/if \\(!\\\$Task->isHostless\\(\\)\\) \\{\\s*self::\\\$EventManager->notify\\(\\s*'HOST_IMAGE_FAIL'/",
+    $src
+)) {
+    $fails[] = 'HOST_IMAGE_FAIL is behind a hostless guard, so an unregistered'
+        . ' failure reported here notifies nobody while one at checkout does';
+}
+// The early returns (a warning, a non-imaging task) must still answer with
+// the ack: it lives in a finally, so no path can leave with an empty body.
+if (!preg_match('/\\}\\s*finally\\s*\\{\\s*(\\/\\/[^\\n]*\\n\\s*)*self::_ack\\(\\);/', $src)) {
+    $fails[] = 'the ack is not in a finally, so an early return answers with an'
+        . ' empty body and tells a caller the MAC has an active task';
 }
 // Every added key of #1202's payload, so a listener behaves the same whether
 // the failure came from here or from TaskQueue::checkout().
@@ -286,7 +310,25 @@ if (false === strpos($page, 'self::getFailedState()')) {
     $fails[] = "Task Management's Recent pane does not know about the Failed"
         . ' state, so a failed task appears in no pane at all';
 }
-if (!preg_match('#\$states = \[\$complete, \$canceled, \$failed\]#', $page)) {
+// The default set is either written out, or it is the shared terminal list
+// (forum 18086 added No Report), and then that list has to hold Failed.
+$stateSrc = (string)file_get_contents($web . '/src/Items/TaskState.php');
+$terminal = '';
+if (preg_match(
+    '#function getTerminalStates\(\).*?\n    \}#s',
+    $stateSrc,
+    $tm
+)) {
+    $terminal = $tm[0];
+}
+$listsFailed = preg_match(
+    '#\$states = \[\$complete, \$canceled, \$failed(, \$noReport)?\]#',
+    $page
+) || (
+    false !== strpos($page, '$states = self::getTerminalStates();')
+    && false !== strpos($terminal, 'self::getFailedState()')
+);
+if (!$listsFailed) {
     $fails[] = 'the Recent pane\'s default state set leaves out Failed, so a'
         . ' failed task is only found by picking a filter for it';
 }

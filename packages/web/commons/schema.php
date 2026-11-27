@@ -12614,3 +12614,42 @@ $this->schema[] = [
     // read and then dropped. FOG Settings now shows sendmail_path read-only.
     "DELETE FROM `globalSettings` WHERE `settingKey` = 'FOG_EMAIL_BINARY'",
 ];
+// 473
+$this->schema[] = [
+    // A deploy to an unregistered host has no host row and no task row, so
+    // the MAC the machine booted with is the only thing that says which
+    // machine was imaged (forum 18086). varchar(17) is a colon-separated MAC.
+    "ALTER TABLE `taskLog` "
+    . "ADD COLUMN `logMAC` varchar(17) NOT NULL DEFAULT '' "
+    . "AFTER `logImageName`",
+    // A deploy to an unregistered or pending host is a task with no host
+    // (forum 18086). "No host" is NULL, never 0: tasks.taskHostID carries
+    // the foreign key from step 390, and no hosts row has id 0.
+    "ALTER TABLE `tasks` MODIFY `taskHostID` int(11) DEFAULT NULL",
+    // The MAC the machine booted with. A hostless task has no host row to
+    // name the machine, so the task carries the MAC itself.
+    "ALTER TABLE `tasks` "
+    . "ADD COLUMN `taskMAC` varchar(17) NOT NULL DEFAULT '' "
+    . "AFTER `taskStateChangedTime`",
+    // sha256 of the single-use boot token FOS sends back (kernel argument
+    // and POST field `fogtoken`). Only the hash is stored, so a database
+    // read does not yield a usable token. '' means the task has no token.
+    "ALTER TABLE `tasks` "
+    . "ADD COLUMN `taskTokenHash` char(64) NOT NULL DEFAULT '' "
+    . "AFTER `taskMAC`",
+    // FOS looks the task up by this hash on every report. Not unique: every
+    // task without a token holds the same ''.
+    "ALTER TABLE `tasks` ADD KEY `idx_taskTokenHash` (`taskTokenHash`)",
+    // The state a host-less token task ends in when FOS never reports on
+    // it within 24 hours (forum 18086). Not Failed: nothing is known to have
+    // broken. Seeded by NAME with no id: tsID is AUTO_INCREMENT and an
+    // administrator may already own the next id with a state of their own,
+    // which a fixed id plus INSERT IGNORE would skip over silently.
+    // tsName is UNIQUE, so INSERT IGNORE makes a re-run converge, and
+    // TaskState::getNoReportState() finds the row by that name.
+    "INSERT IGNORE INTO `taskStates` "
+    . "(`tsName`,`tsDescription`,`tsOrder`,`tsIcon`) "
+    . "VALUES "
+    . "('No Report','FOS sent no report within 24 hours.',"
+    . "7,'question-circle')",
+];

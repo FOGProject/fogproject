@@ -205,6 +205,7 @@ class ImagingStats extends WindowedStats
                        `runs`.`ended` AS `ended`,
                        `l`.`logHostID` AS `hostID`,
                        `l`.`logHostName` AS `hostName`,
+                       `l`.`logMAC` AS `mac`,
                        `l`.`logImageName` AS `imageName`,
                        `l`.`logTaskTypeName` AS `taskTypeName`,
                        `l`.`taskStateID` AS `stateID`,
@@ -314,8 +315,16 @@ class ImagingStats extends WindowedStats
             // Keyed on the id where there is one and the name otherwise, so
             // a run whose host has since been deleted still counts as a
             // machine rather than collapsing every deleted host into one.
-            $hosts[(string)($row['hostID'] ?? '') . '/'
-                . (string)($row['hostName'] ?? '')] = true;
+            // An unregistered run has neither id nor name, so it is keyed on
+            // its MAC; without that every unregistered machine is one. Only
+            // then: a pending host imaged before and after approval keeps
+            // one key, and is one machine.
+            $hostID = (int)($row['hostID'] ?? 0);
+            $hostName = (string)($row['hostName'] ?? '');
+            $key = (0 === $hostID && '' === $hostName)
+                ? 'mac/' . (string)($row['mac'] ?? '')
+                : $hostID . '/' . $hostName;
+            $hosts[$key] = true;
             $images[(string)($row['imageName'] ?? '')] = true;
         }
 

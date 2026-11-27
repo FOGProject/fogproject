@@ -101,8 +101,15 @@ try {
         if (!$StorageGroup || !$StorageGroup->isValid()) {
             $StorageGroup = $Image->getStorageGroup();
         }
+        // The node the task was queued against, so FOS mounts the node the
+        // boot menu counted this task on, not whichever one is optimal now.
         if (!$StorageNode || !$StorageNode->isValid()) {
-            $StorageNode = $StorageGroup->getOptimalStorageNode();
+            $TaskNode = $Task->getStorageNode();
+            $StorageNode = (
+                $TaskNode && $TaskNode->isValid() ?
+                $TaskNode :
+                $StorageGroup->getOptimalStorageNode()
+            );
         }
         $osid = $Image->get('osID');
         $osfamily = $Image->getOSFamily();
@@ -134,8 +141,33 @@ try {
             ->get('type');
         $imgid = $Image
             ->get('id');
-        $PIGZ_COMP = $Image
-            ->get('compress');
+        // The kernel arguments use the image's level when it has one and
+        // the global default when it holds -1 ("use the default"), which
+        // used to print as PIGZ_COMP=--1.
+        list(
+            $chkdsk,
+            $mcastrdv,
+            $PIGZ_COMP
+        ) = FOGCore::getSetting(
+            [
+                'FOG_DISABLE_CHKDSK',
+                'FOG_MULTICAST_RENDEZVOUS',
+                'FOG_PIGZ_COMP'
+            ]
+        );
+        $imagePigz = $Image->get('compress');
+        if (is_numeric($imagePigz) && $imagePigz > -1) {
+            $PIGZ_COMP = $imagePigz;
+        }
+        if (in_array((int)$imgFormat, [0, 1, 2, 3, 4]) && $PIGZ_COMP > 9) {
+            $PIGZ_COMP = 9;
+        }
+        // The same flip and family check the boot menu uses.
+        $chkdsk = FOGCore::chkdskFlag($chkdsk);
+        $mcastrdv = FOGCore::mcastRdvForNode(
+            $mcastrdv,
+            $StorageNode->get('ip')
+        );
         $shutdown = intval(
             (bool)$Task
             ->get('shutdown')
@@ -177,6 +209,21 @@ try {
             $winuser = $Task
                 ->get('passreset');
         }
+    }
+    $sameBoot = true;
+    foreach ([
+        FOGCore::$Host->get('kernel'),
+        FOGCore::$Host->get('init'),
+        FOGCore::$Host->get('kernelArgs'),
+        $TaskType->get('kernel'),
+        $TaskType->get('initrd')
+    ] as $override) {
+        if ('' !== trim((string)$override)) {
+            $sameBoot = false;
+        }
+    }
+    if ($HookManager->listenerCount('BOOT_ITEM_NEW_SETTINGS') > 0) {
+        $sameBoot = false;
     }
     $fdrive = FOGCore::$Host
         ->get('kernelDevice');
@@ -252,8 +299,18 @@ try {
         'imgid' => $imgid,
         'PIGZ_COMP' => sprintf(
             '-%s',
-            $PIGZ_COMP
+            isset($PIGZ_COMP) ? $PIGZ_COMP : ''
         ),
+        // The imaging arguments the boot menu puts on the kernel line, so a
+        // FOS that continues into the task without rebooting has them too.
+        'chkdsk' => isset($chkdsk) ? $chkdsk : '',
+        'bitlockerbypass' => $Task->get('bypassbitlocker') > 0 ? '1' : '',
+        'isdebug' => $Task->get('isDebug') ? 'yes' : '',
+        'mcastrdv' => isset($mcastrdv) ? $mcastrdv : '',
+        // '1' only when the boot already in progress equals the one this
+        // task would boot: no kernel, init or argument override on the host
+        // or the task type, and no plugin that rewrites the boot item.
+        'samebootok' => $sameBoot ? '1' : '0',
         'shutdown' => $shutdown,
         'hostearly' => $hostearly,
         'pct' => $pct,

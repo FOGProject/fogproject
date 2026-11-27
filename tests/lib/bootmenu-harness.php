@@ -232,6 +232,30 @@ class StubTask extends StubModel
 class TaskType extends StubModel
 {
     /**
+     * The ids verifyCreds() names, as the real model declares them.
+     */
+    const DEPLOY = 1;
+    const MULTICAST = 8;
+    /**
+     * The names of the task types falseTasking() builds by id.
+     *
+     * @var array
+     */
+    private static $_names = [1 => 'Deploy', 8 => 'Multicast'];
+    /**
+     * Instantiates the type. `new TaskType(1)` is an id, and the real model
+     * loads its name from the row; here the id selects the name.
+     *
+     * @param mixed $data the field data, or the id
+     */
+    public function __construct($data = [])
+    {
+        parent::__construct($data);
+        if (is_int($data) && isset(self::$_names[$data])) {
+            $this->data['name'] = self::$_names[$data];
+        }
+    }
+    /**
      * Whether the type images a disk.
      *
      * @return bool
@@ -908,6 +932,36 @@ class FOGBase
         return $host;
     }
     /**
+     * The rendezvous address usable with this node. Same as the real
+     * FOGBase::mcastRdvForNode().
+     *
+     * @param string $rdv    the FOG_MULTICAST_RENDEZVOUS setting
+     * @param string $nodeIP the storage node address
+     *
+     * @return string
+     */
+    public static function mcastRdvForNode($rdv, $nodeIP)
+    {
+        $rdv = (string)$rdv;
+        if ('' === $rdv || !filter_var($rdv, FILTER_VALIDATE_IP)) {
+            return $rdv;
+        }
+        $nodeIsV6 = self::isIPv6(self::canonicalIP($nodeIP));
+
+        return self::isIPv6($rdv) === $nodeIsV6 ? $rdv : '';
+    }
+    /**
+     * The chkdsk value FOS reads. Same as the real FOGBase::chkdskFlag().
+     *
+     * @param mixed $disabled the FOG_DISABLE_CHKDSK setting
+     *
+     * @return int
+     */
+    public static function chkdskFlag($disabled)
+    {
+        return $disabled == 1 ? 0 : 1;
+    }
+    /**
      * Factory for the classes IpxeBootMenu asks for by name.
      *
      * @param string $class the class name
@@ -1032,16 +1086,25 @@ class FOGBase
         return trim((string)$host);
     }
     /**
-     * Authentication is not exercised by the rendering scenarios.
+     * The account authenticateOnly() signs in. Null refuses every login,
+     * which is what the rendering scenarios have always had; a scenario that
+     * posts qihost or sessionJoin sets it, so the constructor reaches
+     * verifyCreds()'s dispatch (forum 18086).
+     *
+     * @var StubLogin|null
+     */
+    public static $login = null;
+    /**
+     * Signs in the scenario's account, or refuses.
      *
      * @param string $user the username
      * @param string $pass the password
      *
-     * @return bool
+     * @return StubLogin|bool
      */
     public static function authenticateOnly($user, $pass)
     {
-        return false;
+        return self::$login ?: false;
     }
     /**
      * Task states; only reached on the tasking path.
@@ -1104,6 +1167,120 @@ class FOGBase
     public static function niceDate()
     {
         return new \DateTime('2026-01-01 00:00:00');
+    }
+}
+
+/**
+ * Boot token stub. The real BootToken::issue() writes a task row; this keeps
+ * what it was handed so a scenario can print it, and returns a fixed token so
+ * the emitted fogtoken= argument is stable in the golden.
+ */
+class BootToken
+{
+    /**
+     * The fixed raw token every issue() returns.
+     */
+    const FIXED = 'fixedtoken0123456789abcdef0123456789abcdef0123456789abcdef01';
+    /**
+     * The calls received, in order.
+     *
+     * @var array
+     */
+    public static $recorded = [];
+    /**
+     * Records one issue.
+     *
+     * @param mixed  $TaskType    the task type
+     * @param mixed  $Image       the image
+     * @param mixed  $StorageNode the node the menu picked
+     * @param string $mac         the machine's MAC
+     * @param string $createdBy   the menu user's login
+     * @param mixed  $mc          the multicast session, if any
+     *
+     * @return string
+     */
+    public static function issue(
+        $TaskType,
+        $Image,
+        $StorageNode,
+        $mac,
+        $createdBy,
+        $mc = null
+    ) {
+        self::$recorded[] = [
+            'taskType' => $TaskType->get('name'),
+            'image' => $Image->get('name'),
+            'mac' => $mac,
+            'createdBy' => $createdBy,
+        ];
+        return self::FIXED;
+    }
+}
+
+/**
+ * The signed-in menu account: valid, and allowed everything, so a scenario
+ * tests the registration gate and not the permission checks beside it.
+ */
+class StubLogin
+{
+    /**
+     * Always a real account.
+     *
+     * @return bool
+     */
+    public function isValid()
+    {
+        return true;
+    }
+    /**
+     * The account id.
+     *
+     * @param string $key the field
+     *
+     * @return int
+     */
+    public function get($key = '')
+    {
+        return 1;
+    }
+    /**
+     * Holds every permission.
+     *
+     * @param string $perm the permission
+     *
+     * @return bool
+     */
+    public function can($perm)
+    {
+        return true;
+    }
+}
+
+/**
+ * Authorization stub: every task type is allowed.
+ */
+class Authorization
+{
+    /**
+     * Allowed.
+     *
+     * @param int $typeID the ttID
+     * @param int $userID the account id
+     *
+     * @return bool
+     */
+    public static function canTaskType($typeID, $userID)
+    {
+        return true;
+    }
+    /**
+     * No names are needed while everything is allowed.
+     *
+     * @return array
+     */
+    public static function taskTypeNames()
+    {
+        return [];
     }
 }
 

@@ -74,26 +74,41 @@ abstract class TaskingElement extends FOGBase
     {
         parent::__construct();
         try {
-            self::getHostItem(false);
-            $this->Task = self::$Host
-                ->get('task');
-            self::checkTasking(
-                $this->Task,
-                self::$Host->get('name'),
-                self::$Host->get('mac')
-            );
+            // Token first, then host. A posted boot token that finds an
+            // active hostless task skips the host lookup and leaves
+            // self::$Host an empty Host; with no token, or one that finds
+            // nothing, the host flow runs exactly as it always has.
+            $this->Task = BootToken::resolve();
+            if (null === $this->Task) {
+                self::getHostItem(false);
+                $this->Task = self::$Host
+                    ->get('task');
+                // Only the host flow can come back without a task. A task
+                // the token found is valid, and the empty Host it leaves has
+                // no name or MAC to read.
+                self::checkTasking(
+                    $this->Task,
+                    self::$Host->get('name'),
+                    self::$Host->get('mac')
+                );
+            }
             $this->imagingTask = $this
                 ->Task
                 ->isImagingTask();
             $this->StorageGroup = $this->StorageNode = null;
-            self::$HookManager->processEvent(
-                'HOST_NEW_SETTINGS',
-                [
-                    'Host' => &self::$Host,
-                    'StorageNode' => &$this->StorageNode,
-                    'StorageGroup' => &$this->StorageGroup
-                ]
-            );
+            // A listener of this event overrides a HOST's node and group. A
+            // hostless task has no host to hand it (forum 18086), and its
+            // node and group were set when the task was issued.
+            if (!$this->Task->isHostless()) {
+                self::$HookManager->processEvent(
+                    'HOST_NEW_SETTINGS',
+                    [
+                        'Host' => &self::$Host,
+                        'StorageNode' => &$this->StorageNode,
+                        'StorageGroup' => &$this->StorageGroup
+                    ]
+                );
+            }
             if (!$this->StorageGroup
                 || !$this->StorageGroup->isValid()
             ) {

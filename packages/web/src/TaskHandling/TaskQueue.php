@@ -70,6 +70,21 @@ class TaskQueue extends TaskingElement
         if ($type !== 'up' && $type !== 'down') {
             return;
         }
+        // The token variant, for a hostless deploy: the newest Complete task
+        // with this token and MAC. Only a deploy has one ('down'). When it
+        // finds nothing the host flow below runs as it always has.
+        $token = BootToken::posted();
+        if ('' !== $token && 'down' === $type) {
+            try {
+                self::getHostItem(false, false, true);
+            } catch (\Exception $e) {
+                return;
+            }
+            if (BootToken::completedRecently(self::$requestMacs, $token)) {
+                echo '##';
+                exit;
+            }
+        }
         try {
             self::getHostItem(false);
         } catch (\Exception $e) {
@@ -206,13 +221,16 @@ class TaskQueue extends TaskingElement
                     if (!$MulticastSession->save()) {
                         throw new \Exception(_('Failed to update Session'));
                     }
-                    if (!self::$Host->isValid()) {
-                        throw new \Exception('##@GO');
+                    // A hostless join has no host to set the image on. It
+                    // falls through to the check-in below like any other
+                    // task; the old early '##@GO' here skipped the audit
+                    // row, the In-Progress state and the log row.
+                    if (self::$Host->isValid()) {
+                        self::$Host->set(
+                            'imageID',
+                            $MulticastSession->get('image')
+                        );
                     }
-                    self::$Host->set(
-                        'imageID',
-                        $MulticastSession->get('image')
-                    );
                 } elseif ($this->Task->isForced()) {
                     self::$HookManager->processEvent(
                         'TASK_GROUP',
@@ -305,7 +323,7 @@ class TaskQueue extends TaskingElement
                 'authSource' => Audit::SOURCE_ANONYMOUS,
                 'subjectType' => 'task',
                 'subjectID' => (int)$this->Task->get('id'),
-                'subjectLabel' => (string)self::$Host->get('name'),
+                'subjectLabel' => BootToken::label($this->Task, self::$Host),
                 'renderable' => 1
             ]);
             $this->Task
@@ -318,10 +336,14 @@ class TaskQueue extends TaskingElement
             if (!$this->taskLog()) {
                 throw new \Exception(_('Failed to update/create task log'));
             }
-            self::$EventManager->notify(
-                'HOST_CHECKIN',
-                ['Host' => &self::$Host]
-            );
+            // HOST_CHECKIN listeners are about a host. A hostless task has
+            // none, and the empty Host would hand them nothing to read.
+            if (self::$Host->isValid()) {
+                self::$EventManager->notify(
+                    'HOST_CHECKIN',
+                    ['Host' => &self::$Host]
+                );
+            }
             echo '##@GO';
         } catch (\Exception $e) {
             echo \Initiator::e($e->getMessage());
@@ -662,7 +684,7 @@ class TaskQueue extends TaskingElement
                 'authSource' => Audit::SOURCE_ANONYMOUS,
                 'subjectType' => 'task',
                 'subjectID' => (int)$this->Task->get('id'),
-                'subjectLabel' => (string)self::$Host->get('name'),
+                'subjectLabel' => BootToken::label($this->Task, self::$Host),
                 'renderable' => 1
             ]);
             if ($this->Task->isMulticast()) {
@@ -692,32 +714,42 @@ class TaskQueue extends TaskingElement
                         ->save();
                 }
             }
-            self::$Host
-                ->set('pub_key', '')
-                ->set('sec_tok', '')
-                // Clearing sec_tok without the grace token would leave a
-                // secret behind that nothing can use but that still sits in
-                // the database.
-                ->set('prev_sec_tok', '')
-                // The vouch belonged to the key just cleared. After a
-                // deploy the next first handshake earns it back
-                // (FOGPage::authorize()).
-                ->set('sec_vouched', 0)
-                // On completetion reset token and lock
-                ->set('token', self::createSecToken())
-                ->set('tokenlock', false);
-            $updateFields = [
-                'pub_key' => self::$Host->get('pub_key'),
-                'sec_tok' => self::$Host->get('sec_tok'),
-                'prev_sec_tok' => self::$Host->get('prev_sec_tok'),
-                'sec_vouched' => self::$Host->get('sec_vouched'),
-                'token' => self::$Host->get('token'),
-                'tokenlock' => self::$Host->get('tokenlock')
-            ];
+            // A hostless task (an unregistered machine, found by its boot
+            // token) has no host row. Every write to the host below is
+            // skipped for it: there is nothing to reset, stamp or update,
+            // and self::$Host is an empty Host.
+            $hostless = $this->Task->isHostless();
+            $updateFields = [];
+            if (!$hostless) {
+                self::$Host
+                    ->set('pub_key', '')
+                    ->set('sec_tok', '')
+                    // Clearing sec_tok without the grace token would leave a
+                    // secret behind that nothing can use but that still sits
+                    // in the database.
+                    ->set('prev_sec_tok', '')
+                    // The vouch belonged to the key just cleared. After a
+                    // deploy the next first handshake earns it back
+                    // (FOGPage::authorize()).
+                    ->set('sec_vouched', 0)
+                    // On completetion reset token and lock
+                    ->set('token', self::createSecToken())
+                    ->set('tokenlock', false);
+                $updateFields = [
+                    'pub_key' => self::$Host->get('pub_key'),
+                    'sec_tok' => self::$Host->get('sec_tok'),
+                    'prev_sec_tok' => self::$Host->get('prev_sec_tok'),
+                    'sec_vouched' => self::$Host->get('sec_vouched'),
+                    'token' => self::$Host->get('token'),
+                    'tokenlock' => self::$Host->get('tokenlock')
+                ];
+            }
             if ($this->Task->isDeploy()) {
                 $deployedAt = self::niceDate()->format('Y-m-d H:i:s');
-                self::$Host->set('deployed', $deployedAt);
-                $updateFields['deployed'] = self::$Host->get('deployed');
+                if (!$hostless) {
+                    self::$Host->set('deployed', $deployedAt);
+                    $updateFields['deployed'] = self::$Host->get('deployed');
+                }
                 // images.imageLastDeploy had a field mapping on the Image
                 // model and no writer anywhere -- measured at 3 of 29 images
                 // carrying a value on a live install. It matters more now
@@ -736,8 +768,11 @@ class TaskQueue extends TaskingElement
                 // The join cooldown belongs to the machine that was just
                 // overwritten. Without this, a host renamed and then
                 // reimaged waits out the old attempt before it joins.
-                DirectoryJoin::forgetAttempt(self::$Host);
-                $this->_email();
+                // Both are about a host, and _email() reads its inventory.
+                if (!$hostless) {
+                    DirectoryJoin::forgetAttempt(self::$Host);
+                    $this->_email();
+                }
             } elseif ($this->Task->isCapture()) {
                 $this->_moveUpload();
             }
@@ -745,34 +780,41 @@ class TaskQueue extends TaskingElement
                 ->set('pct', 100)
                 ->set('percent', 100)
                 ->set('stateID', self::getCompleteState());
-            if (!self::$Host->isValid()) {
-                // NOT '##'. That string is what FOS reads as success, and it
-                // was thrown here -- so the catch below echoed it verbatim and
-                // FOS moved on satisfied, while the task was never saved and
-                // the host was never updated. A completion that did not happen
-                // must not be reported as one.
-                throw new \Exception(
-                    _('Host is not valid; the task cannot be completed')
+            if (!$hostless) {
+                if (!self::$Host->isValid()) {
+                    // NOT '##'. That string is what FOS reads as success, and
+                    // it was thrown here -- so the catch below echoed it
+                    // verbatim and FOS moved on satisfied, while the task was
+                    // never saved and the host was never updated. A
+                    // completion that did not happen must not be reported as
+                    // one.
+                    throw new \Exception(
+                        _('Host is not valid; the task cannot be completed')
+                    );
+                }
+                $updatedHost = (new HostManager())->update(
+                    ['id' => self::$Host->get('id')],
+                    '',
+                    $updateFields
                 );
-            }
-            $updatedHost = (new HostManager())->update(
-                ['id' => self::$Host->get('id')],
-                '',
-                $updateFields
-            );
-            if (!$updatedHost) {
-                throw new \Exception(_('Failed to update host'));
+                if (!$updatedHost) {
+                    throw new \Exception(_('Failed to update host'));
+                }
             }
             if (!$this->Task->save()) {
                 throw new \Exception(_('Failed to update Task'));
             }
-            self::$HookManager->processEvent(
-                'HOST_TASKING_COMPLETE',
-                [
-                    'Host' => &self::$Host,
-                    'Task' => &$this->Task
-                ]
-            );
+            // A listener of this event is about a host; a hostless task has
+            // none to hand it.
+            if (self::$Host->isValid()) {
+                self::$HookManager->processEvent(
+                    'HOST_TASKING_COMPLETE',
+                    [
+                        'Host' => &self::$Host,
+                        'Task' => &$this->Task
+                    ]
+                );
+            }
             // A wget-less U-Boot board's file has to go the moment the task
             // it describes is gone, not at the next reconcile cycle -- a
             // board that reboots itself right after finishing (shutdown=1)
@@ -826,7 +868,8 @@ class TaskQueue extends TaskingElement
             return;
         }
         $data = [
-            'HostName' => self::$Host->get('name'),
+            // "<MAC> (unregistered)" for a hostless task: it has no host name.
+            'HostName' => BootToken::label($this->Task, self::$Host),
             'Host' => self::$Host,
             'Task' => $this->Task,
             'Image' => $this->Image,
