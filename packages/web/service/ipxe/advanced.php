@@ -73,9 +73,9 @@ $promptForLogin = function () use ($parseMe) {
     );
     exit;
 };
-$login = isset($_REQUEST['login']);
-$user = trim($_REQUEST['username'] ?? '');
-$pass = trim($_REQUEST['password'] ?? '');
+$login = FOGCore::hasRequestParam('login');
+$user = trim((string)FOGCore::rawRequestParam('username', ''));
+$pass = trim((string)FOGCore::rawRequestParam('password', ''));
 if ($login) {
     $promptForLogin();
 }

@@ -13,6 +13,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Base\FOGCore;
 use FOG\Client\RegisterClient;
 
 /**
@@ -39,7 +40,7 @@ require '../commons/base.inc.php';
 new RegisterClient(
     true,
     false,
-    isset($_REQUEST['newService']),
+    FOGCore::hasRequestParam('newService'),
     false,
-    isset($_REQUEST['newService'])
+    FOGCore::hasRequestParam('newService')
 );

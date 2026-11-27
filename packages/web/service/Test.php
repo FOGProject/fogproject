@@ -19,6 +19,9 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Base\FOGCore;
+
 /*
  * A machine entry point: the caller is a booting NIC, FOS, the fog-client
  * or a storage node, none of which can present a credential. Declared per
@@ -150,7 +153,7 @@ $units = [
     'AESDecryptionResponse1',
     'AESDecryptionResponse2',
 ];
-if (!in_array($_REQUEST['unit'], $units)) {
+if (!in_array(FOGCore::requestParam('unit'), $units)) {
     echo _('Invalid unit passed');
     exit;
 }
@@ -166,7 +169,7 @@ switch ($unit) {
             $iv_size,
             MCRYPT_DEV_URANDOM
         );
-        $key = $_REQUEST['key'];
+        $key = FOGCore::requestParam('key');
         $n = strlen($key);
         $i = 0;
         while ($i < $n) {

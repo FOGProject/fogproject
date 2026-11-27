@@ -19,8 +19,11 @@
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+
+use FOG\Base\FOGCore;
+
 require '../commons/base.inc.php';
-if (isset($_REQUEST['vo'])) {
+if (FOGCore::hasRequestParam('vo')) {
     die(FOG_VERSION);
 }
 ignore_user_abort(true);

@@ -500,8 +500,8 @@ class TaskQueue extends TaskingElement
         if (!$this->Task->isCapture()) {
             return;
         }
-        if (!(isset($_REQUEST['mac'])
-            && is_string($_REQUEST['mac']))
+        if (!(self::hasRequestParam('mac')
+            && is_string(self::requestParam('mac')))
         ) {
             return;
         }
@@ -513,7 +513,7 @@ class TaskQueue extends TaskingElement
                     '.'
                 ],
                 '',
-                basename($_REQUEST['mac'])
+                basename(self::requestParam('mac'))
             )
         );
         $src = sprintf(

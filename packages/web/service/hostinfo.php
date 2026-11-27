@@ -229,7 +229,7 @@ try {
         ->get('kernelDevice');
     $Inventory = FOGCore::$Host
         ->get('inventory');
-    $mac = $_REQUEST['mac'];
+    $mac = FOGCore::requestParam('mac');
     $MACs = FOGCore::$Host
         ->getMyMacs();
     $clientMacs = array_filter(

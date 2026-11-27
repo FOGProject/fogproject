@@ -11,6 +11,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Base\FOGCore;
 use FOG\Client\PrinterClient;
 
 /**
@@ -37,5 +38,5 @@ new PrinterClient(
     false,
     false,
     false,
-    isset($_REQUEST['newService'])
+    FOGCore::hasRequestParam('newService')
 );

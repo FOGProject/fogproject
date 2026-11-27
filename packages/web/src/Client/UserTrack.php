@@ -51,25 +51,27 @@ class UserTrack extends FOGClient
      */
     public function json()
     {
-        if (!isset($_REQUEST['action'])
-            && !isset($_REQUEST['user'])
+        if (!self::hasRequestParam('action')
+            && !self::hasRequestParam('user')
         ) {
             return ['' => ''];
         }
         $action = strtolower(
-            $_REQUEST['action']
+            self::requestParam('action')
         );
+        // Sanitized like any other parameter: a tracked login name is not a
+        // credential, so it is not compared byte for byte, and it is stored.
         $user = strtolower(
-            $_REQUEST['user']
+            (string)self::requestParam('user', '')
         );
         // GH-1245: an empty date= is not a supplied date. niceDate() now reads
         // empty as "no value" rather than "now", so the client sending the
         // parameter with nothing in it has to fall to the same branch as not
         // sending it at all -- otherwise the row records the zero date.
-        if (isset($_REQUEST['date'])
-            && '' !== trim((string) $_REQUEST['date'])
+        if (self::hasRequestParam('date')
+            && '' !== trim((string) self::requestParam('date'))
         ) {
-            $tmpDate = self::niceDate($_REQUEST['date']);
+            $tmpDate = self::niceDate(self::requestParam('date'));
         } else {
             $tmpDate = self::niceDate();
         }

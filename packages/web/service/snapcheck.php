@@ -52,14 +52,14 @@ try {
         'snapinID'
     );
     $snapinIDs = $snapins;
-    if (isset($_REQUEST['getSnapnames'])) {
+    if (FOGCore::hasRequestParam('getSnapnames')) {
         $snapins = Route::getIds(
             'snapin',
             ['id' => $snapinIDs],
             'name'
         );
         $snapinnames = $snapins;
-    } elseif (isset($_REQUEST['getSnapargs'])) {
+    } elseif (FOGCore::hasRequestParam('getSnapargs')) {
         $snapins = Route::getIds(
             'snapin',
             ['id' => $snapinIDs],

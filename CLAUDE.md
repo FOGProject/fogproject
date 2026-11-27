@@ -485,6 +485,7 @@ self::$HookManager->processEvent('EVENT_NAME', ['data' => &$data]);
 ### Input
 - `Initiator::sanitizeItems()` at boot strips null bytes and trims all `$_GET`, `$_POST`, `$_COOKIE`, `$_SESSION` values
 - Individual reads use `filter_input(INPUT_GET/POST, 'key', FILTER_*)` — not raw superglobals
+- A parameter that may arrive by POST or GET is read with `FOGBase::requestParam('key', $default)` (the boot-sanitized `$_POST`, then `$_GET`; `hasRequestParam('key')` for `isset`) — never `$_REQUEST`. A credential, which must arrive exactly as sent, uses `FOGBase::rawRequestParam()` (`filter_input`, POST then GET)
 
 ### Output
 - `Initiator::e($value)` — always use this when echoing user-controlled data into HTML
@@ -659,6 +660,7 @@ badly — `ou` and `windowskey` become "Ou" and "Windowskey" without it.
 - Do not add `declare(strict_types=1)` to files that don't already have it
 - Do not call `getClass()` with a string literal -- write `new ClassName()`; `tests/getclass-literals.test.php` refuses it
 - Do not use raw `$_GET`/`$_POST` — use `filter_input()` or the already-sanitized values
+- Do not read `$_REQUEST` — use `FOGBase::requestParam()` / `hasRequestParam()` (a credential uses `rawRequestParam()`); `tests/no-raw-request-superglobal.test.php` refuses it
 - Do not echo user data without `Initiator::e()`
 - Do not remove hooks, events, or plugin integration points without explicit confirmation
 - Do not add or change a REST route without checking whether `OpenAPI::document()` still describes it

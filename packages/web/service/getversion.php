@@ -42,19 +42,19 @@ define('FOG_MACHINE_REQUEST', true);
 
 require '../commons/base.inc.php';
 $clientUpdate = (bool)FOGCore::getSetting('FOG_CLIENT_AUTOUPDATE');
-if (isset($_REQUEST['client'])) {
+if (FOGCore::hasRequestParam('client')) {
     $ver = (
         $clientUpdate ?
         '9.9.99' :
         '0.0.0'
     );
-} elseif (isset($_REQUEST['clientver'])) {
+} elseif (FOGCore::hasRequestParam('clientver')) {
     $ver = (
         $clientUpdate ?
         FOG_CLIENT_VERSION :
         '0.0.0'
     );
-} elseif (isset($_REQUEST['caps'])) {
+} elseif (FOGCore::hasRequestParam('caps')) {
     /*
      * Space-separated feature tokens probed by FOS before it relies on
      * server-side behavior a version string can't identify. An older
@@ -71,9 +71,9 @@ if (isset($_REQUEST['client'])) {
      * not must not, or it would eat 128 bytes of payload.
      */
     $ver = 'mclvm mcstreamid';
-} elseif (isset($_REQUEST['url'])) {
+} elseif (FOGCore::hasRequestParam('url')) {
     FOGCore::checkAuthAndCSRF();
-    $url = $_REQUEST['url'];
+    $url = FOGCore::requestParam('url');
 
     $parts = parse_url($url);
     if (!$parts || empty($parts['host']) || empty($parts['path'])) {
@@ -119,7 +119,7 @@ if (isset($_REQUEST['client'])) {
         }
     }
 
-    $res = $FOGURLRequests->process($_REQUEST['url']);
+    $res = $FOGURLRequests->process(FOGCore::requestParam('url'));
     $ver = array_shift($res);
 } else {
     $ver = FOG_VERSION;

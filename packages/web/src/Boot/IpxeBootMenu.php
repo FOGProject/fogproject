@@ -152,7 +152,7 @@ class IpxeBootMenu extends BootMenuBase
      * DHCP handed the machine -- see the option-93 classes the installer
      * writes into dhcpd.conf -- not a guess.
      *
-     * This used to be six separate stripos($_REQUEST['arch'], 'arm') tests
+     * This used to be six separate stripos() tests of the arch parameter
      * scattered through the file, one beside each thing that varies, so
      * adding an architecture meant finding all of them and an architecture
      * FOG has no kernel for silently got the x86_64 one. One table instead:
@@ -199,7 +199,7 @@ class IpxeBootMenu extends BootMenuBase
         if (!self::$Host instanceof Host || !self::$Host->isValid()) {
             return;
         }
-        $raw = strtolower(trim((string)($_REQUEST['arch'] ?? '')));
+        $raw = strtolower(trim((string)self::requestParam('arch', '')));
         // The whitelist is the point, not a formality: this is the only
         // guard between an unauthenticated request body and a stored value.
         if (!in_array($raw, ['i386', 'x86_64', 'arm64'], true)) {
@@ -234,11 +234,13 @@ class IpxeBootMenu extends BootMenuBase
      *
      * The classification lives in SecureBootState so that the one place the
      * wire format is understood is also the one place that is tested. Read
-     * with filter_input() rather than $_REQUEST because the difference
-     * between an absent param and an empty one is load-bearing here and
-     * $_REQUEST cannot express it: an absent param means a default.ipxe
-     * written before this shipped, and reads as "never reported"; an empty
-     * one is a real observation from a machine with no EFI variables.
+     * with filter_input() rather than requestParam() because iPXE posts
+     * these three and the read must stay POST only and raw: requestParam()
+     * would also fall back to GET and would return the boot-trimmed value.
+     * The difference between an absent param (null) and an empty one ('') is
+     * load-bearing: an absent param means a default.ipxe written before this
+     * shipped, and reads as "never reported"; an empty one is a real
+     * observation from a machine with no EFI variables.
      *
      * Writes on EVERY boot, not only on change, which is the one place this
      * deliberately differs from _recordHostArch(). The timestamp is half the
@@ -356,7 +358,7 @@ class IpxeBootMenu extends BootMenuBase
                 ]
             ),
         ];
-        $raw = strtolower(trim((string)($_REQUEST['arch'] ?? '')));
+        $raw = strtolower(trim((string)self::requestParam('arch', '')));
         if ('' === $raw || 'x86_64' === $raw) {
             self::$_archProfile = $profiles['x86_64'];
             return self::$_archProfile;
@@ -702,7 +704,7 @@ class IpxeBootMenu extends BootMenuBase
 
         $sanbootDrives = 'sanboot --no-describe --drive 0x80 || sanboot --no-describe --drive 0x81 || sanboot --no-describe --drive 0x82';
         $sanboot = 'console && sanboot --drive 0 --no-describe || ' . $sanbootDrives;
-        if (isset($_REQUEST['platform']) && $_REQUEST['platform'] != 'efi') {
+        if (self::hasRequestParam('platform') && self::requestParam('platform') != 'efi') {
             $sanboot = 'console && ' . $sanbootDrives;
         }
         $grub = [
@@ -843,7 +845,7 @@ class IpxeBootMenu extends BootMenuBase
         }
         $host_field_test = 'biosexit';
         $global_field_test = 'FOG_BOOT_EXIT_TYPE';
-        if (isset($_REQUEST['platform']) && $_REQUEST['platform'] == 'efi') {
+        if (self::hasRequestParam('platform') && self::requestParam('platform') == 'efi') {
             $host_field_test = 'efiexit';
             $global_field_test = 'FOG_EFI_BOOT_EXIT_TYPE';
         }
@@ -891,12 +893,12 @@ class IpxeBootMenu extends BootMenuBase
         $loglevel = $kernelLogLevel;
         $ramsize = $kernelRamDisk;
         $timeout = (
-            $hiddenmenu > 0 && empty($_REQUEST['menuAccess']) ?
+            $hiddenmenu > 0 && empty(self::requestParam('menuAccess')) ?
             $hiddenTimeout :
             $menuTimeout
         ) * 1000;
         $keySequence = (
-            $hiddenmenu > 0 && empty($_REQUEST['menuAccess']) ?
+            $hiddenmenu > 0 && empty(self::requestParam('menuAccess')) ?
             $keySequence :
             ''
         );
@@ -965,7 +967,7 @@ class IpxeBootMenu extends BootMenuBase
             $initrd = $imagefile;
         }
         $this->_timeout = $timeout;
-        $this->_hiddenmenu = ($hiddenmenu && empty($_REQUEST['menuAccess']));
+        $this->_hiddenmenu = ($hiddenmenu && empty(self::requestParam('menuAccess')));
         $this->_bootexittype = self::$_exitTypes[$exit];
         $this->_loglevel = "loglevel=$loglevel";
         $this->_KS = new KeySequence($keySequence);
@@ -1080,11 +1082,11 @@ class IpxeBootMenu extends BootMenuBase
         self::$HookManager->processEvent(
             'ALTERNATE_BOOT_CHECKS'
         );
-        if (isset($_REQUEST['username'])) {
+        if (self::hasRequestParam('username')) {
             $this->verifyCreds();
-        } elseif (isset($_REQUEST['key'])) {
+        } elseif (self::hasRequestParam('key')) {
             $this->keyset();
-        } elseif (isset($_REQUEST['sbenroll'])) {
+        } elseif (self::hasRequestParam('sbenroll')) {
             // Ahead of the unregistered branch: an unregistered machine can
             // enroll the key too, it just has no host record to write.
             $this->sbEnroll();
@@ -1098,7 +1100,7 @@ class IpxeBootMenu extends BootMenuBase
      * Makes a value safe to interpolate into an iPXE `echo` line.
      *
      * boot.php is unauthenticated by necessity -- a booting NIC has no
-     * credential to present -- so $_REQUEST['arch'] is attacker-controlled,
+     * credential to present -- so the arch parameter is attacker-controlled,
      * and the notices below are the first thing in this class ever to echo
      * it back. iPXE scripts are newline-delimited commands, and
      * Initiator::sanitizeOutput() collapses a RUN of whitespace to its
@@ -1280,9 +1282,9 @@ class IpxeBootMenu extends BootMenuBase
      */
     private function _ipxeLog()
     {
-        $filename = isset($_REQUEST['filename']) ? trim(basename($_REQUEST['filename'])) : '';
-        $product = isset($_REQUEST['product']) ? trim($_REQUEST['product']) : '';
-        $manufacturer = isset($_REQUEST['manufacturer']) ? trim($_REQUEST['manufacturer']) : '';
+        $filename = self::hasRequestParam('filename') ? trim(basename(self::requestParam('filename'))) : '';
+        $product = self::hasRequestParam('product') ? trim(self::requestParam('product')) : '';
+        $manufacturer = self::hasRequestParam('manufacturer') ? trim(self::requestParam('manufacturer')) : '';
         $findWhere = [
             'file' => sprintf('%s', $filename ? $filename : ''),
             'product' => sprintf('%s', $product ? $product : ''),
@@ -1305,7 +1307,7 @@ class IpxeBootMenu extends BootMenuBase
             ->set('success', 1)
             ->set('failure', 0)
             ->set('file', $findWhere['file'])
-            ->set('version', isset($_REQUEST['ipxever']) ? trim($_REQUEST['ipxever']) : '')
+            ->set('version', self::hasRequestParam('ipxever') ? trim(self::requestParam('ipxever')) : '')
             ->save();
     }
     /**
@@ -1450,19 +1452,19 @@ class IpxeBootMenu extends BootMenuBase
         // The operator has already been told the name does not exist and
         // answered the size and wait prompts, so this is a create, not a
         // lookup.
-        if (isset($_REQUEST['sessclients'])) {
+        if (self::hasRequestParam('sessclients')) {
             $this->sesscreate();
             return;
         }
         // cancel() and complete() blank msName, so an empty name is not a
         // harmless miss -- it can match a real row, and it would create a
         // session nobody could ever name to join.
-        if ('' === trim($_REQUEST['sessname'])) {
+        if ('' === trim(self::requestParam('sessname'))) {
             $this->_sessRename();
             return;
         }
         $findWhere = [
-            'name' => trim($_REQUEST['sessname']),
+            'name' => trim(self::requestParam('sessname')),
             'stateID' => self::fastmerge(
                 self::getQueuedStates(),
                 (array)self::getProgressState()
@@ -1609,10 +1611,10 @@ class IpxeBootMenu extends BootMenuBase
     }
     public function sesscreate()
     {
-        $sessname = trim($_REQUEST['sessname']);
-        $expected = (int)$_REQUEST['sessclients'];
-        $minutes = isset($_REQUEST['sessminutes'])
-            ? (int)$_REQUEST['sessminutes']
+        $sessname = trim(self::requestParam('sessname'));
+        $expected = (int)self::requestParam('sessclients');
+        $minutes = self::hasRequestParam('sessminutes')
+            ? (int)self::requestParam('sessminutes')
             : 0;
         if ('' === $sessname || $expected < 1 || $minutes < 1) {
             $this->_sessRename();
@@ -1641,7 +1643,7 @@ class IpxeBootMenu extends BootMenuBase
             $isdebug,
             -1,
             false,
-            isset($_REQUEST['username']) ? $_REQUEST['username'] : '',
+            (string)self::rawRequestParam('username', ''),
             '',
             true,
             true,
@@ -1761,11 +1763,7 @@ class IpxeBootMenu extends BootMenuBase
             $Image,
             $StorageNode,
             $mac,
-            (string)(
-                filter_input(INPUT_POST, 'username')
-                ?: filter_input(INPUT_GET, 'username')
-                ?: ''
-            ),
+            (string)self::rawRequestParam('username', ''),
             $mc ?: null
         );
         $kernelArgsArray = [
@@ -1981,7 +1979,7 @@ class IpxeBootMenu extends BootMenuBase
                 $isdebug,
                 -1,
                 false,
-                $_REQUEST['username'],
+                (string)self::rawRequestParam('username', ''),
                 '',
                 true,
                 true
@@ -2001,7 +1999,7 @@ class IpxeBootMenu extends BootMenuBase
         if (!self::$Host->isValid()) {
             return;
         }
-        // Aisle 029: boot.php is unauthenticated and $_REQUEST is neither escaped
+        // Aisle 029: boot.php is unauthenticated and the request is neither escaped
         // nor stripAndDecode'd on this path, so this was a raw write of arbitrary
         // attacker bytes into hostProductKey (which the Host Export table then
         // rendered unescaped). Use the same contract the host/group save paths
@@ -2010,7 +2008,9 @@ class IpxeBootMenu extends BootMenuBase
         // keeps working; only non-empty malformed input is refused, and it
         // reuses the existing keychangefail branch so the iPXE chain still
         // gets a message.
-        $key = (string)($_REQUEST['key'] ?? '');
+        // Read raw: a key of " " must reach productKeyIsValid() as sent and be
+        // refused, not trim to '' and clear the stored key.
+        $key = (string)self::rawRequestParam('key', '');
         if ($key !== '' && !self::productKeyIsValid($key)) {
             $this->_say('keychangefail', ['echo Failed to change key']);
             return;
@@ -2175,18 +2175,18 @@ class IpxeBootMenu extends BootMenuBase
         // authenticated session nobody owns. The isValid() test below is
         // the whole point of the call.
         $tmpUser = self::authenticateOnly(
-            $_REQUEST['username'] ?? '',
-            $_REQUEST['password'] ?? ''
+            self::rawRequestParam('username', ''),
+            self::rawRequestParam('password', '')
         );
         if ($tmpUser->isValid()) {
             self::$HookManager
                 ->processEvent('ALTERNATE_LOGIN_BOOT_MENU_PARAMS');
-            if ($advLogin && isset($_REQUEST['advLog']) && $_REQUEST['advLog']) {
+            if ($advLogin && self::hasRequestParam('advLog') && self::requestParam('advLog')) {
                 $this->advLogin();
             }
-            if (isset($_REQUEST['keyreg']) && $_REQUEST['keyreg']) {
+            if (self::hasRequestParam('keyreg') && self::requestParam('keyreg')) {
                 $this->keyreg();
-            } elseif (isset($_REQUEST['qihost']) && $_REQUEST['qihost']) {
+            } elseif (self::hasRequestParam('qihost') && self::requestParam('qihost')) {
                 // Refused before any Task or token exists: the menu does not
                 // show Deploy Image to this host, so it may not post it.
                 if ($this->_refuseUnregistered('fog.deployimage')) {
@@ -2197,8 +2197,8 @@ class IpxeBootMenu extends BootMenuBase
                 if (!$this->_mayStart($tmpUser, TaskType::DEPLOY)) {
                     return;
                 }
-                $this->setTasking($_REQUEST['imageID'] ?? '');
-            } elseif (isset($_REQUEST['sessionJoin']) && $_REQUEST['sessionJoin']) {
+                $this->setTasking(self::requestParam('imageID', ''));
+            } elseif (self::hasRequestParam('sessionJoin') && self::requestParam('sessionJoin')) {
                 // Same refusal as qihost, for the join item.
                 if ($this->_refuseUnregistered('fog.multijoin')) {
                     return;
@@ -2219,16 +2219,16 @@ class IpxeBootMenu extends BootMenuBase
                 }
                 // The name can arrive with the credentials, in which case
                 // there is nothing left to prompt for.
-                if (isset($_REQUEST['sessname'])) {
+                if (self::hasRequestParam('sessname')) {
                     $this->sesscheck();
                 } else {
                     $this->sessjoin();
                 }
-            } elseif (isset($_REQUEST['menuaccess']) && $_REQUEST['menuaccess']) {
+            } elseif (self::hasRequestParam('menuaccess') && self::requestParam('menuaccess')) {
                 //unset($this->_hiddenmenu);
                 $this->_hiddenmenu = false;
                 $this->_chainBoot(true);
-            } elseif (isset($_REQUEST['debugAccess']) && $_REQUEST['debugAccess']) {
+            } elseif (self::hasRequestParam('debugAccess') && self::requestParam('debugAccess')) {
                 // A FOS debug shell is the Debug task's power without the
                 // task row, so it takes the same task type.
                 if (!$this->_mayStart($tmpUser, TaskType::DEBUG)) {
@@ -2298,7 +2298,7 @@ class IpxeBootMenu extends BootMenuBase
                 $isdebug,
                 -1,
                 false,
-                $_REQUEST['username']
+                (string)self::rawRequestParam('username', '')
             );
             $this->_chainBoot(false, true);
         } catch (\Exception $e) {
@@ -2719,8 +2719,8 @@ class IpxeBootMenu extends BootMenuBase
          * today may be UEFI tomorrow. This hides what cannot work; FOS
          * explains what happened.
          */
-        if (isset($_REQUEST['platform'])
-            && $_REQUEST['platform'] != 'efi'
+        if (self::hasRequestParam('platform')
+            && self::requestParam('platform') != 'efi'
         ) {
             $hide[] = 'fog.enrollsecureboot';
             $hide[] = 'fog.enrollsecurebootunattended';
@@ -2804,7 +2804,7 @@ class IpxeBootMenu extends BootMenuBase
         if (!$regEnabled) {
             $RegArrayOfStuff = array_diff($RegArrayOfStuff, [0]);
         }
-        if (isset($_REQUEST['debug'])) {
+        if (self::hasRequestParam('debug')) {
             $RegArrayOfStuff[] = 3;
         }
         if ($Advanced) {

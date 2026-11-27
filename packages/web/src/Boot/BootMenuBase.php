@@ -539,7 +539,7 @@ abstract class BootMenuBase extends FOGBase
      */
     protected static function _extraArgs()
     {
-        return (string)($_REQUEST['extraargs'] ?? '');
+        return (string)self::requestParam('extraargs', '');
     }
 
     /**

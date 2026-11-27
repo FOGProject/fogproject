@@ -42,7 +42,7 @@ $failures = [];
 // The non-EFI platform gate must hide the unattended item alongside the
 // attended one.
 if (!preg_match(
-    "/\\\$_REQUEST\['platform'\]\s*!=\s*'efi'.{0,900}?"
+    "/requestParam\('platform'\)\s*!=\s*'efi'.{0,900}?"
     . "'fog\.enrollsecureboot'.{0,200}?'fog\.enrollsecurebootunattended'/s",
     $src
 )) {

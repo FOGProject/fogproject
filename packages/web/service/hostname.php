@@ -12,6 +12,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Base\FOGCore;
 use FOG\Client\HostnameChanger;
 
 /**
@@ -39,5 +40,5 @@ new HostnameChanger(
     false,
     false,
     false,
-    isset($_REQUEST['newService'])
+    FOGCore::hasRequestParam('newService')
 );

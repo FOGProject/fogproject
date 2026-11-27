@@ -20,27 +20,31 @@
  * @link     https://fogproject.org
  */
 /**
+ * This file loads no bootstrap, so FOGBase::hasRequestParam() is not
+ * available. Each test below is the same POST-then-GET check, inline.
+ */
+/**
  * If new client is clicked, prep variable as the new client MSI.
  */
-if (isset($_REQUEST['newclient'])) {
+if (isset($_POST['newclient']) || isset($_GET['newclient'])) {
     $filename = 'FOGService.msi';
 }
 /**
  * If fog prep is clicked, prep variable as the fogprep file.
  */
-if (isset($_REQUEST['fogprep'])) {
+if (isset($_POST['fogprep']) || isset($_GET['fogprep'])) {
     $filename = 'FogPrep.zip';
 }
 /**
  * If fog crypt is clicked, prep variable as the fogcrypt file.
  */
-if (isset($_REQUEST['fogcrypt'])) {
+if (isset($_POST['fogcrypt']) || isset($_GET['fogcrypt'])) {
     $filename = 'FOGCrypt.zip';
 }
 /**
  * If smart installer is clicked, prep variable as smartinstaller file.
  */
-if (isset($_REQUEST['smartinstaller'])) {
+if (isset($_POST['smartinstaller']) || isset($_GET['smartinstaller'])) {
     $filename = 'SmartInstaller.exe';
 }
 /**

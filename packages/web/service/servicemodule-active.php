@@ -12,6 +12,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Base\FOGCore;
 use FOG\Client\ServiceModule;
 
 /**
@@ -39,5 +40,5 @@ new ServiceModule(
     false,
     false,
     false,
-    isset($_REQUEST['newService'])
+    FOGCore::hasRequestParam('newService')
 );
