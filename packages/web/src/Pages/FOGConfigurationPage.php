@@ -5975,6 +5975,12 @@ class FOGConfigurationPage extends FOGPage
         if (null !== $problem) {
             echo '<small class="form-text text-danger">'
                 . \Initiator::e($problem) . '</small>';
+        } else {
+            $warning = Mailer::serviceWarning();
+            if (null !== $warning) {
+                echo '<small class="form-text text-warning">'
+                    . \Initiator::e($warning) . '</small>';
+            }
         }
         echo '</div>';
         echo '</div>';
@@ -6112,6 +6118,18 @@ class FOGConfigurationPage extends FOGPage
                     'error' => _('The mail command refused the email.')
                         . ($last ? ' ' . $last['message'] : ''),
                     'title' => $title
+                ]
+            );
+        }
+        // Accepted is not sent: with the mail server stopped the message
+        // waits in its queue. Say so with an amber toast, not a green one.
+        $warning = Mailer::serviceWarning();
+        if (null !== $warning) {
+            $this->_jsonExit(
+                HTTPResponseCodes::HTTP_SUCCESS,
+                [
+                    'warning' => $warning,
+                    'title' => _('Test Email Queued, Not Sent')
                 ]
             );
         }
