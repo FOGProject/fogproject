@@ -74,18 +74,35 @@ release_base() {
 branchon=$(echo "$gitbranch" | awk -F'-' '{print $1}')
 branchend=$(echo "$gitbranch" | awk -F'-' '{print $2}')
 
-# Only the count-based arms need master. stable reports its release tag and
-# rc its committed suffix, so neither may fail here: a plain stable clone
-# offline has no local master, and set -e would end the script before the
-# stable arm ran.
-gitcount=0
+# stable reports its release tag and rc its committed suffix, so neither
+# reads master, and neither may fail here: a plain stable clone offline has
+# no local master, and set -e would end the script before the stable arm ran.
+#
+# The dev arm counts from its base release tag (1.6.1 for 1.6.1.N), when HEAD
+# reaches that tag. The base comes from the tag, so the count must too. A
+# local master is only as current as its last fetch, and the fetch below
+# ignores a failure. master sits on the release commit, so the two counts
+# agree when master is current.
+#
+# The other count-based arms count from master. So does the dev arm when no
+# tag has the base's name, or HEAD does not reach that tag (a pull request's
+# merge ref).
+gitcount=""
 case "$branchon" in
-    stable|rc) ;;
-    *)
-        git fetch origin master:master 2>/dev/null || true
-        gitcount=$(git rev-list master..HEAD --count)
+    stable|rc) gitcount=0 ;;
+    dev)
+        if devtag=$(release_tag) \
+            && devbase=$(release_base "$devtag") \
+            && git rev-parse -q --verify "refs/tags/${devbase}^{commit}" >/dev/null \
+            && git merge-base --is-ancestor "refs/tags/${devbase}" HEAD; then
+            gitcount=$(git rev-list "refs/tags/${devbase}..HEAD" --count)
+        fi
         ;;
 esac
+if [ -z "$gitcount" ]; then
+    git fetch origin master:master 2>/dev/null || true
+    gitcount=$(git rev-list master..HEAD --count)
+fi
 
 current_version=$(grep "define('FOG_VERSION'" "$system_file" | sed "s/.*FOG_VERSION', '\([^']*\)');/\1/")
 current_channel=$(grep "define('FOG_CHANNEL'" "$system_file" | sed "s/.*FOG_CHANNEL', '\([^']*\)');/\1/")
