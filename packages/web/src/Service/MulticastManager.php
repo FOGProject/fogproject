@@ -145,8 +145,8 @@ class MulticastManager extends FOGService
      * ADR 0044). An unregistered machine whose token could not be issued, or
      * whose FOS is too old to send it, still has no live task here. Such a
      * session can have no live task at all -- before anyone has joined, or
-     * with only such machines in it -- and still be in use. It is empty only when no task is live AND it expects no machine
-     * by name. Issue #1922.
+     * with only such machines in it -- and still be in use. It is empty only
+     * when no task is live AND it expects no machine by name. Issue #1922.
      *
      * @param array $liveIDs  The session's task IDs that are not canceled.
      * @param int   $expected The session's sessclients, read this tick.
