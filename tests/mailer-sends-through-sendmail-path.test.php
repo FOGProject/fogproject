@@ -37,6 +37,9 @@ if (isset($argv[1]) && '--child' === $argv[1]) {
     if ('problem' === $argv[2]) {
         $p = Mailer::problem();
         echo null === $p ? "READY\n" : 'PROBLEM ' . $p . "\n";
+    } elseif ('service' === $argv[2]) {
+        $w = Mailer::serviceWarning((int)$argv[3]);
+        echo null === $w ? "QUIET\n" : 'WARN ' . $w . "\n";
     } else {
         $ok = Mailer::send(
             'one@example.com,two@example.com',
@@ -109,6 +112,99 @@ $t->check(
     'problem() names a bare command that is not on PATH',
     0 === strpos($child('no-such-sendmail-xyz -t', ['problem']), 'PROBLEM ')
 );
+
+// serviceWarning(): the sendmail of postfix, exim or sendmail accepts a
+// message while the mail server is stopped, and it never leaves. A closed
+// local SMTP port is how the test button tells. A real listener on a free
+// port stands in for a running mail server. Only a command that is
+// positively one of those three is checked.
+$listener = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
+$openPort = (int)substr(strrchr(stream_socket_get_name($listener, false), ':'), 1);
+$probe = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
+$closedPort = (int)substr(strrchr(stream_socket_get_name($probe, false), ':'), 1);
+fclose($probe);
+/**
+ * Put a program at $dir/$name, a copy of the capture script.
+ *
+ * @param string $dir  the directory, created when missing
+ * @param string $name the program's file name
+ *
+ * @return string its path
+ */
+$program = function ($dir, $name) use ($capture) {
+    if (!is_dir($dir)) {
+        mkdir($dir, 0700, true);
+    }
+    copy($capture, $dir . '/' . $name);
+    chmod($dir . '/' . $name, 0700);
+    return $dir . '/' . $name;
+};
+/**
+ * Point $work/sendmail at $target through a symlink, as alternatives do.
+ *
+ * @param string $target the program the link names
+ *
+ * @return string the sendmail_path to use
+ */
+$link = function ($target) use ($work) {
+    @unlink($work . '/sendmail');
+    symlink($target, $work . '/sendmail');
+    return $work . '/sendmail -t';
+};
+$service = function ($path, $port) use ($child) {
+    return $child($path, ['service', (string)$port]);
+};
+
+$path = $link($program($work . '/alt', 'sendmail.postfix'));
+$t->check(
+    'postfix through alternatives: quiet while port 25 answers',
+    'QUIET' === $service($path, $openPort)
+);
+$t->check(
+    'postfix through alternatives: warns, naming postfix, when nothing listens',
+    0 === strpos(
+        $service($path, $closedPort),
+        'WARN The mail command is postfix, but nothing is listening on port '
+        . $closedPort . ' '
+    )
+);
+// Debian and Arch: a plain sendmail, with postfix's own postconf beside it.
+$program($work . '/pf', 'postconf');
+$path = $program($work . '/pf', 'sendmail') . ' -t';
+$t->check(
+    'a plain sendmail beside postconf is postfix (Debian and Arch layout)',
+    0 === strpos($service($path, $closedPort), 'WARN The mail command is postfix,')
+);
+// nullmailer's own plain sendmail. A leftover /etc/postfix/main.cf from a
+// removed postfix would not matter: only a postfix program counts.
+$path = $program($work . '/nm', 'sendmail') . ' -t';
+$t->check(
+    'a plain sendmail with no postfix program beside it is not checked (nullmailer)',
+    'QUIET' === $service($path, $closedPort)
+);
+$path = $program($work . '/sm.bin', 'sendmail') . ' -t';
+$t->check(
+    'a plain sendmail in /usr/lib/sm.bin is sendmail (Debian sendmail)',
+    0 === strpos($service($path, $closedPort), 'WARN The mail command is sendmail,')
+);
+$path = $link($program($work . '/alt', 'exim4'));
+$t->check(
+    'exim4 is checked and named by its Debian service name',
+    0 === strpos($service($path, $closedPort), 'WARN The mail command is exim4,')
+);
+foreach (['msmtp', 'sendmail.ssmtp', 'esmtp-wrapper', 'nullmailer-inject', 'dma'] as $name) {
+    $path = $link($program($work . '/alt', $name));
+    $t->check(
+        'serviceWarning() does not check ' . $name . ', which is not a daemon MTA',
+        'QUIET' === $service($path, $closedPort)
+    );
+}
+@unlink($work . '/sendmail');
+fclose($listener);
+foreach (['alt', 'pf', 'nm', 'sm.bin'] as $sub) {
+    array_map('unlink', glob($work . '/' . $sub . '/*'));
+    rmdir($work . '/' . $sub);
+}
 
 // send(): what the mail command receives.
 $out = $child($capture . ' -t -i', ['send', 'noreply@fog.example.com']);
