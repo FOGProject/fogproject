@@ -172,7 +172,9 @@
         });
       });
 
-    $('#settings-content :input').each(function() {
+    // .settings-nosave marks the test email form and the read-only mail
+    // command. They are not settings, so a change must not post them.
+    $('#settings-content :input').not('.settings-nosave').each(function() {
       var ev = $(this).hasClass('slider') ? 'slideStop' : 'change';
       $(this).off(ev + '.fogset').on(ev + '.fogset', function(e) {
         e.preventDefault();
@@ -237,6 +239,13 @@
   $('#settings-cache-refresh').off('click').on('click', function(e) {
     e.preventDefault();
     $.apiCall('post', cacheAction + 'cacheRefreshPost', {});
+  });
+  // Delegated: the button lives in the body that reloadSettings() replaces.
+  $('#settings-content').on('click', '#settings-test-email', function(e) {
+    e.preventDefault();
+    $.apiCall('post', cacheAction + 'testEmail', {
+      to: $('#settings-test-email-to').val()
+    });
   });
 
   initSettings();

@@ -12607,3 +12607,10 @@ $this->schema[] = [
     // varchar(15) truncated it silently.
     "ALTER TABLE `taskLog` MODIFY `ip` varchar(45) NOT NULL DEFAULT ''",
 ];
+// 472
+$this->schema[] = [
+    // FOG_EMAIL_BINARY never took effect. mail() always runs php.ini
+    // sendmail_path, which cannot be set at run time, and the value was
+    // read and then dropped. FOG Settings now shows sendmail_path read-only.
+    "DELETE FROM `globalSettings` WHERE `settingKey` = 'FOG_EMAIL_BINARY'",
+];
