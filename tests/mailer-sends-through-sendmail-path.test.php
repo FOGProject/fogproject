@@ -10,7 +10,9 @@
  *
  * The send checks run real mail() in a child php with sendmail_path set
  * (-d), pointed at a capture script. So they see what the mail command
- * gets: argv (the -f envelope sender) and the message on stdin.
+ * gets: argv and the message on stdin. argv must be exactly what
+ * sendmail_path names: no setting value reaches the command line, so the
+ * envelope (bounce) sender stays the mail command's default.
  *
  * Usage: php tests/mailer-sends-through-sendmail-path.test.php
  * Exit status 0 = pass, 1 = fail.
@@ -114,8 +116,8 @@ $argvSeen = is_file($work . '/argv') ? file($work . '/argv', FILE_IGNORE_NEW_LIN
 $stdin = is_file($work . '/stdin') ? (string)file_get_contents($work . '/stdin') : '';
 $t->check('send() returns true when the mail command exits 0', 'SENT' === $out);
 $t->check(
-    'send() sets the envelope sender with -f',
-    in_array('-fnoreply@fog.example.com', $argvSeen, true)
+    'send() adds nothing to the sendmail_path arguments',
+    ['-t', '-i'] === $argvSeen
 );
 $t->check(
     'the message carries the From header',
@@ -128,17 +130,10 @@ $t->check(
         && false !== strpos($stdin, 'Body text')
 );
 
-@unlink($work . '/argv');
-$child($capture . ' -t -i', ['send', 'FOG <noreply@fog.example.com>']);
-$argvSeen = is_file($work . '/argv') ? file($work . '/argv', FILE_IGNORE_NEW_LINES) : [];
-$t->check(
-    'a "Name <addr>" From adds no -f argument',
-    [] === preg_grep('/^-f/', $argvSeen) && in_array('-t', $argvSeen, true)
-);
-
-// The From value reaches the sendmail command line. A value shaped to add
-// an option (CVE-2016-10033: "-X <file>" writes a file) must add none.
+// A From value shaped to add a sendmail option (CVE-2016-10033: "-X <file>"
+// writes a file) must add none.
 foreach ([
+    'name and address' => 'FOG <noreply@fog.example.com>',
     'space split' => 'a@b.com -X/var/www/html/shell.php',
     'quote split' => "\"a\\\" -X/tmp/x \"@b.com",
     'leading dash' => '-X/tmp/x@b.com',

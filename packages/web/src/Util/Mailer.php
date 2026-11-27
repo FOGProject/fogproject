@@ -134,18 +134,11 @@ class Mailer
             $from,
             phpversion()
         );
-        // Set the envelope sender too, so bounces go to the From address
-        // and not to the web server account. The value lands on the
-        // sendmail command line, so only a plain address goes there: no
-        // space, quote or backslash (CVE-2016-10033 split one value into a
-        // second option, such as -X <file>), and no leading '-'. Anything
-        // else, a "Name <addr>" From included, keeps the MTA default.
-        $params = '';
-        if (preg_match('/^[A-Za-z0-9._%+][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+$/D', $from)
-            && false !== filter_var($from, FILTER_VALIDATE_EMAIL)
-        ) {
-            $params = '-f' . $from;
-        }
-        return mail($to, $subject, $body, $headers, $params);
+        // No additional_params on purpose. The envelope (bounce) sender
+        // stays the mail command's default, as it always has been, so a
+        // relay rule written for it keeps matching. An admin who wants a
+        // different one adds -f to sendmail_path in php.ini. No setting
+        // value reaches the sendmail command line (CVE-2016-10033 class).
+        return mail($to, $subject, $body, $headers);
     }
 }
