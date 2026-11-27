@@ -1743,7 +1743,8 @@ class Authorization extends FOGBase
      * Three conditions, and the first is the one that matters.
      *
      * FOG_MACHINE_REQUEST is DECLARED by the entry point, one line at the
-     * top of each of the 44 files under service/ and once in
+     * top of each of the files under service/, in status/hostgetkey.php
+     * (FOS asks it for its host key), and once in
      * packages/service/lib/service_lib.php for the ten daemons, exactly
      * like FOG_WANTS_SESSION in management/index.php. It is deliberately
      * not inferred from "no principal is bound", because those two are not

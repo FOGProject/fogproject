@@ -23,6 +23,14 @@ use FOG\Managers\HostManager;
  * @license  http://opensource.org/licenses/gpl-3.0 GPLv3
  * @link     https://fogproject.org
  */
+/*
+ * A machine entry point: FOS asks for its host's key here, with no
+ * credential. Without the declaration the host's task is scoped to a user
+ * that does not exist, and the lookup finds nothing. See
+ * Authorization::_hasNoPrincipal().
+ */
+define('FOG_MACHINE_REQUEST', true);
+
 require '../commons/base.inc.php';
 header('Content-Type: text/plain');
 try {
