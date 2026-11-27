@@ -61,7 +61,9 @@ $declares = function ($src) {
 $machine = array_merge(
     (array)glob($web . '/service/*.php'),
     (array)glob($web . '/service/ipxe/*.php'),
-    [$root . '/packages/service/lib/service_lib.php']
+    [$root . '/packages/service/lib/service_lib.php'],
+    // FOS calls it for its host key; it is under status/, not service/.
+    [$web . '/status/hostgetkey.php']
 );
 $declared = 0;
 foreach ($machine as $file) {
