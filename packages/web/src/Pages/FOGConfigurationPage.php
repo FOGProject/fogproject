@@ -6089,7 +6089,9 @@ class FOGConfigurationPage extends FOGPage
                     . "completion email.\n"
                 ),
                 (string)self::$FOGUser->get('name'),
-                self::formatTime('now', 'Y-m-d H:i:s')
+                // Display zone, named, for the person reading the email.
+                // Nothing stores this value.
+                self::formatTime('now', 'Y-m-d H:i:s T')
             ),
             $from
         );
