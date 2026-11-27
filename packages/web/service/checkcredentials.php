@@ -97,23 +97,11 @@ if ($isLocked) {
 }
 
 /**
- * Read through filter_input rather than $_REQUEST.
- *
- * Initiator::sanitizeItems() walks $_GET, $_POST, $_COOKIE and $_SESSION --
- * but not $_REQUEST, which PHP populates as a separate copy before any of
- * that runs. Reading $_REQUEST therefore bypassed the boot-time
- * sanitisation and made this the one entry point taking raw superglobal
- * input, against the convention every other caller follows.
- *
- * POST is preferred over GET to match what $_REQUEST resolved to under
- * PHP's default request_order of "GP", where POST overwrites GET.
+ * Credentials are read with FOGCore::rawRequestParam(): filter_input() on
+ * POST, then GET, so the value arrives as sent and the boot-time trim of
+ * Initiator::sanitizeItems() does not apply. The trim below is this
+ * endpoint's own, and decodeCredential() trims again.
  */
-$readParam = function ($name) {
-    $value = filter_input(INPUT_POST, $name)
-        ?? filter_input(INPUT_GET, $name)
-        ?? '';
-    return trim((string)$value);
-};
 
 try {
     /*
@@ -129,11 +117,15 @@ try {
      * $recordBadAttempt(), so a malformed field still does not count toward
      * the lockout.
      */
-    $username = FOGCore::decodeCredential($readParam('username'));
+    $username = FOGCore::decodeCredential(
+        trim((string)FOGCore::rawRequestParam('username', ''))
+    );
     if (false === $username) {
         throw new \Exception('#!il');
     }
-    $password = FOGCore::decodeCredential($readParam('password'));
+    $password = FOGCore::decodeCredential(
+        trim((string)FOGCore::rawRequestParam('password', ''))
+    );
     if (false === $password) {
         throw new \Exception('#!il');
     }

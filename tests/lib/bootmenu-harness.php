@@ -854,6 +854,64 @@ class FOGBase
     {
     }
     /**
+     * Reads a request parameter, POST first then GET. Mirrors the real
+     * FOGBase::requestParam(), so a scenario drives it through $_POST and
+     * $_GET. The real superglobals were already trimmed at boot by
+     * Initiator::sanitizeItems(), which the harness never runs, so a string
+     * is trimmed here to match; that is what makes a credential read through
+     * this helper (instead of rawRequestParam()) visible to a test.
+     *
+     * @param string $key     the parameter name
+     * @param mixed  $default returned when neither source has the key
+     *
+     * @return mixed
+     */
+    public static function requestParam(string $key, $default = null)
+    {
+        foreach ([$_POST, $_GET] as $source) {
+            if (isset($source[$key])) {
+                return is_string($source[$key])
+                    ? trim($source[$key])
+                    : $source[$key];
+            }
+        }
+
+        return $default;
+    }
+    /**
+     * Mirrors the real FOGBase::rawRequestParam(). The real one reads
+     * filter_input(), which returns null under the CLI SAPI, so this mirror
+     * falls back to the raw (unsanitized) $_POST then $_GET a scenario sets.
+     * An array value is present but unusable, as filter_input() makes it
+     * (false): it returns the default and does not fall through to GET.
+     *
+     * @param string $key     the parameter name
+     * @param mixed  $default returned when absent, or present as an array
+     *
+     * @return mixed
+     */
+    public static function rawRequestParam(string $key, $default = null)
+    {
+        foreach ([$_POST, $_GET] as $source) {
+            if (isset($source[$key])) {
+                return is_string($source[$key]) ? $source[$key] : $default;
+            }
+        }
+
+        return $default;
+    }
+    /**
+     * Mirrors the real FOGBase::hasRequestParam().
+     *
+     * @param string $key the parameter name
+     *
+     * @return bool
+     */
+    public static function hasRequestParam(string $key): bool
+    {
+        return isset($_POST[$key]) || isset($_GET[$key]);
+    }
+    /**
      * Reads one setting, or several in the order asked for.
      *
      * @param string|array $key the setting name(s)
@@ -1095,6 +1153,12 @@ class FOGBase
      */
     public static $login = null;
     /**
+     * The [user, pass] the last authenticateOnly() call received.
+     *
+     * @var array|null
+     */
+    public static $authArgs = null;
+    /**
      * Signs in the scenario's account, or refuses.
      *
      * @param string $user the username
@@ -1104,6 +1168,7 @@ class FOGBase
      */
     public static function authenticateOnly($user, $pass)
     {
+        self::$authArgs = [$user, $pass];
         return self::$login ?: false;
     }
     /**
@@ -1155,7 +1220,12 @@ class FOGBase
      */
     public static function productKeyIsValid($key)
     {
-        return (bool)$key;
+        // The real rule (FOGBase::productKeyIsValid()), so a key of " " is
+        // refused here as it is in production.
+        return (bool)preg_match(
+            '/^[BCDFGHJKMNPQRTVWXY2346789]{25}$/',
+            preg_replace('/[^A-Z0-9]/', '', strtoupper((string)$key))
+        );
     }
     /**
      * A fixed clock, so a recorded write renders the same bytes every run.

@@ -11,6 +11,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Base\FOGCore;
 use FOG\Client\Jobs;
 
 /**
@@ -37,5 +38,5 @@ new Jobs(
     false,
     false,
     false,
-    isset($_REQUEST['newService'])
+    FOGCore::hasRequestParam('newService')
 );

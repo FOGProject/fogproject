@@ -18,8 +18,6 @@ require_once __DIR__ . '/bootmenu-harness.php';
 // IpxeBootMenu's own imports expect since Move 2. Must run before the first
 // use of a bucketed name, not just before the class under test is required.
 require_once __DIR__ . '/stub-buckets.php';
-// filter_input() has no request under the CLI; this feeds it `username` only.
-require_once __DIR__ . '/bootmenu-filter-input-shim.php';
 
 use FOG\Base\FOGBase;
 use FOG\Router\Route;
@@ -279,8 +277,7 @@ FOGBase::$HookManager = new StubHookManager(
     (array)($scenario['hookMutations'] ?? [])
 );
 
-$_REQUEST = (array)($scenario['request'] ?? []);
-$_GET = $_REQUEST;
+$_GET = (array)($scenario['request'] ?? []);
 
 /*
  * Login mode and menu visibility, for the qihost / sessionJoin scenarios
@@ -380,6 +377,10 @@ require_once $classFile;
  */
 register_shutdown_function(
     function () use ($scenario) {
+        // Opt-in, so no other scenario's bytes change.
+        if (!empty($scenario['reportAuth'])) {
+            echo '#auth ', json_encode(FOGBase::$authArgs), "\n";
+        }
         if (\FOG\HostManager::$updates) {
             echo '#harness-writes ', json_encode(\FOG\HostManager::$updates), "\n";
         }
@@ -439,7 +440,7 @@ if ($falseTasking) {
     // The menu user's login. Set here, after the constructor, because a
     // 'username' in the request would send the constructor to verifyCreds().
     if (isset($scenario['falseTaskingUser'])) {
-        $_REQUEST['username'] = $scenario['falseTaskingUser'];
+        $_GET['username'] = $scenario['falseTaskingUser'];
     }
     $menu->falseTasking('', $falseImage);
     // What falseTasking() handed BootToken::issue(). The stub is

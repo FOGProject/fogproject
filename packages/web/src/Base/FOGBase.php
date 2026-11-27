@@ -898,7 +898,7 @@ abstract class FOGBase
                 $mac = filter_input(INPUT_GET, 'mac');
             }
         }
-        // Normalize the mac. stripAndDecode() rewrites $_REQUEST, but the mac
+        // Normalize the mac. stripAndDecode() rewrites $_POST and $_GET, but the mac
         // is read here from the raw request via filter_input() (or passed in
         // explicitly), which that rewrite never touches, so the encoding has
         // to be resolved here. The legacy $encoded flag is now redundant but
@@ -4299,6 +4299,70 @@ abstract class FOGBase
         return trim($decoded);
     }
     /**
+     * Reads a request parameter: POST first, then GET.
+     *
+     * Reads the superglobals, not filter_input(), so the boot-time
+     * Initiator::sanitizeItems() trim and null-byte strip applies.
+     * Cookies are deliberately excluded. The value comes back as sent
+     * (string or array); escape it at the output.
+     *
+     * @param string $key     the parameter name
+     * @param mixed  $default returned when neither POST nor GET has the key
+     *
+     * @return mixed
+     */
+    public static function requestParam(string $key, $default = null)
+    {
+        if (isset($_POST[$key])) {
+            return $_POST[$key];
+        }
+        if (isset($_GET[$key])) {
+            return $_GET[$key];
+        }
+
+        return $default;
+    }
+    /**
+     * Reads a request parameter exactly as sent: POST first, then GET.
+     *
+     * This is the reader for credentials, where a value must reach the
+     * comparison byte for byte (a password with edge whitespace is a
+     * different password). It goes through filter_input() with
+     * FILTER_UNSAFE_RAW, which skips the boot-time trim of
+     * Initiator::sanitizeItems() -- the same way ProcessLogin reads the web
+     * login. Only null means absent and falls through to GET. An empty
+     * string is a value. false (filter_input() on an array value) is
+     * present but unusable: it returns $default and does not fall through
+     * to GET.
+     *
+     * @param string $key     the parameter name
+     * @param mixed  $default returned when absent, or present as an array
+     *
+     * @return mixed
+     */
+    public static function rawRequestParam(string $key, $default = null)
+    {
+        foreach ([INPUT_POST, INPUT_GET] as $type) {
+            $value = filter_input($type, $key, FILTER_UNSAFE_RAW);
+            if (null !== $value) {
+                return false === $value ? $default : $value;
+            }
+        }
+
+        return $default;
+    }
+    /**
+     * Tests whether a request parameter is set in POST or GET.
+     *
+     * @param string $key the parameter name
+     *
+     * @return bool
+     */
+    public static function hasRequestParam(string $key): bool
+    {
+        return isset($_POST[$key]) || isset($_GET[$key]);
+    }
+    /**
      * Strips and decodes items.
      *
      * @param mixed $item the item to strip and decode
@@ -4322,7 +4386,7 @@ abstract class FOGBase
      * valid UTF-8, otherwise the original (plain) value is kept. The result
      * is then sanitized the same way every request value is. Exposed so code
      * that reads a raw request value directly (e.g. filter_input(), which is
-     * not affected by stripAndDecode() rewriting $_REQUEST) can normalize it
+     * not affected by stripAndDecode() rewriting $_POST and $_GET) can normalize it
      * identically.
      *
      * @param mixed $val the value to strip and decode

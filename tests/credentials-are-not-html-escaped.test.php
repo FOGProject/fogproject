@@ -220,9 +220,14 @@ foreach (["\$stripped['username']", "\$stripped['password']",
  * endpoint answered '#!ok' for a password registration then rejected. They
  * share the decoder so they cannot drift apart again.
  */
-if (false === strpos($cc, "FOGCore::decodeCredential(\$readParam('username'))")
-    || false === strpos($cc, "FOGCore::decodeCredential(\$readParam('password'))")
-) {
+// Read raw (rawRequestParam wraps filter_input, never the stripped arrays).
+if (!preg_match(
+    "/FOGCore::decodeCredential\(\s*trim\(\(string\)FOGCore::rawRequestParam\('username'/",
+    $cc
+) || !preg_match(
+    "/FOGCore::decodeCredential\(\s*trim\(\(string\)FOGCore::rawRequestParam\('password'/",
+    $cc
+)) {
     $fails[] = 'checkcredentials.php no longer decodes through the shared'
         . ' decodeCredential(), so it can drift from registration again';
 }

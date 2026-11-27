@@ -36,7 +36,7 @@ define('FOG_MACHINE_REQUEST', true);
 
 require '../commons/base.inc.php';
 try {
-    $host = $_REQUEST['host'];
+    $host = FOGCore::requestParam('host');
     $host = trim($host);
     $host = base64_decode($host);
     $host = trim($host);

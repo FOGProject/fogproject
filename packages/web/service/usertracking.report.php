@@ -11,6 +11,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Base\FOGCore;
 use FOG\Client\UserTrack;
 
 /**
@@ -34,5 +35,5 @@ define('FOG_MACHINE_REQUEST', true);
 require '../commons/base.inc.php';
 new UserTrack(
     true,
-    !isset($_REQUEST['newService'])
+    !FOGCore::hasRequestParam('newService')
 );

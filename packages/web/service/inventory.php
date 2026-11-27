@@ -40,8 +40,11 @@ define('FOG_MACHINE_REQUEST', true);
 require '../commons/base.inc.php';
 header('Content-Type: text/plain');
 // The client base64-encodes every value, so decode (and sanitize) the
-// request up front before any field is read.
-FOGCore::stripAndDecode($_REQUEST);
+// request up front before any field is read. stripAndDecode() takes the
+// array by reference and decodes it in place, so run it on both sources
+// that FOGCore::requestParam() reads.
+FOGCore::stripAndDecode($_POST);
+FOGCore::stripAndDecode($_GET);
 try {
     // Authenticate by host/MAC the same way the other FOS-facing service
     // endpoints do; getHostItem() reads the mac itself (via filter_input on
@@ -65,7 +68,7 @@ try {
     if ($smbiosMode === 'register') {
         $posted = [];
         foreach (SmbiosIdentity::FIELDS as $field) {
-            $posted[$field] = (string)($_REQUEST[$field] ?? '');
+            $posted[$field] = (string)FOGCore::requestParam($field, '');
         }
         $macID = (int)FOGCore::$Host->get('id');
         $clash = MachineIdentity::serialClash($macID, $posted);
@@ -151,18 +154,18 @@ try {
     // reliably with what iPXE reports (see SmbiosIdentity::canonicalize).
     $identifierFields = ['sysuuid', 'sysserial', 'mbserial'];
     foreach ($allowedFields as $field) {
-        if (!isset($_REQUEST[$field])) {
+        if (!FOGCore::hasRequestParam($field)) {
             continue;
         }
-        $value = $_REQUEST[$field];
+        $value = FOGCore::requestParam($field);
         if (in_array($field, $identifierFields, true)) {
             $value = SmbiosIdentity::canonicalize($value);
         }
         $Inventory->set($field, $value);
     }
     // hdinfo is a compound string that is parsed out into separate columns.
-    if (isset($_REQUEST['hdinfo'])) {
-        $val = $_REQUEST['hdinfo'];
+    if (FOGCore::hasRequestParam('hdinfo')) {
+        $val = FOGCore::requestParam('hdinfo');
         preg_match(
             '#model=(.*?),#i',
             $val,

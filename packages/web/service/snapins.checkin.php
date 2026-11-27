@@ -11,6 +11,7 @@
  * @link     https://fogproject.org
  */
 
+use FOG\Base\FOGCore;
 use FOG\Client\SnapinClient;
 
 /**
@@ -37,5 +38,5 @@ new SnapinClient(
     false,
     false,
     false,
-    isset($_REQUEST['newService'])
+    FOGCore::hasRequestParam('newService')
 );
