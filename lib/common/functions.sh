@@ -3368,14 +3368,56 @@ configureUDPCast() {
         return 1
     fi
     cd "$udptmp" || { echo "Failed"; return 1; }
+    # udpcastsrc is relative to the scratch directory (config.sh gives
+    # ../packages/...), which is the current directory until the unpack. It is
+    # resolved to an absolute udpsrc after the fetch; config.sh's value stays.
+    local udpsrcdir="" udpsrcfile="" udpsrc="" udpurl=""
+    udpsrcdir="$(dirname "$udpcastsrc")"
+    udpsrcfile="$(basename "$udpcastsrc")"
+    udpurl="${udpcasturl}/${udpcastVer}/udpcast-${udpcastVer}.tar.gz"
+    # Use the tarball when it is already here and passes its checksum. If not,
+    # download both files. The hash is compared directly, not by sha256sum -c,
+    # because the .sha256 names the release file and udpcastsrc may be renamed.
+    # Same flags and retries as bin/fetch-plugins.sh, and no -k: the checksum
+    # comes down the same connection as the tarball.
+    local udpsum=1 udpcnt=0 udpwant="" udphave=""
+    while [[ $udpsum -ne 0 && $udpcnt -lt 5 ]]; do
+        udpsum=1
+        if [[ -f $udpcastsrc && -f ${udpcastsrc}.sha256 ]]; then
+            udpwant="$(awk '{print $1; exit}' "${udpcastsrc}.sha256" 2>/dev/null)"
+            udphave="$(sha256sum "$udpcastsrc" 2>/dev/null | awk '{print $1}')"
+            [[ -n $udpwant && $udpwant == "$udphave" ]] && udpsum=0
+        fi
+        if [[ $udpsum -ne 0 ]]; then
+            mkdir -p "$udpsrcdir" >>$error_log 2>&1
+            curl --silent -fL --connect-timeout "$inetConnectTimeout" \
+                --speed-time 30 --speed-limit 1024 -o "$udpcastsrc" "$udpurl" >>$error_log 2>&1
+            curl --silent -fL --connect-timeout "$inetConnectTimeout" \
+                --speed-time 30 --speed-limit 1024 -o "${udpcastsrc}.sha256" "${udpurl}.sha256" >>$error_log 2>&1
+        fi
+        let udpcnt+=1
+    done
+    udpsrcdir="$(cd "$udpsrcdir" 2>/dev/null && pwd)"
+    udpsrc="${udpsrcdir}/${udpsrcfile}"
+    if [[ $udpsum -ne 0 ]]; then
+        # Fatal, like the iPXE fetch: without it the install finishes with no
+        # udp-sender, or silently keeps an old one. Guidance first, because
+        # nothing printed after the exit is seen.
+        echo "Failed"
+        echo " * Could not obtain verified udpcast (${udpcastVer}) from ${udpcastgit}"
+        echo " * For an offline install, place ${udpsrcfile} and its .sha256 in ${udpsrcdir:-$(dirname "$udpcastsrc")}"
+        cd "$cur"
+        [[ -z $exitFail ]] && exit 1
+        return 1
+    fi
     rm -rf "$udpcastout"
-    tar xzf "$udpcastsrc" >>$error_log 2>&1
+    tar xzf "$udpsrc" >>$error_log 2>&1
     # Guarded because everything after it -- configure, make, make install --
     # would otherwise run in the scratch directory instead of the unpacked
     # source, each failing separately and none of them saying why.
     if ! cd "$udpcastout"; then
         echo "Failed"
-        echo " * ${udpcastsrc} did not unpack to ${udpcastout}. See ${error_log}."
+        echo " * ${udpsrc} did not unpack to ${udpcastout}. See ${error_log}."
         cd "$cur"
         return 1
     fi

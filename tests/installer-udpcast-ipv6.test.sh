@@ -4,9 +4,11 @@
 #
 #   tests/installer-udpcast-ipv6.test.sh
 #
-# configureUDPCast() unpacks $udpcastsrc, runs ./configure and builds. The
-# tarball is the 20250223 source plus the IPv6 port, with a regenerated
-# configure. This test does what the installer does and checks three things:
+# configureUDPCast() fetches the release FOG_UDPCAST_VERSION pins from
+# FOGProject/udpcast, unpacks it, runs ./configure and builds. The tarball is
+# the 20250223 source plus the IPv6 port, with a generated configure. This test
+# downloads the same release, checks its sha256, does what the installer does
+# and checks three things:
 #
 #   * configure detects getifaddrs and if_nametoindex. Without them the IPv6
 #     code is compiled out and udp-sender silently stays IPv4 only.
@@ -14,7 +16,8 @@
 #   * The built binary carries the IPv6 interface error string, which proves
 #     the IPv6 code is in it.
 #
-# Needs tar, make and a C compiler. No network, no root, no install.
+# Needs tar, make, curl, a C compiler and network access to GitHub. No root,
+# no install.
 #
 # Exit status 0 = pass or skip, 1 = fail.
 
@@ -23,7 +26,7 @@ REPO="$(cd "$HERE/.." && pwd)"
 CONFIG="$REPO/lib/common/config.sh"
 
 [[ -f $CONFIG ]] || { echo "ERROR: $CONFIG not found" >&2; exit 1; }
-for tool in tar make; do
+for tool in tar make curl sha256sum; do
     command -v $tool >/dev/null 2>&1 || { echo "SKIP: $tool is not installed"; exit 0; }
 done
 command -v cc >/dev/null 2>&1 || command -v gcc >/dev/null 2>&1 || { echo "SKIP: no C compiler is installed"; exit 0; }
@@ -36,20 +39,41 @@ FAIL=0
 ok()  { PASS=$((PASS + 1)); printf '  ok    %s\n' "$1"; }
 bad() { FAIL=$((FAIL + 1)); printf '  FAIL  %s\n' "$1"; }
 
-# Read the real paths from config.sh, so the test cannot drift from the
-# installer. config.sh gives a relative path, resolved from tests/ the same
-# way the installer resolves it from its own directory.
-udpcastsrc=""
+# Read the pin and the URL from the same places the installer does, so the
+# test cannot drift from the installer. config.sh reads the pin from System.php
+# with a path relative to bin/, so source it from there.
+udpcastVer=""
+udpcasturl=""
 udpcastout=""
+(cd "$REPO/bin" && . "$CONFIG" >/dev/null 2>&1; declare -p udpcastVer udpcasturl udpcastout) >"$WORK/vars" 2>/dev/null
 # shellcheck source=/dev/null
-. "$CONFIG" >/dev/null 2>&1
-SRC="$(cd "$REPO/bin" && cd "$(dirname "$udpcastsrc")" && pwd)/$(basename "$udpcastsrc")"
+. "$WORK/vars"
 
-[[ -f $SRC ]] && ok "udpcastsrc exists ($(basename "$SRC"))" || { bad "udpcastsrc missing: $SRC"; echo "FAIL: $FAIL"; exit 1; }
-case "$(basename "$SRC")" in
-    *-ipv6.tar.gz) ok "installer points at the ipv6 tarball" ;;
-    *) bad "installer does not point at the ipv6 tarball: $SRC" ;;
-esac
+[[ -n $udpcastVer ]] && ok "udpcast pin is $udpcastVer" || { bad "udpcastVer is empty"; echo "FAIL: $FAIL"; exit 1; }
+
+# Download the pinned release into its own directory, as the installer does.
+DL="$WORK/download"
+mkdir -p "$DL"
+TARBALL="udpcast-${udpcastVer}.tar.gz"
+SRC="$DL/$TARBALL"
+URL="${udpcasturl}/${udpcastVer}/${TARBALL}"
+if curl --silent -fL --connect-timeout 10 -o "$SRC" "$URL" \
+    && curl --silent -fL --connect-timeout 10 -o "$SRC.sha256" "${URL}.sha256"; then
+    ok "downloaded $TARBALL and its .sha256"
+else
+    bad "could not download $URL"
+    echo "FAIL: $FAIL"
+    exit 1
+fi
+
+# The .sha256 holds a bare file name, so check it from its own directory.
+if (cd "$DL" && sha256sum -c "$TARBALL.sha256" >/dev/null 2>&1); then
+    ok "tarball sha256 matches the published .sha256"
+else
+    bad "tarball sha256 does not match the published .sha256"
+    echo "FAIL: $FAIL"
+    exit 1
+fi
 
 cd "$WORK" || exit 1
 if tar xzf "$SRC" 2>"$WORK/tar.err" && cd "$udpcastout"; then
