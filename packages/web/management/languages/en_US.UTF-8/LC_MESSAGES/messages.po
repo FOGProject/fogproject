@@ -187,6 +187,10 @@ msgstr "Printer already exists"
 msgid "%s %s log (%s)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "Registered"
+
 #, php-format
 msgid "%s Manager"
 msgstr "%s Manager"
@@ -3820,6 +3824,9 @@ msgstr ""
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
+msgid "FOS sent no report within 24 hours; an init older than this server does not report for an unregistered host"
+msgstr ""
+
 #, fuzzy
 msgid "FTP Connection Failed"
 msgstr "FTP Connection has failed"
@@ -3925,6 +3932,10 @@ msgid "Failed to install logo file"
 msgstr "Failed to destroy"
 
 #, fuzzy
+msgid "Failed to issue a boot token"
+msgstr "Could not read tmp file."
+
+#, fuzzy
 msgid "Failed to move uploaded file."
 msgstr "Failed to delete file"
 
@@ -3947,6 +3958,10 @@ msgstr "Failed to destroy Storage Node"
 #, fuzzy
 msgid "Failed to remove hosts"
 msgstr "Failed to create Host"
+
+#, fuzzy
+msgid "Failed to save the task"
+msgstr "Failed to create task"
 
 #, fuzzy
 msgid "Failed to uninstall "
@@ -6579,6 +6594,10 @@ msgid "Marked failed, task"
 msgstr "Load failed: %s"
 
 #, fuzzy
+msgid "Marked no report, task"
+msgstr "Load failed: %s"
+
+#, fuzzy
 msgid "Mass Edit Fail"
 msgstr "User update failed"
 
@@ -7063,6 +7082,10 @@ msgstr "Snapin updated"
 
 msgid "No Printer Management"
 msgstr "No Printer Management"
+
+#, fuzzy
+msgid "No Report"
+msgstr "Report"
 
 msgid "No access is allowed"
 msgstr ""

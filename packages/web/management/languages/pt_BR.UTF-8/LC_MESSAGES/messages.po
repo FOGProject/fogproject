@@ -187,6 +187,10 @@ msgstr "Impressora já existe"
 msgid "%s %s log (%s)"
 msgstr ""
 
+#, fuzzy, php-format
+msgid "%s (unregistered)"
+msgstr "Registrado"
+
 #, php-format
 msgid "%s Manager"
 msgstr "%s Gestor"
@@ -3820,6 +3824,9 @@ msgstr ""
 msgid "FOS kernels on this server are signed for UEFI Secure Boot"
 msgstr ""
 
+msgid "FOS sent no report within 24 hours; an init older than this server does not report for an unregistered host"
+msgstr ""
+
 #, fuzzy
 msgid "FTP Connection Failed"
 msgstr "Conexão FTP falhou"
@@ -3925,6 +3932,10 @@ msgid "Failed to install logo file"
 msgstr "Falha ao destruir"
 
 #, fuzzy
+msgid "Failed to issue a boot token"
+msgstr "Não foi possível ler o arquivo tmp."
+
+#, fuzzy
 msgid "Failed to move uploaded file."
 msgstr "Falha ao excluir arquivo"
 
@@ -3947,6 +3958,10 @@ msgstr "Falha ao destruir Storage Node"
 #, fuzzy
 msgid "Failed to remove hosts"
 msgstr "Falha ao criar o Host"
+
+#, fuzzy
+msgid "Failed to save the task"
+msgstr "Falha ao criar tarefa"
 
 #, fuzzy
 msgid "Failed to uninstall "
@@ -6566,6 +6581,10 @@ msgid "Marked failed, task"
 msgstr "Carga falhou: %s"
 
 #, fuzzy
+msgid "Marked no report, task"
+msgstr "Carga falhou: %s"
+
+#, fuzzy
 msgid "Mass Edit Fail"
 msgstr "atualização do utilizador falhou"
 
@@ -7050,6 +7069,10 @@ msgstr "Snapin atualizada"
 
 msgid "No Printer Management"
 msgstr "Sem gerenciamento de impressoras"
+
+#, fuzzy
+msgid "No Report"
+msgstr "Relatório"
 
 msgid "No access is allowed"
 msgstr ""
