@@ -50,12 +50,17 @@
 [[ -z $inetConnectTimeout ]] && inetConnectTimeout=5
 [[ -z $inetMaxTime ]] && inetMaxTime=15
 [[ -z $internet_ok ]] && internet_ok=1
-fog_udpversion="20250223"
-# The -ipv6 tarball is the 20250223 source with the IPv6 port applied and a
-# regenerated configure, so the server needs no autoconf. It unpacks to the
-# same udpcast-${fog_udpversion} directory, so udpcastout is unchanged.
-[[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-${fog_udpversion}-ipv6.tar.gz"
-[[ -z $udpcastout ]] && udpcastout="udpcast-${fog_udpversion}"
+# udpcast lives in FOGProject/udpcast and is fetched as a pinned release, the
+# same way as the plugins above. The release tarball is the 20250223 source
+# with the IPv6 port applied and a generated configure, so the server needs no
+# autoconf. A tarball already at udpcastsrc, with its .sha256, is used without
+# a download: that is the offline path.
+[[ -z $udpcastgit ]] && udpcastgit="https://github.com/FOGProject/udpcast"
+[[ -z $udpcasturl ]] && udpcasturl="${udpcastgit}/releases/download"
+[[ -z $udpcastVer ]] && udpcastVer="$(awk -F\' /"define\('FOG_UDPCAST_VERSION'[,](.*)"/'{print $4}' ../packages/web/src/Base/System.php 2>/dev/null | tr -d '[[:space:]]')"
+[[ -z $udpcastVer ]] && udpcastVer="v20250223-fog.1"
+[[ -z $udpcastsrc ]] && udpcastsrc="../packages/udpcast-${udpcastVer}.tar.gz"
+[[ -z $udpcastout ]] && udpcastout="udpcast-${udpcastVer}"
 [[ -z $servicesrc ]] && servicesrc="../packages/service"
 # fogprogramdir is the single source of truth for the FOG base path and must be
 # resolved BEFORE anything derived from it -- it used to be set two lines later,

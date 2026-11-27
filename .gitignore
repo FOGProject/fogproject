@@ -126,6 +126,11 @@ skills-lock.json
 # which the installer does for you.
 /packages/web/lib/plugins/
 
+# udpcast now comes from FOGProject/udpcast as a release asset, pinned by
+# FOG_UDPCAST_VERSION. The installer downloads the tarball and its .sha256 here.
+/packages/udpcast-*.tar.gz
+/packages/udpcast-*.tar.gz.sha256
+
 # Root-level dev tooling (PHPStan). Anchored with a leading slash so it matches
 # ONLY the repo root -- packages/web/vendor is the shipped application's
 # dependency tree and stays tracked. Nothing here reaches a FOG server:

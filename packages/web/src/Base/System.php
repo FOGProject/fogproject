@@ -118,6 +118,9 @@ class System
         // FOG release ships a known set of plugins rather than whatever the
         // default branch held on the day someone installed.
         define('FOG_PLUGINS_VERSION', 'v1.6.32');
+        // The udpcast source lives in FOGProject/udpcast. The installer
+        // builds udp-sender from this release (configureUDPCast).
+        define('FOG_UDPCAST_VERSION', 'v20250223-fog.1');
         // GH-850: FOG_BASE_DIR is now installer-driven. Initiator loads
         // commons/fogpaths.php (written from the installer's $fogprogramdir)
         // before the autoloader runs, so in a normal boot these are already
