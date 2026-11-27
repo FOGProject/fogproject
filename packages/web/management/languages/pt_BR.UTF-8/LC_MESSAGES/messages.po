@@ -10812,6 +10812,9 @@ msgstr "Serial"
 msgid "Test Email Failed"
 msgstr "Opções de inicialização:"
 
+msgid "Test Email Queued, Not Sent"
+msgstr ""
+
 msgid "Test Email Sent"
 msgstr ""
 
@@ -11216,6 +11219,10 @@ msgstr ""
 
 #, php-format
 msgid "The mail command %s is not installed or is not executable. Install a mail server such as postfix, or set sendmail_path in php.ini."
+msgstr ""
+
+#, php-format
+msgid "The mail command is %1$s, but nothing is listening on port %2$d on this server, so %1$s may be stopped. The mail command accepts a message while %1$s is stopped, and the message then waits in the queue. Start it, for example: systemctl enable --now %1$s"
 msgstr ""
 
 msgid "The mail command refused the email."
