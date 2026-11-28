@@ -16,6 +16,7 @@ use FOG\Base\FOGCore;
 use FOG\Boot\BootMenuBase;
 use FOG\Items\MulticastSession;
 use FOG\Router\Route;
+use FOG\Util\DebugSshKeys;
 
 /**
  * Hostinfo returns the host information
@@ -402,6 +403,16 @@ try {
         list($name, $value) = explode('=', $token, 2);
         $repFields[$name] = $value;
     }
+    // The SSH public keys FOS installs for root on a debug task (#2193).
+    // Last, after the hook and the kernel line's variables, and always sent,
+    // empty when the task is not a debug task: FOS lets a reply value override
+    // the kernel line, so only this line decides. A debugsshkeys= in the host's
+    // kernelArgs, or from a listener, never reaches FOS.
+    $repFields['debugsshkeys'] = DebugSshKeys::forTask(
+        $Task,
+        $TaskType,
+        (string)FOGCore::getSetting(DebugSshKeys::SETTING)
+    );
     foreach ((array)$repFields as $key => $val) {
         printf(
             "[[ -z $%s ]] && export %s=%s\n",

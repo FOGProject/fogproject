@@ -12665,3 +12665,18 @@ $this->schema[] = [
     . "ADD COLUMN `hostInfoLockTime` int(10) unsigned NOT NULL DEFAULT 0 "
     . "AFTER `hostInfoLock`",
 ];
+// 475
+$this->schema[] = [
+    // The SSH public keys a debug task installs for root in FOS (#2193).
+    // Empty is the default and means off, so an upgrade changes nothing until
+    // a site adds a key. Security, not a debug category: it grants root.
+    "INSERT IGNORE INTO `globalSettings`"
+    . "(`settingKey`,`settingDesc`,`settingValue`,`settingCategory`)"
+    . "VALUES"
+    . "('FOG_DEBUG_SSH_KEYS','OpenSSH public keys, one per line, that a "
+    . "debug task installs for root in FOS. Anyone who holds a matching "
+    . "private key can then log in to the machine over SSH as root while "
+    . "the debug task runs. Normal deploy, capture and registration tasks "
+    . "never install them. Only public keys are accepted. Leave empty to "
+    . "turn this off, which is the default.','','Security')",
+];

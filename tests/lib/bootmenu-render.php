@@ -85,6 +85,7 @@ FOGBase::$settings = array_merge(
         'FOG_CAPTUREIGNOREPAGEHIBER' => '0',
         'FOG_CAPTURERESIZEPCT' => '5',
         'FOG_CHANGE_HOSTNAME_EARLY' => '0',
+        'FOG_DEBUG_SSH_KEYS' => '',
         'FOG_DISABLE_CHKDSK' => '1',
         'FOG_EFI_BOOT_EXIT_TYPE' => 'refind_efi',
         'FOG_IMAGE_LIST_MENU' => '0',
@@ -439,6 +440,7 @@ register_shutdown_function(
                 . "use FOG\\Boot\\BootMenuBase;\n"
                 . "use FOG\\Items\\MulticastSession;\n"
                 . "use FOG\\Router\\Route;\n"
+                . "use FOG\\Util\\DebugSshKeys;\n"
                 . $initBlock
                 . substr($source, $from, $to - $from)
             );

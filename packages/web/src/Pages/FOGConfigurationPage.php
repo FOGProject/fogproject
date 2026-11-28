@@ -34,6 +34,7 @@ use FOG\Managers\SettingManager;
 use FOG\Managers\UserManager;
 use FOG\Router\HTTPResponseCodes;
 use FOG\Router\Route;
+use FOG\Util\DebugSshKeys;
 use FOG\Util\Mailer;
 
 /**
@@ -5205,6 +5206,18 @@ class FOGConfigurationPage extends FOGPage
                     '0.25'
                 );
                 break;
+            case DebugSshKeys::SETTING:
+                // One key per line (#2193). A text input strips the line
+                // breaks, which would join a second key onto the first key's
+                // comment, and only the first key would work.
+                $input = self::makeTextarea(
+                    'form-control',
+                    $row['settingID'],
+                    'ssh-ed25519 AAAA... you@example',
+                    $row['settingKey'],
+                    $row['settingValue']
+                );
+                break;
             default:
                 $type = 'text';
                 if (isset($needstobenumeric[$row['settingKey']])) {
@@ -5287,6 +5300,8 @@ class FOGConfigurationPage extends FOGPage
             // warning rather than a silent 0. `?:` there was papering over
             // the missing initialization; `??` would have hidden it too.
             $items = [];
+            // [before, after] when this post changes FOG_DEBUG_SSH_KEYS.
+            $debugKeysChange = null;
             foreach ($combined as $key => &$val) {
                 // Resolved into its own variable: $key stays the posted key
                 // because the $_FILES lookup below is keyed by what the form
@@ -5355,6 +5370,16 @@ class FOGConfigurationPage extends FOGPage
                         break;
                     case 'FOG_API_TOKEN':
                         $set = base64_decode($set);
+                        break;
+                    case DebugSshKeys::SETTING:
+                        // Root SSH on every debug task (#2193): only public
+                        // keys are stored, and the change is audited after
+                        // the write below. normalize() throws on a bad line.
+                        $set = DebugSshKeys::normalize($set ?? '');
+                        $debugKeysChange = [
+                            DebugSshKeys::normalizeStored($val),
+                            $set,
+                        ];
                         break;
                     case 'FOG_MEMORY_LIMIT':
                         if ($set < 128) {
@@ -5587,6 +5612,14 @@ class FOGConfigurationPage extends FOGPage
                 // hard refresh, until the TTL lapsed. Flushing here also
                 // raises the cross-process signal so other workers re-read.
                 FOGBase::clearSettingsCache();
+                // After the write, so the row records a change that landed.
+                if (null !== $debugKeysChange) {
+                    DebugSshKeys::recordChange(
+                        $debugKeysChange[0],
+                        $debugKeysChange[1],
+                        'settings.edit'
+                    );
+                }
             }
             $code = HTTPResponseCodes::HTTP_ACCEPTED;
             $msg = json_encode(
