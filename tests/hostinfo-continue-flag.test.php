@@ -28,6 +28,7 @@
 namespace HostinfoContinueTest;
 
 require_once __DIR__ . '/lib/fog-test-harness.php';
+require_once __DIR__ . '/lib/hostinfo-parity.php';
 
 /**
  * Stand-in for any model: answers get() from a field map.
@@ -201,35 +202,6 @@ class FOGCore
         return $out;
     }
     /**
-     * Mirrors FOGBase::chkdskFlag().
-     *
-     * @param mixed $disabled the setting
-     *
-     * @return int
-     */
-    public static function chkdskFlag($disabled)
-    {
-        return $disabled == 1 ? 0 : 1;
-    }
-    /**
-     * Mirrors FOGBase::mcastRdvForNode() for the plain addresses used here.
-     *
-     * @param string $rdv    the rendezvous setting
-     * @param string $nodeIP the node address
-     *
-     * @return string
-     */
-    public static function mcastRdvForNode($rdv, $nodeIP)
-    {
-        if ('' === $rdv || !filter_var($rdv, FILTER_VALIDATE_IP)) {
-            return $rdv;
-        }
-        $isV6 = function ($ip) {
-            return false !== filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
-        };
-        return $isV6($rdv) === $isV6($nodeIP) ? $rdv : '';
-    }
-    /**
      * Mirrors the real one for the plain addresses used here.
      *
      * @param string $host the address
@@ -279,26 +251,20 @@ function cut($source, $from, $to)
     return substr($source, $start, $end - $start);
 }
 
-$sameBlock = cut($source, '    $sameBoot = true;', '    $fdrive = FOGCore::$Host');
+$sameBlock = cut($source, '    $sameBoot = true;', '    $Inventory = FOGCore::$Host');
 $nodeBlock = cut(
     $source,
     '        // The node the task was queued',
     "        \$osid = \$Image->get('osID');"
 );
-$pigzBlock = cut(
-    $source,
-    "        // The kernel arguments use the image's level",
-    '        $shutdown = intval('
-);
 $fieldBlock = cut(
     $source,
-    "        'chkdsk' =>",
-    "        'shutdown' => \$shutdown,"
+    "        'samebootok' =>",
+    '        // Exposed other elements'
 );
 $t->check('the samebootok block is found by its anchors', '' !== $sameBlock);
 $t->check('the storage node block is found by its anchors', '' !== $nodeBlock);
-$t->check('the imaging settings block is found by its anchors', '' !== $pigzBlock);
-$t->check('the new reply fields are found by their anchors', '' !== $fieldBlock);
+$t->check('the samebootok reply field is found by its anchors', '' !== $fieldBlock);
 
 /**
  * Runs the samebootok block and returns the field's value.
@@ -460,6 +426,8 @@ function chosenNode($block, $node)
     $Task->node = $node;
     $StorageNode = null;
     $StorageGroup = new StubGroup();
+    // hostinfo.php reads the task's node before the block.
+    $RecordedNode = $Task->getStorageNode();
     // The block assigns $StorageNode; the eval hands its ip back.
     return eval(
         "namespace HostinfoContinueTest;\n" . $block
@@ -487,88 +455,70 @@ $t->check(
 );
 
 /**
- * Runs the imaging settings block and returns what it computed.
+ * The reply fields for an imaging deploy, rendered through the boot menu
+ * harness (ADR 0023: the task variables come from the boot menu's code).
  *
- * @param string $block    the block's source
- * @param array  $settings the settings
- * @param array  $image    image fields
- * @param string $nodeIp   the node's ip
- *
- * @return array [chkdsk, mcastrdv, PIGZ_COMP]
- */
-function imagingValues($block, array $settings, array $image, $nodeIp)
-{
-    FOGCore::$settings = $settings;
-    $Image = new StubItem($image);
-    $StorageNode = new StubItem(['ip' => $nodeIp]);
-    $imgFormat = $image['format'] ?? 0;
-    // The block assigns these; the eval hands them back.
-    return eval(
-        "namespace HostinfoContinueTest;\n" . $block
-        . "\nreturn [\$chkdsk, \$mcastrdv, \$PIGZ_COMP];"
-    );
-}
-
-$sets = [
-    'FOG_DISABLE_CHKDSK' => '1',
-    'FOG_MULTICAST_RENDEZVOUS' => '',
-    'FOG_PIGZ_COMP' => '6',
-];
-$v = imagingValues($pigzBlock, $sets, ['compress' => '-1', 'format' => 0], '10.0.0.5');
-$t->check(
-    'an image compress of -1 uses the global level, not --1',
-    '6' === (string)$v[2]
-);
-$v = imagingValues($pigzBlock, $sets, ['compress' => '3', 'format' => 0], '10.0.0.5');
-$t->check('an image level of 3 is used', '3' === (string)$v[2]);
-$v = imagingValues($pigzBlock, $sets, ['compress' => '11', 'format' => 0], '10.0.0.5');
-$t->check('a level above 9 is capped at 9 for a pigz format', '9' === (string)$v[2]);
-$t->check('FOG_DISABLE_CHKDSK 1 sends chkdsk 0', 0 === $v[0]);
-$v = imagingValues(
-    $pigzBlock,
-    ['FOG_DISABLE_CHKDSK' => '0'] + $sets,
-    ['compress' => '3', 'format' => 0],
-    '10.0.0.5'
-);
-$t->check('FOG_DISABLE_CHKDSK 0 sends chkdsk 1', 1 === $v[0]);
-$v = imagingValues(
-    $pigzBlock,
-    ['FOG_MULTICAST_RENDEZVOUS' => '10.0.0.7'] + $sets,
-    ['compress' => '3'],
-    '10.0.0.5'
-);
-$t->check('an IPv4 rendezvous for an IPv4 node is kept', '10.0.0.7' === $v[1]);
-$v = imagingValues(
-    $pigzBlock,
-    ['FOG_MULTICAST_RENDEZVOUS' => '10.0.0.7'] + $sets,
-    ['compress' => '3'],
-    'fd00::5'
-);
-$t->check('an IPv4 rendezvous for an IPv6 node is dropped', '' === $v[1]);
-
-/**
- * Runs the new reply fields and returns them.
- *
- * @param string $block the field block's source
- * @param array  $task  task fields
+ * @param array $settings settings added to the harness defaults
+ * @param array $image    image fields added to the base image
+ * @param array $task     task fields added to the base task
+ * @param array $extra    scenario keys added
  *
  * @return array
  */
-function replyFields($block, array $task)
+function deployFields(array $settings, array $image = [], array $task = [], array $extra = [])
 {
-    $Task = new StubItem($task);
-    $chkdsk = 1;
-    $mcastrdv = '10.0.0.7';
+    return hostinfoFields(
+        parityScenario(
+            PARITY_DEPLOY,
+            [],
+            ['image' => parityImage($image)] + $task,
+            ['settings' => $settings] + $extra
+        )
+    );
+}
+
+$sets = ['FOG_DISABLE_CHKDSK' => '1', 'FOG_MULTICAST_RENDEZVOUS' => '', 'FOG_PIGZ_COMP' => '6'];
+$f = deployFields($sets, ['compress' => '-1', 'format' => 0]);
+$t->check(
+    'an image compress of -1 uses the global level, not --1',
+    '-6' === ($f['PIGZ_COMP'] ?? null)
+);
+$f = deployFields($sets, ['compress' => '3', 'format' => 0]);
+$t->check('an image level of 3 is used', '-3' === ($f['PIGZ_COMP'] ?? null));
+$f = deployFields($sets, ['compress' => '11', 'format' => 0]);
+$t->check('a level above 9 is capped at 9 for a pigz format', '-9' === ($f['PIGZ_COMP'] ?? null));
+$t->check('FOG_DISABLE_CHKDSK 1 sends chkdsk 0', '0' === ($f['chkdsk'] ?? null));
+$f = deployFields(['FOG_DISABLE_CHKDSK' => '0'] + $sets, ['compress' => '3', 'format' => 0]);
+$t->check('FOG_DISABLE_CHKDSK 0 sends chkdsk 1', '1' === ($f['chkdsk'] ?? null));
+$f = deployFields(['FOG_MULTICAST_RENDEZVOUS' => '10.0.0.7'] + $sets);
+$t->check('an IPv4 rendezvous for an IPv4 node is kept', '10.0.0.7' === ($f['mcastrdv'] ?? null));
+$f = deployFields(['FOG_MULTICAST_RENDEZVOUS' => '10.0.0.7'] + $sets, [], [], ['storageNodeIp' => 'fd00::5']);
+$t->check('an IPv4 rendezvous for an IPv6 node is dropped', !isset($f['mcastrdv']) || '' === $f['mcastrdv']);
+
+$f = deployFields($sets, [], ['bypassbitlocker' => 1, 'isDebug' => 1]);
+$t->check('bitlockerbypass is 1 when the task bypasses BitLocker', '1' === ($f['bitlockerbypass'] ?? null));
+$t->check('isdebug is yes when the task is a debug task', 'yes' === ($f['isdebug'] ?? null));
+$t->check('chkdsk is sent for an imaging task', '0' === ($f['chkdsk'] ?? null));
+$f = deployFields($sets);
+$t->check(
+    'bitlockerbypass and isdebug are not sent by default',
+    !array_key_exists('bitlockerbypass', $f) && !array_key_exists('isdebug', $f)
+);
+$t->check('no shutdown is sent by default, so the kernel line keeps its own', !array_key_exists('shutdown', $f));
+
+/**
+ * Runs the samebootok reply field and returns it.
+ *
+ * @param string $block the field block's source
+ *
+ * @return array
+ */
+function replyFields($block)
+{
     $sameBoot = true;
     return eval('return [' . $block . '];');
 }
 
-$f = replyFields($fieldBlock, ['bypassbitlocker' => 1, 'isDebug' => 1]);
-$t->check('bitlockerbypass is 1 when the task bypasses BitLocker', '1' === $f['bitlockerbypass']);
-$t->check('isdebug is yes when the task is a debug task', 'yes' === $f['isdebug']);
-$t->check('chkdsk and mcastrdv are sent', 1 === $f['chkdsk'] && '10.0.0.7' === $f['mcastrdv']);
-$t->check('samebootok is sent', '1' === $f['samebootok']);
-$f = replyFields($fieldBlock, []);
-$t->check('bitlockerbypass and isdebug are empty by default', '' === $f['bitlockerbypass'] && '' === $f['isdebug']);
+$t->check('samebootok is sent', '1' === replyFields($fieldBlock)['samebootok']);
 
 $t->finish();

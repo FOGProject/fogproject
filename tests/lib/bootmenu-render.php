@@ -220,6 +220,16 @@ Route::$rows = [
 ];
 
 /*
+ * The multicast session association rows getTasking() reads for a multicast
+ * task. Off unless a scenario names them.
+ */
+foreach ((array)($scenario['mcastAssoc'] ?? []) as $assoc) {
+    Route::$rows['multicastsessionassociation'][] = (object)$assoc;
+}
+// Image rows `new Image($id)` finds, for a task whose image the session replaces.
+Route::$rows['imagesbyid'] = (array)($scenario['imagesById'] ?? []);
+
+/*
  * The inventory row Route::getList('inventory', ...) returns. Its columns go
  * through the same generateIpxeItems() as the host's, and the two records
  * share names -- the inventory list joins the host name in as `hostname` --
@@ -376,7 +386,65 @@ require_once $classFile;
  * because several paths end in exit().
  */
 register_shutdown_function(
-    function () use ($scenario) {
+    function () use ($scenario, $classFile) {
+        /*
+         * The fields service/hostinfo.php sends for this scenario's task,
+         * built from the same fixtures the kernel line was (ADR 0023). The
+         * script has no function to call, so this runs its own merge block,
+         * cut out by its anchors, with the node the task recorded. Opt-in.
+         */
+        if (!empty($scenario['printHostinfoFields'])) {
+            $source = (string)file_get_contents(
+                dirname($classFile, 3) . '/service/hostinfo.php'
+            );
+            $from = strpos($source, "    \$HookManager->processEvent(\n        'HOST_INFO_EXPOSE'");
+            $to = strpos($source, '    foreach ((array)$repFields as $key => $val) {');
+            if (false === $from || false === $to || $from >= $to) {
+                echo "harness: hostinfo merge block not found\n";
+                return;
+            }
+            // The script's multicast image and storage node choice, from the
+            // session lookup to the first image read. FOS adds taskinfo=1 to
+            // its request only for a boot from the boot menu's kernel line.
+            $nodeFrom = strpos($source, "        if (\$TaskType->isMulticast()) {\n            \$ids = ");
+            $nodeTo = strpos($source, "        \$osid = \$Image->get('osID');");
+            if (false === $nodeFrom || false === $nodeTo || $nodeFrom >= $nodeTo) {
+                echo "harness: hostinfo node block not found\n";
+                return;
+            }
+            if (!empty($scenario['hostinfoTaskinfo'])) {
+                $_GET['taskinfo'] = '1';
+            }
+            $Host = FOGBase::$Host;
+            $Task = $Host->get('task');
+            // hostinfo.php is a separate request: the task is as the render
+            // above saved it, so the node getTasking() recorded is the node
+            // the task names. Only the image goes back to the scenario's, so
+            // hostinfo.php reconciles it itself.
+            if (isset($scenario['host']['task']['imageID'])) {
+                $Task->set('imageID', $scenario['host']['task']['imageID']);
+            }
+            $TaskType = $Task->getTaskType();
+            $Image = $Task->getImage();
+            $HookManager = FOGBase::$HookManager;
+            $StorageNode = null;
+            $MulticastSession = null;
+            $repFields = [];
+            $initBlock = $TaskType->isInitNeededTasking()
+                ? substr($source, $nodeFrom, $nodeTo - $nodeFrom)
+                : '';
+            eval(
+                "namespace FOG\\HostinfoParity;\n"
+                . "use FOG\\Base\\FOGBase as FOGCore;\n"
+                . "use FOG\\Boot\\BootMenuBase;\n"
+                . "use FOG\\Items\\MulticastSession;\n"
+                . "use FOG\\Router\\Route;\n"
+                . $initBlock
+                . substr($source, $from, $to - $from)
+            );
+            echo '#hostinfo-fields ', json_encode($repFields), "\n";
+            echo '#task-keys ', json_encode(\FOG\Boot\BootMenuBase::TASK_KEYS), "\n";
+        }
         // Opt-in, so no other scenario's bytes change.
         if (!empty($scenario['reportAuth'])) {
             echo '#auth ', json_encode(FOGBase::$authArgs), "\n";

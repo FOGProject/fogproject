@@ -218,7 +218,22 @@ class StubTask extends StubModel
      */
     public function getImage()
     {
+        // The task's imageID names an image a scenario listed, as the real
+        // task loads its image by that column.
+        $imageID = $this->data['imageID'] ?? null;
+        if (null !== $imageID && isset(Route::$rows['imagesbyid'][$imageID])) {
+            return new Image($imageID);
+        }
         return new Image((array)($this->data['image'] ?? []));
+    }
+    /**
+     * Returns the node the task records: the one its storagenodeID names.
+     *
+     * @return StorageNode
+     */
+    public function getStorageNode()
+    {
+        return new StorageNode($this->get('storagenodeID'));
     }
 }
 
@@ -298,6 +313,19 @@ class TaskType extends StubModel
  */
 class Image extends StubModel
 {
+    /**
+     * Instantiates the image from its fields, or from an id a scenario named
+     * in Route::$rows['imagesbyid'].
+     *
+     * @param mixed $data the field data, or the id
+     */
+    public function __construct($data = [])
+    {
+        if (is_scalar($data) && isset(Route::$rows['imagesbyid'][$data])) {
+            $data = Route::$rows['imagesbyid'][$data] + ['id' => $data];
+        }
+        parent::__construct($data);
+    }
     /**
      * Returns the OS the image is for, with the family schema step 458
      * seeds for that osID (windows 1-7 and 9-11, macos 8, linux 50 and 51,
@@ -485,6 +513,38 @@ class StorageGroup extends StubModel
  */
 class MulticastSession extends StubModel
 {
+    /**
+     * Instantiates the session from its fields, or from the msID of a fixture
+     * association row.
+     *
+     * @param mixed $data the field data, or the session id
+     */
+    public function __construct($data = [])
+    {
+        if (is_scalar($data)) {
+            foreach ((array)(Route::$rows['multicastsessionassociation'] ?? []) as $assoc) {
+                if (($assoc->msID ?? null) == $data) {
+                    $data = [
+                        'id' => $assoc->msID,
+                        'image' => $assoc->image ?? '',
+                        'port' => $assoc->port ?? '',
+                        'maxwait' => $assoc->maxwait ?? '',
+                    ];
+                    break;
+                }
+            }
+        }
+        parent::__construct($data);
+    }
+    /**
+     * The minutes FOS waits for a sender.
+     *
+     * @return int
+     */
+    public function maxwaitMinutes()
+    {
+        return (int)$this->get('maxwait');
+    }
 }
 
 /**
@@ -519,6 +579,8 @@ class MulticastSessionAssociation extends StubModel
             [
                 'id' => $this->get('msID'),
                 'image' => $this->get('image'),
+                'port' => $this->get('port'),
+                'maxwait' => $this->get('maxwait'),
             ]
         );
     }

@@ -14,6 +14,7 @@
 namespace FOG\Boot;
 
 use FOG\Base\FOGBase;
+use FOG\Items\Image;
 use FOG\Items\MulticastSessionAssociation;
 use FOG\Items\StorageNode;
 use FOG\Router\Route;
@@ -39,6 +40,23 @@ use FOG\Router\Route;
  */
 abstract class BootMenuBase extends FOGBase
 {
+    /**
+     * Every key=value variable taskKernelArgs() can emit.
+     *
+     * service/hostinfo.php drops these from its own fields before it merges
+     * the task variables, so a plugin cannot send one that the kernel line
+     * leaves out. The flags irqpoll and debug have no value and are not here.
+     * Keep it in step with the array taskKernelArgs() returns.
+     *
+     * @var array
+     */
+    const TASK_KEYS = [
+        'mac', 'ftp', 'storage', 'storageip', 'osid', 'osfamily', 'mcastrdv',
+        'hostname', 'chkdsk', 'img', 'imgType', 'imgPartitionType', 'imgid',
+        'imgFormat', 'PIGZ_COMP', 'shutdown', 'fdrive', 'hostearly', 'pct',
+        'ignorepg', 'port', 'mcastMaxWait', 'winuser', 'isdebug', 'seconds',
+        'bitlockerbypass', 'taskinfo',
+    ];
     /**
      * The kernel string
      *
@@ -116,7 +134,11 @@ abstract class BootMenuBase extends FOGBase
                 }
             }
             if ($TaskType->isInitNeededTasking()) {
-                $Image = $Task->getImage();
+                $Image = self::reconcileMulticastImage(
+                    $Task,
+                    isset($MulticastSession) ? $MulticastSession : null,
+                    $Task->getImage()
+                );
                 $StorageGroup = null;
                 $StorageNode = null;
                 self::$HookManager->processEvent(
@@ -181,276 +203,16 @@ abstract class BootMenuBase extends FOGBase
                 if ($Task->get('storagenodeID') != $StorageNode->get('id')) {
                     $Task->set('storagenodeID', $StorageNode->get('id'))->save();
                 }
-                $osid = (int)$Image->get('osID');
-                $osfamily = $Image->getOSFamily();
-                $storage = '';
-                $img = '';
-                $imgFormat = '';
-                $imgType = '';
-                $imgPartitionType = '';
-                $serviceNames = [
-                    'FOG_CAPTUREIGNOREPAGEHIBER',
-                    'FOG_CAPTURERESIZEPCT',
-                    'FOG_CHANGE_HOSTNAME_EARLY',
-                    'FOG_DISABLE_CHKDSK',
-                    'FOG_KERNEL_ARGS',
-                    'FOG_KERNEL_DEBUG',
-                    'FOG_MULTICAST_RENDEZVOUS',
-                    'FOG_PIGZ_COMP',
-                    'FOG_TFTP_HOST',
-                    'FOG_WIPE_TIMEOUT'
-                ];
-                list(
-                    $cappage,
-                    $capresz,
-                    $hosterl,
-                    $chkdsk,
-                    $kargs,
-                    $kdebug,
-                    $mcastrdv,
-                    $pigz,
-                    $tftp,
-                    $timeout
-                ) = self::getSetting($serviceNames);
-                $shutdown = self::_wantsShutdown($TaskType->get('kernelArgs'))
-                    || self::_wantsShutdown(self::_extraArgs());
-                $globalPIGZ = $pigz;
-                $PIGZ_COMP = $globalPIGZ;
-                if ($StorageNode instanceof StorageNode && $StorageNode->isValid()) {
-                    $ip = trim($StorageNode->get('ip'));
-                    $ftp = $ip;
-                }
-                if ($imagingTasks) {
-                    if (!($StorageNode instanceof StorageNode
-                        && $StorageNode->isValid())
-                    ) {
-                        throw new \Exception(_('No valid storage nodes found'));
-                    }
-                    // The host is bracketed after escapeshellcmd(), which would
-                    // put a backslash before each bracket.
-                    $storage = self::urlHost(escapeshellcmd($ip))
-                        . escapeshellcmd(
-                            sprintf(
-                                ':/%s/%s',
-                                trim($StorageNode->get('path'), '/'),
-                                (
-                                    $TaskType->isCapture() ?
-                                    'dev/' :
-                                    ''
-                                )
-                            )
-                        );
-                    $storageip = $ip;
-                    $mcastrdv = self::mcastRdvForNode($mcastrdv, $storageip);
-                    $img = escapeshellcmd(
-                        $Image->get('path')
-                    );
-                    $imgFormat = (int)$Image
-                        ->get('format');
-                    $imgType = $Image
-                        ->getImageType()
-                        ->get('type');
-                    $imgPartitionType = $Image
-                        ->getPartitionType();
-                    $imgid = $Image
-                        ->get('id');
-                    $image_PIGZ = $Image->get('compress');
-                    if (is_numeric($image_PIGZ) && $image_PIGZ > -1) {
-                        $PIGZ_COMP = $image_PIGZ;
-                    }
-                    if (in_array($imgFormat, ['', null, 0, 1, 2, 3, 4])) {
-                        if ($PIGZ_COMP > 9) {
-                            $PIGZ_COMP = 9;
-                        }
-                    }
-                } else {
-                    // These setup so postinit scripts can operate.
-                    if ($StorageNode instanceof StorageNode
-                        && $StorageNode->isValid()
-                    ) {
-                        $ip = trim($StorageNode->get('ip'));
-                        $ftp = $ip;
-                    } else {
-                        $ip = $tftp;
-                        $ftp = $tftp;
-                    }
-                    // Bracketed after escapeshellcmd(), as above.
-                    $storage = self::urlHost(escapeshellcmd($ip))
-                        . escapeshellcmd(
-                            sprintf(
-                                ':/%s/dev/',
-                                trim($StorageNode->get('path'), '/')
-                            )
-                        );
-                    $storageip = $ip;
-                }
             }
-            if (self::$Host->isValid()) {
-                $mac = self::$Host->get('mac');
-            } else {
-                // Same correction as falseTasking(): there is no 'mac'
-                // request field to read -- the iPXE menu posts mac0,
-                // macboot and mac1..mac7 -- so this arm warned on an
-                // undefined index and produced an empty argument.
-                $mac = self::$requestMacs[0] ?? '';
-            }
-            $chkdsk = self::chkdskFlag(isset($chkdsk) ? $chkdsk : 1);
-            $MACs = self::$Host->getMyMacs();
-            $clientMacs = array_filter(
-                (array)self::parseMacList(
-                    implode(
-                        '|',
-                        (array)$MACs
-                    ),
-                    false,
-                    true
-                )
+            // Read-only: the node, group, hooks and task saves are above.
+            $kernelArgsArray = self::taskKernelArgs(
+                $Task,
+                $TaskType,
+                isset($Image) ? $Image : null,
+                isset($StorageNode) ? $StorageNode : null,
+                isset($MulticastSession) ? $MulticastSession : null,
+                self::_extraArgs()
             );
-            $fdrive = self::$Host->get('kernelDevice');
-            $imagingTaskActive = (isset($imagingTasks) && $imagingTasks);
-            $kernelArgsArray = [
-                "mac=$mac",
-                "ftp=" . (isset($ftp) ? $ftp : ''),
-                "storage=" . (isset($storage) ? $storage : ''),
-                "storageip=" . (isset($storageip) ? $storageip : ''),
-                "osid=" . (isset($osid) ? $osid : ''),
-                "osfamily=" . (isset($osfamily) ? $osfamily : ''),
-                "irqpoll",
-                [
-                    'value' => "mcastrdv=". (isset($mcastrdv) ? $mcastrdv : ''),
-                    'active' => isset($mcastrdv) && !empty($mcastrdv)
-                ],
-                [
-                    'value' => "hostname=" . self::$Host->get('name'),
-                    'active' => (
-                        count($clientMacs ?: []) > 0
-                        || (
-                            self::$Host->isValid()
-                            && self::$Host->get('id') > 0
-                        )
-                    ),
-                ],
-                [
-                    'value' => "chkdsk=" . (isset($chkdsk) ? $chkdsk : ''),
-                    'active' => $imagingTaskActive,
-                ],
-                [
-                    'value' => "img=" . (isset($img) ? $img : ''),
-                    'active' => $imagingTaskActive,
-                ],
-                [
-                    'value' => "imgType=" . (isset($imgType) ? $imgType : ''),
-                    'active' => $imagingTaskActive,
-                ],
-                [
-                    'value' => "imgPartitionType=" . (isset($imgPartitionType) ? $imgPartitionType : ''),
-                    'active' => $imagingTaskActive,
-                ],
-                [
-                    'value' => "imgid=". (isset($imgid) ? $imgid : ''),
-                    'active' => $imagingTaskActive,
-                ],
-                [
-                    'value' => "imgFormat=". (isset($imgFormat) ? $imgFormat : ''),
-                    'active' => $imagingTaskActive,
-                ],
-                [
-                    'value' => "PIGZ_COMP=-". (isset($PIGZ_COMP) ? $PIGZ_COMP : '0'),
-                    'active' => $imagingTaskActive,
-                ],
-                [
-                    'value' => 'shutdown=1',
-                    'active' => $Task->get('shutdown') || (isset($shutdown) ? $shutdown : false),
-                ],
-                [
-                    'value' => "fdrive=$fdrive",
-                    'active' => self::$Host->get('kernelDevice'),
-                ],
-                [
-                    'value' => 'hostearly=1',
-                    'active' => (
-                        isset($hosterl)
-                        && $hosterl
-                        && $imagingTaskActive ?
-                        true :
-                        false
-                    ),
-                ],
-                [
-                    'value' => sprintf(
-                        'pct=%d',
-                        (
-                            isset($capresz)
-                            && is_numeric($capresz)
-                            && $capresz >= 5
-                            && $capresz < 100 ?
-                            $capresz :
-                            '5'
-                        )
-                    ),
-                    'active' => $imagingTaskActive && $TaskType->isCapture(),
-                ],
-                [
-                    'value' => sprintf(
-                        'ignorepg=%d',
-                        (
-                            isset($cappage) && $cappage ?
-                            1 :
-                            0
-                        )
-                    ),
-                    'active' => $imagingTaskActive && $TaskType->isCapture(),
-                ],
-                [
-                    'value' => sprintf(
-                        'port=%s',
-                        (
-                            $TaskType->isMulticast() ?
-                            $MulticastSession->get('port') :
-                            null
-                        )
-                    ),
-                    'active' => $TaskType->isMulticast(),
-                ],
-                [
-                    // FOS sizes udp-receiver's --start-timeout from this.
-                    'value' => sprintf(
-                        'mcastMaxWait=%d',
-                        (
-                            $TaskType->isMulticast() ?
-                            $MulticastSession->maxwaitMinutes() :
-                            0
-                        )
-                    ),
-                    'active' => $TaskType->isMulticast(),
-                ],
-                [
-                    'value' => sprintf(
-                        'winuser=%s',
-                        $Task->get('passreset')
-                    ),
-                    'active' => $TaskType->get('id') == '11',
-                ],
-                [
-                    'value' => 'isdebug=yes',
-                    'active' => $Task->get('isDebug'),
-                ],
-                [
-                    'value' => 'debug',
-                    'active' => isset($kdebug) && $kdebug,
-                ],
-                [
-                    'value' => 'seconds='. (isset($timeout) ? $timeout : 300),
-                    'active' => in_array($TaskType->get('id'), range(18, 20)),
-                ],
-                [
-                    'value' => 'bitlockerbypass=1',
-                    'active' => $Task->get('bypassbitlocker') > 0
-                ],
-                $TaskType->get('kernelArgs'),
-                isset($kargs) ? $kargs : '',
-                self::$Host->get('kernelArgs'),
-            ];
             if ($Task->get('typeID') == 4) {
                 // Memtest is a memdisk image, not a kernel-and-init
                 // chain, so none of the arguments computed above apply to
@@ -475,8 +237,345 @@ abstract class BootMenuBase extends FOGBase
     }
 
     /**
-     * Flatten the argument set getTasking() computed into one kernel command
-     * line.
+     * The image a task images with, once the multicast session is known.
+     *
+     * A multicast session carries the image its stream sends. When the task
+     * names another image, the session wins: the task and the host follow it,
+     * and the image comes back as the session's. The boot menu and
+     * service/hostinfo.php both call this before taskKernelArgs(), so the
+     * kernel line and the reply name the image the stream carries. It sets
+     * the values only. The caller saves the task: getTasking() does so below,
+     * and hostinfo.php saves when the image changed.
+     *
+     * @param object      $Task             the host's task
+     * @param object|null $MulticastSession the session, null when not multicast
+     * @param object      $Image            the image the task names
+     *
+     * @return object the image to use
+     */
+    public static function reconcileMulticastImage($Task, $MulticastSession, $Image)
+    {
+        if (!$MulticastSession || !$MulticastSession->isValid()) {
+            return $Image;
+        }
+        $mcImgID = $MulticastSession->get('image');
+        if ($Task->get('imageID') == $mcImgID) {
+            return $Image;
+        }
+        $Task->set('imageID', $mcImgID);
+        self::$Host->set('imageID', $mcImgID);
+        return new Image($mcImgID);
+    }
+
+    /**
+     * Compute the task variables of a tasked host's kernel line.
+     *
+     * getTasking() chooses the storage node and group, runs the hooks and
+     * saves the task. This method only reads, so the boot menu and
+     * service/hostinfo.php build the variables from one source and cannot
+     * drift apart (ADR 0023).
+     *
+     * @param object      $Task             the host's task
+     * @param object      $TaskType         the task's type
+     * @param object|null $Image            the task's image, used by init tasks
+     * @param object|null $StorageNode      the chosen node, used by init tasks
+     * @param object|null $MulticastSession the multicast session, when multicast
+     * @param string $extraArgs        the extraargs the chain arrived with
+     *
+     * @return array the argument set, for flattenKernelArgs()
+     */
+    public static function taskKernelArgs(
+        $Task,
+        $TaskType,
+        $Image,
+        $StorageNode,
+        $MulticastSession,
+        $extraArgs
+    ) {
+        $imagingTasks = $TaskType->isImagingTask();
+        if ($TaskType->isInitNeededTasking()) {
+            $osid = (int)$Image->get('osID');
+            $osfamily = $Image->getOSFamily();
+            $storage = '';
+            $img = '';
+            $imgFormat = '';
+            $imgType = '';
+            $imgPartitionType = '';
+            $serviceNames = [
+                'FOG_CAPTUREIGNOREPAGEHIBER',
+                'FOG_CAPTURERESIZEPCT',
+                'FOG_CHANGE_HOSTNAME_EARLY',
+                'FOG_DISABLE_CHKDSK',
+                'FOG_KERNEL_ARGS',
+                'FOG_KERNEL_DEBUG',
+                'FOG_MULTICAST_RENDEZVOUS',
+                'FOG_PIGZ_COMP',
+                'FOG_TFTP_HOST',
+                'FOG_WIPE_TIMEOUT'
+            ];
+            list(
+                $cappage,
+                $capresz,
+                $hosterl,
+                $chkdsk,
+                $kargs,
+                $kdebug,
+                $mcastrdv,
+                $pigz,
+                $tftp,
+                $timeout
+            ) = self::getSetting($serviceNames);
+            $shutdown = self::_wantsShutdown($TaskType->get('kernelArgs'))
+                || self::_wantsShutdown($extraArgs);
+            $globalPIGZ = $pigz;
+            $PIGZ_COMP = $globalPIGZ;
+            if ($StorageNode instanceof StorageNode && $StorageNode->isValid()) {
+                $ip = trim($StorageNode->get('ip'));
+                $ftp = $ip;
+            }
+            if ($imagingTasks) {
+                if (!($StorageNode instanceof StorageNode
+                    && $StorageNode->isValid())
+                ) {
+                    throw new \Exception(_('No valid storage nodes found'));
+                }
+                // The host is bracketed after escapeshellcmd(), which would
+                // put a backslash before each bracket.
+                $storage = self::urlHost(escapeshellcmd($ip))
+                    . escapeshellcmd(
+                        sprintf(
+                            ':/%s/%s',
+                            trim($StorageNode->get('path'), '/'),
+                            (
+                                $TaskType->isCapture() ?
+                                'dev/' :
+                                ''
+                            )
+                        )
+                    );
+                $storageip = $ip;
+                $mcastrdv = self::mcastRdvForNode($mcastrdv, $storageip);
+                $img = escapeshellcmd(
+                    $Image->get('path')
+                );
+                $imgFormat = (int)$Image
+                    ->get('format');
+                $imgType = $Image
+                    ->getImageType()
+                    ->get('type');
+                $imgPartitionType = $Image
+                    ->getPartitionType();
+                $imgid = $Image
+                    ->get('id');
+                $image_PIGZ = $Image->get('compress');
+                if (is_numeric($image_PIGZ) && $image_PIGZ > -1) {
+                    $PIGZ_COMP = $image_PIGZ;
+                }
+                if (in_array($imgFormat, ['', null, 0, 1, 2, 3, 4])) {
+                    if ($PIGZ_COMP > 9) {
+                        $PIGZ_COMP = 9;
+                    }
+                }
+            } else {
+                // These setup so postinit scripts can operate.
+                if ($StorageNode instanceof StorageNode
+                    && $StorageNode->isValid()
+                ) {
+                    $ip = trim($StorageNode->get('ip'));
+                    $ftp = $ip;
+                } else {
+                    $ip = $tftp;
+                    $ftp = $tftp;
+                }
+                // Bracketed after escapeshellcmd(), as above.
+                $storage = self::urlHost(escapeshellcmd($ip))
+                    . escapeshellcmd(
+                        sprintf(
+                            ':/%s/dev/',
+                            trim($StorageNode->get('path'), '/')
+                        )
+                    );
+                $storageip = $ip;
+            }
+        }
+        if (self::$Host->isValid()) {
+            $mac = self::$Host->get('mac');
+        } else {
+            // Same correction as falseTasking(): there is no 'mac'
+            // request field to read -- the iPXE menu posts mac0,
+            // macboot and mac1..mac7 -- so this arm warned on an
+            // undefined index and produced an empty argument.
+            $mac = self::$requestMacs[0] ?? '';
+        }
+        $chkdsk = self::chkdskFlag(isset($chkdsk) ? $chkdsk : 1);
+        $MACs = self::$Host->getMyMacs();
+        $clientMacs = array_filter(
+            (array)self::parseMacList(
+                implode(
+                    '|',
+                    (array)$MACs
+                ),
+                false,
+                true
+            )
+        );
+        $fdrive = self::$Host->get('kernelDevice');
+        $imagingTaskActive = (isset($imagingTasks) && $imagingTasks);
+        // Keep TASK_KEYS in step with the keys in this array.
+        return [
+            "mac=$mac",
+            "ftp=" . (isset($ftp) ? $ftp : ''),
+            "storage=" . (isset($storage) ? $storage : ''),
+            "storageip=" . (isset($storageip) ? $storageip : ''),
+            "osid=" . (isset($osid) ? $osid : ''),
+            "osfamily=" . (isset($osfamily) ? $osfamily : ''),
+            "irqpoll",
+            [
+                'value' => "mcastrdv=". (isset($mcastrdv) ? $mcastrdv : ''),
+                'active' => isset($mcastrdv) && !empty($mcastrdv)
+            ],
+            [
+                'value' => "hostname=" . self::$Host->get('name'),
+                'active' => (
+                    count($clientMacs ?: []) > 0
+                    || (
+                        self::$Host->isValid()
+                        && self::$Host->get('id') > 0
+                    )
+                ),
+            ],
+            [
+                'value' => "chkdsk=" . (isset($chkdsk) ? $chkdsk : ''),
+                'active' => $imagingTaskActive,
+            ],
+            [
+                'value' => "img=" . (isset($img) ? $img : ''),
+                'active' => $imagingTaskActive,
+            ],
+            [
+                'value' => "imgType=" . (isset($imgType) ? $imgType : ''),
+                'active' => $imagingTaskActive,
+            ],
+            [
+                'value' => "imgPartitionType=" . (isset($imgPartitionType) ? $imgPartitionType : ''),
+                'active' => $imagingTaskActive,
+            ],
+            [
+                'value' => "imgid=". (isset($imgid) ? $imgid : ''),
+                'active' => $imagingTaskActive,
+            ],
+            [
+                'value' => "imgFormat=". (isset($imgFormat) ? $imgFormat : ''),
+                'active' => $imagingTaskActive,
+            ],
+            [
+                'value' => "PIGZ_COMP=-". (isset($PIGZ_COMP) ? $PIGZ_COMP : '0'),
+                'active' => $imagingTaskActive,
+            ],
+            [
+                'value' => 'shutdown=1',
+                'active' => $Task->get('shutdown') || (isset($shutdown) ? $shutdown : false),
+            ],
+            [
+                'value' => "fdrive=$fdrive",
+                'active' => self::$Host->get('kernelDevice'),
+            ],
+            [
+                'value' => 'hostearly=1',
+                'active' => (
+                    isset($hosterl)
+                    && $hosterl
+                    && $imagingTaskActive ?
+                    true :
+                    false
+                ),
+            ],
+            [
+                'value' => sprintf(
+                    'pct=%d',
+                    (
+                        isset($capresz)
+                        && is_numeric($capresz)
+                        && $capresz >= 5
+                        && $capresz < 100 ?
+                        $capresz :
+                        '5'
+                    )
+                ),
+                'active' => $imagingTaskActive && $TaskType->isCapture(),
+            ],
+            [
+                'value' => sprintf(
+                    'ignorepg=%d',
+                    (
+                        isset($cappage) && $cappage ?
+                        1 :
+                        0
+                    )
+                ),
+                'active' => $imagingTaskActive && $TaskType->isCapture(),
+            ],
+            [
+                'value' => sprintf(
+                    'port=%s',
+                    (
+                        $TaskType->isMulticast() ?
+                        $MulticastSession->get('port') :
+                        null
+                    )
+                ),
+                'active' => $TaskType->isMulticast(),
+            ],
+            [
+                // FOS sizes udp-receiver's --start-timeout from this.
+                'value' => sprintf(
+                    'mcastMaxWait=%d',
+                    (
+                        $TaskType->isMulticast() ?
+                        $MulticastSession->maxwaitMinutes() :
+                        0
+                    )
+                ),
+                'active' => $TaskType->isMulticast(),
+            ],
+            [
+                'value' => sprintf(
+                    'winuser=%s',
+                    $Task->get('passreset')
+                ),
+                'active' => $TaskType->get('id') == '11',
+            ],
+            [
+                'value' => 'isdebug=yes',
+                'active' => $Task->get('isDebug'),
+            ],
+            [
+                'value' => 'debug',
+                'active' => isset($kdebug) && $kdebug,
+            ],
+            [
+                'value' => 'seconds='. (isset($timeout) ? $timeout : 300),
+                'active' => in_array($TaskType->get('id'), range(18, 20)),
+            ],
+            [
+                'value' => 'bitlockerbypass=1',
+                'active' => $Task->get('bypassbitlocker') > 0
+            ],
+            // ADR 0023 (fos): FOS reads service/hostinfo.php for the
+            // task settings only when it sees this argument. The hostless
+            // path (falseTasking) builds its own array, so it never
+            // carries it.
+            'taskinfo=1',
+            $TaskType->get('kernelArgs'),
+            isset($kargs) ? $kargs : '',
+            self::$Host->get('kernelArgs'),
+        ];
+    }
+
+    /**
+     * Flatten an argument set from taskKernelArgs() into one kernel command
+     * line. Public because service/hostinfo.php flattens the same set, so its
+     * reply follows the same de-duplication and debug rewrite.
      *
      * An entry is either a plain string that is always included, or a
      * ['value' => ..., 'active' => ...] pair that is included only when
@@ -498,7 +597,7 @@ abstract class BootMenuBase extends FOGBase
      *
      * @return string
      */
-    protected static function flattenKernelArgs($kernelArgsArray)
+    public static function flattenKernelArgs($kernelArgsArray)
     {
         $kernelArgs = [];
         foreach ((array)$kernelArgsArray as $arg) {
