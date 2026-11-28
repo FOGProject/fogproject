@@ -180,6 +180,17 @@ usage() {
     echo -e "\t      --dhcp6-dns\t\tADDR[,ADDR...]: IPv6 DNS servers that"
     echo -e "\t\t\t\t\tDHCPv6 clients receive. Needs"
     echo -e "\t\t\t\t\t--dhcp6-range. Kept across upgrades"
+    echo -e "\t      --dhcp-engine\t\tisc, kea or dnsmasq: the DHCP server FOG"
+    echo -e "\t\t\t\t\tsets up when it runs DHCP. Without it,"
+    echo -e "\t\t\t\t\tisc or kea is chosen for you and dnsmasq"
+    echo -e "\t\t\t\t\tis never chosen. dnsmasq runs as FOG's own"
+    echo -e "\t\t\t\t\tfog-dnsmasq service and leaves the system"
+    echo -e "\t\t\t\t\tdnsmasq alone. Kept across upgrades"
+    echo -e "\t      --dhcp-proxy\t\tWith --dhcp-engine dnsmasq: answer PXE"
+    echo -e "\t\t\t\t\tclients only (proxyDHCP) and hand out no"
+    echo -e "\t\t\t\t\taddresses. Your existing DHCP server keeps"
+    echo -e "\t\t\t\t\tdoing that. Kept across upgrades"
+    echo -e "\t      --no-dhcp-proxy\t\tTurn proxyDHCP off again"
     echo -e "\t      --reissue-web-ca\t\tRe-issue the FOG Web CA so it covers this"
     echo -e "\t\t\t\t\tserver's IPv6 addresses. Needed only"
     echo -e "\t\t\t\t\tfor clients that reach this server by"
@@ -308,7 +319,7 @@ usage() {
 sextraServerNames=()
 
 shortopts="h?odEUHSCKYyXTFf:c:W:D:B:s:e:N:l"
-longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,skip-php-check,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,dhcp6-range:,dhcp6-dns:,reissue-web-ca,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
+longopts="help,uninstall,purge-db,purge-images,purge-snapins,purge-ssl,purge-user,purge-all,dry-run,force,mysqldbname:,ssl-path:,oldcopy,no-vhost,no-defaults,no-upgrade,no-htmldoc,force-https,no-force-https,https-redirect,no-https-redirect,public-web-cert,no-public-web-cert,rebuild-ipxe-with-my-ca,no-rebuild-ipxe-with-my-ca,install-mode:,recreate-keys,recreate-CA,recreate-Ca,recreate-cA,recreate-ca,external-ca,ca-cert:,ca-key:,ca-root:,autoaccept,file:,docroot:,webroot:,backuppath:,startrange:,endrange:,no-exportbuild,exitFail,skip-php-check,no-tftpbuild,list-packages,fogprogramdir:,secure-boot-key:,secure-boot-cert:,no-secure-boot,hostname:,server-ip:,update-dhcp-subnet,extra-server-name:,kernel-backup-count:,restore-kernel-backup,channel:,netboot-proto:,boot-delay:,uefi-bootfile:,dhcp6-range:,dhcp6-dns:,dhcp-engine:,dhcp-proxy,no-dhcp-proxy,reissue-web-ca,web-ca-cert:,web-ca-key:,web-ca-root:,secureboot-ca-cert:,internal-domain:,internal-subnet:"
 
 optargs=$(getopt -o $shortopts -l $longopts -n "$0" -- "$@")
 [[ $? -ne 0 ]] && usage
@@ -728,6 +739,28 @@ while :; do
             sDHCP6_dns="$2"
             shift 2
             ;;
+        --dhcp-engine)
+            # A closed set: the value picks the package, the service and the
+            # config generator. An explicit value overrides the saved or
+            # automatic choice (resolveDHCPEngine never picks dnsmasq itself).
+            case ${2,,} in
+                isc|kea|dnsmasq) sDHCP_engine="${2,,}" ;;
+                *) echo "$1 must be isc, kea or dnsmasq"; usage; exit 3 ;;
+            esac
+            shift 2
+            ;;
+        --dhcp-proxy)
+            # Proxy mode means FOG runs the DHCP service, so it implies -s/-e's
+            # "set DHCP up". Whether the engine is dnsmasq is checked after
+            # .fogsettings is read, because the engine may be a saved one.
+            sDHCP_proxy="yes"
+            sDHCP_enabled="yes"
+            shift
+            ;;
+        --no-dhcp-proxy)
+            sDHCP_proxy="no"
+            shift
+            ;;
         --internal-domain)
             if [[ $(validhostname "${2}") -ne 0 ]]; then
                 echo "$1 requires a valid domain name after"
@@ -1068,6 +1101,38 @@ _applyInstallMode
 # an upgrade the .fogsettings sourced above overwrote them (both are managed
 # keys) and the ranges were accepted while DHCP configuration stayed off.
 [[ -n ${sDHCP_enabled} ]] && DHCP_enabled=${sDHCP_enabled}
+# An explicit --dhcp-engine beats the saved one: the admin is opting in.
+[[ -n ${sDHCP_engine} ]] && DHCP_engine=${sDHCP_engine}
+# --no-dhcp-proxy on a proxy install must not turn fog-dnsmasq into a full DHCP
+# server by itself: that would hand out addresses on a network that has its own
+# DHCP server. DHCP goes off, unless this run also gives a pool with -s or -e.
+if [[ ${sDHCP_proxy} == no && ${DHCP_proxy} == yes ]]; then
+    if [[ -n ${sDHCP_range_start}${sDHCP_range_end} ]]; then
+        echo " * --no-dhcp-proxy: FOG now serves addresses itself (full DHCP, pool from -s/-e)."
+    else
+        DHCP_enabled="no"
+        echo " * --no-dhcp-proxy: FOG DHCP is turned off. Add -s and -e to serve addresses instead."
+    fi
+fi
+[[ ${sDHCP_proxy} == yes ]] && DHCP_proxy=yes
+[[ ${sDHCP_proxy} == no ]] && DHCP_proxy=""
+# proxyDHCP exists only in the dnsmasq engine. The flag given now is a usage
+# error; a saved proxy setting left over from a dnsmasq run is dropped with a note.
+if [[ -n ${DHCP_proxy} && ${DHCP_engine,,} != dnsmasq ]]; then
+    if [[ ${sDHCP_proxy} == yes ]]; then
+        echo "--dhcp-proxy requires --dhcp-engine dnsmasq"
+        usage
+        exit 3
+    fi
+    echo " * Note: proxyDHCP is dnsmasq only; clearing the saved --dhcp-proxy setting."
+    DHCP_proxy=""
+    # Same hazard as --no-dhcp-proxy: the new engine would serve a default pool
+    # on a network that has its own DHCP server. DHCP goes off without -s or -e.
+    if [[ -z ${sDHCP_range_start}${sDHCP_range_end} ]]; then
+        DHCP_enabled="no"
+        echo " * FOG DHCP is turned off. Add -s and -e to serve addresses with ${DHCP_engine}."
+    fi
+fi
 [[ -n ${sPKI_client_cert_dir} ]] && PKI_client_cert_dir=${sPKI_client_cert_dir}
 [[ -n ${sPKI_client_encrypt_cert} ]] && PKI_client_encrypt_cert=${sPKI_client_encrypt_cert}
 [[ -n ${sPKI_client_encrypt_key} ]] && PKI_client_encrypt_key=${sPKI_client_encrypt_key}
@@ -1327,8 +1392,13 @@ case ${FOG_install_type} in
         echo " * Image Storage Location: ${STORAGE_image_share_path}"
         case ${DHCP_enabled} in
             yes)
-                echo " * Using FOG DHCP: Yes"
-                echo " * DHCP router Address: ${DHCP_router}"
+                if [[ ${DHCP_proxy} == yes ]]; then
+                    echo " * Using FOG DHCP: proxyDHCP (dnsmasq)"
+                    echo " * Addresses come from your network's own DHCP server."
+                else
+                    echo " * Using FOG DHCP: Yes"
+                    echo " * DHCP router Address: ${DHCP_router}"
+                fi
                 ;;
             *)
                 echo " * Using FOG DHCP: No"

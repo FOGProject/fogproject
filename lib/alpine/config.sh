@@ -158,6 +158,16 @@ fi
 # Alpine splits the daemons by package, like kea-dhcp4 above.
 [[ -z $kea6package ]] && kea6package="kea-dhcp6"
 [[ -z $kea6service ]] && kea6service="kea-dhcp6"
+# dnsmasq is the opt-in alternative to Kea (--dhcp-engine dnsmasq). FOG runs its
+# OWN instance, fog-dnsmasq (an OpenRC script FOG writes), from its own config.
+# The distro's dnsmasq service and config are the admin's and are never touched.
+# The Alpine package does not auto-start.
+[[ -z $dnsmasqpackage ]] && dnsmasqpackage="dnsmasq"
+[[ -z $dnsmasqservice ]] && dnsmasqservice="fog-dnsmasq"
+[[ -z $dnsmasqconfig ]] && dnsmasqconfig="/etc/fog/dnsmasq.conf"
+[[ -z $dnsmasqunit ]] && dnsmasqunit="/etc/systemd/system/fog-dnsmasq.service"
+[[ -z $dnsmasqinit ]] && dnsmasqinit="/etc/init.d/fog-dnsmasq"
+[[ -z $dnsmasqleasedir ]] && dnsmasqleasedir="/var/lib/fog-dnsmasq"
 [[ -z ${DHCP_engine} ]] && DHCP_engine="kea"
 [[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"
 # Alpine's fpm service is php-fpm83, not php-fpm8.3: it takes the undotted

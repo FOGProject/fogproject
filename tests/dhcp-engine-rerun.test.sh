@@ -41,7 +41,7 @@ is()  { [[ "$1" == "$2" ]] && ok "$3" || bad "$3 (expected '$2', got '$1')"; }
 # re-run the installer no longer does.
 saved=$(awk '/^writeUpdateFile\(\) *\{/,/^\}/' "$FUNCS" | sed 's/#.*//')
 [[ -n $saved ]] || bad "writeUpdateFile() found in functions.sh"
-for key in FOG_packages DHCP_engine; do
+for key in FOG_packages DHCP_engine DHCP_proxy; do
     grep -qw -- "$key" <<<"$saved" && ok "$key is saved" || bad "$key is saved"
 done
 for key in dhcpconfig dhcpname; do
@@ -61,13 +61,13 @@ pkgIsAvailable() { return 0; }
 # What doOSSpecificIncludes gives each run: the distro's own [[ -z ]] defaults.
 seed() {
     local cfg="$REPO/lib/$1/config.sh" v line
-    for v in dhcpconfig dhcpname keapackage keaservice; do
+    for v in dhcpconfig dhcpname keapackage keaservice dnsmasqpackage dnsmasqservice dnsmasqconfig; do
         line=$(grep -m1 -E "^[[:space:]]*\[\[ -z \\\$$v \]\] && $v=\"[^\"]*\"[[:space:]]*$" "$cfg")
         [[ -n $line ]] || { bad "$1: default for $v in lib/$1/config.sh"; return 1; }
         eval "$line"
     done
 }
-reset() { unset dhcpconfig dhcpname keapackage keaservice keaconfig DHCP_service_name dhcpconfigother; }
+reset() { unset dhcpconfig dhcpname keapackage keaservice keaconfig DHCP_service_name dhcpconfigother dnsmasqpackage dnsmasqservice dnsmasqconfig; }
 
 DHCP_enabled=yes
 for distro in ubuntu redhat arch alpine; do
@@ -96,6 +96,56 @@ for distro in ubuntu redhat arch alpine; do
     is "$dhcpconfig" /etc/kea/kea-dhcp4.conf "re-run writes the Kea config path"
     is "$dhcpname" "$keapkg" "re-run names the Kea package"
     is "$FOG_packages" "$savedpackages" "re-run leaves the package list alone"
+
+    # dnsmasq is opt-in: an explicit --dhcp-engine dnsmasq (it reaches the
+    # function as DHCP_engine) swaps the DHCP package, and the saved list then
+    # names dnsmasq while $dhcpname comes back as the distro's ISC name.
+    reset; INSTALLED=""
+    FOG_packages="bc $iscpkg lftp"
+    # Debian-family gets the binary-only package: "dnsmasq" auto-starts a DNS
+    # service that fails against systemd-resolved on port 53.
+    dmpkg=dnsmasq
+    [[ $distro == ubuntu ]] && dmpkg=dnsmasq-base
+    DHCP_engine=dnsmasq
+    seed "$distro"
+    resolveDHCPEngine
+    is "$DHCP_engine" dnsmasq "dnsmasq run 1 keeps the explicit engine"
+    is "$dhcpconfig" /etc/fog/dnsmasq.conf "dnsmasq run 1 writes FOG's own config path"
+    is "$dhcpname" "$dmpkg" "dnsmasq run 1 names the dnsmasq package"
+    is "$DHCP_service_name" fog-dnsmasq "dnsmasq run 1 names FOG's own service, not the distro's"
+    is "$FOG_packages" "bc $dmpkg lftp" "dnsmasq run 1 swaps the DHCP package"
+    savedpackages=$FOG_packages
+    savedengine=$DHCP_engine
+    reset; INSTALLED="$dmpkg"
+    FOG_packages=$savedpackages
+    DHCP_engine=$savedengine
+    seed "$distro"
+    resolveDHCPEngine
+    is "$DHCP_engine" dnsmasq "dnsmasq re-run stays on dnsmasq"
+    is "$dhcpconfig" /etc/fog/dnsmasq.conf "dnsmasq re-run writes FOG's own config path"
+    is "$dhcpname" "$dmpkg" "dnsmasq re-run names the dnsmasq package"
+    is "$DHCP_service_name" fog-dnsmasq "dnsmasq re-run names FOG's own service"
+    is "$FOG_packages" "$savedpackages" "dnsmasq re-run leaves the package list alone"
+    # Back to Kea, then to ISC, from the saved dnsmasq list (an explicit switch).
+    reset; FOG_packages=$savedpackages; DHCP_engine=kea
+    seed "$distro"
+    resolveDHCPEngine
+    is "$DHCP_engine" kea "explicit kea after dnsmasq picks Kea"
+    is "$FOG_packages" "bc $keapkg lftp" "explicit kea after dnsmasq swaps the package back"
+    reset; FOG_packages=$savedpackages; DHCP_engine=isc
+    seed "$distro"
+    if [[ $iscpkg == "$keapkg" ]]; then
+        # No ISC package in the distro config (Alpine): isc is a usage error.
+        usage() { :; }
+        out=$(resolveDHCPEngine 2>&1); rc=$?
+        is "$rc" "3" "explicit isc without an ISC package exits 3"
+        is "$out" "--dhcp-engine isc is not available on this OS: it has no ISC DHCP package" "and says why in one line"
+        unset -f usage
+    else
+        resolveDHCPEngine
+        is "$DHCP_engine" isc "explicit isc after dnsmasq picks ISC"
+        is "$FOG_packages" "bc $iscpkg lftp" "explicit isc after dnsmasq swaps the package back"
+    fi
 
     # An existing ISC install must not move on a re-run. Alpine has no ISC
     # package: its $dhcpname is already the Kea package.

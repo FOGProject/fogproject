@@ -189,12 +189,13 @@ case ${FOG_install_type} in
                     ;;
             esac
         done
-        if [[ ${DHCP_enabled} == yes ]]; then
+        if [[ ${DHCP_enabled} == yes && ${DHCP_proxy} != yes ]]; then
             # In lib/common/functions.sh, so checkServerAddress can ask them
             # again when an upgrade finds the server on a new subnet.
             askDhcpRouter
             askDhcpDns
         else
+            # Also for proxyDHCP: the network's own DHCP server owns both.
             DHCP_dns_server_ip="# No dns added"
             DHCP_router="# No router added"
         fi
