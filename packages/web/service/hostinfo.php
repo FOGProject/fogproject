@@ -13,7 +13,7 @@
 
 use FOG\Agent\DirectoryJoin;
 use FOG\Base\FOGCore;
-use FOG\Items\Image;
+use FOG\Boot\BootMenuBase;
 use FOG\Items\MulticastSession;
 use FOG\Router\Route;
 
@@ -117,138 +117,60 @@ try {
             if (!$MulticastSession->isValid()) {
                 throw new \Exception(_('Invalid Multicast Session'));
             }
-            $taskImgID = $Task->get('imageID');
-            $mcImgID = $MulticastSession->get('image');
-            if ($taskImgID != $mcImgID) {
-                $Task
-                    ->set('imageID', $mcImgID)
-                    ->save();
-                FOGCore::$Host
-                    ->set('imageID', $mcImgID);
-                $Image = new Image($mcImgID);
+            // The same image the boot menu names: the stream's. The helper
+            // only sets the values, so save the task when the image changed.
+            $TaskImage = $Image;
+            $Image = BootMenuBase::reconcileMulticastImage(
+                $Task,
+                $MulticastSession,
+                $Image
+            );
+            if ($Image !== $TaskImage) {
+                $Task->save();
             }
-            $port = $MulticastSession->get('port');
         }
         $StorageGroup = $StorageNode = null;
-        $HookManager->processEvent(
-            'BOOT_TASK_NEW_SETTINGS',
-            [
-                'Host' => &FOGCore::$Host,
-                'StorageNode' => &$StorageNode,
-                'StorageGroup' => &$StorageGroup
-            ]
-        );
+        /*
+         * FOS sends taskinfo=1 only when its kernel line came from the boot
+         * menu's getTasking(). That boot already chose the node (plugin hook,
+         * overflow move) and recorded it on the task, so use it: the hook and
+         * the group's current optimal node could pick another, and a value
+         * here overrides the kernel line in FOS. No server state tells the two
+         * boots apart, because task creation records a node too. A task made
+         * by registration has not been through getTasking(), so the hook
+         * still chooses its node (#2188).
+         */
+        $RecordedNode = $Task->getStorageNode();
+        if ('1' === (string)FOGCore::requestParam('taskinfo', '')
+            && $RecordedNode
+            && $RecordedNode->isValid()
+        ) {
+            $StorageNode = $RecordedNode;
+        } else {
+            $HookManager->processEvent(
+                'BOOT_TASK_NEW_SETTINGS',
+                [
+                    'Host' => &FOGCore::$Host,
+                    'StorageNode' => &$StorageNode,
+                    'StorageGroup' => &$StorageGroup
+                ]
+            );
+        }
         if (!$StorageGroup || !$StorageGroup->isValid()) {
             $StorageGroup = $Image->getStorageGroup();
         }
         // The node the task was queued against, so FOS mounts the node the
         // boot menu counted this task on, not whichever one is optimal now.
         if (!$StorageNode || !$StorageNode->isValid()) {
-            $TaskNode = $Task->getStorageNode();
             $StorageNode = (
-                $TaskNode && $TaskNode->isValid() ?
-                $TaskNode :
+                $RecordedNode && $RecordedNode->isValid() ?
+                $RecordedNode :
                 $StorageGroup->getOptimalStorageNode()
             );
         }
         $osid = $Image->get('osID');
-        $osfamily = $Image->getOSFamily();
-        // An IPv6 literal must be in brackets in host:/path.
-        // Without them, FOS splits the mount source at the first colon.
-        $storage = sprintf(
-            '%s:/%s/%s',
-            FOGCore::urlHost($StorageNode->get('ip')),
-            trim($StorageNode->get('path'), '/'),
-            (
-                $TaskType->isCapture() ?
-                'dev/' :
-                ''
-            )
-        );
-        $storageip = FOGCore::resolveHostname(
-            $StorageNode
-            ->get('ip')
-        );
         $img = $Image
             ->get('path');
-        $imgFormat = $Image
-            ->get('format');
-        $imgType = $Image
-            ->getImageType()
-            ->get('type');
-        $imgPartitionType = $Image
-            ->getImagePartitionType()
-            ->get('type');
-        $imgid = $Image
-            ->get('id');
-        // The kernel arguments use the image's level when it has one and
-        // the global default when it holds -1 ("use the default"), which
-        // used to print as PIGZ_COMP=--1.
-        list(
-            $chkdsk,
-            $mcastrdv,
-            $PIGZ_COMP
-        ) = FOGCore::getSetting(
-            [
-                'FOG_DISABLE_CHKDSK',
-                'FOG_MULTICAST_RENDEZVOUS',
-                'FOG_PIGZ_COMP'
-            ]
-        );
-        $imagePigz = $Image->get('compress');
-        if (is_numeric($imagePigz) && $imagePigz > -1) {
-            $PIGZ_COMP = $imagePigz;
-        }
-        if (in_array((int)$imgFormat, [0, 1, 2, 3, 4]) && $PIGZ_COMP > 9) {
-            $PIGZ_COMP = 9;
-        }
-        // The same flip and family check the boot menu uses.
-        $chkdsk = FOGCore::chkdskFlag($chkdsk);
-        $mcastrdv = FOGCore::mcastRdvForNode(
-            $mcastrdv,
-            $StorageNode->get('ip')
-        );
-        $shutdown = intval(
-            (bool)$Task
-            ->get('shutdown')
-        );
-        $find = [
-            'name' => [
-                'FOG_CAPTUREIGNOREPAGEHIBER',
-                'FOG_CAPTURERESIZEPCT',
-                'FOG_CHANGE_HOSTNAME_EARLY',
-                'FOG_TFTP_HOST'
-            ]
-        ];
-        $items = Route::getIds(
-            'setting',
-            $find,
-            'value'
-        );
-        $values = [];
-        foreach ($items as $item) {
-            $values[] = $item->value;
-        }
-        list(
-            $ignorepg,
-            $pct,
-            $hostearly,
-            $ftp
-        ) = $values;
-        $ftp = (
-            $StorageNode->isValid() ?
-            $StorageNode->get('ip') :
-            $ftp
-        );
-        if ($pct < 5
-            || $pct >= 100
-        ) {
-            $pct = 5;
-        }
-        if ($TaskType->get('id') == 11) {
-            $winuser = $Task
-                ->get('passreset');
-        }
     }
     $sameBoot = true;
     foreach ([
@@ -350,11 +272,8 @@ try {
             }
         }
     }
-    $fdrive = FOGCore::$Host
-        ->get('kernelDevice');
     $Inventory = FOGCore::$Host
         ->get('inventory');
-    $mac = FOGCore::requestParam('mac');
     $MACs = FOGCore::$Host
         ->getMyMacs();
     $clientMacs = array_filter(
@@ -410,43 +329,14 @@ try {
         $pass = $productKey = '';
     }
     $repFields = [
-        // Imaging items to set
-        'mac' => $mac,
-        'ftp' => $ftp,
-        'osid' => $osid,
-        'osfamily' => isset($osfamily) ? $osfamily : '',
-        'storage' => $storage,
-        'storageip' => $storageip,
-        'img' => $img,
-        'imgFormat' => $imgFormat,
-        'imgType' => $imgType,
-        'imgPartitionType' => $imgPartitionType,
-        'imgid' => $imgid,
-        'PIGZ_COMP' => sprintf(
-            '-%s',
-            isset($PIGZ_COMP) ? $PIGZ_COMP : ''
-        ),
-        // The imaging arguments the boot menu puts on the kernel line, so a
-        // FOS that continues into the task without rebooting has them too.
-        'chkdsk' => isset($chkdsk) ? $chkdsk : '',
-        'bitlockerbypass' => $Task->get('bypassbitlocker') > 0 ? '1' : '',
-        'isdebug' => $Task->get('isDebug') ? 'yes' : '',
-        'mcastrdv' => isset($mcastrdv) ? $mcastrdv : '',
+        // No task variable is set here. The boot menu's own code sends them
+        // after the hook below, and only the ones the kernel line carries: FOS
+        // lets a value here override the kernel line (ADR 0023).
         // '1' only when the boot already in progress equals the one this
         // task would boot: no kernel, init or argument override on the host
         // or the task type, and no plugin that rewrites the boot item.
         'samebootok' => $sameBoot ? '1' : '0',
-        'shutdown' => $shutdown,
-        'hostearly' => $hostearly,
-        'pct' => $pct,
-        'ignorepg' => $ignorepg,
-        'winuser' => $winuser,
-        // Really only needed for multicast
-        'port' => $port,
-        // Implicit device to use
-        'fdrive' => $fdrive,
         // Exposed other elements
-        'hostname' => FOGCore::$Host->get('name'),
         'hostdesc' => FOGCore::$Host->get('description'),
         'hostip' => FOGCore::$Host->get('ip'),
         'hostimageid' => FOGCore::$Host->get('imageID'),
@@ -475,20 +365,6 @@ try {
         'caseserial' => $Inventory->get('caseserial'),
         'caseasset' => $Inventory->get('caseasset'),
     ];
-    $TaskArgs = preg_split(
-        '#[\s]+#',
-        trim($TaskType->get('kernelArgs'))
-    );
-    foreach ((array)$TaskArgs as $key => $val) {
-        $val = trim($val);
-        if (strpos($val, '=') === false) {
-            continue;
-        }
-        $nums = explode('=', $val);
-        if (count($nums) > 0) {
-            $repFields[$nums[0]] = $nums[1];
-        }
-    }
     $HookManager->processEvent(
         'HOST_INFO_EXPOSE',
         [
@@ -496,6 +372,36 @@ try {
             'Host'=>&FOGCore::$Host
         ]
     );
+    // A listener on the hook must not send a task variable that the kernel
+    // line leaves out: FOS lets a reply value override the kernel line.
+    foreach (BootMenuBase::TASK_KEYS as $taskKey) {
+        unset($repFields[$taskKey]);
+    }
+    // The task variables of the kernel line (ADR 0023). The boot menu's own
+    // code builds them, so this reply and the kernel line cannot drift. They
+    // come after the hook, so the kernel line's order wins here too: the task
+    // type, then FOG_KERNEL_ARGS, then the host's kernelArgs, last token last.
+    // There is no chain request here, so extraargs is empty. A token with no =
+    // is a kernel flag and is skipped. A value keeps the backslashes of
+    // escapeshellcmd(), as on the kernel line: FOS reads /proc/cmdline as is.
+    $taskArgs = BootMenuBase::flattenKernelArgs(
+        BootMenuBase::taskKernelArgs(
+            $Task,
+            $TaskType,
+            $Image,
+            $StorageNode ?? null,
+            $MulticastSession ?? null,
+            ''
+        )
+    );
+    foreach ((array)preg_split('#\s+#', trim($taskArgs)) as $token) {
+        if (false === strpos($token, '=')) {
+            continue;
+        }
+        // Split at the first = only: the kernel line keeps the full value.
+        list($name, $value) = explode('=', $token, 2);
+        $repFields[$name] = $value;
+    }
     foreach ((array)$repFields as $key => $val) {
         printf(
             "[[ -z $%s ]] && export %s=%s\n",
