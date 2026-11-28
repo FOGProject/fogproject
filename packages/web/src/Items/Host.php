@@ -133,6 +133,8 @@ class Host extends FOGController
         'enforce' => 'hostEnforce',
         'token' => 'hostInfoKey',
         'tokenlock' => 'hostInfoLock',
+        // Unix time the current token was issued; 0 is no live token.
+        'tokenlocktime' => 'hostInfoLockTime',
         // fog-agent binding (schema 416). agentFingerprint is the sha256 of
         // the agent key's SubjectPublicKeyInfo; the rest is what the agent
         // last reported about itself.

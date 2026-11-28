@@ -112,8 +112,10 @@ class Redaction extends FOGBase
     public static $patternExempt = [
         // hostInfoLock: a boolean saying the host's info key is locked, not
         // the key itself. host.token IS the key and is in Route's tier 2.
+        // tokenlocktime is the unix time that key was issued, not the key.
         'host' => [
             'tokenlock',
+            'tokenlocktime',
         ],
         // A session "key" is the operating system's own session identifier --
         // a WTS session number like "2", or a logind id like "110" (design

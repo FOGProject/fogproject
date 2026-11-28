@@ -128,7 +128,8 @@ class HostManagement extends FOGPage
                     '',
                     [
                         'token' => self::createSecToken(),
-                        'tokenlock' => false
+                        'tokenlock' => false,
+                        'tokenlocktime' => 0
                     ]
                 );
             }

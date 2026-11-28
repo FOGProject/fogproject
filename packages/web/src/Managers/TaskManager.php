@@ -69,7 +69,8 @@ class TaskManager extends FOGManagerController
         foreach ($hostIDs as $hostID) {
             $updateFields[] = [
                 'token' => self::createSecToken(),
-                'tokenlock' => false
+                'tokenlock' => false,
+                'tokenlocktime' => 0
             ];
         }
         // Reset token and lock on hosts from task cancel. Only when there is
