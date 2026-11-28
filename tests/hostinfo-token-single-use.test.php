@@ -379,9 +379,10 @@ $t->check(
     false !== strpos($reply, 'Invalid token passed for host')
 );
 
-// A listener saves the loaded host after the consume (SubnetGroup does, on
-// REQUEST_CLIENT_INFO and BOOT_ITEM_NEW_SETTINGS). The row must keep the consumed values, so a replay of
-// the same token inside the lifetime is still refused.
+// A listener saves the loaded host after the consume. hostinfo.php fires
+// BOOT_ITEM_NEW_SETTINGS (SubnetGroup saves there) and HOST_INFO_EXPOSE. The
+// row must keep the consumed values, so a replay of the same token inside the
+// lifetime is still refused.
 $reply = run($block, 'good-token', $issued);
 FOGCore::$Host->save();
 $t->check(
