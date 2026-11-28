@@ -297,6 +297,9 @@ const TABLE = [
     // Util for the same reason: the image task report and the FOG Settings
     // test email both send through it, and neither page owns it.
     'Mailer' => 'Util',
+    // Util for the same reason: the FOG Settings page, Setting::save() and
+    // service/hostinfo.php all use it, and none of them owns it (#2193).
+    'DebugSshKeys' => 'Util',
     'SnapinSaveException' => 'Exception',
     'UploadException' => 'Exception',
 ];
