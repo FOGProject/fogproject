@@ -120,3 +120,14 @@ fi
 [[ -z $keaservice ]] && keaservice="kea-dhcp4-server"
 [[ -z $kea6package ]] && kea6package="kea-dhcp6-server"
 [[ -z $kea6service ]] && kea6service="kea-dhcp6-server"
+# dnsmasq is the opt-in third DHCP engine (--dhcp-engine dnsmasq). FOG runs its
+# OWN instance, fog-dnsmasq, from its own config. The distro's dnsmasq service
+# and config are the admin's and are never touched. dnsmasq-base, not dnsmasq:
+# the dnsmasq package starts a DNS service at install, and that fails on port 53
+# when systemd-resolved holds it. dnsmasq-base is the binary only.
+[[ -z $dnsmasqpackage ]] && dnsmasqpackage="dnsmasq-base"
+[[ -z $dnsmasqservice ]] && dnsmasqservice="fog-dnsmasq"
+[[ -z $dnsmasqconfig ]] && dnsmasqconfig="/etc/fog/dnsmasq.conf"
+[[ -z $dnsmasqunit ]] && dnsmasqunit="/etc/systemd/system/fog-dnsmasq.service"
+[[ -z $dnsmasqinit ]] && dnsmasqinit="/etc/init.d/fog-dnsmasq"
+[[ -z $dnsmasqleasedir ]] && dnsmasqleasedir="/var/lib/fog-dnsmasq"

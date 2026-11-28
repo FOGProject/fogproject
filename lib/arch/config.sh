@@ -95,6 +95,16 @@ fi
 # The one kea package carries the DHCPv6 daemon too.
 [[ -z $kea6package ]] && kea6package="kea"
 [[ -z $kea6service ]] && kea6service="kea-dhcp6"
+# dnsmasq is the opt-in third DHCP engine (--dhcp-engine dnsmasq). FOG runs its
+# OWN instance, fog-dnsmasq, from its own config. The distro's dnsmasq service
+# and config are the admin's and are never touched. Arch does not auto-start
+# the dnsmasq package.
+[[ -z $dnsmasqpackage ]] && dnsmasqpackage="dnsmasq"
+[[ -z $dnsmasqservice ]] && dnsmasqservice="fog-dnsmasq"
+[[ -z $dnsmasqconfig ]] && dnsmasqconfig="/etc/fog/dnsmasq.conf"
+[[ -z $dnsmasqunit ]] && dnsmasqunit="/etc/systemd/system/fog-dnsmasq.service"
+[[ -z $dnsmasqinit ]] && dnsmasqinit="/etc/init.d/fog-dnsmasq"
+[[ -z $dnsmasqleasedir ]] && dnsmasqleasedir="/var/lib/fog-dnsmasq"
 [[ -z $snapindir ]] && snapindir="$fogprogramdir/snapins"
 # Arch's fpm unit is plain php-fpm.service. Left unset, installPackages would
 # derive "php8.4-fpm" from the dotted version the php binary reports, which is

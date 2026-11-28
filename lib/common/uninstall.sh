@@ -60,6 +60,24 @@ restorePreFogConfig() {
     echo "     restored ${target} from $(basename $oldest)"
 }
 
+# Remove the dnsmasq engine: FOG's own fog-dnsmasq service, its config (and the
+# backups next to it) and its lease directory. There is nothing to restore: the
+# config never replaced a pre-FOG file, because the distro's dnsmasq config and
+# service were never touched. Only fog-dnsmasq is named here, never "dnsmasq".
+removeDnsmasqEngine() {
+    # These come from the distro config, which --uninstall loads before it gets here.
+    local svc="$dnsmasqservice" target="$dnsmasqconfig"
+    local unit="$dnsmasqunit" initscript="$dnsmasqinit"
+    [[ -e $unit || -e $initscript || -e $target ]] || return 0
+    # installfog.sh sources functions.sh before this file.
+    _stopDhcpService "$svc"
+    rm -f "$unit" "$initscript" "$target" "${target}".[0-9]* >>$error_log 2>&1
+    [[ -n $dnsmasqleasedir ]] && rm -rf "$dnsmasqleasedir" >>$error_log 2>&1
+    [[ $systemctl == yes ]] && systemctl daemon-reload >>$error_log 2>&1
+    echo "     removed the fog-dnsmasq service and ${target}"
+    return 0
+}
+
 # Print a path only if it exists, so the confirmation list reflects reality
 # rather than everything the installer could ever have created.
 _ifPresent() {
@@ -269,6 +287,7 @@ uninstallFOG() {
     restorePreFogConfig "$nfsconfig"
     restorePreFogConfig "$ftpconfig"
     [[ -n $dhcpconfig ]] && restorePreFogConfig "$dhcpconfig"
+    removeDnsmasqEngine
     case $(basename "$etcconf" 2>/dev/null) in
         fog.conf|001-fog.conf) ;;
         *) restorePreFogConfig "$etcconf" ;;

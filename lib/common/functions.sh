@@ -1578,6 +1578,8 @@ askDhcpDns() {
 _offerDhcpRefresh() {
     local oldmask=${2:-${NET_subnet_mask}} oldnet newnet answer
     [[ ${DHCP_enabled} == yes ]] || return 0
+    # proxyDHCP has no pool, router or DNS to move. Its range follows the subnet.
+    [[ ${DHCP_proxy} == yes ]] && return 0
     oldnet=$(mask2network "$1" "$oldmask")
     newnet=$(mask2network "${NET_fog_server_ip}" "${NET_subnet_mask}")
     [[ $oldnet == "$newnet" && $oldmask == "${NET_subnet_mask}" ]] && return 0
@@ -4772,8 +4774,12 @@ resolveDHCPEngine() {
     # list, but $dhcpname and $dhcpconfig are re-seeded from the distro config
     # on every run. Matching only the ISC name returned here on every re-run of
     # a Kea install, which left the ISC config path for the Kea JSON (GH-1747).
-    [[ -n $iscpkg && ( ${FOG_packages} == *"$iscpkg"* || ( -n $keapackage && ${FOG_packages} == *"$keapackage"* ) ) ]] || return 0
-    # Honor an explicit/persisted choice; an existing install is never switched.
+    # The dnsmasq package counts too, for the same reason: a persisted dnsmasq
+    # engine has its package in the saved list and $dhcpname re-seeded as ISC.
+    [[ -n $iscpkg && ( ${FOG_packages} == *"$iscpkg"* || ( -n $keapackage && ${FOG_packages} == *"$keapackage"* ) || ( -n $dnsmasqpackage && ${FOG_packages} == *"$dnsmasqpackage"* ) ) ]] || return 0
+    # Honor an explicit/persisted choice; an existing install is never switched
+    # automatically. An explicit --dhcp-engine is the admin opting in, so it
+    # arrives here as DHCP_engine and wins. dnsmasq is never chosen below.
     DHCP_engine="${DHCP_engine,,}"
     if [[ -z ${DHCP_engine} ]]; then
         if pkgIsInstalled "$iscpkg"; then
@@ -4791,11 +4797,33 @@ resolveDHCPEngine() {
             DHCP_engine="isc"
         else
             FOG_packages="${FOG_packages//$iscpkg/$keapackage}"
+            # Switching from dnsmasq: its package came back from the saved list.
+            [[ -n $dnsmasqpackage ]] && FOG_packages="${FOG_packages//$dnsmasqpackage/$keapackage}"
             dhcpname="$keapackage"
             DHCP_service_name="$keaservice"
             dhcpconfig="$keaconfig"
             dhcpconfigother=""
         fi
+    elif [[ ${DHCP_engine} == dnsmasq ]]; then
+        # Same swap as Kea. On a re-run the saved list already names dnsmasq
+        # and the replacements below find nothing, which is the point (GH-1747).
+        FOG_packages="${FOG_packages//$iscpkg/$dnsmasqpackage}"
+        [[ -n $keapackage ]] && FOG_packages="${FOG_packages//$keapackage/$dnsmasqpackage}"
+        dhcpname="$dnsmasqpackage"
+        DHCP_service_name="$dnsmasqservice"
+        dhcpconfig="$dnsmasqconfig"
+        dhcpconfigother=""
+    elif [[ -n $keapackage && $iscpkg == "$keapackage" ]]; then
+        # The distro config gives ISC no package of its own: $dhcpname is the
+        # Kea package (Alpine). There is nothing to install for isc.
+        echo "--dhcp-engine isc is not available on this OS: it has no ISC DHCP package"
+        usage
+        exit 3
+    elif [[ ${FOG_packages} != *"$iscpkg"* ]]; then
+        # Explicit --dhcp-engine isc after a Kea or dnsmasq install: the saved
+        # list carries the other package, so put the ISC one back.
+        [[ -n $keapackage ]] && FOG_packages="${FOG_packages//$keapackage/$iscpkg}"
+        [[ -n $dnsmasqpackage ]] && FOG_packages="${FOG_packages//$dnsmasqpackage/$iscpkg}"
     fi
 }
 # DHCPv6 is opt-in (--dhcp6-range): only then does the Kea DHCPv6 package join
@@ -5704,6 +5732,8 @@ _firewallPortList() {
     echo "20048/tcp NFS mountd"
     echo "20048/udp NFS mountd"
     [[ ${DHCP_enabled} == yes ]] && echo "67/udp DHCP (FOG is your DHCP server)"
+    # proxyDHCP clients also talk to the PXE boot server port (dnsmasq).
+    [[ ${DHCP_enabled} == yes && ${DHCP_proxy} == yes ]] && echo "4011/udp proxyDHCP (PXE boot server)"
     # DHCPv6 servers listen on 547, and only with --dhcp6-range.
     # "; ipv6)" marks IPv6 traffic for _reportIptables.
     [[ -n ${DHCP6_range_start} ]] && echo "547/udp DHCPv6 (FOG is your DHCPv6 server; ipv6)"
@@ -5728,6 +5758,15 @@ _configureFirewalld() {
         esac
         firewall-cmd --permanent --add-service=$svc >>$error_log 2>&1 || failed=1
     done
+    # proxyDHCP: 4011/udp. firewalld's proxy-dhcp service is exactly that port;
+    # fall back to the bare port on a firewalld that does not ship it.
+    if [[ ${DHCP_enabled} == yes && ${DHCP_proxy} == yes ]]; then
+        if firewall-cmd --get-services 2>/dev/null | tr ' ' '\n' | grep -qx proxy-dhcp; then
+            firewall-cmd --permanent --add-service=proxy-dhcp >>$error_log 2>&1 || failed=1
+        else
+            firewall-cmd --permanent --add-port=4011/udp >>$error_log 2>&1 || failed=1
+        fi
+    fi
     # See _firewallPortList: 443 listens on every install.
     firewall-cmd --permanent --add-service=https >>$error_log 2>&1 || failed=1
     # No named service for these two.
@@ -8981,6 +9020,10 @@ writeUpdateFile() {
         # Without these keys an upgrade drops the pool and the DNS list, and
         # stops serving IPv6 clients.
         DHCP6_range_start DHCP6_range_end DHCP6_dns
+        # DHCP_proxy is "yes" or empty. It is valid only with DHCP_engine=dnsmasq:
+        # FOG then answers PXE clients (proxyDHCP) and hands out no addresses.
+        # Persisted so an upgrade keeps proxy mode (--no-dhcp-proxy turns it off).
+        DHCP_proxy
 
         # --- DB_: the database connection and its dump path
         #
@@ -18358,9 +18401,199 @@ $(_keaBootFileFallbackComment)"
         echo " | next-server is already set to this FOG server (${NET_fog_server_ip})."
     fi
 }
+# Write the unit that runs FOG's own dnsmasq instance, fog-dnsmasq.
+# It is a systemd unit, or an OpenRC script on Alpine.
+# The binary path is read at write time. It differs per distro.
+_writeDnsmasqService() {
+    local bin unit="$dnsmasqunit" initscript="$dnsmasqinit"
+    bin=$(command -v dnsmasq 2>/dev/null)
+    [[ -n $bin ]] || bin=/usr/sbin/dnsmasq
+    if [[ $systemctl == yes ]]; then
+        {
+            echo "[Unit]"
+            echo "Description=dnsmasq (FOG DHCP server)"
+            echo "After=network-online.target"
+            echo "Wants=network-online.target"
+            echo
+            echo "[Service]"
+            echo "Type=simple"
+            echo "ExecStartPre=${bin} --test --conf-file=${dnsmasqconfig}"
+            echo "# -k keeps dnsmasq in the foreground so systemd tracks the real process."
+            echo "# --conf-file makes dnsmasq ignore /etc/dnsmasq.conf."
+            echo "# This instance never reads the distro's own dnsmasq configuration."
+            echo "ExecStart=${bin} -k --conf-file=${dnsmasqconfig}"
+            echo "Restart=on-failure"
+            echo "RestartSec=2"
+            echo
+            echo "[Install]"
+            echo "WantedBy=multi-user.target"
+        } > "$unit" 2>>$error_log
+        [[ -s $unit ]] || return 1
+        systemctl daemon-reload >>$error_log 2>&1
+    elif [[ ${FOG_os_id} == 3 ]]; then
+        {
+            echo "#!/sbin/openrc-run"
+            echo "# FOG's own dnsmasq instance. Generated by FOG."
+            echo "name=fog-dnsmasq"
+            echo "command=${bin}"
+            echo "command_args=\"-k --conf-file=${dnsmasqconfig}\""
+            echo "command_background=true"
+            echo "pidfile=/run/fog-dnsmasq.pid"
+            echo "depend() {"
+            echo "        need net"
+            echo "}"
+            echo "start_pre() {"
+            echo "        ${bin} --test --conf-file=${dnsmasqconfig}"
+            echo "}"
+        } > "$initscript" 2>>$error_log
+        [[ -s $initscript ]] || return 1
+        chmod 0755 "$initscript" >>$error_log 2>&1
+    else
+        echo " * fog-dnsmasq needs systemd or OpenRC" >>$error_log 2>&1
+        return 1
+    fi
+    return 0
+}
+# dnsmasq as the DHCP engine (--dhcp-engine dnsmasq).
+# FOG runs its own dnsmasq instance, fog-dnsmasq, from $dnsmasqconfig.
+# It never uses the distro's dnsmasq service or /etc/dnsmasq.conf.
+# That dnsmasq is often the admin's own DNS, and port=0 would turn it off.
+# The unit passes --conf-file, so FOG reads and edits no dnsmasq conf-dir.
+# bind-interfaces lets this instance share the machine with the distro one.
+# FOG's own TFTP server stays the TFTP server.
+# The TFTP server in dnsmasq is never enabled.
+# DNS is off (port=0). Phase 1 serves DHCPv4 only.
+# --dhcp6-range works unchanged. Kea still serves DHCPv6 (configureDHCP6).
+# dnsmasq gets no IPv6 range.
+#
+# DHCP_proxy=yes is proxyDHCP.
+# The network's own DHCP server keeps handing out addresses.
+# This instance only answers PXE clients with the boot file.
+#
+# The boot file mapping mirrors _keaBaseClasses() and the ISC class blocks.
+# Keep all three in sync.
+# configureDHCP creates the lease directory and sets its SELinux label first.
+configureDnsmasqDHCP() {
+    local target="$dnsmasqconfig"
+    local network=$(mask2network ${NET_fog_server_ip} ${NET_subnet_mask})
+    local bios=$(_biosBootFile) uefi32=$(_uefiBootFile i386)
+    local x64=$(_uefiBootFile x64) arm64=$(_uefiBootFile arm64)
+    local ip="${NET_fog_server_ip}"
+    [[ -d $(dirname "$target") ]] || mkdir -p "$(dirname "$target")" >>$error_log 2>&1
+    [[ -f $target ]] && mv -fv "$target" "${target}.${timestamp}" >>$error_log 2>&1
+    {
+        echo "# Generated by FOG. Every install and upgrade regenerates this file."
+        echo "# An edit here does not survive the next one."
+        echo "# DNS is off: this dnsmasq serves DHCP only."
+        echo "# TFTP is FOG's own server."
+        echo "port=0"
+        echo "interface=${NET_interface}"
+        echo "bind-interfaces"
+        echo "log-dhcp"
+        echo "# This instance has its own lease database, apart from the distro dnsmasq's."
+        echo "dhcp-leasefile=${dnsmasqleasedir}/dnsmasq.leases"
+        echo "# Its own PID file. The default is the distro dnsmasq's /run/dnsmasq.pid."
+        echo "pid-file=/run/fog-dnsmasq.pid"
+        echo "# Client architecture (option 93) selects the boot file."
+        echo "# The Surface Pro 4 reports arch 7 like any 64-bit UEFI client."
+        echo "# It gets the same file, so it needs no rule of its own."
+        echo "# There is no Apple BSDP."
+        echo "dhcp-match=set:fog-bios,option:client-arch,0"
+        echo "dhcp-match=set:fog-uefi32,option:client-arch,2"
+        echo "dhcp-match=set:fog-uefi32,option:client-arch,6"
+        echo "dhcp-match=set:fog-x64,option:client-arch,7"
+        echo "dhcp-match=set:fog-x64,option:client-arch,8"
+        echo "dhcp-match=set:fog-x64,option:client-arch,9"
+        echo "dhcp-match=set:fog-arm64,option:client-arch,11"
+        if [[ ${DHCP_proxy} == yes ]]; then
+            # The network's DHCP server owns addresses, routers and DNS.
+            # None of those options are set here.
+            echo "# Do not reuse the server name and file name fields as option space."
+            echo "# Some old PXE ROMs misread them."
+            echo "dhcp-no-override"
+            echo "dhcp-range=${network},proxy,${NET_subnet_mask}"
+            echo "# In proxy mode the pxe-service lines decide the file for UEFI clients."
+            echo "# Keep them in agreement with the dhcp-boot lines."
+            echo "# The trailing server IP is required."
+            echo "# Without it dnsmasq names itself the boot server, and its TFTP is off."
+            echo "# The arch is a number, not a name."
+            echo "# dnsmasq's names for 7 and 9 are the reverse of RFC 4578."
+            echo "# The PXE menu waits one second, then boots the first entry."
+            echo "# That boots a client without a keypress."
+            echo "pxe-prompt=\"Booting to FOG\", 1"
+            echo "pxe-service=0,\"Boot to FOG\",${bios},${ip}"
+            echo "pxe-service=2,\"Boot to FOG UEFI 32\",${uefi32},${ip}"
+            echo "pxe-service=6,\"Boot to FOG UEFI 32\",${uefi32},${ip}"
+            echo "pxe-service=7,\"Boot to FOG UEFI\",${x64},${ip}"
+            echo "pxe-service=8,\"Boot to FOG UEFI\",${x64},${ip}"
+            echo "pxe-service=9,\"Boot to FOG UEFI\",${x64},${ip}"
+            echo "pxe-service=11,\"Boot to FOG ARM64\",${arm64},${ip}"
+        else
+            echo "dhcp-range=${DHCP_range_start},${DHCP_range_end},${NET_subnet_mask},6h"
+            [[ $(validip ${DHCP_router}) -eq 0 ]] && echo "dhcp-option=option:router,${DHCP_router}"
+            [[ $(validip ${DHCP_dns_server_ip}) -eq 0 ]] && echo "dhcp-option=option:dns-server,${DHCP_dns_server_ip}"
+        fi
+        echo "dhcp-boot=tag:fog-bios,${bios},,${ip}"
+        echo "dhcp-boot=tag:fog-uefi32,${uefi32},,${ip}"
+        echo "dhcp-boot=tag:fog-x64,${x64},,${ip}"
+        echo "dhcp-boot=tag:fog-arm64,${arm64},,${ip}"
+    } > "$target" 2>>$error_log
+    chmod 0644 "$target" >>$error_log 2>&1
+    if [[ ! -s $target ]]; then
+        echo "Failed"
+        echo "dnsmasq configuration could not be written to $target (verify $(dirname "$target") is a writable directory); see $error_log"
+        return 1
+    fi
+    if command -v dnsmasq >/dev/null 2>&1; then
+        if ! dnsmasq --test --conf-file="$target" >>$error_log 2>&1; then
+            echo "Failed"
+            echo "dnsmasq configuration failed validation (dnsmasq --test); see $error_log"
+            return 1
+        fi
+    else
+        echo " * Warning: dnsmasq not found; wrote config without validation" >>$error_log 2>&1
+    fi
+    if ! _writeDnsmasqService; then
+        echo "Failed"
+        echo "The fog-dnsmasq service could not be written (needs systemd or OpenRC); see $error_log"
+        return 1
+    fi
+    diffconfig "$target"
+    return 0
+}
+# Stop and disable a DHCP service that FOG owns, on systemd or on OpenRC.
+# Nothing happens on a host with neither.
+_stopDhcpService() {
+    local svc="$1"
+    [[ -n $svc ]] || return 0
+    if [[ $systemctl == yes ]]; then
+        systemctl is-active --quiet $svc && systemctl stop $svc >>$error_log 2>&1
+        # GH-1945: stderr dropped on the query only. With Kea chosen the
+        # ISC unit is usually not installed, and is-enabled prints
+        # "Failed to get unit file state" for a missing unit even with
+        # --quiet. The exit status is all this line reads.
+        systemctl is-enabled --quiet $svc 2>/dev/null && systemctl disable $svc >>$error_log 2>&1
+    elif [[ ${FOG_os_id} == 3 ]]; then
+        rc-service $svc stop >>$error_log 2>&1
+        rc-update del $svc default >>$error_log 2>&1
+    fi
+    return 0
+}
 configureDHCP() {
+    if [[ ${DHCP_enabled} == yes && ${DHCP_engine} == dnsmasq ]]; then
+        # The lease directory needs its SELinux label before dnsmasq runs.
+        # setSELinuxContext prints its own line, so it runs before dots.
+        [[ -d $dnsmasqleasedir ]] || mkdir -p "$dnsmasqleasedir" >>$error_log 2>&1
+        setSELinuxContext "$dnsmasqleasedir" dnsmasq_lease_t
+    fi
     if [[ ${DHCP_enabled} == yes && ${DHCP_engine} == kea ]]; then
         dots "Setting up and starting DHCP Server (Kea)"
+    elif [[ ${DHCP_enabled} == yes && ${DHCP_engine} == dnsmasq ]]; then
+        if [[ ${DHCP_proxy} == yes ]]; then
+            dots "Setting up and starting DHCP Server (dnsmasq proxyDHCP)"
+        else
+            dots "Setting up and starting DHCP Server (dnsmasq)"
+        fi
     else
         case $linuxReleaseName_lower in
             *debian*)
@@ -18384,21 +18617,31 @@ configureDHCP() {
             # ahead of it put the pool in the link-local range.
             [[ -z ${NET_subnet_mask} ]] && NET_subnet_mask=$(cidr2mask $(getCidr ${NET_interface} ${NET_fog_server_ip}))
             network=$(mask2network ${NET_fog_server_ip} ${NET_subnet_mask})
-            [[ -z ${DHCP_range_start} ]] && DHCP_range_start=$(addToAddress $network 10)
-            # GH-667: same guard as writeKeaSample -- never let a helper's
-            # failure become the value that lands in dhcpd.conf.
-            if [[ -z ${DHCP_range_end} ]]; then
-                broadcast=$(interface2broadcast ${NET_interface} ${NET_fog_server_ip})
-                [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network ${NET_subnet_mask})
-                DHCP_range_end=$(subtract1fromAddress $broadcast)
-                [[ $(validip ${DHCP_range_end}) -ne 0 ]] && DHCP_range_end=$(subtract1fromAddress $(mask2broadcast $network ${NET_subnet_mask}))
+            # proxyDHCP has no pool, router or DNS. Computing them here would
+            # also save them, and they would read as real settings later.
+            if [[ ${DHCP_proxy} != yes ]]; then
+                [[ -z ${DHCP_range_start} ]] && DHCP_range_start=$(addToAddress $network 10)
+                # GH-667: same guard as writeKeaSample -- never let a helper's
+                # failure become the value that lands in dhcpd.conf.
+                if [[ -z ${DHCP_range_end} ]]; then
+                    broadcast=$(interface2broadcast ${NET_interface} ${NET_fog_server_ip})
+                    [[ $(validip $broadcast) -ne 0 ]] && broadcast=$(mask2broadcast $network ${NET_subnet_mask})
+                    DHCP_range_end=$(subtract1fromAddress $broadcast)
+                    [[ $(validip ${DHCP_range_end}) -ne 0 ]] && DHCP_range_end=$(subtract1fromAddress $(mask2broadcast $network ${NET_subnet_mask}))
+                fi
+                [[ ! $(validip ${DHCP_router}) -eq 0 ]] && DHCP_router=$(echo ${DHCP_router} | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
+                [[ ! $(validip ${DHCP_dns_server_ip}) -eq 0 ]] && DHCP_dns_server_ip=$(echo ${DHCP_dns_server_ip} | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
             fi
-            [[ ! $(validip ${DHCP_router}) -eq 0 ]] && DHCP_router=$(echo ${DHCP_router} | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
-            [[ ! $(validip ${DHCP_dns_server_ip}) -eq 0 ]] && DHCP_dns_server_ip=$(echo ${DHCP_dns_server_ip} | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
             if [[ ${DHCP_engine} == kea ]]; then
                 if ! configureKeaDHCP; then
                     # Honor -X/--exitFail: a Kea config failure must not abort
                     # the whole installer, or later steps (TFTP/PXE) never run.
+                    [[ -z $exitFail ]] && exit 1
+                    return
+                fi
+            elif [[ ${DHCP_engine} == dnsmasq ]]; then
+                if ! configureDnsmasqDHCP; then
+                    # Honor -X/--exitFail, same as the Kea branch.
                     [[ -z $exitFail ]] && exit 1
                     return
                 fi
@@ -18555,16 +18798,20 @@ configureDHCP() {
             fi
             # When FOG owns DHCP, make sure the other engine is not also bound to
             # port 67 (covers an admin switching engines on an existing box).
+            # Both other engines are stopped when switching. The dnsmasq in the
+            # list is fog-dnsmasq, which FOG owns outright. The distro's own
+            # dnsmasq service is never in any path: it is the admin's.
             otherdhcp=""
-            [[ ${DHCP_engine} == kea ]] && otherdhcp="$iscservice" || otherdhcp="$keaservice"
-            if [[ -n $otherdhcp && $systemctl == yes ]]; then
-                systemctl is-active --quiet $otherdhcp && systemctl stop $otherdhcp >>$error_log 2>&1
-                # GH-1945: stderr dropped on the query only. With Kea chosen the
-                # ISC unit is usually not installed, and is-enabled prints
-                # "Failed to get unit file state" for a missing unit even with
-                # --quiet. The exit status is all this line reads.
-                systemctl is-enabled --quiet $otherdhcp 2>/dev/null && systemctl disable $otherdhcp >>$error_log 2>&1
-            fi
+            case ${DHCP_engine} in
+                kea) otherdhcp="$iscservice $dnsmasqservice" ;;
+                dnsmasq) otherdhcp="$iscservice $keaservice" ;;
+                *) otherdhcp="$keaservice $dnsmasqservice" ;;
+            esac
+            for otherdhcpsvc in $otherdhcp; do
+                # Alpine has no ISC package, so FOG never owns $iscservice there.
+                [[ ${FOG_os_id} == 3 && $otherdhcpsvc == "$iscservice" ]] && continue
+                _stopDhcpService "$otherdhcpsvc"
+            done
             case $systemctl in
                 yes)
                     systemctl is-enabled --quiet ${DHCP_service_name} && true || systemctl enable ${DHCP_service_name} >>$error_log 2>&1
@@ -18603,6 +18850,11 @@ configureDHCP() {
             errorStat $?
             ;;
         *)
+            # DHCP turned off on a dnsmasq install (--no-dhcp-proxy, for one).
+            # fog-dnsmasq is FOG's own, so it must not keep answering clients.
+            if [[ ${DHCP_engine} == dnsmasq ]]; then
+                _stopDhcpService "$dnsmasqservice"
+            fi
             echo "Skipped"
             writeKeaSample
             ;;
