@@ -40,6 +40,10 @@ namespace FOG;
 // no globals, no database -- so the real file loads where everything else
 // here is a stub. The stubbed FOGBase is untouched by it.
 require_once dirname(__DIR__, 2) . '/packages/web/src/Base/SmbiosIdentity.php';
+// service/hostinfo.php's merge block calls it (#2193). Its forTask() and
+// normalize() are pure too; only recordChange() needs the runtime, and the
+// merge block never calls it.
+require_once dirname(__DIR__, 2) . '/packages/web/src/Util/DebugSshKeys.php';
 
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
@@ -203,6 +207,19 @@ class StubTask extends StubModel
         return (bool)$this->get('capture');
     }
     /**
+     * Whether the task is a debug task: a scenario switch, as isCapture() is.
+     *
+     * Which tasks count is the real model's rule, and
+     * tests/debug-ssh-keys.test.php checks it on the real classes. A
+     * scenario here only says yes or no (#2193).
+     *
+     * @return bool
+     */
+    public function isDebug()
+    {
+        return (bool)$this->get('debug');
+    }
+    /**
      * Returns the task's type.
      *
      * @return TaskType
@@ -305,6 +322,16 @@ class TaskType extends StubModel
     public function isCapture()
     {
         return (bool)$this->get('capture');
+    }
+    /**
+     * Whether the type is a debug type: a scenario switch, as
+     * StubTask::isDebug() is (#2193).
+     *
+     * @return bool
+     */
+    public function isDebug()
+    {
+        return (bool)$this->get('debug');
     }
 }
 

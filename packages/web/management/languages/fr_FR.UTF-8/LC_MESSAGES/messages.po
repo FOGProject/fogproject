@@ -284,6 +284,10 @@ msgid "%s is set by the server; the imported value was ignored"
 msgstr "%s est défini par le serveur ; la valeur importée a été ignorée"
 
 #, php-format
+msgid "%s line %d is not an OpenSSH public key"
+msgstr ""
+
+#, php-format
 msgid "%s needs more than one host"
 msgstr "%s nécessite plus d'un hôte"
 

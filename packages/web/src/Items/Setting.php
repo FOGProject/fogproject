@@ -14,6 +14,7 @@
 namespace FOG\Items;
 
 use FOG\Base\FOGController;
+use FOG\Util\DebugSshKeys;
 
 /**
  * The global settings class.
@@ -52,6 +53,38 @@ class Setting extends FOGController
     protected $databaseFieldsRequired = [
         'name'
     ];
+    /**
+     * Saves the setting. FOG_DEBUG_SSH_KEYS is validated and audited first.
+     *
+     * The REST create and edit routes save through here. The FOG Settings
+     * page writes with insertBatch() and does the same two steps itself.
+     * The setting gives root SSH on every machine in a debug task (#2193).
+     *
+     * @throws \InvalidArgumentException code 400 when the keys do not parse
+     *
+     * @return bool|object false, or $this as parent::save() returns it
+     */
+    public function save()
+    {
+        if (DebugSshKeys::SETTING !== trim((string)$this->get('name'))) {
+            return parent::save();
+        }
+        $this->set('value', DebugSshKeys::normalize((string)$this->get('value')));
+        $id = (int)$this->get('id');
+        // The value before, read from the table: this object already holds
+        // the new one.
+        $old = $id > 0 ? (string)(new self($id))->get('value') : '';
+        $saved = parent::save();
+        if (!$saved) {
+            return false;
+        }
+        DebugSshKeys::recordChange(
+            DebugSshKeys::normalizeStored($old),
+            (string)$this->get('value'),
+            $id > 0 ? 'settings.edit' : 'settings.create'
+        );
+        return $saved;
+    }
     /**
      * Builds the exit type selectors for us.
      *
