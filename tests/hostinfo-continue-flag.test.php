@@ -7,8 +7,9 @@
  * FOS asks hostinfo.php after a host registers with "deploy now". If the
  * boot that FOS is already in equals the boot the task would have had, FOS
  * starts the deploy at once. Any override of the kernel, the init, or the
- * kernel arguments, or any plugin listening on BOOT_ITEM_NEW_SETTINGS, makes
- * the task boot differently, so samebootok must then be 0 and FOS reboots.
+ * kernel arguments makes the task boot differently, so samebootok must then
+ * be 0 and FOS reboots. A plugin on BOOT_ITEM_NEW_SETTINGS makes it 0 only
+ * when a dry run of the hook changes what FOS boots with.
  *
  * The script runs top to bottom with no function to call, so this test runs
  * the script's own blocks, cut out by their anchors, against stubs.
@@ -68,6 +69,19 @@ class StubItem
         return $this->fields[$key] ?? '';
     }
     /**
+     * Writes a field, as a plugin hook may.
+     *
+     * @param string $key   the field
+     * @param mixed  $value the value
+     *
+     * @return $this
+     */
+    public function set($key, $value)
+    {
+        $this->fields[$key] = $value;
+        return $this;
+    }
+    /**
      * Whether the item is valid.
      *
      * @return bool
@@ -117,16 +131,16 @@ class StubGroup
 }
 
 /**
- * Stand-in for HookManager: a listener count per event.
+ * Stand-in for HookManager: listeners per event, called like the real one.
  */
 class StubHooks
 {
     /**
-     * Listener counts by event.
+     * Listeners (callables) by event.
      *
      * @var array
      */
-    public $counts = [];
+    public $listeners = [];
     /**
      * How many listeners an event has.
      *
@@ -136,7 +150,21 @@ class StubHooks
      */
     public function listenerCount($event)
     {
-        return $this->counts[$event] ?? 0;
+        return count($this->listeners[$event] ?? []);
+    }
+    /**
+     * Calls each listener with the arguments, as HookManager does.
+     *
+     * @param string $event     the event
+     * @param array  $arguments the arguments, by reference inside
+     *
+     * @return void
+     */
+    public function processEvent($event, $arguments = [])
+    {
+        foreach ($this->listeners[$event] ?? [] as $listener) {
+            $listener($arguments);
+        }
     }
 }
 
@@ -214,6 +242,18 @@ class FOGCore
     }
 }
 
+// The settings the dry run reads, with the installer's default names.
+const BOOT_SETTINGS = [
+    'FOG_TFTP_PXE_KERNEL' => 'bzImage',
+    'FOG_PXE_BOOT_IMAGE' => 'init.xz',
+    'FOG_KERNEL_LOGLEVEL' => '4',
+    'FOG_KERNEL_RAMDISK_SIZE' => '275000',
+    'FOG_KEYMAP' => '',
+    'FOG_MEMTEST_KERNEL' => 'memtest.bin',
+    'FOG_WEB_HOST' => '10.0.0.1',
+    'FOG_WEB_ROOT' => '/fog/',
+];
+
 $t = new \FogChecks();
 
 $source = (string)file_get_contents(
@@ -266,54 +306,144 @@ $t->check('the new reply fields are found by their anchors', '' !== $fieldBlock)
  * @param string $block    the block's source
  * @param array  $host     host fields
  * @param array  $taskType task type fields
- * @param int    $listeners BOOT_ITEM_NEW_SETTINGS listener count
+ * @param array  $listeners BOOT_ITEM_NEW_SETTINGS listeners
  *
  * @return string '1' or '0'
  */
-function sameBoot($block, array $host, array $taskType, $listeners)
+function sameBoot($block, array $host, array $taskType, array $listeners)
 {
-    FOGCore::$Host = new StubItem($host);
+    // The task hostinfo.php loaded before the samebootok block.
+    $Task = new StubItem(['isDebug' => 0]);
+    FOGCore::$Host = new StubItem($host + ['task' => $Task]);
+    FOGCore::$settings = BOOT_SETTINGS;
     $TaskType = new StubItem($taskType);
     $HookManager = new StubHooks();
-    $HookManager->counts['BOOT_ITEM_NEW_SETTINGS'] = $listeners;
+    $HookManager->listeners['BOOT_ITEM_NEW_SETTINGS'] = $listeners;
     // The block assigns $sameBoot; the eval hands it back.
-    return eval(
+    $result = eval(
         "namespace HostinfoContinueTest;\n" . $block
         . "\nreturn \$sameBoot ? '1' : '0';"
     );
+    // The task the reply reads after the block.
+    $GLOBALS['replyTask'] = $Task;
+    return $result;
 }
 
 $t->check(
     'no override and no listener: samebootok is 1',
-    '1' === sameBoot($sameBlock, [], [], 0)
+    '1' === sameBoot($sameBlock, [], [], [])
 );
 $t->check(
     'a host kernel makes samebootok 0',
-    '0' === sameBoot($sameBlock, ['kernel' => 'bzImage-old'], [], 0)
+    '0' === sameBoot($sameBlock, ['kernel' => 'bzImage-old'], [], [])
 );
 $t->check(
     'a host init makes samebootok 0',
-    '0' === sameBoot($sameBlock, ['init' => 'init.xz'], [], 0)
+    '0' === sameBoot($sameBlock, ['init' => 'init.xz'], [], [])
 );
 $t->check(
     'host kernel arguments make samebootok 0',
-    '0' === sameBoot($sameBlock, ['kernelArgs' => 'nomodeset'], [], 0)
+    '0' === sameBoot($sameBlock, ['kernelArgs' => 'nomodeset'], [], [])
 );
 $t->check(
     'a task type kernel makes samebootok 0',
-    '0' === sameBoot($sameBlock, [], ['kernel' => 'bzImage-tt'], 0)
+    '0' === sameBoot($sameBlock, [], ['kernel' => 'bzImage-tt'], [])
 );
 $t->check(
     'a task type initrd makes samebootok 0',
-    '0' === sameBoot($sameBlock, [], ['initrd' => 'init-tt.xz'], 0)
+    '0' === sameBoot($sameBlock, [], ['initrd' => 'init-tt.xz'], [])
+);
+// Each listener writes one key, the way a plugin hook does.
+$setter = function ($key, $value) {
+    return function ($arguments) use ($key, $value) {
+        $arguments[$key] = $value;
+    };
+};
+// The writes of LocationChangeItems::bootItemSettings() with the TFTP option
+// on (fog-plugins location/src/Hooks/LocationChangeItems.php): the same file
+// names, served from the location's node.
+$location = function ($arguments) {
+    $ip = '10.9.0.5';
+    $arguments['webserver'] = $ip;
+    $arguments['memdisk'] = "http://{$ip}/fog/service/ipxe/{$arguments['memdisk']}";
+    $arguments['memtest'] = "http://{$ip}/fog/service/ipxe/{$arguments['memtest']}";
+    $arguments['bzImage'] = "http://{$ip}/fog/service/ipxe/{$arguments['bzImage']}";
+    $arguments['imagefile'] = "http://{$ip}/fog/service/ipxe/{$arguments['initrd']}";
+};
+$t->check(
+    'a listener that changes nothing leaves samebootok 1',
+    '1' === sameBoot($sameBlock, [], [], [function ($arguments) {
+    }])
 );
 $t->check(
-    'a BOOT_ITEM_NEW_SETTINGS listener makes samebootok 0',
-    '0' === sameBoot($sameBlock, [], [], 1)
+    'Location serving the same kernel and init from its node leaves samebootok 1',
+    '1' === sameBoot($sameBlock, [], [], [$location])
+);
+$t->check(
+    'a listener that picks another kernel makes samebootok 0',
+    '0' === sameBoot($sameBlock, [], [], [$setter('bzImage', 'bzImage-site')])
+);
+$t->check(
+    'a listener that picks another init by imagefile makes samebootok 0',
+    '0' === sameBoot($sameBlock, [], [], [$setter('imagefile', 'init-site.xz')])
+);
+$t->check(
+    'a listener that picks another init by initrd makes samebootok 0',
+    '0' === sameBoot($sameBlock, [], [], [$setter('initrd', 'init-site.xz')])
+);
+$t->check(
+    'a listener that changes loglevel makes samebootok 0',
+    '0' === sameBoot($sameBlock, [], [], [$setter('loglevel', '7')])
+);
+$t->check(
+    'a listener that changes the ramdisk size makes samebootok 0',
+    '0' === sameBoot($sameBlock, [], [], [$setter('ramsize', '500000')])
+);
+$t->check(
+    'a listener that changes the keymap makes samebootok 0',
+    '0' === sameBoot($sameBlock, [], [], [$setter('keymap', 'de')])
+);
+$t->check(
+    'Location plus a listener that changes the kernel makes samebootok 0',
+    '0' === sameBoot($sameBlock, [], [], [$location, $setter('bzImage', 'bzImage-site')])
+);
+$t->check(
+    'a host override still makes samebootok 0 with a no-change listener',
+    '0' === sameBoot($sameBlock, ['kernel' => 'bzImage-old'], [], [$location])
+);
+$t->check(
+    'a listener cannot replace the host the reply is built from',
+    '1' === sameBoot(
+        $sameBlock,
+        ['name' => 'real'],
+        [],
+        [$setter('Host', new StubItem(['name' => 'fake']))]
+    )
+    && 'real' === FOGCore::$Host->get('name')
+);
+$t->check(
+    'a listener cannot change a field of the host the reply is built from',
+    '1' === sameBoot($sameBlock, ['name' => 'real'], [], [function ($arguments) {
+        $arguments['Host']->set('name', 'fake');
+    }])
+    && 'real' === FOGCore::$Host->get('name')
+);
+$t->check(
+    'a listener cannot change the task the reply reads',
+    '1' === sameBoot($sameBlock, [], [], [function ($arguments) {
+        $arguments['Host']->get('task')->set('isDebug', 1);
+    }])
+    && 0 === $GLOBALS['replyTask']->get('isDebug')
+);
+$t->check(
+    'a listener that gives the host kernel arguments makes samebootok 0',
+    '0' === sameBoot($sameBlock, [], [], [function ($arguments) {
+        $arguments['Host']->set('kernelArgs', 'nomodeset');
+    }])
 );
 $t->check(
     'white space only in an override does not count as an override',
-    '1' === sameBoot($sameBlock, ['kernelArgs' => "  \n"], [], 0)
+    '1' === sameBoot($sameBlock, ['kernelArgs' => "  \n"], [], [])
 );
 
 /**
