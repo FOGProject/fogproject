@@ -222,8 +222,93 @@ try {
             $sameBoot = false;
         }
     }
-    if ($HookManager->listenerCount('BOOT_ITEM_NEW_SETTINGS') > 0) {
-        $sameBoot = false;
+    /*
+     * A plugin on BOOT_ITEM_NEW_SETTINGS can change how a registered host
+     * boots. This used to set samebootok=0 whenever any plugin listened, so
+     * the Location plugin alone sent every host back through a reboot.
+     *
+     * The FOS asking here booted as an unregistered host, and the boot menu
+     * runs the hook only for a registered one (IpxeBootMenu), so this boot
+     * had the defaults. Dry-run the hook on those defaults and compare only
+     * what FOS gets from it: the kernel and init file names, and the
+     * loglevel, ramdisk size and keymap arguments.
+     *
+     * The same file name from another server is the same boot: the kernel
+     * and init are already loaded, and that is all Location's TFTP option
+     * changes. 'webserver' is not compared either: it is iPXE's boot-url, and
+     * IpxeBootMenu builds FOS's web= before the hook runs.
+     *
+     * The hook gets a clone of the host, so no plugin can change the host
+     * this reply is built from. A plugin that saves the host still writes
+     * the row: SubnetGroup sets group membership here, as the PXE boot that
+     * this replaces would have done.
+     *
+     * The defaults are the x86_64 settings. A plugin sees the same value
+     * before and after, so the arch matters only to a plugin that chooses by
+     * the input file name, and none does.
+     */
+    if ($sameBoot && $HookManager->listenerCount('BOOT_ITEM_NEW_SETTINGS') > 0) {
+        list($kernel, $init, $loglevel, $ramsize, $keymap, $memtest, $webserver, $webroot)
+            = FOGCore::getSetting([
+                'FOG_TFTP_PXE_KERNEL',
+                'FOG_PXE_BOOT_IMAGE',
+                'FOG_KERNEL_LOGLEVEL',
+                'FOG_KERNEL_RAMDISK_SIZE',
+                'FOG_KEYMAP',
+                'FOG_MEMTEST_KERNEL',
+                'FOG_WEB_HOST',
+                'FOG_WEB_ROOT',
+            ]);
+        // The keys IpxeBootMenu passes. memtest through keySequence are not
+        // compared: they are here because a plugin reads and rewrites them.
+        $before = [
+            'bzImage' => $kernel,
+            'imagefile' => $init,
+            'initrd' => $init,
+            'loglevel' => $loglevel,
+            'ramsize' => $ramsize,
+            'keymap' => $keymap,
+            'memtest' => $memtest,
+            'memdisk' => 'memdisk',
+            'webserver' => $webserver,
+            'webroot' => trim((string)$webroot, '/'),
+            'timeout' => 0,
+            'keySequence' => '',
+        ];
+        $after = $before;
+        // clone is shallow: the loaded task would stay shared, and the reply
+        // reads isDebug and bypassbitlocker from it after the hook.
+        $dryHost = clone FOGCore::$Host;
+        $dryHost->set('task', clone $Task);
+        // The boot menu passes the master node and its group. They are not
+        // compared, and a hook that needs them for a choice reads its own.
+        $dryGroup = $dryNode = null;
+        $dryArgs = [
+            'Host' => &$dryHost,
+            'StorageGroup' => &$dryGroup,
+            'StorageNode' => &$dryNode,
+        ];
+        foreach (array_keys($after) as $key) {
+            $dryArgs[$key] = &$after[$key];
+        }
+        $HookManager->processEvent('BOOT_ITEM_NEW_SETTINGS', $dryArgs);
+        unset($dryArgs);
+        // IpxeBootMenu boots 'initrd' when a plugin changed it, else 'imagefile'.
+        $afterInit = $after['initrd'] !== $before['initrd']
+            ? $after['initrd']
+            : $after['imagefile'];
+        if (basename((string)$after['bzImage']) !== basename((string)$before['bzImage'])
+            || basename((string)$afterInit) !== basename((string)$before['imagefile'])
+            // The boot menu reads the host's kernel arguments after the hook.
+            || '' !== trim((string)$dryHost->get('kernelArgs'))
+        ) {
+            $sameBoot = false;
+        }
+        foreach (['loglevel', 'ramsize', 'keymap'] as $key) {
+            if ((string)$after[$key] !== (string)$before[$key]) {
+                $sameBoot = false;
+            }
+        }
     }
     $fdrive = FOGCore::$Host
         ->get('kernelDevice');
