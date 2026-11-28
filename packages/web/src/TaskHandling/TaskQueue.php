@@ -734,14 +734,16 @@ class TaskQueue extends TaskingElement
                     ->set('sec_vouched', 0)
                     // On completetion reset token and lock
                     ->set('token', self::createSecToken())
-                    ->set('tokenlock', false);
+                    ->set('tokenlock', false)
+                    ->set('tokenlocktime', 0);
                 $updateFields = [
                     'pub_key' => self::$Host->get('pub_key'),
                     'sec_tok' => self::$Host->get('sec_tok'),
                     'prev_sec_tok' => self::$Host->get('prev_sec_tok'),
                     'sec_vouched' => self::$Host->get('sec_vouched'),
                     'token' => self::$Host->get('token'),
-                    'tokenlock' => self::$Host->get('tokenlock')
+                    'tokenlock' => self::$Host->get('tokenlock'),
+                    'tokenlocktime' => self::$Host->get('tokenlocktime')
                 ];
             }
             if ($this->Task->isDeploy()) {

@@ -12,7 +12,6 @@
  */
 
 use FOG\Base\FOGCore;
-use FOG\Managers\HostManager;
 
 /**
  * Hostgetkey returns the host token for hostinfo getting
@@ -64,31 +63,38 @@ try {
     if (!FOGCore::hostKeySourceAllowed(filter_input(INPUT_SERVER, 'REMOTE_ADDR'))) {
         throw new \Exception(_('Invalid Tasking'));
     }
-    if (FOGCore::$Host->get('token') && FOGCore::$Host->get('tokenlock')) {
+    /*
+     * A token is single use and short lived. Mint a new one every time and
+     * store only its sha256, so a database read yields nothing usable. A lock
+     * HOST_TOKEN_TTL seconds old or older is abandoned (the host died before
+     * it used the token) and is taken over.
+     *
+     * Raw SQL, not HostManager::update(): the manager cannot express the
+     * OR-with-< condition, and it cannot report affected rows. One request
+     * changes the row and gets the token. A second request at the same time
+     * changes nothing and is refused.
+     */
+    global $DB;
+    $newToken = FOGCore::createSecToken();
+    $now = time();
+    $DB->query(
+        'UPDATE `hosts` SET `hostInfoKey`=:hash,`hostInfoLock`=1,'
+        . '`hostInfoLockTime`=:now '
+        . 'WHERE `hostID`=:id AND (`hostInfoLock`=0 '
+        . 'OR `hostInfoLockTime`<=:expired)',
+        [],
+        [
+            ':hash' => hash('sha256', $newToken),
+            ':now' => $now,
+            ':id' => FOGCore::$Host->get('id'),
+            ':expired' => $now - FOGCore::HOST_TOKEN_TTL
+        ]
+    );
+    if ($DB->affectedRows() !== 1) {
         throw new \Exception(_('Host token is currently in use'));
     }
-    if (!FOGCore::$Host->get('token')) {
-        // Echo the token just minted. $Host was loaded before the update, so
-        // reading it back returned the old empty value and FOS got no token.
-        $newToken = FOGCore::createSecToken();
-        (new HostManager())->update(
-            ['id' => FOGCore::$Host->get('id')],
-            '',
-            [
-                'token' => $newToken,
-                'tokenlock' => true
-            ]
-        );
-        throw new \Exception($newToken);
-    }
-    if (FOGCore::$Host->isValid() && !FOGCore::$Host->get('tokenlock')) {
-        (new HostManager())->update(
-            ['id' => FOGCore::$Host->get('id')],
-            '',
-            ['tokenlock' => true]
-        );
-        throw new \Exception(FOGCore::$Host->get('token'));
-    }
+    // Echo the token just minted: only its hash is stored.
+    throw new \Exception($newToken);
 } catch (\Exception $e) {
     echo $e->getMessage();
     exit(1);

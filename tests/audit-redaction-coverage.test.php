@@ -353,6 +353,7 @@ $behavior = [
     ['image', 'sharedSecret', true],
     // Exempt: matches the pattern, is not a credential.
     ['host', 'tokenlock', false],
+    ['host', 'tokenlocktime', false],
     ['pxemenuoptions', 'hotkey', false],
     ['task', 'bypassbitlocker', false],
     // The exemption is per class, not per name.

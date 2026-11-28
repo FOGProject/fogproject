@@ -12653,3 +12653,15 @@ $this->schema[] = [
     . "('No Report','FOS sent no report within 24 hours.',"
     . "7,'question-circle')",
 ];
+// 474
+$this->schema[] = [
+    // The unix time status/hostgetkey.php issued the current host token. 0
+    // means no live token. A token is single use and expires 120 seconds
+    // after this time, so a host that dies mid-boot no longer holds the
+    // token lock forever. hostInfoKey now holds the sha256 of the token.
+    // An epoch int, not a datetime: the TTL compare is integer arithmetic in
+    // PHP, with time() as the one clock for the write and the compare.
+    "ALTER TABLE `hosts` "
+    . "ADD COLUMN `hostInfoLockTime` int(10) unsigned NOT NULL DEFAULT 0 "
+    . "AFTER `hostInfoLock`",
+];

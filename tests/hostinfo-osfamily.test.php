@@ -159,7 +159,7 @@ $fieldBlock = substr(
 );
 
 $printStart = strpos($source, "    foreach ((array)\$repFields as \$key => \$val) {");
-$printEnd = strpos($source, "    // Unset lock and update token");
+$printEnd = strpos($source, '} catch (\\Exception $e) {');
 $t->check(
     'the reply print loop is found by its anchors',
     false !== $printStart && false !== $printEnd && $printStart < $printEnd

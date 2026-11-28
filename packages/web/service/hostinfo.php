@@ -56,10 +56,50 @@ try {
     if (!FOGCore::$Host->get('tokenlock')) {
         throw new \Exception(_('Have not locked the host for access'));
     }
-    // A constant-time compare: a loose != also equates numeric strings.
-    if (!hash_equals((string)FOGCore::$Host->get('token'), (string)$hosttoken)) {
+    // A token is good for HOST_TOKEN_TTL seconds from the time it was issued.
+    if (time() - (int)FOGCore::$Host->get('tokenlocktime') >= FOGCore::HOST_TOKEN_TTL) {
         throw new \Exception(_('Invalid token passed for host'));
     }
+    // The stored value is the sha256 of the token. A constant-time compare:
+    // a loose != also equates numeric strings.
+    $tokenHash = hash('sha256', (string)$hosttoken);
+    if (!hash_equals((string)FOGCore::$Host->get('token'), $tokenHash)) {
+        throw new \Exception(_('Invalid token passed for host'));
+    }
+    /*
+     * Consume the token now, before the reply is built, so a reply that then
+     * throws still leaves no usable token. Raw SQL, not HostManager::update():
+     * the manager cannot report affected rows. Two requests with the same
+     * token cannot both change the row, so only one gets a reply.
+     */
+    global $DB;
+    $consumedToken = FOGCore::createSecToken();
+    $DB->query(
+        'UPDATE `hosts` SET `hostInfoKey`=:new,`hostInfoLock`=0,'
+        . '`hostInfoLockTime`=0 '
+        . 'WHERE `hostID`=:id AND `hostInfoKey`=:hash AND `hostInfoLock`=1',
+        [],
+        [
+            ':new' => $consumedToken,
+            ':id' => FOGCore::$Host->get('id'),
+            ':hash' => $tokenHash
+        ]
+    );
+    if ($DB->affectedRows() !== 1) {
+        throw new \Exception(_('Invalid token passed for host'));
+    }
+    // The raw UPDATE left the loaded host holding the used token and its
+    // lock. A listener that saves this object (HOST_INFO_EXPOSE, or the clone
+    // BOOT_ITEM_NEW_SETTINGS gets) would write them back and revive the
+    // token, so the object takes the consumed values before anything shares it.
+    FOGCore::$Host
+        ->set('token', $consumedToken)
+        ->set('tokenlock', false)
+        ->set('tokenlocktime', 0);
+    // $Task was loaded above with its own Host built from the old row. A hook
+    // reaches that copy through $Host->get('task')->getHost() and through a
+    // clone of the task, so the task takes this host object too.
+    $Task->set('host', FOGCore::$Host);
     $TaskType = $Task->getTaskType();
     $Image = $Task->getImage();
     if ($TaskType->isInitNeededTasking()) {
@@ -464,16 +504,6 @@ try {
             escapeshellarg($val)
         );
     }
-    // Unset lock and update token
-    $new_tok = FOGCore::createSecToken();
-    FOGCore::$Host->getManager()->update(
-        ['id' => FOGCore::$Host->get('id')],
-        '',
-        [
-            'token' => $new_tok,
-            'tokenlock' => false
-        ]
-    );
 } catch (\Exception $e) {
     echo Initiator::e($e->getMessage());
     exit(1);

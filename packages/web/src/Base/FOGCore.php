@@ -25,6 +25,14 @@ namespace FOG\Base;
 class FOGCore extends FOGBase
 {
     /**
+     * Seconds a host token stays usable after status/hostgetkey.php issues
+     * it. service/hostinfo.php refuses an older token, and hostgetkey.php
+     * issues a new one over a lock this old.
+     *
+     * @var int
+     */
+    const HOST_TOKEN_TTL = 120;
+    /**
      * Returns the systems uptime
      *
      * @return array

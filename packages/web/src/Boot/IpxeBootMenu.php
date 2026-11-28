@@ -487,6 +487,7 @@ class IpxeBootMenu extends BootMenuBase
             'hostLink',
             'token',
             'tokenlock',
+            'tokenlocktime',
             'ADUser',
             'ADPass',
             'ADOU',
